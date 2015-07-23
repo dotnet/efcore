@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Metadata
         public static Navigation FindNavigationTo([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
             => (Navigation)((IForeignKey)foreignKey).FindNavigationTo(entityType);
 
-        public static IEntityType GetOtherEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static IEntityType ResolveOtherEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(entityType, nameof(entityType));
@@ -163,7 +163,32 @@ namespace Microsoft.Data.Entity.Metadata
                 : foreignKey.DeclaringEntityType;
         }
 
-        public static EntityType GetOtherEntityType([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
-            => (EntityType)((IForeignKey)foreignKey).GetOtherEntityType(entityType);
+        public static EntityType ResolveOtherEntityType([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)foreignKey).ResolveOtherEntityType(entityType);
+
+        public static IEntityType ResolveEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
+            {
+                throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                    entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
+            }
+
+            if (foreignKey.IsIntraHierarchical())
+            {
+                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
+            }
+
+            return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                ? foreignKey.DeclaringEntityType
+                : foreignKey.PrincipalEntityType;
+        }
+
+        public static EntityType ResolveEntityType([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)foreignKey).ResolveEntityType(entityType);
     }
 }

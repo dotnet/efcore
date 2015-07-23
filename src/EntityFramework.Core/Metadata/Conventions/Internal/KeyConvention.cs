@@ -42,9 +42,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(properties, nameof(properties));
 
             foreach (var property in properties.Where(
-                property => !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
+                property => property.DeclaringEntityType.FindDeclaredProperty(property.Name) != null
+                            && !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
             {
-                entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                entityTypeBuilder.ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
+                    .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
                     ?.UseValueGenerator(true, ConfigurationSource.Convention);
             }
         }

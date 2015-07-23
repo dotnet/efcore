@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.Metadata
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [NotNull] Key principalKey,
+            [NotNull] EntityType dependentEntityType,
             [NotNull] EntityType principalEntityType)
         {
             Check.NotEmpty(dependentProperties, nameof(dependentProperties));
@@ -32,15 +33,16 @@ namespace Microsoft.Data.Entity.Metadata
 
             PrincipalKey = principalKey;
 
+            DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
 
-            Property.EnsureCompatible(principalKey.Properties, dependentProperties, PrincipalEntityType, DeclaringEntityType);
+            Property.EnsureCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType);
 
-            if (principalEntityType.GetKeys().Contains(principalKey) == false)
+            if (!principalEntityType.GetKeys().Contains(principalKey))
             {
                 throw new ArgumentException(
                     Strings.ForeignKeyReferencedEntityKeyMismatch(
-                        principalKey,
+                        Property.Format(principalKey.Properties),
                         principalEntityType));
             }
         }
@@ -104,7 +106,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<Property> Properties { get; }
 
-        public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
+        public virtual EntityType DeclaringEntityType { get; }
 
         public virtual Key PrincipalKey { get; }
 

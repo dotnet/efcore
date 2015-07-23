@@ -893,7 +893,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The entity type '{entityType}' cannot inherit '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.
+        /// The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.
         /// </summary>
         public static string CircularInheritance([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
         {
@@ -1074,6 +1074,38 @@ namespace Microsoft.Data.Entity.Internal
         public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("IntraHierarchicalAmbiguousTargetEntityType", "entityType", "foreignKey"), entityType, foreignKey);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a shadow state entity type while '{entityType}' is not.
+        /// </summary>
+        public static string NonClrBaseType([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NonClrBaseType", "entityType", "baseEntityType"), entityType, baseEntityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{entityType}' is a shadow state entity type while '{baseEntityType}' is not.
+        /// </summary>
+        public static string NonShadowBaseType([CanBeNull] object entityType, [CanBeNull] object baseEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NonShadowBaseType", "entityType", "baseEntityType"), entityType, baseEntityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendent of '{baseClrType}'.
+        /// </summary>
+        public static string NotAssignableClrBaseType([CanBeNull] object entityType, [CanBeNull] object baseEntityType, [CanBeNull] object clrType, [CanBeNull] object baseClrType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NotAssignableClrBaseType", "entityType", "baseEntityType", "clrType", "baseClrType"), entityType, baseEntityType, clrType, baseClrType);
+        }
+
+        /// <summary>
+        /// CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.
+        /// </summary>
+        public static string PropertyWrongEntityClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWrongEntityClrType", "property", "entityType", "clrType"), property, entityType, clrType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

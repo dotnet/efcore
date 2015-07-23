@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string reference)
-            => Builder.NavigationToPrincipal(
+            => Builder.DependentToPrincipal(
                 reference,
                 ConfigurationSource.Explicit,
                 strictPreferExisting: true);

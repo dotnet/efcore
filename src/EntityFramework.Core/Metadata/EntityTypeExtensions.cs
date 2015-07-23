@@ -307,5 +307,12 @@ namespace Microsoft.Data.Entity.Metadata
 
             return key;
         }
+
+        public static IEnumerable<IKey> GetDeclaredKeys([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.GetKeys().Where(p => p.EntityType == entityType);
+        }
     }
 }

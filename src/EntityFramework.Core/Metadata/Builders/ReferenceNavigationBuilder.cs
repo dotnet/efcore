@@ -101,12 +101,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             if (((IForeignKey)Builder.Metadata).IsUnique)
             {
-                builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
+                builder = builder.PrincipalToDependent(null, ConfigurationSource.Explicit);
             }
 
             builder = builder.Unique(false, ConfigurationSource.Explicit);
 
-            return builder.NavigationToDependent(collection, ConfigurationSource.Explicit, strictPreferExisting: true);
+            return builder.PrincipalToDependent(collection, ConfigurationSource.Explicit, strictPreferExisting: true);
         }
 
         /// <summary>
@@ -131,11 +131,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder InverseReferenceBuilder([CanBeNull] string reference)
         {
             var builder = Builder;
+            // TODO: Remove this when #1924 is fixed
             if (!((IForeignKey)Builder.Metadata).IsUnique)
             {
                 Debug.Assert(Builder.Metadata.DependentToPrincipal?.Name == ReferenceName);
 
-                builder = builder.NavigationToDependent(null, ConfigurationSource.Explicit);
+                builder = builder.PrincipalToDependent(null, ConfigurationSource.Explicit);
             }
 
             builder = builder.Unique(true, ConfigurationSource.Explicit);
@@ -156,8 +157,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                          || foreignKey.DependentToPrincipal?.Name == ReferenceName);
 
             return inverseToPrincipal
-                ? builder.NavigationToPrincipal(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing)
-                : builder.NavigationToDependent(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing);
+                ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing)
+                : builder.PrincipalToDependent(reference, ConfigurationSource.Explicit, strictPreferExisting: isSelfReferencing);
         }
     }
 }

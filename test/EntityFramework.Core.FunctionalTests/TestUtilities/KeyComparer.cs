@@ -10,10 +10,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 {
     public class KeyComparer : IEqualityComparer<IKey>, IComparer<IKey>
     {
-        public static readonly KeyComparer Instance = new KeyComparer();
+        private readonly bool _compareAnnotations;
 
-        private KeyComparer()
+        public KeyComparer(bool compareAnnotations = true)
         {
+            _compareAnnotations = compareAnnotations;
         }
 
         public int Compare(IKey x, IKey y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
             }
 
             return PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
-                   && x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance);
+                   && (!_compareAnnotations || x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IKey obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);

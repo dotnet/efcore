@@ -448,7 +448,7 @@
     <value>The derived type '{derivedType}' cannot have keys other than those declared on the root type.</value>
   </data>
   <data name="CircularInheritance" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot inherit '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>
+    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>
   </data>
   <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined.</value>
@@ -515,5 +515,17 @@
   </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
     <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
+  </data>
+  <data name="NonClrBaseType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a shadow state entity type while '{entityType}' is not.</value>
+  </data>
+  <data name="NonShadowBaseType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{entityType}' is a shadow state entity type while '{baseEntityType}' is not.</value>
+  </data>
+  <data name="NotAssignableClrBaseType" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{clrType}' is not a descendent of '{baseClrType}'.</value>
+  </data>
+  <data name="PropertyWrongEntityClrType" xml:space="preserve">
+    <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
   </data>
 </root>

@@ -10,10 +10,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 {
     public class NavigationComparer : IEqualityComparer<INavigation>, IComparer<INavigation>
     {
-        public static readonly NavigationComparer Instance = new NavigationComparer();
+        private readonly bool _compareAnnotations;
 
-        private NavigationComparer()
+        public NavigationComparer(bool compareAnnotations = true)
         {
+            _compareAnnotations = compareAnnotations;
         }
 
         public int Compare(INavigation x, INavigation y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
             }
 
             return x.Name == y.Name
-                   && x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance);
+                   && (!_compareAnnotations || x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
         }
 
         public int GetHashCode(INavigation obj) => obj.Name.GetHashCode();

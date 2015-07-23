@@ -10,10 +10,13 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 {
     public class ForeignKeyComparer : IEqualityComparer<IForeignKey>, IComparer<IForeignKey>
     {
-        public static readonly ForeignKeyComparer Instance = new ForeignKeyComparer();
+        private readonly bool _compareAnnotations;
+        private readonly bool _compareNavigations;
 
-        private ForeignKeyComparer()
+        public ForeignKeyComparer(bool compareAnnotations = true, bool compareNavigations = true)
         {
+            _compareAnnotations = compareAnnotations;
+            _compareNavigations = compareNavigations;
         }
 
         public int Compare(IForeignKey x, IForeignKey y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
@@ -35,9 +38,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
                    && x.PrincipalEntityType.Name.Equals(y.PrincipalEntityType.Name)
                    && x.IsUnique == y.IsUnique
                    && x.IsRequired == y.IsRequired
-                 //&& NavigationComparer.Instance.Equals(x.DependentToPrincipal, y.DependentToPrincipal)
-                 //&& NavigationComparer.Instance.Equals(x.PrincipalToDependent, y.PrincipalToDependent)
-                   && x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance);
+                   && (!_compareNavigations
+                       || (new NavigationComparer(_compareAnnotations).Equals(x.DependentToPrincipal, y.DependentToPrincipal)
+                           && new NavigationComparer(_compareAnnotations).Equals(x.PrincipalToDependent, y.PrincipalToDependent)))
+                   && (!_compareAnnotations || x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IForeignKey obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);

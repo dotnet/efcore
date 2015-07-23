@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType.AddProperty("id", typeof(int), shadowProperty: true);
             var key = entityType.SetPrimaryKey(idProperty);
             var fkProperty = entityType.AddProperty("p", typeof(int), shadowProperty: true);
-            return new ForeignKey(new[] { fkProperty }, key, entityType);
+            return entityType.AddForeignKey(fkProperty, key, entityType);
         }
     }
 }

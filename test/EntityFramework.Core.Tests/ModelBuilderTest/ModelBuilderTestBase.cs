@@ -10,72 +10,91 @@ using Microsoft.Data.Entity.Metadata.Builders;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
     {
         // TODO: add convention-less tests
+        // Issue #2410
 
         public abstract class ModelBuilderTestBase
         {
-            protected void AssertEqual(IEnumerable<string> expectedNames, IEnumerable<string> actualNames)
+            protected void AssertEqual(
+                IEnumerable<string> expectedNames,
+                IEnumerable<string> actualNames,
+                StringComparer stringComparer = null)
             {
+                stringComparer = stringComparer ?? StringComparer.Ordinal;
                 Assert.Equal(
-                    new SortedSet<string>(expectedNames, StringComparer.Ordinal),
-                    new SortedSet<string>(actualNames, StringComparer.Ordinal),
-                    StringComparer.Ordinal);
+                    new SortedSet<string>(expectedNames, stringComparer),
+                    new SortedSet<string>(actualNames, stringComparer),
+                    stringComparer);
             }
 
-            protected void AssertEqual(IEnumerable<IProperty> expectedProperties, IEnumerable<IProperty> actualProperties)
+            protected void AssertEqual(
+                IEnumerable<IProperty> expectedProperties,
+                IEnumerable<IProperty> actualProperties,
+                PropertyComparer propertyComparer = null)
             {
+                propertyComparer = propertyComparer ?? new PropertyComparer();
                 Assert.Equal(
-                    new SortedSet<IProperty>(expectedProperties, PropertyComparer.Instance),
-                    new SortedSet<IProperty>(actualProperties, PropertyComparer.Instance),
-                    PropertyComparer.Instance);
+                    new SortedSet<IProperty>(expectedProperties, propertyComparer),
+                    new SortedSet<IProperty>(actualProperties, propertyComparer),
+                    propertyComparer);
             }
 
-            protected void AssertEqual(IEnumerable<INavigation> expectedNavigations, IEnumerable<INavigation> actualNavigations)
+            protected void AssertEqual(
+                IEnumerable<INavigation> expectedNavigations,
+                IEnumerable<INavigation> actualNavigations,
+                NavigationComparer navigationComparer = null)
             {
+                navigationComparer = navigationComparer ?? new NavigationComparer();
                 Assert.Equal(
-                    new SortedSet<INavigation>(expectedNavigations, NavigationComparer.Instance),
-                    new SortedSet<INavigation>(actualNavigations, NavigationComparer.Instance),
-                    NavigationComparer.Instance);
+                    new SortedSet<INavigation>(expectedNavigations, navigationComparer),
+                    new SortedSet<INavigation>(actualNavigations, navigationComparer),
+                    navigationComparer);
             }
 
-            protected void AssertEqual(IEnumerable<IKey> expectedKeys, IEnumerable<IKey> actualKeys)
+            protected void AssertEqual(
+                IEnumerable<IKey> expectedKeys,
+                IEnumerable<IKey> actualKeys,
+                KeyComparer keyComparer = null)
             {
+                keyComparer = keyComparer ?? new KeyComparer();
                 Assert.Equal(
-                    new SortedSet<IKey>(expectedKeys, KeyComparer.Instance),
-                    new SortedSet<IKey>(actualKeys, KeyComparer.Instance),
-                    KeyComparer.Instance);
+                    new SortedSet<IKey>(expectedKeys, keyComparer),
+                    new SortedSet<IKey>(actualKeys, keyComparer),
+                    keyComparer);
             }
 
-            protected void AssertEqual(IEnumerable<IForeignKey> expectedForeignKeys, IEnumerable<IForeignKey> actualForeignKeys)
+            protected void AssertEqual(
+                IEnumerable<IForeignKey> expectedForeignKeys,
+                IEnumerable<IForeignKey> actualForeignKeys,
+                ForeignKeyComparer foreignKeyComparer = null)
             {
+                foreignKeyComparer = foreignKeyComparer ?? new ForeignKeyComparer();
                 Assert.Equal(
-                    new SortedSet<IForeignKey>(expectedForeignKeys, ForeignKeyComparer.Instance),
-                    new SortedSet<IForeignKey>(actualForeignKeys, ForeignKeyComparer.Instance),
-                    ForeignKeyComparer.Instance);
+                    new SortedSet<IForeignKey>(expectedForeignKeys, foreignKeyComparer),
+                    new SortedSet<IForeignKey>(actualForeignKeys, foreignKeyComparer),
+                    foreignKeyComparer);
             }
 
-            protected void AssertEqual(IEnumerable<IIndex> expectedIndexes, IEnumerable<IIndex> actualIndexes)
+            protected void AssertEqual(
+                IEnumerable<IIndex> expectedIndexes,
+                IEnumerable<IIndex> actualIndexes,
+                IndexComparer indexComparer = null)
             {
+                indexComparer = indexComparer ?? new IndexComparer();
                 Assert.Equal(
-                    new SortedSet<IIndex>(expectedIndexes, IndexComparer.Instance),
-                    new SortedSet<IIndex>(actualIndexes, IndexComparer.Instance),
-                    IndexComparer.Instance);
+                    new SortedSet<IIndex>(expectedIndexes, indexComparer),
+                    new SortedSet<IIndex>(actualIndexes, indexComparer),
+                    indexComparer);
             }
 
-            protected TestModelBuilder CreateModelBuilder()
-            {
-                return CreateModelBuilder(new Model());
-            }
+            protected TestModelBuilder CreateModelBuilder() => CreateModelBuilder(new Model());
 
             protected virtual TestModelBuilder CreateModelBuilder(Model model)
-            {
-                return CreateTestModelBuilder(TestHelpers.Instance.CreateConventionBuilder(model));
-            }
+                => CreateTestModelBuilder(TestHelpers.Instance.CreateConventionBuilder(model));
 
             protected TestModelBuilder HobNobBuilder()
             {

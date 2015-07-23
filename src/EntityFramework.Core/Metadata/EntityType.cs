@@ -91,6 +91,24 @@ namespace Microsoft.Data.Entity.Metadata
                 _baseType = null;
                 if (value != null)
                 {
+                    if (HasClrType)
+                    {
+                        if (!value.HasClrType)
+                        {
+                            throw new InvalidOperationException(Strings.NonClrBaseType(this, value));
+                        }
+
+                        if (!value.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                        {
+                            throw new InvalidOperationException(Strings.NotAssignableClrBaseType(this, value, ClrType.Name, value.ClrType.Name));
+                        }
+                    }
+
+                    if (!HasClrType && value.HasClrType)
+                    {
+                        throw new InvalidOperationException(Strings.NonShadowBaseType(this, value));
+                    }
+
                     if (value.InheritsFrom(this))
                     {
                         throw new InvalidOperationException(Strings.CircularInheritance(this, value));
@@ -307,6 +325,14 @@ namespace Microsoft.Data.Entity.Metadata
                 throw new InvalidOperationException(Strings.DerivedEntityTypeKey(Name));
             }
 
+            foreach (var property in properties)
+            {
+                if (FindProperty(property.Name) != property)
+                {
+                    throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
+                }
+            }
+
             var key = FindKey(properties);
             if (key != null)
             {
@@ -406,16 +432,20 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
+            foreach (var property in properties)
+            {
+                if (FindProperty(property.Name) != property)
+                {
+                    throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
+                }
+            }
+
             if (FindForeignKeyCollisions(new[] { properties }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), Name));
             }
 
-            var foreignKey = new ForeignKey(properties, principalKey, principalEntityType);
-            if (foreignKey.DeclaringEntityType != this)
-            {
-                throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
-            }
+            var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType);
 
             if (principalEntityType.Model != Model)
             {
@@ -676,13 +706,20 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(properties, nameof(properties));
 
+            foreach (var property in properties)
+            {
+                if (FindProperty(property.Name) != property)
+                {
+                    throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
+                }
+            }
+
             if (FindIndexCollisions(new[] { properties }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), Name));
             }
 
             var index = new Index(properties);
-
             if (index.DeclaringEntityType != this)
             {
                 throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
@@ -766,6 +803,14 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
+            if (HasClrType)
+            {
+                if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
+                {
+                    throw new ArgumentException(Strings.PropertyWrongEntityClrType(propertyInfo.Name, Name, propertyInfo.DeclaringType.Name));
+                }
+            }
+
             return AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
         }
 
@@ -795,7 +840,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return GetOrAddProperty(propertyInfo.Name, propertyInfo.PropertyType);
+            return FindProperty(propertyInfo) ?? AddProperty(propertyInfo);
         }
 
         // Note: If the property already exists, then whether or not it is a shadow property is not changed.

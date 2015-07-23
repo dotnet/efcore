@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _principalEndConfigurationSource = initialConfigurationSource;
         }
 
-        public virtual InternalRelationshipBuilder NavigationToPrincipal(
+        public virtual InternalRelationshipBuilder DependentToPrincipal(
             [CanBeNull] string navigationToPrincipalName,
             ConfigurationSource configurationSource,
             bool? strictPreferExisting = null)
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : null;
         }
 
-        public virtual InternalRelationshipBuilder NavigationToDependent(
+        public virtual InternalRelationshipBuilder PrincipalToDependent(
             [CanBeNull] string navigationToDependentName,
             ConfigurationSource configurationSource,
             bool? strictPreferExisting = null)
@@ -134,8 +134,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (isRequired.HasValue
                 && _foreignKeyPropertiesConfigurationSource.HasValue
                 && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource)
-                && !ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
-                    .CanSetRequired(Metadata, isRequired.Value, configurationSource))
+                && !CanSetRequired(isRequired.Value, configurationSource))
             {
                 return null;
             }
@@ -283,10 +282,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return CanSetRequired(properties, isRequired, configurationSource);
         }
 
+        public virtual bool CanSetRequired(bool isRequired, ConfigurationSource configurationSource)
+            => CanSetRequired(Metadata.Properties, isRequired, configurationSource);
+
         private bool CanSetRequired([NotNull] IReadOnlyList<Property> properties, bool isRequired, ConfigurationSource configurationSource)
         {
-            var entityBuilder = ModelBuilder.Entity(properties[0].DeclaringEntityType.Name, ConfigurationSource.Convention);
-            return entityBuilder.CanSetRequired(properties, isRequired, configurationSource);
+            var nullableProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
+            if (!nullableProperties.Any()
+                && configurationSource == ConfigurationSource.Explicit)
+            {
+                // If no properties can be made nullable, let it fail
+                return true;
+            }
+
+            return isRequired
+                ? nullableProperties.All(property =>
+                    ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
+                        .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                        .CanSetRequired(true, configurationSource))
+                : nullableProperties.Any(property =>
+                    ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
+                        .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                        .CanSetRequired(false, configurationSource));
         }
 
         public virtual InternalRelationshipBuilder ForeignKey(
@@ -529,6 +546,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource,
                 isUnique,
                 isRequired,
+                strictPrincipal: true,
+                onRelationshipAdding:
                 b => b.MergeConfigurationSourceWith(this));
         }
 
@@ -540,16 +559,30 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     .Relationship(Metadata, existingForeignKey: true, configurationSource: configurationSource);
             }
 
-            var dependentPropertiesExist = true;
+            var foreignKeyProperties = new List<Property>();
             foreach (var dependentProperty in Metadata.Properties)
             {
-                dependentPropertiesExist &= Metadata.DeclaringEntityType.FindProperty(dependentProperty.Name) != null;
+                var property = Metadata.DeclaringEntityType.FindProperty(dependentProperty.Name);
+                if (property == null)
+                {
+                    foreignKeyProperties = null;
+                    _foreignKeyPropertiesConfigurationSource = null;
+                    break;
+                }
+                foreignKeyProperties.Add(property);
             }
 
-            var principalPropertiesExist = true;
+            var principalProperties = new List<Property>();
             foreach (var dependentProperty in Metadata.PrincipalKey.Properties)
             {
-                principalPropertiesExist &= Metadata.PrincipalEntityType.FindProperty(dependentProperty.Name) != null;
+                var property = Metadata.PrincipalEntityType.FindProperty(dependentProperty.Name);
+                if (property == null)
+                {
+                    principalProperties = null;
+                    _principalKeyConfigurationSource = null;
+                    break;
+                }
+                principalProperties.Add(property);
             }
 
             return AddRelationship(
@@ -557,8 +590,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Metadata.DeclaringEntityType,
                 null,
                 null,
-                dependentPropertiesExist && _foreignKeyPropertiesConfigurationSource.HasValue ? Metadata.Properties : null,
-                principalPropertiesExist && _principalKeyConfigurationSource.HasValue ? Metadata.PrincipalKey.Properties : null,
+                foreignKeyProperties != null && _foreignKeyPropertiesConfigurationSource.HasValue ? foreignKeyProperties : null,
+                principalProperties != null && _principalKeyConfigurationSource.HasValue ? principalProperties : null,
                 _isUniqueConfigurationSource.HasValue ? Metadata.IsUnique : null,
                 _isRequiredConfigurationSource.HasValue ? Metadata.IsRequired : null,
                 configurationSource);

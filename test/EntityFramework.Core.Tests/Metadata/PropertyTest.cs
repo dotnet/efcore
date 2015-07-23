@@ -23,9 +23,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type_and_property_being_part_of_primary_key()
         {
             var entityType = new Model().AddEntityType(typeof(object));
-            var stringProperty = new Property("stringName", typeof(string), entityType);
-            var nullableIntProperty = new Property("nullableIntName", typeof(int?), entityType);
-            var intProperty = new Property("intName", typeof(int), entityType);
+            var stringProperty = entityType.AddProperty("stringName", typeof(string), shadowProperty: true);
+            var nullableIntProperty = entityType.AddProperty("nullableIntName", typeof(int?), shadowProperty: true);
+            var intProperty = entityType.AddProperty("intName", typeof(int), shadowProperty: true);
 
             Assert.Null(stringProperty.IsNullable);
             Assert.True(((IProperty)stringProperty).IsNullable);
@@ -64,7 +64,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_nullability_is_changed_if_property_made_part_of_primary_key()
         {
-            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var stringProperty = entityType.AddProperty("Name", typeof(string), shadowProperty: true);
 
             stringProperty.IsNullable = true;
             Assert.True(stringProperty.IsNullable.Value);
@@ -88,7 +89,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Properties_which_are_part_of_primary_key_cannot_be_made_nullable()
         {
-            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var stringProperty = entityType.AddProperty("Name", typeof(string), shadowProperty: true);
             stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Equal(

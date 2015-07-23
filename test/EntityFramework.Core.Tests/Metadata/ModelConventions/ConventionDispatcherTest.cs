@@ -188,6 +188,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var foreignKey = new ForeignKey(
                 new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
                 entityBuilder.Key(new[] { entityBuilder.Property(typeof(int), "OrderId", ConfigurationSource.Convention).Metadata }, ConfigurationSource.Convention).Metadata,
+                entityBuilder.Metadata,
                 entityBuilder.Metadata);
             var conventionDispatcher = new ConventionDispatcher(conventions);
             conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKey);

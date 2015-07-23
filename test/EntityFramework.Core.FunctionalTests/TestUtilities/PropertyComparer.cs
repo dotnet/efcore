@@ -11,10 +11,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 {
     public class PropertyComparer : IEqualityComparer<IProperty>, IComparer<IProperty>
     {
-        public static readonly PropertyComparer Instance = new PropertyComparer();
+        private readonly bool _compareAnnotations;
 
-        private PropertyComparer()
+        public PropertyComparer(bool compareAnnotations = true)
         {
+            _compareAnnotations = compareAnnotations;
         }
 
         public int Compare(IProperty x, IProperty y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
                    && x.IsReadOnlyBeforeSave == y.IsReadOnlyBeforeSave
                    && x.IsReadOnlyAfterSave == y.IsReadOnlyAfterSave
                    && x.SentinelValue == y.SentinelValue
-                   && x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance);
+                   && (!_compareAnnotations ||x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IProperty obj) => obj.Name.GetHashCode();

@@ -146,8 +146,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType1 = model.AddEntityType(typeof(Customer));
             var entityType2 = model.AddEntityType(typeof(Order));
-            var keyProperty = new Property("Id", typeof(int), entityType1);
-            var fkProperty = new Property("CustomerId", typeof(int?), entityType2);
+            var keyProperty = entityType1.AddProperty("Id", typeof(int), shadowProperty: true);
+            var fkProperty = entityType2.AddProperty("CustomerId", typeof(int?), shadowProperty: true);
             var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
 
             var referencingForeignKeys = model.GetReferencingForeignKeys(entityType1);

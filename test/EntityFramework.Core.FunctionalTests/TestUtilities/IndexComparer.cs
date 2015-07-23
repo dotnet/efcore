@@ -10,10 +10,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 {
     public class IndexComparer : IEqualityComparer<IIndex>, IComparer<IIndex>
     {
-        public static readonly IndexComparer Instance = new IndexComparer();
+        private readonly bool _compareAnnotations;
 
-        private IndexComparer()
+        public IndexComparer(bool compareAnnotations = true)
         {
+            _compareAnnotations = compareAnnotations;
         }
 
         public int Compare(IIndex x, IIndex y) => PropertyListComparer.Instance.Compare(x.Properties, y.Properties);
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 
             return PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
                    && x.IsUnique == y.IsUnique
-                   && x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance);
+                   && (!_compareAnnotations || x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IIndex obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);
