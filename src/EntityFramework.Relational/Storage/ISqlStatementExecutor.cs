@@ -6,43 +6,46 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage.Commands;
 
 namespace Microsoft.Data.Entity.Storage
 {
     public interface ISqlStatementExecutor
     {
-        Task ExecuteNonQueryAsync(
+        void ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlBatch> sqlBatches,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<object> ExecuteScalarAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] string sql,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<DbDataReader> ExecuteReaderAsync(
-            [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] string sql,
-            CancellationToken cancellationToken = default(CancellationToken));
+            [NotNull] RelationalCommand relationalCommand);
 
         void ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
-            [NotNull] IEnumerable<SqlBatch> sqlBatches);
+            [NotNull] IEnumerable<RelationalCommand> relationalCommands);
+
+        Task ExecuteNonQueryAsync(
+            [NotNull] IRelationalConnection connection,
+            [NotNull] RelationalCommand relationalCommand,
+            CancellationToken cancellationToken = default(CancellationToken));
+
+        Task ExecuteNonQueryAsync(
+            [NotNull] IRelationalConnection connection,
+            [NotNull] IEnumerable<RelationalCommand> relationalCommands,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         object ExecuteScalar(
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
             [NotNull] string sql);
+
+        Task<object> ExecuteScalarAsync(
+            [NotNull] IRelationalConnection connection,
+            [NotNull] string sql,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         DbDataReader ExecuteReader(
             [NotNull] IRelationalConnection connection,
-            [CanBeNull] DbTransaction transaction,
             [NotNull] string sql);
+
+        Task<DbDataReader> ExecuteReaderAsync(
+            [NotNull] IRelationalConnection connection,
+            [NotNull] string sql,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

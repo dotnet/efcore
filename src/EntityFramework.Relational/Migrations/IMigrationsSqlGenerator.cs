@@ -3,15 +3,15 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage.Commands;
 
 namespace Microsoft.Data.Entity.Migrations
 {
     public interface IMigrationsSqlGenerator
     {
-        IReadOnlyList<SqlBatch> Generate(
+        IReadOnlyList<RelationalCommand> Generate(
             [NotNull] IReadOnlyList<MigrationOperation> operations,
             [CanBeNull] IModel model = null);
     }

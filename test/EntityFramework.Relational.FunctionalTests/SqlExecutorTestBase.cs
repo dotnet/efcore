@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
-    public abstract class StoreSqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
+    public abstract class SqlExecutorTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [Fact]
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return Fixture.CreateContext();
         }
 
-        protected StoreSqlExecutorTestBase(TFixture fixture)
+        protected SqlExecutorTestBase(TFixture fixture)
         {
             Fixture = fixture;
         }

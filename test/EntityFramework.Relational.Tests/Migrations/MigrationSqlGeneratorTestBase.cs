@@ -444,7 +444,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             Sql = string.Join(
                 EOL + "GO" + EOL + EOL,
-                batch.Select(b => b.Sql));
+                batch.Select(b => b.CommandText));
         }
     }
 }

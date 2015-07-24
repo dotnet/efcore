@@ -1,10 +1,10 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests
+namespace Microsoft.Data.Entity
 {
     public class SqlBatchBuilderTest
     {
@@ -17,12 +17,12 @@ namespace Microsoft.Data.Entity.Tests
             batchBuilder.AppendLine("Statement3");
             batchBuilder.EndBatch();
 
-            Assert.Equal(1, batchBuilder.SqlBatches.Count);
+            Assert.Equal(1, batchBuilder.RelationalCommands.Count);
             Assert.Equal(
                 @"Statement1
 Statement2
 Statement3
-", batchBuilder.SqlBatches[0].Sql);
+", batchBuilder.RelationalCommands[0].CommandText);
         }
 
         [Fact]
@@ -39,22 +39,22 @@ Statement3
             batchBuilder.AppendLine("Statement6");
             batchBuilder.EndBatch();
 
-            Assert.Equal(3, batchBuilder.SqlBatches.Count);
+            Assert.Equal(3, batchBuilder.RelationalCommands.Count);
 
             Assert.Equal(
                 @"Statement1
-", batchBuilder.SqlBatches[0].Sql);
+", batchBuilder.RelationalCommands[0].CommandText);
 
             Assert.Equal(
                 @"Statement2
 Statement3
-", batchBuilder.SqlBatches[1].Sql);
+", batchBuilder.RelationalCommands[1].CommandText);
 
             Assert.Equal(
                 @"Statement4
 Statement5
 Statement6
-", batchBuilder.SqlBatches[2].Sql);
+", batchBuilder.RelationalCommands[2].CommandText);
         }
 
         [Fact]
@@ -70,46 +70,16 @@ Statement6
             batchBuilder.EndBatch();
             batchBuilder.EndBatch();
 
-            Assert.Equal(2, batchBuilder.SqlBatches.Count);
+            Assert.Equal(2, batchBuilder.RelationalCommands.Count);
 
             Assert.Equal(
                 @"Statement1
-", batchBuilder.SqlBatches[0].Sql);
+", batchBuilder.RelationalCommands[0].CommandText);
 
             Assert.Equal(
                 @"Statement2
 Statement3
-", batchBuilder.SqlBatches[1].Sql);
-        }
-
-        [Fact]
-        public void SqlBatchBuilder_correctly_splits_statements_to_multiple_batches_when_transaction_is_suppressed()
-        {
-            var batchBuilder = new SqlBatchBuilder();
-            batchBuilder.AppendLine("Statement1");
-            batchBuilder.AppendLine("Statement2");
-            batchBuilder.AppendLine("Statement3", suppressTransaction: true);
-            batchBuilder.AppendLine("Statement4");
-            batchBuilder.AppendLine("Statement5");
-            batchBuilder.AppendLine("Statement6", suppressTransaction: true);
-            batchBuilder.AppendLine("Statement7", suppressTransaction: true);
-            batchBuilder.EndBatch();
-
-            Assert.Equal(2, batchBuilder.SqlBatches.Count);
-            Assert.False(batchBuilder.SqlBatches[0].SuppressTransaction);
-            Assert.Equal(
-                @"Statement1
-Statement2
-", batchBuilder.SqlBatches[0].Sql);
-
-            Assert.True(batchBuilder.SqlBatches[1].SuppressTransaction);
-            Assert.Equal(
-                @"Statement3
-Statement4
-Statement5
-Statement6
-Statement7
-", batchBuilder.SqlBatches[1].Sql);
+", batchBuilder.RelationalCommands[1].CommandText);
         }
     }
 }

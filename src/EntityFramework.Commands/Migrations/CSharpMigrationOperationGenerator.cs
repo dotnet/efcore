@@ -1129,25 +1129,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".Sql(");
+            builder
+                .Append(".Sql(")
+                .Append(_code.Literal(operation.Sql))
+                .Append(")");
 
             using (builder.Indent())
             {
-                if (operation.SuppressTransaction)
-                {
-                    builder.Append("sql: ");
-                }
-
-                builder.Append(_code.Literal(operation.Sql));
-
-                if (operation.SuppressTransaction)
-                {
-                    builder
-                        .AppendLine(",")
-                        .Append("suppressTransaction: true");
-                }
-
-                builder.Append(")");
                 Annotations(operation.Annotations, builder);
             }
         }

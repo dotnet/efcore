@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Sql
@@ -17,9 +18,9 @@ namespace Microsoft.Data.Entity.Query.Sql
     public class RawSqlQueryGenerator : ISqlQueryGenerator
     {
         private readonly SelectExpression _selectExpression;
+        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly string _sql;
         private readonly object[] _inputParameters;
-        private readonly List<CommandParameter> _commandParameters;
 
         public RawSqlQueryGenerator(
             [NotNull] SelectExpression selectExpression,
@@ -27,46 +28,47 @@ namespace Microsoft.Data.Entity.Query.Sql
             [NotNull] object[] parameters,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
             _selectExpression = selectExpression;
             _sql = sql;
             _inputParameters = parameters;
-            _commandParameters = new List<CommandParameter>();
             TypeMapper = typeMapper;
+            _parameterNameGeneratorFactory = new ParameterNameGeneratorFactory();
         }
-
-        public virtual SelectExpression SelectExpression => _selectExpression;
 
         public virtual IRelationalTypeMapper TypeMapper { get; }
 
-        public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
+        protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory
+            => _parameterNameGeneratorFactory;
 
-        protected virtual string ParameterPrefix => "@";
-
-        public virtual string GenerateSql(IDictionary<string, object> parameterValues)
+        public virtual RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _commandParameters.Clear();
+            var commandBuilder = new RelationalCommandBuilder();
 
-            var substitutions = new object[_inputParameters.Length];
+            var parameterNameGenerator = ParameterNameGeneratorFactory.Create();
 
-            for (var index = 0; index < _inputParameters.Length; index++)
+            var substitutions = new string[_inputParameters.Length];
+
+            for (var index = 0; index < substitutions.Length; index++)
             {
-                var parameterName = ParameterPrefix + "p" + index;
+                substitutions[index] = parameterNameGenerator.GenerateNext();
 
-                var value = _inputParameters[index];
-                _commandParameters.Add(new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
-
-                substitutions[index] = parameterName;
+                commandBuilder.RelationalParameterList.GetOrAdd(
+                    substitutions[index],
+                    _inputParameters[index]);
             }
 
-            return string.Format(_sql, substitutions);
+            commandBuilder.AppendLines(string.Format(_sql, substitutions));
+
+            return commandBuilder.RelationalCommand;
         }
+
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
             IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)

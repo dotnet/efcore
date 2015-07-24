@@ -48,8 +48,7 @@ namespace MyNamespace
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(
-                ""-- TEST"")
+            migrationBuilder.Sql(""-- TEST"")
                 .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
 

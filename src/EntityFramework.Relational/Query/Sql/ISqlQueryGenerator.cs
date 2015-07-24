@@ -5,14 +5,13 @@ using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {
     public interface ISqlQueryGenerator
     {
-        string GenerateSql([NotNull] IDictionary<string, object> parameterValues);
-
-        IReadOnlyList<CommandParameter> Parameters { get; }
+        RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues);
 
         IRelationalTypeMapper TypeMapper { get; }
 

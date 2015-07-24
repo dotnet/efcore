@@ -4,7 +4,6 @@
 using System;
 using System.Globalization;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
@@ -41,7 +40,6 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
             => (long)Convert.ChangeType(
                 _executor.ExecuteScalar(
                     _connection,
-                    _connection.DbTransaction,
                     _sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema)),
                 typeof(long),
                 CultureInfo.InvariantCulture);

@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected abstract string ExistsSql { get; }
 
         public virtual bool Exists()
-            => _databaseCreator.Exists() && Exists(_executor.ExecuteScalar(_connection, null, ExistsSql));
+            => _databaseCreator.Exists() && Exists(_executor.ExecuteScalar(_connection, ExistsSql));
 
         protected abstract bool Exists(object value);
 
@@ -99,13 +99,13 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual string GetCreateScript()
         {
             var operations = _modelDiffer.GetDifferences(null, _model.Value);
-            var batches = _migrationsSqlGenerator.Generate(operations, _model.Value);
-            if (batches.Count != 1 || batches[0].SuppressTransaction)
+            var commands = _migrationsSqlGenerator.Generate(operations, _model.Value);
+            if (commands.Count != 1)
             {
                 throw new InvalidOperationException(Strings.InvalidCreateScript);
             }
 
-            return batches[0].Sql;
+            return commands[0].CommandText;
         }
 
         protected virtual void ConfigureTable(EntityTypeBuilder<HistoryRow> history)
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Migrations
                 _connection.Open();
                 try
                 {
-                    using (var reader = _executor.ExecuteReader(_connection, null, GetAppliedMigrationsSql))
+                    using (var reader = _executor.ExecuteReader(_connection, GetAppliedMigrationsSql))
                     {
                         while (reader.Read())
                         {

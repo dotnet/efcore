@@ -596,8 +596,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             var operation = new SqlOperation
             {
-                Sql = sql,
-                SuppressTransaction = suppressTransaction
+                Sql = sql
             };
             Operations.Add(operation);
 

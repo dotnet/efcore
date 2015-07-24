@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -152,16 +152,16 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private class FakeSqlStatementExecutor : SqlStatementExecutor
         {
-            public FakeSqlStatementExecutor(ILoggerFactory loggerFactory)
-                : base(loggerFactory)
+            public FakeSqlStatementExecutor(ILoggerFactory loggerFactory, IRelationalTypeMapper typeMapper)
+                : base(loggerFactory, typeMapper)
             {
             }
 
-            public override void ExecuteNonQuery(IRelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches)
+            public override void ExecuteNonQuery(IRelationalConnection connection, IEnumerable<RelationalCommand> relationalCommands)
             {
             }
 
-            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, DbTransaction transaction, IEnumerable<SqlBatch> sqlBatches, CancellationToken cancellationToken = new CancellationToken())
+            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, IEnumerable<RelationalCommand> relationalCommands, CancellationToken cancellationToken = default(CancellationToken))
             {
                 return Task.FromResult(0);
             }

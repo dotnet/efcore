@@ -3,13 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Moq;

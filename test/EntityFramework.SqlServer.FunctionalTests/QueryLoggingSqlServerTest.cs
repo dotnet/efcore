@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         selector: (QueryResultScope prm1) => IEnumerable<QueryResultScope<Customer>> _ShapedQuery(
             queryContext: prm0, 
             commandBuilder: SelectExpression: 
-                SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-                FROM ""Customers"" AS ""c""
+                SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                FROM [Customers] AS [c]
             , 
             shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                 querySource: from Customer <generated>_0 in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
@@ -136,9 +136,9 @@ WHERE [c].[City] = @__city_0",
             innerResults: IEnumerable<QueryResultScope<Customer>> _ShapedQuery(
                 queryContext: prm0, 
                 commandBuilder: SelectExpression: 
-                    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-                    FROM ""Customers"" AS ""c""
-                    ORDER BY ""c"".""CustomerID""
+                    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+                    FROM [Customers] AS [c]
+                    ORDER BY [c].[CustomerID]
                 , 
                 shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                     querySource: from Customer c in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
@@ -176,13 +176,13 @@ WHERE [c].[City] = @__city_0",
                     relatedValueBuffers: IEnumerable<ValueBuffer> _Query(
                         queryContext: prm0, 
                         commandBuilder: SelectExpression: 
-                            SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-                            FROM ""Orders"" AS ""o""
+                            SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+                            FROM [Orders] AS [o]
                             INNER JOIN (
-                                SELECT DISTINCT ""c"".""CustomerID""
-                                FROM ""Customers"" AS ""c""
-                            ) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
-                            ORDER BY ""c"".""CustomerID""
+                                SELECT DISTINCT [c].[CustomerID]
+                                FROM [Customers] AS [c]
+                            ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+                            ORDER BY [c].[CustomerID]
                         , 
                         queryIndex: 1
                     )

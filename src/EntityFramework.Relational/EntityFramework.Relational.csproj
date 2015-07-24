@@ -56,7 +56,6 @@
     <Compile Include="Infrastructure\RelationalEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="Infrastructure\RelationalLoggingEventIds.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
-    <Compile Include="Infrastructure\SqlBatch.cs" />
     <Compile Include="Infrastructure\SqlBatchBuilder.cs" />
     <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
@@ -161,6 +160,8 @@
     <Compile Include="Query\Methods\SingleOverloadStaticMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMethodCallTranslator.cs" />
     <Compile Include="Query\RelationalCompositeMemberTranslator.cs" />
+    <Compile Include="Storage\Commands\RelationalCommandBuilder.cs" />
+    <Compile Include="Storage\Commands\RelationalParameterList.cs" />
     <Compile Include="Storage\IRelationalConnection.cs" />
     <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
     <Compile Include="Storage\IRelationalDatabaseProviderServices.cs" />
@@ -171,10 +172,12 @@
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\ISqlStatementExecutor.cs" />
     <Compile Include="Storage\ProviderDesignTimeServicesAttribute.cs" />
+    <Compile Include="Storage\Commands\RelationalCommand.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
+    <Compile Include="Storage\Commands\RelationalParameter.cs" />
     <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />
     <Compile Include="Storage\RelationalTypeMapper.cs" />
@@ -264,15 +267,15 @@
     <Compile Include="Update\IBatchExecutor.cs" />
     <Compile Include="Update\ICommandBatchPreparer.cs" />
     <Compile Include="Update\IModificationCommandBatchFactory.cs" />
-    <Compile Include="Update\IParameterNameGeneratorFactory.cs" />
+    <Compile Include="Storage\IParameterNameGeneratorFactory.cs" />
     <Compile Include="Update\IUpdateSqlGenerator.cs" />
     <Compile Include="Update\ModificationCommand.cs" />
     <Compile Include="Update\ModificationCommandBatch.cs" />
     <Compile Include="Update\ReaderModificationCommandBatch.cs" />
     <Compile Include="Update\ModificationCommandBatchFactory.cs" />
     <Compile Include="Update\ModificationCommandComparer.cs" />
-    <Compile Include="Update\ParameterNameGenerator.cs" />
-    <Compile Include="Update\ParameterNameGeneratorFactory.cs" />
+    <Compile Include="Storage\ParameterNameGenerator.cs" />
+    <Compile Include="Storage\ParameterNameGeneratorFactory.cs" />
     <Compile Include="Update\SingularModificationCommandBatch.cs" />
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>

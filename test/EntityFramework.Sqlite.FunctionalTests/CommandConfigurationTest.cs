@@ -179,10 +179,10 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         public class TestSqliteModificationCommandBatch : SingularModificationCommandBatch
         {
-            protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, IRelationalTypeMapper typeMapper, int? commandTimeout)
+            protected override DbCommand CreateStoreCommand(string commandText, IRelationalConnection connection, IRelationalTypeMapper typeMapper, int? commandTimeout)
             {
                 GlobalCommandTimeout = commandTimeout;
-                return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
+                return base.CreateStoreCommand(commandText, connection, typeMapper, commandTimeout);
             }
 
             public TestSqliteModificationCommandBatch(IUpdateSqlGenerator sqlGenerator)

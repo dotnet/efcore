@@ -11,10 +11,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing;
@@ -25,16 +25,16 @@ namespace Microsoft.Data.Entity.Query.Sql
     {
         private readonly SelectExpression _selectExpression;
 
-        private IndentedStringBuilder _sql;
-        private List<CommandParameter> _commandParameters;
+        private RelationalCommandBuilder _sql;
+        private ParameterNameGenerator _parameterNameGenerator;
         private IDictionary<string, object> _parameterValues;
-        private int _rawSqlParameterIndex;
 
         public DefaultQuerySqlGenerator(
             [NotNull] SelectExpression selectExpression,
-            [CanBeNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
             _selectExpression = selectExpression;
             TypeMapper = typeMapper;
@@ -42,20 +42,22 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public virtual IRelationalTypeMapper TypeMapper { get; }
 
-        public virtual SelectExpression SelectExpression => _selectExpression;
+        protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
+            = new ParameterNameGeneratorFactory();
 
-        public virtual string GenerateSql(IDictionary<string, object> parameterValues)
+        protected virtual ParameterNameGenerator ParameterNameGenerator => _parameterNameGenerator;
+
+        public virtual RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _sql = new IndentedStringBuilder();
-            _commandParameters = new List<CommandParameter>();
+            _sql = new RelationalCommandBuilder();
+            _parameterNameGenerator = ParameterNameGeneratorFactory.Create();
             _parameterValues = parameterValues;
-            _rawSqlParameterIndex = 0;
 
             Visit(_selectExpression);
 
-            return _sql.ToString();
+            return _sql.RelationalCommand;
         }
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
@@ -67,12 +69,10 @@ namespace Microsoft.Data.Entity.Query.Sql
                 .Create(_selectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
-        public virtual IReadOnlyList<CommandParameter> Parameters => _commandParameters;
-
-        protected virtual IndentedStringBuilder Sql => _sql;
+        protected virtual RelationalCommandBuilder Sql => _sql;
 
         protected virtual string ConcatOperator => "+";
-        protected virtual string ParameterPrefix => "@";
+
         protected virtual string TrueLiteral => "1";
         protected virtual string FalseLiteral => "0";
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";
@@ -229,11 +229,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         private void VisitJoin(
-            IReadOnlyList<Expression> expressions, Action<IndentedStringBuilder> joinAction = null)
+            IReadOnlyList<Expression> expressions, Action<RelationalCommandBuilder> joinAction = null)
             => VisitJoin(expressions, e => Visit(e), joinAction);
 
         private void VisitJoin<T>(
-            IReadOnlyList<T> items, Action<T> itemAction, Action<IndentedStringBuilder> joinAction = null)
+            IReadOnlyList<T> items, Action<T> itemAction, Action<RelationalCommandBuilder> joinAction = null)
         {
             joinAction = joinAction ?? (isb => isb.Append(", "));
 
@@ -256,22 +256,19 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             using (_sql.Indent())
             {
-                var substitutions = new object[rawSqlDerivedTableExpression.Parameters.Count()];
+                var substitutions = new string[rawSqlDerivedTableExpression.Parameters.Length];
 
-                for (var index = 0; index < rawSqlDerivedTableExpression.Parameters.Count(); index++)
+                for (var index = 0; index < substitutions.Length; index++)
                 {
-                    var parameterName = ParameterPrefix + "p" + _rawSqlParameterIndex++;
-                    var value = rawSqlDerivedTableExpression.Parameters[index];
+                    substitutions[index] = ParameterNameGenerator.GenerateNext();
 
-                    _commandParameters.Add(
-                        new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
-
-                    substitutions[index] = parameterName;
+                    _sql.RelationalParameterList.GetOrAdd(
+                        substitutions[index],
+                        rawSqlDerivedTableExpression.Parameters[index]);
                 }
 
-                _sql.AppendLines(string.Format(
-                    rawSqlDerivedTableExpression.Sql,
-                    substitutions));
+                _sql.AppendLines(
+                    string.Format(rawSqlDerivedTableExpression.Sql, substitutions));
             }
 
             _sql.Append(") AS ")
@@ -449,7 +446,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 Visit(inExpression.SubQuery);
             }
-            
+
             return inExpression;
         }
 
@@ -914,30 +911,19 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(parameterExpression, nameof(parameterExpression));
 
-            var parameterName = ParameterPrefix + GenerateParameterName(parameterExpression.Name);
-
-            _sql.Append(parameterName);
-
-            if (_commandParameters.All(commandParameter => commandParameter.Name != parameterName))
+            object value;
+            if (!_parameterValues.TryGetValue(parameterExpression.Name, out value))
             {
-                object value;
-                if (!_parameterValues.TryGetValue(parameterExpression.Name, out value))
-                {
-                    value = string.Empty;
-                }
-
-
-                _commandParameters.Add(new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
+                value = string.Empty;
             }
 
+            var name = ParameterNameGenerator.Generate(parameterExpression.Name);
+
+            _sql.Append(name);
+
+            _sql.RelationalParameterList.GetOrAdd(name, value);
+
             return parameterExpression;
-        }
-
-        protected virtual string GenerateParameterName([NotNull] string parameterName)
-        {
-            Check.NotEmpty(parameterName, nameof(parameterName));
-
-            return parameterName;
         }
 
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)

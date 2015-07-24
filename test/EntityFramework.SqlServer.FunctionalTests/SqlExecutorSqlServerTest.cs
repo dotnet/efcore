@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class StoreSqlExecutorSqlServerTest : StoreSqlExecutorTestBase<NorthwindQuerySqlServerFixture>
+    public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture>
     {
         public override void Executes_stored_procedure()
         {
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Sql);
         }
 
-        public StoreSqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture fixture)
             : base(fixture)
         {
         }

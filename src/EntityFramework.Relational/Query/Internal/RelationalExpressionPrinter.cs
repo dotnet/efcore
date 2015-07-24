@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Query.Internal
@@ -34,13 +33,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                     stringBuilder.AppendLine("SelectExpression: ");
                     stringBuilder.IncrementIndent();
 
-                    var sqlGenerator = commandBuilder.SqlGeneratorFactory();
-                    var defaultQuerySqlGenerator = sqlGenerator as DefaultQuerySqlGenerator;
-                    var selectExpression = defaultQuerySqlGenerator != null
-                        ? defaultQuerySqlGenerator.SelectExpression
-                        : ((RawSqlQueryGenerator)sqlGenerator).SelectExpression;
+                    var commandGenerator = commandBuilder.SqlGeneratorFactory();
+                    var sql = commandGenerator.GenerateSql(new Dictionary<string, object>()).CommandText;
 
-                    var sql = selectExpression.ToString();
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
                     foreach (var line in lines)
                     {

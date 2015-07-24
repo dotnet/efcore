@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
@@ -218,19 +216,19 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             private long _current;
 
             public FakeSqlStatementExecutor(int blockSize)
-                : base(new LoggerFactory())
+                : base(new LoggerFactory(), new SqlServerTypeMapper())
             {
                 _blockSize = blockSize;
                 _current = -blockSize + 1;
             }
 
-            public override object ExecuteScalar(IRelationalConnection connection, DbTransaction transaction, string sql)
+            public override object ExecuteScalar(IRelationalConnection connection, string sql)
             {
                 return Interlocked.Add(ref _current, _blockSize);
             }
 
             public override Task<object> ExecuteScalarAsync(
-                IRelationalConnection connection, DbTransaction transaction, string sql, CancellationToken cancellationToken = new CancellationToken())
+                IRelationalConnection connection, string sql, CancellationToken cancellationToken = new CancellationToken())
             {
                 return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
             }

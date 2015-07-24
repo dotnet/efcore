@@ -53,6 +53,7 @@
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
     <Compile Include="SqlServerSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
+    <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
     <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
     <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
     <Compile Include="SqlServerTestHelpers.cs" />

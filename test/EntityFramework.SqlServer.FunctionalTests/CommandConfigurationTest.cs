@@ -348,10 +348,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
         {
-            protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, IRelationalTypeMapper typeMapper, int? commandTimeout)
+            protected override DbCommand CreateStoreCommand(string commandText, IRelationalConnection connection, IRelationalTypeMapper typeMapper, int? commandTimeout)
             {
                 GlobalCommandTimeout = commandTimeout;
-                return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
+                return base.CreateStoreCommand(commandText, connection, typeMapper, commandTimeout);
             }
 
             public TestSqlServerModificationCommandBatch(

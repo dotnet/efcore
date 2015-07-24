@@ -1,24 +1,32 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public class RelationalSqlExecutor
     {
-        private ISqlStatementExecutor _statementExecutor;
-        private IRelationalConnection _connection;
-        private IRelationalTypeMapper _typeMapper;
+        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly ISqlStatementExecutor _statementExecutor;
+        private readonly IRelationalConnection _connection;
+        private readonly IRelationalTypeMapper _typeMapper;
 
         public RelationalSqlExecutor(
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] ISqlStatementExecutor statementExecutor,
             [NotNull] IRelationalConnection connection,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
+            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(statementExecutor, nameof(statementExecutor));
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
+            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _statementExecutor = statementExecutor;
             _connection = connection;
             _typeMapper = typeMapper;
@@ -26,30 +34,26 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual void ExecuteSqlCommand([NotNull] string sql, [NotNull] params object[] parameters)
         {
-            var commandParameters = new CommandParameter[parameters.Length];
-            var substitutions = new object[parameters.Length];
+            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(parameters, nameof(parameters));
 
-            for (var index = 0; index < parameters.Length; index++)
+            var builder = new RelationalCommandBuilder();
+
+            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
+
+            var substitutions = new string[parameters.Length];
+
+            for (var index = 0; index < substitutions.Length; index++)
             {
-                var parameterName = ParameterPrefix + "p" + index;
-
-                var value = parameters[index];
-
-                commandParameters[index] = new CommandParameter(parameterName, value, _typeMapper.GetDefaultMapping(value));
-
-                substitutions[index] = parameterName;
+                substitutions[index] = parameterNameGenerator.GenerateNext();
+                builder.RelationalParameterList.GetOrAdd(
+                    substitutions[index],
+                    parameters[index]);
             }
 
-            _statementExecutor.ExecuteNonQuery(
-                _connection,
-                _connection.Transaction?.DbTransaction,
-                new List<SqlBatch> {
-                    new SqlBatch(
-                        string.Format(sql, substitutions),
-                        commandParameters)
-                });
-        }
+            builder.AppendLines(string.Format(sql, substitutions));
 
-        protected virtual string ParameterPrefix => "@";
+            _statementExecutor.ExecuteNonQuery(_connection, builder.RelationalCommand);
+        }
     }
 }

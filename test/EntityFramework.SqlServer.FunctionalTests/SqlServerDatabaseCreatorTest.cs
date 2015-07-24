@@ -372,7 +372,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
-            return ((IAccessor<IServiceProvider>)new DbContext(
+            return ((IAccessor<IServiceProvider>)new BloggingContext(
                 serviceCollection.BuildServiceProvider(),
                 optionsBuilder.Options))
                 .Service;

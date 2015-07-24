@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var checkFirst = true;
             foreach (var migration in migrationsToApply)
             {
-                var batches = new List<SqlBatch>(GenerateUpSql(migration));
+                var batches = new List<RelationalCommand>(GenerateUpSql(migration));
 
                 first = false;
                 if (checkFirst)
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     if (first && !_historyRepository.Exists())
                     {
                         // TODO: Prepend to first batch instead
-                        batches.Insert(0, new SqlBatch(_historyRepository.GetCreateScript()));
+                        batches.Insert(0, new RelationalCommand(_historyRepository.GetCreateScript()));
                     }
 
                     checkFirst = false;
@@ -191,20 +191,20 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                     _logger.Value.LogVerbose(Strings.GeneratingUp(migration.Id));
 
-                    foreach (var batch in GenerateUpSql(migration))
+                    foreach (var command in GenerateUpSql(migration))
                     {
                         if (idempotent)
                         {
                             builder.AppendLine(_historyRepository.GetBeginIfNotExistsScript(migration.Id));
                             using (builder.Indent())
                             {
-                                builder.AppendLines(batch.Sql);
+                                builder.AppendLines(command.CommandText);
                             }
                             builder.AppendLine(_historyRepository.GetEndIfScript());
                         }
                         else
                         {
-                            builder.Append(batch.Sql);
+                            builder.Append(command.CommandText);
                         }
 
                         builder.AppendLine(_sql.BatchSeparator);
@@ -229,20 +229,20 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                     _logger.Value.LogVerbose(Strings.GeneratingDown(migration.Id));
 
-                    foreach (var batch in GenerateDownSql(migration, previousMigration))
+                    foreach (var command in GenerateDownSql(migration, previousMigration))
                     {
                         if (idempotent)
                         {
                             builder.AppendLine(_historyRepository.GetBeginIfExistsScript(migration.Id));
                             using (builder.Indent())
                             {
-                                builder.AppendLines(batch.Sql);
+                                builder.AppendLines(command.CommandText);
                             }
                             builder.AppendLine(_historyRepository.GetEndIfScript());
                         }
                         else
                         {
-                            builder.Append(batch.Sql);
+                            builder.Append(command.CommandText);
                         }
 
                         builder.AppendLine(_sql.BatchSeparator);
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return builder.ToString();
         }
 
-        protected virtual IReadOnlyList<SqlBatch> GenerateUpSql([NotNull] Migration migration)
+        protected virtual IReadOnlyList<RelationalCommand> GenerateUpSql([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
 
@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return _sqlGenerator.Generate(operations, migration.TargetModel);
         }
 
-        protected virtual IReadOnlyList<SqlBatch> GenerateDownSql(
+        protected virtual IReadOnlyList<RelationalCommand> GenerateDownSql(
             [NotNull] Migration migration,
             [CanBeNull] Migration previousMigration)
         {
@@ -287,9 +287,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return _sqlGenerator.Generate(operations, targetModel);
         }
 
-        private void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool ensureDatabase = false)
+        private void Execute([NotNull] IEnumerable<RelationalCommand> relationalCommands, bool ensureDatabase = false)
         {
-            Check.NotNull(sqlBatches, nameof(sqlBatches));
+            Check.NotNull(relationalCommands, nameof(relationalCommands));
 
             if (ensureDatabase && !_databaseCreator.Exists())
             {
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             using (var transaction = _connection.BeginTransaction())
             {
-                _executor.ExecuteNonQuery(_connection, transaction.DbTransaction, sqlBatches);
+                _executor.ExecuteNonQuery(_connection, relationalCommands);
                 transaction.Commit();
             }
         }

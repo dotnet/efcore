@@ -40,34 +40,11 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(connection, nameof(connection));
 
-            // TODO: Cache command...
+            var commandGenerator = _sqlGeneratorFactory();
 
-            var command = connection.DbConnection.CreateCommand();
-
-            if (connection.Transaction != null)
-            {
-                command.Transaction = connection.Transaction.DbTransaction;
-            }
-
-            if (connection.CommandTimeout != null)
-            {
-                command.CommandTimeout = (int)connection.CommandTimeout;
-            }
-
-            var sqlQueryGenerator = _sqlGeneratorFactory();
-
-            command.CommandText = sqlQueryGenerator.GenerateSql(parameterValues);
-
-            foreach (var commandParameter in sqlQueryGenerator.Parameters)
-            {
-                command.Parameters.Add(
-                    commandParameter.TypeMapping.CreateParameter(
-                        command,
-                        commandParameter.Name,
-                        commandParameter.Value));
-            }
-
-            return command;
+            return commandGenerator
+                .GenerateSql(parameterValues)
+                .CreateDbCommand(connection, commandGenerator.TypeMapper);
         }
 
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)

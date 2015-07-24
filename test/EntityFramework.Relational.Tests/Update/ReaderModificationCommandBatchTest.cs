@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -371,7 +372,14 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var transaction = CreateMockDbTransaction();
 
-            var command = batch.CreateStoreCommandBase("foo", transaction, new ConcreteTypeMapper(), null);
+            var transactionMock = new Mock<IRelationalTransaction>();
+            transactionMock.Setup(m => m.DbTransaction).Returns(transaction);
+
+            var connectionMock = new Mock<IRelationalConnection>();
+            connectionMock.Setup(m => m.Transaction).Returns(transactionMock.Object);
+            connectionMock.Setup(m => m.DbConnection).Returns(transaction.Connection);
+
+            var command = batch.CreateStoreCommandBase("foo", connectionMock.Object, new ConcreteTypeMapper(), null);
 
             Assert.Equal(CommandType.Text, command.CommandType);
             Assert.Equal("foo", command.CommandText);
@@ -386,18 +394,18 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var dbCommandMock = CreateDbCommandMock();
+            var commandBuilder = new RelationalCommandBuilder();
 
-            batch.PopulateParametersBase(dbCommandMock.Object,
+            batch.PopulateParametersBase(
+                commandBuilder.RelationalParameterList,
                 new ColumnModification(
                     entry,
                     property,
                     property.TestProvider(),
                     new ParameterNameGenerator(),
-                    false, true, false, false),
-                new ConcreteTypeMapper());
+                    false, true, false, false));
 
-            Assert.Equal(1, dbCommandMock.Object.Parameters.Count);
+            Assert.Equal(1, commandBuilder.RelationalCommand.Parameters.Count);
         }
 
         [Fact]
@@ -407,18 +415,18 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var dbCommandMock = CreateDbCommandMock();
+            var commandBuilder = new RelationalCommandBuilder();
 
-            batch.PopulateParametersBase(dbCommandMock.Object,
+            batch.PopulateParametersBase(
+                commandBuilder.RelationalParameterList,
                 new ColumnModification(
                     entry,
                     property,
                     property.TestProvider(),
                     new ParameterNameGenerator(),
-                    false, false, false, true),
-                new ConcreteTypeMapper());
+                    false, false, false, true));
 
-            Assert.Equal(1, dbCommandMock.Object.Parameters.Count);
+            Assert.Equal(1, commandBuilder.RelationalCommand.Parameters.Count);
         }
 
         [Fact]
@@ -428,18 +436,18 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var dbCommandMock = CreateDbCommandMock();
+            var commandBuilder = new RelationalCommandBuilder();
 
-            batch.PopulateParametersBase(dbCommandMock.Object,
+            batch.PopulateParametersBase(
+                commandBuilder.RelationalParameterList,
                 new ColumnModification(
                     entry,
                     property,
                     property.TestProvider(),
                     new ParameterNameGenerator(),
-                    false, true, false, true),
-                new ConcreteTypeMapper());
+                    false, true, false, true));
 
-            Assert.Equal(2, dbCommandMock.Object.Parameters.Count);
+            Assert.Equal(2, commandBuilder.RelationalCommand.Parameters.Count);
         }
 
         [Fact]
@@ -449,18 +457,18 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var dbCommandMock = CreateDbCommandMock();
+            var commandBuilder = new RelationalCommandBuilder();
 
-            batch.PopulateParametersBase(dbCommandMock.Object,
+            batch.PopulateParametersBase(
+                commandBuilder.RelationalParameterList,
                 new ColumnModification(
                     entry,
                     property,
                     property.TestProvider(),
                     new ParameterNameGenerator(),
-                    true, false, false, false),
-                new ConcreteTypeMapper());
+                    true, false, false, false));
 
-            Assert.Equal(0, dbCommandMock.Object.Parameters.Count);
+            Assert.Equal(0, commandBuilder.RelationalCommand.Parameters.Count);
         }
 
         private static Mock<DbConnection> CreateMockDbConnection(DbCommand dbCommand = null)
@@ -664,26 +672,26 @@ namespace Microsoft.Data.Entity.Tests.Update
                 base.UpdateCachedCommandText(commandIndex);
             }
 
-            protected override DbCommand CreateStoreCommand(string commandText, DbTransaction transaction, IRelationalTypeMapper typeMapper, int? commandTimeout)
+            protected override DbCommand CreateStoreCommand(string commandText, IRelationalConnection connection, IRelationalTypeMapper typeMapper, int? commandTimeout)
             {
                 return CreateDbCommandMock(_reader).Object;
             }
 
-            public DbCommand CreateStoreCommandBase(string commandText, DbTransaction transaction, IRelationalTypeMapper typeMapper, int? commandTimeout)
+            public DbCommand CreateStoreCommandBase(string commandText, IRelationalConnection connection, IRelationalTypeMapper typeMapper, int? commandTimeout)
             {
-                return base.CreateStoreCommand(commandText, transaction, typeMapper, commandTimeout);
+                return base.CreateStoreCommand(commandText, connection, typeMapper, commandTimeout);
             }
 
             public int PopulateParameterCalls { get; set; }
 
-            protected override void PopulateParameters(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
+            protected override void PopulateParameters(RelationalParameterList parameterList, ColumnModification columnModification)
             {
                 PopulateParameterCalls++;
             }
 
-            public void PopulateParametersBase(DbCommand command, ColumnModification columnModification, IRelationalTypeMapper typeMapper)
+            public void PopulateParametersBase(RelationalParameterList parameterList, ColumnModification columnModification)
             {
-                base.PopulateParameters(command, columnModification, typeMapper);
+                base.PopulateParameters(parameterList, columnModification);
             }
         }
 

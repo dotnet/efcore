@@ -1711,28 +1711,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         {
             Test(
                 new SqlOperation { Sql = "-- I <3 DDL" },
-                "mb.Sql(" + EOL +
-                "    \"-- I <3 DDL\");" + EOL,
+                "mb.Sql(\"-- I <3 DDL\");" + EOL,
                 o => Assert.Equal("-- I <3 DDL", o.Sql));
-        }
-
-        [Fact]
-        public void SqlOperation_all_args()
-        {
-            Test(
-                new SqlOperation
-                {
-                    Sql = "-- I <3 DDL",
-                    SuppressTransaction = true
-                },
-                "mb.Sql(" + EOL +
-                "    sql: \"-- I <3 DDL\"," + EOL +
-                "    suppressTransaction: true);" + EOL,
-                o =>
-                {
-                    Assert.Equal("-- I <3 DDL", o.Sql);
-                    Assert.True(o.SuppressTransaction);
-                });
         }
 
         private void Test<T>(T operation, string expectedCode, Action<T> assert)

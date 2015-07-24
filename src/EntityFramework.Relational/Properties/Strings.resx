@@ -260,7 +260,10 @@
     <comment>Schema can be null</comment>
   </data>
   <data name="InvalidCreateScript" xml:space="preserve">
-    <value>GetCreateScript only handles operations in a single batch without transaction suppression. For more advanced scenarios, override HistoryRepository.GetCreateScript in your provider.</value>
+    <value>GetCreateScript only handles operations in a single batch. For more advanced scenarios, override HistoryRepository.GetCreateScript in your provider.</value>
+  </data>
+  <data name="DuplicateParameterName" xml:space="preserve">
+    <value>The parameter '{parameterName}' was already specified with a different value.</value>
   </data>
   <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
     <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>

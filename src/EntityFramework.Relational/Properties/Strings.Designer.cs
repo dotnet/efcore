@@ -109,6 +109,14 @@ namespace Microsoft.Data.Entity.Relational.Internal
         }
 
         /// <summary>
+        /// The parameter '{parameterName}' was already specified with a different value.
+        /// </summary>
+        public static string DuplicateParameterName([CanBeNull] object parameterName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateParameterName", "parameterName"), parameterName);
+        }
+
+        /// <summary>
         /// The SQL Server sequence '{sequenceName}' was already specified with a different definition.
         /// </summary>
         public static string SequenceDefinitionMismatch([CanBeNull] object sequenceName)
@@ -389,7 +397,7 @@ namespace Microsoft.Data.Entity.Relational.Internal
         }
 
         /// <summary>
-        /// GetCreateScript only handles operations in a single batch without transaction suppression. For more advanced scenarios, override HistoryRepository.GetCreateScript in your provider.
+        /// GetCreateScript only handles operations in a single batch. For more advanced scenarios, override HistoryRepository.GetCreateScript in your provider.
         /// </summary>
         public static string InvalidCreateScript
         {

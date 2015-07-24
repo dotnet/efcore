@@ -45,6 +45,7 @@
     <Compile Include="Migrations\SqliteHistoryRepositoryTest.cs" />
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="SqliteSqlGeneratorTest.cs" />
+    <Compile Include="Storage\SqliteTypeMappingTest.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

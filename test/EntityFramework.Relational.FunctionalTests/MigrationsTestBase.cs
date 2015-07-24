@@ -125,11 +125,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             buildMigration(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 
-            var batches = generator.Generate(operations, model: null);
+            var commands = generator.Generate(operations, model: null);
 
             using (var transaction = await connection.BeginTransactionAsync())
             {
-                await executor.ExecuteNonQueryAsync(connection, transaction.DbTransaction, batches);
+                await executor.ExecuteNonQueryAsync(connection, commands);
                 transaction.Commit();
             }
         }
