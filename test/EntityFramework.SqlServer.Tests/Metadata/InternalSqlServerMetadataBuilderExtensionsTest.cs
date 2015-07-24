@@ -22,13 +22,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var builder = CreateBuilder();
 
-            builder.SqlServer(ConfigurationSource.Convention).IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            Assert.True(builder.SqlServer(ConfigurationSource.Convention).IdentityStrategy(SqlServerIdentityStrategy.SequenceHiLo));
             Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, builder.Metadata.SqlServer().IdentityStrategy);
 
-            builder.SqlServer(ConfigurationSource.DataAnnotation).IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
+            Assert.True(builder.SqlServer(ConfigurationSource.DataAnnotation).IdentityStrategy(SqlServerIdentityStrategy.IdentityColumn));
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, builder.Metadata.SqlServer().IdentityStrategy);
 
-            builder.SqlServer(ConfigurationSource.Convention).IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            Assert.False(builder.SqlServer(ConfigurationSource.Convention).IdentityStrategy(SqlServerIdentityStrategy.SequenceHiLo));
             Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, builder.Metadata.SqlServer().IdentityStrategy);
 
             Assert.Equal(1, builder.Metadata.Annotations.Count(
@@ -40,13 +40,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
 
-            typeBuilder.SqlServer(ConfigurationSource.Convention).TableName = "Splew";
+            Assert.True(typeBuilder.SqlServer(ConfigurationSource.Convention).ToTable("Splew"));
             Assert.Equal("Splew", typeBuilder.Metadata.SqlServer().TableName);
 
-            typeBuilder.SqlServer(ConfigurationSource.DataAnnotation).TableName = "Splow";
+            Assert.True(typeBuilder.SqlServer(ConfigurationSource.DataAnnotation).ToTable("Splow"));
             Assert.Equal("Splow", typeBuilder.Metadata.SqlServer().TableName);
 
-            typeBuilder.SqlServer(ConfigurationSource.Convention).TableName = "Splod";
+            Assert.False(typeBuilder.SqlServer(ConfigurationSource.Convention).ToTable("Splod"));
             Assert.Equal("Splow", typeBuilder.Metadata.SqlServer().TableName);
 
             Assert.Equal(1, typeBuilder.Metadata.Annotations.Count(
@@ -60,13 +60,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Entity(typeof(Splot), ConfigurationSource.Convention)
                 .Property("Id", typeof(int), ConfigurationSource.Convention);
 
-            propertyBuilder.SqlServer(ConfigurationSource.Convention).HiLoSequenceName = "Splew";
+            Assert.True(propertyBuilder.SqlServer(ConfigurationSource.Convention).HiLoSequenceName("Splew"));
             Assert.Equal("Splew", propertyBuilder.Metadata.SqlServer().HiLoSequenceName);
 
-            propertyBuilder.SqlServer(ConfigurationSource.DataAnnotation).HiLoSequenceName = "Splow";
+            Assert.True(propertyBuilder.SqlServer(ConfigurationSource.DataAnnotation).HiLoSequenceName("Splow"));
             Assert.Equal("Splow", propertyBuilder.Metadata.SqlServer().HiLoSequenceName);
 
-            propertyBuilder.SqlServer(ConfigurationSource.Convention).HiLoSequenceName = "Splod";
+            Assert.False(propertyBuilder.SqlServer(ConfigurationSource.Convention).HiLoSequenceName("Splod"));
             Assert.Equal("Splow", propertyBuilder.Metadata.SqlServer().HiLoSequenceName);
 
             Assert.Equal(1, propertyBuilder.Metadata.Annotations.Count(
@@ -81,13 +81,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var property = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.Key(new[] { property }, ConfigurationSource.Convention);
 
-            keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered = true;
+            Assert.True(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.True(keyBuilder.Metadata.SqlServer().IsClustered);
 
-            keyBuilder.SqlServer(ConfigurationSource.DataAnnotation).IsClustered = false;
+            Assert.True(keyBuilder.SqlServer(ConfigurationSource.DataAnnotation).Clustered(false));
             Assert.False(keyBuilder.Metadata.SqlServer().IsClustered);
 
-            keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered = true;
+            Assert.False(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.False(keyBuilder.Metadata.SqlServer().IsClustered);
 
             Assert.Equal(1, keyBuilder.Metadata.Annotations.Count(
@@ -102,13 +102,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.Index(new[] { "Id" }, ConfigurationSource.Convention);
 
-            indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered = true;
+            Assert.True(indexBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.True(indexBuilder.Metadata.SqlServer().IsClustered);
 
-            indexBuilder.SqlServer(ConfigurationSource.DataAnnotation).IsClustered = false;
+            Assert.True(indexBuilder.SqlServer(ConfigurationSource.DataAnnotation).Clustered(false));
             Assert.False(indexBuilder.Metadata.SqlServer().IsClustered);
 
-            indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered = true;
+            Assert.False(indexBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.False(indexBuilder.Metadata.SqlServer().IsClustered);
 
             Assert.Equal(1, indexBuilder.Metadata.Annotations.Count(
@@ -123,13 +123,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.ForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
-            relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name = "Splew";
+            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.SqlServer().Name);
 
-            relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).Name = "Splow";
+            Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.DataAnnotation).Name("Splow"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.SqlServer().Name);
 
-            relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name = "Splod";
+            Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.SqlServer().Name);
 
             Assert.Equal(1, relationshipBuilder.Metadata.Annotations.Count(

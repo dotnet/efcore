@@ -122,7 +122,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                     var baseProperties = value.Properties.Select(p => p.Name).ToArray();
                     var propertyCollisions = FindPropertyCollisions(baseProperties);
-                    // ReSharper disable once PossibleMultipleEnumeration
                     if (propertyCollisions.Any())
                     {
                         throw new InvalidOperationException(
@@ -134,7 +133,6 @@ namespace Microsoft.Data.Entity.Metadata
 
                     var baseNavigations = value.Navigations.Select(p => p.Name).ToArray();
                     var navigationCollisions = FindNavigationCollisions(baseNavigations);
-                    // ReSharper disable once PossibleMultipleEnumeration
                     if (navigationCollisions.Any())
                     {
                         throw new InvalidOperationException(
@@ -166,6 +164,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             return false;
         }
+
+        public virtual EntityType RootType() => (EntityType)((IEntityType)this).RootType();
 
         public virtual string Name
         {
@@ -341,11 +341,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             key = new Key(properties);
-            if (key.DeclaringEntityType != this)
-            {
-                throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
-            }
-
             _keys.Add(properties, key);
 
             return key;
@@ -368,6 +363,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             return FindDeclaredKey(properties) ?? BaseType?.FindKey(properties);
         }
+        
+        public virtual IEnumerable<Key> GetDeclaredKeys() => _keys.Values;
 
         public virtual Key FindDeclaredKey([NotNull] IReadOnlyList<Property> properties)
         {
@@ -482,6 +479,8 @@ namespace Microsoft.Data.Entity.Metadata
             return FindDeclaredForeignKey(properties) ?? BaseType?.FindForeignKey(properties);
         }
 
+        public virtual IEnumerable<ForeignKey> GetDeclaredForeignKeys() => _foreignKeys.Values;
+
         public virtual ForeignKey FindDeclaredForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -504,8 +503,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             return this.GetDerivedTypes()
                 .SelectMany(et => et.GetDeclaredForeignKeys()
-                    .Where(foreignKey => searchForeignKeys.Contains(foreignKey.Properties)))
-                .Cast<ForeignKey>();
+                    .Where(foreignKey => searchForeignKeys.Contains(foreignKey.Properties)));
         }
 
         private IEnumerable<ForeignKey> FindForeignKeyCollisions(IReadOnlyList<Property>[] properties)
@@ -653,6 +651,9 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
+        public virtual IEnumerable<Navigation> GetDeclaredNavigations()
+            => _navigations.Values;
+
         private IEnumerable<Navigation> FindNavigations(IEnumerable<string> names)
             => names.Select(FindNavigation).Where(p => p != null);
 
@@ -662,12 +663,11 @@ namespace Microsoft.Data.Entity.Metadata
 
             return this.GetDerivedTypes()
                 .SelectMany(et => et.GetDeclaredNavigations()
-                    .Where(navigation => searchNavigations.Contains(navigation.Name)))
-                .Cast<Navigation>();
+                    .Where(navigation => searchNavigations.Contains(navigation.Name)));
         }
 
-        private IEnumerable<Navigation> FindNavigationCollisions(string[] propertyNames)
-            => FindNavigations(propertyNames).Concat(FindDerivedNavigations(propertyNames));
+        private IReadOnlyList<Navigation> FindNavigationCollisions(string[] propertyNames)
+            => FindNavigations(propertyNames).Concat(FindDerivedNavigations(propertyNames)).ToList();
 
         public virtual Navigation RemoveNavigation([NotNull] Navigation navigation)
         {
@@ -720,11 +720,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
 
             var index = new Index(properties);
-            if (index.DeclaringEntityType != this)
-            {
-                throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
-            }
-
             _indexes.Add(properties, index);
 
             return index;
@@ -749,6 +744,8 @@ namespace Microsoft.Data.Entity.Metadata
             return FindDeclaredIndex(properties) ?? BaseType?.FindIndex(properties);
         }
 
+        public virtual IEnumerable<Index> GetDeclaredIndexes() => _indexes.Values;
+
         public virtual Index FindDeclaredIndex([NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(properties, nameof(properties));
@@ -771,8 +768,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             return this.GetDerivedTypes()
                 .SelectMany(et => et.GetDeclaredIndexes()
-                    .Where(index => searchIndexes.Contains(index.Properties)))
-                .Cast<Index>();
+                    .Where(index => searchIndexes.Contains(index.Properties)));
         }
 
         private IEnumerable<Index> FindIndexCollisions(IReadOnlyList<Property>[] properties)
@@ -902,21 +898,13 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
+        public virtual IEnumerable<Property> GetDeclaredProperties() => _properties.Values;
+
         private IEnumerable<Property> FindProperties(IEnumerable<string> propertyNames)
             => propertyNames.Select(FindProperty).Where(p => p != null);
-
-        private IEnumerable<Property> FindDerivedProperties(IEnumerable<string> propertyNames)
-        {
-            var searchProperties = new HashSet<string>(propertyNames);
-
-            return this.GetDerivedTypes()
-                .SelectMany(et => et.GetDeclaredProperties()
-                    .Where(property => searchProperties.Contains(property.Name)))
-                .Cast<Property>();
-        }
-
-        private IEnumerable<Property> FindPropertyCollisions(string[] propertyNames)
-            => FindProperties(propertyNames).Concat(FindDerivedProperties(propertyNames));
+        
+        private IReadOnlyList<IProperty> FindPropertyCollisions(string[] propertyNames)
+            => FindProperties(propertyNames).Concat(this.FindDerivedProperties(propertyNames)).ToList();
 
         public virtual Property RemoveProperty([NotNull] Property property)
         {
@@ -925,9 +913,7 @@ namespace Microsoft.Data.Entity.Metadata
             Property removedProperty;
             if (_properties.TryGetValue(property.Name, out removedProperty))
             {
-                if (GetKeys().Any(k => k.Properties.Contains(property))
-                    || GetForeignKeys().Any(k => k.Properties.Contains(property))
-                    || Indexes.Any(i => i.Properties.Contains(property)))
+                if (property.IsInUse)
                 {
                     throw new InvalidOperationException(Strings.PropertyInUse(property.Name, Name));
                 }

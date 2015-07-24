@@ -3,40 +3,38 @@
 
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class RelationalForeignKeyAnnotations : RelationalAnnotationsBase, IRelationalForeignKeyAnnotations
+    public class RelationalForeignKeyAnnotations : IRelationalForeignKeyAnnotations
     {
         public RelationalForeignKeyAnnotations([NotNull] IForeignKey foreignKey, [CanBeNull] string providerPrefix)
-            : base(foreignKey, providerPrefix)
+            : this(new RelationalAnnotations(foreignKey, providerPrefix))
         {
         }
 
-        public RelationalForeignKeyAnnotations(
-            [NotNull] InternalRelationshipBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(internalBuilder, configurationSource, providerPrefix)
+        protected RelationalForeignKeyAnnotations([NotNull] RelationalAnnotations annotations)
         {
+            Annotations = annotations;
         }
 
-        protected virtual IForeignKey ForeignKey => (IForeignKey)Metadata;
+        protected virtual RelationalAnnotations Annotations { get; }
+
+        protected virtual IForeignKey ForeignKey => (IForeignKey)Annotations.Metadata;
 
         public virtual string Name
         {
-            get { return (string)GetAnnotation(RelationalAnnotationNames.Name) ?? GetDefaultName(); }
-            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value))); }
+            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name) ?? GetDefaultName(); }
+            [param: CanBeNull] set { SetName(value); }
         }
 
+        protected virtual bool SetName([CanBeNull] string value)
+            => Annotations.SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value)));
+
         protected virtual string GetDefaultName()
-            => "FK_" +
-               ForeignKey.DeclaringEntityType.DisplayName() +
-               "_" +
-               ForeignKey.PrincipalEntityType.DisplayName() +
-               "_" +
-               string.Join("_", ForeignKey.Properties.Select(p => p.Name));
+            => "FK_" + ForeignKey.DeclaringEntityType.DisplayName() +
+               "_" + ForeignKey.PrincipalEntityType.DisplayName() +
+               "_" + string.Join("_", ForeignKey.Properties.Select(p => p.Name));
     }
 }

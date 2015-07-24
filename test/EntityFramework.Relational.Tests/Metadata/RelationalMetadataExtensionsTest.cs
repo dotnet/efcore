@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Relational.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Tests
@@ -209,6 +210,124 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
+        public void Can_get_and_set_discriminator()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            Assert.Null(entityType.Relational().DiscriminatorProperty);
+
+            var property = entityType.AddProperty("D");
+
+            entityType.Relational().DiscriminatorProperty = property;
+
+            Assert.Same(property, entityType.Relational().DiscriminatorProperty);
+
+            entityType.Relational().DiscriminatorProperty = null;
+
+            Assert.Null(entityType.Relational().DiscriminatorProperty);
+        }
+
+        [Fact]
+        public void Setting_discriminator_on_non_root_type_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+            var property = entityType.AddProperty("D");
+
+            var derivedType = modelBuilder
+                .Entity<SpecialCustomer>()
+                .Metadata;
+            derivedType.BaseType = entityType;
+
+            Assert.Equal(Strings.DiscriminatorPropertyMustBeOnRoot(typeof(SpecialCustomer).FullName),
+                Assert.Throws<InvalidOperationException>(() => derivedType.Relational().DiscriminatorProperty = property).Message);
+        }
+
+        [Fact]
+        public void Setting_discriminator_from_different_entity_type_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            var otherType = modelBuilder
+                .Entity<SpecialCustomer>()
+                .Metadata;
+
+            var property = entityType.AddProperty("D");
+
+            Assert.Equal(Strings.DiscriminatorPropertyNotFound("D", typeof(SpecialCustomer).FullName),
+                Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
+        }
+
+        [Fact]
+        public void Can_get_and_set_discriminator_value()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            var property = entityType.AddProperty("D");
+            property.ClrType = typeof(string);
+            entityType.Relational().DiscriminatorProperty = property;
+
+            Assert.Null(entityType.Relational().DiscriminatorValue);
+
+            entityType.Relational().DiscriminatorValue = "V";
+
+            Assert.Equal("V", entityType.Relational().DiscriminatorValue);
+
+            entityType.Relational().DiscriminatorValue = null;
+
+            Assert.Null(entityType.Relational().DiscriminatorValue);
+        }
+
+        [Fact]
+        public void Setting_discriminator_value_when_discriminator_not_set_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+            
+            Assert.Equal(Strings.NoDiscriminator("Customer", "Customer"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityType.Relational().DiscriminatorValue = "V").Message);
+        }
+
+        [Fact]
+        public void Setting_incompatible_discriminator_value_throws()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            var property = entityType.AddProperty("D");
+            property.ClrType = typeof(int);
+            entityType.Relational().DiscriminatorProperty = property;
+
+            Assert.Equal(Strings.DiscriminitatorValueIncompatible("V", "D", typeof(int)),
+                Assert.Throws<InvalidOperationException>(() =>
+                    entityType.Relational().DiscriminatorValue = "V").Message);
+
+            entityType.Relational().DiscriminatorValue = null;
+        }
+
+        [Fact]
         public void Can_get_and_set_sequence()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -326,6 +445,10 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
 
         private class Order

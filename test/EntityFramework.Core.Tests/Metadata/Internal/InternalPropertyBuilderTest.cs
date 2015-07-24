@@ -3,7 +3,6 @@
 
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -202,6 +201,69 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.True(builder.Required(false, ConfigurationSource.Explicit));
             Assert.True(metadata.IsNullable.Value);
+        }
+
+
+        [Fact]
+        public void Can_only_override_lower_or_equal_source_ReadOnlyAfterSave()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.True(builder.ReadOnlyAfterSave(true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.ReadOnlyAfterSave(false, ConfigurationSource.DataAnnotation));
+
+            Assert.False(metadata.IsReadOnlyAfterSave.Value);
+
+            Assert.False(builder.ReadOnlyAfterSave(true, ConfigurationSource.Convention));
+            Assert.False(metadata.IsReadOnlyAfterSave.Value);
+        }
+
+        [Fact]
+        public void Can_only_override_existing_ReadOnlyAfterSave_value_explicitly()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+            metadata.IsReadOnlyAfterSave = false;
+
+            Assert.True(builder.ReadOnlyAfterSave(false, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.ReadOnlyAfterSave(true, ConfigurationSource.DataAnnotation));
+
+            Assert.False(metadata.IsReadOnlyAfterSave.Value);
+
+            Assert.True(builder.ReadOnlyAfterSave(true, ConfigurationSource.Explicit));
+            Assert.True(metadata.IsReadOnlyAfterSave.Value);
+        }
+
+        [Fact]
+        public void Can_only_override_lower_or_equal_source_ReadOnlyBeforeSave()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+
+            Assert.True(builder.ReadOnlyBeforeSave(true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.ReadOnlyBeforeSave(false, ConfigurationSource.DataAnnotation));
+
+            Assert.False(metadata.IsReadOnlyBeforeSave.Value);
+
+            Assert.False(builder.ReadOnlyBeforeSave(true, ConfigurationSource.Convention));
+            Assert.False(metadata.IsReadOnlyBeforeSave.Value);
+        }
+
+        [Fact]
+        public void Can_only_override_existing_ReadOnlyBeforeSave_value_explicitly()
+        {
+            var builder = CreateInternalPropertyBuilder();
+            var metadata = builder.Metadata;
+            metadata.IsReadOnlyBeforeSave = true;
+
+            Assert.True(builder.ReadOnlyBeforeSave(true, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.ReadOnlyBeforeSave(false, ConfigurationSource.DataAnnotation));
+
+            Assert.True(metadata.IsReadOnlyBeforeSave.Value);
+
+            Assert.True(builder.ReadOnlyBeforeSave(false, ConfigurationSource.Explicit));
+            Assert.False(metadata.IsReadOnlyBeforeSave.Value);
         }
 
         [Fact]

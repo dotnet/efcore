@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -7,34 +7,34 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public static class RelationalInternalMetadataBuilderExtensions
     {
-        public static RelationalModelAnnotations Relational(
+        public static RelationalModelBuilderAnnotations Relational(
             [NotNull] this InternalModelBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalModelAnnotations(builder, configurationSource, null);
+            => new RelationalModelBuilderAnnotations(builder, configurationSource, null);
 
-        public static RelationalPropertyAnnotations Relational(
+        public static RelationalPropertyBuilderAnnotations Relational(
             [NotNull] this InternalPropertyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalPropertyAnnotations(builder, configurationSource, null);
+            => new RelationalPropertyBuilderAnnotations(builder, configurationSource, null);
 
-        public static RelationalEntityTypeAnnotations Relational(
+        public static RelationalEntityTypeBuilderAnnotations Relational(
             [NotNull] this InternalEntityTypeBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalEntityTypeAnnotations(builder, configurationSource, null);
+            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, null);
 
-        public static RelationalKeyAnnotations Relational(
+        public static RelationalKeyBuilderAnnotations Relational(
             [NotNull] this InternalKeyBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalKeyAnnotations(builder, configurationSource, null);
+            => new RelationalKeyBuilderAnnotations(builder, configurationSource, null);
 
-        public static RelationalIndexAnnotations Relational(
+        public static RelationalIndexBuilderAnnotations Relational(
             [NotNull] this InternalIndexBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalIndexAnnotations(builder, configurationSource, null);
+            => new RelationalIndexBuilderAnnotations(builder, configurationSource, null);
 
-        public static RelationalForeignKeyAnnotations Relational(
+        public static RelationalForeignKeyBuilderAnnotations Relational(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalForeignKeyAnnotations(builder, configurationSource, null);
+            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, null);
     }
 }

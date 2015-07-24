@@ -45,7 +45,11 @@
     </Compile>
     <Compile Include="Extensions\SqlServerDbContextOptionsBuilder.cs" />
     <Compile Include="ISqlServerConnection.cs" />
+    <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerInternalMetadataBuilderExtensions.cs" />
+    <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerPropertyBuilderAnnotations.cs" />
     <Compile Include="Update\ISqlServerUpdateSqlGenerator.cs" />
     <Compile Include="Metadata\ISqlServerIndexAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerKeyAnnotations.cs" />

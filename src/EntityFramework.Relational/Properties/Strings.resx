@@ -262,4 +262,13 @@
   <data name="InvalidCreateScript" xml:space="preserve">
     <value>GetCreateScript only handles operations in a single batch without transaction suppression. For more advanced scenarios, override HistoryRepository.GetCreateScript in your provider.</value>
   </data>
+  <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
+    <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
+  </data>
+  <data name="DiscriminitatorValueIncompatible" xml:space="preserve">
+    <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
+  </data>
+  <data name="NoDiscriminator" xml:space="preserve">
+    <value>Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.</value>
+  </data>
 </root>

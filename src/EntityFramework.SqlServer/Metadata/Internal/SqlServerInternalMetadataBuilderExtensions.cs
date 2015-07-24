@@ -2,41 +2,40 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Metadata.Internal
 {
     public static class SqlServerInternalMetadataBuilderExtensions
     {
-        public static SqlServerModelAnnotations SqlServer(
+        public static SqlServerModelBuilderAnnotations SqlServer(
             [NotNull] this InternalModelBuilder builder,
             ConfigurationSource configurationSource)
-            => new SqlServerModelAnnotations(builder, configurationSource);
+            => new SqlServerModelBuilderAnnotations(builder, configurationSource);
 
-        public static SqlServerPropertyAnnotations SqlServer(
+        public static SqlServerPropertyBuilderAnnotations SqlServer(
             [NotNull] this InternalPropertyBuilder builder,
             ConfigurationSource configurationSource)
-            => new SqlServerPropertyAnnotations(builder, configurationSource);
+            => new SqlServerPropertyBuilderAnnotations(builder, configurationSource);
 
-        public static RelationalEntityTypeAnnotations SqlServer(
+        public static RelationalEntityTypeBuilderAnnotations SqlServer(
             [NotNull] this InternalEntityTypeBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalEntityTypeAnnotations(builder, configurationSource, SqlServerAnnotationNames.Prefix);
+            => new RelationalEntityTypeBuilderAnnotations(builder, configurationSource, SqlServerAnnotationNames.Prefix);
 
-        public static SqlServerKeyAnnotations SqlServer(
+        public static SqlServerKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalKeyBuilder builder,
             ConfigurationSource configurationSource)
-            => new SqlServerKeyAnnotations(builder, configurationSource);
+            => new SqlServerKeyBuilderAnnotations(builder, configurationSource);
 
-        public static SqlServerIndexAnnotations SqlServer(
+        public static SqlServerIndexBuilderAnnotations SqlServer(
             [NotNull] this InternalIndexBuilder builder,
             ConfigurationSource configurationSource)
-            => new SqlServerIndexAnnotations(builder, configurationSource);
+            => new SqlServerIndexBuilderAnnotations(builder, configurationSource);
 
-        public static RelationalForeignKeyAnnotations SqlServer(
+        public static RelationalForeignKeyBuilderAnnotations SqlServer(
             [NotNull] this InternalRelationshipBuilder builder,
             ConfigurationSource configurationSource)
-            => new RelationalForeignKeyAnnotations(builder, configurationSource, SqlServerAnnotationNames.Prefix);
+            => new RelationalForeignKeyBuilderAnnotations(builder, configurationSource, SqlServerAnnotationNames.Prefix);
     }
 }

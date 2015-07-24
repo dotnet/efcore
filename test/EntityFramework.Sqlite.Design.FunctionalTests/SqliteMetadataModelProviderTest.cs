@@ -145,7 +145,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             var parent = model.GetEntityType("Parent");
             var children = model.GetEntityType("Children");
 
-            Assert.NotEmpty(parent.GetReferencingForeignKeys());
+            Assert.NotEmpty(parent.FindReferencingForeignKeys());
             Assert.NotEmpty(children.GetForeignKeys());
 
             var principalKey = children.GetForeignKey(children.FindProperty("ParentId")).PrincipalKey;
@@ -168,7 +168,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             var parent = model.GetEntityType("Parent");
             var children = model.GetEntityType("Children");
 
-            Assert.NotEmpty(parent.GetReferencingForeignKeys());
+            Assert.NotEmpty(parent.FindReferencingForeignKeys());
             Assert.NotEmpty(children.GetForeignKeys());
 
             var propList = new List<Property>
@@ -194,7 +194,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             var model = GetModel(sql);
             var list = model.GetEntityType("ItemsList");
 
-            Assert.NotEmpty(list.GetReferencingForeignKeys());
+            Assert.NotEmpty(list.FindReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
             var principalKey = list.GetForeignKey(list.FindProperty("ParentId")).PrincipalKey;

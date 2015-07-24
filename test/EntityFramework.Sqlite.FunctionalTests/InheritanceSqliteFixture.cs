@@ -61,7 +61,10 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     Genus int NOT NULL,
                     Species nvarchar(100) NOT NULL PRIMARY KEY,
                     Name nvarchar(100) NOT NULL,
-                    HasThorns bit
+                    CountryId int,
+                    HasThorns bit,
+
+                    FOREIGN KEY(countryId) REFERENCES Country(Id)
                 );
             ");
 

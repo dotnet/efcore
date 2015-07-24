@@ -396,6 +396,30 @@ namespace Microsoft.Data.Entity.Relational.Internal
             get { return GetString("InvalidCreateScript"); }
         }
 
+        /// <summary>
+        /// Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
+        /// </summary>
+        public static string DiscriminatorEntityTypeNotDerived([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorEntityTypeNotDerived", "entityType", "rootEntityType"), entityType, rootEntityType);
+        }
+
+        /// <summary>
+        /// Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.
+        /// </summary>
+        public static string DiscriminitatorValueIncompatible([CanBeNull] object value, [CanBeNull] object discriminator, [CanBeNull] object discriminatorType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminitatorValueIncompatible", "value", "discriminator", "discriminatorType"), value, discriminator, discriminatorType);
+        }
+
+        /// <summary>
+        /// Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.
+        /// </summary>
+        public static string NoDiscriminator([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoDiscriminator", "entityType", "rootEntityType"), entityType, rootEntityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

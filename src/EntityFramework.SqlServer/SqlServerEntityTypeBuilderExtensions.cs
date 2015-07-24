@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.SqlServer.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
@@ -16,7 +19,9 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            entityTypeBuilder.Metadata.SqlServer().TableName = name;
+            var relationalEntityTypeBuilder = ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+                .SqlServer(ConfigurationSource.Explicit);
+            relationalEntityTypeBuilder.TableName = name;
 
             return entityTypeBuilder;
         }
@@ -35,9 +40,11 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
-
-            entityTypeBuilder.Metadata.SqlServer().TableName = name;
-            entityTypeBuilder.Metadata.SqlServer().Schema = schema;
+            
+            var relationalEntityTypeBuilder = ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+                .SqlServer(ConfigurationSource.Explicit);
+            relationalEntityTypeBuilder.TableName = name;
+            relationalEntityTypeBuilder.Schema = schema;
 
             return entityTypeBuilder;
         }

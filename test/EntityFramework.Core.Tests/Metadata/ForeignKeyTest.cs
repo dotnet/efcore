@@ -817,17 +817,21 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityType(fk.PrincipalEntityType)).Message);
 
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationFrom(fk.PrincipalEntityType)).Message);
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationFrom(fk.DeclaringEntityType)).Message);
 
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationTo(fk.PrincipalEntityType)).Message);
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationTo(fk.DeclaringEntityType)).Message);
         }
 
@@ -851,17 +855,21 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 Assert.Throws<InvalidOperationException>(() => fk.ResolveOtherEntityType(fk.PrincipalEntityType)).Message);
 
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationFrom(fk.PrincipalEntityType)).Message);
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationFrom(fk.DeclaringEntityType)).Message);
 
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.PrincipalEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationTo(fk.PrincipalEntityType)).Message);
             Assert.Equal(
-                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties)),
+                Strings.IntraHierarchicalAmbiguousNavigation(fk.DeclaringEntityType.Name, Property.Format(fk.Properties),
+                    fk.PrincipalEntityType, fk.DeclaringEntityType),
                 Assert.Throws<InvalidOperationException>(() => fk.FindNavigationTo(fk.DeclaringEntityType)).Message);
         }
 

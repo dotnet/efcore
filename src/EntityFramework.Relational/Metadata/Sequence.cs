@@ -44,8 +44,7 @@ namespace Microsoft.Data.Entity.Metadata
                 });
             }
         }
-
-
+        
         private Sequence(IModel model, string annotationName)
         {
             _model = model;

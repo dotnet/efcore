@@ -9,28 +9,30 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class RelationalKeyAnnotations : RelationalAnnotationsBase, IRelationalKeyAnnotations
+    public class RelationalKeyAnnotations : IRelationalKeyAnnotations
     {
         public RelationalKeyAnnotations([NotNull] IKey key, [CanBeNull] string providerPrefix)
-            : base(key, providerPrefix)
+            : this(new RelationalAnnotations(key, providerPrefix))
         {
         }
-
-        public RelationalKeyAnnotations(
-            [NotNull] InternalKeyBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(internalBuilder, configurationSource, providerPrefix)
+        
+        protected RelationalKeyAnnotations([NotNull] RelationalAnnotations annotations)
         {
+            Annotations = annotations;
         }
 
-        protected virtual IKey Key => (IKey)Metadata;
+        protected RelationalAnnotations Annotations { get; }
+
+        protected virtual IKey Key => (IKey)Annotations.Metadata;
 
         public virtual string Name
         {
-            get { return (string)GetAnnotation(RelationalAnnotationNames.Name) ?? GetDefaultName(); }
-            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value))); }
+            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.Name) ?? GetDefaultName(); }
+            [param: CanBeNull] set { SetName(value); }
         }
+
+        protected virtual bool SetName([CanBeNull] string value)
+            => Annotations.SetAnnotation(RelationalAnnotationNames.Name, Check.NullButNotEmpty(value, nameof(value)));
 
         protected virtual string GetDefaultName()
         {

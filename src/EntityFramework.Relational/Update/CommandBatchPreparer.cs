@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Update
                     foreach (var entry in command.Entries)
                     {
                         // TODO: Perf: Consider only adding foreign keys defined on entity types involved in a modification
-                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
+                        foreach (var foreignKey in entry.EntityType.FindReferencingForeignKeys())
                         {
                             var candidateKeyValueColumnModifications =
                                 command.ColumnModifications.Where(cm =>
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Update
                 {
                     foreach (var entry in command.Entries)
                     {
-                        foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
+                        foreach (var foreignKey in entry.EntityType.FindReferencingForeignKeys())
                         {
                             var principalKeyValue = CreatePrincipalKeyValue(entry.OriginalValues, foreignKey, ValueType.Original);
 

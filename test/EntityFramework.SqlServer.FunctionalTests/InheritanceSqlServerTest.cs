@@ -60,7 +60,7 @@ WHERE [a].[Discriminator] = 'Kiwi'",
             base.Can_use_of_type_rose();
 
             Assert.Equal(
-                @"SELECT [p].[Species], [p].[Genus], [p].[Name], [p].[HasThorns]
+                @"SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plant] AS [p]
 WHERE [p].[Genus] = 0",
                 Sql);
@@ -83,7 +83,7 @@ ORDER BY [a].[Species]",
             base.Can_query_all_plants();
 
             Assert.Equal(
-                @"SELECT [a].[Species], [a].[Genus], [a].[Name], [a].[HasThorns]
+                @"SELECT [a].[Species], [a].[CountryId], [a].[Genus], [a].[Name], [a].[HasThorns]
 FROM [Plant] AS [a]
 WHERE [a].[Genus] IN (0, 1)
 ORDER BY [a].[Species]",
@@ -130,7 +130,7 @@ WHERE [a].[Discriminator] = 'Kiwi'",
             base.Can_query_just_roses();
 
             Assert.Equal(
-                @"SELECT TOP(2) [p].[Species], [p].[Genus], [p].[Name], [p].[HasThorns]
+                @"SELECT TOP(2) [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plant] AS [p]
 WHERE [p].[Genus] = 0",
                 Sql

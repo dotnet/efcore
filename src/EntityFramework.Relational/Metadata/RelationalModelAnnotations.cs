@@ -5,34 +5,32 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class RelationalModelAnnotations : RelationalAnnotationsBase, IRelationalModelAnnotations
+    public class RelationalModelAnnotations : IRelationalModelAnnotations
     {
         public RelationalModelAnnotations([NotNull] IModel model, [CanBeNull] string providerPrefix)
-            : base(model, providerPrefix)
+            : this(new RelationalAnnotations(model, providerPrefix))
         {
         }
 
-        public RelationalModelAnnotations(
-            [NotNull] InternalModelBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(internalBuilder, configurationSource, providerPrefix)
+        protected RelationalModelAnnotations([NotNull] RelationalAnnotations annotations)
         {
+            Annotations = annotations;
         }
 
-        protected virtual IModel Model => (IModel)Metadata;
+        protected RelationalAnnotations Annotations { get; }
+
+        protected virtual IModel Model => (IModel)Annotations.Metadata;
 
         public virtual IReadOnlyList<ISequence> Sequences
         {
             get
             {
-                var providerSequences = ProviderPrefix != null
-                    ? Sequence.GetSequences(Model, ProviderPrefix).ToList()
+                var providerSequences = Annotations.ProviderPrefix != null
+                    ? Sequence.GetSequences(Model, Annotations.ProviderPrefix).ToList()
                     : (IList<ISequence>)ImmutableList<ISequence>.Empty;
 
                 return Sequence.GetSequences(Model, RelationalAnnotationNames.Prefix)
@@ -43,13 +41,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual ISequence FindSequence(string name, string schema = null)
-            => (ProviderPrefix == null ? null : Sequence.FindSequence(Model, ProviderPrefix, name, schema))
+            => (Annotations.ProviderPrefix == null ? null : Sequence.FindSequence(Model, Annotations.ProviderPrefix, name, schema))
                ?? Sequence.FindSequence(Model, RelationalAnnotationNames.Prefix, name, schema);
 
         public virtual Sequence GetOrAddSequence([CanBeNull] string name, [CanBeNull] string schema = null)
             => new Sequence(
                 (Model)Model,
-                ProviderPrefix ?? RelationalAnnotationNames.Prefix,
+                Annotations.ProviderPrefix ?? RelationalAnnotationNames.Prefix,
                 Check.NotEmpty(name, nameof(name)),
                 Check.NullButNotEmpty(schema, nameof(schema)));
     }

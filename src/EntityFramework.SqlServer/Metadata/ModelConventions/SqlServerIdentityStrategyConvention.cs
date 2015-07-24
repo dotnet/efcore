@@ -11,8 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata.ModelConventions
     {
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            modelBuilder.SqlServer(ConfigurationSource.Convention).IdentityStrategy
-                = SqlServerIdentityStrategy.IdentityColumn;
+            modelBuilder.SqlServer(ConfigurationSource.Convention).IdentityStrategy(SqlServerIdentityStrategy.IdentityColumn);
 
             return modelBuilder;
         }

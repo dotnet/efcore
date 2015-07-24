@@ -9,6 +9,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class InternalPropertyBuilder : InternalMetadataItemBuilder<Property>
     {
         private ConfigurationSource? _clrTypeConfigurationSource;
+        private ConfigurationSource? _isReadOnlyAfterSaveConfigurationSource;
+        private ConfigurationSource? _isReadOnlyBeforeSaveConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
         private ConfigurationSource? _isShadowPropertyConfigurationSource;
@@ -84,6 +86,50 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 Metadata.IsConcurrencyToken = isConcurrencyToken;
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual bool ReadOnlyAfterSave(bool? isReadOnlyAfterSave, ConfigurationSource configurationSource)
+        {
+            if (configurationSource.CanSet(_isReadOnlyAfterSaveConfigurationSource, Metadata.IsReadOnlyAfterSave.HasValue)
+                || Metadata.IsReadOnlyAfterSave == isReadOnlyAfterSave)
+            {
+                if (_isReadOnlyAfterSaveConfigurationSource == null
+                    && Metadata.IsReadOnlyAfterSave != null)
+                {
+                    _isReadOnlyAfterSaveConfigurationSource = ConfigurationSource.Explicit;
+                }
+                else
+                {
+                    _isReadOnlyAfterSaveConfigurationSource = configurationSource.Max(_isReadOnlyAfterSaveConfigurationSource);
+                }
+
+                Metadata.IsReadOnlyAfterSave = isReadOnlyAfterSave;
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual bool ReadOnlyBeforeSave(bool? isReadOnlyBeforeSave, ConfigurationSource configurationSource)
+        {
+            if (configurationSource.CanSet(_isReadOnlyBeforeSaveConfigurationSource, Metadata.IsReadOnlyBeforeSave.HasValue)
+                || Metadata.IsReadOnlyBeforeSave == isReadOnlyBeforeSave)
+            {
+                if (_isReadOnlyBeforeSaveConfigurationSource == null
+                    && Metadata.IsReadOnlyBeforeSave != null)
+                {
+                    _isReadOnlyBeforeSaveConfigurationSource = ConfigurationSource.Explicit;
+                }
+                else
+                {
+                    _isReadOnlyBeforeSaveConfigurationSource = configurationSource.Max(_isReadOnlyBeforeSaveConfigurationSource);
+                }
+
+                Metadata.IsReadOnlyBeforeSave = isReadOnlyBeforeSave;
                 return true;
             }
 

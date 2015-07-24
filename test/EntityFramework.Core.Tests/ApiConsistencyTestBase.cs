@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                    where type.IsVisible && !typeof(Delegate).IsAssignableFrom(type)
+                    where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
                     let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
                     let events = type.GetEvents()
                     from method in type.GetMethods(PublicInstance | BindingFlags.Static)
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity
                     where type.IsVisible
                     from method in type.GetMethods(PublicInstance | BindingFlags.Static)
                     where method.DeclaringType == type
-                    where typeof(Task).IsAssignableFrom(method.ReturnType)
+                    where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType)
                     select method).ToList();
 
             var asyncMethodsWithToken

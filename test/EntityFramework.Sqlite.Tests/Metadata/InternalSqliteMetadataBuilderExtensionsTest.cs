@@ -34,13 +34,13 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
         {
             var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
 
-            typeBuilder.Sqlite(ConfigurationSource.Convention).TableName = "Splew";
+            Assert.True(typeBuilder.Sqlite(ConfigurationSource.Convention).ToTable("Splew"));
             Assert.Equal("Splew", typeBuilder.Metadata.Sqlite().TableName);
 
-            typeBuilder.Sqlite(ConfigurationSource.DataAnnotation).TableName = "Splow";
+            Assert.True(typeBuilder.Sqlite(ConfigurationSource.DataAnnotation).ToTable("Splow"));
             Assert.Equal("Splow", typeBuilder.Metadata.Sqlite().TableName);
 
-            typeBuilder.Sqlite(ConfigurationSource.Convention).TableName = "Splod";
+            Assert.False(typeBuilder.Sqlite(ConfigurationSource.Convention).ToTable("Splod"));
             Assert.Equal("Splow", typeBuilder.Metadata.Sqlite().TableName);
 
             Assert.Equal(1, typeBuilder.Metadata.Annotations.Count(
@@ -54,13 +54,13 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
                 .Entity(typeof(Splot), ConfigurationSource.Convention)
                 .Property("Id", typeof(int), ConfigurationSource.Convention);
 
-            propertyBuilder.Sqlite(ConfigurationSource.Convention).ColumnName = "Splew";
+            Assert.True(propertyBuilder.Sqlite(ConfigurationSource.Convention).ColumnName("Splew"));
             Assert.Equal("Splew", propertyBuilder.Metadata.Sqlite().ColumnName);
 
-            propertyBuilder.Sqlite(ConfigurationSource.DataAnnotation).ColumnName = "Splow";
+            Assert.True(propertyBuilder.Sqlite(ConfigurationSource.DataAnnotation).ColumnName("Splow"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Sqlite().ColumnName);
 
-            propertyBuilder.Sqlite(ConfigurationSource.Convention).ColumnName = "Splod";
+            Assert.False(propertyBuilder.Sqlite(ConfigurationSource.Convention).ColumnName("Splod"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Sqlite().ColumnName);
 
             Assert.Equal(1, propertyBuilder.Metadata.Annotations.Count(
@@ -75,13 +75,13 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var property = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.Key(new[] { property }, ConfigurationSource.Convention);
 
-            keyBuilder.Sqlite(ConfigurationSource.Convention).Name = "Splew";
+            Assert.True(keyBuilder.Sqlite(ConfigurationSource.Convention).Name("Splew"));
             Assert.Equal("Splew", keyBuilder.Metadata.Sqlite().Name);
 
-            keyBuilder.Sqlite(ConfigurationSource.DataAnnotation).Name = "Splow";
+            Assert.True(keyBuilder.Sqlite(ConfigurationSource.DataAnnotation).Name("Splow"));
             Assert.Equal("Splow", keyBuilder.Metadata.Sqlite().Name);
 
-            keyBuilder.Sqlite(ConfigurationSource.Convention).Name = "Splod";
+            Assert.False(keyBuilder.Sqlite(ConfigurationSource.Convention).Name("Splod"));
             Assert.Equal("Splow", keyBuilder.Metadata.Sqlite().Name);
 
             Assert.Equal(1, keyBuilder.Metadata.Annotations.Count(
@@ -96,13 +96,13 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.Index(new[] { "Id" }, ConfigurationSource.Convention);
 
-            indexBuilder.Sqlite(ConfigurationSource.Convention).Name = "Splew";
+            indexBuilder.Sqlite(ConfigurationSource.Convention).Name("Splew");
             Assert.Equal("Splew", indexBuilder.Metadata.Sqlite().Name);
 
-            indexBuilder.Sqlite(ConfigurationSource.DataAnnotation).Name = "Splow";
+            indexBuilder.Sqlite(ConfigurationSource.DataAnnotation).Name("Splow");
             Assert.Equal("Splow", indexBuilder.Metadata.Sqlite().Name);
 
-            indexBuilder.Sqlite(ConfigurationSource.Convention).Name = "Splod";
+            indexBuilder.Sqlite(ConfigurationSource.Convention).Name("Splod");
             Assert.Equal("Splow", indexBuilder.Metadata.Sqlite().Name);
 
             Assert.Equal(1, indexBuilder.Metadata.Annotations.Count(
@@ -117,13 +117,13 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.ForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
-            relationshipBuilder.Sqlite(ConfigurationSource.Convention).Name = "Splew";
+            Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.Convention).Name("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.Sqlite().Name);
 
-            relationshipBuilder.Sqlite(ConfigurationSource.DataAnnotation).Name = "Splow";
+            Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.DataAnnotation).Name("Splow"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Sqlite().Name);
 
-            relationshipBuilder.Sqlite(ConfigurationSource.Convention).Name = "Splod";
+            Assert.False(relationshipBuilder.Sqlite(ConfigurationSource.Convention).Name("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Sqlite().Name);
 
             Assert.Equal(1, relationshipBuilder.Metadata.Annotations.Count(

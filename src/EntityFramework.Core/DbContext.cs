@@ -273,10 +273,7 @@ namespace Microsoft.Data.Entity
         ///     The number of state entries written to the underlying database.
         /// </returns>
         [DebuggerStepThrough]
-        public virtual int SaveChanges()
-        {
-            return SaveChanges(acceptAllChangesOnSuccess: true);
-        }
+        public virtual int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
 
         /// <summary>
         ///     Saves all changes made in this context to the underlying database.

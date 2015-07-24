@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
                 var initialProperties = pickleClone.GetProperties();
                 var initialIndexes = pickleClone.GetIndexes();
                 var initialForeignKey = pickleClone.GetForeignKeys();
-                var initialReferencingForeignKey = pickleClone.GetReferencingForeignKeys();
+                var initialReferencingForeignKey = pickleClone.FindReferencingForeignKeys();
                 var initialKeys = pickleClone.GetKeys();
 
                 pickleBuilder.BaseEntity<Ingredient>();

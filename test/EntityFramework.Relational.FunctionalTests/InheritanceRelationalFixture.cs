@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -13,35 +11,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            // TODO: Code First this
+            // TODO: remove this when the discriminator convention is added
+            modelBuilder.Entity<Animal>().Discriminator()
+                .HasValue(typeof(Eagle), "Eagle")
+                .HasValue(typeof(Kiwi), "Kiwi");
 
-            var animal = modelBuilder.Entity<Animal>().Metadata;
-
-            var animalDiscriminatorProperty = animal.AddProperty("Discriminator", typeof(string));
-            animalDiscriminatorProperty.IsNullable = false;
-            //animalDiscriminatorProperty.IsReadOnlyBeforeSave = true; // #2132
-            animalDiscriminatorProperty.IsReadOnlyAfterSave = true;
-            animalDiscriminatorProperty.RequiresValueGenerator = true;
-
-            animal.Relational().DiscriminatorProperty = animalDiscriminatorProperty;
-
-            var plant = modelBuilder.Entity<Plant>().Metadata;
-
-            var plantDiscriminatorProperty = plant.AddProperty("Genus", typeof(PlantGenus));
-            plantDiscriminatorProperty.IsShadowProperty = false;
-
-            plantDiscriminatorProperty.IsNullable = false;
-            //plantDiscriminatorProperty.IsReadOnlyBeforeSave = true; // #2132
-            plantDiscriminatorProperty.IsReadOnlyAfterSave = true;
-            plantDiscriminatorProperty.RequiresValueGenerator = true;
-
-            plant.Relational().DiscriminatorProperty = plantDiscriminatorProperty;
-
-            var rose = modelBuilder.Entity<Rose>().Metadata;
-            rose.Relational().DiscriminatorValue = PlantGenus.Rose;
-
-            var daisy = modelBuilder.Entity<Daisy>().Metadata;
-            daisy.Relational().DiscriminatorValue = PlantGenus.Daisy;
+            modelBuilder.Entity<Plant>().Discriminator(p => p.Genus)
+                .HasValue<Rose>(PlantGenus.Rose)
+                .HasValue<Daisy>(PlantGenus.Daisy);
         }
     }
 }

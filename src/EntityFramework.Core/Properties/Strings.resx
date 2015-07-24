@@ -496,7 +496,7 @@
     <value>The navigation property '{navigation}' cannot be removed because it is still referenced from entity type '{entityType}'.</value>
   </data>
   <data name="IntraHierarchicalAmbiguousNavigation" xml:space="preserve">
-    <value>The navigation property corresponding to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
+    <value>The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is '{principalEntityType}' and it is in the same hierarchy as the dependent entity type '{dependentEntityType}'.</value>
   </data>
   <data name="DuplicateNavigationsOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.</value>

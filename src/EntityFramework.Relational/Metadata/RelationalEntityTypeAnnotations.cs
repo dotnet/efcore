@@ -2,88 +2,119 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class RelationalEntityTypeAnnotations : RelationalAnnotationsBase, IRelationalEntityTypeAnnotations
+    public class RelationalEntityTypeAnnotations : IRelationalEntityTypeAnnotations
     {
         public RelationalEntityTypeAnnotations([NotNull] IEntityType entityType, [CanBeNull] string providerPrefix)
-            : base(entityType, providerPrefix)
+            : this(new RelationalAnnotations(entityType, providerPrefix))
         {
         }
 
-        public RelationalEntityTypeAnnotations(
-            [NotNull] InternalEntityTypeBuilder internalBuilder,
-            ConfigurationSource configurationSource,
-            [CanBeNull] string providerPrefix)
-            : base(internalBuilder, configurationSource, providerPrefix)
+        protected RelationalEntityTypeAnnotations([NotNull] RelationalAnnotations annotations)
         {
+            Annotations = annotations;
         }
 
-        protected virtual IEntityType EntityType => (IEntityType)Metadata;
+        protected RelationalAnnotations Annotations { get; }
+
+        protected virtual IEntityType EntityType => (IEntityType)Annotations.Metadata;
 
         public virtual string TableName
         {
             get
             {
                 var rootType = EntityType.RootType();
+                var rootAnnotations = new RelationalAnnotations(rootType, Annotations.ProviderPrefix);
 
-                return (string)GetAnnotation(rootType, RelationalAnnotationNames.TableName)
+                return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.TableName)
                        ?? rootType.DisplayName();
             }
-            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.TableName, Check.NullButNotEmpty(value, nameof(value))); }
+            [param: CanBeNull] set { SetTableName(value); }
         }
+
+        protected virtual bool SetTableName(string value)
+            => Annotations.SetAnnotation(RelationalAnnotationNames.TableName, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string Schema
         {
-            get { return (string)GetAnnotation(EntityType.RootType(), RelationalAnnotationNames.Schema); }
-            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.Schema, Check.NullButNotEmpty(value, nameof(value))); }
+            get
+            {
+                var rootAnnotations = new RelationalAnnotations(EntityType.RootType(), Annotations.ProviderPrefix);
+                return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.Schema);
+            }
+            [param: CanBeNull] set { SetSchema(value); }
         }
+
+        protected virtual bool SetSchema(string value)
+            => Annotations.SetAnnotation(RelationalAnnotationNames.Schema, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual IProperty DiscriminatorProperty
         {
             get
             {
                 var rootType = EntityType.RootType();
-
-                var propertyName = (string)GetAnnotation(rootType, RelationalAnnotationNames.DiscriminatorProperty);
+                var rootAnnotations = new RelationalAnnotations(rootType, Annotations.ProviderPrefix);
+                var propertyName = (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
 
                 return propertyName == null ? null : rootType.GetProperty(propertyName);
             }
-            [param: CanBeNull]
-            set
-            {
-                if (value != null)
-                {
-                    if (EntityType != EntityType.RootType())
-                    {
-                        throw new InvalidOperationException(
-                            Strings.DiscriminatorPropertyMustBeOnRoot(EntityType));
-                    }
+            [param: CanBeNull] set { SetDiscriminatorProperty(value); }
+        }
 
-                    if (value.DeclaringEntityType != EntityType)
-                    {
-                        throw new InvalidOperationException(
-                            Strings.DiscriminatorPropertyNotFound(value, EntityType));
-                    }
+        protected virtual IProperty GetNonRootDiscriminatorProperty()
+        {
+            var propertyName = (string)Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
+
+            return propertyName == null ? null : EntityType.GetProperty(propertyName);
+        }
+
+        protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value)
+        {
+            if (value != null)
+            {
+                if (EntityType != EntityType.RootType())
+                {
+                    throw new InvalidOperationException(
+                        Strings.DiscriminatorPropertyMustBeOnRoot(EntityType));
                 }
 
-                SetAnnotation(RelationalAnnotationNames.DiscriminatorProperty, value?.Name);
+                if (value.DeclaringEntityType != EntityType)
+                {
+                    throw new InvalidOperationException(
+                        Strings.DiscriminatorPropertyNotFound(value.Name, EntityType));
+                }
             }
+
+            return Annotations.SetAnnotation(RelationalAnnotationNames.DiscriminatorProperty, value?.Name);
         }
 
         public virtual object DiscriminatorValue
         {
-            get
+            get { return Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorValue); }
+            [param: CanBeNull] set { SetDiscriminatorValue(value); }
+        }
+
+        protected virtual bool SetDiscriminatorValue(object value)
+        {
+            if (DiscriminatorProperty == null)
             {
-                return GetAnnotation(RelationalAnnotationNames.DiscriminatorValue)
-                       ?? EntityType.DisplayName();
+                throw new InvalidOperationException(
+                    Strings.NoDiscriminator(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
             }
-            [param: CanBeNull] set { SetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value); }
+
+            if (value != null && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+            {
+                throw new InvalidOperationException(Strings.DiscriminitatorValueIncompatible(
+                    value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));
+            }
+
+            return Annotations.SetAnnotation(RelationalAnnotationNames.DiscriminatorValue, value);
         }
     }
 }

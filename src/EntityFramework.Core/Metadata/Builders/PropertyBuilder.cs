@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     /// </summary>
     public class PropertyBuilder : IAccessor<Model>, IAccessor<InternalPropertyBuilder>
     {
-        private readonly InternalPropertyBuilder _builder;
-
         /// <summary>
         ///     <para>
         ///         Initializes a new instance of the <see cref="PropertyBuilder" /> class to configure a given
@@ -36,13 +34,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             Check.NotNull(builder, nameof(builder));
 
-            _builder = builder;
+            Builder = builder;
         }
 
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        InternalPropertyBuilder IAccessor<InternalPropertyBuilder>.Service => _builder;
+        InternalPropertyBuilder IAccessor<InternalPropertyBuilder>.Service => Builder;
 
         /// <summary>
         ///     The property being configured.
@@ -157,6 +155,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        private InternalPropertyBuilder Builder => this.GetService<InternalPropertyBuilder>();
+        private InternalPropertyBuilder Builder { get; }
     }
 }

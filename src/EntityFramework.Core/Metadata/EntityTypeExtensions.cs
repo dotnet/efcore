@@ -31,6 +31,9 @@ namespace Microsoft.Data.Entity.Metadata
                 .Concat(entityType.GetDerivedTypes())
                 .Where(et => !et.IsAbstract());
         }
+        
+        public static IEnumerable<EntityType> GetConcreteTypesInHierarchy([NotNull] this EntityType entityType)
+            => ((IEntityType)entityType).GetConcreteTypesInHierarchy().Cast<EntityType>();
 
         private static IEnumerable<IEntityType> GetDerivedTypes(IModel model, IEntityType entityType)
         {
@@ -162,6 +165,18 @@ namespace Microsoft.Data.Entity.Metadata
             return property;
         }
 
+        public static IEnumerable<IProperty> FindDerivedProperties([NotNull] this IEntityType entityType, [NotNull] IEnumerable<string> propertyNames)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(propertyNames, nameof(propertyNames));
+
+            var searchProperties = new HashSet<string>(propertyNames);
+
+            return entityType.GetDerivedTypes()
+                .SelectMany(et => et.GetDeclaredProperties()
+                    .Where(property => searchProperties.Contains(property.Name)));
+        }
+
         [NotNull]
         public static INavigation GetNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
         {
@@ -191,7 +206,7 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetProperties().Concat<IPropertyBase>(entityType.GetNavigations());
         }
 
-        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 

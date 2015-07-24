@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties)));
+                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties)));
+                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)

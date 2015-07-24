@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
             set
             {
                 Check.NotNull(value, nameof(value));
-                if (value != _clrType)
+                if (value != ((IProperty)this).ClrType)
                 {
                     var foreignKey = this.FindReferencingForeignKeys().FirstOrDefault();
                     if (foreignKey != null)
@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(
                             Strings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
                     }
-                    _clrType = value;
                 }
+                _clrType = value;
             }
         }
 
@@ -217,6 +217,18 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual object SentinelValue { get; [param: CanBeNull] set; }
+
+
+        public virtual bool IsInUse
+        {
+            get
+            {
+                return new[] { DeclaringEntityType }.Concat(DeclaringEntityType.GetDerivedTypes()).Any(entityType =>
+                    entityType.GetDeclaredKeys().Any(k => k.Properties.Contains(this))
+                    || entityType.GetDeclaredForeignKeys().Any(k => k.Properties.Contains(this))
+                    || entityType.GetDeclaredIndexes().Any(i => i.Properties.Contains(this)));
+            }
+        }
 
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
 

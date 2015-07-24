@@ -55,6 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Genus int NOT NULL,
                     Species nvarchar(100) NOT NULL PRIMARY KEY,
                     Name nvarchar(100) NOT NULL,
+                    CountryId int FOREIGN KEY REFERENCES Country (Id),
                     HasThorns bit
                 );");
 
@@ -64,9 +65,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public override InheritanceContext CreateContext()
-        {
-            return new InheritanceContext(_serviceProvider, _options);
-        }
+        public override InheritanceContext CreateContext() => new InheritanceContext(_serviceProvider, _options);
     }
 }

@@ -2636,6 +2636,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
+        public void Adding_a_CLR_property_to_shadow_type_throws()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer).Name);
+
+            Assert.Equal(
+                Strings.ClrPropertyOnShadowEntity(Order.CustomerIdProperty.Name, typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(() => entityType.GetOrAddProperty(Order.CustomerIdProperty)).Message);
+        }
+
+        [Fact]
         public void Can_get_property_indexes()
         {
             var model = new Model();

@@ -462,7 +462,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var detachedRelationships = new HashSet<RelationshipSnapshot>();
+            var detachedRelationships = new HashSet<RelationshipBuilderSnapshot>();
             var baseRelationshipsToBeRemoved = new HashSet<ForeignKey>();
             if (baseEntityType != null)
             {
@@ -490,43 +490,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     return null;
                 }
 
-                var baseRelationshipsByTargetType = baseEntityType.GetForeignKeys()
-                    .Concat(baseEntityType.FindReferencingForeignKeys())
-                    .GroupBy(f => f.ResolveOtherEntityType(baseEntityType))
-                    .ToLookup(g => g.Key, g => g.ToList());
-                var relationshipsByTargetType = Metadata.GetForeignKeys()
-                    .Concat(Metadata.FindReferencingForeignKeys())
-                    .GroupBy(f => f.ResolveOtherEntityType(Metadata))
-                    .ToDictionary(g => g.Key, g => g.ToList());
                 var relationshipsToBeRemoved = new HashSet<ForeignKey>();
-                foreach (var relatedEntityType in relationshipsByTargetType.Keys)
-                {
-                    foreach (var baseRelationships in baseRelationshipsByTargetType[relatedEntityType])
-                    {
-                        foreach (var foreignKey in relationshipsByTargetType[relatedEntityType])
-                        {
-                            var navigation = foreignKey.FindNavigationFrom(Metadata);
-                            foreach (var baseRelationship in baseRelationships.Where(r =>
-                                (navigation != null && r.FindNavigationFrom(baseEntityType)?.Name == navigation.Name)
-                                || PropertyListComparer.Instance.Equals(r.Properties, foreignKey.Properties)))
-                            {
-                                if (baseRelationship.FindNavigationTo(baseEntityType) == null
-                                    && foreignKey.FindNavigationTo(Metadata) != null)
-                                {
-                                    baseRelationshipsToBeRemoved.Add(baseRelationship);
-                                }
-                                else
-                                {
-                                    relationshipsToBeRemoved.Add(foreignKey);
-                                }
-                            }
-                        }
-                    }
-                }
+                FindConflictingRelationships(baseEntityType, baseRelationshipsToBeRemoved, relationshipsToBeRemoved, whereDependent: true);
+                FindConflictingRelationships(baseEntityType, baseRelationshipsToBeRemoved, relationshipsToBeRemoved, whereDependent: false);
 
                 if (baseRelationshipsToBeRemoved.Any(relationshipToBeRemoved =>
-                    !ModelBuilder.Entity(relationshipToBeRemoved.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                        .CanRemove(relationshipToBeRemoved, configurationSource, canOverrideSameSource: true)))
+                    !CanRemove(relationshipToBeRemoved, configurationSource, canOverrideSameSource: true)))
                 {
                     Debug.Assert(configurationSource != ConfigurationSource.Explicit);
 
@@ -545,8 +514,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var relationshipToBeRemoved in baseRelationshipsToBeRemoved)
                 {
-                    var removedConfigurationSource = ModelBuilder.Entity(relationshipToBeRemoved.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                        .RemoveRelationship(relationshipToBeRemoved, configurationSource);
+                    var removedConfigurationSource = RemoveRelationship(relationshipToBeRemoved, configurationSource);
                     Debug.Assert(removedConfigurationSource.HasValue);
                 }
 
@@ -560,7 +528,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     foreach (var referencingForeignKey in ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList())
                     {
-                        detachedRelationships.Add(DetachRelationship(referencingForeignKey, configurationSource));
+                        detachedRelationships.Add(DetachRelationship(referencingForeignKey));
                     }
                 }
 
@@ -568,7 +536,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     foreach (var relationship in duplicatedProperty.FindContainingForeignKeys(Metadata).ToList())
                     {
-                        detachedRelationships.Add(DetachRelationship(relationship, configurationSource));
+                        detachedRelationships.Add(DetachRelationship(relationship));
                     }
 
                     // TODO: Detach indexes that contain non-duplicate properties
@@ -637,6 +605,58 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return this;
         }
 
+        private void FindConflictingRelationships(
+            EntityType baseEntityType,
+            HashSet<ForeignKey> baseRelationshipsToBeRemoved,
+            HashSet<ForeignKey> relationshipsToBeRemoved,
+            bool whereDependent)
+        {
+            var baseRelationshipsByTargetType = GroupForeignKeysByTargetType(baseEntityType, whereDependent);
+            var relationshipsByTargetType = GroupForeignKeysByTargetType(Metadata, whereDependent);
+
+            foreach (var relatedEntityType in relationshipsByTargetType.Keys)
+            {
+                if (!baseRelationshipsByTargetType.ContainsKey(relatedEntityType))
+                {
+                    continue;
+                }
+
+                foreach (var baseRelationship in baseRelationshipsByTargetType[relatedEntityType])
+                {
+                    foreach (var relationship in relationshipsByTargetType[relatedEntityType])
+                    {
+                        if (!relationship.ConflictsWith(baseRelationship, whereDependent))
+                        {
+                            continue;
+                        }
+
+                        if (baseRelationship.NavigationTo == null
+                            && relationship.NavigationTo != null)
+                        {
+                            baseRelationshipsToBeRemoved.Add(baseRelationship.ForeignKey);
+                        }
+                        else
+                        {
+                            relationshipsToBeRemoved.Add(relationship.ForeignKey);
+                        }
+                    }
+                }
+            }
+        }
+
+        private Dictionary<EntityType, List<RelationshipSnapshot>> GroupForeignKeysByTargetType(EntityType entityType, bool whereDependent)
+        {
+            var foreignKeys = whereDependent
+                ? entityType.GetForeignKeys()
+                : entityType.FindReferencingForeignKeys().Where(foreignKey => !foreignKey.IsSelfReferencing());
+            return foreignKeys
+                .GroupBy(foreignKey => whereDependent ? foreignKey.PrincipalEntityType : foreignKey.DeclaringEntityType)
+                .ToDictionary(g => g.Key, g => g.Select(foreignKey =>
+                    new RelationshipSnapshot(foreignKey,
+                        whereDependent ? foreignKey.DependentToPrincipal : foreignKey.PrincipalToDependent,
+                        whereDependent ? foreignKey.PrincipalToDependent : foreignKey.DependentToPrincipal)).ToList());
+        }
+
         private ConfigurationSource? RemoveProperty(Property property, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
         {
             var removedConfigurationSource = _propertyBuilders.Remove(property, configurationSource, canOverrideSameSource);
@@ -652,12 +672,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var detachedRelationships = property.FindContainingForeignKeys(Metadata).ToList()
-                .Select(foreignKey => DetachRelationship(foreignKey, configurationSource)).ToList();
+                .Select(DetachRelationship).ToList();
 
             foreach (var key in Metadata.GetKeys().Where(i => i.Properties.Contains(property)).ToList())
             {
                 detachedRelationships.AddRange(ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList()
-                    .Select(foreignKey => DetachRelationship(foreignKey, configurationSource)));
+                    .Select(DetachRelationship));
                 var removed = RemoveKey(key, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
@@ -708,19 +728,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : Relationship(principalType, Metadata, null, null, configurationSource, strictPrincipal: false)
                     ?.ForeignKey(dependentProperties, configurationSource);
 
-        private RelationshipSnapshot DetachRelationship([NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
+        private RelationshipBuilderSnapshot DetachRelationship([NotNull] ForeignKey foreignKey)
         {
             var navigationToPrincipalName = foreignKey.DependentToPrincipal?.Name;
             var navigationToDependentName = foreignKey.PrincipalToDependent?.Name;
             var relationship = Relationship(foreignKey, true, ConfigurationSource.Convention);
-            var relationshipConfigurationSource = RemoveRelationship(foreignKey, configurationSource);
+            var relationshipConfigurationSource = RemoveRelationship(foreignKey, ConfigurationSource.Explicit);
+            Debug.Assert(relationshipConfigurationSource != null);
 
-            if (relationshipConfigurationSource == null)
-            {
-                return null;
-            }
-
-            return new RelationshipSnapshot(relationship, navigationToPrincipalName, navigationToDependentName, relationshipConfigurationSource.Value);
+            return new RelationshipBuilderSnapshot(relationship, navigationToPrincipalName, navigationToDependentName, relationshipConfigurationSource.Value);
         }
 
         private bool RemoveRelationships(ConfigurationSource configurationSource, params ForeignKey[] foreignKeys)
@@ -809,7 +825,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        private void RemoveShadowPropertiesIfUnused(IReadOnlyList<Property> properties)
+        public virtual void RemoveShadowPropertiesIfUnused([NotNull] IReadOnlyList<Property> properties)
         {
             foreach (var property in properties.ToList())
             {
@@ -1360,7 +1376,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             while (true)
             {
                 var name = baseName + (++index > 0 ? index.ToString() : "");
-                if (entityTypeBuilder.Metadata.FindProperty(name) != null)
+                if (entityTypeBuilder.Metadata.FindProperty(name) != null
+                    || entityTypeBuilder.Metadata.FindDerivedProperties(new[] { name }).Any())
                 {
                     continue;
                 }
@@ -1461,9 +1478,27 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return list;
         }
 
-        private class RelationshipSnapshot
+        private struct RelationshipSnapshot
         {
-            public RelationshipSnapshot(
+            public readonly ForeignKey ForeignKey;
+            public readonly Navigation NavigationFrom;
+            public readonly Navigation NavigationTo;
+
+            public RelationshipSnapshot(ForeignKey foreignKey, Navigation navigationFrom, Navigation navigationTo)
+            {
+                ForeignKey = foreignKey;
+                NavigationFrom = navigationFrom;
+                NavigationTo = navigationTo;
+            }
+
+            public bool ConflictsWith(RelationshipSnapshot baseRelationship, bool whereDependent) =>
+                (NavigationFrom != null && baseRelationship.NavigationFrom?.Name == NavigationFrom.Name)
+                || (whereDependent && PropertyListComparer.Instance.Equals(baseRelationship.ForeignKey.Properties, ForeignKey.Properties));
+        }
+
+        private class RelationshipBuilderSnapshot
+        {
+            public RelationshipBuilderSnapshot(
                 InternalRelationshipBuilder relationship,
                 string navigationToPrincipalName,
                 string navigationToDependentName,
