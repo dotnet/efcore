@@ -390,14 +390,8 @@
   <data name="RecursiveOnConfiguring" xml:space="preserve">
     <value>An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.</value>
   </data>
-  <data name="PropertyAddedExplicitly" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' could not be ignored because it has been explicitly added or is part of a key, foreign key or index that has been explicitly defined.</value>
-  </data>
   <data name="PropertyIgnoredExplicitly" xml:space="preserve">
     <value>The property '{property}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.</value>
-  </data>
-  <data name="EntityAddedExplicitly" xml:space="preserve">
-    <value>The  entity type '{entityType}' could not be ignored because it has been explicitly added or is referenced from a foreign key that has been explicitly defined.</value>
   </data>
   <data name="EntityIgnoredExplicitly" xml:space="preserve">
     <value>The entity type '{entityType}' could not be added because it has been explicitly ignored.</value>
@@ -413,9 +407,6 @@
   </data>
   <data name="RelationshipCannotBeInverted" xml:space="preserve">
     <value>The principal and dependent ends of the relationship cannot be flipped once foreign key or principal key properties have been specified.</value>
-  </data>
-  <data name="NavigationAddedExplicitly" xml:space="preserve">
-    <value>The navigation property '{navigation}' on entity type '{entityType}' could not be ignored because it has been explicitly added.</value>
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>

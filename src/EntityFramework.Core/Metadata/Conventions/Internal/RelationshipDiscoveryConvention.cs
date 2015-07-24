@@ -74,7 +74,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                 foreach (var navigationPairCandidate in navigationPairCandidates)
                 {
-                    var targetEntityTypeBuilder = navigationPairCandidate.Key;
                     var navigationCandidates = navigationPairCandidate.Value.Item1;
                     var reverseNavigationCandidates = navigationPairCandidate.Value.Item2;
 
@@ -93,11 +92,20 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                     foreach (var navigationCandidate in navigationCandidates)
                     {
-                        TryBuildRelationship(entityTypeBuilder, targetEntityTypeBuilder, navigationCandidate, reverseNavigationCandidates.SingleOrDefault());
+                        var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(FindCandidateNavigationPropertyType(navigationCandidate), ConfigurationSource.Convention);
+                        TryBuildRelationship(
+                            entityTypeBuilder,
+                            targetEntityTypeBuilder,
+                            navigationCandidate,
+                            reverseNavigationCandidates.SingleOrDefault());
                     }
                 }
             }
 
+            // While running conventions on entityType, its source will be DataAnnotation or higher
+            // Which means that entity won't be removed while being configured even if it is unreachable
+            // This takes care of removing such unreachable entities (being run after we are done building relationships using this entity)
+            entityTypeBuilder.ModelBuilder.RemoveEntityTypesUnreachableByNavigations(ConfigurationSource.DataAnnotation);
             return entityTypeBuilder;
         }
 

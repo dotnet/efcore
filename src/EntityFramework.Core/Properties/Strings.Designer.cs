@@ -741,27 +741,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' could not be ignored because it has been explicitly added or is part of a key, foreign key or index that has been explicitly defined.
-        /// </summary>
-        public static string PropertyAddedExplicitly([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyAddedExplicitly", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
         /// The property '{property}' cannot be added to entity type '{entityType}' because it has been explicitly ignored.
         /// </summary>
         public static string PropertyIgnoredExplicitly([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyIgnoredExplicitly", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
-        /// The  entity type '{entityType}' could not be ignored because it has been explicitly added or is referenced from a foreign key that has been explicitly defined.
-        /// </summary>
-        public static string EntityAddedExplicitly([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityAddedExplicitly", "entityType"), entityType);
         }
 
         /// <summary>
@@ -802,14 +786,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string RelationshipCannotBeInverted
         {
             get { return GetString("RelationshipCannotBeInverted"); }
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' on entity type '{entityType}' could not be ignored because it has been explicitly added.
-        /// </summary>
-        public static string NavigationAddedExplicitly([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationAddedExplicitly", "navigation", "entityType"), navigation, entityType);
         }
 
         /// <summary>

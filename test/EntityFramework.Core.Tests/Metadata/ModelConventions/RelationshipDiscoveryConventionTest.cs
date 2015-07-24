@@ -153,8 +153,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
-            // TODO: remove discovered entity types if no relationship discovered
-            Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
+            Assert.Equal(1, entityBuilder.Metadata.Model.EntityTypes.Count);
         }
 
         [Fact]
@@ -386,7 +385,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 conventions.EntityTypeAddedConventions.Add(new TestModelChangeListener(onEntityAdded));
             }
             var modelBuilder = new InternalModelBuilder(new Model(), conventions);
-            var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.Convention);
+            var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);
 
             return entityBuilder;
         }

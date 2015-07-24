@@ -200,7 +200,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 ((IForeignKey)Metadata).IsUnique,
                 _isRequiredConfigurationSource.HasValue ? ((IForeignKey)Metadata).IsRequired : (bool?)null,
-                configurationSource);
+                shouldUpgradeSource: true,
+                configurationSource: configurationSource);
         }
 
         public virtual InternalRelationshipBuilder ForeignKey([CanBeNull] IReadOnlyList<PropertyInfo> properties,
@@ -422,6 +423,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             bool? isUnique = null,
             bool? isRequired = null)
         {
+            var shouldUpgradeSource = dependentProperties != null;
             dependentProperties = dependentProperties ??
                                   (_foreignKeyPropertiesConfigurationSource.HasValue
                                    && _foreignKeyPropertiesConfigurationSource.Value.Overrides(configurationSource)
@@ -469,6 +471,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 principalProperties,
                 isUnique,
                 isRequired,
+                shouldUpgradeSource,
                 configurationSource);
         }
 
@@ -481,6 +484,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
+            bool shouldUpgradeSource,
             ConfigurationSource configurationSource)
         {
             var replacedConfigurationSource = ModelBuilder
@@ -498,8 +502,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     principalProperties,
                     isUnique,
                     isRequired,
-                    configurationSource,
-                    replacedConfigurationSource);
+                    shouldUpgradeSource ? configurationSource.Max(replacedConfigurationSource.Value) : replacedConfigurationSource.Value);
         }
 
         private InternalRelationshipBuilder AddRelationship(
@@ -511,8 +514,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
-            ConfigurationSource configurationSource,
-            ConfigurationSource? replacedConfigurationSource)
+            ConfigurationSource configurationSource)
         {
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalType.Name, configurationSource);
             var dependentEntityTypeBuilder = ModelBuilder.Entity(dependentType.Name, configurationSource);
@@ -527,9 +529,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource,
                 isUnique,
                 isRequired,
-                b => dependentEntityTypeBuilder
-                    .Relationship(b.Metadata, existingForeignKey: true, configurationSource: replacedConfigurationSource.Value)
-                    .MergeConfigurationSourceWith(this, configurationSource));
+                b => b.MergeConfigurationSourceWith(this));
         }
 
         public virtual InternalRelationshipBuilder Attach(ConfigurationSource configurationSource)
@@ -561,11 +561,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 principalPropertiesExist && _principalKeyConfigurationSource.HasValue ? Metadata.PrincipalKey.Properties : null,
                 _isUniqueConfigurationSource.HasValue ? Metadata.IsUnique : null,
                 _isRequiredConfigurationSource.HasValue ? Metadata.IsRequired : null,
-                configurationSource,
                 configurationSource);
         }
 
-        private InternalRelationshipBuilder MergeConfigurationSourceWith(InternalRelationshipBuilder oldBuilder, ConfigurationSource configurationSource)
+        private InternalRelationshipBuilder MergeConfigurationSourceWith(InternalRelationshipBuilder oldBuilder)
         {
             var inverted = oldBuilder.Metadata.DeclaringEntityType != Metadata.DeclaringEntityType;
             Debug.Assert(inverted
@@ -592,17 +591,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _isUniqueConfigurationSource = oldBuilder._isUniqueConfigurationSource?.Max(_isUniqueConfigurationSource) ?? _isUniqueConfigurationSource;
             _isRequiredConfigurationSource = oldBuilder._isRequiredConfigurationSource?.Max(_isRequiredConfigurationSource) ?? _isRequiredConfigurationSource;
 
-            var builder = this;
-            if (oldBuilder.Metadata.IsUnique.HasValue && !builder.Metadata.IsUnique.HasValue)
-            {
-                builder = builder.Unique(oldBuilder.Metadata.IsUnique.Value, configurationSource);
-            }
-            if (oldBuilder.Metadata.IsRequired.HasValue && !builder.Metadata.IsRequired.HasValue)
-            {
-                builder = builder.Required(oldBuilder.Metadata.IsRequired.Value, configurationSource);
-            }
-
-            return builder;
+            return this;
         }
 
         private EntityType ResolveType(Type type)

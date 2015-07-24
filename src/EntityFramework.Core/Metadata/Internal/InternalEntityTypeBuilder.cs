@@ -75,6 +75,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.SetPrimaryKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
                 ModelBuilder.ConventionDispatcher.OnKeyAdded,
+                configurationSource,
                 configurationSource);
 
             ReplaceConventionShadowKeys(keyBuilder.Metadata);
@@ -139,6 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 () => Metadata.AddKey(properties),
                 key => new InternalKeyBuilder(key, ModelBuilder),
                 ModelBuilder.ConventionDispatcher.OnKeyAdded,
+                configurationSource,
                 configurationSource);
         }
 
@@ -201,6 +203,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
                     property => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
                     ModelBuilder.ConventionDispatcher.OnPropertyAdded,
+                    configurationSource,
                     configurationSource);
             }
 
@@ -366,13 +369,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property = Metadata.FindDeclaredProperty(propertyName);
             if (property != null)
             {
-                if (!RemoveProperty(property, configurationSource, canOverrideSameSource: false).HasValue)
+                if (!RemoveProperty(property, configurationSource, canOverrideSameSource: true).HasValue)
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(Strings.PropertyAddedExplicitly(property.Name, Metadata.Name));
-                    }
-
                     _ignoredProperties.Value.Remove(propertyName);
                     return false;
                 }
@@ -381,13 +379,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var navigation = Metadata.FindDeclaredNavigation(propertyName);
             if (navigation != null)
             {
-                if (Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal(), configurationSource, canOverrideSameSource: configurationSource != ConfigurationSource.Explicit) == null)
+                if (Navigation(null, navigation.ForeignKey, navigation.PointsToPrincipal(), configurationSource, canOverrideSameSource: true) == null)
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(Strings.NavigationAddedExplicitly(navigation.Name, Metadata.Name));
-                    }
-
                     _ignoredProperties.Value.Remove(propertyName);
                     return false;
                 }
@@ -1090,6 +1083,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (builder == null)
             {
                 return null;
+            }
+
+            if (navigationToDependentName != null && isUnique.HasValue)
+            {
+                // TODO: Remove once Navigation to dependent takes care of configuring uniqueness (See Issue #1924)
+                builder = builder.Unique(isUnique.Value, configurationSource);
             }
 
             builder = principalEntityTypeBuilder

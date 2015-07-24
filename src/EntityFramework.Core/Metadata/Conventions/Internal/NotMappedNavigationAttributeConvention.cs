@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(attribute, nameof(attribute));
 
-            var entityTypeBuilder = relationshipBuilder.ModelBuilder.Entity(navigation.DeclaringEntityType.Name, ConfigurationSource.DataAnnotation);
+            var entityTypeBuilder = relationshipBuilder.ModelBuilder.Entity(navigation.DeclaringEntityType.Name, ConfigurationSource.Convention);
             return entityTypeBuilder.Ignore(navigation.Name, ConfigurationSource.DataAnnotation) ? null : relationshipBuilder;
         }
     }

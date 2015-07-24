@@ -14,9 +14,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
-            entityTypeBuilder.ModelBuilder.Ignore(entityTypeBuilder.Metadata.Name, ConfigurationSource.DataAnnotation);
-
-            return null;
+            return entityTypeBuilder.ModelBuilder.Ignore(entityTypeBuilder.Metadata.Name, ConfigurationSource.DataAnnotation) ? null : entityTypeBuilder;
         }
     }
 }

@@ -35,6 +35,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public DbSet<Two> Twos { get; set; }
 
         public DbSet<Book> Books { get; set; }
+
         public DbSet<BookDetail> BookDetails { get; set; }
 
     }
@@ -83,10 +84,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public string Id { get; set; }
 
-        public virtual BookDetail OrderDetail { get; set; }
+        public virtual BookDetail BookDetail { get; set; }
 
         [NotMapped]
-        public virtual UselessBookDetails UselessOrderDetails { get; set; }
+        public virtual UselessBookDetails UselessBookDetails { get; set; }
     }
 
     public class BookDetail

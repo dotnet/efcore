@@ -39,19 +39,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     () => Metadata.AddEntityType(name),
                     entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
                     ConventionDispatcher.OnEntityTypeAdded,
+                    ConfigurationSource.DataAnnotation,
                     configurationSource);
         }
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
             return !CanAdd(type.FullName, configurationSource)
-                ? null
-                : _entityTypeBuilders.GetOrAdd(
-                    () => Metadata.FindEntityType(type),
-                    () => Metadata.AddEntityType(type),
-                    entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
-                    ConventionDispatcher.OnEntityTypeAdded,
-                    configurationSource);
+                 ? null
+                 : _entityTypeBuilders.GetOrAdd(
+                     () => Metadata.FindEntityType(type),
+                     () => Metadata.AddEntityType(type),
+                     entityType => new InternalEntityTypeBuilder(entityType, ModelBuilder),
+                     ConventionDispatcher.OnEntityTypeAdded,
+                     ConfigurationSource.DataAnnotation,
+                     configurationSource);
         }
 
         private bool CanAdd(string name, ConfigurationSource configurationSource)
@@ -93,13 +95,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = Metadata.FindEntityType(name);
             if (entityType != null)
             {
-                if (!Remove(entityType, configurationSource, canOverrideSameSource: false))
+                if (!Remove(entityType, configurationSource, canOverrideSameSource: true))
                 {
-                    if (configurationSource == ConfigurationSource.Explicit)
-                    {
-                        throw new InvalidOperationException(Strings.EntityAddedExplicitly(entityType.Name));
-                    }
-
                     return false;
                 }
 

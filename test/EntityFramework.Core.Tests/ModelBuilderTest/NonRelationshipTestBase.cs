@@ -310,33 +310,29 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Ignoring_a_property_that_is_part_of_explicit_entity_key_throws()
+            public virtual void Can_ignore_a_property_that_is_part_of_explicit_entity_key()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
 
-                Assert.Equal(Strings.PropertyAddedExplicitly(Customer.IdProperty.Name, typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>(b =>
-                            {
-                                b.Key(e => e.Id);
-                                b.Ignore(e => e.Id);
-                            })).Message);
+                Assert.NotNull(modelBuilder.Entity<Customer>(b =>
+                    {
+                        b.Key(e => e.Id);
+                        b.Ignore(e => e.Id);
+                    }));
             }
 
             [Fact]
-            public virtual void Ignoring_shadow_properties_when_they_have_been_added_throws()
+            public virtual void Can_ignore_shadow_properties_when_they_have_been_added_explicitly()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
 
-                Assert.Equal(Strings.PropertyAddedExplicitly("Shadow", typeof(Customer).FullName),
-                    Assert.Throws<InvalidOperationException>(() =>
-                        modelBuilder.Entity<Customer>(b =>
-                            {
-                                b.Property<string>("Shadow");
-                                b.Ignore("Shadow");
-                            })).Message);
+                Assert.NotNull(modelBuilder.Entity<Customer>(b =>
+                    {
+                        b.Property<string>("Shadow");
+                        b.Ignore("Shadow");
+                    }));
             }
 
             [Fact]
