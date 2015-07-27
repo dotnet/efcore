@@ -887,16 +887,27 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            var parameterName = ParameterPrefix + parameterExpression.Name;
+            Check.NotNull(parameterExpression, nameof(parameterExpression));
+
+            var parameterName = ParameterPrefix + GenerateParameterName(parameterExpression.Name);
+
             _sql.Append(parameterName);
 
             if (_commandParameters.All(commandParameter => commandParameter.Name != parameterName))
             {
                 var value = _parameterValues[parameterExpression.Name];
+
                 _commandParameters.Add(new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
             }
 
             return parameterExpression;
+        }
+
+        protected virtual string GenerateParameterName([NotNull] string parameterName)
+        {
+            Check.NotEmpty(parameterName, nameof(parameterName));
+
+            return parameterName;
         }
 
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
