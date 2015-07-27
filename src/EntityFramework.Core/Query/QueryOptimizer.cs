@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -17,6 +19,32 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryOptimizer : SubQueryFromClauseFlattener
     {
+        private class FromClauseData : IFromClause
+        {
+            public string ItemName { get; }
+
+            public Type ItemType { get; }
+
+            public Expression FromExpression { get; }
+
+            public FromClauseData(string itemName, Type itemType, Expression fromExpression)
+            {
+                ItemName = itemName;
+                ItemType = itemType;
+                FromExpression = fromExpression;
+            }
+
+            void IClause.TransformExpressions(Func<Expression, Expression> transformation)
+            {
+                throw new NotSupportedException();
+            }
+
+            void IFromClause.CopyFromSource(IFromClause source)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
         private readonly IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
 
         public QueryOptimizer([NotNull] IReadOnlyCollection<QueryAnnotationBase> queryAnnotations)
@@ -57,7 +85,7 @@ namespace Microsoft.Data.Entity.Query
 
         protected override void FlattenSubQuery(
             [NotNull] SubQueryExpression subQueryExpression,
-            [NotNull] FromClauseBase fromClause,
+            [NotNull] IFromClause fromClause,
             [NotNull] QueryModel queryModel,
             int destinationIndex)
         {
@@ -75,17 +103,24 @@ namespace Microsoft.Data.Entity.Query
                 || (queryModel.IsIdentityQuery()
                     && !queryModel.ResultOperators.Any()))
             {
+                string itemName;
                 var innerMainFromClause = subQueryExpression.QueryModel.MainFromClause;
-
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
-                var outerItemName = fromClause.ItemName;
-                CopyFromClauseData(innerMainFromClause, fromClause);
-
                 if (innerMainFromClause.HasGeneratedItemName()
                     && !isGeneratedNameOuter)
                 {
-                    fromClause.ItemName = outerItemName;
+                    itemName = fromClause.ItemName;
                 }
+                else
+                {
+                    itemName = innerMainFromClause.ItemName;
+                }
+
+                var fromClauseData = new FromClauseData(
+                    itemName,
+                    innerMainFromClause.ItemType,
+                    innerMainFromClause.FromExpression);
+                fromClause.CopyFromSource(fromClauseData);
 
                 var innerSelectorMapping = new QuerySourceMapping();
 

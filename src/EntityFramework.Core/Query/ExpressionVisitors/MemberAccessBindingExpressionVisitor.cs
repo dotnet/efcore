@@ -11,12 +11,13 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionVisitors;
+using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class MemberAccessBindingExpressionVisitor : ReferenceReplacingExpressionVisitor
+    public class MemberAccessBindingExpressionVisitor : RelinqExpressionVisitor
     {
+        private readonly QuerySourceMapping _querySourceMapping;
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly bool _inProjection;
 
@@ -24,12 +25,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] QuerySourceMapping querySourceMapping,
             [NotNull] EntityQueryModelVisitor queryModelVisitor,
             bool inProjection)
-            : base(
-                Check.NotNull(querySourceMapping, nameof(querySourceMapping)),
-                throwOnUnmappedReferences: false)
         {
+            Check.NotNull(querySourceMapping, nameof(querySourceMapping));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
+            _querySourceMapping = querySourceMapping;
             _queryModelVisitor = queryModelVisitor;
             _inProjection = inProjection;
         }
@@ -81,9 +81,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
 
             var newExpression
-                = QuerySourceMapping.ContainsMapping(querySourceReferenceExpression.ReferencedQuerySource)
-                    ? QuerySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource)
-                    : base.VisitQuerySourceReference(querySourceReferenceExpression);
+                = _querySourceMapping.ContainsMapping(querySourceReferenceExpression.ReferencedQuerySource)
+                    ? _querySourceMapping.GetExpression(querySourceReferenceExpression.ReferencedQuerySource)
+                    : querySourceReferenceExpression;
 
             if (_inProjection
                 && newExpression.Type.IsConstructedGenericType)
@@ -109,6 +109,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
 
             return newExpression;
+        }
+
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        {
+            expression.QueryModel.TransformExpressions(Visit);
+            return expression;
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
