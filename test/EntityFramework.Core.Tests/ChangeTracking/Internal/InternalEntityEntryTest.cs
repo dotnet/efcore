@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = entry.GetPrimaryKeyValue();
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
-            Assert.Same(entityType.BaseType, keyValue.EntityType);
+            Assert.Same(entityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -491,7 +491,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = (CompositeEntityKey)entry.GetPrimaryKeyValue();
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("SmokeyBacon", keyValue.Value[1]);
-            Assert.Same(entityType.BaseType, keyValue.EntityType);
+            Assert.Same(entityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -510,7 +510,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = entry.GetDependentKeyValue(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
+            Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -526,10 +526,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fkProperty] = 77;
             entry.RelationshipsSnapshot[fkProperty] = 78;
 
-            var keyValue = entry.GetDependentKeySnapshot(fk);
+            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
+            Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -544,10 +544,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
 
-            var keyValue = entry.GetDependentKeySnapshot(fk);
+            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
+            Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -564,7 +564,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry[fkProperty] = 79;
 
-            var keyValue = entry.GetDependentKeySnapshot(entityType.GetForeignKeys().Single());
+            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(entityType.GetForeignKeys().Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(79, keyValue.Value);
         }
@@ -583,7 +583,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry[fkProperty] = 77;
 
-            var keyValue = entry.GetDependentKeySnapshot(entityType.GetForeignKeys().Single());
+            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(entityType.GetForeignKeys().Single());
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
         }
@@ -604,7 +604,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = entry.GetPrincipalKeyValue(fk);
             Assert.IsType<SimpleEntityKey<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
-            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
+            Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -622,7 +622,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = (CompositeEntityKey)entry.GetDependentKeyValue(fk);
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
-            Assert.Same(fk.PrincipalEntityType.BaseType, keyValue.EntityType);
+            Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -641,7 +641,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var keyValue = (CompositeEntityKey)entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single());
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("PrawnCocktail", keyValue.Value[1]);
-            Assert.Same(principalType.BaseType, keyValue.EntityType);
+            Assert.Same(principalType.GetPrimaryKey(), keyValue.Key);
         }
 
         [Fact]
@@ -660,7 +660,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var fk = dependentType.GetForeignKeys().Single();
             var keyValue = entry.GetPrincipalKeyValue(fk);
             Assert.Same(EntityKey.InvalidEntityKey, keyValue);
-            Assert.Null(keyValue.EntityType);
+            Assert.Null(keyValue.Key);
         }
 
         [Fact]

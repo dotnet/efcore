@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var entityKey = new SimpleEntityKey<int>(categoryType, 77);
+            var entityKey = new SimpleEntityKey<int>(categoryType.GetPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
             stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var category = new Category { Id = 77 };
-            var entityKey = new SimpleEntityKey<int>(categoryType, 77);
+            var entityKey = new SimpleEntityKey<int>(categoryType.GetPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
             var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer);
@@ -158,13 +158,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             stateManager.StopTracking(entry);
 
             var entry2 = stateManager.GetOrCreateEntry(category);
-            Assert.NotSame(entry, entry2);
+            Assert.Same(entry, entry2);
 
             stateManager.StartTracking(entry2);
         }
 
         [Fact]
-        public void Throws_on_attempt_to_start_tracking_same_entity_with_two_entries()
+        public void StopTracking_keeps_track_of_detached_entity_using_weak_reference()
         {
             var stateManager = CreateStateManager(BuildModel());
             var category = new Category { Id = 1 };
@@ -176,9 +176,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry2 = stateManager.GetOrCreateEntry(category);
             stateManager.StartTracking(entry2);
 
-            Assert.Equal(
-                Strings.MultipleEntries(typeof(Category).FullName),
-                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
+            Assert.Same(entry, entry2);
+            Assert.Equal(EntityState.Detached, entry.EntityState);
         }
 
         [Fact]

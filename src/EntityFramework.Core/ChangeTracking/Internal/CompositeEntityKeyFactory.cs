@@ -11,33 +11,28 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class CompositeEntityKeyFactory : EntityKeyFactory
     {
-        private readonly IReadOnlyList<object> _sentinels;
-
-        public CompositeEntityKeyFactory(
-            [NotNull] IReadOnlyList<object> sentinels)
+        public CompositeEntityKeyFactory([NotNull] IKey key)
+            : base(key)
         {
-            _sentinels = sentinels;
         }
 
-        public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
-            => Create(entityType, properties, p => valueBuffer[p.Index]);
+        public override EntityKey Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
+            => Create(properties, p => valueBuffer[p.Index]);
 
-        public override EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
-            => Create(entityType, properties, p => propertyAccessor[p]);
+        public override EntityKey Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
+            => Create(properties, p => propertyAccessor[p]);
 
-        private EntityKey Create(
-            IEntityType entityType, IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
+        private EntityKey Create(IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
         {
             var components = new object[properties.Count];
+            var principalProperties = Key.Properties;
 
             for (var i = 0; i < properties.Count; i++)
             {
                 var value = reader(properties[i]);
 
                 if (value == null
-                    || Equals(value, _sentinels[i]))
+                    || Equals(value, principalProperties[i].SentinelValue))
                 {
                     return EntityKey.InvalidEntityKey;
                 }
@@ -45,7 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 components[i] = value;
             }
 
-            return new CompositeEntityKey(entityType, components);
+            return new CompositeEntityKey(Key, components);
         }
     }
 }

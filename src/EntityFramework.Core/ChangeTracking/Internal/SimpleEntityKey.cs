@@ -13,14 +13,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     public class SimpleEntityKey<TKey> : EntityKey
     {
         private static readonly IEqualityComparer _equalityComparer = EqualityComparer<TKey>.Default;
-        
+
         private readonly TKey _keyValue;
 
-        public SimpleEntityKey([NotNull] IEntityType entityType, [CanBeNull] TKey keyValue)
+        public SimpleEntityKey([NotNull] IKey key, [CanBeNull] TKey keyValue)
+            : base(key)
         {
-            Debug.Assert(entityType != null); // hot path
-
-            EntityType = entityType;
             _keyValue = keyValue;
         }
 
@@ -35,14 +33,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                        && Equals((SimpleEntityKey<TKey>)obj)));
 
         private bool Equals(SimpleEntityKey<TKey> other)
-            => EntityType == other.EntityType
+            => Key == other.Key
                && _equalityComparer.Equals(_keyValue, other._keyValue);
 
         public override int GetHashCode()
-            => (EntityType.GetHashCode() * 397)
+            => (Key.GetHashCode() * 397)
                ^ _equalityComparer.GetHashCode(_keyValue);
 
         [UsedImplicitly]
-        private string DebuggerDisplay => $"{EntityType.Name}({string.Join(", ", _keyValue)})";
+        private string DebuggerDisplay => $"{Key.EntityType.Name}.{Key.Properties[0].Name}({string.Join(", ", _keyValue)})";
     }
 }

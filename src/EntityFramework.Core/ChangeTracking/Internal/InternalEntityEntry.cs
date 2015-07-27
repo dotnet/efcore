@@ -320,12 +320,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         [NotNull]
         public virtual EntityKey CreateKey(
-            [NotNull] IEntityType entityType,
+            [NotNull] IKey key,
             [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyAccessor) => MetadataServices.CreateKey(entityType, properties, propertyAccessor);
-
-        public virtual EntityKey GetDependentKeySnapshot([NotNull] IForeignKey foreignKey)
-            => CreateKey(foreignKey.PrincipalEntityType.RootType(), foreignKey.Properties, RelationshipsSnapshot);
+            [NotNull] IPropertyAccessor propertyAccessor) => MetadataServices.CreateKey(key, properties, propertyAccessor);
 
         public virtual object[] GetValueBuffer() => EntityType.GetProperties().Select(p => this[p]).ToArray();
 

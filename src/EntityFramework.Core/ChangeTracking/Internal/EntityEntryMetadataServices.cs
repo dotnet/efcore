@@ -48,9 +48,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual Sidecar CreateStoreGeneratedValues(InternalEntityEntry entry, IReadOnlyList<IProperty> properties)
             => _storeGeneratedValuesFactory.Create(entry, properties);
 
-        public virtual EntityKey CreateKey(IEntityType entityType, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
+        public virtual EntityKey CreateKey(IKey key, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => _entityKeyFactorySource
-                .GetKeyFactory(properties)
-                .Create(entityType, properties, propertyAccessor);
+                .GetKeyFactory(key)
+                .Create(properties, propertyAccessor);
     }
 }

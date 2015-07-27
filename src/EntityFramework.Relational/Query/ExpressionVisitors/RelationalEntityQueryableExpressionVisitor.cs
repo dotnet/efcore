@@ -198,12 +198,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 queryMethodInfo
                     = CreateEntityMethodInfo.MakeGenericMethod(elementType);
 
-                var keyProperties
-                    = entityType.GetPrimaryKey().Properties;
-
                 var keyFactory
                     = relationalQueryCompilationContext.EntityKeyFactorySource
-                        .GetKeyFactory(keyProperties);
+                        .GetKeyFactory(entityType.GetPrimaryKey());
 
                 queryMethodArguments.AddRange(
                     new[]
@@ -211,7 +208,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         Expression.Constant(entityType),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
                         Expression.Constant(keyFactory),
-                        Expression.Constant(keyProperties),
+                        Expression.Constant(entityType.GetPrimaryKey().Properties),
                         materializer
                     });
             }
@@ -281,7 +278,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
 
             var entityKey
-                = entityKeyFactory.Create(entityType.RootType(), keyProperties, valueBuffer);
+                = entityKeyFactory.Create(keyProperties, valueBuffer);
 
             return new QueryResultScope<TEntity>(
                 querySource,

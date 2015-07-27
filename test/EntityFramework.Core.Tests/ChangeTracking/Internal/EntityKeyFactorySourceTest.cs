@@ -13,141 +13,141 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Returns_a_simple_entity_key_factory_for_single_property()
         {
-            var property = GetEntityType().GetProperty("Id");
+            var key = GetEntityType().GetPrimaryKey();
 
-            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_a_null_sentinel_entity_key_factory_for_single_nullable_property()
         {
-            var property = GetEntityType().GetProperty("NullableInt");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("NullableInt"));
 
-            Assert.IsType<SimpleNullSentinelEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+            Assert.IsType<SimpleNullSentinelEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_a_simple_entity_key_factory_for_single_nullable_property_with_sentinel_set()
         {
-            var property = GetEntityType().GetProperty("NullableSentinelInt");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("NullableSentinelInt"));
 
-            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_different_simple_entity_key_factory_for_different_properties()
         {
             var entityType = GetEntityType();
-            var property1 = entityType.GetProperty("Guid1");
-            var property2 = entityType.GetProperty("Guid2");
+            var key1 = entityType.GetKey(entityType.GetProperty("Guid1"));
+            var key2 = entityType.GetKey(entityType.GetProperty("Guid2"));
 
             var factorySource = CreateKeyFactorySource();
-            Assert.NotSame(factorySource.GetKeyFactory(new[] { property1 }), factorySource.GetKeyFactory(new[] { property2 }));
+            Assert.NotSame(factorySource.GetKeyFactory(key1), factorySource.GetKeyFactory(key2));
         }
 
         [Fact]
         public void Returns_different_simple_nullable_entity_key_factory_for_different_properties()
         {
             var entityType = GetEntityType();
-            var property1 = entityType.GetProperty("NullableGuid1");
-            var property2 = entityType.GetProperty("NullableGuid2");
+            var key1 = entityType.GetKey(entityType.GetProperty("NullableGuid1"));
+            var key2 = entityType.GetKey(entityType.GetProperty("NullableGuid2"));
 
             var factorySource = CreateKeyFactorySource();
-            Assert.NotSame(factorySource.GetKeyFactory(new[] { property1 }), factorySource.GetKeyFactory(new[] { property2 }));
+            Assert.NotSame(factorySource.GetKeyFactory(key1), factorySource.GetKeyFactory(key2));
         }
 
         [Fact]
         public void Returns_same_simple_entity_key_factory_for_same_property()
         {
-            var property = GetEntityType().GetProperty("Guid1");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("Guid1"));
 
             var factorySource = CreateKeyFactorySource();
-            Assert.Same(factorySource.GetKeyFactory(new[] { property }), factorySource.GetKeyFactory(new[] { property }));
-        }
-
-        [Fact]
-        public void Returns_same_nullable_simple_entity_key_factory_for_same_property()
-        {
-            var property = GetEntityType().GetProperty("NullableGuid1");
-
-            var factorySource = CreateKeyFactorySource();
-            Assert.Same(factorySource.GetKeyFactory(new[] { property }), factorySource.GetKeyFactory(new[] { property }));
+            Assert.Same(factorySource.GetKeyFactory(key), factorySource.GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_a_composite_entity_key_factory_for_composite_property_key()
         {
             var entityType = GetEntityType();
-            var property1 = entityType.GetProperty("Id");
-            var property2 = entityType.GetProperty("String");
+            var key = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
 
             Assert.IsType<CompositeEntityKeyFactory>(
-                CreateKeyFactorySource().GetKeyFactory(new[] { property1, property2 }));
+                CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_same_composite_entity_key_factory_for_same_properties()
         {
             var entityType = GetEntityType();
-            var property1 = entityType.GetProperty("Id");
-            var property2 = entityType.GetProperty("String");
+            var key1 = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
+            var key2 = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
 
             var factorySource = CreateKeyFactorySource();
-            Assert.Same(factorySource.GetKeyFactory(new[] { property1, property2 }), factorySource.GetKeyFactory(new[] { property1, property2 }));
+            Assert.Same(factorySource.GetKeyFactory(key1), factorySource.GetKeyFactory(key2));
         }
 
         [Fact]
         public void Returns_a_null_sentinel_entity_key_factory_for_single_reference_property()
         {
-            var property = GetEntityType().GetProperty("String");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("String"));
 
-            Assert.IsType<SimpleNullSentinelEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+            Assert.IsType<SimpleNullSentinelEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_a_simple_entity_key_factory_for_single_reference_property_with_sentinel_set()
         {
-            var property = GetEntityType().GetProperty("SentinelString");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("SentinelString"));
 
-            Assert.IsType<SimpleEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+            Assert.IsType<SimpleEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
-
 
         [Fact]
         public void Returns_a_composite_entity_key_factory_for_single_structural_property()
         {
-            var property = GetEntityType().GetProperty("ByteArray");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("ByteArray"));
 
-            Assert.IsType<CompositeEntityKeyFactory>(CreateKeyFactorySource().GetKeyFactory(new[] { property }));
+            Assert.IsType<CompositeEntityKeyFactory>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
         public void Returns_same_composite_entity_key_factory_for_same_structural_property()
         {
-            var property = GetEntityType().GetProperty("ByteArray");
+            var entityType = GetEntityType();
+            var key = entityType.GetKey(entityType.GetProperty("ByteArray"));
 
             var factorySource = CreateKeyFactorySource();
-            Assert.Same(factorySource.GetKeyFactory(new[] { property }), factorySource.GetKeyFactory(new[] { property }));
+            Assert.Same(factorySource.GetKeyFactory(key), factorySource.GetKeyFactory(key));
         }
 
-        private static IEntityKeyFactorySource CreateKeyFactorySource()
-        {
-            return new EntityKeyFactorySource();
-        }
+        private static IEntityKeyFactorySource CreateKeyFactorySource() => new EntityKeyFactorySource();
 
         private static IEntityType GetEntityType()
         {
             var builder = TestHelpers.Instance.CreateConventionBuilder();
 
-            builder.Entity<ScissorSister>()
-                .Property(e => e.NullableSentinelInt)
-                .Metadata
-                .SentinelValue = -1;
+            builder.Entity<ScissorSister>(b =>
+                {
+                    b.Property(e => e.NullableSentinelInt).Metadata.SentinelValue = -1;
+                    b.Property(e => e.SentinelString).Metadata.SentinelValue = "Excellent!";
 
-            builder.Entity<ScissorSister>()
-                .Property(e => e.SentinelString)
-                .Metadata
-                .SentinelValue = "Excellent!";
+                    b.AlternateKey(e => e.NullableInt);
+                    b.AlternateKey(e => e.NullableSentinelInt);
+                    b.AlternateKey(e => e.Guid1);
+                    b.AlternateKey(e => e.Guid2);
+                    b.AlternateKey(e => e.NullableGuid1);
+                    b.AlternateKey(e => e.NullableGuid2);
+                    b.AlternateKey(e => e.String);
+                    b.AlternateKey(e => e.SentinelString);
+                    b.AlternateKey(e => e.ByteArray);
+                    b.AlternateKey(e => new { e.Id, e.String });
+                });
 
             return builder.Model.GetEntityType(typeof(ScissorSister));
         }

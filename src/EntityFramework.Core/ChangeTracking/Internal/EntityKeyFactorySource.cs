@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -13,18 +11,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class EntityKeyFactorySource : IEntityKeyFactorySource
     {
-        private readonly ThreadSafeDictionaryCache<IReadOnlyList<IProperty>, EntityKeyFactory> _cache
-            = new ThreadSafeDictionaryCache<IReadOnlyList<IProperty>, EntityKeyFactory>(
-                new ReferenceEnumerableEqualityComparer<IReadOnlyList<IProperty>, IProperty>());
+        private readonly ThreadSafeDictionaryCache<IKey, EntityKeyFactory> _cache
+            = new ThreadSafeDictionaryCache<IKey, EntityKeyFactory>(ReferenceEqualityComparer.Instance);
 
-        public virtual EntityKeyFactory GetKeyFactory(IReadOnlyList<IProperty> keyProperties)
+        public virtual EntityKeyFactory GetKeyFactory(IKey key)
             => _cache.GetOrAdd(
-                keyProperties,
+                key,
                 k =>
                     {
-                        if (k.Count == 1)
+                        if (k.Properties.Count == 1)
                         {
-                            var keyProperty = k[0];
+                            var keyProperty = k.Properties[0];
                             var keyType = keyProperty.ClrType;
 
                             // Use composite key for anything with structural (e.g. byte[]) properties even if they are
@@ -35,12 +32,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                                 var sentinel = keyProperty.SentinelValue;
 
                                 return (EntityKeyFactory)(sentinel == null
-                                    ? Activator.CreateInstance(typeof(SimpleNullSentinelEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()))
-                                    : Activator.CreateInstance(typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), sentinel));
+                                    ? Activator.CreateInstance(
+                                        typeof(SimpleNullSentinelEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k)
+                                    : Activator.CreateInstance(
+                                        typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k, sentinel));
                             }
                         }
 
-                        return new CompositeEntityKeyFactory(k.Select(p => p.SentinelValue).ToList());
+                        return new CompositeEntityKeyFactory(k);
                     });
     }
 }

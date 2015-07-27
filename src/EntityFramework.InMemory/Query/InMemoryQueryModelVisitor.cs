@@ -199,10 +199,10 @@ namespace Microsoft.Data.Entity.InMemory.Query
                 var keyFactory
                     = QueryModelVisitor
                         .QueryCompilationContext
-                        .EntityKeyFactorySource.GetKeyFactory(keyProperties);
+                        .EntityKeyFactorySource.GetKeyFactory(entityType.GetPrimaryKey());
 
                 Func<ValueBuffer, EntityKey> entityKeyFactory
-                    = vr => keyFactory.Create(entityType.RootType(), keyProperties, vr);
+                    = vr => keyFactory.Create(keyProperties, vr);
 
                 if (QueryModelVisitor.QueryCompilationContext
                     .QuerySourceRequiresMaterialization(_querySource))

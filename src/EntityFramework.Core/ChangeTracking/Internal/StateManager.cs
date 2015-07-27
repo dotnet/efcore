@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -19,6 +20,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         private readonly Dictionary<object, InternalEntityEntry> _entityReferenceMap
             = new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
+
+        private readonly Dictionary<object, WeakReference<InternalEntityEntry>> _detachedEntityReferenceMap
+            = new Dictionary<object, WeakReference<InternalEntityEntry>>(ReferenceEqualityComparer.Instance);
 
         private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap = new Dictionary<EntityKey, InternalEntityEntry>();
         private readonly IInternalEntityEntryFactory _factory;
@@ -59,14 +63,28 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             // TODO: Consider how to handle derived types that are not explicitly in the model
             // Issue #743
-            InternalEntityEntry entry;
-            if (!_entityReferenceMap.TryGetValue(entity, out entry))
+            var entry = TryGetEntry(entity);
+            if (entry == null)
             {
+                if (_detachedEntityReferenceMap.Count % 100 == 99)
+                {
+                    InternalEntityEntry _;
+                    var deadKeys = _detachedEntityReferenceMap
+                        .Where(e => !e.Value.TryGetTarget(out _))
+                        .Select(e => e.Key)
+                        .ToList();
+
+                    foreach (var deadKey in deadKeys)
+                    {
+                        _detachedEntityReferenceMap.Remove(deadKey);
+                    }
+                }
+
                 var entityType = _model.GetEntityType(entity.GetType());
 
                 entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
 
-                _entityReferenceMap[entity] = entry;
+                _detachedEntityReferenceMap[entity] = new WeakReference<InternalEntityEntry>(entry);
             }
             return entry;
         }
@@ -92,12 +110,23 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer));
 
-            _identityMap.Add(entityKey, newEntry);
+            AddToIdentityMap(entityType, entityKey, newEntry);
+
             _entityReferenceMap[entity] = newEntry;
+            _detachedEntityReferenceMap.Remove(entity);
 
             newEntry.SetEntityState(EntityState.Unchanged);
 
             return newEntry;
+        }
+
+        private void AddToIdentityMap(IEntityType entityType, EntityKey entityKey, InternalEntityEntry newEntry)
+        {
+            _identityMap.Add(entityKey, newEntry);
+            foreach (var key in entityType.GetKeys().Where(k => k != entityKey.Key))
+            {
+                _identityMap[newEntry.GetPrincipalKeyValue(key)] = newEntry;
+            }
         }
 
         public virtual InternalEntityEntry TryGetEntry(EntityKey keyValue)
@@ -110,11 +139,21 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual InternalEntityEntry TryGetEntry(object entity)
         {
             InternalEntityEntry entry;
-            _entityReferenceMap.TryGetValue(entity, out entry);
+            if (!_entityReferenceMap.TryGetValue(entity, out entry))
+            {
+                WeakReference<InternalEntityEntry> detachedEntry;
+
+                if (!_detachedEntityReferenceMap.TryGetValue(entity, out detachedEntry)
+                    || !detachedEntry.TryGetTarget(out entry))
+                {
+                    return null;
+                }
+            }
+
             return entry;
         }
 
-        public virtual IEnumerable<InternalEntityEntry> Entries => _identityMap.Values;
+        public virtual IEnumerable<InternalEntityEntry> Entries => _entityReferenceMap.Values;
 
         public virtual InternalEntityEntry StartTracking(InternalEntityEntry entry)
         {
@@ -125,17 +164,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 throw new InvalidOperationException(Strings.WrongStateManager(entityType.Name));
             }
 
-            InternalEntityEntry existingEntry;
-            if (entry.Entity != null)
+            var mapKey = entry.Entity ?? entry;
+            var existingEntry = TryGetEntry(mapKey);
+
+            if (existingEntry == null || existingEntry == entry)
             {
-                if (!_entityReferenceMap.TryGetValue(entry.Entity, out existingEntry))
-                {
-                    _entityReferenceMap[entry.Entity] = entry;
-                }
-                else if (existingEntry != entry)
-                {
-                    throw new InvalidOperationException(Strings.MultipleEntries(entityType.Name));
-                }
+                _entityReferenceMap[mapKey] = entry;
+                _detachedEntityReferenceMap.Remove(mapKey);
+            }
+            else
+            {
+                throw new InvalidOperationException(Strings.MultipleEntries(entityType.Name));
             }
 
             var keyValue = GetPrimaryKeyValueChecked(entry);
@@ -151,7 +190,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else
             {
-                _identityMap[keyValue] = entry;
+                AddToIdentityMap(entityType, keyValue, entry);
             }
 
             return entry;
@@ -159,18 +198,20 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void StopTracking(InternalEntityEntry entry)
         {
-            if (entry.Entity != null)
-            {
-                _entityReferenceMap.Remove(entry.Entity);
-            }
+            var mapKey = entry.Entity ?? entry;
+            _entityReferenceMap.Remove(mapKey);
+            _detachedEntityReferenceMap[mapKey] = new WeakReference<InternalEntityEntry>(entry);
 
-            var keyValue = entry.GetPrimaryKeyValue();
-
-            InternalEntityEntry existingEntry;
-            if (_identityMap.TryGetValue(keyValue, out existingEntry)
-                && existingEntry == entry)
+            foreach (var key in entry.EntityType.GetKeys())
             {
-                _identityMap.Remove(keyValue);
+                var keyValue = entry.GetPrincipalKeyValue(key);
+
+                InternalEntityEntry existingEntry;
+                if (_identityMap.TryGetValue(keyValue, out existingEntry)
+                    && existingEntry == entry)
+                {
+                    _identityMap.Remove(keyValue);
+                }
             }
         }
 
@@ -182,20 +223,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return null;
             }
 
-            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
-            var principals = Entries.Where(
-                e => foreignKey.PrincipalEntityType.IsAssignableFrom(e.EntityType)
-                     && dependentKeyValue.Equals(
-                         e.GetPrincipalKeyValue(foreignKey))).ToList();
+            InternalEntityEntry principalEntry;
+            _identityMap.TryGetValue(dependentKeyValue, out principalEntry);
 
-            if (principals.Count > 1)
-            {
-                // TODO: Better exception message
-                // Issue #739
-                throw new InvalidOperationException("Multiple matching principals.");
-            }
-
-            return principals.FirstOrDefault();
+            return principalEntry;
         }
 
         public virtual void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey)

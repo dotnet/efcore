@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Query
 
             _entityKeyFactory
                 = queryCompilationContext.EntityKeyFactorySource
-                    .GetKeyFactory(_entityKeyProperties);
+                    .GetKeyFactory(_entityType.GetPrimaryKey());
 
             _includedNavigationPaths
                 = _queryCompilationContext
@@ -59,14 +59,14 @@ namespace Microsoft.Data.Entity.Query
                     if (!_includedEntityTrackingInfos.ContainsKey(navigation))
                     {
                         var targetEntityType = navigation.GetTargetType();
-                        var entityKeyProperties = targetEntityType.GetPrimaryKey().Properties;
+                        var targetKey = targetEntityType.GetPrimaryKey();
 
                         _includedEntityTrackingInfos.Add(
                             navigation,
                             new IncludedEntityTrackingInfo(
                                 targetEntityType,
-                                _queryCompilationContext.EntityKeyFactorySource.GetKeyFactory(entityKeyProperties),
-                                entityKeyProperties));
+                                _queryCompilationContext.EntityKeyFactorySource.GetKeyFactory(targetKey),
+                                targetKey.Properties));
                     }
                 }
             }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Query
 
             stateManager.StartTracking(
                 _entityType,
-                _entityKeyFactory.Create(_entityType.RootType(), _entityKeyProperties, valueBuffer),
+                _entityKeyFactory.Create(_entityKeyProperties, valueBuffer),
                 entity,
                 valueBuffer);
         }
@@ -109,10 +109,8 @@ namespace Microsoft.Data.Entity.Query
             private EntityKeyFactory EntityKeyFactory { get; }
             private IReadOnlyList<IProperty> EntityKeyProperties { get; }
 
-            public virtual EntityKey CreateEntityKey(ValueBuffer valueBuffer)
-            {
-                return EntityKeyFactory.Create(EntityType.RootType(), EntityKeyProperties, valueBuffer);
-            }
+            public virtual EntityKey CreateEntityKey(ValueBuffer valueBuffer) 
+                => EntityKeyFactory.Create(EntityKeyProperties, valueBuffer);
         }
 
         public struct IncludedEntity

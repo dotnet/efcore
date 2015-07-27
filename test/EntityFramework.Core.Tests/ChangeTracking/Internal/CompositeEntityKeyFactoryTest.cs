@@ -3,8 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
@@ -27,8 +25,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
-                new object[] { 0, null, null })
-                .Create(type, type.GetPrimaryKey().Properties, entry);
+                type.GetPrimaryKey())
+                .Create(type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -46,8 +44,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
-                new object[] { null, null })
-                .Create(type, new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
+                type.GetPrimaryKey())
+                .Create(new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
         }
@@ -68,8 +66,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[type.GetProperty("P4")] = 77;
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
-                new object[] { null, 0, null })
-                .Create(type, new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
+                type.GetPrimaryKey())
+                .Create(new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
 
             Assert.Equal(new object[] { random, 77, "Ate" }, key.Value);
         }
@@ -89,8 +87,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
                 new CompositeEntityKeyFactory(
-                    new object[] { 0, null, null })
-                    .Create(type, type.GetPrimaryKey().Properties, entry));
+                    type.GetPrimaryKey())
+                    .Create(type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
@@ -107,26 +105,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
                 new CompositeEntityKeyFactory(
-                    new object[] { 0, null, null })
-                    .Create(type, type.GetPrimaryKey().Properties, entry));
+                    type.GetPrimaryKey())
+                    .Create(type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
         public void Returns_null_if_any_value_in_the_entry_properties_are_the_set_sentinel()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.GetEntityType(typeof(SentinelBanana));
             var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
-            var entity = new Banana { P1 = 7, P2 = "Ate", P3 = new Random() };
+            var entity = new SentinelBanana { P1 = 7, P2 = "Ate", P3 = new Random() };
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
                 new CompositeEntityKeyFactory(
-                    new object[] { 7, null, null })
-                    .Create(type, type.GetPrimaryKey().Properties, entry));
+                    type.GetPrimaryKey())
+                    .Create(type.GetPrimaryKey().Properties, entry));
         }
 
         [Fact]
@@ -137,20 +135,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
                 new CompositeEntityKeyFactory(
-                    new object[] { 0, null, null })
-                    .Create(type, type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 0, "Ate", new Random() })));
+                    type.GetPrimaryKey())
+                    .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 0, "Ate", new Random() })));
         }
 
         [Fact]
         public void Returns_null_if_any_value_in_the_entry_properties_are_the_set_sentinel_using_value_reader()
         {
-            var type = BuildModel().GetEntityType(typeof(Banana));
+            var type = BuildModel().GetEntityType(typeof(SentinelBanana));
 
             Assert.Equal(
                 EntityKey.InvalidEntityKey,
                 new CompositeEntityKeyFactory(
-                    new object[] { 7, null, null })
-                    .Create(type, type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", new Random() })));
+                    type.GetPrimaryKey())
+                    .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", new Random() })));
         }
 
         [Fact]
@@ -162,8 +160,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
-                new object[] { 0, null, null })
-                .Create(type, type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", random }));
+                type.GetPrimaryKey())
+                .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -177,9 +175,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var random = new Random();
 
             var key = (CompositeEntityKey)new CompositeEntityKeyFactory(
-                new object[] { null, null })
+                type.GetPrimaryKey())
                 .Create(
-                    type,
                     new[] { type.GetProperty("P6"), type.GetProperty("P5") },
                     new ValueBuffer(new object[] { null, null, null, null, "Ate", random }));
 
@@ -195,9 +192,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var random = new Random();
 
             var key = new CompositeEntityKeyFactory(
-                new object[] { null, null })
+                type.GetPrimaryKey())
                 .Create(
-                    type,
                     new[] { type.GetProperty("P6"), type.GetProperty("P5") },
                     new ValueBuffer(new object[] { 7, "Ate", random, 77, null, random }));
 
@@ -219,10 +215,33 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
             entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);
 
+            entityType = model.AddEntityType(typeof(SentinelBanana));
+            property1 = entityType.GetOrAddProperty("P1", typeof(int));
+            property2 = entityType.GetOrAddProperty("P2", typeof(string));
+            property3 = entityType.GetOrAddProperty("P3", typeof(Random));
+            property4 = entityType.GetOrAddProperty("P4", typeof(int));
+            property5 = entityType.GetOrAddProperty("P5", typeof(string));
+            property6 = entityType.GetOrAddProperty("P6", typeof(Random));
+
+            entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
+            entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);
+
+            property1.SentinelValue = 7;
+
             return model;
         }
 
         private class Banana
+        {
+            public int P1 { get; set; }
+            public string P2 { get; set; }
+            public Random P3 { get; set; }
+            public int P4 { get; set; }
+            public string P5 { get; set; }
+            public Random P6 { get; set; }
+        }
+
+        private class SentinelBanana
         {
             public int P1 { get; set; }
             public string P2 { get; set; }

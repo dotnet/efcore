@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.Query
 
             var entityKeyFactory
                 = _entityKeyFactorySource
-                    .GetKeyFactory(keyProperties);
+                    .GetKeyFactory(targetEntityType.GetPrimaryKey());
 
             LoadNavigationProperties(
                 entity,
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Query
                         {
                             var entityKey
                                 = entityKeyFactory
-                                    .Create(targetEntityType.RootType(), keyProperties, eli.ValueBuffer);
+                                    .Create(keyProperties, eli.ValueBuffer);
 
                             object targetEntity = null;
 
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.Query
 
             var entityKeyFactory
                 = _entityKeyFactorySource
-                    .GetKeyFactory(keyProperties);
+                    .GetKeyFactory(targetEntityType.GetPrimaryKey());
 
             LoadNavigationProperties(
                 entity,
@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Query
                     {
                         var entityKey
                             = entityKeyFactory
-                                .Create(targetEntityType.RootType(), keyProperties, eli.ValueBuffer);
+                                .Create(keyProperties, eli.ValueBuffer);
 
                         object targetEntity = null;
 
@@ -338,13 +338,9 @@ namespace Microsoft.Data.Entity.Query
             out EntityKey primaryKey,
             out Func<ValueBuffer, EntityKey> relatedKeyFactory)
         {
-            var primaryKeyFactory
+            var keyFactory
                 = _entityKeyFactorySource
-                    .GetKeyFactory(navigation.ForeignKey.PrincipalKey.Properties);
-
-            var foreignKeyFactory
-                = _entityKeyFactorySource
-                    .GetKeyFactory(navigation.ForeignKey.Properties);
+                    .GetKeyFactory(navigation.ForeignKey.PrincipalKey);
 
             var targetEntityType = navigation.GetTargetType();
 
@@ -357,21 +353,19 @@ namespace Microsoft.Data.Entity.Query
 
                 primaryKey
                     = navigation.PointsToPrincipal()
-                        ? entry.GetDependentKeySnapshot(navigation.ForeignKey)
+                        ? entry.GetDependentKeyValue(navigation.ForeignKey)
                         : entry.GetPrimaryKeyValue();
             }
             else
             {
                 primaryKey
                     = navigation.PointsToPrincipal()
-                        ? foreignKeyFactory
+                        ? keyFactory
                             .Create(
-                                targetEntityType.RootType(),
                                 navigation.ForeignKey.Properties,
                                 (ValueBuffer)boxedValueBuffer)
-                        : primaryKeyFactory
+                        : keyFactory
                             .Create(
-                                navigation.DeclaringEntityType.RootType(),
                                 navigation.ForeignKey.PrincipalKey.Properties,
                                 (ValueBuffer)boxedValueBuffer);
             }
@@ -380,9 +374,8 @@ namespace Microsoft.Data.Entity.Query
             {
                 relatedKeyFactory
                     = valueBuffer =>
-                        primaryKeyFactory
+                        keyFactory
                             .Create(
-                                targetEntityType.RootType(),
                                 navigation.ForeignKey.PrincipalKey.Properties,
                                 valueBuffer);
             }
@@ -390,9 +383,8 @@ namespace Microsoft.Data.Entity.Query
             {
                 relatedKeyFactory
                     = valueBuffer =>
-                        foreignKeyFactory
+                        keyFactory
                             .Create(
-                                navigation.DeclaringEntityType.RootType(),
                                 navigation.ForeignKey.Properties,
                                 valueBuffer);
             }

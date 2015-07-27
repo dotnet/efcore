@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         Sidecar CreateStoreGeneratedValues([NotNull] InternalEntityEntry entry, [NotNull] IReadOnlyList<IProperty> properties);
 
         EntityKey CreateKey(
-            [NotNull] IEntityType entityType,
+            [NotNull] IKey key,
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyAccessor);
     }
