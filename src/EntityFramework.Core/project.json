@@ -17,7 +17,7 @@
     "Microsoft.Framework.Logging": "1.0.0-*",
     "Microsoft.Framework.Logging.Abstractions": "1.0.0-*",
     "Microsoft.Framework.OptionsModel": "1.0.0-*",
-    "Remotion.Linq": "2.0.0-alpha-004",
+    "Remotion.Linq": "2.0.0-beta-002",
     "System.Collections.Immutable": "1.1.37-*"
   },
   "compile": "..\\Shared\\*.cs",

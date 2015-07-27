@@ -15,10 +15,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     {
         public static Expression ExtractParameters(
             [NotNull] Expression expressionTree,
-            [NotNull] QueryContext queryContext)
+            [NotNull] QueryContext queryContext,
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
             var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().Visit(expressionTree);
-            var partialEvaluationInfo = EvaluatableTreeFindingExpressionVisitor.Analyze(functionEvaluationDisabledExpression);
+            var partialEvaluationInfo = EvaluatableTreeFindingExpressionVisitor.Analyze(functionEvaluationDisabledExpression, evaluatableExpressionFilter);
             var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext);
 
             return visitor.Visit(functionEvaluationDisabledExpression);

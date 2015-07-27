@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
             _navigationPropertyPathLambda = navigationPropertyPathLambda;
         }
 
-        protected override QueryModel ApplyNodeSpecificSemantics(QueryModel queryModel, ClauseGenerationContext clauseGenerationContext)
+        protected override void ApplyNodeSpecificSemantics(QueryModel queryModel, ClauseGenerationContext clauseGenerationContext)
         {
             var queryAnnotationResultOperator
                 = (QueryAnnotationResultOperator)clauseGenerationContext.GetContextInfo(Source);
@@ -41,8 +41,6 @@ namespace Microsoft.Data.Entity.Query.ResultOperators
                 .AppendToNavigationPath(_navigationPropertyPathLambda.GetComplexPropertyAccess());
 
             clauseGenerationContext.AddContextInfo(this, queryAnnotationResultOperator);
-
-            return queryModel;
         }
 
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext) => null;

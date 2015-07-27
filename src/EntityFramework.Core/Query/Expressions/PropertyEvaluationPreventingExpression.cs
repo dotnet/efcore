@@ -22,16 +22,6 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public override Type Type => _memberExpression.Type;
 
-        public override bool CanReduce
-        {
-            get { return true; }
-        }
-
-        public override Expression Reduce()
-        {
-            return MemberExpression;
-        }
-
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             var newExpression = visitor.Visit(MemberExpression.Expression);
