@@ -3009,8 +3009,6 @@ WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
                 Sql);
         }
 
-        #region Convert Methods
-        
         [Fact]
         public void Where_convert_to_byte()
         {
@@ -3026,7 +3024,7 @@ FROM [Customers] AS [c]
 WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(tinyint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
                 Sql);
         }
-        
+
         [Fact]
         public void Where_convert_to_decimal()
         {
@@ -3120,8 +3118,6 @@ FROM [Customers] AS [c]
 WHERE ([c].[Fax] IS NOT NULL AND (LEN(CONVERT(nvarchar, [c].[Fax])) > 0))",
                 Sql);
         }
-
-        #endregion
 
         public override void Select_nested_collection()
         {
