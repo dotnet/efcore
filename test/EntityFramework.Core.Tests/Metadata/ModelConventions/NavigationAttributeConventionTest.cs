@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<Blog>();
 
-            Assert.Null(entityTypeBuilder.Metadata.GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Post)).IsRequired);
+            Assert.Null(modelBuilder.Model.GetEntityType(typeof(Blog)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Post)).IsRequired);
             Assert.Contains(modelBuilder.Model.GetEntityType(typeof(Blog)).Navigations, nav => nav.Name == "Post");
             Assert.Contains(modelBuilder.Model.GetEntityType(typeof(Post)).Navigations, nav => nav.Name == "Blog");
         }

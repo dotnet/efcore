@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.Metadata
             Debug.Assert(targetClrType != null, "targetClrType != null");
             if (navigation.IsCollection())
             {
-                var elementType = clrProperty.PropertyType.TryGetElementType(typeof(IEnumerable<>));
+                var elementType = clrProperty.PropertyType.TryGetSequenceType();
 
                 if (elementType == null
                     || !elementType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))

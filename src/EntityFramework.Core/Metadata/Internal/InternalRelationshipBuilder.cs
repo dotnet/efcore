@@ -68,9 +68,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var hasChanged = navigationToPrincipalName != null &&
                              Metadata.DependentToPrincipal?.Name != navigationToPrincipalName;
 
-            return dependentEntityType
-                .Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource) != null
-                ? hasChanged ? ReplaceForeignKey(configurationSource) : this
+            var builder = dependentEntityType.Navigation(navigationToPrincipalName, Metadata, pointsToPrincipal: true, configurationSource: configurationSource);
+            return builder != null
+                ? hasChanged ? builder.ReplaceForeignKey(configurationSource) : builder
                 : null;
         }
 
@@ -110,9 +110,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var hasChanged = navigationToDependentName != null &&
                              Metadata.PrincipalToDependent?.Name != navigationToDependentName;
 
-            return principalEntityType
-                .Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource) != null
-                ? hasChanged ? ReplaceForeignKey(configurationSource) : this
+            var builder = principalEntityType.Navigation(navigationToDependentName, Metadata, pointsToPrincipal: false, configurationSource: configurationSource);
+            return builder != null
+                ? hasChanged ? builder.ReplaceForeignKey(configurationSource) : builder
                 : null;
         }
 
@@ -154,8 +154,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (Metadata.PrincipalToDependent != null)
             {
-                // TODO: throw for explicit
-                return null;
+                return ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, ConfigurationSource.Convention)
+                    .Navigation(null, Metadata, false, configurationSource)
+                    ?.Unique(isUnique, configurationSource);
             }
 
             if (_isUniqueConfigurationSource != null

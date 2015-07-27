@@ -109,6 +109,62 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
         }
 
         [Fact]
+        public void Unique_preserves_principalToDependent_if_compatible()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(typeof(Customer), typeof(Order), "Customer", "NotCollectionOrders", ConfigurationSource.Convention, true, true);
+            Assert.True(relationshipBuilder.Metadata.IsUnique.Value);
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
+
+            relationshipBuilder = relationshipBuilder.Unique(true, ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
+            Assert.True(relationshipBuilder.Metadata.IsUnique.Value);
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
+            Assert.NotNull(relationshipBuilder.Metadata.PrincipalToDependent);
+        }
+
+        [Fact]
+        public void Unique_removes_principalToDependent_if_not_compatible()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(typeof(Customer), typeof(Order), "Customer", "NotCollectionOrders", ConfigurationSource.Convention, true, true);
+            Assert.True(relationshipBuilder.Metadata.IsUnique.Value);
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
+
+            relationshipBuilder = relationshipBuilder.Unique(false, ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
+            Assert.False(relationshipBuilder.Metadata.IsUnique.Value);
+            Assert.False(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
+            Assert.Null(relationshipBuilder.Metadata.PrincipalToDependent);
+        }
+
+        [Fact]
+        public void Unique_fails_if_principalToDependent_is_not_compatible_and_higher_source()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty, Customer.UniqueProperty }, ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(typeof(Customer), typeof(Order), "Customer", "NotCollectionOrders", ConfigurationSource.DataAnnotation, true, true);
+            Assert.True(relationshipBuilder.Metadata.IsUnique.Value);
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
+
+            Assert.Null(relationshipBuilder.Unique(false, ConfigurationSource.Convention));
+            Assert.True(relationshipBuilder.Metadata.IsUnique.Value);
+            Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
+            Assert.NotNull(relationshipBuilder.Metadata.PrincipalToDependent);
+        }
+
+        [Fact]
         public void Can_only_override_lower_source_Required()
         {
             var modelBuilder = CreateInternalModelBuilder();

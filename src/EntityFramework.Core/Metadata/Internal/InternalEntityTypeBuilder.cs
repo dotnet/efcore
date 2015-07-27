@@ -312,8 +312,26 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _ignoredProperties.Value.Remove(navigationName);
                 }
 
-                fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(foreignKey, configurationSource);
-                var navigation = Metadata.AddNavigation(navigationName, foreignKey, pointsToPrincipal);
+                if (!pointsToPrincipal)
+                {
+                    var navigationPropertyInfo = Metadata.ClrType?.GetPropertiesInHierarchy(navigationName).FirstOrDefault();
+                    if (navigationPropertyInfo != null)
+                    {
+                        var elementType = navigationPropertyInfo.PropertyType.TryGetSequenceType();
+                        if (elementType == null)
+                        {
+                            builder = builder.Unique(true, configurationSource) ?? builder;
+                        }
+                        else if (elementType.GetTypeInfo().IsAssignableFrom(foreignKey.DeclaringEntityType.ClrType.GetTypeInfo()))
+                        {
+                            builder = builder.Unique(false, configurationSource) ?? builder;
+                        }
+                        pointsToPrincipal = builder.Metadata.DeclaringEntityType != fkOwner.Metadata;
+                    }
+
+                }
+                fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(builder.Metadata, configurationSource);
+                var navigation = Metadata.AddNavigation(navigationName, builder.Metadata, pointsToPrincipal);
                 return ModelBuilder.ConventionDispatcher.OnNavigationAdded(builder, navigation);
             }
 
@@ -1130,14 +1148,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            if (navigationToDependentName != null && isUnique.HasValue)
-            {
-                // TODO: Remove once Navigation to dependent takes care of configuring uniqueness (See Issue #1924)
-                builder = builder.Unique(isUnique.Value, configurationSource);
-            }
-
             builder = principalEntityTypeBuilder
-                .Navigation(navigationToDependentName, builder.Metadata, pointsToPrincipal: false, configurationSource: configurationSource)
+                .Navigation(navigationToDependentName, builder.Metadata, pointsToPrincipal: builder.Metadata.DeclaringEntityType != Metadata, configurationSource: configurationSource)
                 ?? _relationshipBuilders.Value.TryGetValue(builder.Metadata, configurationSource);
             if (builder == null)
             {
@@ -1177,7 +1189,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return builder;
         }
-        
+
         public virtual bool CanSetRequired([NotNull] IEnumerable<Property> properties, bool isRequired, ConfigurationSource configurationSource)
         {
             properties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
