@@ -914,8 +914,31 @@ namespace Microsoft.Data.Entity.Query.Sql
         protected virtual string GenerateLiteral([NotNull] Enum value)
             => string.Format(CultureInfo.InvariantCulture, "{0:d}", value);
 
-        protected virtual string GenerateLiteral(SqlDbType value)
-            => value.ToString().ToLower();
+
+        private readonly Dictionary<DbType, string> _dbTypeNameMapping = new Dictionary<DbType, string>
+        {
+            { DbType.Byte, "tinyint" },
+            { DbType.Decimal, "decimal" },
+            { DbType.Double, "float" },
+            { DbType.Int16, "smallint" },
+            { DbType.Int32, "int" },
+            { DbType.Int64, "bigint" },
+            { DbType.String, "nvarchar" },
+        };
+
+        private enum SqlDbType
+        {
+            TinyInt,
+            Decimal,
+            Float,
+            SmallInt,
+            Int,
+            BigInt,
+            NVarChar,
+        };
+
+        protected virtual string GenerateLiteral(DbType value)
+            => _dbTypeNameMapping[value];
 
         protected virtual string GenerateLiteral(int value)
             => value.ToString();

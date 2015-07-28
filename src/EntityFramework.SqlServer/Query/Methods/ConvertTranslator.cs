@@ -17,15 +17,15 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
     public class ConvertTranslator : IMethodCallTranslator
     {
         private readonly string _convertMethodName;
-        private readonly Dictionary<string, SqlDbType> _typeMapping = new Dictionary<string, SqlDbType>
+        private readonly Dictionary<string, object> _typeMapping = new Dictionary<string, object>
         {
-            [nameof(Convert.ToByte)] = SqlDbType.TinyInt,
-            [nameof(Convert.ToDecimal)] = SqlDbType.Decimal,
-            [nameof(Convert.ToDouble)] = SqlDbType.Float,
-            [nameof(Convert.ToInt16)] = SqlDbType.SmallInt,
-            [nameof(Convert.ToInt32)] = SqlDbType.Int,
-            [nameof(Convert.ToInt64)] = SqlDbType.BigInt,
-            [nameof(Convert.ToString)] = SqlDbType.NVarChar
+            [nameof(Convert.ToByte)] = DbType.Byte,
+            [nameof(Convert.ToDecimal)] = DbType.Decimal,
+            [nameof(Convert.ToDouble)] = DbType.Double,
+            [nameof(Convert.ToInt16)] = DbType.Int16,
+            [nameof(Convert.ToInt32)] = DbType.Int32,
+            [nameof(Convert.ToInt64)] = DbType.Int64,
+            [nameof(Convert.ToString)] = DbType.String,
         };
 
         public ConvertTranslator([NotNull] string convertMethodName)
