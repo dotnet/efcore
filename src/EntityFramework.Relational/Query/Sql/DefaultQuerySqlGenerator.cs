@@ -926,17 +926,6 @@ namespace Microsoft.Data.Entity.Query.Sql
             { DbType.String, "nvarchar" },
         };
 
-        private enum SqlDbType
-        {
-            TinyInt,
-            Decimal,
-            Float,
-            SmallInt,
-            Int,
-            BigInt,
-            NVarChar,
-        };
-
         protected virtual string GenerateLiteral(DbType value)
             => _dbTypeNameMapping[value];
 
