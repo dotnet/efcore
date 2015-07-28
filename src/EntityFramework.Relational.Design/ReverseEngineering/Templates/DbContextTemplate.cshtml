@@ -1,6 +1,9 @@
 @inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
 @using System.Linq
+@using System.Text
 @using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
+@using Microsoft.Data.Entity.Relational.Design.Utilities
+@using Microsoft.Data.Entity.Metadata
 @functions
 {
     List<string> LayoutPropertyConfigurationLines(PropertyConfiguration pc, string propertyLambdaIdentifier, string indent)
@@ -38,6 +41,56 @@
         }
 
         return lines;
+    }
+
+    string LayoutRelationshipConfigurationLine(RelationshipConfiguration rc,
+        string dependentEndLambdaIdentifier, string principalEndLambdaIdentifier,
+        ModelUtilities modelUtilities)
+    {
+        var sb = new StringBuilder();
+        sb.Append("Reference(");
+        sb.Append(dependentEndLambdaIdentifier);
+        sb.Append(" => ");
+        sb.Append(dependentEndLambdaIdentifier);
+        sb.Append(".");
+        sb.Append(rc.DependentEndNavigationPropertyName);
+        sb.Append(")");
+
+        if (rc.ForeignKey.IsUnique)
+        {
+            sb.Append(".InverseReference(");
+        }
+        else
+        {
+            sb.Append(".InverseCollection(");
+        }
+        if (!string.IsNullOrEmpty(rc.PrincipalEndNavigationPropertyName))
+        {
+            sb.Append(principalEndLambdaIdentifier);
+            sb.Append(" => ");
+            sb.Append(principalEndLambdaIdentifier);
+            sb.Append(".");
+            sb.Append(rc.PrincipalEndNavigationPropertyName);
+        }
+        sb.Append(")");
+
+        sb.Append(".ForeignKey");
+        if (rc.ForeignKey.IsUnique)
+        {
+            // If the relationship is 1:1 need to define to which end
+            // the ForeignKey properties belong.
+            sb.Append("<");
+            sb.Append(rc.EntityConfiguration.EntityType.DisplayName());
+            sb.Append(">");
+        }
+
+        sb.Append("(");
+        sb.Append(dependentEndLambdaIdentifier);
+        sb.Append(" => ");
+        sb.Append(modelUtilities.GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
+        sb.Append(")");
+
+        return sb.ToString();
     }
 }
 using Microsoft.Data.Entity;
@@ -119,7 +172,7 @@ var firstEntity = true;
 @:
         }
         firstNavigation = false;
-@:                entity.@Model.Generator.ModelUtilities.ConstructRelationshipConfiguration(relationshipConfig);
+@:                entity.@LayoutRelationshipConfigurationLine(relationshipConfig, "d", "p", Model.Generator.ModelUtilities);
     }
 @:            });
 }

@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
             = new ResourceManager("EntityFramework.SqlServer.Design.Strings", typeof(Strings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// Could not find foreignKeyMapping for ConstraintId {constraintId} for FromColumn {fromColumnId}.
+        /// Could not find foreignKeyMapping for ConstraintId {constraintId} for FromColumn {fromColumnId}. Skipping generation of ForeignKey.
         /// </summary>
         public static string CannotFindForeignKeyMappingForConstraintId([CanBeNull] object constraintId, [CanBeNull] object fromColumnId)
         {
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumn with ColumnId {toColumnId}.
+        /// For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumn {toColumnId}. Skipping generation of ForeignKey.
         /// </summary>
         public static string CannotFindRelationalPropertyForColumnId([CanBeNull] object constraintId, [CanBeNull] object toColumnId)
         {
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// For columnId {columnId}. Could not find table with TableId {tableId}. Skipping column.
+        /// For column {columnId}. Could not find table with TableId {tableId}. Skipping column.
         /// </summary>
         public static string CannotFindTableForColumn([CanBeNull] object columnId, [CanBeNull] object tableId)
         {
@@ -37,27 +37,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// For foreign key ConstraintId {constraintId}. Could not find ToColumn with ColumnId {toColumnId}.
-        /// </summary>
-        public static string CannotFindToColumnForConstraintId([CanBeNull] object constraintId, [CanBeNull] object toColumnId)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindToColumnForConstraintId", "constraintId", "toColumnId"), constraintId, toColumnId);
-        }
-
-        /// <summary>
-        /// For columnId {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.
+        /// For column {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.
         /// </summary>
         public static string CannotFindTypeMappingForColumn([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindTypeMappingForColumn", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
-        }
-
-        /// <summary>
-        /// Unable to generate EntityType {entityTypeName}. Error message: {errorMessage}
-        /// </summary>
-        public static string CannotGenerateEntityType([CanBeNull] object entityTypeName, [CanBeNull] object errorMessage)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotGenerateEntityType", "entityTypeName", "errorMessage"), entityTypeName, errorMessage);
         }
 
         /// <summary>
@@ -69,31 +53,23 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         }
 
         /// <summary>
-        /// For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow IdentityStrategy Identity. Generating a matching Property but ignoring the Identity setting.
+        /// For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerIdentityStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.
         /// </summary>
-        public static string DataTypeDoesNotAllowIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
+        public static string DataTypeDoesNotAllowSqlServerIdentityStrategy([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DataTypeDoesNotAllowIdentityStrategy", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DataTypeDoesNotAllowSqlServerIdentityStrategy", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
         }
 
         /// <summary>
-        /// Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{name}.
+        /// Unable to identify any primary key columns in the underlying SQL Server table [{schemaName}].[{tableName}].
         /// </summary>
-        public static string NoPrimaryKeyColumns([CanBeNull] object entityTypeName, [CanBeNull] object schemaName, [CanBeNull] object name)
+        public static string NoPrimaryKeyColumns([CanBeNull] object schemaName, [CanBeNull] object tableName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoPrimaryKeyColumns", "entityTypeName", "schemaName", "name"), entityTypeName, schemaName, name);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoPrimaryKeyColumns", "schemaName", "tableName"), schemaName, tableName);
         }
 
         /// <summary>
-        /// Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.
-        /// </summary>
-        public static string UnableToAddNavigationProperty([CanBeNull] object referencedEntityTypeName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToAddNavigationProperty", "referencedEntityTypeName"), referencedEntityTypeName);
-        }
-
-        /// <summary>
-        /// For columnId {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
+        /// For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.
         /// </summary>
         public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
         {

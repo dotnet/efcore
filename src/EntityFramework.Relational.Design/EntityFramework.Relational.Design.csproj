@@ -78,6 +78,7 @@
     <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
+    <Compile Include="ReverseEngineering\ReverseEngineeringMetadataModelProvider.cs" />
     <Compile Include="Templating\Compilation\CompiledAssemblyResult.cs" />
     <Compile Include="Templating\Compilation\CompilationResult.cs" />
     <Compile Include="Templating\Compilation\ICompilationService.cs" />
@@ -101,6 +102,12 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
     <None Include="project.json" />
+    <EmbeddedResource Include="ReverseEngineering\Templates\DbContextTemplate.cshtml">
+      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.DbContextTemplate.cshtml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReverseEngineering\Templates\EntityTypeTemplate.cshtml">
+      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.EntityTypeTemplate.cshtml</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">

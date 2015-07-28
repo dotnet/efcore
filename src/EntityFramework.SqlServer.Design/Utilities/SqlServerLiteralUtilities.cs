@@ -48,8 +48,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             }
 
             if (sqlServerStringLiteral[0] != '\''
-                ||
-                sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
+                || sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
             {
                 Logger.LogWarning(Strings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;

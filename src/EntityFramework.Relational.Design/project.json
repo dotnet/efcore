@@ -18,6 +18,7 @@
   "namedResource": {
     "EntityFramework.Relational.Design.Strings": "Properties/Strings.resx"
   },
+  "resource": "ReverseEngineering/Templates/*.cshtml",
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {
