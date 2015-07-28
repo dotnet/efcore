@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
+// ReSharper disable PossibleUnintendedReferenceComparison
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
@@ -92,49 +94,62 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        // TODO: Nav-prop to key comparison semantics
+        [Fact]
+        public virtual void Select_Where_Navigation_Null()
+        {
+            using (var context = CreateContext())
+            {
+                var employees
+                    = (from e in context.Set<Employee>()
+                        where e.Manager == null
+                        select e).ToList();
 
-//        [Fact]
-//        public virtual void Select_Where_Navigation_Null()
-//        {
-//            using (var context = CreateContext())
-//            {
-//                var employees
-//                    = (from e in context.Set<Employee>()
-//                        where e.Manager == null
-//                        select e).ToList();
-//
-//                Assert.Equal(1, employees.Count);
-//            }
-//        }
-//
-//        [Fact]
-//        public virtual void Select_Where_Navigation_Null_Reverse()
-//        {
-//            using (var context = CreateContext())
-//            {
-//                var employees
-//                    = (from e in context.Set<Employee>()
-//                        where null == e.Manager
-//                        select e).ToList();
-//
-//                Assert.Equal(1, employees.Count);
-//            }
-//        }
-//
-//        [Fact]
-//        public virtual void Select_Where_Navigation_Null_Deep()
-//        {
-//            using (var context = CreateContext())
-//            {
-//                var employees
-//                    = (from e in context.Set<Employee>()
-//                        where e.Manager.Manager == null
-//                        select e).ToList();
-//
-//                Assert.Equal(3, employees.Count);
-//            }
-//        }
+                Assert.Equal(1, employees.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Null_Reverse()
+        {
+            using (var context = CreateContext())
+            {
+                var employees
+                    = (from e in context.Set<Employee>()
+                        where null == e.Manager
+                        select e).ToList();
+
+                Assert.Equal(1, employees.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Null_Deep()
+        {
+            using (var context = CreateContext())
+            {
+                var employees
+                    = (from e in context.Set<Employee>()
+                        where e.Manager.Manager == null
+                        select e).ToList();
+
+                Assert.Equal(5, employees.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Equals_Navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = (from o1 in context.Set<Order>()
+                       from o2 in context.Set<Order>()
+                       where o1.Customer == o2.Customer
+                       select new { o1, o2 }).ToList();
+
+                Assert.Equal(10712, orders.Count);
+            }
+        }
 
         [Fact]
         public virtual void Select_Where_Navigation_Included()

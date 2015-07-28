@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -153,11 +154,72 @@ WHERE ([o1.Customer].[City] = [o2.Customer].[City] OR ([o1.Customer].[City] IS N
                 Sql);
         }
 
+        public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
+        {
+            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
+
+            Assert.Equal(
+                @"SELECT [o1].[CustomerID], [o2].[CustomerID]
+FROM [Orders] AS [o1]
+INNER JOIN [Customers] AS [o1.Customer] ON [o1].[CustomerID] = [o1.Customer].[CustomerID]
+CROSS JOIN [Orders] AS [o2]
+INNER JOIN [Customers] AS [o2.Customer] ON [o2].[CustomerID] = [o2.Customer].[CustomerID]
+WHERE ([o1.Customer].[City] = [o2.Customer].[City] OR ([o1.Customer].[City] IS NULL AND [o2.Customer].[City] IS NULL))",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Equals_Navigation()
+        {
+            base.Select_Where_Navigation_Equals_Navigation();
+
+            Assert.Equal(
+                @"SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
+FROM [Orders] AS [o1]
+CROSS JOIN [Orders] AS [o2]
+WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Null()
+        {
+            base.Select_Where_Navigation_Null();
+
+            Assert.Equal(
+                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NULL",
+                 Sql);
+        }
+
+        public override void Select_Where_Navigation_Null_Deep()
+        {
+            base.Select_Where_Navigation_Null_Deep();
+
+            Assert.Equal(
+                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+INNER JOIN [Employees] AS [e.Manager] ON [e].[ReportsTo] = [e.Manager].[EmployeeID]
+WHERE [e.Manager].[ReportsTo] IS NULL",
+                 Sql);
+        }
+
+        public override void Select_Where_Navigation_Null_Reverse()
+        {
+            base.Select_Where_Navigation_Null_Reverse();
+
+            Assert.Equal(
+                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+WHERE [e].[ReportsTo] IS NULL",
+                 Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
 
-        public QueryNavigationsSqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public QueryNavigationsSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
     }
 }

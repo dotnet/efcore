@@ -23,6 +23,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private class NavigationJoin
         {
+            public static void RemoveNavigationJoin(
+                ICollection<NavigationJoin> navigationJoins, NavigationJoin navigationJoin)
+            {
+                if (!navigationJoins.Remove(navigationJoin))
+                {
+                    foreach (var nj in navigationJoins)
+                    {
+                        nj.Remove(navigationJoin);
+                    }
+                }
+            }
+
             public NavigationJoin(
                 IQuerySource querySource,
                 INavigation navigation,
@@ -50,12 +62,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     yield return navigationJoin;
                 }
             }
+
+            private void Remove(NavigationJoin navigationJoin) 
+                => RemoveNavigationJoin(NavigationJoins, navigationJoin);
         }
 
         private IEntityQueryProvider _entityQueryProvider;
 
-        public NavigationRewritingExpressionVisitor(
-            [NotNull] EntityQueryModelVisitor queryModelVisitor)
+        public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
@@ -97,6 +111,70 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
 
             return constantExpression;
+        }
+
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        {
+            var newLeft = Visit(binaryExpression.Left);
+            var newRight = Visit(binaryExpression.Right);
+
+            var leftNavigationJoin
+                = _navigationJoins
+                    .SelectMany(nj => nj.Iterate())
+                    .FirstOrDefault(nj => ReferenceEquals(nj.QuerySourceReferenceExpression, newLeft));
+            
+            var rightNavigationJoin
+                = _navigationJoins
+                    .SelectMany(nj => nj.Iterate())
+                    .FirstOrDefault(nj => ReferenceEquals(nj.QuerySourceReferenceExpression, newRight));
+
+            if (leftNavigationJoin != null
+                && rightNavigationJoin != null)
+            {
+                newLeft = leftNavigationJoin.JoinClause.OuterKeySelector;
+                newRight = rightNavigationJoin.JoinClause.OuterKeySelector;
+
+                NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
+                NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
+            }
+            else
+            {
+                if (leftNavigationJoin != null)
+                {
+                    var constantExpression = newRight as ConstantExpression;
+
+                    if (constantExpression != null
+                        && constantExpression.Value == null)
+                    {
+                        newLeft = leftNavigationJoin.JoinClause.OuterKeySelector;
+
+                        NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
+                    }
+                    else
+                    {
+                        newLeft = leftNavigationJoin.JoinClause.InnerKeySelector;
+                    }
+                }
+
+                if (rightNavigationJoin != null)
+                {
+                    var constantExpression = newLeft as ConstantExpression;
+
+                    if (constantExpression != null
+                        && constantExpression.Value == null)
+                    {
+                        newRight = rightNavigationJoin.JoinClause.OuterKeySelector;
+
+                        NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
+                    }
+                    else
+                    {
+                        newRight = rightNavigationJoin.JoinClause.InnerKeySelector;
+                    }
+                }
+            }
+
+            return Expression.MakeBinary(binaryExpression.NodeType, newLeft, newRight);
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
@@ -180,7 +258,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     }
 
                     joinClause.InnerKeySelector = innerKeySelector;
-                    
+
                     navigationJoins.Add(
                         navigationJoin
                             = new NavigationJoin(
