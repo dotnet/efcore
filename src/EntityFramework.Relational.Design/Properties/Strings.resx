@@ -129,12 +129,6 @@
   <data name="NamespaceRequired" xml:space="preserve">
     <value>Namespace is required to generate code.</value>
   </data>
-  <data name="NoContextModelCodeGenerator" xml:space="preserve">
-    <value>Provider {providerTypeName} did not provide a ContextModelCodeGenerator.</value>
-  </data>
-  <data name="NoEntityTypeModelCodeGenerator" xml:space="preserve">
-    <value>Provider {providerTypeName} did not provide a EntityTypeModelCodeGenerator.</value>
-  </data>
   <data name="OutputPathRequired" xml:space="preserve">
     <value>OutputPath is required to generate code.</value>
   </data>
@@ -150,8 +144,14 @@
   <data name="TemplateProcessingFailed" xml:space="preserve">
     <value>Template Processing Failed: {errorMessages}</value>
   </data>
+  <data name="UnableToAddNavigationProperty" xml:space="preserve">
+    <value>Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.</value>
+  </data>
   <data name="UnableToCreateMetadataReference" xml:space="preserve">
     <value>Unable to create metadata reference from name {metadataReferenceName}.</value>
+  </data>
+  <data name="UnableToGenerateEntityType" xml:space="preserve">
+    <value>Unable to generate EntityType {entityTypeName}. {errorMessage}</value>
   </data>
   <data name="UsingCustomTemplate" xml:space="preserve">
     <value>Using custom template {customTemplateFilePath}</value>

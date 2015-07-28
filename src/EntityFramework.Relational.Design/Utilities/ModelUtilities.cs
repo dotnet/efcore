@@ -81,49 +81,6 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             return foreignKey.DeclaringEntityType.DisplayName();
         }
 
-        public virtual string ConstructRelationshipConfiguration(
-            [NotNull] RelationshipConfiguration relationshipConfiguration)
-        {
-            Check.NotNull(relationshipConfiguration, nameof(relationshipConfiguration));
-
-            var sb = new StringBuilder();
-            sb.Append("Reference");
-            sb.Append("(d => d.");
-            sb.Append(relationshipConfiguration.DependentEndNavigationPropertyName);
-            sb.Append(")");
-
-            if (relationshipConfiguration.ForeignKey.IsUnique)
-            {
-                sb.Append(".InverseReference(");
-            }
-            else
-            {
-                sb.Append(".InverseCollection(");
-            }
-            if (!string.IsNullOrEmpty(relationshipConfiguration.PrincipalEndNavigationPropertyName))
-            {
-                sb.Append("p => p.");
-                sb.Append(relationshipConfiguration.PrincipalEndNavigationPropertyName);
-            }
-            sb.Append(")");
-
-            sb.Append(".ForeignKey");
-            if (relationshipConfiguration.ForeignKey.IsUnique)
-            {
-                // If the relationship is 1:1 need to define to which end
-                // the ForeignKey properties belong.
-                sb.Append("<");
-                sb.Append(relationshipConfiguration.EntityConfiguration.EntityType.DisplayName());
-                sb.Append(">");
-            }
-
-            sb.Append("(d => ");
-            sb.Append(GenerateLambdaToKey(relationshipConfiguration.ForeignKey.Properties, "d"));
-            sb.Append(")");
-
-            return sb.ToString();
-        }
-
         private string FindCommonPrefix(IEnumerable<string> stringsEnumerable)
         {
             if (stringsEnumerable.Count() == 0)

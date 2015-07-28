@@ -118,36 +118,27 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotFindForeignKeyMappingForConstraintId" xml:space="preserve">
-    <value>Could not find foreignKeyMapping for ConstraintId {constraintId} for FromColumnName {fromColumnNameId}.</value>
+    <value>Could not find foreignKeyMapping for ConstraintId {constraintId} for FromColumn {fromColumnId}. Skipping generation of ForeignKey.</value>
   </data>
   <data name="CannotFindRelationalPropertyForColumnId" xml:space="preserve">
-    <value>For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumnName with ColumnNameId {toColumnNameId}.</value>
+    <value>For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumn {toColumnId}. Skipping generation of ForeignKey.</value>
   </data>
   <data name="CannotFindTableForColumn" xml:space="preserve">
-    <value>For columnId {columnId}. Could not find table with TableId {tableId}. Skipping column.</value>
-  </data>
-  <data name="CannotFindToColumnForConstraintId" xml:space="preserve">
-    <value>For foreign key ConstraintId {constraintId}. Could not find ToColumnName with ColumnNameId {toColumnNameId}.</value>
+    <value>For column {columnId}. Could not find table with TableId {tableId}. Skipping column.</value>
   </data>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
-    <value>For columnId {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.</value>
-  </data>
-  <data name="CannotGenerateEntityType" xml:space="preserve">
-    <value>Unable to generate EntityType {entityTypeName}. Error message: {errorMessage}</value>
+    <value>For column {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.</value>
   </data>
   <data name="CannotInterpretSqlServerStringLiteral" xml:space="preserve">
     <value>Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.</value>
   </data>
-  <data name="DataTypeDoesNotAllowIdentityStrategy" xml:space="preserve">
-    <value>For columnId {columnId}. The SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow IdentityStrategy Identity. Generating a matching Property but ignoring the Identity setting.</value>
+  <data name="DataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
+    <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerIdentityStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
   </data>
   <data name="NoPrimaryKeyColumns" xml:space="preserve">
-    <value>Attempt to generate EntityType {entityTypeName} failed. Unable to identify any primary key columns in the underlying SQL Server table {schemaName}.{name}.</value>
-  </data>
-  <data name="UnableToAddNavigationProperty" xml:space="preserve">
-    <value>Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.</value>
+    <value>Unable to identify any primary key columns in the underlying SQL Server table [{schemaName}].[{tableName}].</value>
   </data>
   <data name="UnableToConvertDefaultValue" xml:space="preserve">
-    <value>For columnId {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>
+    <value>For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>
   </data>
 </root>

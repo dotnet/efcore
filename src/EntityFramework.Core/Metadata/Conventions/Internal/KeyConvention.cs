@@ -66,22 +66,38 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         ?.ValueGenerated(null, ConfigurationSource.Convention);
                 }
 
-                if (properties.Count == 1)
+                Property valueGeneratedOnAddProperty;
+                if ((valueGeneratedOnAddProperty =
+                    ValueGeneratedOnAddProperty(properties, entityTypeBuilder.Metadata)) != null)
                 {
-                    var property = properties.First();
-
-                    var propertyType = property.ClrType.UnwrapNullableType();
-
-                    if ((propertyType.IsInteger()
-                        || propertyType == typeof(Guid))
-                        && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null
-                        && !property.IsForeignKey(entityTypeBuilder.Metadata))
-                    {
-                        entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                            ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-                    }
+                    entityTypeBuilder.Property(
+                        valueGeneratedOnAddProperty.ClrType,
+                        valueGeneratedOnAddProperty.Name,
+                        ConfigurationSource.Convention)
+                        ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
                 }
             }
+        }
+
+        public virtual Property ValueGeneratedOnAddProperty(
+            [NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
+        {
+            if (properties.Count == 1)
+            {
+                var property = properties.First();
+
+                var propertyType = property.ClrType.UnwrapNullableType();
+
+                if ((propertyType.IsInteger()
+                    || propertyType == typeof(Guid))
+                    && entityType.FindPrimaryKey(properties) != null
+                    && !property.IsForeignKey(entityType))
+                {
+                    return property;
+                }
+            }
+
+            return null;
         }
     }
 }

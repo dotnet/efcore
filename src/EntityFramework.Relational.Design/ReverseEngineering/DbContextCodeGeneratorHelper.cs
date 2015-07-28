@@ -29,8 +29,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual DbContextGeneratorModel GeneratorModel { get; }
 
-        // default ordering is by Name, which is what we want here
-        public virtual IEnumerable<IEntityType> OrderedEntityTypes() => GeneratorModel.MetadataModel.EntityTypes;
+        public virtual IEnumerable<IEntityType> OrderedEntityTypes()
+        {
+            // default ordering is by Name, which is what we want here but
+            // do not configure EntityTypes for which we had an error when generating
+            return GeneratorModel.MetadataModel.EntityTypes
+                .Where(e => ((EntityType)e).FindAnnotation(
+                    ReverseEngineeringMetadataModelProvider.AnnotationNameEntityTypeError) == null);
+        }
 
         public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
             => GeneratorModel.Generator.ModelUtilities.OrderedProperties(Check.NotNull(entityType, nameof(entityType)));
@@ -52,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
                     AddEntityFacetsConfiguration(entityConfiguration);
                     AddEntityPropertiesConfiguration(entityConfiguration);
-                    AddNavigationsConfiguration(entityConfiguration);
+                    AddRelationshipConfiguration(entityConfiguration);
 
                     if (entityConfiguration.FacetConfigurations.Any()
                         || entityConfiguration.PropertyConfigurations.Any()
@@ -74,7 +80,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             AddTableNameFacetConfiguration(entityConfiguration);
         }
 
-        public abstract void AddNavigationsConfiguration([NotNull] EntityConfiguration entityConfiguration);
+        public virtual void AddRelationshipConfiguration([NotNull] EntityConfiguration entityConfiguration)
+        {
+            Check.NotNull(entityConfiguration, nameof(entityConfiguration));
+
+            foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
+            {
+                var dependentEndNavigationPropertyName =
+                    (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNameDependentEndNavPropName];
+                var principalEndNavigationPropertyName =
+                    (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
+
+                entityConfiguration.RelationshipConfigurations.Add(
+                    new RelationshipConfiguration(entityConfiguration, foreignKey,
+                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName));
+            }
+        }
 
         public virtual void AddEntityKeyConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
