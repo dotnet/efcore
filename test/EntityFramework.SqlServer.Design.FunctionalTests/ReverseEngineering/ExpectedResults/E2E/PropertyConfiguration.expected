@@ -10,8 +10,8 @@ namespace E2ETest.Namespace
         public byte PropertyConfigurationID { get; set; }
         public int A { get; set; }
         public int B { get; set; }
+        public byte[] RowversionColumn { get; set; }
         public int? SumOfAAndB { get; set; }
-        public byte[] TimestampColumn { get; set; }
         public DateTime WithDateDefaultExpression { get; set; }
         public int WithDefaultValue { get; set; }
         public Guid WithGuidDefaultExpression { get; set; }

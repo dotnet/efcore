@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 { "tinyint", typeof(byte) },
 
                 // approximate numerics
-                { "float", typeof(float) },
-                { "real", typeof(double) },
+                { "float", typeof(double) }, // This is correct. SQL Server 'float' type maps to C# double
+                { "real", typeof(float) },
 
                 // date and time
                 { "date", typeof(DateTime) },
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 //{ "hierarchyid", typeof(TODO) },
                 //{ "sql_variant", typeof(TODO) },
                 //{ "table", typeof(TODO) },
-                { "timestamp", typeof(byte[]) },
+                { "timestamp", typeof(byte[]) }, // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
                 { "uniqueidentifier", typeof(Guid) }
                 //{ "xml", typeof(TODO) },
 

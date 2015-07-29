@@ -99,11 +99,11 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.B).Required();
 
-                entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
-
-                entity.Property(e => e.TimestampColumn)
+                entity.Property(e => e.RowversionColumn)
                     .Required()
                     .ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.WithDateDefaultExpression)
                     .Required()
