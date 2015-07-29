@@ -216,6 +216,16 @@ namespace Microsoft.Data.Entity.Tests
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
 
+            public void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey, IKey principalKey)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void UpdateDependentMap(InternalEntityEntry entry, EntityKey oldKey, IForeignKey foreignKey)
+            {
+                throw new NotImplementedException();
+            }
+
             public IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
@@ -286,11 +296,6 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             public InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
-            {
-                throw new NotImplementedException();
-            }
-
-            public void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey)
             {
                 throw new NotImplementedException();
             }

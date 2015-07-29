@@ -304,7 +304,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
+            Assert.Same(entry.EntityType.GetProperty("Id"), testListener.PrincipalKeyChange.Item2);
+            Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
+            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+
             Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
@@ -341,7 +345,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
+            Assert.Same(entry.EntityType.GetProperty("Id"), testListener.PrincipalKeyChange.Item2);
+            Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
+            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+
             Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
@@ -597,7 +605,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new Category { PrincipalId = 2 };
+            var newCategory = new Category { Id = 1, PrincipalId = 2 };
             product.Category = newCategory;
 
             changeDetector.DetectChanges(entry);
@@ -636,7 +644,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new Category { PrincipalId = 2 };
+            var newCategory = new Category { Id = 99, PrincipalId = 2 };
             product.Category = newCategory;
 
             changeDetector.DetectChanges(entry);
@@ -710,7 +718,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new Product { DependentId = 77 };
+            var product3 = new Product { Id = Guid.NewGuid(), DependentId = 77 };
             category.Products.Add(product3);
 
             changeDetector.DetectChanges(entry);
@@ -912,8 +920,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new ProductWithChanged { DependentId = 77 };
-            var product2 = new ProductWithChanged { DependentId = 77 };
+            var product1 = new ProductWithChanged { Id = 1, DependentId = 77 };
+            var product2 = new ProductWithChanged { Id = 2, DependentId = 77 };
             var category = new CategoryWithChanged
                 {
                     Id = 77,
@@ -922,7 +930,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new ProductWithChanged { DependentId = 77 };
+            var product3 = new ProductWithChanged { Id = 3, DependentId = 77 };
             category.Products.Add(product3);
 
             changeDetector.DetectChanges(entry);
@@ -957,8 +965,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var product1 = new ProductWithChanged { DependentId = 77 };
-            var product2 = new ProductWithChanged { DependentId = 77 };
+            var product1 = new ProductWithChanged { Id = 1, DependentId = 77 };
+            var product2 = new ProductWithChanged { Id = 2, DependentId = 77 };
             var category = new CategoryWithChanged
                 {
                     Id = 77,
@@ -967,7 +975,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new ProductWithChanged { DependentId = 77 };
+            var product3 = new ProductWithChanged { Id = 3, DependentId = 77 };
             category.Products.Add(product3);
 
             changeDetector.DetectChanges(entry);
@@ -1263,7 +1271,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
-            Assert.Null(testListener.PrincipalKeyChange);
+            Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
+            Assert.Same(entry.EntityType.GetProperty("Id"), testListener.PrincipalKeyChange.Item2);
+            Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
+            Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
+
             Assert.Null(testListener.ForeignKeyChange);
             Assert.Null(testListener.ReferenceChange);
             Assert.Null(testListener.CollectionChange);
@@ -1403,7 +1415,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var newCategory = new NotifyingCategory { PrincipalId = 2 };
+            var newCategory = new NotifyingCategory { Id = 67, PrincipalId = 2 };
             product.Category = newCategory;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
@@ -1508,7 +1520,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var product3 = new NotifyingProduct { DependentId = 77 };
+            var product3 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
             category.Products.Add(product3);
 
             // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)
