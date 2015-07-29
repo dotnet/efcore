@@ -282,14 +282,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             return new QueryResultScope<TEntity>(
                 querySource,
-                (TEntity)queryContext.QueryBuffer
-                    .GetEntity(
-                        entityType,
-                        entityKey,
-                        new EntityLoadInfo(
-                            valueBuffer,
-                            materializer),
-                        queryStateManager),
+                entityKey != EntityKey.InvalidEntityKey
+                    ? (TEntity)queryContext.QueryBuffer
+                        .GetEntity(
+                            entityType,
+                            entityKey,
+                            new EntityLoadInfo(
+                                valueBuffer,
+                                materializer),
+                            queryStateManager)
+                    : null,
                 parentQueryResultScope);
         }
     }

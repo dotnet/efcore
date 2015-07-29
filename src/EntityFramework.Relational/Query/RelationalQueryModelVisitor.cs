@@ -289,6 +289,50 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
 
+            OptimizeJoinClause(
+                joinClause,
+                queryModel,
+                index,
+                () => base.VisitJoinClause(joinClause, queryModel, index),
+                LinqOperatorProvider.Join);
+        }
+
+        protected override Expression CompileJoinClauseInnerSequenceExpression(JoinClause joinClause, QueryModel queryModel)
+        {
+            Check.NotNull(joinClause, nameof(joinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            var expression = base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
+
+            return LiftSubQuery(joinClause, joinClause.InnerSequence, queryModel, expression);
+        }
+
+        public override void VisitGroupJoinClause(GroupJoinClause groupJoinClause, QueryModel queryModel, int index)
+        {
+            Check.NotNull(groupJoinClause, nameof(groupJoinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            OptimizeJoinClause(
+                groupJoinClause.JoinClause,
+                queryModel,
+                index,
+                () => base.VisitGroupJoinClause(groupJoinClause, queryModel, index),
+                LinqOperatorProvider.GroupJoin,
+                outerJoin: true);
+        }
+
+        protected virtual void OptimizeJoinClause(
+            [NotNull] JoinClause joinClause,
+            [NotNull] QueryModel queryModel,
+            int index,
+            Action baseVisitAction,
+            [NotNull] MethodInfo operatorToFlatten,
+            bool outerJoin = false)
+        {
+            Check.NotNull(joinClause, nameof(joinClause));
+            Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(operatorToFlatten, nameof(operatorToFlatten));
+
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
             var previousSelectExpression
@@ -299,7 +343,7 @@ namespace Microsoft.Data.Entity.Query
             var previousSelectProjectionCount
                 = previousSelectExpression?.Projection.Count ?? -1;
 
-            base.VisitJoinClause(joinClause, queryModel, index);
+            baseVisitAction();
 
             if (previousSelectExpression != null)
             {
@@ -323,16 +367,20 @@ namespace Microsoft.Data.Entity.Query
 
                         previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
 
-                        var innerJoinExpression
-                            = previousSelectExpression
-                                .AddInnerJoin(
-                                    selectExpression.Tables.Single(),
-                                    QueryCompilationContext
-                                        .QuerySourceRequiresMaterialization(joinClause)
-                                        ? selectExpression.Projection
-                                        : Enumerable.Empty<Expression>());
+                        var tableExpression = selectExpression.Tables.Single();
 
-                        innerJoinExpression.Predicate = predicate;
+                        var projection
+                            = QueryCompilationContext
+                                .QuerySourceRequiresMaterialization(joinClause)
+                                ? selectExpression.Projection
+                                : Enumerable.Empty<Expression>();
+
+                        var joinExpression
+                            = !outerJoin
+                                ? previousSelectExpression.AddInnerJoin(tableExpression, projection)
+                                : previousSelectExpression.AddOuterJoin(tableExpression, projection);
+
+                        joinExpression.Predicate = predicate;
 
                         Expression
                             = new QueryFlatteningExpressionVisitor(
@@ -340,25 +388,16 @@ namespace Microsoft.Data.Entity.Query
                                 joinClause,
                                 QueryCompilationContext,
                                 previousSelectProjectionCount,
-                                LinqOperatorProvider.Join)
+                                operatorToFlatten)
                                 .Visit(Expression);
                     }
                     else
                     {
-                        previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
+                        previousSelectExpression
+                            .RemoveRangeFromProjection(previousSelectProjectionCount);
                     }
                 }
             }
-        }
-
-        protected override Expression CompileJoinClauseInnerSequenceExpression(JoinClause joinClause, QueryModel queryModel)
-        {
-            Check.NotNull(joinClause, nameof(joinClause));
-            Check.NotNull(queryModel, nameof(queryModel));
-
-            var expression = base.CompileJoinClauseInnerSequenceExpression(joinClause, queryModel);
-
-            return LiftSubQuery(joinClause, joinClause.InnerSequence, queryModel, expression);
         }
 
         protected override Expression CompileGroupJoinInnerSequenceExpression(GroupJoinClause groupJoinClause, QueryModel queryModel)
@@ -581,7 +620,7 @@ namespace Microsoft.Data.Entity.Query
                     },
                 bindSubQueries: true)
                    ?? ParentQueryModelVisitor?
-                       .BindMethodCallToValueBuffer(methodCallExpression, expression); 
+                       .BindMethodCallToValueBuffer(methodCallExpression, expression);
         }
 
         public virtual TResult BindMemberExpression<TResult>(

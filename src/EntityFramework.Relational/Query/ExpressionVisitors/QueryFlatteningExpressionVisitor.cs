@@ -79,9 +79,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 {
                     var newArguments
                         = new List<Expression>(newExpression.Arguments)
-                        {
-                            [2] = _outerShaperExpression
-                        };
+                            {
+                                [2] = _outerShaperExpression
+                            };
 
                     if (newArguments.Count == RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo.GetParameters().Length)
                     {
@@ -104,6 +104,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             else if (_outerSelectManyExpression != null
                      && newExpression.Method.MethodIsClosedFormOf(_operatorToFlatten))
             {
+                var oldExpression = newExpression;
+
                 newExpression
                     = Expression.Call(
                         _relationalQueryCompilationContext.LinqOperatorProvider.SelectMany
@@ -116,6 +118,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             : Expression.Lambda(
                                 newExpression.Arguments[1],
                                 EntityQueryModelVisitor.QueryResultScopeParameter));
+
+                if (_operatorToFlatten == _relationalQueryCompilationContext.LinqOperatorProvider.GroupJoin)
+                {
+                    newExpression
+                        = Expression.Call(
+                            _relationalQueryCompilationContext.QueryMethodProvider.GroupJoinMethod
+                                .MakeGenericMethod(_innerQuerySource.ItemType),
+                            newExpression,
+                            oldExpression.Arguments[4]);
+                }
             }
 
             return newExpression;

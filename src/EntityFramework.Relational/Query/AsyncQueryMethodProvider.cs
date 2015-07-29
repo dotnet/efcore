@@ -17,6 +17,99 @@ namespace Microsoft.Data.Entity.Query
 {
     public class AsyncQueryMethodProvider : IQueryMethodProvider
     {
+        public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
+
+        private static readonly MethodInfo _groupJoinMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<QueryResultScope> _GroupJoin<TResult>(
+            IAsyncEnumerable<QueryResultScope> source,
+            Func<QueryResultScope, IAsyncEnumerable<QueryResultScope<TResult>>, QueryResultScope<IAsyncEnumerable<TResult>>> resultSelector)
+            => new GroupJoinAsyncEnumerable<TResult>(source, resultSelector);
+
+        private class GroupJoinAsyncEnumerable<TResult> : IAsyncEnumerable<QueryResultScope>
+        {
+            private readonly IAsyncEnumerable<QueryResultScope> _source;
+            private readonly Func<QueryResultScope, IAsyncEnumerable<QueryResultScope<TResult>>, QueryResultScope<IAsyncEnumerable<TResult>>> _resultSelector;
+
+            public GroupJoinAsyncEnumerable(
+                IAsyncEnumerable<QueryResultScope> source,
+                Func<QueryResultScope, IAsyncEnumerable<QueryResultScope<TResult>>, QueryResultScope<IAsyncEnumerable<TResult>>> resultSelector)
+            {
+                _source = source;
+                _resultSelector = resultSelector;
+            }
+
+            public IAsyncEnumerator<QueryResultScope> GetEnumerator() => new GroupJoinAsyncEnumerator(this);
+
+            private class GroupJoinAsyncEnumerator : IAsyncEnumerator<QueryResultScope>
+            {
+                private readonly GroupJoinAsyncEnumerable<TResult> _groupJoinAsyncEnumerable;
+
+                private IAsyncEnumerator<QueryResultScope> _sourceEnumerator;
+                private bool _hasRows;
+
+                public GroupJoinAsyncEnumerator(GroupJoinAsyncEnumerable<TResult> groupJoinAsyncEnumerable)
+                {
+                    _groupJoinAsyncEnumerable = groupJoinAsyncEnumerable;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    if (_sourceEnumerator == null)
+                    {
+                        _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
+                        _hasRows = await _sourceEnumerator.MoveNext();
+                    }
+
+                    if (_hasRows)
+                    {
+                        var outerQueryResultScope = _sourceEnumerator.Current;
+
+                        var innerQueryResultScopes = new List<QueryResultScope<TResult>>();
+
+                        if (_sourceEnumerator.Current.UntypedResult == null)
+                        {
+                            _hasRows = await _sourceEnumerator.MoveNext();
+                        }
+                        else
+                        {
+                            var parentScope = _sourceEnumerator.Current.ParentScope;
+
+                            while (_hasRows)
+                            {
+                                innerQueryResultScopes.Add((QueryResultScope<TResult>)_sourceEnumerator.Current);
+
+                                _hasRows = await _sourceEnumerator.MoveNext();
+
+                                if (_hasRows
+                                    && !ReferenceEquals(
+                                        parentScope.UntypedResult,
+                                        _sourceEnumerator.Current.ParentScope.UntypedResult))
+                                {
+                                    break;
+                                }
+                            }
+                        }
+
+                        Current
+                            = _groupJoinAsyncEnumerable._resultSelector(
+                                outerQueryResultScope, AsyncLinqOperatorProvider.ToAsyncEnumerable(innerQueryResultScopes));
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public QueryResultScope Current { get; private set; }
+
+                public void Dispose() => _sourceEnumerator?.Dispose();
+            }
+        }
+
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
         private static readonly MethodInfo _getResultMethodInfo

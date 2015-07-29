@@ -572,11 +572,22 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             Check.NotNull(tableExpression, nameof(tableExpression));
 
+            return AddOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
+        }
+        
+        public virtual JoinExpressionBase AddOuterJoin(
+            [NotNull] TableExpressionBase tableExpression,
+            [NotNull] IEnumerable<Expression> projection)
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
+
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             var outerJoinExpression = new LeftOuterJoinExpression(tableExpression);
 
             _tables.Add(outerJoinExpression);
+            _projection.AddRange(projection);
 
             return outerJoinExpression;
         }
@@ -589,7 +600,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var counter = 0;
 
             int _;
-            if (currentAlias.StartsWith(SystemAliasPrefix)
+            if (currentAlias.StartsWith(SystemAliasPrefix, StringComparison.Ordinal)
                 && int.TryParse(currentAlias.Substring(1), out _))
             {
                 currentAlias = SystemAliasPrefix;

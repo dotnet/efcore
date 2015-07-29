@@ -15,6 +15,56 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryMethodProvider : IQueryMethodProvider
     {
+        public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
+
+        private static readonly MethodInfo _groupJoinMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
+
+        [UsedImplicitly]
+        private static IEnumerable<QueryResultScope> _GroupJoin<TResult>(
+            IEnumerable<QueryResultScope> source,
+            Func<QueryResultScope, IEnumerable<QueryResultScope<TResult>>, QueryResultScope<IEnumerable<TResult>>> resultSelector)
+        {
+            using (var sourceEnumerator = source.GetEnumerator())
+            {
+                var hasRows = sourceEnumerator.MoveNext();
+
+                while (hasRows)
+                {
+                    var outerQueryResultScope = sourceEnumerator.Current;
+
+                    var innerQueryResultScopes = new List<QueryResultScope<TResult>>();
+
+                    if (sourceEnumerator.Current.UntypedResult == null)
+                    {
+                        hasRows = sourceEnumerator.MoveNext();
+                    }
+                    else
+                    {
+                        var parentScope = sourceEnumerator.Current.ParentScope;
+
+                        while (hasRows)
+                        {
+                            innerQueryResultScopes.Add((QueryResultScope<TResult>)sourceEnumerator.Current);
+
+                            hasRows = sourceEnumerator.MoveNext();
+
+                            if (hasRows
+                                && !ReferenceEquals(
+                                    parentScope.UntypedResult,
+                                    sourceEnumerator.Current.ParentScope.UntypedResult))
+                            {
+                                break;
+                            }
+                        }
+                    }
+
+                    yield return resultSelector(outerQueryResultScope, innerQueryResultScopes);
+                }
+            }
+        }
+
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
         private static readonly MethodInfo _getResultMethodInfo

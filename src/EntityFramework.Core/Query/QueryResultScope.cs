@@ -38,13 +38,12 @@ namespace Microsoft.Data.Entity.Query
                 _getResultMethodInfo.MakeGenericMethod(resultType),
                 Expression.Constant(querySource));
 
-        private readonly QueryResultScope _parentScope;
         private readonly IQuerySource _querySource;
 
         protected QueryResultScope(IQuerySource querySource, QueryResultScope parentScope)
         {
             _querySource = querySource;
-            _parentScope = parentScope;
+            ParentScope = parentScope;
         }
 
         [UsedImplicitly]
@@ -56,13 +55,15 @@ namespace Microsoft.Data.Entity.Query
         private TResult _GetResult<TResult>(IQuerySource querySource)
             => _querySource == querySource
                 ? ((QueryResultScope<TResult>)this).Result
-                : _parentScope._GetResult<TResult>(querySource);
+                : ParentScope._GetResult<TResult>(querySource);
 
         public virtual object GetResult([NotNull] IQuerySource querySource)
             => _querySource == querySource
                 ? UntypedResult
-                : _parentScope.GetResult(querySource);
+                : ParentScope.GetResult(querySource);
 
         public abstract object UntypedResult { get; }
+
+        public virtual QueryResultScope ParentScope { get; }
     }
 }

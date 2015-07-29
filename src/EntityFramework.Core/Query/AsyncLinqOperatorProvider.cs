@@ -528,11 +528,12 @@ namespace Microsoft.Data.Entity.Query
 
         private static readonly MethodInfo _toAsyncEnumerable
             = typeof(AsyncLinqOperatorProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_ToAsyncEnumerable));
+                .GetTypeInfo().GetDeclaredMethod(nameof(ToAsyncEnumerable));
 
-        [UsedImplicitly]
-        private static IAsyncEnumerable<T> _ToAsyncEnumerable<T>(IEnumerable<T> source)
+        public static IAsyncEnumerable<T> ToAsyncEnumerable<T>([NotNull] IEnumerable<T> source)
         {
+            Check.NotNull(source, nameof(source));
+
             return new AsyncEnumerableAdapter<T>(source);
         }
 

@@ -34,15 +34,9 @@ namespace Microsoft.Data.Entity.Query
             _logger = logger;
         }
 
-        public virtual IEnumerator<ValueBuffer> GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+        public virtual IEnumerator<ValueBuffer> GetEnumerator() => new Enumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private sealed class Enumerator : IEnumerator<ValueBuffer>, IValueBufferCursor
         {

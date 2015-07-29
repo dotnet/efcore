@@ -22,6 +22,17 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
 
+        public override void Default_if_empty_top_level()
+        {
+            base.Default_if_empty_top_level();
+
+            Assert.StartsWith(
+                  @"SELECT [c].[EmployeeID], [c].[City], [c].[Country], [c].[FirstName], [c].[ReportsTo], [c].[Title]
+FROM [Employees] AS [c]
+WHERE [c].[EmployeeID] = -1",
+                  Sql);
+        }
+
         public override void Where_query_composition()
         {
             base.Where_query_composition();
@@ -2071,20 +2082,51 @@ ORDER BY [e].[City], [c].[CustomerID] DESC",
                 Sql);
         }
 
+        public override void GroupJoin_DefaultIfEmpty()
+        {
+            base.GroupJoin_DefaultIfEmpty();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+                Sql);
+        }
+
+        public override void GroupJoin_DefaultIfEmpty2()
+        {
+            base.GroupJoin_DefaultIfEmpty2();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Employees] AS [e]
+LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]",
+                Sql);
+        }
+
+        public override void GroupJoin_DefaultIfEmpty3()
+        {
+            base.GroupJoin_DefaultIfEmpty3();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+                Sql);
+        }
+
         public override void GroupJoin_simple_subquery()
         {
             base.GroupJoin_simple_subquery();
 
             Assert.Equal(
                 @"SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
-FROM (
+FROM [Customers] AS [c]
+LEFT JOIN (
     SELECT TOP(4) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-) AS [t0]
-
-SELECT [c].[CustomerID]
-FROM [Customers] AS [c]",
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]",
                 Sql);
         }
 
@@ -2093,11 +2135,35 @@ FROM [Customers] AS [c]",
             base.GroupJoin_customers_orders_count();
 
             Assert.Equal(
-                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+                Sql);
+        }
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+        public override void SelectMany_Joined_DefaultIfEmpty()
+        {
+            base.SelectMany_Joined_DefaultIfEmpty();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID], [c].[ContactName]
+FROM [Customers] AS [c]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void SelectMany_Joined_DefaultIfEmpty2()
+        {
+            base.SelectMany_Joined_DefaultIfEmpty2();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
                 Sql);
         }
 

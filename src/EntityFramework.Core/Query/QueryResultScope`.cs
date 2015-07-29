@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Query
 
         public QueryResultScope(
             [NotNull] IQuerySource querySource,
-            [NotNull] TResult result,
+            [CanBeNull] TResult result,
             [CanBeNull] QueryResultScope parentScope)
             : base(querySource, parentScope)
         {

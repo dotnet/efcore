@@ -8,6 +8,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public interface IQueryMethodProvider
     {
+        MethodInfo GroupJoinMethod { get; }
         MethodInfo ShapedQueryMethod { get; }
         MethodInfo QueryMethod { get; }
         MethodInfo GetResultMethod { get; }
