@@ -54,7 +54,7 @@
     <Compile Include="ChangeTracking\Internal\SimpleEntityKeyTest.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleNullableEntityKeyFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
-    <Compile Include="ChangeTracking\Internal\InteranlEntryEntryFactoryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntryEntrySubscriberTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />

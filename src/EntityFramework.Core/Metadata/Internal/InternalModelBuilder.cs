@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Debug.Assert(removed.HasValue);
             }
 
-            foreach (var foreignKey in Metadata.GetReferencingForeignKeys(entityType).ToList())
+            foreach (var foreignKey in Metadata.FindReferencingForeignKeys(entityType).ToList())
             {
                 var removed = entityTypeBuilder.RemoveRelationship(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);

@@ -77,8 +77,7 @@ namespace Microsoft.Data.Entity.Tests.Model
 
         private static RelationalTypeMapping GetTypeMapping(Type propertyType, int? maxLength = null)
         {
-            var property = CreateEntityType().AddProperty("MyProp", propertyType, shadowProperty: true);
-
+            var property = CreateEntityType().AddProperty("MyProp", propertyType);
             if (maxLength.HasValue)
             {
                 property.SetMaxLength(maxLength);
@@ -125,7 +124,7 @@ namespace Microsoft.Data.Entity.Tests.Model
 
         private static RelationalTypeMapping GetNamedMapping(Type propertyType, string typeName)
         {
-            var property = CreateEntityType().AddProperty("MyProp", propertyType, shadowProperty: true);
+            var property = CreateEntityType().AddProperty("MyProp", propertyType);
             property.Relational().ColumnType = typeName;
 
             return new ConcreteTypeMapper().MapPropertyType(property);

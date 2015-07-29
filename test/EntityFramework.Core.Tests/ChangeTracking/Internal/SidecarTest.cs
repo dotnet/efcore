@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -391,51 +392,53 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entityType = model.AddEntityType(typeof(Banana));
 
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty("Id", typeof(int));
+            idProperty.IsShadowProperty = false;
             idProperty.IsConcurrencyToken = true;
             idProperty.RequiresValueGenerator = true;
             var key = entityType.GetOrSetPrimaryKey(idProperty);
 
-            entityType.GetOrAddProperty("Name", typeof(string));
-            entityType.GetOrAddProperty("State", typeof(string)).IsConcurrencyToken = true;
+            entityType.AddProperty("Name", typeof(string)).IsShadowProperty = false;
+            var property2 = entityType.AddProperty("State", typeof(string));
+            property2.IsShadowProperty = false;
+            property2.IsConcurrencyToken = true;
 
-            var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int?));
+            var fkProperty = entityType.AddProperty("Fk", typeof(int?));
+            fkProperty.IsShadowProperty = false;
             fkProperty.IsConcurrencyToken = true;
             entityType.GetOrAddForeignKey(fkProperty, key, entityType);
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
-            var key2A = entityType2.GetOrAddProperty("Id1", typeof(int));
-            var key2B = entityType2.GetOrAddProperty("Id2", typeof(string));
+            var key2A = entityType2.AddProperty("Id1", typeof(int));
+            key2A.IsShadowProperty = false;
+            var key2B = entityType2.AddProperty("Id2", typeof(string));
+            key2B.IsShadowProperty = false;
             entityType2.GetOrSetPrimaryKey(new[] { key2A, key2B });
-            var fk = entityType2.GetOrAddProperty("SomeEntityId", typeof(int));
+            var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
+            fk.IsShadowProperty = false;
             entityType2.GetOrAddForeignKey(new[] { fk }, key, entityType);
-            var justAProperty = entityType2.GetOrAddProperty("JustAProperty", typeof(int));
+            var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
+            justAProperty.IsShadowProperty = false;
             justAProperty.RequiresValueGenerator = true;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
-            var key5 = entityType5.GetOrAddProperty("Id", typeof(int));
+            var key5 = entityType5.AddProperty("Id", typeof(int));
+            key5.IsShadowProperty = false;
             entityType5.GetOrSetPrimaryKey(key5);
-            var fk5A = entityType5.GetOrAddProperty("Fk1", typeof(int));
-            var fk5B = entityType5.GetOrAddProperty("Fk2", typeof(string));
+            var fk5A = entityType5.AddProperty("Fk1", typeof(int));
+            fk5A.IsShadowProperty = false;
+            var fk5B = entityType5.AddProperty("Fk2", typeof(string));
+            fk5B.IsShadowProperty = false;
             entityType5.GetOrAddForeignKey(new[] { fk5A, fk5B }, entityType2.GetPrimaryKey(), entityType2);
 
             return model;
         }
 
-        protected IProperty IdProperty
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Id"); }
-        }
+        protected IProperty IdProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Id");
 
-        protected IProperty NameProperty
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Name"); }
-        }
+        protected IProperty NameProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Name");
 
-        protected IProperty FkProperty
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Fk"); }
-        }
+        protected IProperty FkProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Fk");
 
         protected class Banana : INotifyPropertyChanged, INotifyPropertyChanging
         {

@@ -153,8 +153,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     var codeGenProperty = codeGenEntityType.AddProperty(
                         nameMapper.PropertyToPropertyNameMap[relationalProperty],
-                        relationalProperty.ClrType,
-                        shadowProperty: true);
+                        ((IProperty)relationalProperty).ClrType);
                     _relationalToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
                     CopyPropertyFacets(relationalProperty, codeGenProperty);
                 }

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
@@ -132,11 +133,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] string propertyName)
-        {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            return new PropertyBuilder<TProperty>(Builder.Property(typeof(TProperty), propertyName, ConfigurationSource.Explicit));
-        }
+            => new PropertyBuilder<TProperty>(PropertyBuilder(typeof(TProperty), propertyName));
 
         /// <summary>
         ///     <para>
@@ -155,12 +152,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="propertyName"> The name of the property to be configured. </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder Property([NotNull] Type propertyType, [NotNull] string propertyName)
-        {
-            Check.NotNull(propertyType, nameof(propertyType));
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            return new PropertyBuilder(Builder.Property(propertyType, propertyName, ConfigurationSource.Explicit));
-        }
+            => new PropertyBuilder(PropertyBuilder(propertyType, propertyName));
 
         /// <summary>
         ///     Excludes the given property from the entity type. This method is typically used to remove properties
@@ -334,5 +326,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 navigationToDependentName: navigationName ?? "",
                 configurationSource: ConfigurationSource.Explicit,
                 isUnique: false);
+        
+        protected virtual InternalPropertyBuilder PropertyBuilder([NotNull] Type propertyType, string propertyName)
+        {
+            Check.NotNull(propertyType, nameof(propertyType));
+            Check.NotEmpty(propertyName, nameof(propertyName));
+
+            var builder = Builder.Property(propertyName, ConfigurationSource.Explicit);
+            var clrTypeSet = builder.ClrType(propertyType, ConfigurationSource.Explicit);
+            Debug.Assert(clrTypeSet);
+            return builder;
+        }
     }
 }

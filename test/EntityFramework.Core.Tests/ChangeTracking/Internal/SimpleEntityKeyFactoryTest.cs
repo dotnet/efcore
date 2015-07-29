@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -272,18 +273,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = new Model();
 
             var entityType = model.AddEntityType(typeof(Banana));
-            var property1 = entityType.GetOrAddProperty("P1", typeof(int));
-            var property2 = entityType.GetOrAddProperty("P2", typeof(int?));
+            var property1 = entityType.AddProperty("P1", typeof(int));
+            property1.IsShadowProperty = false;
+            var property2 = entityType.AddProperty("P2", typeof(int?));
+            property2.IsShadowProperty = false;
 
             entityType.GetOrSetPrimaryKey(property1);
             entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey(), entityType);
 
             entityType = model.AddEntityType(typeof(Kiwi));
-            property1 = entityType.GetOrAddProperty("P1", typeof(string));
-            property2 = entityType.GetOrAddProperty("P2", typeof(string));
+            var property3 = entityType.AddProperty("P1", typeof(string));
+            property3.IsShadowProperty = false;
+            var property4 = entityType.AddProperty("P2", typeof(string));
+            property4.IsShadowProperty = false;
 
-            entityType.GetOrSetPrimaryKey(property1);
-            entityType.GetOrAddForeignKey(property2, entityType.GetPrimaryKey(), entityType);
+            entityType.GetOrSetPrimaryKey(property3);
+            entityType.GetOrAddForeignKey(property4, entityType.GetPrimaryKey(), entityType);
 
             return model;
         }

@@ -104,7 +104,8 @@ namespace Microsoft.Data.Entity.Metadata
                         }
                     }
 
-                    if (!HasClrType && value.HasClrType)
+                    if (!HasClrType
+                        && value.HasClrType)
                     {
                         throw new InvalidOperationException(Strings.NonShadowBaseType(this, value));
                     }
@@ -403,7 +404,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         private void CheckKeyNotInUse(Key key)
         {
-            var foreignKey = Model?.GetReferencingForeignKeys(key).FirstOrDefault();
+            var foreignKey = Model?.FindReferencingForeignKeys(key).FirstOrDefault();
             if (foreignKey != null)
             {
                 throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.DeclaringEntityType.Name));
@@ -526,8 +527,7 @@ namespace Microsoft.Data.Entity.Metadata
             return null;
         }
 
-        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
-            => Model.GetReferencingForeignKeys(this);
+        public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys() => Model.FindReferencingForeignKeys(this);
 
         private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
         {
@@ -810,24 +810,35 @@ namespace Microsoft.Data.Entity.Metadata
                     throw new ArgumentException(Strings.PropertyWrongEntityClrType(propertyInfo.Name, Name, propertyInfo.DeclaringType.Name));
                 }
             }
+            else
+            {
+                throw new InvalidOperationException(Strings.ClrPropertyOnShadowEntity(propertyInfo.Name, Name));
+            }
 
-            return AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
+            var property = AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
+            property.IsShadowProperty = false;
+            return property;
         }
 
         [NotNull]
-        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
+        public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType)
+        {
+            var property = AddProperty(name);
+            property.ClrType = propertyType;
+            return property;
+        }
+
+        [NotNull]
+        public virtual Property AddProperty([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
-            Check.NotNull(propertyType, nameof(propertyType));
 
             if (FindPropertyCollisions(new[] { name }).Any())
             {
                 throw new InvalidOperationException(Strings.DuplicateProperty(name, Name));
             }
 
-            var property = new Property(name, propertyType, this, shadowProperty);
-
-            ValidateAgainstClrProperty(property);
+            var property = new Property(name, this);
 
             _properties.Add(name, property);
 
@@ -840,15 +851,20 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return FindProperty(propertyInfo) ?? AddProperty(propertyInfo);
+            var property = FindProperty(propertyInfo);
+            if (property != null)
+            {
+                property.ClrType = propertyInfo.PropertyType;
+                property.IsShadowProperty = false;
+                return property;
+            }
+
+            return AddProperty(propertyInfo);
         }
 
-        // Note: If the property already exists, then whether or not it is a shadow property is not changed.
-        // It is useful in many places to get an existing property if it exists, but then create it either in
-        // or out of shadow state if it doesn't.
         [NotNull]
-        public virtual Property GetOrAddProperty([NotNull] string name, [NotNull] Type propertyType, bool shadowProperty = false)
-            => FindProperty(name) ?? AddProperty(name, propertyType, shadowProperty);
+        public virtual Property GetOrAddProperty([NotNull] string name)
+            => FindProperty(name) ?? AddProperty(name);
 
         [NotNull]
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
@@ -929,38 +945,8 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IEnumerable<Property> Properties
             => BaseType?.Properties.Concat(_properties.Values) ?? _properties.Values;
 
-        private void ValidateAgainstClrProperty(IProperty property)
-        {
-            if (!property.IsShadowProperty)
-            {
-                if (HasClrType)
-                {
-                    var clrProperty = ClrType.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
-                    if (clrProperty == null)
-                    {
-                        throw new InvalidOperationException(Strings.NoClrProperty(property.Name, Name));
-                    }
-
-                    if (property.ClrType != clrProperty.PropertyType)
-                    {
-                        throw new InvalidOperationException(Strings.PropertyWrongClrType(property.Name, Name));
-                    }
-                }
-                else
-                {
-                    throw new InvalidOperationException(Strings.ClrPropertyOnShadowEntity(property.Name, Name));
-                }
-            }
-        }
-
         public virtual void PropertyMetadataChanged([CanBeNull] Property property)
         {
-            if (property != null
-                && property.DeclaringEntityType == this)
-            {
-                ValidateAgainstClrProperty(property);
-            }
-
             var index = BaseType?.PropertyCount ?? 0;
             var shadowIndex = BaseType?.ShadowPropertyCount() ?? 0;
             var originalValueIndex = BaseType?.OriginalValueCount() ?? 0;
@@ -969,7 +955,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 indexedProperty.Index = index++;
 
-                if (indexedProperty.IsShadowProperty)
+                if (((IProperty)indexedProperty).IsShadowProperty)
                 {
                     indexedProperty.SetShadowIndex(shadowIndex++);
                 }

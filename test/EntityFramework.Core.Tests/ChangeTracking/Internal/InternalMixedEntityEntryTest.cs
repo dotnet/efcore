@@ -122,15 +122,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         protected override Model BuildModel()
         {
             var model = base.BuildModel();
-
-            var someSimpleEntityType = model.GetEntityType(typeof(SomeSimpleEntityBase));
-            someSimpleEntityType.GetProperty("Id").IsShadowProperty = true;
-
-            var entityType1 = model.GetEntityType(typeof(SomeEntity));
-            entityType1.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = false;
-
-            var entityType2 = model.GetEntityType(typeof(SomeDependentEntity));
-            entityType2.GetProperty("SomeEntityId").IsShadowProperty = true;
+            
+            model.GetEntityType(typeof(SomeSimpleEntityBase)).GetProperty("Id").IsShadowProperty = true;
+            model.GetEntityType(typeof(SomeEntity)).GetProperty("Name").IsConcurrencyToken = false;
+            model.GetEntityType(typeof(SomeDependentEntity)).GetProperty("SomeEntityId").IsShadowProperty = true;
 
             return model;
         }

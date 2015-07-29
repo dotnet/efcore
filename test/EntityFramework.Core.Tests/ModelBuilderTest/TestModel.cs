@@ -24,8 +24,9 @@ namespace Microsoft.Data.Entity.Tests
 
         private class Ingredient
         {
-            public int Id { get; set; }
+            public readonly static PropertyInfo BurgerIdProperty = typeof(Ingredient).GetProperty("BurgerId");
 
+            public int Id { get; set; }
             public int BurgerId { get; set; }
             public BigMak BigMak { get; set; }
         }

@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType.Name,nq})")]
+    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
     public class Property : PropertyBase, IProperty
     {
         private PropertyFlags _flags;
@@ -20,19 +20,37 @@ namespace Microsoft.Data.Entity.Metadata
         private PropertyFlags _setFlags;
 
         private int _index;
+        private Type _clrType;
 
-        public Property([NotNull] string name, [NotNull] Type clrType, [NotNull] EntityType declaringEntityType, bool shadowProperty = false)
+        public Property([NotNull] string name, [NotNull] EntityType declaringEntityType)
             : base(name)
         {
-            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-
-            ClrType = clrType;
+            
             DeclaringEntityType = declaringEntityType;
-            IsShadowProperty = shadowProperty;
+        }
+        
+        public virtual Type ClrType
+        {
+            get { return _clrType; }
+            [param: NotNull]
+            set
+            {
+                Check.NotNull(value, nameof(value));
+                if (value != _clrType)
+                {
+                    var foreignKey = this.FindReferencingForeignKeys().FirstOrDefault();
+                    if (foreignKey != null)
+                    {
+                        throw new InvalidOperationException(
+                            Strings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
+                    }
+                    _clrType = value;
+                }
+            }
         }
 
-        public virtual Type ClrType { get; }
+        protected virtual Type DefaultClrType => typeof(string);
 
         public override EntityType DeclaringEntityType { get; }
 
@@ -44,9 +62,9 @@ namespace Microsoft.Data.Entity.Metadata
                 if (value.HasValue
                     && value.Value)
                 {
-                    if (!ClrType.IsNullableType())
+                    if (!((IProperty)this).ClrType.IsNullableType())
                     {
-                        throw new InvalidOperationException(Strings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.Name));
+                        throw new InvalidOperationException(Strings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ((IProperty)this).ClrType.Name));
                     }
 
                     if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
@@ -60,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         protected virtual bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this)) != true
-                                                    && ClrType.IsNullableType();
+                                                    && ((IProperty)this).ClrType.IsNullableType();
 
         public virtual ValueGenerated? ValueGenerated
         {
@@ -134,21 +152,23 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual bool DefaultRequiresValueGenerator => false;
 
-        public virtual bool IsShadowProperty
+        public virtual bool? IsShadowProperty
         {
-            get { return GetRequiredFlag(PropertyFlags.IsShadowProperty); }
+            get { return GetFlag(PropertyFlags.IsShadowProperty); }
             set
             {
                 if (IsShadowProperty != value)
                 {
-                    SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
+                    SetFlag(value, PropertyFlags.IsShadowProperty);
 
                     DeclaringEntityType.PropertyMetadataChanged(this);
                 }
 
-                SetRequiredFlag(value, PropertyFlags.IsShadowProperty);
+                SetFlag(value, PropertyFlags.IsShadowProperty);
             }
         }
+
+        protected virtual bool DefaultIsShadowProperty => true;
 
         public virtual bool? IsConcurrencyToken
         {
@@ -243,27 +263,27 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        private static bool ArePropertyCountsEqual(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
+        private static bool ArePropertyCountsEqual(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
             => principalProperties.Count == dependentProperties.Count;
 
-        private static bool ArePropertyTypesCompatible(IReadOnlyList<Property> principalProperties, IReadOnlyList<Property> dependentProperties)
-            => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
+        private static bool ArePropertyTypesCompatible(IReadOnlyList<IProperty> principalProperties, IReadOnlyList<IProperty> dependentProperties)
+            => principalProperties.Select(p => p.ClrType.UnwrapNullableType()).SequenceEqual(
+                dependentProperties.Select(p => p.ClrType.UnwrapNullableType()));
 
-        bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
-
-        ValueGenerated IProperty.ValueGenerated => ValueGenerated ?? DefaultValueGenerated;
-
+        Type IProperty.ClrType => ClrType ?? DefaultClrType;
+        bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
         bool IProperty.IsReadOnlyBeforeSave => IsReadOnlyBeforeSave ?? DefaultIsReadOnlyBeforeSave;
-
         bool IProperty.IsReadOnlyAfterSave => IsReadOnlyAfterSave ?? DefaultIsReadOnlyAfterSave;
-
+        bool IProperty.IsShadowProperty => IsShadowProperty ?? DefaultIsShadowProperty;
+        bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
+        ValueGenerated IProperty.ValueGenerated => ValueGenerated ?? DefaultValueGenerated;
         bool IProperty.RequiresValueGenerator => RequiresValueGenerator ?? DefaultRequiresValueGenerator;
 
-        bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
+        object IProperty.SentinelValue => SentinelValue == null && !((IProperty)this).ClrType.IsNullableType()
+            ? ((IProperty)this).ClrType.GetDefaultValue()
+            : SentinelValue;
 
         bool IProperty.StoreGeneratedAlways => StoreGeneratedAlways ?? DefaultStoreGeneratedAlways;
-
-        object IProperty.SentinelValue => SentinelValue == null && !ClrType.IsNullableType() ? ClrType.GetDefaultValue() : SentinelValue;
 
         [Flags]
         private enum PropertyFlags : ushort

@@ -132,7 +132,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var model = SqlServerTestHelpers.Instance.BuildModelFor<AnEntity>();
             model.SqlServer().GetOrAddSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName);
             var entityType = model.GetEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random));
+            var property1 = entityType.AddProperty("Random", typeof(Random));
+            property1.IsShadowProperty = false;
 
             foreach (var property in entityType.Properties)
             {

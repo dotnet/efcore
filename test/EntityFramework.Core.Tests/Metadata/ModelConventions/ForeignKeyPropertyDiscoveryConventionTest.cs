@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             DependentType.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.IDProperty, ConfigurationSource.Convention);
             DependentType.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
-            var fkProperty = DependentType.Property(typeof(int), "No!No!", ConfigurationSource.Convention).Metadata;
+            var fkProperty = DependentType.Property("No!No!", typeof(int), ConfigurationSource.Convention).Metadata;
 
             var relationshipBuilder = DependentType.Relationship(
                 PrincipalType,
@@ -55,8 +55,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             DependentTypeWithCompositeKey.Property(DependentEntityWithCompositeKey.PrincipalEntityWithCompositeKeyNameProperty, ConfigurationSource.Convention);
             DependentTypeWithCompositeKey.Property(DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention);
             DependentTypeWithCompositeKey.Property(DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention);
-            var fkProperty1 = DependentTypeWithCompositeKey.Property(typeof(int), "No!No!", ConfigurationSource.Convention);
-            var fkProperty2 = DependentTypeWithCompositeKey.Property(typeof(string), "No!No!2", ConfigurationSource.Convention);
+            var fkProperty1 = DependentTypeWithCompositeKey.Property("No!No!", typeof(int), ConfigurationSource.Convention);
+            var fkProperty2 = DependentTypeWithCompositeKey.Property("No!No!2", typeof(string), ConfigurationSource.Convention);
             fkProperty2.Required(true, ConfigurationSource.Convention);
 
             var relationshipBuilder = DependentTypeWithCompositeKey.Relationship(
@@ -927,7 +927,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var dependentTypeWithCompositeKey = modelBuilder.Entity(typeof(DependentEntityWithCompositeKey), ConfigurationSource.Explicit);
             dependentTypeWithCompositeKey.PrimaryKey(new[] { "NotId", "NotName" }, ConfigurationSource.Explicit);
-            dependentTypeWithCompositeKey.Property(typeof(string), "NotName", ConfigurationSource.Explicit).Required(true, ConfigurationSource.Explicit);
+            dependentTypeWithCompositeKey.Property("NotName", typeof(string), ConfigurationSource.Explicit).Required(true, ConfigurationSource.Explicit);
 
             return modelBuilder;
         }

@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, nameof(property));
 
             if (index < 0
-                || !property.IsShadowProperty)
+                || !((IProperty)property).IsShadowProperty)
             {
                 throw new ArgumentOutOfRangeException(nameof(index));
             }
@@ -83,19 +83,13 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public static bool IsForeignKey([NotNull] this IProperty property, [NotNull] IEntityType entityType)
-        {
-            return FindContainingForeignKeys(property, entityType).Any();
-        }
+            => FindContainingForeignKeys(property, entityType).Any();
 
         public static bool IsPrimaryKey([NotNull] this IProperty property)
-        {
-            return FindContainingPrimaryKey(property) != null;
-        }
+            => FindContainingPrimaryKey(property) != null;
 
         public static bool IsKey([NotNull] this IProperty property)
-        {
-            return FindContainingKeys(property).Any();
-        }
+            => FindContainingKeys(property).Any();
 
         public static bool IsSentinelValue([NotNull] this IProperty property, [CanBeNull] object value)
         {
@@ -129,9 +123,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public static IEnumerable<ForeignKey> FindContainingForeignKeys([NotNull] this Property property, [NotNull] EntityType entityType)
-        {
-            return ((IProperty)property).FindContainingForeignKeys(entityType).Cast<ForeignKey>();
-        }
+            => ((IProperty)property).FindContainingForeignKeys(entityType).Cast<ForeignKey>();
 
         public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
         {
@@ -149,9 +141,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public static Key FindContainingPrimaryKey([NotNull] this Property property)
-        {
-            return (Key)((IProperty)property).FindContainingPrimaryKey();
-        }
+            => (Key)((IProperty)property).FindContainingPrimaryKey();
 
         public static IEnumerable<IKey> FindContainingKeys([NotNull] this IProperty property)
         {
@@ -160,11 +150,15 @@ namespace Microsoft.Data.Entity.Metadata
             // TODO: Perf: make it fast to check if a property is part of a key
             return property.DeclaringEntityType.GetKeys().Where(e => e.Properties.Contains(property));
         }
+        
+        public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IProperty property)
+            => property.DeclaringEntityType.Model.FindReferencingForeignKeys(property);
+        
+        public static IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] this Property property)
+            => property.DeclaringEntityType.Model.FindReferencingForeignKeys(property);
 
         public static IEnumerable<Key> FindContainingKeys([NotNull] this Property property)
-        {
-            return ((IProperty)property).FindContainingKeys().Cast<Key>();
-        }
+            => ((IProperty)property).FindContainingKeys().Cast<Key>();
 
         public static IProperty GetGenerationProperty([NotNull] this IProperty property)
         {

@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         {
             var model = TestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random));
+            entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
 
             foreach (var property in entityType.Properties)
             {

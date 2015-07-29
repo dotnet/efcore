@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             convention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder, ConfigurationSource.Convention);
+                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder);
                     return propertyBuilder;
                 });
             conventions.PropertyAddedConventions.Add(convention.Object);
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(), conventions);
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var explicitKeyBuilder = entityBuilder.Property(typeof(int), "OrderId", ConfigurationSource.Convention);
+            var explicitKeyBuilder = entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention);
 
             Assert.Null(explicitKeyBuilder);
             Assert.NotNull(propertyBuilder);
@@ -186,8 +186,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(
-                new[] { entityBuilder.Property(typeof(int), "FK", ConfigurationSource.Convention).Metadata },
-                entityBuilder.Key(new[] { entityBuilder.Property(typeof(int), "OrderId", ConfigurationSource.Convention).Metadata }, ConfigurationSource.Convention).Metadata,
+                new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
+                entityBuilder.Key(new[] { entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention).Metadata }, ConfigurationSource.Convention).Metadata,
                 entityBuilder.Metadata,
                 entityBuilder.Metadata);
             var conventionDispatcher = new ConventionDispatcher(conventions);

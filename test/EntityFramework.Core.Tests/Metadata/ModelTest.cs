@@ -146,14 +146,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType1 = model.AddEntityType(typeof(Customer));
             var entityType2 = model.AddEntityType(typeof(Order));
-            var keyProperty = entityType1.AddProperty("Id", typeof(int), shadowProperty: true);
-            var fkProperty = entityType2.AddProperty("CustomerId", typeof(int?), shadowProperty: true);
+            var keyProperty = entityType1.AddProperty("Id", typeof(int));
+            var fkProperty = entityType2.AddProperty("CustomerId", typeof(int?));
             var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
 
-            var referencingForeignKeys = model.GetReferencingForeignKeys(entityType1);
+            var referencingForeignKeys = model.FindReferencingForeignKeys(entityType1);
 
             Assert.Same(foreignKey, referencingForeignKeys.Single());
-            Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
+            Assert.Same(foreignKey, entityType1.FindReferencingForeignKeys().Single());
         }
 
         private class Customer

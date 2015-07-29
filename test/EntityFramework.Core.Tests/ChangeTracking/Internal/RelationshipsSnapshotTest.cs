@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -296,13 +297,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = new Model();
 
             var entityType = model.AddEntityType(typeof(Banana));
-            var pkProperty = entityType.GetOrAddProperty("Id", typeof(int));
-            var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int));
+            var pkProperty = entityType.AddProperty("Id", typeof(int));
+            pkProperty.IsShadowProperty = false;
+            var fkProperty = entityType.AddProperty("Fk", typeof(int));
+            fkProperty.IsShadowProperty = false;
 
             entityType.GetOrSetPrimaryKey(pkProperty);
             var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.GetPrimaryKey(), entityType);
 
-            entityType.GetOrAddProperty("Name", typeof(string));
+            entityType.AddProperty("Name", typeof(string)).IsShadowProperty = false;
 
             entityType.AddNavigation("LesserBananas", fk, pointsToPrincipal: false);
             entityType.AddNavigation("TopBanana", fk, pointsToPrincipal: true);
@@ -310,35 +313,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             return model;
         }
 
-        protected IProperty IdProperty
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Id"); }
-        }
+        protected IProperty IdProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Id");
 
-        protected IProperty FkProperty
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Fk"); }
-        }
+        protected IProperty FkProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Fk");
 
-        protected IProperty NameProperty
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetProperty("Name"); }
-        }
+        protected IProperty NameProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Name");
 
-        protected INavigation CollectionNavigation
-        {
-            get { return _model.GetNavigations(ForeignKey).Single(n => n.Name == "LesserBananas"); }
-        }
+        protected INavigation CollectionNavigation => _model.GetNavigations(ForeignKey).Single(n => n.Name == "LesserBananas");
 
-        protected INavigation ReferenceNavigation
-        {
-            get { return _model.GetNavigations(ForeignKey).Single(n => n.Name == "TopBanana"); }
-        }
+        protected INavigation ReferenceNavigation => _model.GetNavigations(ForeignKey).Single(n => n.Name == "TopBanana");
 
-        private ForeignKey ForeignKey
-        {
-            get { return _model.GetEntityType(typeof(Banana)).GetForeignKeys().Single(); }
-        }
+        private ForeignKey ForeignKey => _model.GetEntityType(typeof(Banana)).GetForeignKeys().Single();
 
         protected class Banana : INotifyPropertyChanged, INotifyPropertyChanging
         {

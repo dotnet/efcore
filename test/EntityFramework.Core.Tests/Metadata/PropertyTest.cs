@@ -11,21 +11,40 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     public class PropertyTest
     {
         [Fact]
-        public void Can_create_property_from_property_info()
+        public void Can_set_ClrType()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake");
 
-            Assert.Equal("Name", property.Name);
-            Assert.Same(typeof(string), property.ClrType);
+            Assert.Null(property.ClrType);
+            Assert.Equal(typeof(string), ((IProperty)property).ClrType);
+
+            property.ClrType = typeof(int);
+            Assert.Equal(typeof(int), property.ClrType);
+        }
+
+        [Fact]
+        public void Setting_ClrType_throws_when_referenced()
+        {
+            var entityType = new Model().AddEntityType(typeof(object));
+            var principalProperty = entityType.AddProperty("Kake");
+            var key = entityType.AddKey(principalProperty);
+            var dependentProperty = entityType.AddProperty("Alaska");
+            entityType.AddForeignKey(dependentProperty, key, entityType);
+
+            Assert.Equal(Strings.PropertyClrTypeCannotBeChangedWhenReferenced("Kake", "{'Alaska'}", "object"),
+                Assert.Throws<InvalidOperationException>(() =>
+                    principalProperty.ClrType = typeof(int)).Message);
+            Assert.Equal(typeof(string), ((IProperty)principalProperty).ClrType);
         }
 
         [Fact]
         public void Default_nullability_of_property_is_based_on_nullability_of_CLR_type_and_property_being_part_of_primary_key()
         {
             var entityType = new Model().AddEntityType(typeof(object));
-            var stringProperty = entityType.AddProperty("stringName", typeof(string), shadowProperty: true);
-            var nullableIntProperty = entityType.AddProperty("nullableIntName", typeof(int?), shadowProperty: true);
-            var intProperty = entityType.AddProperty("intName", typeof(int), shadowProperty: true);
+            var stringProperty = entityType.AddProperty("stringName", typeof(string));
+            var nullableIntProperty = entityType.AddProperty("nullableIntName", typeof(int?));
+            var intProperty = entityType.AddProperty("intName", typeof(int));
 
             Assert.Null(stringProperty.IsNullable);
             Assert.True(((IProperty)stringProperty).IsNullable);
@@ -43,8 +62,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_nullability_can_be_mutated()
         {
-            var stringProperty = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
-            var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var stringProperty = entityType.AddProperty("Name", typeof(string));
+            var intProperty = entityType.AddProperty("Id", typeof(int));
 
             stringProperty.IsNullable = false;
             Assert.False(stringProperty.IsNullable.Value);
@@ -65,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Property_nullability_is_changed_if_property_made_part_of_primary_key()
         {
             var entityType = new Model().AddEntityType(typeof(object));
-            var stringProperty = entityType.AddProperty("Name", typeof(string), shadowProperty: true);
+            var stringProperty = entityType.AddProperty("Name", typeof(string));
 
             stringProperty.IsNullable = true;
             Assert.True(stringProperty.IsNullable.Value);
@@ -79,7 +99,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Properties_with_non_nullable_types_cannot_be_made_nullable()
         {
-            var intProperty = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var intProperty = entityType.AddProperty("Name", typeof(int));
+            intProperty.IsShadowProperty = false;
 
             Assert.Equal(
                 Strings.CannotBeNullable("Name", "object", "Int32"),
@@ -90,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Properties_which_are_part_of_primary_key_cannot_be_made_nullable()
         {
             var entityType = new Model().AddEntityType(typeof(object));
-            var stringProperty = entityType.AddProperty("Name", typeof(string), shadowProperty: true);
+            var stringProperty = entityType.AddProperty("Name", typeof(string));
             stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Equal(
@@ -101,22 +123,38 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void UnderlyingType_returns_correct_underlying_type()
         {
-            Assert.Equal(typeof(int), new Property("Name", typeof(int?), new Model().AddEntityType(typeof(object))).ClrType.UnwrapNullableType());
-            Assert.Equal(typeof(int), new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))).ClrType.UnwrapNullableType());
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property1 = entityType.AddProperty("Name", typeof(int?));
+            property1.IsShadowProperty = false;
+            Assert.Equal(typeof(int), property1.ClrType.UnwrapNullableType());
+            var property = entityType.AddProperty("Name2", typeof(int));
+            property.IsShadowProperty = false;
+            Assert.Equal(typeof(int), property.ClrType.UnwrapNullableType());
         }
 
         [Fact]
-        public void HasClrProperty_is_set_appropriately()
+        public void IsShadowProperty_is_set_appropriately()
         {
-            Assert.False(new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object))).IsShadowProperty);
-            Assert.False(new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object))).IsShadowProperty);
-            Assert.True(new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)), shadowProperty: true).IsShadowProperty);
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake");
+
+            Assert.Null(property.IsShadowProperty);
+            Assert.True(((IProperty)property).IsShadowProperty);
+
+            property.ClrType = typeof(int);
+            property.IsShadowProperty = false;
+            Assert.False(property.IsShadowProperty);
+
+            property.IsShadowProperty = true;
+            Assert.True(property.IsShadowProperty);
         }
 
         [Fact]
         public void Property_does_not_use_ValueGenerated_by_default()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             Assert.Null(property.ValueGenerated);
             Assert.Equal(ValueGenerated.Never, ((IProperty)property).ValueGenerated);
@@ -125,7 +163,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_as_using_ValueGenerated()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated.Value);
@@ -140,7 +180,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_is_not_concurrency_token_by_default()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             Assert.Null(property.IsConcurrencyToken);
             Assert.False(((IProperty)property).IsConcurrencyToken);
@@ -149,7 +191,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_as_concurrency_token()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name");
+            property.ClrType = typeof(string);
+            property.IsShadowProperty = false;
 
             property.IsConcurrencyToken = true;
             Assert.True(property.IsConcurrencyToken.Value);
@@ -164,7 +209,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_mark_property_to_always_use_store_generated_values()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             Assert.Null(property.StoreGeneratedAlways);
             Assert.False(((IProperty)property).StoreGeneratedAlways);
@@ -185,7 +232,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Store_generated_concurrency_tokens_always_use_store_values_by_default()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(Entity)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             Assert.False(((IProperty)property).StoreGeneratedAlways);
 
@@ -208,7 +257,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_is_read_write_by_default()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             Assert.Null(property.IsReadOnlyAfterSave);
             Assert.False(((IProperty)property).IsReadOnlyAfterSave);
@@ -219,11 +270,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_before_save()
         {
-            var property
-                = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
-                {
-                    IsReadOnlyBeforeSave = true
-                };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
+            property.IsReadOnlyBeforeSave = true;
 
             Assert.True(property.IsReadOnlyBeforeSave.Value);
 
@@ -237,11 +287,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_after_save()
         {
-            var property
-                = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
-                {
-                    IsReadOnlyAfterSave = true
-                };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
+            property.IsReadOnlyAfterSave = true;
 
             Assert.True(property.IsReadOnlyAfterSave.Value);
 
@@ -255,12 +304,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Property_can_be_marked_as_read_only_always()
         {
-            var property
-                = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)))
-                {
-                    IsReadOnlyBeforeSave = true,
-                    IsReadOnlyAfterSave = true
-                };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
+            property.IsReadOnlyBeforeSave = true;
+            property.IsReadOnlyAfterSave = true;
 
             Assert.True(property.IsReadOnlyBeforeSave.Value);
             Assert.True(property.IsReadOnlyAfterSave.Value);
@@ -269,7 +317,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_index_for_normal_property()
         {
-            var property = new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(int));
+            property.IsShadowProperty = false;
 
             Assert.Equal(0, property.Index);
             Assert.Equal(-1, property.GetShadowIndex());
@@ -295,7 +345,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_get_and_set_property_and_shadow_index_for_shadow_property()
         {
-            var property = new Property("Kake", typeof(int), new Model().AddEntityType(typeof(object)), shadowProperty: true);
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Kake", typeof(int));
+            property.IsShadowProperty = true;
 
             Assert.Equal(0, property.Index);
             Assert.Equal(0, property.GetShadowIndex());
@@ -318,7 +370,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Nullable_property_has_null_sentinel_by_default()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
 
             Assert.Null(property.SentinelValue);
             Assert.Null(((IProperty)property).SentinelValue);
@@ -327,7 +381,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Non_nullable_property_has_CLR_default_sentinel_by_default()
         {
-            var property = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object)));
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(int));
+            property.IsShadowProperty = false;
 
             Assert.Null(property.SentinelValue);
             Assert.Equal(0, ((IProperty)property).SentinelValue);
@@ -336,7 +392,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_set_sentinel_for_nullable_property()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))) { SentinelValue = "Void" };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
+            property.SentinelValue = "Void";
 
             Assert.Equal("Void", property.SentinelValue);
             Assert.Equal("Void", ((IProperty)property).SentinelValue);
@@ -345,7 +404,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void Can_set_sentinel_for_non_nullable_property()
         {
-            var property = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))) { SentinelValue = -1 };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(int));
+            property.IsShadowProperty = false;
+            property.SentinelValue = -1;
 
             Assert.Equal(-1, property.SentinelValue);
             Assert.Equal(-1, ((IProperty)property).SentinelValue);
@@ -354,7 +416,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsSentinelValue_on_nullable_propertyalways_returns_true_for_null_or_sentinel()
         {
-            var property = new Property("Name", typeof(string), new Model().AddEntityType(typeof(object))) { SentinelValue = "Void" };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(string));
+            property.IsShadowProperty = false;
+
+            property.SentinelValue = "Void";
 
             Assert.True(property.IsSentinelValue(null));
             Assert.True(property.IsSentinelValue("Void"));
@@ -364,7 +430,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void IsSentinelValue_on_non_nullable_propertyalways_returns_true_for_null_or_sentinel()
         {
-            var property = new Property("Name", typeof(int), new Model().AddEntityType(typeof(object))) { SentinelValue = -1 };
+            var entityType = new Model().AddEntityType(typeof(object));
+            var property = entityType.AddProperty("Name", typeof(int));
+            property.IsShadowProperty = false;
+            property.SentinelValue = -1;
 
             Assert.True(property.IsSentinelValue(null));
             Assert.True(property.IsSentinelValue(-1));

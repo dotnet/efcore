@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -24,9 +25,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType("E");
-            var idProperty = entityType.AddProperty("id", typeof(int), shadowProperty: true);
+            var idProperty = entityType.AddProperty("id", typeof(int));
             var key = entityType.SetPrimaryKey(idProperty);
-            var fkProperty = entityType.AddProperty("p", typeof(int), shadowProperty: true);
+            var fkProperty = entityType.AddProperty("p", typeof(int));
             return entityType.AddForeignKey(fkProperty, key, entityType);
         }
     }

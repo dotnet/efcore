@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         {
             var model = InMemoryTestHelpers.Instance.BuildModelFor<AnEntity>();
             var entityType = model.GetEntityType(typeof(AnEntity));
-            entityType.AddProperty("Random", typeof(Random));
+            entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
 
             foreach (var property in entityType.Properties)
             {

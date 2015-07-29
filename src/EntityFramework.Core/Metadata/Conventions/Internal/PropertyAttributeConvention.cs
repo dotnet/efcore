@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -19,12 +19,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var clrType = propertyBuilder.Metadata.DeclaringEntityType.ClrType;
             var propertyName = propertyBuilder.Metadata.Name;
 
-            var attributes = clrType?.GetProperty(propertyName)?.GetCustomAttributes<TAttribute>(true);
+            var clrProperty = clrType?.GetProperty(propertyName);
+            var attributes = clrProperty?.GetCustomAttributes<TAttribute>(true);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)
                 {
-                    propertyBuilder = Apply(propertyBuilder, attribute);
+                    propertyBuilder = Apply(propertyBuilder, attribute, clrProperty);
                     if (propertyBuilder == null)
                     {
                         break;
@@ -34,6 +35,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return propertyBuilder;
         }
 
-        public abstract InternalPropertyBuilder Apply([NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute);
+        public abstract InternalPropertyBuilder Apply([NotNull] InternalPropertyBuilder propertyBuilder, [NotNull] TAttribute attribute, [NotNull] PropertyInfo clrProperty);
     }
 }

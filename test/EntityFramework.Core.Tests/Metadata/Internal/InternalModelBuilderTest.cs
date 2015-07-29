@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
         private class Product
         {
-            public static readonly PropertyInfo IdProperty = typeof(Order).GetProperty("Id");
+            public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty("Id");
             public int Id { get; set; }
         }
     }

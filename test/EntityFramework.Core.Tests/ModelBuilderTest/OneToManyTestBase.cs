@@ -540,7 +540,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<BigMak>().Collection(e => e.Pickles).InverseReference(e => e.BigMak);
 
                 var fk = dependentType.GetForeignKeys().Single();
-                var fkProperty = fk.Properties.Single();
+                var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -578,7 +578,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<BigMak>().Collection(e => e.Pickles).InverseReference();
 
                 var fk = dependentType.GetForeignKeys().Single();
-                var fkProperty = fk.Properties.Single();
+                var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -615,7 +615,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<BigMak>().Collection<Pickle>().InverseReference(e => e.BigMak);
 
                 var fk = dependentType.GetForeignKeys().Single();
-                var fkProperty = fk.Properties.Single();
+                var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -653,7 +653,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<BigMak>().Collection<Pickle>().InverseReference();
 
                 var foreignKey = dependentType.GetForeignKeys().Single(fk => fk != existingFk);
-                var fkProperty = foreignKey.Properties.Single();
+                var fkProperty = (IProperty)foreignKey.Properties.Single();
 
                 Assert.Equal("BigMakId1", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -1114,9 +1114,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var dependentType = model.GetEntityType(typeof(Pickle));
                 var principalType = model.GetEntityType(typeof(BigMak));
-
-                var fkProperty = dependentType.GetOrAddProperty("BurgerId", typeof(int));
-                var principalProperty = principalType.GetOrAddProperty("AlternateKey", typeof(int));
+                
 
                 var dependentKey = dependentType.GetKeys().SingleOrDefault();
 
@@ -1124,9 +1122,9 @@ namespace Microsoft.Data.Entity.Tests
                 var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder.Entity<BigMak>().Key(e => e.AlternateKey);
-
+                
                 var fk = dependentType.GetForeignKeys().Single();
-                Assert.Same(fkProperty, fk.Properties.Single());
+                var principalProperty = principalType.GetProperty("AlternateKey");
 
                 Assert.Equal("BigMak", dependentType.Navigations.Single().Name);
                 Assert.Equal("Pickles", principalType.Navigations.Single().Name);
@@ -1159,8 +1157,6 @@ namespace Microsoft.Data.Entity.Tests
                 var principalType = model.GetEntityType(typeof(BigMak));
 
                 var nonPrimaryPrincipalKey = principalType.GetKeys().Single(k => !k.IsPrimaryKey());
-                var principalProperty = principalType.GetOrAddProperty("AlternateKey", typeof(int));
-
                 var dependentKey = dependentType.GetKeys().SingleOrDefault();
 
                 var expectedPrincipalProperties = principalType.Properties.ToList();
@@ -1168,6 +1164,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<BigMak>().Key(e => e.AlternateKey);
 
+                var principalProperty = principalType.GetProperty("AlternateKey");
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal(2, fk.Properties.Count);
                 Assert.Same(nonPrimaryPrincipalKey, fk.PrincipalKey);
@@ -1203,7 +1200,6 @@ namespace Microsoft.Data.Entity.Tests
                 var principalType = model.GetEntityType(typeof(BigMak));
 
                 var nonPrimaryPrincipalKey = principalType.GetKeys().Single();
-                var principalProperty = principalType.GetOrAddProperty("AlternateKey", typeof(int));
 
                 var dependentKey = dependentType.GetKeys().SingleOrDefault();
 
@@ -1212,6 +1208,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<BigMak>().Key(e => e.AlternateKey);
 
+                var principalProperty = principalType.GetProperty("AlternateKey");
                 var fk = dependentType.GetForeignKeys().Single();
                 Assert.Same(nonPrimaryPrincipalKey, fk.PrincipalKey);
 

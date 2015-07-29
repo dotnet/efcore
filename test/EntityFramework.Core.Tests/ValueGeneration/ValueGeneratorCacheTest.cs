@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
@@ -30,26 +29,14 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             Assert.Same(generator2, cache.GetOrAdd(property2, entityType, (p, et) => new GuidValueGenerator()));
             Assert.NotSame(generator1, generator2);
         }
-
-        private static Property GetProperty1(Model model)
-        {
-            return model.GetEntityType("Led").GetProperty("Zeppelin");
-        }
-
-        private static Property GetProperty2(Model model)
-        {
-            return model.GetEntityType("Led").GetProperty("Stairway");
-        }
-
+        
         private static Model CreateModel(bool generateValues = true)
         {
             var model = new Model();
 
             var entityType = model.AddEntityType("Led");
-            var property1 = entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
-            property1.RequiresValueGenerator = generateValues;
-            var property2 = entityType.GetOrAddProperty("Stairway", typeof(Guid), shadowProperty: true);
-            property2.RequiresValueGenerator = generateValues;
+            entityType.AddProperty("Zeppelin", typeof(Guid));
+            entityType.AddProperty("Stairway", typeof(Guid)).RequiresValueGenerator = generateValues;
 
             return model;
         }

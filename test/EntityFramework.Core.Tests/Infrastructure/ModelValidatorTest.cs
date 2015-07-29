@@ -23,10 +23,32 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));
-            var keyProperty = entityType.AddProperty("Id", typeof(int), shadowProperty: true);
+            var keyProperty = entityType.AddProperty("Id", typeof(int));
             entityType.AddKey(keyProperty);
 
             VerifyWarning(Strings.ShadowKey("{'Id'}", typeof(A).FullName, "{'Id'}"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_a_non_shadow_property_that_doesnt_match_a_CLR_property()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(A));
+            var property = entityType.AddProperty("Id", typeof(int));
+            property.IsShadowProperty = false;
+
+            VerifyError(Strings.NoClrProperty("Id", typeof(A).FullName), model);
+        }
+
+        [Fact]
+        public virtual void Detects_a_non_shadow_property_that_doesnt_match_the_CLR_property_type()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(A));
+            var property = entityType.AddProperty("P0", typeof(string));
+            property.IsShadowProperty = false;
+
+            VerifyError(Strings.PropertyWrongClrType("P0", typeof(A).FullName), model);
         }
 
         [Fact]
@@ -120,7 +142,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             CreateForeignKey(keyA, keyB);
             CreateForeignKey(keyB, keyA);
-            
+
             keyA.Properties[0].RequiresValueGenerator = true;
             keyB.Properties[0].RequiresValueGenerator = true;
 
@@ -240,9 +262,12 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
                 startingPropertyIndex = entityType.PropertyCount;
             }
             var keyProperties = new Property[propertyCount];
-            for (int i = 0; i < propertyCount; i++)
+            for (var i = 0; i < propertyCount; i++)
             {
-                keyProperties[i] = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i), typeof(int?));
+                var property = entityType.GetOrAddProperty("P" + (startingPropertyIndex + i));
+                property.ClrType = typeof(int?);
+                property.IsShadowProperty = false;
+                keyProperties[i] = property;
                 keyProperties[i].RequiresValueGenerator = true;
             }
             return entityType.AddKey(keyProperties);

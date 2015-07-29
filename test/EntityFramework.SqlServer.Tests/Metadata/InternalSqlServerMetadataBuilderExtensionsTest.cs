@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var propertyBuilder = CreateBuilder()
                 .Entity(typeof(Splot), ConfigurationSource.Convention)
-                .Property(typeof(int), "Id", ConfigurationSource.Convention);
+                .Property("Id", typeof(int), ConfigurationSource.Convention);
 
             propertyBuilder.SqlServer(ConfigurationSource.Convention).HiLoSequenceName = "Splew";
             Assert.Equal("Splew", propertyBuilder.Metadata.SqlServer().HiLoSequenceName);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
-            var property = entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention).Metadata;
+            var property = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.Key(new[] { property }, ConfigurationSource.Convention);
 
             keyBuilder.SqlServer(ConfigurationSource.Convention).IsClustered = true;
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
-            entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var indexBuilder = entityTypeBuilder.Index(new[] { "Id" }, ConfigurationSource.Convention);
 
             indexBuilder.SqlServer(ConfigurationSource.Convention).IsClustered = true;
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
-            entityTypeBuilder.Property(typeof(int), "Id", ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
             var relationshipBuilder = entityTypeBuilder.ForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
             relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name = "Splew";

@@ -42,11 +42,10 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(properties, nameof(properties));
 
             foreach (var property in properties.Where(
-                property => property.DeclaringEntityType.FindDeclaredProperty(property.Name) != null
-                            && !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
+                property => !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)))
             {
                 entityTypeBuilder.ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                    .Property(property.Name, ConfigurationSource.Convention)
                     ?.UseValueGenerator(true, ConfigurationSource.Convention);
             }
         }
@@ -60,9 +59,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             if (entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
             {
-                foreach (var property in entityTypeBuilder.Metadata.Properties)
+                foreach (var property in entityTypeBuilder.Metadata.GetDeclaredProperties())
                 {
-                    entityTypeBuilder.Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                    entityTypeBuilder.Property(property.Name, ConfigurationSource.Convention)
                         ?.ValueGenerated(null, ConfigurationSource.Convention);
                 }
 
@@ -71,8 +70,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     ValueGeneratedOnAddProperty(properties, entityTypeBuilder.Metadata)) != null)
                 {
                     entityTypeBuilder.Property(
-                        valueGeneratedOnAddProperty.ClrType,
                         valueGeneratedOnAddProperty.Name,
+                        ((IProperty)valueGeneratedOnAddProperty).ClrType,
                         ConfigurationSource.Convention)
                         ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
                 }
@@ -86,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 var property = properties.First();
 
-                var propertyType = property.ClrType.UnwrapNullableType();
+                var propertyType = ((IProperty)property).ClrType.UnwrapNullableType();
 
                 if ((propertyType.IsInteger()
                     || propertyType == typeof(Guid))

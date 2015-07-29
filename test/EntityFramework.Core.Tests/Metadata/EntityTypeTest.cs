@@ -22,18 +22,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class A
         {
+            public static readonly PropertyInfo EProperty = typeof(A).GetProperty("E");
+            public static readonly PropertyInfo GProperty = typeof(A).GetProperty("G");
+
             public string E { get; set; }
             public string G { get; set; }
         }
 
         private class B : A
         {
+            public static readonly PropertyInfo FProperty = typeof(B).GetProperty("F");
+            public static readonly PropertyInfo HProperty = typeof(B).GetProperty("H");
+
             public string F { get; set; }
             public string H { get; set; }
         }
 
         private class C : A
         {
+            public static readonly PropertyInfo FProperty = typeof(C).GetProperty("F");
+            public static readonly PropertyInfo HProperty = typeof(C).GetProperty("H");
+
             public string F { get; set; }
             public string H { get; set; }
         }
@@ -79,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Setting_CLR_base_for_shadow_entity_type_should_throw()
         {
             var model = new Model();
-            
+
             var a = model.AddEntityType(typeof(A));
             var b = model.AddEntityType(typeof(B).Name);
 
@@ -124,16 +133,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             //  B   C
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("G", typeof(string));
-            a.AddProperty("E", typeof(string));
+            a.AddProperty(A.GProperty);
+            a.AddProperty(A.EProperty);
 
             var b = model.AddEntityType(typeof(B));
-            b.AddProperty("H", typeof(string));
-            b.AddProperty("F", typeof(string));
+            b.AddProperty(B.HProperty);
+            b.AddProperty(B.FProperty);
 
             var c = model.AddEntityType(typeof(C));
-            c.AddProperty("H", typeof(string), true);
-            c.AddProperty("I", typeof(string), true);
+            c.AddProperty(C.HProperty);
+            c.AddProperty("I", typeof(string));
 
             Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
@@ -147,7 +156,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(new[] { "E", "G", "H", "I" }, c.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { 0, 1, 2, 3 }, b.Properties.Select(p => p.Index));
             Assert.Equal(new[] { 0, 1, 2, 3 }, c.Properties.Select(p => p.Index));
-            Assert.Same(b.GetOrAddProperty("E", typeof(string)), a.GetOrAddProperty("E", typeof(string)));
+            Assert.Same(b.GetProperty("E"), a.GetProperty("E"));
         }
 
         [Fact]
@@ -166,14 +175,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             b.BaseType = a;
             c.BaseType = a;
 
-            a.AddProperty("G", typeof(string));
-            a.AddProperty("E", typeof(string));
+            a.AddProperty(A.GProperty);
+            a.AddProperty(A.EProperty);
 
-            b.AddProperty("H", typeof(string));
-            b.AddProperty("F", typeof(string));
+            b.AddProperty(B.HProperty);
+            b.AddProperty(B.FProperty);
 
-            c.AddProperty("H", typeof(string), true);
-            c.AddProperty("I", typeof(string), true);
+            c.AddProperty(C.HProperty);
+            c.AddProperty("I", typeof(string));
 
             Assert.Equal(new[] { "E", "G" }, a.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "E", "G", "F", "H" }, b.Properties.Select(p => p.Name).ToArray());
@@ -188,12 +197,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var c = model.AddEntityType(typeof(C));
-            c.AddProperty("H", typeof(string));
-            c.AddProperty("F", typeof(string));
+            c.AddProperty(C.HProperty);
+            c.AddProperty(C.FProperty);
 
             var d = model.AddEntityType(typeof(D));
-            d.AddProperty("E", typeof(string));
-            d.AddProperty("G", typeof(string));
+            d.AddProperty(A.EProperty);
+            d.AddProperty(A.GProperty);
             d.BaseType = c;
 
             Assert.Equal(new[] { "F", "H" }, c.Properties.Select(p => p.Name).ToArray());
@@ -209,8 +218,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(new[] { 0, 1 }, d.Properties.Select(p => p.Index));
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("E", typeof(string));
-            a.AddProperty("G", typeof(string));
+            a.AddProperty(A.EProperty);
+            a.AddProperty(A.GProperty);
 
             c.BaseType = a;
 
@@ -228,14 +237,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("G", typeof(string));
+            a.AddProperty(A.GProperty);
 
             var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
-            Assert.Equal(
-                Strings.DuplicateProperty("G", typeof(B).FullName),
-                Assert.Throws<InvalidOperationException>(() => b.AddProperty("G", typeof(string), true)).Message);
+            Assert.Equal(Strings.DuplicateProperty("G", typeof(B).FullName),
+                Assert.Throws<InvalidOperationException>(() => b.AddProperty("G")).Message);
         }
 
         [Fact]
@@ -244,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("G", typeof(string));
+            a.AddProperty(A.GProperty);
 
             var c = model.AddEntityType(typeof(C));
             c.BaseType = a;
@@ -254,7 +262,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.DuplicateProperty("G", typeof(D).FullName),
-                Assert.Throws<InvalidOperationException>(() => d.AddProperty("G", typeof(string))).Message);
+                Assert.Throws<InvalidOperationException>(() => d.AddProperty("G")).Message);
         }
 
         [Fact]
@@ -267,11 +275,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var b = model.AddEntityType(typeof(B));
             b.BaseType = a;
 
-            b.AddProperty("G", typeof(string));
+            b.AddProperty(A.GProperty);
 
             Assert.Equal(
                 Strings.DuplicateProperty("G", typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => a.AddProperty("G", typeof(string))).Message);
+                Assert.Throws<InvalidOperationException>(() => a.AddProperty(A.GProperty)).Message);
         }
 
         [Fact]
@@ -287,11 +295,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var d = model.AddEntityType(typeof(D));
             d.BaseType = c;
 
-            d.AddProperty("G", typeof(string));
+            d.AddProperty(A.GProperty);
 
             Assert.Equal(
                 Strings.DuplicateProperty("G", typeof(A).FullName),
-                Assert.Throws<InvalidOperationException>(() => a.AddProperty("G", typeof(string))).Message);
+                Assert.Throws<InvalidOperationException>(() => a.AddProperty(A.GProperty)).Message);
         }
 
         [Fact]
@@ -300,10 +308,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("G", typeof(string));
+            a.AddProperty(A.GProperty);
 
             var b = model.AddEntityType(typeof(B));
-            b.AddProperty("G", typeof(string), true);
+            b.AddProperty(A.GProperty);
 
             Assert.Equal(
                 Strings.DuplicatePropertiesOnBase(typeof(B).FullName, typeof(A).FullName, "G"),
@@ -316,15 +324,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("E", typeof(string));
-            a.AddProperty("G", typeof(string));
+            a.AddProperty(A.EProperty);
+            a.AddProperty(A.GProperty);
 
             var c = model.AddEntityType(typeof(C));
             c.BaseType = a;
 
             var d = model.AddEntityType(typeof(D));
-            d.AddProperty("E", typeof(string));
-            d.AddProperty("G", typeof(string));
+            d.AddProperty(A.EProperty);
+            d.AddProperty(A.GProperty);
 
             Assert.Equal(
                 Strings.DuplicatePropertiesOnBase(typeof(D).FullName, typeof(C).FullName, "E, G"),
@@ -337,14 +345,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("E", typeof(string));
-            a.AddProperty("G", typeof(string));
+            a.AddProperty(A.EProperty);
+            a.AddProperty(A.GProperty);
 
             var c = model.AddEntityType(typeof(C));
 
             var d = model.AddEntityType(typeof(D));
-            d.AddProperty("E", typeof(string));
-            d.AddProperty("G", typeof(string));
+            d.AddProperty(A.EProperty);
+            d.AddProperty(A.GProperty);
             d.BaseType = c;
 
             Assert.Equal(
@@ -358,11 +366,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            var pk = a.SetPrimaryKey(a.AddProperty("G", typeof(string)));
-            a.AddKey(a.AddProperty("E", typeof(string)));
+            var pk = a.SetPrimaryKey(a.AddProperty(A.GProperty));
+            a.AddKey(a.AddProperty(A.EProperty));
 
             var b = model.AddEntityType(typeof(B));
-            b.AddProperty("F", typeof(string));
+            b.AddProperty(B.FProperty);
 
             Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
@@ -380,9 +388,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(new[] { "G", "E" }, a.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "G", "E", "F" }, b.Properties.Select(p => p.Name).ToArray());
             Assert.Equal(new[] { 0, 1, 2 }, b.Properties.Select(p => p.Index));
-            Assert.Same(pk, b.FindPrimaryKey(new[] { b.GetOrAddProperty("G", typeof(string)) }));
-            Assert.Same(b.GetOrAddKey(b.GetOrAddProperty("G", typeof(string))),
-                a.GetOrAddKey(a.GetOrAddProperty("G", typeof(string))));
+            Assert.Same(pk, b.FindPrimaryKey(new[] { b.GetProperty("G") }));
+            Assert.Same(b.GetKey(b.GetProperty("G")), a.GetKey(a.GetProperty("G")));
         }
 
         [Fact]
@@ -391,11 +398,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.AddProperty("G", typeof(string));
-            a.AddProperty("E", typeof(string));
+            a.AddProperty(A.GProperty);
+            a.AddProperty(A.EProperty);
 
             var b = model.AddEntityType(typeof(B));
-            b.AddProperty("F", typeof(string));
+            b.AddProperty(B.FProperty);
 
             b.BaseType = a;
 
@@ -416,11 +423,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var a = model.AddEntityType(typeof(A));
-            a.SetPrimaryKey(a.AddProperty("G", typeof(string)));
-            a.AddKey(a.AddProperty("E", typeof(string)));
+            a.SetPrimaryKey(a.AddProperty(A.GProperty));
+            a.AddKey(a.AddProperty(A.EProperty));
 
             var b = model.AddEntityType(typeof(B));
-            b.AddProperty("F", typeof(string));
+            b.AddProperty(B.FProperty);
             b.BaseType = a;
 
             b.BaseType = null;
@@ -444,10 +451,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(
                 Strings.DerivedEntityTypeKey(typeof(B).FullName),
-                Assert.Throws<InvalidOperationException>(() => b.SetPrimaryKey(b.AddProperty("G", typeof(string)))).Message);
+                Assert.Throws<InvalidOperationException>(() => b.SetPrimaryKey(b.AddProperty("G"))).Message);
             Assert.Equal(
                 Strings.DerivedEntityTypeKey(typeof(B).FullName),
-                Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E", typeof(string)))).Message);
+                Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E"))).Message);
         }
 
         [Fact]
@@ -457,14 +464,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var a = model.AddEntityType(typeof(A));
             var b = model.AddEntityType(typeof(B));
-            var key = b.AddKey(b.AddProperty("H", typeof(string)));
+            var key = b.AddKey(b.AddProperty(B.HProperty));
 
             Assert.Equal(
                 Strings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
                 Assert.Throws<InvalidOperationException>(() => b.BaseType = a).Message);
 
             b.RemoveKey(key);
-            b.SetPrimaryKey(b.AddProperty("F", typeof(string)));
+            b.SetPrimaryKey(b.AddProperty(B.FProperty));
 
             Assert.Equal(
                 Strings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
@@ -686,7 +693,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
             var derivedForeignKeyProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
-            var specialCustomerKey = specialCustomerType.GetOrAddKey(specialCustomerType.GetOrAddProperty("AltId", typeof(int), true));
+            var property = specialCustomerType.AddProperty("AltId", typeof(int));
+            var specialCustomerKey = specialCustomerType.GetOrAddKey(property);
             var specialCustomerForeignKey = specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
             specialOrderType.AddNavigation("Customer", specialCustomerForeignKey, pointsToPrincipal: true);
 
@@ -714,7 +722,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var verySpecialOrderType = model.AddEntityType(typeof(VerySpecialOrder));
             var derivedForeignKeyProperty = verySpecialOrderType.GetOrAddProperty(Order.IdProperty);
-            var specialCustomerKey = specialCustomerType.GetOrAddKey(specialCustomerType.GetOrAddProperty("AltId", typeof(int), true));
+            var property = specialCustomerType.AddProperty("AltId", typeof(int));
+            var specialCustomerKey = specialCustomerType.GetOrAddKey(property);
             var specialCustomerForeignKey = verySpecialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
             verySpecialOrderType.AddNavigation("Customer", specialCustomerForeignKey, pointsToPrincipal: true);
             verySpecialOrderType.BaseType = specialOrderType;
@@ -744,7 +753,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var verySpecialOrderType = model.AddEntityType(typeof(VerySpecialOrder));
             var derivedForeignKeyProperty = verySpecialOrderType.GetOrAddProperty(Order.IdProperty);
-            var specialCustomerKey = specialCustomerType.GetOrAddKey(specialCustomerType.GetOrAddProperty("AltId", typeof(int), true));
+            var property = specialCustomerType.AddProperty("AltId", typeof(int));
+            var specialCustomerKey = specialCustomerType.GetOrAddKey(property);
             var specialCustomerForeignKey = verySpecialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, specialCustomerKey, specialCustomerType);
             verySpecialOrderType.AddNavigation("Customer", specialCustomerForeignKey, pointsToPrincipal: true);
 
@@ -767,7 +777,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             var derivedForeignKeyProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
-            var specialCustomerForeignKey = specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
+            specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
             Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
@@ -797,7 +807,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
 
             specialOrderType.BaseType = orderType;
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+            orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
@@ -805,7 +815,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
             var derivedForeignKeyProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
-            var specialCustomerForeignKey = specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
+            specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
             Assert.Equal(new[] { new[] { Order.CustomerIdProperty.Name } },
                 orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
@@ -826,10 +836,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.BaseType = orderType;
             var derivedForeignKeyProperty = specialOrderType.GetOrAddProperty(Order.IdProperty);
-            var specialCustomerForeignKey = specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
+            specialOrderType.GetOrAddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
             var foreignKeyProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
+            orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             specialOrderType.BaseType = null;
 
@@ -1405,9 +1415,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
-            var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
-            var nameProperty = customerType.GetOrAddProperty(Customer.NameProperty);
-            var otherNameProperty = customerType.GetOrAddProperty("OtherNameProperty", typeof(string), shadowProperty: true);
+            var idProperty = customerType.AddProperty(Customer.IdProperty);
+            var nameProperty = customerType.AddProperty(Customer.NameProperty);
+            var otherNameProperty = customerType.AddProperty("OtherNameProperty", typeof(string));
 
             var k2 = customerType.GetOrAddKey(nameProperty);
             var k4 = customerType.GetOrAddKey(new[] { idProperty, otherNameProperty });
@@ -1513,7 +1523,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerKey = customerType.GetOrAddKey(idProperty);
             var orderType = model.AddEntityType(typeof(Order));
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
+            var customerFk2 = orderType.AddProperty("IdAgain", typeof(int));
 
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey, customerType);
 
@@ -1567,7 +1577,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = model.AddEntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var key = entityType.GetOrAddKey(idProperty);
-            var fkProperty = entityType.GetOrAddProperty("fk", typeof(int), shadowProperty: true);
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
             entityType.RemoveProperty(fkProperty);
 
             Assert.Equal(
@@ -1583,7 +1593,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var key = entityType.GetOrAddKey(idProperty);
             entityType.RemoveKey(key);
-            var fkProperty = entityType.GetOrAddProperty("fk", typeof(int), shadowProperty: true);
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
 
             Assert.Equal(
                 Strings.ForeignKeyReferencedEntityKeyMismatch("{'" + Customer.IdProperty.Name + "'}", typeof(Customer).FullName),
@@ -1612,7 +1622,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerKey = customerType.GetOrAddKey(idProperty);
             var orderType = model.AddEntityType(typeof(Order));
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
+            var customerFk2 = orderType.AddProperty("IdAgain", typeof(int));
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey, customerType);
 
             var fk2 = orderType.GetOrAddForeignKey(customerFk2, customerKey, customerType);
@@ -1629,7 +1639,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_finds_foreign_key_matching_principal_type_name_plus_PK_name()
         {
-            var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
 
@@ -1645,11 +1655,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_finds_foreign_key_matching_given_properties()
         {
-            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
-            var fkProperty = DependentType.GetOrAddProperty("HeToldMeYouKilledMyFk", typeof(int), shadowProperty: true);
+            DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty = DependentType.AddProperty("HeToldMeYouKilledMyFk", typeof(int));
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
 
@@ -1667,18 +1677,18 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_finds_foreign_key_matching_given_property()
         {
-            DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
-            var fkProperty1 = DependentType.GetOrAddProperty("No", typeof(int), shadowProperty: true);
-            var fkProperty2 = DependentType.GetOrAddProperty("IAmYourFk", typeof(int), shadowProperty: true);
+            DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
+            var fkProperty1 = DependentType.AddProperty("No", typeof(int));
+            var fkProperty2 = DependentType.AddProperty("IAmYourFk", typeof(int));
 
             var fk = DependentType.GetOrAddForeignKey(new[] { fkProperty1, fkProperty2 }, PrincipalType.GetOrAddKey(
                 new[]
                     {
-                        PrincipalType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
-                        PrincipalType.GetOrAddProperty("Id2", typeof(int), shadowProperty: true)
+                        PrincipalType.AddProperty("Id1", typeof(int)),
+                        PrincipalType.AddProperty("Id2", typeof(int))
                     }),
                 PrincipalType);
 
@@ -1696,10 +1706,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_finds_foreign_key_matching_navigation_plus_Id()
         {
-            var fkProperty = DependentType.GetOrAddProperty("SomeNavID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("SomeNavID", typeof(int));
+            DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
 
@@ -1717,9 +1727,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_finds_foreign_key_matching_navigation_plus_PK_name()
         {
-            var fkProperty = DependentType.GetOrAddProperty("SomeNavPeEKaY", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("SomeNavPeEKaY", typeof(int));
+            DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
 
@@ -1737,8 +1747,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_finds_foreign_key_matching_principal_type_name_plus_Id()
         {
-            var fkProperty = DependentType.GetOrAddProperty("PrincipalEntityID", typeof(int), shadowProperty: true);
-            DependentType.GetOrAddProperty("PrincipalEntityPeEKaY", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("PrincipalEntityID", typeof(int));
+            DependentType.AddProperty("PrincipalEntityPeEKaY", typeof(int));
 
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
 
@@ -1756,7 +1766,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_does_not_find_existing_FK_if_FK_has_different_navigation_to_principal()
         {
-            var fkProperty = DependentType.GetOrAddProperty("SharedFk", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("SharedFk", typeof(int));
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
             DependentType.AddNavigation("AnotherNav", fk, pointsToPrincipal: true);
 
@@ -1774,7 +1784,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_does_not_find_existing_FK_if_FK_has_different_navigation_to_dependent()
         {
-            var fkProperty = DependentType.GetOrAddProperty("SharedFk", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("SharedFk", typeof(int));
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
             PrincipalType.AddNavigation("AnotherNav", fk, pointsToPrincipal: false);
 
@@ -1792,7 +1802,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         [Fact]
         public void TryGetForeignKey_does_not_find_existing_FK_if_FK_has_different_uniqueness()
         {
-            var fkProperty = DependentType.GetOrAddProperty("SharedFk", typeof(int), shadowProperty: true);
+            var fkProperty = DependentType.AddProperty("SharedFk", typeof(int));
             var fk = DependentType.GetOrAddForeignKey(fkProperty, PrincipalType.GetPrimaryKey(), PrincipalType);
             fk.IsUnique = true;
 
@@ -1812,10 +1822,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var principalType = model.AddEntityType(typeof(PrincipalEntity));
-            principalType.GetOrSetPrimaryKey(principalType.GetOrAddProperty("PeeKay", typeof(int)));
+            var property1 = principalType.AddProperty("PeeKay", typeof(int));
+            property1.IsShadowProperty = false;
+            principalType.GetOrSetPrimaryKey(property1);
 
             var dependentType = model.AddEntityType(typeof(DependentEntity));
-            dependentType.GetOrSetPrimaryKey(dependentType.GetOrAddProperty("KayPee", typeof(int), shadowProperty: true));
+            var property = dependentType.AddProperty("KayPee", typeof(int));
+            dependentType.GetOrSetPrimaryKey(property);
 
             return model;
         }
@@ -1844,7 +1857,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty(Customer.IdProperty));
             var orderType = model.AddEntityType(typeof(Order));
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
+            var customerFk2 = orderType.AddProperty("IdAgain", typeof(int));
 
             Assert.Equal(
                 Strings.ForeignKeyNotFound("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Order).FullName),
@@ -1906,10 +1919,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var orderType = model.AddEntityType(typeof(Order));
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            var customerFk2 = orderType.GetOrAddProperty("IdAgain", typeof(int), shadowProperty: true);
-            var customerFk3A = orderType.GetOrAddProperty("OtherId1", typeof(int), shadowProperty: true);
-            var customerFk3B = orderType.GetOrAddProperty("OtherId2", typeof(string), shadowProperty: true);
-            var customerFk4B = orderType.GetOrAddProperty("OtherId3", typeof(string), shadowProperty: true);
+            var customerFk2 = orderType.AddProperty("IdAgain", typeof(int));
+            var customerFk3A = orderType.AddProperty("OtherId1", typeof(int));
+            var customerFk3B = orderType.AddProperty("OtherId2", typeof(string));
+            var customerFk4B = orderType.AddProperty("OtherId3", typeof(string));
 
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey, customerType);
             var fk4 = orderType.AddForeignKey(new[] { customerFk3A, customerFk4B }, otherCustomerKey, customerType);
@@ -2048,10 +2061,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var customerType = model.AddEntityType(typeof(Customer));
-            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+            var customerKey = customerType.GetOrAddKey(customerType.AddProperty("Id", typeof(int)));
 
             var orderType = model.AddEntityType("Order");
-            var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
+            var foreignKeyProperty = orderType.AddProperty("CustomerId", typeof(int));
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
@@ -2065,10 +2078,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var customerType = model.AddEntityType("Customer");
-            var customerKey = customerType.GetOrAddKey(customerType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+            var customerKey = customerType.GetOrAddKey(customerType.AddProperty("Id", typeof(int)));
 
             var orderType = model.AddEntityType(typeof(Order));
-            var foreignKeyProperty = orderType.GetOrAddProperty("CustomerId", typeof(int), shadowProperty: true);
+            var foreignKeyProperty = orderType.AddProperty("CustomerId", typeof(int));
             var customerForeignKey = orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType);
 
             Assert.Equal(
@@ -2229,15 +2242,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(SelfRef));
-            var fkProperty = entityType.AddProperty("ForeignKey", typeof(int));
-            var principalEntityType = entityType;
-            var principalKeyProperty = principalEntityType.AddProperty("Id", typeof(int));
-            var referencedKey = principalEntityType.SetPrimaryKey(principalKeyProperty);
-            var fk = entityType.AddForeignKey(fkProperty, referencedKey, principalEntityType);
+            var fkProperty = entityType.AddProperty(SelfRef.ForeignKeyProperty);
+            var principalKeyProperty = entityType.AddProperty(SelfRef.IdProperty);
+            var referencedKey = entityType.SetPrimaryKey(principalKeyProperty);
+            var fk = entityType.AddForeignKey(fkProperty, referencedKey, entityType);
             fk.IsUnique = true;
 
-            var navigationToDependent = principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
-            var navigationToPrincipal = principalEntityType.AddNavigation("SelfRef2", fk, pointsToPrincipal: true);
+            var navigationToDependent = entityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
+            var navigationToPrincipal = entityType.AddNavigation("SelfRef2", fk, pointsToPrincipal: true);
 
             Assert.Same(fk.PrincipalToDependent, navigationToDependent);
             Assert.Same(fk.DependentToPrincipal, navigationToPrincipal);
@@ -2248,16 +2260,15 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(SelfRef));
-            var fkProperty = entityType.AddProperty("ForeignKey", typeof(int));
-            var principalEntityType = entityType;
-            var principalKeyProperty = principalEntityType.AddProperty("Id", typeof(int));
-            var referencedKey = principalEntityType.SetPrimaryKey(principalKeyProperty);
-            var fk = entityType.AddForeignKey(fkProperty, referencedKey, principalEntityType);
+            var fkProperty = entityType.AddProperty(SelfRef.ForeignKeyProperty);
+            var principalKeyProperty = entityType.AddProperty(SelfRef.IdProperty);
+            var referencedKey = entityType.SetPrimaryKey(principalKeyProperty);
+            var fk = entityType.AddForeignKey(fkProperty, referencedKey, entityType);
             fk.IsUnique = true;
 
-            principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
+            entityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: false);
             Assert.Equal(Strings.DuplicateNavigation("SelfRef1", typeof(SelfRef).FullName),
-                Assert.Throws<InvalidOperationException>(() => principalEntityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: true)).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddNavigation("SelfRef1", fk, pointsToPrincipal: true)).Message);
         }
 
         [Fact]
@@ -2286,8 +2297,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Order));
-            var property1 = entityType.GetOrAddProperty(Order.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Order.CustomerIdProperty);
+            var property1 = entityType.AddProperty(Order.IdProperty);
+            var property2 = entityType.AddProperty(Order.CustomerIdProperty);
 
             Assert.Equal(0, entityType.Indexes.Count());
             Assert.Null(entityType.RemoveIndex(new Index(new[] { property1 })));
@@ -2328,8 +2339,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType1 = model.AddEntityType(typeof(Customer));
             var entityType2 = model.AddEntityType(typeof(Order));
-            var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType1.GetOrAddProperty(Customer.NameProperty);
+            var property1 = entityType1.AddProperty(Customer.IdProperty);
+            var property2 = entityType1.AddProperty(Customer.NameProperty);
 
             Assert.Equal(Strings.IndexPropertiesWrongEntity("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Order).FullName),
                 Assert.Throws<ArgumentException>(
@@ -2341,8 +2352,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
             entityType.AddIndex(new[] { property1, property2 });
 
             Assert.Equal(Strings.DuplicateIndex("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).FullName),
@@ -2355,8 +2366,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
-            var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
-            var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
+            var property1 = entityType.AddProperty(Customer.IdProperty);
+            var property2 = entityType.AddProperty(Customer.NameProperty);
 
             Assert.Equal(Strings.IndexNotFound("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).FullName),
                 Assert.Throws<ModelItemNotFoundException>(
@@ -2374,9 +2385,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
-            Assert.Null(entityType.RemoveProperty(new Property("Id", typeof(int), entityType)));
+            Assert.Null(entityType.RemoveProperty(new Property("Id", entityType)));
 
             var property1 = entityType.AddProperty("Id", typeof(int));
+            property1.IsShadowProperty = false;
 
             Assert.False(property1.IsShadowProperty);
             Assert.Equal("Id", property1.Name);
@@ -2385,6 +2397,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(entityType, property1.DeclaringEntityType);
 
             var property2 = entityType.AddProperty("Name", typeof(string));
+            property2.IsShadowProperty = false;
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.Properties));
 
@@ -2393,7 +2406,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.True(new[] { property2 }.SequenceEqual(entityType.Properties));
 
-            Assert.Same(property2, entityType.RemoveProperty(new Property("Name", typeof(string), entityType)));
+            Assert.Same(property2, entityType.RemoveProperty(new Property("Name", entityType)));
 
             Assert.Empty(entityType.Properties);
         }
@@ -2404,29 +2417,29 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
 
-            var idProperty = (IProperty)entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty("Id", typeof(int));
+            idProperty.IsShadowProperty = false;
 
             Assert.False(idProperty.IsShadowProperty);
             Assert.Equal("Id", idProperty.Name);
             Assert.Same(typeof(int), idProperty.ClrType);
-            Assert.False(idProperty.IsConcurrencyToken);
             Assert.Same(entityType, idProperty.DeclaringEntityType);
 
             Assert.Same(idProperty, entityType.GetOrAddProperty(Customer.IdProperty));
-            Assert.Same(idProperty, entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+            Assert.Same(idProperty, entityType.GetOrAddProperty("Id"));
             Assert.False(idProperty.IsShadowProperty);
 
-            var nameProperty = (IProperty)entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
+            var nameProperty = entityType.GetOrAddProperty("Name");
+            nameProperty.ClrType = typeof(string);
 
-            Assert.True(nameProperty.IsShadowProperty);
+            Assert.True(((IProperty)nameProperty).IsShadowProperty);
             Assert.Equal("Name", nameProperty.Name);
             Assert.Same(typeof(string), nameProperty.ClrType);
-            Assert.False(nameProperty.IsConcurrencyToken);
             Assert.Same(entityType, nameProperty.DeclaringEntityType);
 
             Assert.Same(nameProperty, entityType.GetOrAddProperty(Customer.NameProperty));
-            Assert.Same(nameProperty, entityType.GetOrAddProperty("Name", typeof(string)));
-            Assert.True(nameProperty.IsShadowProperty);
+            Assert.Same(nameProperty, entityType.GetProperty("Name"));
+            Assert.False(nameProperty.IsShadowProperty);
 
             Assert.True(new[] { idProperty, nameProperty }.SequenceEqual(entityType.Properties));
         }
@@ -2507,7 +2520,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
 
-            var aProperty = entityType.AddProperty("A", typeof(int), true);
+            var aProperty = entityType.AddProperty("A", typeof(int));
             var pkProperty = entityType.AddProperty(Customer.IdProperty);
 
             entityType.SetPrimaryKey(pkProperty);
@@ -2521,9 +2534,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType("CompositeKeyType");
 
-            var aProperty = entityType.AddProperty("A", typeof(int), true);
-            var pkProperty2 = entityType.AddProperty("aPK", typeof(int), true);
-            var pkProperty1 = entityType.AddProperty("bPK", typeof(int), true);
+            var aProperty = entityType.AddProperty("A", typeof(int));
+            var pkProperty2 = entityType.AddProperty("aPK", typeof(int));
+            var pkProperty1 = entityType.AddProperty("bPK", typeof(int));
 
             entityType.SetPrimaryKey(new[] { pkProperty1, pkProperty2 });
 
@@ -2536,12 +2549,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
 
             var parentType = model.AddEntityType("Parent");
-            var property2 = parentType.AddProperty("D", typeof(int), true);
-            var property1 = parentType.AddProperty("C", typeof(int), true);
+            var property2 = parentType.AddProperty("D", typeof(int));
+            var property1 = parentType.AddProperty("C", typeof(int));
 
             var childType = model.AddEntityType("Child");
-            var property4 = childType.AddProperty("B", typeof(int), true);
-            var property3 = childType.AddProperty("A", typeof(int), true);
+            var property4 = childType.AddProperty("B", typeof(int));
+            var property3 = childType.AddProperty("A", typeof(int));
             childType.BaseType = parentType;
 
             Assert.True(new[] { property1, property2, property3, property4 }.SequenceEqual(childType.Properties));
@@ -2553,8 +2566,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
 
-            var aProperty = entityType.AddProperty("A", typeof(int), true);
-            var bProperty = entityType.AddProperty("B", typeof(int), true);
+            var aProperty = entityType.AddProperty("A", typeof(int));
+            var bProperty = entityType.AddProperty("B", typeof(int));
 
             entityType.SetPrimaryKey(bProperty);
 
@@ -2591,12 +2604,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = model.AddEntityType(typeof(Customer));
 
             entityType.GetOrAddProperty(Customer.NameProperty);
-            entityType.GetOrAddProperty("Id", typeof(int));
-            entityType.GetOrAddProperty("Mane", typeof(int), shadowProperty: true);
+            entityType.AddProperty(Customer.IdProperty);
+            entityType.AddProperty("Mane", typeof(int));
 
             Assert.False(entityType.GetProperty("Name").IsShadowProperty);
             Assert.False(entityType.GetProperty("Id").IsShadowProperty);
-            Assert.True(entityType.GetProperty("Mane").IsShadowProperty);
+            Assert.Null(entityType.GetProperty("Mane").IsShadowProperty);
         }
 
         [Fact]
@@ -2604,34 +2617,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
-
-            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty(Customer.IdProperty);
 
             Assert.Equal(
                 Strings.DuplicateProperty("Id", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(int))).Message);
-        }
-
-        [Fact]
-        public void Adding_a_CLR_property_to_a_shadow_entity_type_throws()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType("Hello");
-
-            Assert.Equal(
-                Strings.ClrPropertyOnShadowEntity("Kitty", "Hello"),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Kitty", typeof(int))).Message);
-        }
-
-        [Fact]
-        public void Adding_a_CLR_property_that_doesnt_match_a_CLR_property_throws()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-
-            Assert.Equal(
-                Strings.NoClrProperty("Snook", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Snook", typeof(int))).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id")).Message);
         }
 
         [Fact]
@@ -2646,43 +2636,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         }
 
         [Fact]
-        public void Adding_a_CLR_property_where_the_type_doesnt_match_the_CLR_type_throws()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-
-            Assert.Equal(
-                Strings.PropertyWrongClrType("Id", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => entityType.AddProperty("Id", typeof(string))).Message);
-        }
-
-        [Fact]
-        public void Making_a_shadow_property_a_non_shadow_property_throws_if_CLR_property_does_not_match()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-
-            var property1 = entityType.AddProperty("Snook", typeof(int), shadowProperty: true);
-            var property2 = entityType.AddProperty("Id", typeof(string), shadowProperty: true);
-
-            Assert.Equal(
-                Strings.NoClrProperty("Snook", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => property1.IsShadowProperty = false).Message);
-
-            Assert.Equal(
-                Strings.PropertyWrongClrType("Id", typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => property2.IsShadowProperty = false).Message);
-        }
-
-        [Fact]
         public void Can_get_property_indexes()
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(Customer));
 
             entityType.GetOrAddProperty(Customer.NameProperty);
-            entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            entityType.GetOrAddProperty("Mane", typeof(int), shadowProperty: true);
+            entityType.AddProperty("Id", typeof(int));
+            entityType.AddProperty("Mane", typeof(int));
 
             Assert.Equal(0, entityType.GetProperty("Id").Index);
             Assert.Equal(1, entityType.GetProperty("Mane").Index);
@@ -2701,8 +2662,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(FullNotificationEntity));
 
-            var nameProperty = entityType.GetOrAddProperty("Name", typeof(string));
-            entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true).IsConcurrencyToken = true;
+            var nameProperty = entityType.AddProperty("Name", typeof(string));
+            nameProperty.IsShadowProperty = false;
+            var property = entityType.AddProperty("Id", typeof(int)).IsConcurrencyToken = true;
 
             Assert.Equal(0, entityType.GetProperty("Id").Index);
             Assert.Equal(1, entityType.GetProperty("Name").Index);
@@ -2716,10 +2678,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(1, entityType.ShadowPropertyCount());
             Assert.Equal(1, entityType.OriginalValueCount());
 
-            var gameProperty = entityType.GetOrAddProperty("Game", typeof(int), shadowProperty: true);
+            var gameProperty = entityType.AddProperty("Game", typeof(int));
             gameProperty.IsConcurrencyToken = true;
 
-            var maneProperty = entityType.GetOrAddProperty("Mane", typeof(int), shadowProperty: true);
+            var maneProperty = entityType.AddProperty("Mane", typeof(int));
             maneProperty.IsConcurrencyToken = true;
 
             Assert.Equal(0, entityType.GetProperty("Game").Index);
@@ -2790,7 +2752,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerType = model.AddEntityType(typeof(Customer));
             var idProperty = customerType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = customerType.GetOrAddProperty(Customer.NameProperty);
-            var otherProperty = customerType.GetOrAddProperty("OtherProperty", typeof(string), shadowProperty: true);
+            var otherProperty = customerType.AddProperty("OtherProperty", typeof(string));
 
             var i2 = customerType.AddIndex(nameProperty);
             var i4 = customerType.AddIndex(new[] { idProperty, otherProperty });
@@ -2847,8 +2809,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = true };
 
-            entityType.GetOrAddProperty("Name", typeof(string));
-            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.AddProperty(FullNotificationEntity.NameProperty);
+            entityType.AddProperty(FullNotificationEntity.IdProperty);
 
             Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
             Assert.Equal(1, entityType.GetProperty("Name").GetOriginalValueIndex());
@@ -2862,8 +2824,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(FullNotificationEntity));
 
-            entityType.GetOrAddProperty("Name", typeof(string)).IsConcurrencyToken = true;
-            entityType.GetOrAddProperty("Id", typeof(int));
+            entityType.AddProperty(FullNotificationEntity.NameProperty).IsConcurrencyToken = true;
+            entityType.AddProperty(FullNotificationEntity.IdProperty);
 
             Assert.Equal(-1, entityType.GetProperty("Id").GetOriginalValueIndex());
             Assert.Equal(0, entityType.GetProperty("Name").GetOriginalValueIndex());
@@ -2876,8 +2838,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(FullNotificationEntity));
-            var key = entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int)));
-            var fkProperty = entityType.GetOrAddProperty("Fk", typeof(int), shadowProperty: true);
+            var key = entityType.GetOrSetPrimaryKey(entityType.AddProperty(FullNotificationEntity.IdProperty));
+            var fkProperty = entityType.AddProperty("Fk", typeof(int));
 
             Assert.Equal(-1, fkProperty.GetOriginalValueIndex());
 
@@ -2938,6 +2900,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class FullNotificationEntity : INotifyPropertyChanging, INotifyPropertyChanged
         {
+            public static readonly PropertyInfo IdProperty = typeof(FullNotificationEntity).GetProperty("Id");
+            public static readonly PropertyInfo NameProperty = typeof(FullNotificationEntity).GetProperty("Name");
+
             private int _id;
             private string _name;
             private int _game;
@@ -3048,6 +3013,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class SelfRef
         {
+            public static readonly PropertyInfo IdProperty = typeof(SelfRef).GetProperty("Id");
+            public static readonly PropertyInfo ForeignKeyProperty = typeof(SelfRef).GetProperty("ForeignKey");
+
             public int Id { get; set; }
             public SelfRef SelfRef1 { get; set; }
             public SelfRef SelfRef2 { get; set; }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Moq;
@@ -25,7 +26,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_getter_is_returned_for_IProperty_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty("Id", typeof(int));
+            idProperty.IsShadowProperty = false;
 
             Assert.Equal(7, new ClrPropertyGetterSource().GetAccessor(idProperty).GetClrValue(new Customer { Id = 7 }));
         }
@@ -40,7 +42,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_getter_is_cached_by_type_and_property_name()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty("Id", typeof(int));
+            idProperty.IsShadowProperty = false;
 
             var source = new ClrPropertyGetterSource();
 

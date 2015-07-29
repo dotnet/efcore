@@ -469,7 +469,7 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Photon");
                     });
 
-                var entityType = model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
 
                 Assert.False(entityType.GetProperty("Up").IsShadowProperty);
                 Assert.False(entityType.GetProperty("Charm").IsShadowProperty);

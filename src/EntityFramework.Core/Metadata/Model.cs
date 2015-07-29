@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            if (GetReferencingForeignKeys(entityType).Any())
+            if (FindReferencingForeignKeys(entityType).Any())
             {
                 throw new InvalidOperationException(Strings.EntityTypeInUse(entityType.Name));
             }
@@ -121,37 +121,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual IReadOnlyList<EntityType> EntityTypes => _entities;
 
-        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+        public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] EntityType entityType)
+            => ((IModel)this).FindReferencingForeignKeys(entityType).Cast<ForeignKey>();
 
-            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
-            // Issue #1179
-            return EntityTypes.SelectMany(et => et.GetForeignKeys())
-                .Where(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType))
-                .ToList();
-        }
+        public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] Key key)
+            => ((IModel)this).FindReferencingForeignKeys(key).Cast<ForeignKey>();
 
-        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IKey key)
-        {
-            Check.NotNull(key, nameof(key));
-
-            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
-            // Issue #1179
-            return EntityTypes.SelectMany(e => e.GetForeignKeys()).Where(fk => fk.PrincipalKey == key).ToList();
-        }
-
-        public virtual IReadOnlyList<ForeignKey> GetReferencingForeignKeys([NotNull] IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
-            // Issue #1179
-            return EntityTypes
-                .SelectMany(e => e.GetForeignKeys()
-                    .Where(f => f.PrincipalKey.Properties.Contains(property)))
-                .ToList();
-        }
+        public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] Property property)
+            => ((IModel)this).FindReferencingForeignKeys(property).Cast<ForeignKey>();
 
         public virtual string StorageName { get; [param: CanBeNull] set; }
 
@@ -164,14 +141,5 @@ namespace Microsoft.Data.Entity.Metadata
         IEntityType IModel.GetEntityType(string name) => GetEntityType(name);
 
         IReadOnlyList<IEntityType> IModel.EntityTypes => EntityTypes;
-
-        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IEntityType entityType)
-            => GetReferencingForeignKeys(entityType);
-
-        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IKey key)
-            => GetReferencingForeignKeys(key);
-
-        IEnumerable<IForeignKey> IModel.GetReferencingForeignKeys(IProperty property)
-            => GetReferencingForeignKeys(property);
     }
 }

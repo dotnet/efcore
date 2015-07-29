@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity.Internal
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
             => @from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
-                .Union(_model.GetReferencingForeignKeys(@from).Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
+                .Union(_model.FindReferencingForeignKeys(@from).Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
 
         public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
             => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
-                .Union(_model.GetReferencingForeignKeys(to).Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
+                .Union(_model.FindReferencingForeignKeys(to).Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
     }
 }

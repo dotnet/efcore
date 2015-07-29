@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return newForeignKey;
         }
 
-        public virtual bool CanSetForeignKey([NotNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        public virtual bool CanSetForeignKey([NotNull] IReadOnlyList<IProperty> properties, ConfigurationSource configurationSource)
         {
             if (_foreignKeyPropertiesConfigurationSource.HasValue
                 && !configurationSource.Overrides(_foreignKeyPropertiesConfigurationSource.Value))
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool CanSetRequired(bool isRequired, ConfigurationSource configurationSource)
             => CanSetRequired(Metadata.Properties, isRequired, configurationSource);
 
-        private bool CanSetRequired([NotNull] IReadOnlyList<Property> properties, bool isRequired, ConfigurationSource configurationSource)
+        private bool CanSetRequired([NotNull] IReadOnlyList<IProperty> properties, bool isRequired, ConfigurationSource configurationSource)
         {
             var nullableProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
             if (!nullableProperties.Any()
@@ -299,11 +299,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return isRequired
                 ? nullableProperties.All(property =>
                     ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                        .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                        .Property(property.Name, ConfigurationSource.Convention)
                         .CanSetRequired(true, configurationSource))
                 : nullableProperties.Any(property =>
                     ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                        .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                        .Property(property.Name, ConfigurationSource.Convention)
                         .CanSetRequired(false, configurationSource));
         }
 

@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -15,46 +17,61 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             var country = model.AddEntityType(typeof(Country));
             var countryIdProperty = country.AddProperty("Id", typeof(int));
+            countryIdProperty.IsShadowProperty = false;
             countryIdProperty.RequiresValueGenerator = true;
             var countryKey = country.SetPrimaryKey(countryIdProperty);
-            country.AddProperty("Name", typeof(string));
+            var property1 = country.AddProperty("Name", typeof(string));
+            property1.IsShadowProperty = false;
 
             var animal = model.AddEntityType(typeof(Animal));
             var animalSpeciesProperty = animal.AddProperty("Species", typeof(string));
+            animalSpeciesProperty.IsShadowProperty = false;
             animalSpeciesProperty.RequiresValueGenerator = true;
             var animalKey = animal.SetPrimaryKey(animalSpeciesProperty);
-            animal.AddProperty("Name", typeof(string));
-            var countryFk = animal.AddForeignKey(animal.AddProperty("CountryId", typeof(int)), countryKey, country);
+            var property3 = animal.AddProperty("Name", typeof(string));
+            property3.IsShadowProperty = false;
+            var property4 = animal.AddProperty("CountryId", typeof(int));
+            property4.IsShadowProperty = false;
+            var countryFk = animal.AddForeignKey(property4, countryKey, country);
 
             var bird = model.AddEntityType(typeof(Bird));
             bird.BaseType = animal;
-            bird.AddProperty("IsFlightless", typeof(bool));
+            var property5 = bird.AddProperty("IsFlightless", typeof(bool));
+            property5.IsShadowProperty = false;
 
             var kiwi = model.AddEntityType(typeof(Kiwi));
             kiwi.BaseType = bird;
-            kiwi.AddProperty("FoundOn", typeof(Island));
+            var property6 = kiwi.AddProperty("FoundOn", typeof(Island));
+            property6.IsShadowProperty = false;
 
             var eagle = model.AddEntityType(typeof(Eagle));
             eagle.BaseType = bird;
-            eagle.AddProperty("Group", typeof(EagleGroup));
+            var property7 = eagle.AddProperty("Group", typeof(EagleGroup));
+            property7.IsShadowProperty = false;
 
             var plant = model.AddEntityType(typeof(Plant));
-            var plantSpeciesProperty = plant.AddProperty("Species", typeof(string));
+            var property8 = plant.AddProperty("Species", typeof(string));
+            property8.IsShadowProperty = false;
+            var plantSpeciesProperty = property8;
             plantSpeciesProperty.RequiresValueGenerator = true;
-            var plantKey = plant.SetPrimaryKey(plantSpeciesProperty);
-            plant.AddProperty("Name", typeof(string));
+            plant.SetPrimaryKey(plantSpeciesProperty);
+            var property9 = plant.AddProperty("Name", typeof(string));
+            property9.IsShadowProperty = false;
 
             var flower = model.AddEntityType(typeof(Flower));
             flower.BaseType = plant;
 
             var rose = model.AddEntityType(typeof(Rose));
             rose.BaseType = flower;
-            rose.AddProperty("HasThorns", typeof(bool));
+            var property10 = rose.AddProperty("HasThorns", typeof(bool));
+            property10.IsShadowProperty = false;
 
             var daisy = model.AddEntityType(typeof(Daisy));
             daisy.BaseType = flower;
 
-            var eagleFk = bird.AddForeignKey(bird.AddProperty("EagleId", typeof(string)), animalKey, eagle);
+            var property11 = bird.AddProperty("EagleId", typeof(string));
+            property11.IsShadowProperty = false;
+            var eagleFk = bird.AddForeignKey(property11, animalKey, eagle);
 
             country.AddNavigation("Animals", countryFk, false);
             eagle.AddNavigation("Prey", eagleFk, false);

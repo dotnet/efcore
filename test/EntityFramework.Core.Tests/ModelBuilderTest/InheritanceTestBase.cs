@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.Indexes);
                 AssertEqual(initialForeignKey, pickle.GetForeignKeys());
-                AssertEqual(initialReferencingForeignKey, pickle.GetReferencingForeignKeys());
+                AssertEqual(initialReferencingForeignKey, pickle.FindReferencingForeignKeys());
 
                 /*
                 pickleBuilder.BaseEntity(null);

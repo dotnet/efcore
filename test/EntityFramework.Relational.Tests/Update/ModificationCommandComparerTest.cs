@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -25,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var contextServices = new DbContext(optionsBuilder.Options).GetService();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
-            var key = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            var key = entityType.AddProperty("Id", typeof(int));
             entityType.GetOrSetPrimaryKey(key);
 
             var entry1 = stateManager.GetOrCreateEntry(new object());

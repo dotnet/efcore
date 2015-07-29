@@ -220,7 +220,7 @@
     <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
   </data>
   <data name="NoValueGenerator" xml:space="preserve">
-    <value>The '{propertyName}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
+    <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
   </data>
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
@@ -469,7 +469,7 @@
     <value>{debug} level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure {minimumLevel} to {recommendedLevel}</value>
   </data>
   <data name="WrongGenericPropertyType" xml:space="preserve">
-    <value>Property '{propertyName}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
+    <value>Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
   </data>
   <data name="NonGenericOptions" xml:space="preserve">
     <value>The DbContextOptions object registered in the service provider must be a DbContextOptions&lt;TContext&gt; where TContext is the type of the DbContext being used.</value>
@@ -527,6 +527,9 @@
   </data>
   <data name="PropertyWrongEntityClrType" xml:space="preserve">
     <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
+  </data>
+  <data name="PropertyClrTypeCannotBeChangedWhenReferenced" xml:space="preserve">
+    <value>The CLR type for property '{property}' cannot be changed because it is referenced by the foreign key {foreignKey} from entity type '{entityType}'.</value>
   </data>
   <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
     <value>The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.</value>

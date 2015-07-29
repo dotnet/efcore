@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         private static Property CreateProperty()
         {
             var entityType = new Model().AddEntityType("Led");
-            return entityType.GetOrAddProperty("Zeppelin", typeof(Guid), shadowProperty: true);
+            return entityType.AddProperty("Zeppelin", typeof(Guid));
         }
     }
 }

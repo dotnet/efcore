@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -2485,7 +2486,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             protected static void SetSentinelValues(ModelBuilder modelBuilder, int intSentinel)
             {
                 foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
-                    .Where(p => p.ClrType == typeof(int) || p.ClrType == typeof(int?)))
+                    .Where(p => ((IProperty)p).ClrType == typeof(int) || ((IProperty)p).ClrType == typeof(int?)))
                 {
                     property.SentinelValue = intSentinel;
                 }
@@ -2493,7 +2494,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var sentinelGuid = new Guid("{71334AF2-51DE-4015-9CC1-10CE02D151BB}");
 
                 foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
-                    .Where(p => p.ClrType == typeof(Guid) || p.ClrType == typeof(Guid?)))
+                    .Where(p => ((IProperty)p).ClrType == typeof(Guid) || ((IProperty)p).ClrType == typeof(Guid?)))
                 {
                     property.SentinelValue = sentinelGuid;
                 }

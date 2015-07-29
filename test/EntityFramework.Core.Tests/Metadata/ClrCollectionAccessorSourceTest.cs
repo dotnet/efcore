@@ -134,8 +134,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
             var otherType = model.AddEntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true),
-                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+            var foreignKey = otherType.GetOrAddForeignKey(otherType.AddProperty("MyEntityId", typeof(int)),
+                entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
             var navigation = entityType.AddNavigation("AsICollection", foreignKey, pointsToPrincipal: false);
@@ -221,8 +221,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.AddEntityType(typeof(MyEntity));
             var otherType = model.AddEntityType(typeof(MyOtherEntity));
-            var foreignKey = otherType.GetOrAddForeignKey(otherType.GetOrAddProperty("MyEntityId", typeof(int), shadowProperty: true),
-                entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true)),
+            var foreignKey = otherType.GetOrAddForeignKey(otherType.AddProperty("MyEntityId", typeof(int)),
+                entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
             return entityType.AddNavigation(navigationName, foreignKey, pointsToPrincipal: false);

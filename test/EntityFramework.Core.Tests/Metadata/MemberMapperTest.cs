@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Annotated_field_name_is_used_if_present()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.SpeakToMeProperty);
             property["BackingField"] = "fieldForSpeak";
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Throws_if_annotated_field_name_is_not_found()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.SpeakToMeProperty);
             property["BackingField"] = "_speakToMe";
 
             Assert.Equal(
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Throws_if_annotated_field_if_types_not_compatible()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("SpeakToMe", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.SpeakToMeProperty);
             property["BackingField"] = "_badFieldForSpeak";
 
             Assert.Equal(
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Field_name_match_is_used_in_preference_to_property_setter()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("Breathe", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.BreatheProperty);
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
 
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Property_setter_is_used_if_no_matching_field_is_found()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("OnTheRun", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.OnTheRunProperty);
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
 
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Throws_if_no_match_found_and_no_property_setter()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            entityType.GetOrAddProperty("Time", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.TimeProperty);
 
             Assert.Equal(
                 Strings.NoFieldOrSetter(typeof(TheDarkSide).FullName, "Time"),
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Property_and_field_in_base_type_is_matched()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("TheGreatGigInTheSky", typeof(int));
+            var property = entityType.AddProperty(OfTheMoon.TheGreatGigInTheSkyProperty);
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
 
@@ -107,7 +107,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Property_and_field_in_base_type_is_matched_even_when_overridden()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("Money", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.MoneyProperty);
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
 
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Private_setter_in_base_class_of_overridden_property_is_used()
         {
             var entityType = new Model().AddEntityType(typeof(TheDarkSide));
-            var property = entityType.GetOrAddProperty("UsAndThem", typeof(int));
+            var property = entityType.AddProperty(TheDarkSide.UsAndThemProperty);
 
             var mapping = new MemberMapper(new FieldMatcher()).MapPropertiesToMembers(entityType).Single();
 
@@ -131,6 +131,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class TheDarkSide : OfTheMoon
         {
+            public static readonly PropertyInfo SpeakToMeProperty = typeof(TheDarkSide).GetProperty("SpeakToMe");
+            public static readonly PropertyInfo BreatheProperty = typeof(TheDarkSide).GetProperty("Breathe");
+            public static readonly PropertyInfo OnTheRunProperty = typeof(TheDarkSide).GetProperty("OnTheRun");
+            public static readonly PropertyInfo TimeProperty = typeof(TheDarkSide).GetProperty("Time");
+            public static readonly PropertyInfo MoneyProperty = typeof(TheDarkSide).GetProperty("Money");
+            public static readonly PropertyInfo UsAndThemProperty = typeof(TheDarkSide).GetProperty("UsAndThem");
+
             private int? fieldForSpeak;
 #pragma warning disable 169
             private string _badFieldForSpeak;
@@ -170,6 +177,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class OfTheMoon
         {
+            public static readonly PropertyInfo TheGreatGigInTheSkyProperty = typeof(OfTheMoon).GetProperty("TheGreatGigInTheSky");
+
             private int? _theGreatGigInTheSky;
 
             public int TheGreatGigInTheSky

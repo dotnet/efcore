@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.Model.GetReferencingForeignKeys(entityType);
+            return entityType.Model.FindReferencingForeignKeys(entityType);
         }
 
         public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)

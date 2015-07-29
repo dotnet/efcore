@@ -81,7 +81,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             foreach (var property in sourceEntityType.GetDeclaredProperties())
             {
-                var clonedProperty = targetEntityType.AddProperty(property.Name, property.ClrType, property.IsShadowProperty);
+                var clonedProperty = targetEntityType.AddProperty(property.Name);
+                clonedProperty.ClrType = property.ClrType;
+                clonedProperty.IsShadowProperty = property.IsShadowProperty;
                 clonedProperty.IsNullable = property.IsNullable;
                 clonedProperty.IsConcurrencyToken = property.IsConcurrencyToken;
                 clonedProperty.RequiresValueGenerator = property.RequiresValueGenerator;

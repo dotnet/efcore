@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
@@ -33,11 +34,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             var model = new Model();
             var entityType = model.AddEntityType("Customer");
-            var idProperty = entityType.AddProperty("id", typeof(int), shadowProperty: true);
-            var fkProperty = entityType.AddProperty("fk", typeof(int), shadowProperty: true);
+            var idProperty = entityType.AddProperty("id", typeof(int));
+            var fkProperty = entityType.AddProperty("fk", typeof(int));
             var fk = entityType.AddForeignKey(fkProperty, entityType.SetPrimaryKey(idProperty), entityType);
 
-            Assert.Same(fk, entityType.GetReferencingForeignKeys().Single());
+            Assert.Same(fk, entityType.FindReferencingForeignKeys().Single());
         }
 
         [Fact]

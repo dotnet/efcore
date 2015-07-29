@@ -359,15 +359,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 Assert.Throws<ArgumentOutOfRangeException>(() => cache.GetOrAddSequenceState(property)).Message);
         }
 
-        protected virtual ModelBuilder CreateConventionModelBuilder()
-        {
-            return SqlServerTestHelpers.Instance.CreateConventionBuilder();
-        }
+        protected virtual ModelBuilder CreateConventionModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
         private static Property CreateProperty()
         {
             var entityType = new Model().AddEntityType("MyType");
-            var property = entityType.GetOrAddProperty("MyProperty", typeof(string), shadowProperty: true);
+            var property = entityType.AddProperty("MyProperty", typeof(string));
             entityType.SqlServer().TableName = "MyTable";
 
             return property;

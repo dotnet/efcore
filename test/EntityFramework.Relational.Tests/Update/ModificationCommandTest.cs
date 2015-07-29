@@ -370,12 +370,14 @@ namespace Microsoft.Data.Entity.Tests.Update
             var model = new Entity.Metadata.Model();
             var entityType = model.AddEntityType(typeof(T1));
 
-            var key = entityType.GetOrAddProperty("Id", typeof(int));
+            var key = entityType.AddProperty("Id", typeof(int));
+            key.IsShadowProperty = false;
             key.ValueGenerated = generateKeyValues ? ValueGenerated.OnAdd : ValueGenerated.Never;
             key.Relational().ColumnName = "Col1";
             entityType.GetOrSetPrimaryKey(key);
 
-            var nonKey = entityType.GetOrAddProperty("Name", typeof(string));
+            var nonKey = entityType.AddProperty("Name", typeof(string));
+            nonKey.IsShadowProperty = false;
             nonKey.IsConcurrencyToken = computeNonKeyValue;
 
             nonKey.Relational().ColumnName = "Col2";

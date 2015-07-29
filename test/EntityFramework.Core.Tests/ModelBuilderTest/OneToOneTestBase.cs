@@ -787,7 +787,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-                var expectedPrincipalProperties = principalType.Properties.Where(p => !p.IsShadowProperty).ToList();
+                var expectedPrincipalProperties = principalType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
                 var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder
@@ -825,7 +825,7 @@ namespace Microsoft.Data.Entity.Tests
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
                 var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.Where(p => !p.IsShadowProperty).ToList();
+                var expectedDependentProperties = dependentType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
 
                 modelBuilder
                     .Entity<CustomerDetails>().Reference(e => e.Customer).InverseReference()
@@ -861,7 +861,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
-                var expectedPrincipalProperties = principalType.Properties.Where(p => !p.IsShadowProperty).ToList();
+                var expectedPrincipalProperties = principalType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
                 var expectedDependentProperties = dependentType.Properties.ToList();
 
                 modelBuilder
@@ -899,7 +899,7 @@ namespace Microsoft.Data.Entity.Tests
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
                 var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.Where(p => !p.IsShadowProperty).ToList();
+                var expectedDependentProperties = dependentType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
 
                 modelBuilder
                     .Entity<CustomerDetails>().Reference<Customer>().InverseReference(e => e.Details)
@@ -1088,7 +1088,7 @@ namespace Microsoft.Data.Entity.Tests
                 var principalType = model.GetEntityType(typeof(Customer));
                 var principalProperty = principalType.GetProperty("AlternateKey");
                 var expectedPrincipalProperties = principalType.Properties.ToList();
-                var expectedDependentProperties = dependentType.Properties.Where(p => !p.IsShadowProperty).ToList();
+                var expectedDependentProperties = dependentType.Properties.Where(p => !((IProperty)p).IsShadowProperty).ToList();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 

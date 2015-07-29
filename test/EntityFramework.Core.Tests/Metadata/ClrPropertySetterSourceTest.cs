@@ -1,6 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Moq;
@@ -25,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_is_returned_for_IProperty_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -48,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_is_cached_by_type_and_property_name()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             var source = new ClrPropertySetterSource();
 
@@ -61,7 +63,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_can_set_value_type_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int));
+            var idProperty = entityType.AddProperty(Customer.IdProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -74,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_can_set_reference_type_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Content", typeof(string));
+            var idProperty = entityType.AddProperty(Customer.ContentProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -87,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_can_set_nullable_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("OptionalInt", typeof(int?));
+            var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -100,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_can_set_nullable_property_with_null_value()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("OptionalInt", typeof(int?));
+            var idProperty = entityType.AddProperty(Customer.OptionalIntProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -113,7 +115,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_can_set_enum_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("Flag", typeof(Flag));
+            var idProperty = entityType.AddProperty(Customer.FlagProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -126,7 +128,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Delegate_setter_can_set_nullable_enum_property()
         {
             var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.GetOrAddProperty("OptionalFlag", typeof(Flag?));
+            var idProperty = entityType.AddProperty(Customer.OptionalFlagProperty);
 
             var customer = new Customer { Id = 7 };
 
@@ -145,11 +147,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class Customer
         {
-            internal int Id { get; set; }
-            internal string Content { get; set; }
-            internal int? OptionalInt { get; set; }
-            internal Flag Flag { get; set; }
-            internal Flag? OptionalFlag { get; set; }
+            public readonly static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public readonly static PropertyInfo OptionalIntProperty = typeof(Customer).GetProperty("OptionalInt");
+            public readonly static PropertyInfo ContentProperty = typeof(Customer).GetProperty("Content");
+            public readonly static PropertyInfo FlagProperty = typeof(Customer).GetProperty("Flag");
+            public readonly static PropertyInfo OptionalFlagProperty = typeof(Customer).GetProperty("OptionalFlag");
+
+            public int Id { get; set; }
+            public string Content { get; set; }
+            public int? OptionalInt { get; set; }
+            public Flag Flag { get; set; }
+            public Flag? OptionalFlag { get; set; }
         }
 
         #endregion

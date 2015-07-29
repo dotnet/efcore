@@ -205,23 +205,29 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = new Model();
 
             var entityType = model.AddEntityType(typeof(Banana));
-            var property1 = entityType.GetOrAddProperty("P1", typeof(int));
-            var property2 = entityType.GetOrAddProperty("P2", typeof(string));
-            var property3 = entityType.GetOrAddProperty("P3", typeof(Random));
-            var property4 = entityType.GetOrAddProperty("P4", typeof(int));
-            var property5 = entityType.GetOrAddProperty("P5", typeof(string));
-            var property6 = entityType.GetOrAddProperty("P6", typeof(Random));
+            var property1 = entityType.AddProperty("P1", typeof(int));
+            property1.IsShadowProperty = false;
+            var property2 = entityType.AddProperty("P2", typeof(string));
+            property2.IsShadowProperty = false;
+            var property3 = entityType.AddProperty("P3", typeof(Random));
+            property3.IsShadowProperty = false;
+            var property4 = entityType.AddProperty("P4", typeof(int));
+            property4.IsShadowProperty = false;
+            var property5 = entityType.AddProperty("P5", typeof(string));
+            property5.IsShadowProperty = false;
+            var property6 = entityType.AddProperty("P6", typeof(Random));
+            property6.IsShadowProperty = false;
 
             entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
             entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);
 
             entityType = model.AddEntityType(typeof(SentinelBanana));
-            property1 = entityType.GetOrAddProperty("P1", typeof(int));
-            property2 = entityType.GetOrAddProperty("P2", typeof(string));
-            property3 = entityType.GetOrAddProperty("P3", typeof(Random));
-            property4 = entityType.GetOrAddProperty("P4", typeof(int));
-            property5 = entityType.GetOrAddProperty("P5", typeof(string));
-            property6 = entityType.GetOrAddProperty("P6", typeof(Random));
+            property1 = entityType.AddProperty("P1", typeof(int));
+            property2 = entityType.AddProperty("P2", typeof(string));
+            property3 = entityType.AddProperty("P3", typeof(Random));
+            property4 = entityType.AddProperty("P4", typeof(int));
+            property5 = entityType.AddProperty("P5", typeof(string));
+            property6 = entityType.AddProperty("P6", typeof(Random));
 
             entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
             entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);

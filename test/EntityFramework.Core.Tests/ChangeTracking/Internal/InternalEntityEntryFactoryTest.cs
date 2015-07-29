@@ -9,15 +9,15 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
-    public class InteranlEntryEntryFactoryTest
+    public class InternalEntityEntryFactoryTest
     {
         [Fact]
         public void Creates_shadow_state_only_entry_when_entity_is_fully_shadow_state()
         {
             var model = new Model();
             var entityType = model.AddEntityType("RedHook");
-            entityType.GetOrAddProperty("Long", typeof(int), shadowProperty: true);
-            entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
+            entityType.AddProperty("Long", typeof(int));
+            entityType.AddProperty("Hammer", typeof(string));
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -37,8 +37,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(RedHook));
-            entityType.GetOrAddProperty("Long", typeof(int));
-            entityType.GetOrAddProperty("Hammer", typeof(string));
+            var property = entityType.AddProperty("Long", typeof(int));
+            property.IsShadowProperty = false;
+            var property1 = entityType.AddProperty("Hammer", typeof(string));
+            property1.IsShadowProperty = false;
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();
@@ -59,8 +61,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(RedHook));
-            entityType.GetOrAddProperty("Long", typeof(int));
-            entityType.GetOrAddProperty("Hammer", typeof(string), shadowProperty: true);
+            var property1 = entityType.AddProperty("Long", typeof(int));
+            property1.IsShadowProperty = false;
+            entityType.AddProperty("Hammer", typeof(string));
 
             var contextServices = TestHelpers.Instance.CreateContextServices(model);
             var stateManager = contextServices.GetRequiredService<IStateManager>();

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -33,11 +34,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_with_auto_properties()
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntity));
-            entityType.GetOrAddProperty("Enum", typeof(SomeEnum));
-            entityType.GetOrAddProperty("Foo", typeof(string));
-            entityType.GetOrAddProperty("Goo", typeof(Guid?));
-            entityType.GetOrAddProperty("Id", typeof(int));
-            entityType.GetOrAddProperty("MaybeEnum", typeof(SomeEnum?));
+            entityType.AddProperty(SomeEntity.EnumProperty);
+            entityType.AddProperty(SomeEntity.FooProperty);
+            entityType.AddProperty(SomeEntity.GooProperty);
+            entityType.AddProperty(SomeEntity.IdProperty);
+            entityType.AddProperty(SomeEntity.MaybeEnumProperty);
 
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
@@ -55,11 +56,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_with_fields()
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntityWithFields));
-            entityType.GetOrAddProperty("Enum", typeof(SomeEnum));
-            entityType.GetOrAddProperty("Foo", typeof(string));
-            entityType.GetOrAddProperty("Goo", typeof(Guid?));
-            entityType.GetOrAddProperty("Id", typeof(int));
-            entityType.GetOrAddProperty("MaybeEnum", typeof(SomeEnum?));
+            entityType.AddProperty(SomeEntityWithFields.EnumProperty);
+            entityType.AddProperty(SomeEntityWithFields.FooProperty);
+            entityType.AddProperty(SomeEntityWithFields.GooProperty);
+            entityType.AddProperty(SomeEntityWithFields.IdProperty);
+            entityType.AddProperty(SomeEntityWithFields.MaybeEnumProperty);
 
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
@@ -77,9 +78,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_read_nulls()
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntity));
-            entityType.GetOrAddProperty("Id", typeof(int));
-            entityType.GetOrAddProperty("Foo", typeof(string));
-            entityType.GetOrAddProperty("Goo", typeof(Guid?));
+            entityType.AddProperty(SomeEntity.FooProperty);
+            entityType.AddProperty(SomeEntity.GooProperty);
+            entityType.AddProperty(SomeEntity.IdProperty);
 
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
@@ -94,12 +95,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Can_create_materializer_for_entity_ignoring_shadow_fields()
         {
             var entityType = new Model().AddEntityType(typeof(SomeEntity));
-            entityType.GetOrAddProperty("Id", typeof(int));
-            entityType.GetOrAddProperty("IdShadow", typeof(int), shadowProperty: true);
-            entityType.GetOrAddProperty("Foo", typeof(string));
-            entityType.GetOrAddProperty("FooShadow", typeof(string), shadowProperty: true);
-            entityType.GetOrAddProperty("Goo", typeof(Guid?));
-            entityType.GetOrAddProperty("GooShadow", typeof(Guid), shadowProperty: true);
+            entityType.AddProperty(SomeEntity.IdProperty);
+            entityType.AddProperty("IdShadow", typeof(int));
+            entityType.AddProperty(SomeEntity.FooProperty);
+            entityType.AddProperty("FooShadow", typeof(string));
+            entityType.AddProperty(SomeEntity.GooProperty);
+            entityType.AddProperty("GooShadow", typeof(Guid));
 
             var factory = GetMaterializer(new EntityMaterializerSource(new MemberMapper(new FieldMatcher())), entityType);
 
@@ -114,16 +115,19 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         private static readonly ParameterExpression _readerParameter
             = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
-        public virtual Func<ValueBuffer, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType)
-        {
-            return Expression.Lambda<Func<ValueBuffer, object>>(
-                source.CreateMaterializeExpression(entityType, _readerParameter),
-                _readerParameter)
-                .Compile();
-        }
+        public virtual Func<ValueBuffer, object> GetMaterializer(IEntityMaterializerSource source, IEntityType entityType) => Expression.Lambda<Func<ValueBuffer, object>>(
+            source.CreateMaterializeExpression(entityType, _readerParameter),
+            _readerParameter)
+            .Compile();
 
         private class SomeEntity
         {
+            public readonly static PropertyInfo IdProperty = typeof(SomeEntity).GetProperty("Id");
+            public readonly static PropertyInfo FooProperty = typeof(SomeEntity).GetProperty("Foo");
+            public readonly static PropertyInfo GooProperty = typeof(SomeEntity).GetProperty("Goo");
+            public readonly static PropertyInfo EnumProperty = typeof(SomeEntity).GetProperty("Enum");
+            public readonly static PropertyInfo MaybeEnumProperty = typeof(SomeEntity).GetProperty("MaybeEnum");
+
             // ReSharper disable UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
             public string Foo { get; set; }
@@ -135,6 +139,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         private class SomeEntityWithFields
         {
+            public readonly static PropertyInfo IdProperty = typeof(SomeEntityWithFields).GetProperty("Id");
+            public readonly static PropertyInfo FooProperty = typeof(SomeEntityWithFields).GetProperty("Foo");
+            public readonly static PropertyInfo GooProperty = typeof(SomeEntityWithFields).GetProperty("Goo");
+            public readonly static PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
+            public readonly static PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
+
 #pragma warning disable 649
             private int _id;
             private string _foo;

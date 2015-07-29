@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+            var propertyBuilder = entityBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
 
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, "ConventionalName", ConfigurationSource.Convention);
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Convention);
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var entityBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            var propertyBuilder = entityBuilder.Property(typeof(string), "Name", ConfigurationSource.Explicit);
+            var propertyBuilder = entityBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
 
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnName, "ExplicitName", ConfigurationSource.Explicit);
             propertyBuilder.Annotation(RelationalAnnotationNames.Prefix + RelationalAnnotationNames.ColumnType, "BYTE", ConfigurationSource.Explicit);

@@ -1,26 +1,24 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalPropertyBuilder : InternalMetadataItemBuilder<Property>
     {
+        private ConfigurationSource? _clrTypeConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
-        private ConfigurationSource? _maxLengthConfigurationSource;
         private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
-        private ConfigurationSource _isShadowPropertyConfigurationSource;
+        private ConfigurationSource? _isShadowPropertyConfigurationSource;
+        private ConfigurationSource? _maxLengthConfigurationSource;
         private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
         private ConfigurationSource? _valueGeneratedConfigurationSource;
 
-        public InternalPropertyBuilder(
-            [NotNull] Property property,
-            [NotNull] InternalModelBuilder modelBuilder,
-            ConfigurationSource configurationSource)
+        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
             : base(property, modelBuilder)
         {
-            _isShadowPropertyConfigurationSource = configurationSource;
         }
 
         public virtual bool Required(bool? isRequired, ConfigurationSource configurationSource)
@@ -92,14 +90,44 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool Shadow(bool isShadowProperty, ConfigurationSource configurationSource)
+        public virtual bool Shadow(bool? isShadowProperty, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_isShadowPropertyConfigurationSource, true)
+            if (configurationSource.CanSet(_isShadowPropertyConfigurationSource, Metadata.IsShadowProperty.HasValue)
                 || Metadata.IsShadowProperty == isShadowProperty)
             {
-                _isShadowPropertyConfigurationSource = configurationSource.Max(_isShadowPropertyConfigurationSource);
+                if (_isShadowPropertyConfigurationSource == null
+                    && Metadata.IsShadowProperty != null)
+                {
+                    _isShadowPropertyConfigurationSource = ConfigurationSource.Explicit;
+                }
+                else
+                {
+                    _isShadowPropertyConfigurationSource = configurationSource.Max(_isShadowPropertyConfigurationSource);
+                }
 
                 Metadata.IsShadowProperty = isShadowProperty;
+                return true;
+            }
+
+            return false;
+        }
+
+        public virtual bool ClrType([CanBeNull] Type propertyType, ConfigurationSource configurationSource)
+        {
+            if (configurationSource.CanSet(_clrTypeConfigurationSource, Metadata.ClrType != null)
+                || Metadata.ClrType == propertyType)
+            {
+                if (_clrTypeConfigurationSource == null
+                    && Metadata.ClrType != null)
+                {
+                    _clrTypeConfigurationSource = ConfigurationSource.Explicit;
+                }
+                else
+                {
+                    _clrTypeConfigurationSource = configurationSource.Max(_clrTypeConfigurationSource);
+                }
+
+                Metadata.ClrType = propertyType;
                 return true;
             }
 

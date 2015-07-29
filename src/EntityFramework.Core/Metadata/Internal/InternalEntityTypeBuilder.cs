@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var newProperties = newKey.Properties;
 
             var allForeignKeysReplaced = true;
-            foreach (var referencingForeignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(keyToReplace))
+            foreach (var referencingForeignKey in ModelBuilder.Metadata.FindReferencingForeignKeys(keyToReplace).ToList())
             {
                 allForeignKeysReplaced &= Relationship(
                     referencingForeignKey,
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (key != newKey
                     && _keyBuilders.GetConfigurationSource(key) == ConfigurationSource.Convention
-                    && key.Properties.All(p => p.IsShadowProperty))
+                    && key.Properties.All(p => ((IProperty)p).IsShadowProperty))
                 {
                     UpdateReferencingForeignKeys(key, newKey, ConfigurationSource.Convention);
                 }
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            foreach (var foreignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(key))
+            foreach (var foreignKey in ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList())
             {
                 var removed = ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .RemoveRelationship(foreignKey, configurationSource);
@@ -168,28 +168,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual InternalPropertyBuilder Property(
-            [NotNull] Type propertyType, [NotNull] string propertyName, ConfigurationSource configurationSource)
-            => InternalProperty(propertyType, propertyName, /*shadowProperty:*/ true, configurationSource);
+            [NotNull] string propertyName, [NotNull] Type propertyType, ConfigurationSource configurationSource)
+            => InternalProperty(propertyName, propertyType, /*shadowProperty:*/ null, configurationSource);
+
+        public virtual InternalPropertyBuilder Property(
+            [NotNull] string propertyName, ConfigurationSource configurationSource)
+            => InternalProperty(propertyName, null, /*shadowProperty:*/ null, configurationSource);
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
-        {
-            var entityType = Metadata;
-            while (clrProperty.DeclaringType != entityType.ClrType)
-            {
-                if (entityType.BaseType == null
-                    || !entityType.BaseType.HasClrType)
-                {
-                    break;
-                }
+            => InternalProperty(clrProperty.Name, clrProperty.PropertyType, /*shadowProperty:*/ false, configurationSource);
 
-                entityType = entityType.BaseType;
-            }
-
-            return ModelBuilder.Entity(entityType.Name, ConfigurationSource.Convention)
-                .InternalProperty(clrProperty.PropertyType, clrProperty.Name, /*shadowProperty:*/ false, configurationSource);
-        }
-
-        private InternalPropertyBuilder InternalProperty(Type propertyType, string propertyName, bool shadowProperty, ConfigurationSource configurationSource)
+        private InternalPropertyBuilder InternalProperty(string propertyName, Type propertyType, bool? shadowProperty, ConfigurationSource configurationSource)
         {
             if (CanAdd(propertyName, isNavigation: false, configurationSource: configurationSource))
             {
@@ -198,13 +187,32 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _ignoredProperties.Value.Remove(propertyName);
                 }
 
-                return _propertyBuilders.GetOrAdd(
+                var builder = _propertyBuilders.GetOrAdd(
                     () => Metadata.FindDeclaredProperty(propertyName),
-                    () => Metadata.AddProperty(propertyName, propertyType, shadowProperty),
-                    property => new InternalPropertyBuilder(property, ModelBuilder, configurationSource),
+                    () => Metadata.AddProperty(propertyName),
+                    property => new InternalPropertyBuilder(property, ModelBuilder),
                     ModelBuilder.ConventionDispatcher.OnPropertyAdded,
                     configurationSource,
                     configurationSource);
+
+                if (builder == null)
+                {
+                    return null;
+                }
+
+                if (propertyType != null
+                    && !builder.ClrType(propertyType, configurationSource))
+                {
+                    return null;
+                }
+
+                if (shadowProperty.HasValue
+                    && !builder.Shadow(shadowProperty.Value, configurationSource))
+                {
+                    return null;
+                }
+
+                return builder;
             }
 
             return null;
@@ -328,7 +336,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         }
                         pointsToPrincipal = builder.Metadata.DeclaringEntityType != fkOwner.Metadata;
                     }
-
                 }
                 fkOwner._relationshipBuilders.Value.UpdateConfigurationSource(builder.Metadata, configurationSource);
                 var navigation = Metadata.AddNavigation(navigationName, builder.Metadata, pointsToPrincipal);
@@ -484,11 +491,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 var baseRelationshipsByTargetType = baseEntityType.GetForeignKeys()
-                    .Concat(baseEntityType.GetReferencingForeignKeys())
+                    .Concat(baseEntityType.FindReferencingForeignKeys())
                     .GroupBy(f => f.ResolveOtherEntityType(baseEntityType))
                     .ToLookup(g => g.Key, g => g.ToList());
                 var relationshipsByTargetType = Metadata.GetForeignKeys()
-                    .Concat(Metadata.GetReferencingForeignKeys())
+                    .Concat(Metadata.FindReferencingForeignKeys())
                     .GroupBy(f => f.ResolveOtherEntityType(Metadata))
                     .ToDictionary(g => g.Key, g => g.ToList());
                 var relationshipsToBeRemoved = new HashSet<ForeignKey>();
@@ -551,7 +558,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var key in Metadata.GetKeys().ToList())
                 {
-                    foreach (var referencingForeignKey in ModelBuilder.Metadata.GetReferencingForeignKeys(key).ToList())
+                    foreach (var referencingForeignKey in ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList())
                     {
                         detachedRelationships.Add(DetachRelationship(referencingForeignKey, configurationSource));
                     }
@@ -649,7 +656,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var key in Metadata.GetKeys().Where(i => i.Properties.Contains(property)).ToList())
             {
-                detachedRelationships.AddRange(ModelBuilder.Metadata.GetReferencingForeignKeys(key)
+                detachedRelationships.AddRange(ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList()
                     .Select(foreignKey => DetachRelationship(foreignKey, configurationSource)));
                 var removed = RemoveKey(key, configurationSource);
                 Debug.Assert(removed.HasValue);
@@ -785,7 +792,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return;
             }
 
-            if (ModelBuilder.Metadata.GetReferencingForeignKeys(key).Count > 0)
+            if (ModelBuilder.Metadata.FindReferencingForeignKeys(key).Any())
             {
                 return;
             }
@@ -806,7 +813,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             foreach (var property in properties.ToList())
             {
-                if (property.IsShadowProperty)
+                if (((IProperty)property).IsShadowProperty)
                 {
                     RemovePropertyIfUnused(property);
                 }
@@ -1167,7 +1174,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 var properties = foreignKey.Properties;
-                var nullableTypeProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
+                var nullableTypeProperties = properties.Where(p => ((IProperty)p).ClrType.IsNullableType()).ToList();
                 if (nullableTypeProperties.Any())
                 {
                     properties = nullableTypeProperties;
@@ -1177,7 +1184,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 foreach (var property in properties)
                 {
                     var requiredSet = ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                        .Property(property.ClrType, property.Name, ConfigurationSource.Convention)
+                        .Property(property.Name, ConfigurationSource.Convention)
                         .Required(isRequired.Value, configurationSource);
                     if (requiredSet
                         && !isRequired.Value)
@@ -1193,7 +1200,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             builder = dependentEntityTypeBuilder
                 .Navigation(navigationToPrincipalName, builder.Metadata, pointsToPrincipal: true, configurationSource: configurationSource)
-                ?? _relationshipBuilders.Value.TryGetValue(builder.Metadata, configurationSource);
+                      ?? _relationshipBuilders.Value.TryGetValue(builder.Metadata, configurationSource);
             if (builder == null)
             {
                 return null;
@@ -1201,7 +1208,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             builder = principalEntityTypeBuilder
                 .Navigation(navigationToDependentName, builder.Metadata, pointsToPrincipal: builder.Metadata.DeclaringEntityType != Metadata, configurationSource: configurationSource)
-                ?? _relationshipBuilders.Value.TryGetValue(builder.Metadata, configurationSource);
+                      ?? _relationshipBuilders.Value.TryGetValue(builder.Metadata, configurationSource);
             if (builder == null)
             {
                 return null;
@@ -1239,23 +1246,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return builder;
-        }
-
-        public virtual bool CanSetRequired([NotNull] IEnumerable<Property> properties, bool isRequired, ConfigurationSource configurationSource)
-        {
-            properties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
-            if (!properties.Any()
-                && configurationSource == ConfigurationSource.Explicit)
-            {
-                // If no properties can be made nullable, let it fail
-                return true;
-            }
-
-            return isRequired
-                ? properties.All(property => Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                    .CanSetRequired(true, configurationSource))
-                : properties.Any(property => Property(property.ClrType, property.Name, ConfigurationSource.Convention)
-                    .CanSetRequired(false, configurationSource));
         }
 
         private ForeignKey CreateForeignKey(
@@ -1307,7 +1297,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     var principalKeyProperties = new Property[foreignKeyProperties.Count];
                     for (var i = 0; i < foreignKeyProperties.Count; i++)
                     {
-                        var foreignKeyProperty = foreignKeyProperties[i];
+                        IProperty foreignKeyProperty = foreignKeyProperties[i];
                         principalKeyProperties[i] = CreateUniqueProperty(
                             foreignKeyProperty.Name,
                             foreignKeyProperty.ClrType,
@@ -1338,7 +1328,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var fkProperties = new Property[principalKey.Properties.Count];
                 for (var i = 0; i < principalKey.Properties.Count; i++)
                 {
-                    var keyProperty = principalKey.Properties[i];
+                    IProperty keyProperty = principalKey.Properties[i];
                     fkProperties[i] = CreateUniqueProperty(
                         baseName + keyProperty.Name,
                         keyProperty.ClrType.MakeNullable(),
@@ -1355,7 +1345,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var foreignKeyProperty in foreignKeyProperties)
             {
                 var propertyBuilder = ModelBuilder.Entity(foreignKeyProperty.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .Property(foreignKeyProperty.ClrType, foreignKeyProperty.Name, ConfigurationSource.Convention);
+                    .Property(foreignKeyProperty.Name, ConfigurationSource.Convention);
 
                 propertyBuilder.UseValueGenerator(null, ConfigurationSource.Convention);
                 propertyBuilder.ValueGenerated(null, ConfigurationSource.Convention);
@@ -1375,9 +1365,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     continue;
                 }
 
-                var propertyBuilder = entityTypeBuilder.Property(propertyType, name, ConfigurationSource.Convention);
+                var propertyBuilder = entityTypeBuilder.Property(name, ConfigurationSource.Convention);
                 if (propertyBuilder != null)
                 {
+                    var clrTypeSet = propertyBuilder.ClrType(propertyType, ConfigurationSource.Convention);
+                    Debug.Assert(clrTypeSet);
+
                     if (isRequired.HasValue
                         && propertyType.IsNullableType())
                     {
@@ -1440,7 +1433,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
                 else
                 {
-                    InternalProperty(property.ClrType, property.Name, property.IsShadowProperty, configurationSource);
+                    Property(property.Name, configurationSource);
                 }
                 list.Add(property);
             }

@@ -353,7 +353,8 @@ namespace Microsoft.Data.Entity.Tests
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
-                var fk = dependentType.AddForeignKey(dependentType.GetOrAddProperty("BurgerId", typeof(int)), principalKey, principalType);
+                var property = dependentType.GetOrAddProperty(Ingredient.BurgerIdProperty);
+                var fk = dependentType.AddForeignKey(property, principalKey, principalType);
                 fk.IsUnique = false;
 
                 modelBuilder
@@ -537,7 +538,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Pickle>().Reference(e => e.BigMak).InverseCollection(e => e.Pickles);
 
                 var fk = dependentType.GetForeignKeys().Single();
-                var fkProperty = fk.Properties.Single();
+                var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -575,7 +576,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Pickle>().Reference(e => e.BigMak).InverseCollection();
 
                 var fk = dependentType.GetForeignKeys().Single();
-                var fkProperty = fk.Properties.Single();
+                var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -612,7 +613,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Pickle>().Reference<BigMak>().InverseCollection(e => e.Pickles);
 
                 var fk = dependentType.GetForeignKeys().Single();
-                var fkProperty = fk.Properties.Single();
+                var fkProperty = (IProperty)fk.Properties.Single();
 
                 Assert.Equal("BigMakId", fkProperty.Name);
                 Assert.True(fkProperty.IsShadowProperty);
@@ -651,7 +652,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Pickle>().Reference<BigMak>().InverseCollection();
 
                 var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != fk);
-                var fkProperty = newFk.Properties.Single();
+                var fkProperty = (IProperty)newFk.Properties.Single();
 
                 Assert.True(fkProperty.IsShadowProperty);
                 Assert.Same(typeof(int?), fkProperty.ClrType);
@@ -1370,8 +1371,6 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.GetEntityType(typeof(Tomato));
                 var principalType = model.GetEntityType(typeof(Whoopper));
 
-                var fkProperty1 = dependentType.GetOrAddProperty("BurgerId1", typeof(int));
-                var fkProperty2 = dependentType.GetOrAddProperty("BurgerId2", typeof(int));
                 var navigationForeignKey = dependentType.GetForeignKeys().SingleOrDefault();
 
                 var expectedPrincipalProperties = principalType.Properties.ToList();
@@ -1384,6 +1383,8 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Tomato>().Reference<Whoopper>().InverseCollection()
                     .ForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
+                var fkProperty1 = dependentType.GetProperty("BurgerId1");
+                var fkProperty2 = dependentType.GetProperty("BurgerId2");
                 var newFk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey != navigationForeignKey);
                 Assert.Same(fkProperty1, newFk.Properties[0]);
                 Assert.Same(fkProperty2, newFk.Properties[1]);

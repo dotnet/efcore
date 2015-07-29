@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -18,8 +19,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var model = new Model();
 
             var customerType = model.AddEntityType("Customer");
-            customerType.GetOrSetPrimaryKey(customerType.AddProperty("Id", typeof(int), shadowProperty: true));
-            customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
+            customerType.GetOrSetPrimaryKey(customerType.AddProperty("Id", typeof(int)));
+            customerType.AddProperty("Name", typeof(string));
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
@@ -80,11 +81,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var model = new Model();
 
             var customerType = model.AddEntityType(typeof(Customer));
-            customerType.GetOrSetPrimaryKey(customerType.GetOrAddProperty("Id", typeof(int)));
-            customerType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
+            var property1 = customerType.AddProperty("Id", typeof(int));
+            property1.IsShadowProperty = false;
+            customerType.GetOrSetPrimaryKey(property1);
+            customerType.AddProperty("Name", typeof(string));
 
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model);
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model);
             optionsBuilder.UseInMemoryDatabase();
 
             var customer = new Customer { Id = 42 };

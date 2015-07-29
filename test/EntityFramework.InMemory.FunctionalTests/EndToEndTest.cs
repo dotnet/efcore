@@ -11,61 +11,8 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
-    public class EntityTypeTest : IClassFixture<InMemoryFixture>
+    public class EndToEndTest : IClassFixture<InMemoryFixture>
     {
-        public class Root
-        {
-        }
-
-        public class Leaf : Root
-        {
-        }
-
-        [Fact]
-        public void Original_value_index_maintenance_when_inheritance()
-        {
-            var model = new Model();
-            var root = model.AddEntityType(typeof(Root));
-            var leaf = model.AddEntityType(typeof(Leaf));
-
-            var a = leaf.AddProperty("A", typeof(int), shadowProperty: true);
-
-            leaf.BaseType = root;
-
-            var b = root.AddProperty("B", typeof(int), shadowProperty: true);
-
-            Assert.Equal(0, b.GetOriginalValueIndex());
-            Assert.Equal(1, a.GetOriginalValueIndex());
-        }
-
-        [Fact]
-        public void Introduce_duplicate_property_when_inheritance()
-        {
-            var model = new Model();
-            var root = model.AddEntityType(typeof(Root));
-            var leaf = model.AddEntityType(typeof(Leaf));
-
-            leaf.AddProperty("A", typeof(int), shadowProperty: true);
-
-            leaf.BaseType = root;
-
-            Assert.Throws<InvalidOperationException>(() =>
-                root.AddProperty("A", typeof(int), shadowProperty: true));
-        }
-
-        [Fact]
-        public void Introduce_duplicate_property_when_inheritance2()
-        {
-            var model = new Model();
-            var root = model.AddEntityType(typeof(Root));
-            var leaf = model.AddEntityType(typeof(Leaf));
-
-            leaf.AddProperty("A", typeof(int), shadowProperty: true);
-            root.AddProperty("A", typeof(int), shadowProperty: true);
-            
-            Assert.Throws<InvalidOperationException>(() => leaf.BaseType = root);
-        }
-
         [Fact]
         public void Can_use_different_entity_types_end_to_end()
         {
@@ -86,8 +33,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var model = new Model();
 
             var entityType = model.AddEntityType(type);
-            var idProperty = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            var nameProperty = entityType.GetOrAddProperty("Name", typeof(string), shadowProperty: true);
+            var idProperty = entityType.AddProperty("Id", typeof(int));
+            var nameProperty = entityType.AddProperty("Name", typeof(string));
             entityType.GetOrSetPrimaryKey(idProperty);
 
             var optionsBuilder = new DbContextOptionsBuilder()
@@ -144,7 +91,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
         private readonly InMemoryFixture _fixture;
 
-        public EntityTypeTest(InMemoryFixture fixture)
+        public EndToEndTest(InMemoryFixture fixture)
         {
             _fixture = fixture;
         }

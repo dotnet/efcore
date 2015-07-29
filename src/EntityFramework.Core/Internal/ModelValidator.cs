@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.Internal
         {
             EnsureNoShadowEntities(model);
             EnsureNoShadowKeys(model);
+            EnsureClrPropertyTypesMatch(model);
             EnsureValidForeignKeyChains(model);
         }
 
@@ -36,7 +37,7 @@ namespace Microsoft.Data.Entity.Internal
                     if (key.Properties.Any(p => p.IsShadowProperty))
                     {
                         string message;
-                        var referencingFk = model.GetReferencingForeignKeys(key).FirstOrDefault();
+                        var referencingFk = model.FindReferencingForeignKeys(key).FirstOrDefault();
                         if (referencingFk != null)
                         {
                             message = Strings.ReferencedShadowKey(
@@ -55,6 +56,33 @@ namespace Microsoft.Data.Entity.Internal
                         }
 
                         ShowWarning(message);
+                    }
+                }
+            }
+        }
+
+        protected void EnsureClrPropertyTypesMatch(IModel model)
+        {
+            foreach (var entityType in model.EntityTypes)
+            {
+                foreach (var property in entityType.GetDeclaredProperties())
+                {
+                    if (property.IsShadowProperty
+                        || !entityType.HasClrType())
+                    {
+                        continue;
+                    }
+
+                    var clrProperty = entityType.ClrType.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
+                    if (clrProperty == null)
+                    {
+                        ShowError(Strings.NoClrProperty(property.Name, entityType.Name));
+                        continue;
+                    }
+
+                    if (property.ClrType != clrProperty.PropertyType)
+                    {
+                        ShowError(Strings.PropertyWrongClrType(property.Name, entityType.Name));
                     }
                 }
             }

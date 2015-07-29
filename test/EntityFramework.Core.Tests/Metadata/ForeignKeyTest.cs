@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 
@@ -15,8 +16,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void Can_create_foreign_key()
         {
             var entityType = new Model().AddEntityType("E");
-            var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
-            var principalProp = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("Id", typeof(int));
             entityType.GetOrSetPrimaryKey(principalProp);
 
             var foreignKey
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var principalEntityType = model.AddEntityType("R");
             var dependentEntityType = model.AddEntityType("D");
-            var fk = dependentEntityType.AddProperty("Fk", typeof(int), shadowProperty: true);
+            var fk = dependentEntityType.AddProperty("Fk", typeof(int));
 
             var principalKey = dependentEntityType.SetPrimaryKey(fk);
 
@@ -54,10 +55,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var dependentType = new Model().AddEntityType("D");
             var principalType = new Model().AddEntityType("P");
 
-            var dependentProperty1 = dependentType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
-            var dependentProperty2 = dependentType.GetOrAddProperty("P2", typeof(int), shadowProperty: true);
+            var dependentProperty1 = dependentType.AddProperty("P1", typeof(int));
+            var dependentProperty2 = dependentType.AddProperty("P2", typeof(int));
 
-            principalType.GetOrSetPrimaryKey(principalType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
+            var idProperty = principalType.AddProperty("Id", typeof(int));
+            principalType.GetOrSetPrimaryKey(idProperty);
 
             Assert.Equal(
                 Strings.ForeignKeyCountMismatch("{'P1', 'P2'}", "D", "{'Id'}", "P"),
@@ -71,13 +73,15 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var dependentType = new Model().AddEntityType("D");
             var principalType = new Model().AddEntityType("P");
 
-            var dependentProperty1 = dependentType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
-            var dependentProperty2 = dependentType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+            var dependentProperty1 = dependentType.AddProperty("P1", typeof(int));
+            var dependentProperty2 = dependentType.AddProperty("P2", typeof(string));
 
+            var property2 = principalType.AddProperty("Id1", typeof(int));
+            var property3 = principalType.AddProperty("Id2", typeof(int));
             principalType.GetOrSetPrimaryKey(new[]
                 {
-                    principalType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
-                    principalType.GetOrAddProperty("Id2", typeof(int), shadowProperty: true)
+                    property2,
+                    property3
                 });
 
             Assert.Equal(
@@ -90,9 +94,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void Can_create_foreign_key_with_non_pk_principal()
         {
             var entityType = new Model().AddEntityType("E");
-            var keyProp = entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true);
-            var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
-            var principalProp = entityType.GetOrAddProperty("U", typeof(int), shadowProperty: true);
+            var keyProp = entityType.AddProperty("Id", typeof(int));
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("U", typeof(int));
             entityType.GetOrSetPrimaryKey(keyProp);
             var principalKey = entityType.AddKey(principalProp);
 
@@ -113,8 +117,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void IsRequired_true_when_dependent_property_not_nullable()
         {
             var entityType = new Model().AddEntityType("E");
-            entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
+            var property = entityType.AddProperty("Id", typeof(int));
+            entityType.GetOrSetPrimaryKey(property);
+            var dependentProp = entityType.AddProperty("P", typeof(int));
             dependentProp.IsNullable = false;
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey(), entityType, entityType);
@@ -127,8 +132,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void IsRequired_false_when_dependent_property_nullable()
         {
             var entityType = new Model().AddEntityType("E");
-            entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            var dependentProp = entityType.GetOrAddProperty("P", typeof(int?), shadowProperty: true);
+            var property = entityType.AddProperty("Id", typeof(int));
+            entityType.GetOrSetPrimaryKey(property);
+            var dependentProp = entityType.AddProperty("P", typeof(int?));
             dependentProp.IsNullable = true;
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey(), entityType, entityType);
@@ -141,8 +147,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void IsRequired_and_IsUnique_null_when_dependent_property_not_nullable_by_default()
         {
             var entityType = new Model().AddEntityType("E");
-            entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            var dependentProp = entityType.GetOrAddProperty("P", typeof(int), shadowProperty: true);
+            var property = entityType.AddProperty("Id", typeof(int));
+            entityType.GetOrSetPrimaryKey(property);
+            var dependentProp = entityType.AddProperty("P", typeof(int));
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey(), entityType, entityType);
 
@@ -156,8 +163,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void IsRequired_and_IsUnique_null_when_dependent_property_nullable_by_default()
         {
             var entityType = new Model().AddEntityType("E");
-            entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int), shadowProperty: true));
-            var dependentProp = entityType.GetOrAddProperty("P", typeof(int?), shadowProperty: true);
+            var property = entityType.AddProperty("Id", typeof(int));
+            entityType.GetOrSetPrimaryKey(property);
+            var dependentProp = entityType.AddProperty("P", typeof(int?));
 
             var foreignKey = new ForeignKey(new[] { dependentProp }, entityType.GetPrimaryKey(), entityType, entityType);
 
@@ -171,14 +179,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void IsRequired_false_for_composite_FK_by_default()
         {
             var entityType = new Model().AddEntityType("E");
+            var property = entityType.AddProperty("Id1", typeof(int));
+            var property1 = entityType.AddProperty("Id2", typeof(string));
             entityType.GetOrSetPrimaryKey(new[]
                 {
-                    entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
-                    entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true)
+                    property,
+                    property1
                 });
 
-            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
-            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+            var dependentProp1 = entityType.AddProperty("P1", typeof(int));
+            var dependentProp2 = entityType.AddProperty("P2", typeof(string));
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey(), entityType, entityType);
 
@@ -190,14 +200,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void IsRequired_false_when_any_part_of_composite_FK_is_nullable()
         {
             var entityType = new Model().AddEntityType("E");
+            var property = entityType.AddProperty("Id1", typeof(int));
+            var property1 = entityType.AddProperty("Id2", typeof(string));
             entityType.GetOrSetPrimaryKey(new[]
                 {
-                    entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
-                    entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true)
+                    property,
+                    property1
                 });
 
-            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
-            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+            var dependentProp1 = entityType.AddProperty("P1", typeof(int));
+            var dependentProp2 = entityType.AddProperty("P2", typeof(string));
             dependentProp2.IsNullable = true;
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey(), entityType, entityType);
@@ -215,15 +227,17 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void Setting_IsRequired_to_true_will_set_all_FK_properties_as_non_nullable()
         {
             var entityType = new Model().AddEntityType("E");
+            var property = entityType.AddProperty("Id1", typeof(int));
+            var property3 = entityType.AddProperty("Id2", typeof(string));
             entityType.GetOrSetPrimaryKey(
                 new[]
                     {
-                        entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
-                        entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true)
+                        property,
+                        property3
                     });
 
-            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int), shadowProperty: true);
-            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+            var dependentProp1 = entityType.AddProperty("P1", typeof(int));
+            var dependentProp2 = entityType.AddProperty("P2", typeof(string));
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey(), entityType, entityType)
                 { IsRequired = true };
@@ -237,14 +251,16 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void Setting_IsRequired_to_false_will_set_all_FK_properties_as_nullable()
         {
             var entityType = new Model().AddEntityType("E");
+            var property = entityType.AddProperty("Id1", typeof(int));
+            var property1 = entityType.AddProperty("Id2", typeof(string));
             entityType.GetOrSetPrimaryKey(new[]
                 {
-                    entityType.GetOrAddProperty("Id1", typeof(int), shadowProperty: true),
-                    entityType.GetOrAddProperty("Id2", typeof(string), shadowProperty: true)
+                    property,
+                    property1
                 });
 
-            var dependentProp1 = entityType.GetOrAddProperty("P1", typeof(int?), shadowProperty: true);
-            var dependentProp2 = entityType.GetOrAddProperty("P2", typeof(string), shadowProperty: true);
+            var dependentProp1 = entityType.AddProperty("P1", typeof(int?));
+            var dependentProp2 = entityType.AddProperty("P2", typeof(string));
 
             var foreignKey = new ForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.GetPrimaryKey(), entityType, entityType) { IsRequired = false };
 
@@ -382,10 +398,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             var model = new Model();
             var principalEntityType = model.AddEntityType(typeof(OneToManyPrincipal));
-            var pk = principalEntityType.GetOrSetPrimaryKey(principalEntityType.GetOrAddProperty("Id", typeof(int)));
+            var property = principalEntityType.AddProperty(NavigationBase.IdProperty);
+            var pk = principalEntityType.GetOrSetPrimaryKey(property);
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
-            var fkProp = dependentEntityType.GetOrAddProperty("Id", typeof(int));
+            var fkProp = dependentEntityType.AddProperty(NavigationBase.IdProperty);
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, principalEntityType);
 
             principalEntityType.AddNavigation("OneToManyDependents", fk, pointsToPrincipal: false);
@@ -398,14 +415,15 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var model = new Model();
 
             var baseEntityType = model.AddEntityType(typeof(NavigationBase));
-            var pk = baseEntityType.GetOrSetPrimaryKey(baseEntityType.GetOrAddProperty("Id", typeof(int)));
+            var property1 = baseEntityType.AddProperty(NavigationBase.IdProperty);
+            var pk = baseEntityType.GetOrSetPrimaryKey(property1);
 
             var principalEntityType = model.AddEntityType(typeof(OneToManyPrincipal));
             principalEntityType.BaseType = baseEntityType;
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
             dependentEntityType.BaseType = baseEntityType;
-            var fkProp = dependentEntityType.GetOrAddProperty("Fk", typeof(int), shadowProperty: true);
+            var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, principalEntityType);
 
             principalEntityType.AddNavigation("OneToManyDependents", fk, pointsToPrincipal: false);
@@ -418,11 +436,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var model = new Model();
 
             var baseEntityType = model.AddEntityType(typeof(NavigationBase));
-            var pk = baseEntityType.GetOrSetPrimaryKey(baseEntityType.GetOrAddProperty("Id", typeof(int)));
+            var property1 = baseEntityType.AddProperty(NavigationBase.IdProperty);
+            var pk = baseEntityType.GetOrSetPrimaryKey(property1);
 
             var dependentEntityType = model.AddEntityType(typeof(OneToManyDependent));
             dependentEntityType.BaseType = baseEntityType;
-            var fkProp = dependentEntityType.GetOrAddProperty("Fk", typeof(int), shadowProperty: true);
+            var fkProp = dependentEntityType.AddProperty("Fk", typeof(int));
             var fk = dependentEntityType.AddForeignKey(new[] { fkProp }, pk, baseEntityType);
 
             baseEntityType.AddNavigation("OneToManyDependents", fk, pointsToPrincipal: false);
@@ -431,6 +450,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
         public abstract class NavigationBase
         {
+            public static readonly PropertyInfo IdProperty = typeof(NavigationBase).GetProperty("Id");
+
             public int Id { get; set; }
             public IEnumerable<OneToManyDependent> OneToManyDependents { get; set; }
             public OneToManyPrincipal OneToManyPrincipal { get; set; }
@@ -584,11 +605,12 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         private ForeignKey CreateSelfRefFK(bool useAltKey = false)
         {
             var entityType = new Model().AddEntityType(typeof(SelfRef));
-            var pk = entityType.GetOrSetPrimaryKey(entityType.GetOrAddProperty("Id", typeof(int)));
-            var fkProp = entityType.GetOrAddProperty("SelfRefId", typeof(int?));
+            var pk = entityType.GetOrSetPrimaryKey(entityType.AddProperty(SelfRef.IdProperty));
+            var fkProp = entityType.AddProperty(SelfRef.SelfRefIdProperty);
 
+            var property = entityType.AddProperty("AltId", typeof(int));
             var principalKey = useAltKey
-                ? entityType.GetOrAddKey(entityType.GetOrAddProperty("AltId", typeof(int), shadowProperty: true))
+                ? entityType.GetOrAddKey(property)
                 : pk;
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, principalKey, entityType);
@@ -600,6 +622,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
         private class SelfRef
         {
+            public static readonly PropertyInfo IdProperty = typeof(SelfRef).GetProperty("Id");
+            public static readonly PropertyInfo SelfRefIdProperty = typeof(SelfRef).GetProperty("SelfRefId");
+
             public int Id { get; set; }
             public SelfRef SelfRefPrincipal { get; set; }
             public SelfRef SelfRefDependent { get; set; }

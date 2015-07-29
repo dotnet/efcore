@@ -285,11 +285,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The '{propertyName}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
+        /// The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
         /// </summary>
-        public static string NoValueGenerator([CanBeNull] object propertyName, [CanBeNull] object entityType, [CanBeNull] object propertyType)
+        public static string NoValueGenerator([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "propertyName", "entityType", "propertyType"), propertyName, entityType, propertyType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoValueGenerator", "property", "entityType", "propertyType"), property, entityType, propertyType);
         }
 
         /// <summary>
@@ -949,11 +949,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Property '{propertyName}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
+        /// Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
         /// </summary>
-        public static string WrongGenericPropertyType([CanBeNull] object propertyName, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)
+        public static string WrongGenericPropertyType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("WrongGenericPropertyType", "propertyName", "entityType", "actualType", "genericType"), propertyName, entityType, actualType, genericType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("WrongGenericPropertyType", "property", "entityType", "actualType", "genericType"), property, entityType, actualType, genericType);
         }
 
         /// <summary>
@@ -1106,6 +1106,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string PropertyWrongEntityClrType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object clrType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWrongEntityClrType", "property", "entityType", "clrType"), property, entityType, clrType);
+        }
+
+        /// <summary>
+        /// The CLR type for property '{property}' cannot be changed because it is referenced by the foreign key {foreignKey} from entity type '{entityType}'.
+        /// </summary>
+        public static string PropertyClrTypeCannotBeChangedWhenReferenced([CanBeNull] object property, [CanBeNull] object foreignKey, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyClrTypeCannotBeChangedWhenReferenced", "property", "foreignKey", "entityType"), property, foreignKey, entityType);
         }
 
         /// <summary>
