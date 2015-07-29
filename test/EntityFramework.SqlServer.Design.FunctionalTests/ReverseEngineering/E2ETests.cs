@@ -17,8 +17,8 @@ using Xunit;
 using Xunit.Abstractions;
 #if DNX451 || DNXCORE50
 using System;
-using Microsoft.Framework.Runtime;
-using Microsoft.Framework.Runtime.Infrastructure;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Infrastructure;
 #endif
 
 namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests

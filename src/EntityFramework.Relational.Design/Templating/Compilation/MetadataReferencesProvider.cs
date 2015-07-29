@@ -11,10 +11,10 @@ using Microsoft.Data.Entity.Utilities;
 using System;
 using System.IO;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Runtime;
-using Microsoft.Framework.Runtime.Compilation;
-using Microsoft.Framework.Runtime.Infrastructure;
-using Microsoft.Framework.Runtime.Roslyn;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Compilation;
+using Microsoft.Dnx.Runtime.Infrastructure;
+using Microsoft.Dnx.Compilation.CSharp;
 #endif
 
 namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation

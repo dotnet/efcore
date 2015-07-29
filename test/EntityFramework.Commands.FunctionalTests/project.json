@@ -14,13 +14,13 @@
     "net46": { },
     "dnx451": {
       "dependencies": {
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
         "xunit.runner.dnx": "2.1.0-*"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.Framework.Runtime.Roslyn": "1.0.0-*",
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
         "xunit.runner.dnx": "2.1.0-*"
       }
     }

@@ -5,7 +5,7 @@
 
 using System;
 
-namespace Microsoft.Framework.Runtime.Common.CommandLine
+namespace Microsoft.Dnx.Runtime.Common.CommandLine
 {
     internal static class CommandLineUtilsExtensions
     {

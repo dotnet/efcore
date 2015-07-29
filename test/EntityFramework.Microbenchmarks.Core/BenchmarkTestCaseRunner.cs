@@ -10,8 +10,8 @@ using Xunit.Sdk;
 
 #if DNXCORE50 || DNX451
 using Microsoft.Framework.Configuration;
-using Microsoft.Framework.Runtime;
-using Microsoft.Framework.Runtime.Infrastructure;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Infrastructure;
 using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
 #else
 using XunitDiagnosticMessage = Xunit.Sdk.DiagnosticMessage;

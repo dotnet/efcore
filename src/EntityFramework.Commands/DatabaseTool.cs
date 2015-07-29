@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 #if DNX451 || DNXCORE50
-using Microsoft.Framework.Runtime;
+using Microsoft.Dnx.Runtime;
 #endif
 
 namespace Microsoft.Data.Entity.Commands

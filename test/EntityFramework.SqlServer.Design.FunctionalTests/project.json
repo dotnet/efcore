@@ -5,7 +5,7 @@
     "EntityFramework.SqlServer": "7.0.0-*",
     "EntityFramework.SqlServer.Design": "7.0.0-*",
     "EntityFramework.SqlServer.FunctionalTests": "1.0.0",
-    "Microsoft.Framework.Runtime": "1.0.0-*"
+    "Microsoft.Dnx.Runtime": "1.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.dnx"

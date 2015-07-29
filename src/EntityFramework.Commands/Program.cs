@@ -13,8 +13,8 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using Microsoft.Framework.Runtime;
-using Microsoft.Framework.Runtime.Common.CommandLine;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Common.CommandLine;
 
 namespace Microsoft.Data.Entity.Commands
 {
