@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Threading;
 using static Microsoft.Data.Sqlite.Interop.Constants;
 
 #if NET45 || DNX451 || DNXCORE50
@@ -273,8 +272,6 @@ namespace Microsoft.Data.Sqlite.Interop
                     return rc;
                 }
                 sqlite3_reset(stmt);
-                Thread.Sleep(150);
-                // TODO add async code path that uses Task.Delay() instead
             }
             return rc;
         }

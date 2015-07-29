@@ -51,7 +51,6 @@ INSERT INTO a VALUES (2);";
                                 {
                                     while (reader.Read())
                                     {
-                                        ;
                                     }
                                 }
                             }
