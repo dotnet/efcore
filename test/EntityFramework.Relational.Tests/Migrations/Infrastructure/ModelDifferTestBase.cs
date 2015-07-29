@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
@@ -32,23 +30,6 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
 
         protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
         protected virtual ModelDiffer CreateModelDiffer()
-            => new ModelDiffer(new ConcreteTypeMapper(), new TestMetadataExtensionProvider(), new MigrationAnnotationProvider());
-
-        private class ConcreteTypeMapper : RelationalTypeMapper
-        {
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
-                = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int") },
-                        { typeof(long), new RelationalTypeMapping("bigint") },
-                        { typeof(string), new RelationalTypeMapping("nvarchar(4000)") },
-                        { typeof(byte[]), new RelationalTypeMapping("varbinary(8000)") }
-                    };
-
-            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
-                = new Dictionary<string, RelationalTypeMapping>();
-        }
+            => new ModelDiffer(new TestMetadataExtensionProvider(), new MigrationAnnotationProvider());
     }
 }

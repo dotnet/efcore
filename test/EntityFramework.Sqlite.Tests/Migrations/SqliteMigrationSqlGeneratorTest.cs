@@ -12,7 +12,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationSqlGenerator SqlGenerator => new SqliteMigrationSqlGenerator(new SqliteUpdateSqlGenerator());
+        protected override IMigrationSqlGenerator SqlGenerator
+            => new SqliteMigrationSqlGenerator(
+                new SqliteUpdateSqlGenerator(),
+                new SqliteTypeMapper(),
+                new SqliteMetadataExtensionProvider());
 
         [Fact]
         public virtual void DefaultValue_formats_literal_correctly()
@@ -25,7 +29,8 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                     new AddColumnOperation
                     {
                         Name = "Event",
-                        Type = "TEXT",
+                        ClrType = typeof(string),
+                        ColumnType = "TEXT",
                         DefaultValue = new DateTime(2015, 4, 12, 17, 5, 0)
                     }
                 }
@@ -44,7 +49,8 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             var addIdColumn = new AddColumnOperation
             {
                 Name = "Id",
-                Type = "INTEGER",
+                ClrType = typeof(long),
+                ColumnType = "INTEGER",
                 IsNullable = false,
             };
             if (autoincrement)
@@ -62,13 +68,15 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                         new AddColumnOperation
                         {
                             Name = "EmployerId",
-                            Type = "int",
+                            ClrType = typeof(int),
+                            ColumnType = "int",
                             IsNullable = true
                         },
                          new AddColumnOperation
                         {
                             Name = "SSN",
-                            Type = "char(11)",
+                            ClrType = typeof(string),
+                            ColumnType = "char(11)",
                             IsNullable = true
                         }
                      },
@@ -96,8 +104,8 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
 
             Assert.Equal(
                 "CREATE TABLE \"People\" (" + EOL +
-                "    \"Id\" INTEGER NOT NULL" + 
-                (pkName != null ? $" CONSTRAINT \"{pkName}\"":"") 
+                "    \"Id\" INTEGER NOT NULL" +
+                (pkName != null ? $" CONSTRAINT \"{pkName}\"" : "")
                 + " PRIMARY KEY" +
                 (autoincrement ? " AUTOINCREMENT," : ",") + EOL +
                 "    \"EmployerId\" int," + EOL +
@@ -124,6 +132,15 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_without_column_type()
+        {
+            base.AddColumnOperation_without_column_type();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" ADD \"Alias\" TEXT NOT NULL;" + EOL,
+                Sql);
+        }
+
         public override void AddColumnOperation_with_defaultValueSql()
         {
             // Override base test because CURRENT_TIMESTAMP is not valid for AddColumn
@@ -132,7 +149,8 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 {
                     Table = "People",
                     Name = "Age",
-                    Type = "int",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
                     IsNullable = true,
                     DefaultValueSql = "10"
                 });
@@ -210,6 +228,12 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Assert.Equal(Strings.InvalidMigrationOperation, ex.Message);
         }
 
+        public override void AlterColumnOperation_without_column_type()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.AlterColumnOperation_without_column_type());
+            Assert.Equal(Strings.InvalidMigrationOperation, ex.Message);
+        }
+
         public override void AlterSequenceOperation_with_minValue_and_maxValue()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AlterSequenceOperation_with_minValue_and_maxValue());
@@ -234,6 +258,12 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         public override void CreateSequenceOperation_with_minValue_and_maxValue()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.CreateSequenceOperation_with_minValue_and_maxValue());
+            Assert.Equal(Strings.SequencesNotSupported, ex.Message);
+        }
+
+        public override void CreateSequenceOperation_with_minValue_and_maxValue_not_long()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.CreateSequenceOperation_with_minValue_and_maxValue_not_long());
             Assert.Equal(Strings.SequencesNotSupported, ex.Message);
         }
 

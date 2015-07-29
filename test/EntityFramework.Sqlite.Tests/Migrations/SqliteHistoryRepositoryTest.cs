@@ -110,11 +110,12 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                         { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
                     }),
                 new ModelDiffer(
-                    new SqliteTypeMapper(),
                     annotationsProvider,
                     new SqliteMigrationAnnotationProvider()),
                 new SqliteMigrationSqlGenerator(
-                    updateSqlGenerator),
+                    updateSqlGenerator,
+                    new SqliteTypeMapper(),
+                    annotationsProvider),
                 annotationsProvider,
                 updateSqlGenerator,
                 Mock.Of<IServiceProvider>());

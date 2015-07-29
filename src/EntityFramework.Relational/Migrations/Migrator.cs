@@ -119,26 +119,28 @@ namespace Microsoft.Data.Entity.Migrations
                 }
             }
 
-            IEnumerable<Migration> migrationsToApply;
-            IEnumerable<Migration> migrationsToRevert;
+            IReadOnlyList<Migration> migrationsToApply;
+            IReadOnlyList<Migration> migrationsToRevert;
             if (string.IsNullOrEmpty(targetMigration))
             {
                 migrationsToApply = unappliedMigrations;
-                migrationsToRevert = Enumerable.Empty<Migration>();
+                migrationsToRevert = new Migration[0];
             }
             else if (targetMigration == InitialDatabase)
             {
-                migrationsToApply = Enumerable.Empty<Migration>();
-                migrationsToRevert = appliedMigrations.OrderByDescending(m => m.Id);
+                migrationsToApply = new Migration[0];
+                migrationsToRevert = appliedMigrations.OrderByDescending(m => m.Id).ToList();
             }
             else
             {
                 targetMigration = _idGenerator.ResolveId(targetMigration, migrations);
                 migrationsToApply = unappliedMigrations
-                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0);
+                    .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0)
+                    .ToList();
                 migrationsToRevert = appliedMigrations
                     .Where(m => string.Compare(m.Id, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
-                    .OrderByDescending(m => m.Id);
+                    .OrderByDescending(m => m.Id)
+                    .ToList();
             }
 
             bool first;
@@ -165,11 +167,17 @@ namespace Microsoft.Data.Entity.Migrations
                 Execute(batches, first);
             }
 
-            foreach (var migration in migrationsToRevert)
+            for (var i = 0; i < migrationsToRevert.Count; i++)
             {
+                var migration = migrationsToRevert[i];
+
                 _logger.Value.LogInformation(Strings.RevertingMigration(migration.Id));
 
-                Execute(RevertMigration(migration));
+                Execute(RevertMigration(
+                    migration,
+                    i != migrationsToRevert.Count - 1
+                        ? migrationsToRevert[i + 1]
+                        : null));
             }
         }
 
@@ -250,12 +258,18 @@ namespace Microsoft.Data.Entity.Migrations
                     .Where(
                         m => string.Compare(m.Id, toMigrationName, StringComparison.OrdinalIgnoreCase) > 0
                              && string.Compare(m.Id, fromMigrationName, StringComparison.OrdinalIgnoreCase) <= 0)
-                    .OrderByDescending(m => m.Id);
-                foreach (var migration in migrationsToRevert)
+                    .OrderByDescending(m => m.Id)
+                    .ToList();
+                for (var i = 0; i < migrationsToRevert.Count; i++)
                 {
+                    var migration = migrationsToRevert[i];
+                    var previousMigration = i != migrationsToRevert.Count - 1
+                        ? migrationsToRevert[i + 1]
+                        : null;
+
                     _logger.Value.LogVerbose(Strings.GeneratingDown(migration.Id));
 
-                    foreach (var batch in RevertMigration(migration))
+                    foreach (var batch in RevertMigration(migration, previousMigration))
                     {
                         if (idempotent)
                         {
@@ -297,7 +311,9 @@ namespace Microsoft.Data.Entity.Migrations
             return _migrationSqlGenerator.Generate(operations, targetModel);
         }
 
-        protected virtual IReadOnlyList<SqlBatch> RevertMigration([NotNull] Migration migration)
+        protected virtual IReadOnlyList<SqlBatch> RevertMigration(
+            [NotNull] Migration migration,
+            [CanBeNull] Migration previousMigration)
         {
             Check.NotNull(migration, nameof(migration));
 
@@ -308,8 +324,11 @@ namespace Microsoft.Data.Entity.Migrations
             // TODO: Append to batch instead
             operations.Add(new SqlOperation { Sql = _historyRepository.GetDeleteScript(migration.Id) });
 
-            // TODO: Pass source model?
-            return _migrationSqlGenerator.Generate(operations);
+            var targetModel = previousMigration != null
+                ? _modelFactory.Create(previousMigration.BuildTargetModel)
+                : null;
+
+            return _migrationSqlGenerator.Generate(operations, targetModel);
         }
 
         protected virtual void Execute([NotNull] IEnumerable<SqlBatch> sqlBatches, bool ensureDatabase = false)

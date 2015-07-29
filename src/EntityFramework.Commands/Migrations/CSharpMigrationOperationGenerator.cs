@@ -54,7 +54,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".AddColumn(");
+            builder
+                .Append(".AddColumn<")
+                .Append(_code.Reference(operation.ClrType))
+                .AppendLine(">(");
 
             using (builder.Indent())
             {
@@ -73,11 +76,17 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 builder
                     .AppendLine(",")
                     .Append("table: ")
-                    .Append(_code.Literal(operation.Table))
-                    .AppendLine(",")
-                    .Append("type: ")
-                    .Append(_code.Literal(operation.Type))
-                    .AppendLine(",")
+                    .Append(_code.Literal(operation.Table));
+
+                if (operation.ColumnType != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("type: ")
+                        .Append(_code.Literal(operation.ColumnType));
+                }
+
+                builder.AppendLine(",")
                     .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
@@ -266,7 +275,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".AlterColumn(");
+            builder
+                .Append(".AlterColumn<")
+                .Append(_code.Reference(operation.ClrType))
+                .AppendLine(">(");
 
             using (builder.Indent())
             {
@@ -285,11 +297,16 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 builder
                     .AppendLine(",")
                     .Append("table: ")
-                    .Append(_code.Literal(operation.Table))
-                    .AppendLine(",")
-                    .Append("type: ")
-                    .Append(_code.Literal(operation.Type))
-                    .AppendLine(",")
+                    .Append(_code.Literal(operation.Table));
+
+                if (operation.ColumnType != null)
+                {
+                    builder.AppendLine(",")
+                        .Append("type: ")
+                        .Append(_code.Literal(operation.ColumnType));
+                }
+
+                builder.AppendLine(",")
                     .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
@@ -445,7 +462,17 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.AppendLine(".CreateSequence(");
+            builder.Append(".CreateSequence");
+
+            if (operation.ClrType != typeof(long))
+            {
+                builder
+                    .Append("<")
+                    .Append(_code.Reference(operation.ClrType))
+                    .Append(">");
+            }
+
+            builder.AppendLine("(");
 
             using (builder.Indent())
             {
@@ -459,14 +486,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .AppendLine(",")
                         .Append("schema: ")
                         .Append(_code.Literal(operation.Schema));
-                }
-
-                if (operation.Type != null)
-                {
-                    builder
-                        .AppendLine(",")
-                        .Append("type: ")
-                        .Append(_code.Literal(operation.Type));
                 }
 
                 if (operation.StartWith.HasValue)
@@ -552,7 +571,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                         builder
                             .Append(propertyName)
-                            .Append(" = table.Column(");
+                            .Append(" = table.Column<")
+                            .Append(_code.Reference(column.ClrType))
+                            .Append(">(");
 
                         if (propertyName != column.Name)
                         {
@@ -562,10 +583,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                                 .Append(", ");
                         }
 
-                        builder
-                            .Append("type: ")
-                            .Append(_code.Literal(column.Type))
-                            .Append(", nullable: ")
+                        if (column.ColumnType != null)
+                        {
+                            builder
+                                .Append("type: ")
+                                .Append(_code.Literal(column.ColumnType))
+                                .Append(", ");
+                        }
+
+                        builder.Append("nullable: ")
                             .Append(_code.Literal(column.IsNullable));
 
                         if (column.DefaultValueSql != null)

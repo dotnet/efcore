@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Infrastructure
@@ -44,20 +43,16 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
         };
 
         public ModelDiffer(
-            [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider metadataExtensions,
             [NotNull] IMigrationAnnotationProvider annotations)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(metadataExtensions, nameof(metadataExtensions));
             Check.NotNull(annotations, nameof(annotations));
 
-            TypeMapper = typeMapper;
             MetadataExtensions = metadataExtensions;
             Annotations = annotations;
         }
 
-        protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual IRelationalMetadataExtensionProvider MetadataExtensions { get; }
         protected virtual IMigrationAnnotationProvider Annotations { get; }
 
@@ -416,18 +411,15 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 };
             }
 
-            var sourceColumnType = sourceExtensions.ColumnType
-                                   ?? TypeMapper.MapPropertyType(source).DefaultTypeName;
-
-            var targetColumnType = targetExtensions.ColumnType
-                                   ?? TypeMapper.MapPropertyType(target).DefaultTypeName;
+            var targetClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             var targetAnnotations = Annotations.For(target);
 
             var isSourceColumnNullable = source.IsColumnNullable();
             var isTargetColumnNullable = target.IsColumnNullable();
             var isNullableChanged = isSourceColumnNullable != isTargetColumnNullable;
-            var columnTypeChanged = sourceColumnType != targetColumnType;
+            var columnTypeChanged = source.ClrType.UnwrapNullableType().UnwrapEnumType() != targetClrType
+                || sourceExtensions.ColumnType != targetExtensions.ColumnType;
             if (isNullableChanged
                 || columnTypeChanged
                 || sourceExtensions.GeneratedValueSql != targetExtensions.GeneratedValueSql
@@ -443,7 +435,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Schema = sourceEntityTypeExtensions.Schema,
                     Table = sourceEntityTypeExtensions.TableName,
                     Name = sourceExtensions.ColumnName,
-                    Type = targetColumnType,
+                    ClrType = targetClrType,
+                    ColumnType = targetExtensions.ColumnType,
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetExtensions.DefaultValue,
                     DefaultValueSql = target.ValueGenerated == ValueGenerated.OnAdd ? targetExtensions.GeneratedValueSql : null,
@@ -466,7 +459,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                 Schema = targetEntityTypeExtensions.Schema,
                 Table = targetEntityTypeExtensions.TableName,
                 Name = targetExtensions.ColumnName,
-                Type = targetExtensions.ColumnType ?? TypeMapper.MapPropertyType(target).DefaultTypeName,
+                ClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType(),
+                ColumnType = targetExtensions.ColumnType,
                 IsNullable = target.IsColumnNullable(),
                 DefaultValue = targetExtensions.DefaultValue
                     ?? (inline || target.IsColumnNullable()
@@ -774,7 +768,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                Type = TypeMapper.GetDefaultMapping(target.ClrType).DefaultTypeName,
+                ClrType = target.ClrType,
                 StartWith = target.StartValue,
                 IncrementBy = target.IncrementBy,
                 MinValue = target.MinValue,

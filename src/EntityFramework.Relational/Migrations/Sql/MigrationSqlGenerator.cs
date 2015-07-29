@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
@@ -17,12 +18,21 @@ namespace Microsoft.Data.Entity.Migrations.Sql
     public abstract class MigrationSqlGenerator : IMigrationSqlGenerator
     {
         private readonly IUpdateSqlGenerator _sql;
+        private readonly IRelationalTypeMapper _typeMapper;
+        private readonly IRelationalMetadataExtensionProvider _annotations;
 
-        protected MigrationSqlGenerator([NotNull] IUpdateSqlGenerator sqlGenerator)
+        protected MigrationSqlGenerator(
+            [NotNull] IUpdateSqlGenerator sqlGenerator,
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider annotations)
         {
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(annotations, nameof(annotations));
 
             _sql = sqlGenerator;
+            _typeMapper = typeMapper;
+            _annotations = annotations;
         }
 
         public virtual IReadOnlyList<SqlBatch> Generate(
@@ -189,11 +199,11 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                 .Append("CREATE SEQUENCE ")
                 .Append(_sql.DelimitIdentifier(operation.Name, operation.Schema));
 
-            if (operation.Type != null)
+            if (operation.ClrType != typeof(long))
             {
                 builder
                     .Append(" AS ")
-                    .Append(operation.Type);
+                    .Append(_typeMapper.GetDefaultMapping(operation.ClrType).DefaultTypeName);
             }
 
             builder
@@ -472,7 +482,8 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                     operation.Schema,
                     operation.Table,
                     operation.Name,
-                    operation.Type,
+                    operation.ClrType,
+                    operation.ColumnType,
                     operation.IsNullable,
                     operation.DefaultValue,
                     operation.DefaultValueSql,
@@ -485,7 +496,8 @@ namespace Microsoft.Data.Entity.Migrations.Sql
             [CanBeNull] string schema,
             [CanBeNull] string table,
             [NotNull] string name,
-            [NotNull] string type,
+            [NotNull] Type clrType,
+            [CanBeNull] string type,
             bool nullable,
             [CanBeNull] object defaultValue,
             [CanBeNull] string defaultValueSql,
@@ -495,9 +507,17 @@ namespace Microsoft.Data.Entity.Migrations.Sql
             [NotNull] SqlBatchBuilder builder)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(type, nameof(type));
+            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(annotatable, nameof(annotatable));
             Check.NotNull(builder, nameof(builder));
+
+            if (type == null)
+            {
+                var property = FindProperty(model, schema, table, name);
+                type = property != null
+                    ? _typeMapper.MapPropertyType(property).DefaultTypeName
+                    : _typeMapper.GetDefaultMapping(clrType).DefaultTypeName;
+            }
 
             builder
                 .Append(_sql.DelimitIdentifier(name))
@@ -649,6 +669,21 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                     break;
             }
         }
+
+        protected virtual IEntityType FindEntityType(
+            [CanBeNull] IModel model,
+            [CanBeNull] string schema,
+            [NotNull] string tableName)
+            => model?.EntityTypes.FirstOrDefault(
+                t => _annotations.For(t).TableName == tableName && _annotations.For(t).Schema == schema);
+
+        protected virtual IProperty FindProperty(
+            [CanBeNull] IModel model,
+            [CanBeNull] string schema,
+            [NotNull] string tableName,
+            [NotNull] string columnName)
+            => FindEntityType(model, schema, tableName)
+                ?.GetProperties().FirstOrDefault(p => _annotations.For(p).ColumnName == columnName);
 
         private string ColumnList(string[] columns) => string.Join(", ", columns.Select(_sql.DelimitIdentifier));
     }

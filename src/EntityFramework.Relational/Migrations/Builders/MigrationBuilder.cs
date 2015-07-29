@@ -15,10 +15,10 @@ namespace Microsoft.Data.Entity.Migrations.Builders
     {
         public virtual ICollection<MigrationOperation> Operations { get; } = new List<MigrationOperation>();
 
-        public virtual OperationBuilder<AddColumnOperation> AddColumn(
+        public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
             [NotNull] string table,
-            [NotNull] string type,
+            [CanBeNull] string type = null,
             [CanBeNull] string schema = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
@@ -27,14 +27,14 @@ namespace Microsoft.Data.Entity.Migrations.Builders
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
-            Check.NotEmpty(type, nameof(type));
 
             var operation = new AddColumnOperation
             {
                 Schema = schema,
                 Table = table,
                 Name = name,
-                Type = type,
+                ClrType = typeof(T),
+                ColumnType = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
@@ -165,10 +165,10 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             return new OperationBuilder<AddUniqueConstraintOperation>(operation);
         }
 
-        public virtual OperationBuilder<AlterColumnOperation> AlterColumn(
+        public virtual OperationBuilder<AlterColumnOperation> AlterColumn<T>(
             [NotNull] string name,
             [NotNull] string table,
-            [NotNull] string type,
+            [CanBeNull] string type = null,
             [CanBeNull] string schema = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
@@ -183,7 +183,8 @@ namespace Microsoft.Data.Entity.Migrations.Builders
                 Schema = schema,
                 Table = table,
                 Name = name,
-                Type = type,
+                ClrType = typeof(T),
+                ColumnType = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
@@ -272,7 +273,16 @@ namespace Microsoft.Data.Entity.Migrations.Builders
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence(
             [NotNull] string name,
             [CanBeNull] string schema = null,
-            [CanBeNull] string type = null,
+            [CanBeNull] long? startWith = null,
+            [CanBeNull] int? incrementBy = null,
+            [CanBeNull] long? minValue = null,
+            [CanBeNull] long? maxValue = null,
+            bool cycle = false)
+            => CreateSequence<long>(name, schema, startWith, incrementBy, minValue, maxValue, cycle);
+
+        public virtual OperationBuilder<CreateSequenceOperation> CreateSequence<T>(
+            [NotNull] string name,
+            [CanBeNull] string schema = null,
             [CanBeNull] long? startWith = null,
             [CanBeNull] int? incrementBy = null,
             [CanBeNull] long? minValue = null,
@@ -285,7 +295,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             {
                 Schema = schema,
                 Name = name,
-                Type = type,
+                ClrType = typeof(T),
                 StartWith = startWith,
                 IncrementBy = incrementBy,
                 MinValue = minValue,

@@ -116,11 +116,12 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                         { typeof(SqlServerOptionsExtension), new SqlServerOptionsExtension() }
                     }),
                 new ModelDiffer(
-                    new SqlServerTypeMapper(),
                     annotationsProvider,
                     new SqlServerMigrationAnnotationProvider()),
                 new SqlServerMigrationSqlGenerator(
-                    updateSqlGenerator),
+                    updateSqlGenerator,
+                    new SqlServerTypeMapper(),
+                    annotationsProvider),
                 annotationsProvider,
                 updateSqlGenerator,
                 Mock.Of<IServiceProvider>());

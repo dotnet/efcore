@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Migrations.History
         public virtual string GetCreateScript()
         {
             var operations = _modelDiffer.GetDifferences(null, _model.Value);
-            var batches = _migrationSqlGenerator.Generate(operations);
+            var batches = _migrationSqlGenerator.Generate(operations, _model.Value);
             if (batches.Count != 1 || batches[0].SuppressTransaction)
             {
                 throw new InvalidOperationException(Strings.InvalidCreateScript);

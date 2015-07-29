@@ -1,15 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Data;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.History;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -44,7 +41,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     modelFactory),
                 new ModelDiffer(
-                    new ConcreteTypeMapper(),
                     new TestMetadataExtensionProvider(),
                     new MigrationAnnotationProvider()),
                 new MigrationIdGenerator(),
@@ -84,20 +80,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public IReadOnlyList<HistoryRow> GetAppliedMigrations() => null;
             public string GetDeleteScript(string migrationId) => null;
             public string GetInsertScript(HistoryRow row) => null;
-        }
-
-        private class ConcreteTypeMapper : RelationalTypeMapper
-        {
-            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
-
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
-                = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(int), new RelationalTypeMapping("int", DbType.String) }
-                };
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
-                = new Dictionary<string, RelationalTypeMapping>();
         }
     }
 }

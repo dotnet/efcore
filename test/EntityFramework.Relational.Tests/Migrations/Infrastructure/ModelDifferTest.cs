@@ -270,7 +270,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Dragon", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Draco", operation.DefaultValue);
                     Assert.Equal("CreateDragonName()", operation.DefaultValueSql);
@@ -310,7 +311,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Dragon", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Draco", operation.DefaultValue);
                     Assert.Equal("CreateDragonName()", operation.ComputedColumnSql);
@@ -480,7 +482,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Bison", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.True(operation.IsNullable);
                     Assert.Equal("Buffy", operation.DefaultValue);
                     Assert.Equal("CreateBisonName()", operation.DefaultValueSql);
@@ -525,7 +528,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Puma", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(450)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(450)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Puff", operation.DefaultValue);
                     Assert.Equal("CreatePumaName()", operation.DefaultValueSql);
@@ -570,7 +574,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Cougar", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Cosmo", operation.DefaultValue);
                     Assert.Equal("CreateCougarName()", operation.DefaultValueSql);
@@ -615,7 +620,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("MountainLion", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Liam", operation.DefaultValue);
                     Assert.Equal("CreateCatamountName()", operation.DefaultValueSql);
@@ -660,7 +666,8 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("MountainLion", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("nvarchar(30)", operation.Type);
+                    Assert.Equal(typeof(string), operation.ClrType);
+                    Assert.Equal("nvarchar(30)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Liam", operation.DefaultValue);
                     Assert.Equal("CreateCatamountName()", operation.ComputedColumnSql);
@@ -1348,7 +1355,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     var operation = Assert.IsType<CreateSequenceOperation>(operations[0]);
                     Assert.Equal("Tango", operation.Name);
                     Assert.Equal("dbo", operation.Schema);
-                    Assert.Equal("int", operation.Type);
+                    Assert.Equal(typeof(int), operation.ClrType);
                     Assert.Equal(2, operation.StartWith);
                     Assert.Equal(3, operation.IncrementBy);
                     Assert.Equal(1, operation.MinValue);
@@ -1556,7 +1563,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     var createOperation = Assert.IsType<CreateSequenceOperation>(operations[1]);
                     Assert.Equal("Hotel", createOperation.Name);
                     Assert.Equal("dbo", createOperation.Schema);
-                    Assert.Equal("bigint", createOperation.Type);
+                    Assert.Equal(typeof(long), createOperation.ClrType);
                     Assert.Equal(2, createOperation.StartWith);
                     Assert.Equal(3, createOperation.IncrementBy);
                     Assert.Equal(1, createOperation.MinValue);
@@ -2797,7 +2804,7 @@ namespace Microsoft.Data.Entity.Migrations.Infrastructure
                     Assert.Equal("dbo", operation.Schema);
                     Assert.Equal("Animal", operation.Table);
                     Assert.Equal("Name", operation.Name);
-                    Assert.Equal("varchar(30)", operation.Type);
+                    Assert.Equal("varchar(30)", operation.ColumnType);
                 });
         }
 

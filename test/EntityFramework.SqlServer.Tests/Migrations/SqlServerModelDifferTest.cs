@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                         var addTableOperation = Assert.IsType<AlterColumnOperation>(operations[0]);
                         Assert.Equal("Person", addTableOperation.Table);
                         Assert.Equal("Value", addTableOperation.Name);
-                        Assert.Equal("varchar(8000)", addTableOperation.Type);
+                        Assert.Equal("varchar(8000)", addTableOperation.ColumnType);
                         Assert.Equal("1 + 1", addTableOperation.DefaultValueSql);
                     });
         }
@@ -695,7 +695,6 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
         protected override ModelDiffer CreateModelDiffer()
             => new ModelDiffer(
-                new SqlServerTypeMapper(),
                 new SqlServerMetadataExtensionProvider(),
                 new SqlServerMigrationAnnotationProvider());
     }

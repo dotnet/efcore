@@ -1,9 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
+using System.Text;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Sql
@@ -11,15 +17,10 @@ namespace Microsoft.Data.Entity.Migrations.Sql
     public class MigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
         protected override IMigrationSqlGenerator SqlGenerator
-        {
-            get
-            {
-                var sqlGenerator = new Mock<UpdateSqlGenerator> { CallBase = true };
-                var migrationSqlGenerator = new Mock<MigrationSqlGenerator>(sqlGenerator.Object) { CallBase = true };
-
-                return migrationSqlGenerator.Object;
-            }
-        }
+            => new ConcreteMigrationSqlGenerator(
+                new ConcreteUpdateSqlGenerator(),
+                new ConcreteRelationalTypeMapper(),
+                new TestMetadataExtensionProvider());
 
         public override void AddColumnOperation_with_defaultValue()
         {
@@ -46,6 +47,15 @@ namespace Microsoft.Data.Entity.Migrations.Sql
 
             Assert.Equal(
                 "ALTER TABLE \"People\" ADD \"Birthday\" date;" + EOL,
+                Sql);
+        }
+
+        public override void AddColumnOperation_without_column_type()
+        {
+            base.AddColumnOperation_without_column_type();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" ADD \"Alias\" nvarchar(max) NOT NULL;" + EOL,
                 Sql);
         }
 
@@ -144,7 +154,16 @@ namespace Microsoft.Data.Entity.Migrations.Sql
             base.CreateSequenceOperation_with_minValue_and_maxValue();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" AS bigint START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                Sql);
+        }
+
+        public override void CreateSequenceOperation_with_minValue_and_maxValue_not_long()
+        {
+            base.CreateSequenceOperation_with_minValue_and_maxValue_not_long();
+
+            Assert.Equal(
+                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" AS int START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -234,6 +253,73 @@ namespace Microsoft.Data.Entity.Migrations.Sql
             Assert.Equal(
                 "-- I <3 DDL;" + EOL,
                 Sql);
+        }
+
+        private class ConcreteUpdateSqlGenerator : UpdateSqlGenerator
+        {
+            protected override void AppendIdentityWhereCondition(
+                StringBuilder commandStringBuilder,
+                ColumnModification columnModification)
+            {
+            }
+
+            protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
+            {
+            }
+        }
+
+        private class ConcreteRelationalTypeMapper : RelationalTypeMapper
+        {
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+                = new Dictionary<Type, RelationalTypeMapping>
+                {
+                    { typeof(int), new RelationalTypeMapping("int") },
+                    { typeof(string), new RelationalTypeMapping("nvarchar(max)") }
+                };
+
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+                = new Dictionary<string, RelationalTypeMapping>();
+
+            protected override string GetColumnType(IProperty property) => null;
+        }
+
+        private class ConcreteMigrationSqlGenerator : MigrationSqlGenerator
+        {
+            public ConcreteMigrationSqlGenerator(
+                IUpdateSqlGenerator sqlGenerator,
+                IRelationalTypeMapper typeMapper,
+                IRelationalMetadataExtensionProvider annotations)
+                : base(sqlGenerator, typeMapper, annotations)
+            {
+            }
+
+            public override void Generate(RenameTableOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
+
+            public override void Generate(DropIndexOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
+
+            public override void Generate(RenameSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
+
+            public override void Generate(RenameColumnOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
+
+            public override void Generate(CreateSchemaOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
+
+            public override void Generate(RenameIndexOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
+
+            public override void Generate(AlterColumnOperation operation, IModel model, SqlBatchBuilder builder)
+            {
+            }
         }
     }
 }

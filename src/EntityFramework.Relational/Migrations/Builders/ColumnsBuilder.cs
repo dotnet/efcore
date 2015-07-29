@@ -18,22 +18,21 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             _createTableOperation = createTableOperation;
         }
 
-        public virtual OperationBuilder<AddColumnOperation> Column(
-            [NotNull] string type,
+        public virtual OperationBuilder<AddColumnOperation> Column<T>(
+            [CanBeNull] string type = null,
             [CanBeNull] string name = null,
             bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null)
         {
-            Check.NotEmpty(type, nameof(type));
-
             var operation = new AddColumnOperation
             {
                 Schema = _createTableOperation.Schema,
                 Table = _createTableOperation.Name,
                 Name = name,
-                Type = type,
+                ClrType = typeof(T),
+                ColumnType = type,
                 IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,

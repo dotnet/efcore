@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         name: "Table1",
                         columns: x => new
                         {
-                            Id = x.Column("int")
+                            Id = x.Column<int>()
                         })
                     .PrimaryKey(
                         name: "PK_Table1",

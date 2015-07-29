@@ -12,7 +12,10 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
         protected override IMigrationSqlGenerator SqlGenerator =>
-            new SqlServerMigrationSqlGenerator(new SqlServerUpdateSqlGenerator());
+            new SqlServerMigrationSqlGenerator(
+                new SqlServerUpdateSqlGenerator(),
+                new SqlServerTypeMapper(),
+                new SqlServerMetadataExtensionProvider());
 
         [Fact]
         public virtual void AddColumnOperation_with_computedSql()
@@ -22,7 +25,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 {
                     Table = "People",
                     Name = "FullName",
-                    Type = "nvarchar(30)",
+                    ClrType = typeof(string),
                     ComputedColumnSql = "FirstName + ' ' + LastName"
                 });
 
@@ -49,7 +52,8 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 {
                     Table = "People",
                     Name = "Id",
-                    Type = "int",
+                    ClrType = typeof(int),
+                    ColumnType = "int",
                     IsNullable = false,
                     [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
                         SqlServerIdentityStrategy.IdentityColumn
@@ -57,6 +61,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
             Assert.Equal(
                 "ALTER TABLE [People] ADD [Id] int NOT NULL IDENTITY;" + EOL,
+                Sql);
+        }
+
+        public override void AddColumnOperation_without_column_type()
+        {
+            base.AddColumnOperation_without_column_type();
+
+            Assert.Equal(
+                "ALTER TABLE [People] ADD [Alias] nvarchar(max) NOT NULL;" + EOL,
                 Sql);
         }
 
@@ -82,6 +95,15 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
             Assert.Equal(
                 "ALTER TABLE [dbo].[People] ALTER COLUMN [LuckyNumber] int NOT NULL DEFAULT 7;" + EOL,
+                Sql);
+        }
+
+        public override void AlterColumnOperation_without_column_type()
+        {
+            base.AlterColumnOperation_without_column_type();
+
+            Assert.Equal(
+                "ALTER TABLE [People] ALTER COLUMN [LuckyNumber] int NOT NULL;" + EOL,
                 Sql);
         }
 

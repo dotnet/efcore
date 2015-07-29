@@ -19,8 +19,11 @@ namespace Microsoft.Data.Entity.SqlServer
     {
         private readonly ISqlServerUpdateSqlGenerator _sql;
 
-        public SqlServerMigrationSqlGenerator([NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
-            : base(Check.NotNull(sqlGenerator, nameof(sqlGenerator)))
+        public SqlServerMigrationSqlGenerator(
+            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
+            [NotNull] SqlServerTypeMapper typeMapper,
+            [NotNull] SqlServerMetadataExtensionProvider annotations)
+            : base(sqlGenerator, typeMapper, annotations)
         {
             _sql = sqlGenerator;
         }
@@ -234,6 +237,7 @@ namespace Microsoft.Data.Entity.SqlServer
             string schema,
             string table,
             string name,
+            Type clrType,
             string type,
             bool nullable,
             object defaultValue,
@@ -244,7 +248,7 @@ namespace Microsoft.Data.Entity.SqlServer
             SqlBatchBuilder builder)
         {
             Check.NotEmpty(name, nameof(name));
-            Check.NotEmpty(type, nameof(type));
+            Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(annotatable, nameof(annotatable));
             Check.NotNull(builder, nameof(builder));
 
@@ -262,6 +266,7 @@ namespace Microsoft.Data.Entity.SqlServer
                 schema,
                 table,
                 name,
+                clrType,
                 type,
                 nullable,
                 defaultValue,
@@ -334,7 +339,8 @@ namespace Microsoft.Data.Entity.SqlServer
                     operation.Schema,
                     operation.Table,
                     operation.Name,
-                    operation.Type,
+                    operation.ClrType,
+                    operation.ColumnType,
                     operation.IsNullable,
                     operation.DefaultValue,
                     operation.DefaultValueSql,

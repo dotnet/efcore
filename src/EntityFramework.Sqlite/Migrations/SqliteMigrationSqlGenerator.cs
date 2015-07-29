@@ -18,8 +18,11 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
     {
         private readonly IUpdateSqlGenerator _sql;
 
-        public SqliteMigrationSqlGenerator([NotNull] IUpdateSqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+        public SqliteMigrationSqlGenerator(
+            [NotNull] SqliteUpdateSqlGenerator sqlGenerator,
+            [NotNull] SqliteTypeMapper typeMapper,
+            [NotNull] SqliteMetadataExtensionProvider annotations)
+            : base(sqlGenerator, typeMapper, annotations)
         {
             _sql = sqlGenerator;
         }
@@ -71,20 +74,21 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         }
 
         public override void ColumnDefinition(
-            string schema, 
-            string table, 
-            string name, 
-            string type, 
-            bool nullable, 
-            object defaultValue, 
+            string schema,
+            string table,
+            string name,
+            Type clrType,
+            string type,
+            bool nullable,
+            object defaultValue,
             string defaultValueSql,
-            string computedColumnSql, 
-            IAnnotatable annotatable, 
-            IModel model, 
+            string computedColumnSql,
+            IAnnotatable annotatable,
+            IModel model,
             SqlBatchBuilder builder)
         {
             base.ColumnDefinition(
-                schema, table, name, type, nullable, 
+                schema, table, name, clrType, type, nullable,
                 defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
             var columnAnnotation = annotatable as Annotatable;
