@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   , CAST(c.DATETIME_PRECISION as integer)[DateTimePrecision]
   , CAST(c.NUMERIC_SCALE as integer) [Scale]
   , CAST(columnproperty( object_id(quotename(c.TABLE_SCHEMA) + '.' + quotename(c.TABLE_NAME)), c.COLUMN_NAME, 'IsIdentity' ) as bit) as [IsIdentity]
-  , CAST(columnproperty( object_id(quotename(c.TABLE_SCHEMA) + '.' + quotename(c.TABLE_NAME)), c.COLUMN_NAME, 'IsComputed' ) | CASE WHEN c.DATA_TYPE = 'timestamp' THEN 1 ELSE 0 END as bit) as [IsStoreGenerated]
+  , CAST(columnproperty( object_id(quotename(c.TABLE_SCHEMA) + '.' + quotename(c.TABLE_NAME)), c.COLUMN_NAME, 'IsComputed' ) as bit) as [IsStoreGenerated]
   , c.COLUMN_DEFAULT as [Default]
   FROM
   INFORMATION_SCHEMA.COLUMNS c

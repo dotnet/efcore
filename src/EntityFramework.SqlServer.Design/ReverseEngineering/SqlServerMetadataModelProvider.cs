@@ -613,9 +613,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
 
             if (tableColumn.IsStoreGenerated
+                || tableColumn.DataType == "rowversion"
                 || tableColumn.DataType == "timestamp")
             {
-                // timestamp columns should always be treated as store generated
+                // rowversion/timestamp columns should always be treated as store generated
                 property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             }
 

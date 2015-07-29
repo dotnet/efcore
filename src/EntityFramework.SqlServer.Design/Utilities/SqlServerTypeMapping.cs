@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 { "tinyint", typeof(byte) },
 
                 // approximate numerics
-                { "float", typeof(float) },
-                { "real", typeof(double) },
+                { "float", typeof(double) },
+                { "real", typeof(float) },
 
                 // date and time
                 { "date", typeof(DateTime) },
@@ -54,6 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 //{ "hierarchyid", typeof(TODO) },
                 //{ "sql_variant", typeof(TODO) },
                 //{ "table", typeof(TODO) },
+                { "rowversion", typeof(byte[]) },
                 { "timestamp", typeof(byte[]) },
                 { "uniqueidentifier", typeof(Guid) }
                 //{ "xml", typeof(TODO) },
