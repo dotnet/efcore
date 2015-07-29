@@ -9,8 +9,8 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 #if DNX451 || DNXCORE50
-using Microsoft.Framework.Runtime;
-using Microsoft.Framework.Runtime.Infrastructure;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 #endif
 

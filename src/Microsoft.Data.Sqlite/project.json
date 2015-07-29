@@ -9,7 +9,7 @@
         },
         "dnx451": {
             "dependencies": {
-                "Microsoft.Framework.Runtime.Abstractions": "1.0.0-*",
+                "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             },
             "frameworkAssemblies": {
@@ -24,7 +24,7 @@
                 "System.Linq": "4.0.0-*",
                 "System.Runtime.InteropServices": "4.0.20-*",
                 "System.Threading.Thread": "4.0.0-*",
-                "Microsoft.Framework.Runtime.Abstractions": "1.0.0-*",
+                "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
             }
         },

@@ -13,8 +13,8 @@ using Microsoft.Framework.Internal;
 #if DNX451 || DNXCORE50
 using System.IO;
 using System.Reflection;
-using Microsoft.Framework.Runtime;
-using Microsoft.Framework.Runtime.Infrastructure;
+using Microsoft.Dnx.Runtime;
+using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 #endif
 
