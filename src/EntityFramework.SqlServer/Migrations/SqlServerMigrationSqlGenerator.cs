@@ -276,10 +276,9 @@ namespace Microsoft.Data.Entity.SqlServer
                 model,
                 builder);
 
-            var valueGeneration = (SqlServerIdentityStrategy?)annotatable[
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy];
-
-            if (valueGeneration == SqlServerIdentityStrategy.IdentityColumn)
+            var valueGenerationStrategy = annotatable[
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerIdentityStrategy?;
+            if (valueGenerationStrategy == SqlServerIdentityStrategy.IdentityColumn)
             {
                 builder.Append(" IDENTITY");
             }
@@ -354,10 +353,10 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var clustered = (string)operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered];
-            if (clustered != null)
+            var clustered = operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] as bool?;
+            if (clustered.HasValue)
             {
-                builder.Append(clustered == "True" ? "CLUSTERED " : "NONCLUSTERED ");
+                builder.Append(clustered.Value ? "CLUSTERED " : "NONCLUSTERED ");
             }
         }
 

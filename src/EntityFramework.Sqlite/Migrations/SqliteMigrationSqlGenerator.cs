@@ -91,23 +91,20 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 schema, table, name, clrType, type, nullable,
                 defaultValue, defaultValueSql, computedColumnSql, annotatable, model, builder);
 
-            var columnAnnotation = annotatable as Annotatable;
-            var inlinePk = columnAnnotation?.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKey);
-
-            if (inlinePk != null
-                && (bool)inlinePk.Value)
+            var inlinePk = annotatable[SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKey] as bool?;
+            if (inlinePk == true)
             {
-                var inlinePkName = columnAnnotation.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKeyName);
-                if (!string.IsNullOrEmpty(inlinePkName?.Value as string))
+                var inlinePkName = annotatable[
+                    SqliteAnnotationNames.Prefix + SqliteAnnotationNames.InlinePrimaryKeyName] as string;
+                if (!string.IsNullOrEmpty(inlinePkName))
                 {
                     builder
                         .Append(" CONSTRAINT ")
-                        .Append(_sql.DelimitIdentifier((string)inlinePkName.Value));
+                        .Append(_sql.DelimitIdentifier(inlinePkName));
                 }
                 builder.Append(" PRIMARY KEY");
-                var autoincrement = columnAnnotation.FindAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement);
-                if (autoincrement != null
-                    && (bool)autoincrement.Value)
+                var autoincrement = annotatable[SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement] as bool?;
+                if (autoincrement == true)
                 {
                     builder.Append(" AUTOINCREMENT");
                 }

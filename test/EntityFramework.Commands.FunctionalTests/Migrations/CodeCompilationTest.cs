@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Metadata;
@@ -29,13 +30,21 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var migrationCode = generator.Generate(
                 "MyNamespace",
                 "MyMigration",
-                new MigrationOperation[0],
+                new[] {
+                    new SqlOperation
+                    {
+                        Sql = "-- TEST",
+                        ["Some:EnumValue"] = RegexOptions.Multiline
+                    }
+                },
                 new MigrationOperation[0]);
             Assert.Equal(
-                @"using System.Collections.Generic;
+                @"using System;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Builders;
 using Microsoft.Data.Entity.Migrations.Operations;
+using System.Text.RegularExpressions;
 
 namespace MyNamespace
 {
@@ -43,6 +52,9 @@ namespace MyNamespace
     {
         public override void Up(MigrationBuilder migration)
         {
+            migration.Sql(
+                ""-- TEST"")
+                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
 
         public override void Down(MigrationBuilder migration)
@@ -59,13 +71,14 @@ namespace MyNamespace
                 "MyMigration",
                 "20150511161616_MyMigration",
                 "7.0.0",
-                new Model());
+                new Model {["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(
                 @"using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Commands.Migrations;
+using System.Text.RegularExpressions;
 
 namespace MyNamespace
 {
@@ -84,6 +97,8 @@ namespace MyNamespace
 
         public override void BuildTargetModel(ModelBuilder builder)
         {
+            builder
+                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
     }
 }
@@ -95,7 +110,10 @@ namespace MyNamespace
                 References =
                 {
                     BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
-#if !DNXCORE50
+#if DNXCORE50
+                    BuildReference.ByName("System.Text.RegularExpressions"),
+#else
+                    BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
                     BuildReference.ByName("EntityFramework.Core"),
@@ -119,7 +137,7 @@ namespace MyNamespace
 
             var migrationBuilder = new MigrationBuilder();
             migration.Up(migrationBuilder);
-            Assert.Empty(migrationBuilder.Operations);
+            Assert.Equal(1, migrationBuilder.Operations.Count);
 
             migrationBuilder = new MigrationBuilder();
             migration.Down(migrationBuilder);
@@ -140,12 +158,17 @@ namespace MyNamespace
                 new CSharpMigrationOperationGenerator(codeHelper),
                 new CSharpModelGenerator(codeHelper));
 
-            var modelSnapshotCode = generator.GenerateSnapshot("MyNamespace", typeof(MyContext), "MySnapshot", new Model());
+            var modelSnapshotCode = generator.GenerateSnapshot(
+                "MyNamespace",
+                typeof(MyContext),
+                "MySnapshot",
+                new Model {["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(@"using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Commands.Migrations;
+using System.Text.RegularExpressions;
 
 namespace MyNamespace
 {
@@ -154,6 +177,8 @@ namespace MyNamespace
     {
         public override void BuildModel(ModelBuilder builder)
         {
+            builder
+                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
     }
 }
@@ -164,7 +189,10 @@ namespace MyNamespace
                 References =
                 {
                     BuildReference.ByName(typeof(CodeCompilationTest).GetTypeInfo().Assembly.GetName().Name),
-#if !DNXCORE50
+#if DNXCORE50
+                    BuildReference.ByName("System.Text.RegularExpressions"),
+#else
+                    BuildReference.ByName("System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                     BuildReference.ByName("System.Runtime, Version=4.0.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"),
 #endif
                     BuildReference.ByName("EntityFramework.Core"),

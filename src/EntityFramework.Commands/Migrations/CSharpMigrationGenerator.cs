@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
@@ -46,11 +47,23 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(downOperations, nameof(downOperations));
 
             var builder = new IndentedStringBuilder();
+            var namespaces = new List<string>
+            {
+                "System",
+                "System.Collections.Generic",
+                "Microsoft.Data.Entity.Migrations",
+                "Microsoft.Data.Entity.Migrations.Builders",
+                "Microsoft.Data.Entity.Migrations.Operations"
+            };
+            namespaces.AddRange(GetNamespaces(upOperations.Concat(downOperations)));
+            foreach (var n in namespaces.Distinct())
+            {
+                builder
+                    .Append("using ")
+                    .Append(n)
+                    .AppendLine(";");
+            }
             builder
-                .AppendLine("using System.Collections.Generic;")
-                .AppendLine("using Microsoft.Data.Entity.Migrations;")
-                .AppendLine("using Microsoft.Data.Entity.Migrations.Builders;")
-                .AppendLine("using Microsoft.Data.Entity.Migrations.Operations;")
                 .AppendLine()
                 .Append("namespace ").AppendLine(_code.Namespace(migrationNamespace))
                 .AppendLine("{");
@@ -102,12 +115,23 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(targetModel, nameof(targetModel));
 
             var builder = new IndentedStringBuilder();
+            var namespaces = new List<string>
+            {
+                "System",
+                "Microsoft.Data.Entity",
+                "Microsoft.Data.Entity.Metadata",
+                "Microsoft.Data.Entity.Migrations.Infrastructure",
+                contextType.Namespace
+            };
+            namespaces.AddRange(GetNamespaces(targetModel));
+            foreach (var n in namespaces.Distinct())
+            {
+                builder
+                    .Append("using ")
+                    .Append(n)
+                    .AppendLine(";");
+            }
             builder
-                .AppendLine("using System;")
-                .AppendLine("using Microsoft.Data.Entity;")
-                .AppendLine("using Microsoft.Data.Entity.Metadata;")
-                .AppendLine("using Microsoft.Data.Entity.Migrations.Infrastructure;")
-                .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
                 .Append("namespace ").AppendLine(_code.Namespace(migrationNamespace))
                 .AppendLine("{");
@@ -166,12 +190,23 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(model, nameof(model));
 
             var builder = new IndentedStringBuilder();
+            var namespaces = new List<string>
+            {
+                "System",
+                "Microsoft.Data.Entity",
+                "Microsoft.Data.Entity.Metadata",
+                "Microsoft.Data.Entity.Migrations.Infrastructure",
+                contextType.Namespace
+            };
+            namespaces.AddRange(GetNamespaces(model));
+            foreach (var n in namespaces.Distinct())
+            {
+                builder
+                    .Append("using ")
+                    .Append(n)
+                    .AppendLine(";");
+            }
             builder
-                .AppendLine("using System;")
-                .AppendLine("using Microsoft.Data.Entity;")
-                .AppendLine("using Microsoft.Data.Entity.Metadata;")
-                .AppendLine("using Microsoft.Data.Entity.Migrations.Infrastructure;")
-                .Append("using ").Append(contextType.Namespace).AppendLine(";")
                 .AppendLine()
                 .Append("namespace ").AppendLine(_code.Namespace(modelSnapshotNamespace))
                 .AppendLine("{");

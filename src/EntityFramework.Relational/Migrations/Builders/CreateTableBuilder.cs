@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
             return new OperationBuilder<AddUniqueConstraintOperation>(operation);
         }
 
-        public new virtual CreateTableBuilder<TColumns> Annotation([NotNull] string name, [NotNull] string value)
+        public new virtual CreateTableBuilder<TColumns> Annotation([NotNull] string name, [NotNull] object value)
             => (CreateTableBuilder<TColumns>)base.Annotation(name, value);
 
         private string[] Map(LambdaExpression columns) =>

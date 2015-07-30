@@ -17,12 +17,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
     {
         private readonly CSharpHelper _code;
 
-        private static readonly List<string> _ignoredAnnotations = new List<string>
-        {
-            CoreAnnotationNames.OriginalValueIndexAnnotation,
-            CoreAnnotationNames.ShadowIndexAnnotation
-        };
-
         public CSharpModelGenerator([NotNull] CSharpHelper code)
         {
             Check.NotNull(code, nameof(code));
@@ -410,7 +404,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            foreach (var annotation in annotations.Where(annotation => !_ignoredAnnotations.Contains(annotation.Name)))
+            foreach (var annotation in annotations.Where(annotation => !MigrationCodeGenerator.IgnoredAnnotations.Contains(annotation.Name)))
             {
                 stringBuilder.AppendLine();
                 GenerateAnnotation(annotation, stringBuilder);

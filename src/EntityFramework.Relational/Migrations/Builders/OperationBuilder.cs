@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 
         public virtual OperationBuilder<TOperation> Annotation(
             [NotNull] string name,
-            [NotNull] string value)
+            [NotNull] object value)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(value, nameof(value));

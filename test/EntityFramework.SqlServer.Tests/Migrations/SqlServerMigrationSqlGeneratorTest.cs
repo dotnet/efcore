@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 {
                     Table = "People",
                     Columns = new[] { "Id" },
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = bool.FalseString
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = false
                 });
 
             Assert.Equal(
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     Name = "IX_People_Name",
                     Table = "People",
                     Columns = new[] { "Name" },
-                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = bool.TrueString
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = true
                 });
 
             Assert.Equal(
