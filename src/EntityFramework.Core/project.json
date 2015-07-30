@@ -9,7 +9,7 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Ix-Async": "1.2.4",
+    "Ix-Async": "1.2.5",
     "Microsoft.Framework.Caching.Abstractions": "1.0.0-*",
     "Microsoft.Framework.Caching.Memory": "1.0.0-*",
     "Microsoft.Framework.DependencyInjection": "1.0.0-*",

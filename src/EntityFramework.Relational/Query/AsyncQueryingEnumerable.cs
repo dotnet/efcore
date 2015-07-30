@@ -131,22 +131,15 @@ namespace Microsoft.Data.Entity.Query
                 throw new NotImplementedException();
             }
 
-            private readonly object _gate = new object();
-
             public void Dispose()
             {
-                // TODO: Undiagnosed IX-Async re-entrancy here.
-                // https://github.com/Reactive-Extensions/Rx.NET/issues/93
-                lock (_gate)
+                if (!_disposed)
                 {
-                    if (!_disposed)
-                    {
-                        _dataReader?.Dispose();
-                        _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
-                        _queryingEnumerable._relationalQueryContext.Connection?.Close();
+                    _dataReader?.Dispose();
+                    _queryingEnumerable._relationalQueryContext.DeregisterValueBufferCursor(this);
+                    _queryingEnumerable._relationalQueryContext.Connection?.Close();
 
-                        _disposed = true;
-                    }
+                    _disposed = true;
                 }
             }
         }
