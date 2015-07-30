@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
             => CanAdd(navigationName, isNavigation: true, configurationSource: configurationSource)
-               && Metadata.FindNavigation(navigationName) == null;
+               && (Metadata.FindNavigation(navigationName) == null || CanRemove(Metadata.FindNavigation(navigationName).ForeignKey, configurationSource, true));
 
         private bool CanAdd(string propertyName, bool isNavigation, ConfigurationSource configurationSource)
         {
@@ -888,6 +888,57 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 fk => new InternalRelationshipBuilder(
                     foreignKey, ModelBuilder, existingForeignKey ? (ConfigurationSource?)ConfigurationSource.Explicit : null),
                 configurationSource);
+        }
+
+
+        public virtual InternalRelationshipBuilder Relationship(
+            [NotNull] InternalEntityTypeBuilder sourceBuilder,
+            [NotNull] PropertyInfo navigationToTarget,
+            [CanBeNull] PropertyInfo navigationToSource,
+            ConfigurationSource configurationSource)
+        {
+            var isToTargetNavigationCollection = navigationToTarget.PropertyType.TryGetSequenceType() != null;
+
+            if (isToTargetNavigationCollection)
+            {
+                if (navigationToSource?.PropertyType.TryGetSequenceType() != null)
+                {
+                    // TODO: Support many to many
+                    return null;
+                }
+
+                return Relationship(
+                    sourceBuilder,
+                    this,
+                    navigationToSource?.Name,
+                    navigationToTarget.Name,
+                    configurationSource: configurationSource, isUnique: false, strictPrincipal: true);
+            }
+            else
+            {
+                if (navigationToSource == null)
+                {
+                    return Relationship(
+                        this,
+                        sourceBuilder,
+                        navigationToTarget.Name,
+                        navigationToDependentName: null,
+                        configurationSource: configurationSource, isUnique: null, strictPrincipal: false);
+                }
+                else
+                {
+                    if (navigationToSource.PropertyType.TryGetSequenceType() == null)
+                    {
+                        return Relationship(
+                            sourceBuilder,
+                            this,
+                            navigationToSource.Name,
+                            navigationToTarget.Name,
+                            configurationSource: configurationSource, isUnique: true, strictPrincipal: false);
+                    }
+                }
+            }
+            return null;
         }
 
         public virtual InternalRelationshipBuilder Relationship(

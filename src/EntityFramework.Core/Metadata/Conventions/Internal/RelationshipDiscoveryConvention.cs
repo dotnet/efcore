@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -18,12 +17,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             var entityType = entityTypeBuilder.Metadata;
 
-            var navigationPairCandidates = new Dictionary<InternalEntityTypeBuilder, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();
+            var navigationPairCandidates = new Dictionary<Type, Tuple<List<PropertyInfo>, List<PropertyInfo>>>();
             if (entityType.HasClrType)
             {
                 foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
-                    var entityClrType = FindCandidateNavigationPropertyType(navigationPropertyInfo);
+                    var entityClrType = navigationPropertyInfo.FindCandidateNavigationPropertyType();
                     if (entityClrType == null
                         || !entityTypeBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
                     {
@@ -42,12 +41,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         continue;
                     }
 
-                    if (navigationPairCandidates.ContainsKey(targetEntityTypeBuilder))
+                    if (navigationPairCandidates.ContainsKey(targetEntityTypeBuilder.Metadata.ClrType))
                     {
                         if (entityType != targetEntityTypeBuilder.Metadata
-                            || !navigationPairCandidates[targetEntityTypeBuilder].Item2.Contains(navigationPropertyInfo))
+                            || !navigationPairCandidates[targetEntityTypeBuilder.Metadata.ClrType].Item2.Contains(navigationPropertyInfo))
                         {
-                            navigationPairCandidates[targetEntityTypeBuilder].Item1.Add(navigationPropertyInfo);
+                            navigationPairCandidates[targetEntityTypeBuilder.Metadata.ClrType].Item1.Add(navigationPropertyInfo);
                         }
                         continue;
                     }
@@ -55,11 +54,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     var navigations = new List<PropertyInfo> { navigationPropertyInfo };
                     var reverseNavigations = new List<PropertyInfo>();
 
-                    navigationPairCandidates[targetEntityTypeBuilder] =
+                    navigationPairCandidates[targetEntityTypeBuilder.Metadata.ClrType] =
                         new Tuple<List<PropertyInfo>, List<PropertyInfo>>(navigations, reverseNavigations);
                     foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                     {
-                        var reverseEntityClrType = FindCandidateNavigationPropertyType(reversePropertyInfo);
+                        var reverseEntityClrType = reversePropertyInfo.FindCandidateNavigationPropertyType();
                         if (reverseEntityClrType == null
                             || !targetEntityTypeBuilder.CanAddNavigation(reversePropertyInfo.Name, ConfigurationSource.Convention)
                             || entityType.ClrType != reverseEntityClrType
@@ -92,12 +91,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                     foreach (var navigationCandidate in navigationCandidates)
                     {
-                        var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(FindCandidateNavigationPropertyType(navigationCandidate), ConfigurationSource.Convention);
-                        TryBuildRelationship(
-                            entityTypeBuilder,
-                            targetEntityTypeBuilder,
-                            navigationCandidate,
-                            reverseNavigationCandidates.SingleOrDefault());
+                        var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(navigationCandidate.FindCandidateNavigationPropertyType(), ConfigurationSource.Convention);
+                        targetEntityTypeBuilder.Relationship(entityTypeBuilder, navigationCandidate, reverseNavigationCandidates.SingleOrDefault(), ConfigurationSource.Convention);
                     }
                 }
             }
@@ -107,79 +102,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             // This takes care of removing such unreachable entities (being run after we are done building relationships using this entity)
             entityTypeBuilder.ModelBuilder.RemoveEntityTypesUnreachableByNavigations(ConfigurationSource.DataAnnotation);
             return entityTypeBuilder;
-        }
-
-        protected virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            if (!propertyInfo.IsCandidateProperty())
-            {
-                return null;
-            }
-
-            var targetType = propertyInfo.PropertyType;
-            targetType = targetType.TryGetSequenceType() ?? targetType;
-            targetType = targetType.UnwrapNullableType();
-
-            var typeInfo = targetType.GetTypeInfo();
-            if (targetType.IsPrimitive()
-                || typeInfo.IsValueType
-                || typeInfo.IsInterface)
-            {
-                return null;
-            }
-
-            return targetType;
-        }
-
-        private static void TryBuildRelationship(
-            [NotNull] InternalEntityTypeBuilder sourceBuilder,
-            [NotNull] InternalEntityTypeBuilder targetBuilder,
-            [NotNull] PropertyInfo navigationToTarget,
-            [CanBeNull] PropertyInfo navigationToSource)
-        {
-            var isToTargetNavigationCollection = navigationToTarget.PropertyType.TryGetSequenceType() != null;
-
-            if (isToTargetNavigationCollection)
-            {
-                if (navigationToSource?.PropertyType.TryGetSequenceType() != null)
-                {
-                    // TODO: Support many to many
-                    return;
-                }
-
-                targetBuilder.Relationship(
-                    sourceBuilder,
-                    targetBuilder,
-                    navigationToSource?.Name,
-                    navigationToTarget.Name,
-                    configurationSource: ConfigurationSource.Convention, isUnique: false, strictPrincipal: true);
-            }
-            else
-            {
-                if (navigationToSource == null)
-                {
-                    targetBuilder.Relationship(
-                        targetBuilder,
-                        sourceBuilder,
-                        navigationToTarget.Name,
-                        navigationToDependentName: null,
-                        configurationSource: ConfigurationSource.Convention, isUnique: null, strictPrincipal: false);
-                }
-                else
-                {
-                    if (navigationToSource.PropertyType.TryGetSequenceType() == null)
-                    {
-                        targetBuilder.Relationship(
-                            sourceBuilder,
-                            targetBuilder,
-                            navigationToSource.Name,
-                            navigationToTarget.Name,
-                            configurationSource: ConfigurationSource.Convention, isUnique: true, strictPrincipal: false);
-                    }
-                }
-            }
         }
     }
 }

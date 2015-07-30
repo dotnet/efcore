@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public abstract class NavigationAttributeConvention<TAttribute> : INavigationConvention
+    public abstract class NavigationAttributeNavigationConvention<TAttribute> : INavigationConvention
         where TAttribute : Attribute
     {
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
@@ -34,6 +34,5 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         }
 
         public abstract InternalRelationshipBuilder Apply([NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] Navigation navigation, [NotNull] TAttribute attribute);
-
     }
 }

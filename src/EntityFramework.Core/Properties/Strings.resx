@@ -528,4 +528,10 @@
   <data name="PropertyWrongEntityClrType" xml:space="preserve">
     <value>CLR property '{property}' cannot be added to entity type '{entityType}' because it is declared on the CLR type '{clrType}'.</value>
   </data>
+  <data name="InvalidNavigationWithInverseProperty" xml:space="preserve">
+    <value>The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.</value>
+  </data>
+  <data name="SelfReferencingNavigationWithInverseProperty" xml:space="preserve">
+    <value>A relationship cannot be established from property '{property}' on type '{entityType}' to property '{referencedProperty}' on type '{referencedEntityType}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.</value>
+  </data>
 </root>

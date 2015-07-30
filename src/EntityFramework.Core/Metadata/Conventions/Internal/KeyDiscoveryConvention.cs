@@ -35,8 +35,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            // TODO: Honor [Key]
-            // Issue #213
             var keyProperties = entityType.Properties
                 .Where(p => string.Equals(p.Name, KeySuffix, StringComparison.OrdinalIgnoreCase))
                 .ToList();

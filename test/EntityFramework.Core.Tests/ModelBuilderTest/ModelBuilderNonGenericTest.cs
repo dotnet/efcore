@@ -28,34 +28,22 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("Ro", model.GetAnnotation("Fus").Value);
             }
 
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new NonGenericTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
         public class NonGenericOneToMany : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new NonGenericTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
         public class NonGenericManyToOne : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new NonGenericTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
         public class NonGenericOneToOne : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new NonGenericTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
         private class NonGenericTestModelBuilder : TestModelBuilder

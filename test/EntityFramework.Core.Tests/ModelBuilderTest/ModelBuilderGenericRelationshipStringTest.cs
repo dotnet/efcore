@@ -14,26 +14,17 @@ namespace Microsoft.Data.Entity.Tests
     {
         public class GenericOneToManyString : OneToManyTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new GenericStringTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericStringTestModelBuilder(modelBuilder);
         }
 
         public class GenericManyToOneString : ManyToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new GenericStringTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericStringTestModelBuilder(modelBuilder);
         }
 
         public class GenericOneToOneString : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new GenericStringTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericStringTestModelBuilder(modelBuilder);
         }
 
         private class GenericStringTestModelBuilder : TestModelBuilder

@@ -67,6 +67,12 @@ namespace Microsoft.Data.Entity.Tests
                 => new GenericTestModelBuilder(modelBuilder);
         }
 
+        public class GenericDataAnnotations : DataAnnotationsTestBase
+        {
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
+                => new GenericTestModelBuilder(modelBuilder);
+        }
+
         public class GenericInheritance : InheritanceTestBase
         {
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)

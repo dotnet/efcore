@@ -1,23 +1,22 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class NotMappedNavigationAttributeConvention : NavigationAttributeConvention<NotMappedAttribute>
+    public class NotMappedNavigationAttributeConvention : NavigationAttributeEntityTypeConvention<NotMappedAttribute>
     {
-        public override InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation, NotMappedAttribute attribute)
+        public override InternalEntityTypeBuilder Apply(InternalEntityTypeBuilder entityTypeBuilder, PropertyInfo navigationPropertyInfo, NotMappedAttribute attribute)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(navigation, nameof(navigation));
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotNull(navigationPropertyInfo, nameof(navigationPropertyInfo));
             Check.NotNull(attribute, nameof(attribute));
 
-            var entityTypeBuilder = relationshipBuilder.ModelBuilder.Entity(navigation.DeclaringEntityType.Name, ConfigurationSource.Convention);
-            return entityTypeBuilder.Ignore(navigation.Name, ConfigurationSource.DataAnnotation) ? null : relationshipBuilder;
+            return entityTypeBuilder.Ignore(navigationPropertyInfo.Name, ConfigurationSource.DataAnnotation) ? null : entityTypeBuilder;
         }
     }
 }

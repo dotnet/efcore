@@ -10,7 +10,7 @@ using Xunit;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Data.Entity.Tests
 {
-    public partial class ModelBuilderTest
+    public abstract partial class ModelBuilderTest
     {
         public abstract class InheritanceTestBase : ModelBuilderTestBase
         {

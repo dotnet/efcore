@@ -96,6 +96,7 @@
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />
     <Compile Include="Metadata\TypedAnnotationTest.cs" />
+    <Compile Include="ModelBuilderTest\DataAnnotationsTestBase.cs" />
     <Compile Include="ModelBuilderTest\ManyToOneTestBase.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeTest.cs" />
     <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipStringTest.cs" />

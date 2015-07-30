@@ -13,10 +13,7 @@ namespace Microsoft.Data.Entity.Tests
     {
         public class GenericOneToOneType : OneToOneTestBase
         {
-            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder)
-            {
-                return new GenericTypeTestModelBuilder(modelBuilder);
-            }
+            protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new GenericTypeTestModelBuilder(modelBuilder);
         }
 
         private class GenericTypeTestModelBuilder : TestModelBuilder

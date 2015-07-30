@@ -18,5 +18,27 @@ namespace System.Reflection
                && propertyInfo.GetIndexParameters().Length == 0
                && propertyInfo.CanRead
                && propertyInfo.CanWrite;
+
+        public static Type FindCandidateNavigationPropertyType(this PropertyInfo propertyInfo)
+        {
+            if (!propertyInfo.IsCandidateProperty())
+            {
+                return null;
+            }
+
+            var targetType = propertyInfo.PropertyType;
+            targetType = targetType.TryGetSequenceType() ?? targetType;
+            targetType = targetType.UnwrapNullableType();
+
+            var typeInfo = targetType.GetTypeInfo();
+            if (targetType.IsPrimitive()
+                || typeInfo.IsValueType
+                || typeInfo.IsInterface)
+            {
+                return null;
+            }
+
+            return targetType;
+        }
     }
 }

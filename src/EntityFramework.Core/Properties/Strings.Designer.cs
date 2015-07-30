@@ -1108,6 +1108,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWrongEntityClrType", "property", "entityType", "clrType"), property, entityType, clrType);
         }
 
+        /// <summary>
+        /// The InversePropertyAttribute on property '{property}' on type '{entityType}' is not valid. The property '{referencedProperty}' is not a valid navigation property on the related type '{referencedEntityType}'. Ensure that the property exists and is a valid reference or collection navigation property.
+        /// </summary>
+        public static string InvalidNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidNavigationWithInverseProperty", "property", "entityType", "referencedProperty", "referencedEntityType"), property, entityType, referencedProperty, referencedEntityType);
+        }
+
+        /// <summary>
+        /// A relationship cannot be established from property '{property}' on type '{entityType}' to property '{referencedProperty}' on type '{referencedEntityType}'. Check the values in the InversePropertyAttribute to ensure relationship definitions are unique and reference from one navigation property to its corresponding inverse navigation property.
+        /// </summary>
+        public static string SelfReferencingNavigationWithInverseProperty([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object referencedProperty, [CanBeNull] object referencedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SelfReferencingNavigationWithInverseProperty", "property", "entityType", "referencedProperty", "referencedEntityType"), property, entityType, referencedProperty, referencedEntityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

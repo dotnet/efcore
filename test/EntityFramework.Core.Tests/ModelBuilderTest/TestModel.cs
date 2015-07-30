@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
@@ -166,6 +167,36 @@ namespace Microsoft.Data.Entity.Tests
             public SelfRef SelfRef1 { get; set; }
             public SelfRef SelfRef2 { get; set; }
             public int SelfRefId { get; set; }
+        }
+
+        private class Book
+        {
+             public int Id { get; set; }
+
+            public BookLabel Label { get; set; }
+
+            public BookLabel AlternateLabel { get; set; }
+
+            public BookDetails Details { get; set; }
+        }
+
+        private class BookDetails
+        {
+            public int Id { get; set; }
+
+            [NotMapped]
+            public Book Book { get; set; }
+
+            public Book AnotherBook { get; set; }
+        }
+
+        private class BookLabel
+        {
+            public int Id { get; set; }
+            public int BookId { get; set; }
+
+            [InverseProperty("Label")]
+            public Book Book { get; set; }
         }
     }
 }
