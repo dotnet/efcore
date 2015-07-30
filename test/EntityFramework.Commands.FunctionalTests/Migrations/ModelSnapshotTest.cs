@@ -47,6 +47,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public string Name { get; set; }
         }
 
+        public class AnotherDerivedEntity : BaseEntity
+        {
+            public string Title { get; set; }
+        }
+
         #region Model
 
         [Fact]
@@ -133,7 +138,11 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         public void BaseType_is_stored_in_snapshot()
         {
             Test(
-                builder => { builder.Entity<DerivedEntity>().BaseType<BaseEntity>(); },
+                builder =>
+                    {
+                        builder.Entity<DerivedEntity>().BaseType<BaseEntity>();
+                        builder.Entity<AnotherDerivedEntity>().BaseType<BaseEntity>();
+                    },
                 @"
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"", b =>
     {
@@ -143,19 +152,26 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Bas
         b.Key(""Id"");
     });
 
-builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
     {
-        b.Property<string>(""Name"");
+        b.BaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"");
+
+        b.Property<string>(""Title"");
     });
 
-builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity"")
-    .BaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"");
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
+    {
+        b.BaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"");
+
+        b.Property<string>(""Name"");
+    });
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.EntityTypes.Count());
+                        Assert.Equal(3, o.EntityTypes.Count());
                         Assert.Collection(
                             o.EntityTypes,
+                            t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
                             );
