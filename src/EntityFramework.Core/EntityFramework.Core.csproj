@@ -227,8 +227,10 @@
     <Compile Include="Query\ExpressionVisitors\ParameterExtractingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\QueryAnnotatingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\ReducingExpressionVisitor.cs" />
+    <Compile Include="Query\Internal\ExpressionPrinter.cs" />
     <Compile Include="Query\IEntityQueryProvider.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
+    <Compile Include="Query\Internal\IExpressionPrinter.cs" />
     <Compile Include="Query\QueryableHelpers.cs" />
     <Compile Include="Query\QueryAnnotationMethodAttribute.cs" />
     <Compile Include="Query\SharedQueryExtensions.cs" />
@@ -254,7 +256,6 @@
     <Compile Include="Query\ExpressionVisitors\EntityQueryableExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\DefaultQueryExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\EntityResultFindingExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionPrinter.cs" />
     <Compile Include="Query\IAsyncEnumerableAccessor.cs" />
     <Compile Include="Query\ExpressionVisitors\MemberAccessBindingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\ProjectionExpressionVisitor.cs" />
@@ -400,6 +401,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

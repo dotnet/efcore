@@ -32,6 +32,8 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
 
+        public virtual Func<ISqlQueryGenerator> SqlGeneratorFactory => _sqlGeneratorFactory;
+
         public virtual DbCommand Build(
             [NotNull] IRelationalConnection connection,
             [NotNull] IDictionary<string, object> parameterValues)

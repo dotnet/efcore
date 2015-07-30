@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -8,6 +9,7 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Query.Methods;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
@@ -71,6 +73,11 @@ namespace Microsoft.Data.Entity.Query
             _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);
 
             return relationalQueryModelVisitor;
+        }
+
+        public override IExpressionPrinter CreateExpressionPrinter()
+        {
+            return new RelationalExpressionPrinter();
         }
 
         public virtual SelectExpression FindSelectExpression([NotNull] IQuerySource querySource)

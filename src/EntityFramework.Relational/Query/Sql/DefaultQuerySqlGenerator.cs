@@ -42,6 +42,8 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public virtual IRelationalTypeMapper TypeMapper { get; }
 
+        public virtual SelectExpression SelectExpression => _selectExpression;
+
         public virtual string GenerateSql(IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
@@ -459,18 +461,21 @@ namespace Microsoft.Data.Entity.Query.Sql
                 var inParameter = inValue as ParameterExpression;
                 if (inParameter != null)
                 {
-                    var parameterValue = _parameterValues[inParameter.Name];
-                    var valuesCollection = parameterValue as IEnumerable;
+                    object parameterValue;
+                    if (_parameterValues.TryGetValue(inParameter.Name, out parameterValue))
+                    {
+                        var valuesCollection = parameterValue as IEnumerable;
 
-                    if (valuesCollection != null
-                        && parameterValue.GetType() != typeof(string)
-                        && parameterValue.GetType() != typeof(byte[]))
-                    {
-                        inConstants.AddRange(valuesCollection.Cast<object>().Select(Expression.Constant));
-                    }
-                    else
-                    {
-                        inConstants.Add(inParameter);
+                        if (valuesCollection != null
+                            && parameterValue.GetType() != typeof(string)
+                            && parameterValue.GetType() != typeof(byte[]))
+                        {
+                            inConstants.AddRange(valuesCollection.Cast<object>().Select(Expression.Constant));
+                        }
+                        else
+                        {
+                            inConstants.Add(inParameter);
+                        }
                     }
                 }
             }
@@ -492,10 +497,16 @@ namespace Microsoft.Data.Entity.Query.Sql
                 }
 
                 var inParameter = inValue as ParameterExpression;
-                if (inParameter != null
-                    && _parameterValues[inParameter.Name] != null)
+                if (inParameter != null)
                 {
-                    inValuesNotNull.Add(inValue);
+                    object parameterValue;
+                    if (_parameterValues.TryGetValue(inParameter.Name, out parameterValue))
+                    {
+                        if (parameterValue != null)
+                        {
+                            inValuesNotNull.Add(inValue);
+                        }
+                    }
                 }
             }
 
@@ -895,7 +906,12 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (_commandParameters.All(commandParameter => commandParameter.Name != parameterName))
             {
-                var value = _parameterValues[parameterExpression.Name];
+                object value;
+                if (!_parameterValues.TryGetValue(parameterExpression.Name, out value))
+                {
+                    value = string.Empty;
+                }
+
 
                 _commandParameters.Add(new CommandParameter(parameterName, value, TypeMapper.GetDefaultMapping(value)));
             }

@@ -3014,14 +3014,14 @@ WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
         {
             AssertQuery<Customer>(
                 cs => from c in cs
-                      where c.Fax != null && Convert.ToByte(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
+                      where c.Fax != null && Convert.ToByte(c.Fax.Substring(c.Fax.Length - 1, 1)) >= 0
                       select c,
                 entryCount: 69);
 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(tinyint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
+WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(tinyint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) >= 0))",
                 Sql);
         }
 
