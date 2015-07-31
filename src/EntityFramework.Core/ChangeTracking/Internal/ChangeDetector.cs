@@ -148,14 +148,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 return;
             }
-            
-            var isPrimaryKey = property.IsPrimaryKey();
-            var isPrincipalKey = _model.GetReferencingForeignKeys(property).Any();
-            var isForeignKey = property.IsForeignKey(entry.EntityType);
 
-            if (isPrimaryKey
-                || isPrincipalKey
-                || isForeignKey)
+            var keys = property.FindContainingKeys().ToList();
+            var foreignKeys = property.FindContainingForeignKeys(entry.EntityType).ToList();
+
+            if (keys.Count > 0
+                || foreignKeys.Count > 0)
             {
                 var snapshotValue = snapshot[property];
                 var currentValue = entry[property];
@@ -164,19 +162,26 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 // of byte[] with the same content must be detected as equal.
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(currentValue, snapshotValue))
                 {
-                    if (isForeignKey)
+                    var stateManager = entry.StateManager;
+
+                    if (foreignKeys.Count > 0)
                     {
-                        entry.StateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                        stateManager.Notify.ForeignKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+
+                        foreach (var foreignKey in foreignKeys)
+                        {
+                            stateManager.UpdateDependentMap(entry, snapshot.GetDependentKeyValue(foreignKey), foreignKey);
+                        }
                     }
 
-                    if (isPrimaryKey)
+                    if (keys.Count > 0)
                     {
-                        entry.StateManager.UpdateIdentityMap(entry, snapshot.GetPrimaryKeyValue());
-                    }
+                        foreach (var key in keys)
+                        {
+                            stateManager.UpdateIdentityMap(entry, snapshot.GetPrincipalKeyValue(key), key);
+                        }
 
-                    if (isPrincipalKey)
-                    {
-                        entry.StateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
+                        stateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
                     }
 
                     snapshot.TakeSnapshot(property);

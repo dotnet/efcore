@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Resources;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -24,7 +23,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly Dictionary<object, WeakReference<InternalEntityEntry>> _detachedEntityReferenceMap
             = new Dictionary<object, WeakReference<InternalEntityEntry>>(ReferenceEqualityComparer.Instance);
 
-        private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap = new Dictionary<EntityKey, InternalEntityEntry>();
+        private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap 
+            = new Dictionary<EntityKey, InternalEntityEntry>();
+
+        private readonly Dictionary<IForeignKey, Dictionary<EntityKey, HashSet<InternalEntityEntry>>> _dependentsMap
+            = new Dictionary<IForeignKey, Dictionary<EntityKey, HashSet<InternalEntityEntry>>>();
+
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IModel _model;
@@ -125,7 +129,37 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _identityMap.Add(entityKey, newEntry);
             foreach (var key in entityType.GetKeys().Where(k => k != entityKey.Key))
             {
-                _identityMap[newEntry.GetPrincipalKeyValue(key)] = newEntry;
+                var principalKeyValue = newEntry.GetPrincipalKeyValue(key);
+
+                if (principalKeyValue != EntityKey.InvalidEntityKey)
+                {
+                    _identityMap[principalKeyValue] = newEntry;
+                }
+            }
+
+            foreach (var foreignKey in entityType.GetForeignKeys())
+            {
+                var dependentKey = newEntry.GetDependentKeyValue(foreignKey);
+                if (dependentKey == EntityKey.InvalidEntityKey)
+                {
+                    continue;
+                }
+
+                Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+                if (!_dependentsMap.TryGetValue(foreignKey, out fkMap))
+                {
+                    fkMap = new Dictionary<EntityKey, HashSet<InternalEntityEntry>>();
+                    _dependentsMap[foreignKey] = fkMap;
+                }
+
+                HashSet<InternalEntityEntry> dependents;
+                if (!fkMap.TryGetValue(dependentKey, out dependents))
+                {
+                    dependents = new HashSet<InternalEntityEntry>();
+                    fkMap[dependentKey] = dependents;
+                }
+
+                dependents.Add(newEntry);
             }
         }
 
@@ -177,7 +211,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 throw new InvalidOperationException(Strings.MultipleEntries(entityType.Name));
             }
 
-            var keyValue = GetPrimaryKeyValueChecked(entry);
+            var keyValue = GetKeyValueChecked(entityType.GetPrimaryKey(), entry);
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {
@@ -213,6 +247,30 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     _identityMap.Remove(keyValue);
                 }
             }
+
+            foreach (var foreignKey in entry.EntityType.GetForeignKeys())
+            {
+                var dependentKey = entry.GetDependentKeyValue(foreignKey);
+
+                Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+                HashSet<InternalEntityEntry> dependents;
+                if (dependentKey != EntityKey.InvalidEntityKey
+                    && _dependentsMap.TryGetValue(foreignKey, out fkMap)
+                    && fkMap.TryGetValue(dependentKey, out dependents))
+                {
+                    dependents.Remove(entry);
+
+                    if (dependents.Count == 0)
+                    {
+                        fkMap.Remove(dependentKey);
+
+                        if (fkMap.Count == 0)
+                        {
+                            _dependentsMap.Remove(foreignKey);
+                        }
+                    }
+                }
+            }
         }
 
         public virtual InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
@@ -229,14 +287,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return principalEntry;
         }
 
-        public virtual void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey)
+        public virtual void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey, IKey principalKey)
         {
             if (entry.EntityState == EntityState.Detached)
             {
                 return;
             }
 
-            var newKey = GetPrimaryKeyValueChecked(entry);
+            var newKey = GetKeyValueChecked(principalKey, entry);
 
             if (oldKey.Equals(newKey))
             {
@@ -251,12 +309,66 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             _identityMap.Remove(oldKey);
-            _identityMap[newKey] = entry;
+
+            if (newKey != EntityKey.InvalidEntityKey)
+            {
+                _identityMap[newKey] = entry;
+            }
         }
 
-        private EntityKey GetPrimaryKeyValueChecked(InternalEntityEntry entry)
+        public virtual void UpdateDependentMap(InternalEntityEntry entry, EntityKey oldKey, IForeignKey foreignKey)
         {
-            var keyValue = entry.GetPrimaryKeyValue();
+            if (entry.EntityState == EntityState.Detached)
+            {
+                return;
+            }
+
+            var newKey = entry.GetDependentKeyValue(foreignKey);
+
+            if (oldKey.Equals(newKey))
+            {
+                return;
+            }
+
+            Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+            if (_dependentsMap.TryGetValue(foreignKey, out fkMap))
+            {
+                HashSet<InternalEntityEntry> dependents;
+
+                if (oldKey != EntityKey.InvalidEntityKey
+                    && fkMap.TryGetValue(oldKey, out dependents))
+                {
+                    dependents.Remove(entry);
+                
+                    if (dependents.Count == 0)
+                    {
+                        fkMap.Remove(oldKey);
+                    }
+                }
+
+                if (newKey == EntityKey.InvalidEntityKey)
+                {
+                    if (fkMap.Count == 0)
+                    {
+                        _dependentsMap.Remove(foreignKey);
+                    }
+                }
+                else
+                {
+                    if (!fkMap.TryGetValue(newKey, out dependents))
+                    {
+                        dependents = new HashSet<InternalEntityEntry>();
+                        fkMap[newKey] = dependents;
+                    }
+
+                    dependents.Add(entry);
+                }
+            }
+        }
+
+        private EntityKey GetKeyValueChecked(IKey key, InternalEntityEntry entry)
+        {
+            var keyValue = entry.GetPrincipalKeyValue(key);
 
             if (keyValue == EntityKey.InvalidEntityKey)
             {
@@ -269,14 +381,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual IEnumerable<InternalEntityEntry> GetDependents(InternalEntityEntry principalEntry, IForeignKey foreignKey)
         {
-            var principalKeyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
+            var keyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
-            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
-            return principalKeyValue == EntityKey.InvalidEntityKey
-                ? Enumerable.Empty<InternalEntityEntry>()
-                : Entries.Where(
-                    e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType)
-                         && principalKeyValue.Equals(e.GetDependentKeyValue(foreignKey)));
+            Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+            HashSet<InternalEntityEntry> dependents;
+            return keyValue != EntityKey.InvalidEntityKey
+                   && _dependentsMap.TryGetValue(foreignKey, out fkMap)
+                   && fkMap.TryGetValue(keyValue, out dependents)
+                ? dependents
+                : Enumerable.Empty<InternalEntityEntry>();
         }
 
         [DebuggerStepThrough]

@@ -38,7 +38,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         InternalEntityEntry GetPrincipal([NotNull] IPropertyAccessor dependentEntry, [NotNull] IForeignKey foreignKey);
 
-        void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] EntityKey oldKey);
+        void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] EntityKey oldKey, [NotNull] IKey principalKey);
+
+        void UpdateDependentMap([NotNull] InternalEntityEntry entry, [NotNull] EntityKey oldKey, [NotNull] IForeignKey foreignKey);
 
         IEnumerable<InternalEntityEntry> GetDependents([NotNull] InternalEntityEntry principalEntry, [NotNull] IForeignKey foreignKey);
 
