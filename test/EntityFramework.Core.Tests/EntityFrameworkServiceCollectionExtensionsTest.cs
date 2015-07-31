@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 Assert.Same(service, otherScopeService);
             }
-            Assert.Equal(1, ((IAccessor<IServiceProvider>)_firstContext).Service.GetRequiredServices<TService>().Count());
+            Assert.Equal(1, ((IAccessor<IServiceProvider>)_firstContext).Service.GetServices<TService>().Count());
 
             if (typeof(TService) != typeof(IDbContextServices))
             {
@@ -173,12 +173,12 @@ namespace Microsoft.Data.Entity.Tests
                     if (isExistingReplaced)
                     {
                         Assert.NotSame(service, serviceProviderWithCustomService.GetService<TService>());
-                        Assert.Equal(2, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
+                        Assert.Equal(2, serviceProviderWithCustomService.GetServices<TService>().Count());
                     }
                     else
                     {
                         Assert.Same(service, serviceProviderWithCustomService.GetService<TService>());
-                        Assert.Equal(1, serviceProviderWithCustomService.GetRequiredServices<TService>().Count());
+                        Assert.Equal(1, serviceProviderWithCustomService.GetServices<TService>().Count());
                     }
                 }
             }
