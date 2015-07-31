@@ -460,7 +460,7 @@ namespace Microsoft.Data.Entity.Commands
                 return;
             }
 
-            var library = _libraryManager.GetLibraryInformation(startupProject);
+            var library = _libraryManager.GetLibrary(startupProject);
             if (library == null || library.Type != "Project")
             {
                 _logger.LogVerbose("Unable to resolve start-up project '{0}'", startupProject);
