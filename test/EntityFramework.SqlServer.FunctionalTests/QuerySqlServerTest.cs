@@ -3009,113 +3009,234 @@ WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
                 Sql);
         }
 
-        [Fact]
-        public void Where_convert_to_byte()
+        public override void Convert_methods()
         {
-            AssertQuery<Customer>(
-                cs => from c in cs
-                      where c.Fax != null && Convert.ToByte(c.Fax.Substring(c.Fax.Length - 1, 1)) >= 0
-                      select c,
-                entryCount: 69);
+            base.Convert_methods();
 
             Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(tinyint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) >= 0))",
-                Sql);
-        }
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
 
-        [Fact]
-        public void Where_convert_to_decimal()
-        {
-            AssertQuery<Customer>(
-                cs => from c in cs
-                      where c.Fax != null && Convert.ToDecimal(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
-                      select c,
-                entryCount: 69);
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(decimal, [o].[OrderID] % 1)) >= 0))
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(decimal, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
-                Sql);
-        }
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(float, [o].[OrderID] % 1)) >= 0))
 
-        [Fact]
-        public void Where_convert_to_double()
-        {
-            AssertQuery<Customer>(
-                cs => from c in cs
-                      where c.Fax != null && Convert.ToDouble(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
-                      select c,
-                entryCount: 69);
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(float, [o].[OrderID] % 1)) >= 0))
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(float, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1E0))",
-                Sql);
-        }
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(smallint, [o].[OrderID] % 1)) >= 0))
 
-        [Fact]
-        public void Where_convert_to_int16()
-        {
-            AssertQuery<Customer>(
-                cs => from c in cs
-                      where c.Fax != null && Convert.ToInt16(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
-                      select c,
-                entryCount: 69);
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(int, [o].[OrderID] % 1)) >= 0))
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(smallint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
-                Sql);
-        }
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(bigint, [o].[OrderID] % 1)) >= 0))
 
-        [Fact]
-        public void Where_convert_to_int32()
-        {
-            AssertQuery<Customer>(
-                cs => from c in cs
-                      where c.Fax != null && Convert.ToInt32(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
-                      select c,
-                entryCount: 69);
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(int, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
-                Sql);
-        }
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
 
-        [Fact]
-        public void Where_convert_to_int64()
-        {
-            AssertQuery<Customer>(
-                cs => from c in cs
-                      where c.Fax != null && Convert.ToInt64(c.Fax.Substring(c.Fax.Length - 1, 1)) > -1
-                      select c,
-                entryCount: 69);
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(decimal, [o].[OrderID] % 1)) >= 0))
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (CONVERT(bigint, SUBSTRING([c].[Fax], (LEN([c].[Fax]) - 1), 1)) > -1))",
-                Sql);
-        }
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(float, [o].[OrderID] % 1)) >= 0))
 
-        [Fact]
-        public void Where_convert_to_string()
-        {
-            AssertQuery<Customer>(
-                cs => cs.Where(c => c.Fax != null && Convert.ToString(c.Fax).Length > 0),
-                entryCount: 69);
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(float, [o].[OrderID] % 1)) >= 0))
 
-            Assert.Equal(
-                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE ([c].[Fax] IS NOT NULL AND (LEN(CONVERT(nvarchar, [c].[Fax])) > 0))",
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(smallint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(int, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(bigint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(decimal, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(float, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(float, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(smallint, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(int, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(bigint, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0E0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(decimal, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(float, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(float, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(smallint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(int, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(bigint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(decimal, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(float, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(float, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(smallint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(int, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(bigint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(decimal, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(float, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(float, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(smallint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(int, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(bigint, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(tinyint, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(decimal, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(float, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(float, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(smallint, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(int, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(bigint, [o].[OrderID] % 1)) <> '10'))
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(nvarchar, [o].[OrderID] % 1)) <> '10'))",
                 Sql);
         }
 

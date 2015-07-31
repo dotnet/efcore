@@ -3377,6 +3377,84 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Convert_methods()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
+                o => Convert.ToByte(Convert.ToByte(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte(Convert.ToDecimal(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte(Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte((float)Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte(Convert.ToInt16(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte(Convert.ToInt32(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte(Convert.ToInt64(o.OrderID % 1)) >= 0,
+                o => Convert.ToByte(Convert.ToString(o.OrderID % 1)) >= 0,
+
+                o => Convert.ToDecimal(Convert.ToByte(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal(Convert.ToDecimal(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal(Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal((float)Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal(Convert.ToInt16(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal(Convert.ToInt32(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal(Convert.ToInt64(o.OrderID % 1)) >= 0,
+                o => Convert.ToDecimal(Convert.ToString(o.OrderID % 1)) >= 0,
+
+                o => Convert.ToDouble(Convert.ToByte(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble(Convert.ToDecimal(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble(Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble((float)Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble(Convert.ToInt16(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble(Convert.ToInt32(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble(Convert.ToInt64(o.OrderID % 1)) >= 0,
+                o => Convert.ToDouble(Convert.ToString(o.OrderID % 1)) >= 0,
+
+                o => Convert.ToInt16(Convert.ToByte(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16(Convert.ToDecimal(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16(Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16((float)Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16(Convert.ToInt16(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16(Convert.ToInt32(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16(Convert.ToInt64(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt16(Convert.ToString(o.OrderID % 1)) >= 0,
+
+                o => Convert.ToInt32(Convert.ToByte(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32(Convert.ToDecimal(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32(Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32((float)Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32(Convert.ToInt16(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32(Convert.ToInt32(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32(Convert.ToInt64(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt32(Convert.ToString(o.OrderID % 1)) >= 0,
+
+                o => Convert.ToInt64(Convert.ToByte(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64(Convert.ToDecimal(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64(Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64((float)Convert.ToDouble(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64(Convert.ToInt16(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64(Convert.ToInt32(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64(Convert.ToInt64(o.OrderID % 1)) >= 0,
+                o => Convert.ToInt64(Convert.ToString(o.OrderID % 1)) >= 0,
+
+                o => Convert.ToString(Convert.ToByte(o.OrderID % 1)) != "10",
+                o => Convert.ToString(Convert.ToDecimal(o.OrderID % 1)) != "10",
+                o => Convert.ToString(Convert.ToDouble(o.OrderID % 1)) != "10",
+                o => Convert.ToString((float)Convert.ToDouble(o.OrderID % 1)) != "10",
+                o => Convert.ToString(Convert.ToInt16(o.OrderID % 1)) != "10",
+                o => Convert.ToString(Convert.ToInt32(o.OrderID % 1)) != "10",
+                o => Convert.ToString(Convert.ToInt64(o.OrderID % 1)) != "10",
+                o => Convert.ToString(Convert.ToString(o.OrderID % 1)) != "10",
+            };
+
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
         public virtual void GroupJoin_simple()
         {
             AssertQuery<Customer, Order>((cs, os) =>

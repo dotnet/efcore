@@ -115,6 +115,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 case ExpressionType.Subtract:
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
+                case ExpressionType.Modulo:
                 {
                     var leftExpression = Visit(binaryExpression.Left);
                     var rightExpression = Visit(binaryExpression.Right);

@@ -7,17 +7,15 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Methods;
-using Microsoft.Data.Entity.Utilities;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 {
     public class ConvertTranslator : IMethodCallTranslator
     {
-        private readonly string _convertMethodName;
-        private readonly Dictionary<string, object> _typeMapping = new Dictionary<string, object>
+        private static readonly Dictionary<string, DbType> _typeMapping = new Dictionary<string, DbType>
         {
             [nameof(Convert.ToByte)] = DbType.Byte,
             [nameof(Convert.ToDecimal)] = DbType.Decimal,
@@ -28,19 +26,35 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
             [nameof(Convert.ToString)] = DbType.String,
         };
 
-        public ConvertTranslator([NotNull] string convertMethodName)
+        private static readonly List<Type> _supportedTypes = new List<Type>
         {
-            Check.NotEmpty(convertMethodName, nameof(convertMethodName));
+            typeof(bool),
+            typeof(byte),
+            typeof(decimal),
+            typeof(double),
+            typeof(float),
+            typeof(int),
+            typeof(long),
+            typeof(short),
+            typeof(string),
+        };
 
-            _convertMethodName = convertMethodName;
+        private static readonly IEnumerable<MethodInfo> _supportedMethods;
+
+        static ConvertTranslator()
+        {
+            _supportedMethods = _typeMapping.Keys
+                .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
+                    .Where(m => m.GetParameters().Count() == 1
+                        && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
         }
 
         public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
         {
-            var methodInfos = typeof(Convert).GetTypeInfo().GetDeclaredMethods(_convertMethodName);
-            if (methodInfos.Contains(methodCallExpression.Method))
+            if (_supportedMethods.Contains(methodCallExpression.Method))
             {
-                var arguments = new[] { Expression.Constant(_typeMapping[_convertMethodName]), methodCallExpression.Arguments[0] };
+                var arguments = new[] { Expression.Constant(_typeMapping[methodCallExpression.Method.Name]), methodCallExpression.Arguments[0] };
+
                 return new SqlFunctionExpression("CONVERT", arguments, methodCallExpression.Type);
             }
 

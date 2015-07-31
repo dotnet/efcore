@@ -723,6 +723,9 @@ namespace Microsoft.Data.Entity.Query.Sql
                     case ExpressionType.Divide:
                         op = " / ";
                         break;
+                    case ExpressionType.Modulo:
+                        op = " % ";
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
