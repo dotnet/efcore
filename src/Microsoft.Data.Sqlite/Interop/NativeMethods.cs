@@ -36,7 +36,7 @@ namespace Microsoft.Data.Sqlite.Interop
                     .Locator
                     .ServiceProvider
                     .GetRequiredService<ILibraryManager>()
-                    .GetLibraryInformation(typeof(NativeMethods).GetTypeInfo().Assembly.GetName().Name);
+                    .GetLibrary(typeof(NativeMethods).GetTypeInfo().Assembly.GetName().Name);
 
                 var installPath = library.Path;
                 if (library.Type == "Project")
