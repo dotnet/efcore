@@ -1936,6 +1936,7 @@ FROM [Customers] AS [c]
 INNER JOIN (
     SELECT TOP(5) [o2].*
     FROM [Orders] AS [o2]
+    WHERE [o2].[OrderID] > 0
     ORDER BY [o2].[OrderID]
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE [t0].[CustomerID] = 'ALFKI'", Sql);
