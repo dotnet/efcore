@@ -24,12 +24,12 @@ namespace Microsoft.Data.Entity.Commands
             _services = services;
         }
 
-        public virtual DbContext CreateContext([NotNull] Type type, [CanBeNull] string startupAssemblyName)
+        public virtual DbContext CreateContext([NotNull] Type type, [CanBeNull] string startupAssemblyName, [CanBeNull] string environmentName)
         {
             Check.NotNull(type, nameof(type));
 
 #if DNX451 || DNXCORE50
-            var context = TryCreateContextFromStartup(type, startupAssemblyName);
+            var context = TryCreateContextFromStartup(type, startupAssemblyName, environmentName);
             if (context != null)
             {
                 return context;
@@ -41,9 +41,13 @@ namespace Microsoft.Data.Entity.Commands
         }
 
 #if DNX451 || DNXCORE50
-        protected virtual DbContext TryCreateContextFromStartup(Type type, string startupAssemblyName)
+        protected virtual DbContext TryCreateContextFromStartup(Type type, string startupAssemblyName, string environmentName)
         {
             var hostBuilder = new WebHostBuilder(_services);
+			if (environmentName != null)
+            {
+                hostBuilder.UseEnvironment(environmentName);
+            }
             if (startupAssemblyName != null)
             {
                 hostBuilder.UseStartup(startupAssemblyName);

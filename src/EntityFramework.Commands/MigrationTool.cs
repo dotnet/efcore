@@ -99,10 +99,11 @@ namespace Microsoft.Data.Entity.Commands
         public virtual void ApplyMigration(
             [CanBeNull] string migrationName,
             [CanBeNull] string contextTypeName,
-            [CanBeNull] string startupAssemblyName)
+            [CanBeNull] string startupAssemblyName,
+            [CanBeNull] string environmentName = null)
         {
             var contextType = GetContextType(contextTypeName);
-            using (var context = CreateContext(contextType, startupAssemblyName))
+            using (var context = CreateContext(contextType, startupAssemblyName, environmentName))
             {
                 var services = ((IAccessor<IServiceProvider>)context).Service;
                 var migrator = services.GetRequiredService<IMigrator>();
@@ -152,9 +153,9 @@ namespace Microsoft.Data.Entity.Commands
                         .Where(t => t != null))
                 .Distinct();
 
-        protected virtual DbContext CreateContext(Type type, string startupAssemblyName)
+        protected virtual DbContext CreateContext(Type type, string startupAssemblyName, string environmentName = null)
         {
-            var context = new ContextTool(_services).CreateContext(type, startupAssemblyName);
+            var context = new ContextTool(_services).CreateContext(type, startupAssemblyName, environmentName);
             var services = ((IAccessor<IServiceProvider>)context).Service;
 
             var loggerFactory = services.GetRequiredService<ILoggerFactory>();
