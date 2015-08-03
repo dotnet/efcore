@@ -20,36 +20,52 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
-        public void LoadAll(MetricCollector collector)
+        [BenchmarkVariation("Tracking On", true)]
+        [BenchmarkVariation("Tracking Off", false)]
+        public void LoadAll(MetricCollector collector, bool tracking)
         {
             using (var context = _fixture.CreateContext())
             {
+                var query = context.Products.ApplyTracking(tracking);
+
                 collector.StartCollection();
-                var result = context.Products.ToList();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(1000, result.Count);
             }
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
-        public void Where(MetricCollector collector)
+        [BenchmarkVariation("Tracking On", true)]
+        [BenchmarkVariation("Tracking Off", false)]
+        public void Where(MetricCollector collector, bool tracking)
         {
             using (var context = _fixture.CreateContext())
             {
+                var query = context.Products
+                    .ApplyTracking(tracking)
+                    .Where(p => p.Retail < 15);
+
                 collector.StartCollection();
-                var result = context.Products.Where(p => p.Retail < 15).ToList();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(500, result.Count);
             }
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
-        public void OrderBy(MetricCollector collector)
+        [BenchmarkVariation("Tracking On", true)]
+        [BenchmarkVariation("Tracking Off", false)]
+        public void OrderBy(MetricCollector collector, bool tracking)
         {
             using (var context = _fixture.CreateContext())
             {
+                var query = context.Products
+                    .ApplyTracking(tracking)
+                    .OrderBy(p => p.Retail);
+
                 collector.StartCollection();
-                var result = context.Products.OrderBy(p => p.Retail).ToList();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(1000, result.Count);
             }
@@ -60,24 +76,29 @@ namespace EntityFramework.Microbenchmarks.Query
         {
             using (var context = _fixture.CreateContext())
             {
+                var query = context.Products;
+
                 collector.StartCollection();
-                var result = context.Products.Count();
+                var result = query.Count();
                 collector.StopCollection();
                 Assert.Equal(1000, result);
             }
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
-        public void SkipTake(MetricCollector collector)
+        [BenchmarkVariation("Tracking On", true)]
+        [BenchmarkVariation("Tracking Off", false)]
+        public void SkipTake(MetricCollector collector, bool tracking)
         {
             using (var context = _fixture.CreateContext())
             {
-                collector.StartCollection();
-                var result = context.Products
+                var query = context.Products
+                    .ApplyTracking(tracking)
                     .OrderBy(p => p.ProductId)
-                    .Skip(500).Take(500)
-                    .ToList();
+                    .Skip(500).Take(500);
 
+                collector.StartCollection();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(500, result.Count);
             }
@@ -88,16 +109,16 @@ namespace EntityFramework.Microbenchmarks.Query
         {
             using (var context = _fixture.CreateContext())
             {
-                collector.StartCollection();
-                var result = context.Products
+                var query = context.Products
                     .GroupBy(p => p.Retail)
                     .Select(g => new
                     {
                         Retail = g.Key,
                         Products = g
-                    })
-                    .ToList();
+                    });
 
+                collector.StartCollection();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(10, result.Count);
                 Assert.All(result, g => Assert.Equal(100, g.Products.Count()));
@@ -105,12 +126,18 @@ namespace EntityFramework.Microbenchmarks.Query
         }
 
         [Benchmark(Iterations = 2, WarmupIterations = 1)]
-        public void Include(MetricCollector collector)
+        [BenchmarkVariation("Tracking On", true)]
+        [BenchmarkVariation("Tracking Off", false)]
+        public void Include(MetricCollector collector, bool tracking)
         {
             using (var context = _fixture.CreateContext())
             {
+                var query = context.Customers
+                    .ApplyTracking(tracking)
+                    .Include(c => c.Orders);
+
                 collector.StartCollection();
-                var result = context.Customers.Include(c => c.Orders).ToList();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(1000, result.Count);
                 Assert.Equal(2000, result.SelectMany(c => c.Orders).Count());
@@ -122,8 +149,11 @@ namespace EntityFramework.Microbenchmarks.Query
         {
             using (var context = _fixture.CreateContext())
             {
+                var query = context.Products
+                    .Select(p => new { p.Name, p.Retail });
+
                 collector.StartCollection();
-                var result = context.Products.Select(p => new { p.Name, p.Retail }).ToList();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(1000, result.Count);
             }
@@ -134,29 +164,17 @@ namespace EntityFramework.Microbenchmarks.Query
         {
             using (var context = _fixture.CreateContext())
             {
-                collector.StartCollection();
                 // TODO Use navigation for projection when supported (#325)
-                var result = context.Orders.Join(
-                context.Customers,
-                o => o.CustomerId,
-                c => c.CustomerId,
-                (o, c) => new { CustomerName = c.Name, OrderDate = o.Date })
-                .ToList();
+                var query = context.Orders.Join(
+                    context.Customers,
+                    o => o.CustomerId,
+                    c => c.CustomerId,
+                    (o, c) => new { CustomerName = c.Name, OrderDate = o.Date });
 
+                collector.StartCollection();
+                var result = query.ToList();
                 collector.StopCollection();
                 Assert.Equal(2000, result.Count);
-            }
-        }
-
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
-        public void NoTracking(MetricCollector collector)
-        {
-            using (var context = _fixture.CreateContext())
-            {
-                collector.StartCollection();
-                var result = context.Products.AsNoTracking().ToList();
-                collector.StopCollection();
-                Assert.Equal(1000, result.Count);
             }
         }
 

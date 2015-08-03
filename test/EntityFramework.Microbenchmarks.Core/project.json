@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "EntityFramework.SqlServer": "7.0.0-*",
     "Microsoft.Framework.Configuration.Json": "1.0.0-*",
     "Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-*"
   },

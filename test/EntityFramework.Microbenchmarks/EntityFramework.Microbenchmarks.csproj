@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="ChangeTracker\DbSetOperationTests.cs" />
     <Compile Include="ChangeTracker\FixupTests.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Models\Orders\OrdersContext.cs" />
     <Compile Include="Models\Orders\OrdersSeedData.cs" />
     <Compile Include="Models\Orders\OrdersFixture.cs" />

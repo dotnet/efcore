@@ -19,6 +19,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("Batching Off")]
         public void Insert(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -40,6 +41,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("Batching Off")]
         public void Update(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -61,6 +63,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("Batching Off")]
         public void Delete(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -82,6 +85,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [BenchmarkVariation("Batching Off")]
         public void Mixed(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
