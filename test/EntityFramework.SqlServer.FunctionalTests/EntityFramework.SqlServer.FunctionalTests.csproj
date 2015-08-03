@@ -98,6 +98,7 @@
     <Compile Include="SqlServerTestStore.cs" />
     <Compile Include="SqlServerValueGenerationScenariosTest.cs" />
     <Compile Include="StoreGeneratedSqlServerTest.cs" />
+    <Compile Include="StoreSqlExecutorSqlServerTest.cs" />
     <Compile Include="TransactionSqlServerFixture.cs" />
     <Compile Include="TransactionSqlServerTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
