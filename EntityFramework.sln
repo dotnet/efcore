@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}"
 EndProject
@@ -60,6 +60,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.FunctionalTests", "test\EntityFramework.Sqlite.FunctionalTests\EntityFramework.Sqlite.FunctionalTests.csproj", "{664B4D75-6CB7-4D90-A8E1-2A201500C859}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.SqlServer.Design.FunctionalTests", "test\EntityFramework.SqlServer.Design.FunctionalTests\EntityFramework.SqlServer.Design.FunctionalTests.csproj", "{6A05786F-C047-402E-A3A3-76898B644538}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Design", "src\EntityFramework.Sqlite.Design\EntityFramework.Sqlite.Design.csproj", "{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Design.Tests", "test\EntityFramework.Sqlite.Design.Tests\EntityFramework.Sqlite.Design.Tests.csproj", "{20EB96D6-18F3-4585-AEE0-E627C59C63FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Design.FunctionalTests", "test\EntityFramework.Sqlite.Design.FunctionalTests\EntityFramework.Sqlite.Design.FunctionalTests.csproj", "{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -175,6 +181,18 @@ Global
 		{6A05786F-C047-402E-A3A3-76898B644538}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A05786F-C047-402E-A3A3-76898B644538}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A05786F-C047-402E-A3A3-76898B644538}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20EB96D6-18F3-4585-AEE0-E627C59C63FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20EB96D6-18F3-4585-AEE0-E627C59C63FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20EB96D6-18F3-4585-AEE0-E627C59C63FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20EB96D6-18F3-4585-AEE0-E627C59C63FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -207,5 +225,8 @@ Global
 		{4E8D7833-A710-41A9-BD77-DF985D41857C} = {547020C0-976F-4542-81CE-7FD465595614}
 		{664B4D75-6CB7-4D90-A8E1-2A201500C859} = {547020C0-976F-4542-81CE-7FD465595614}
 		{6A05786F-C047-402E-A3A3-76898B644538} = {547020C0-976F-4542-81CE-7FD465595614}
+		{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
+		{20EB96D6-18F3-4585-AEE0-E627C59C63FA} = {547020C0-976F-4542-81CE-7FD465595614}
+		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal
