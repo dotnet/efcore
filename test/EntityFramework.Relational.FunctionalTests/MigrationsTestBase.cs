@@ -10,7 +10,7 @@ using Xunit;
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : MigrationsFixtureBase
+        where TFixture : MigrationsFixtureBase, new()
     {
         private readonly TFixture _fixture;
 

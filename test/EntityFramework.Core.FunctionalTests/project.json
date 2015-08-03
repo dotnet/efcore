@@ -2,15 +2,17 @@
   "version": "7.0.0-*",
   "description": "Reusable EntityFramework.Core functional tests for provider writers.",
   "dependencies": {
-    "EntityFramework.InMemory": "7.0.0-*",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
+    "EntityFramework.InMemory": "7.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.dnx"
   },
   "frameworks": {
     "net46": {
+      "dependencies": {
+        "xunit.assert": "2.1.0-beta3-build3029",
+        "xunit.extensibility.execution": "2.1.0-beta3-build3029"
+      },
       "frameworkAssemblies": {
         "System.Threading.Tasks": { "version": "4.0.0.0", "type": "build" },
         "WindowsBase": "4.0.0.0"
@@ -18,6 +20,8 @@
     },
     "dnx451": {
       "dependencies": {
+        "xunit.assert": "2.1.0-*",
+        "xunit.extensibility.execution": "2.1.0-*",
         "xunit.runner.dnx": "2.1.0-*"
       },
       "frameworkAssemblies": {
@@ -27,6 +31,8 @@
     "dnxcore50": {
       "dependencies": {
         "Microsoft.CSharp": "4.0.0-beta-*",
+        "xunit.assert": "2.1.0-*",
+        "xunit.extensibility.execution": "2.1.0-*",
         "xunit.runner.dnx": "2.1.0-*"
       }
     }
