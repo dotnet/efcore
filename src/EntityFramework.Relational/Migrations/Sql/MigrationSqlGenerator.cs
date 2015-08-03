@@ -529,6 +529,14 @@ namespace Microsoft.Data.Entity.Migrations.Sql
                 builder.Append(" NOT NULL");
             }
 
+            DefaultValue(defaultValue, defaultValueSql, builder);
+        }
+
+        protected virtual void DefaultValue(
+            [CanBeNull] object defaultValue,
+            [CanBeNull] string defaultValueSql,
+            [NotNull] SqlBatchBuilder builder)
+        {
             if (defaultValueSql != null)
             {
                 builder

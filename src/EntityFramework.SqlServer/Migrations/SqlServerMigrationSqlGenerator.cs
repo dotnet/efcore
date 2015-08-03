@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerMigrationSqlGenerator : MigrationSqlGenerator
     {
         private readonly ISqlServerUpdateSqlGenerator _sql;
+        private int _variableCounter;
 
         public SqlServerMigrationSqlGenerator(
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
@@ -36,12 +37,38 @@ namespace Microsoft.Data.Entity.SqlServer
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            // TODO: Test default value/expression
+            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+
             builder
                 .Append("ALTER TABLE ")
                 .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ALTER COLUMN ");
-            ColumnDefinition(operation, model, builder);
+            ColumnDefinition(
+                    operation.Schema,
+                    operation.Table,
+                    operation.Name,
+                    operation.ClrType,
+                    operation.ColumnType,
+                    operation.IsNullable,
+                    /*defaultValue:*/ null,
+                    /*defaultValueSql:*/ null,
+                    operation.ComputedColumnSql,
+                    operation,
+                    model,
+                    builder);
+
+            if (operation.DefaultValue != null || operation.DefaultValueSql != null)
+            {
+                builder
+                    .AppendLine(";")
+                    .Append("ALTER TABLE ")
+                    .Append(_sql.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" ADD");
+                DefaultValue(operation.DefaultValue, operation.DefaultValueSql, builder);
+                builder
+                    .Append(" FOR ")
+                    .Append(_sql.DelimitIdentifier(operation.Name));
+            }
         }
 
         public override void Generate(
@@ -211,6 +238,18 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public override void Generate(
+            [NotNull] DropColumnOperation operation,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotNull(operation, nameof(operation));
+            Check.NotNull(builder, nameof(builder));
+
+            DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
+            base.Generate(operation, model, builder);
+        }
+
+        public override void Generate(
             [NotNull] RenameColumnOperation operation,
             [CanBeNull] IModel model,
             [NotNull] SqlBatchBuilder builder)
@@ -330,24 +369,6 @@ namespace Microsoft.Data.Entity.SqlServer
                 .Append(_sql.DelimitIdentifier(name, schema));
         }
 
-        public virtual void ColumnDefinition(
-            [NotNull] AlterColumnOperation operation,
-            [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder) =>
-                ColumnDefinition(
-                    operation.Schema,
-                    operation.Table,
-                    operation.Name,
-                    operation.ClrType,
-                    operation.ColumnType,
-                    operation.IsNullable,
-                    operation.DefaultValue,
-                    operation.DefaultValueSql,
-                    operation.ComputedColumnSql,
-                    operation,
-                    model,
-                    builder);
-
         public override void IndexTraits(MigrationOperation operation, IModel model, SqlBatchBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
@@ -372,6 +393,50 @@ namespace Microsoft.Data.Entity.SqlServer
             {
                 base.ForeignKeyAction(referentialAction, builder);
             }
+        }
+
+        protected virtual void DropDefaultConstraint(
+            [CanBeNull] string schema,
+            [NotNull] string tableName,
+            [NotNull] string columnName,
+            [NotNull] SqlBatchBuilder builder)
+        {
+            Check.NotEmpty(tableName, nameof(tableName));
+            Check.NotEmpty(columnName, nameof(columnName));
+            Check.NotNull(builder, nameof(builder));
+
+            var variable = "@var" + _variableCounter++;
+
+            builder
+                .Append("DECLARE ")
+                .Append(variable)
+                .AppendLine(" sysname;")
+                .Append("SELECT ")
+                .Append(variable)
+                .AppendLine(" = [d].[name]")
+                .AppendLine("FROM [sys].[default_constraints] [d]")
+                .AppendLine("INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]")
+                .Append("WHERE ([d].[parent_object_id] = OBJECT_ID(N'");
+
+            if (schema != null)
+            {
+                builder
+                    .Append(_sql.EscapeLiteral(schema))
+                    .Append(".");
+            }
+
+            builder
+                .Append(_sql.EscapeLiteral(tableName))
+                .Append("') AND [c].[name] = N'")
+                .Append(_sql.EscapeLiteral(columnName))
+                .AppendLine("');")
+                .Append("IF ")
+                .Append(variable)
+                .Append(" IS NOT NULL EXEC(N'ALTER TABLE ")
+                .Append(_sql.DelimitIdentifier(tableName, schema))
+                .Append(" DROP CONSTRAINT [' + ")
+                .Append(variable)
+                .AppendLine(" + ']');");
         }
     }
 }

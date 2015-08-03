@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Migrations.Builders
 {
     public class MigrationBuilder
     {
-        public virtual ICollection<MigrationOperation> Operations { get; } = new List<MigrationOperation>();
+        public virtual IList<MigrationOperation> Operations { get; } = new List<MigrationOperation>();
 
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
             [NotNull] string name,
