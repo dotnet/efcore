@@ -123,6 +123,7 @@
     <Compile Include="ValueGeneration\SqlServerSequenceValueGeneratorState.cs" />
     <Compile Include="ValueGeneration\SqlServerValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\SqlServerValueGeneratorSelector.cs" />
+    <EmbeddedResource Include="Properties\EntityFramework.SqlServer.rd.xml" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.SqlServer.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

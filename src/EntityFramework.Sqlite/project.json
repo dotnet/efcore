@@ -16,6 +16,7 @@
   "namedResource": {
     "EntityFramework.Sqlite.Strings": "Properties/Strings.resx"
   },
+  "resource": ["Properties/EntityFramework.Sqlite.rd.xml"],
   "frameworks": {
     "net45": { },
     "dotnet": {

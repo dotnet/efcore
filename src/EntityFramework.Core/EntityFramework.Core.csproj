@@ -388,6 +388,7 @@
     <Compile Include="ValueGeneration\ValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\IValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
+    <EmbeddedResource Include="Properties\EntityFramework.Core.rd.xml" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>
       <SubType>Designer</SubType>

@@ -15,6 +15,7 @@
   "namedResource": {
     "EntityFramework.Relational.Strings": "Properties/Strings.resx"
   },
+  "resource": ["Properties/EntityFramework.Relational.rd.xml"],
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {

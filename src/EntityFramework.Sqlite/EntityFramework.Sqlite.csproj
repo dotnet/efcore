@@ -106,6 +106,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Properties\EntityFramework.Sqlite.rd.xml" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

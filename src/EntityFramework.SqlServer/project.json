@@ -15,6 +15,7 @@
   "namedResource": {
     "EntityFramework.SqlServer.Strings": "Properties/Strings.resx"
   },
+  "resource": ["Properties/EntityFramework.SqlServer.rd.xml"],
   "frameworks": {
     "net45": { },
     "dnxcore50": {
