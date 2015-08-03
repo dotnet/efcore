@@ -203,7 +203,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             subquery.AddTables(_tables);
             subquery.AddToOrderBy(_orderBy);
-
+            subquery.Predicate = Predicate;
+            
             subquery._limit = _limit;
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
@@ -213,7 +214,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
             _limit = null;
             _offset = null;
             _isDistinct = false;
-
+            
+            Predicate = null;
             ClearTables();
             ClearProjection();
             ClearOrderBy();

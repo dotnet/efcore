@@ -183,6 +183,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Take_Where_Distinct_Count()
+        {
+            AssertQuery<Order>(
+                os => os.Where(o => o.CustomerID == "FRANK").Take(5).Distinct().Count());
+        }
+
+        [Fact]
         public virtual void Any_simple()
         {
             AssertQuery<Customer>(
