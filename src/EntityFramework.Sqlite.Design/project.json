@@ -1,0 +1,28 @@
+﻿{
+  "version": "7.0.0-*",
+  "description": "Design-time Entity Framework functionality for SQLite",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Relational.Design": "7.0.0-*",
+    "EntityFramework.Sqlite": "7.0.0-*"
+  },
+  "compile": "..\\Shared\\*.cs",
+  "namedResource": {
+    "EntityFramework.Sqlite.Design.Strings": "Properties/Strings.resx"
+  },
+  "resource": "ReverseEngineering/Templates/*.cshtml",
+  "frameworks": {
+    "net45": { 
+      "frameworkAssemblies": {
+        "System.Data": "4.0.0.0"
+      }
+    },
+    "dnxcore50": { }
+  }
+}
