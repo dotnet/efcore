@@ -807,6 +807,20 @@ FROM (
                 Sql);
         }
 
+        public override void Take_Where_Distinct_Count()
+        {
+            base.Take_Where_Distinct_Count();
+
+            Assert.Equal(
+                @"SELECT COUNT(*)
+FROM (
+    SELECT DISTINCT TOP(5) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = 'FRANK'
+) AS [t0]",
+                Sql);
+        }
+
         public override void Queryable_simple()
         {
             base.Queryable_simple();
