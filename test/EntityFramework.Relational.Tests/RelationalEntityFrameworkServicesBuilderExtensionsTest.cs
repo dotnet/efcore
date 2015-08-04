@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         protected RelationalEntityFrameworkServicesBuilderExtensionsTest(RelationalTestHelpers testHelpers)
-            :base(testHelpers)
+            : base(testHelpers)
         {
         }
     }

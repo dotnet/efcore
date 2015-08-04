@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         public SqlServerEntityFrameworkServicesBuilderExtensionsTest()
-            :base(SqlServerTestHelpers.Instance)
+            : base(SqlServerTestHelpers.Instance)
         {
         }
     }

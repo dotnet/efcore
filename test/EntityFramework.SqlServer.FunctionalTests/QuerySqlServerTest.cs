@@ -3090,9 +3090,9 @@ WHERE (UPPER([c].[CustomerID]) = 'ALFKI')",
                 Sql);
         }
 
-        public override void Convert_methods()
+        public override void Convert_ToByte()
         {
-            base.Convert_methods();
+            base.Convert_ToByte();
 
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -3125,9 +3125,15 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(bigint, [o].[Ord
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(tinyint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))", Sql);
+        }
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        public override void Convert_ToDecimal()
+        {
+            base.Convert_ToDecimal();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
 
@@ -3157,9 +3163,16 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(bigint, [o].[Ord
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(decimal, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))",
+                Sql);
+        }
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        public override void Convert_ToDouble()
+        {
+            base.Convert_ToDouble();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0E0))
 
@@ -3189,9 +3202,16 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(bigint, [o].[Order
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0E0))
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(float, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0E0))",
+                Sql);
+        }
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        public override void Convert_ToInt16()
+        {
+            base.Convert_ToInt16();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
 
@@ -3221,9 +3241,16 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(bigint, [o].[Or
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(smallint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))",
+                Sql);
+        }
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        public override void Convert_ToInt32()
+        {
+            base.Convert_ToInt32();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
 
@@ -3253,9 +3280,16 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(bigint, [o].[OrderID
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(int, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))",
+                Sql);
+        }
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        public override void Convert_ToInt64()
+        {
+            base.Convert_ToInt64();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(tinyint, [o].[OrderID] % 1)) >= 0))
 
@@ -3285,9 +3319,16 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(bigint, [o].[Orde
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(bigint, CONVERT(nvarchar, [o].[OrderID] % 1)) >= 0))",
+                Sql);
+        }
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        public override void Convert_ToString()
+        {
+            base.Convert_ToString();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(tinyint, [o].[OrderID] % 1)) <> '10'))
 
@@ -3317,8 +3358,7 @@ WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(bigint, [o].[Or
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(nvarchar, [o].[OrderID] % 1)) <> '10'))",
-                Sql);
+WHERE ([o].[CustomerID] = 'ALFKI' AND (CONVERT(nvarchar, CONVERT(nvarchar, [o].[OrderID] % 1)) <> '10'))", Sql);
         }
 
         public override void Select_nested_collection()
