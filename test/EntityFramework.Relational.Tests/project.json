@@ -9,6 +9,10 @@
   },
   "frameworks": {
     "net46": { },
-    "dnx451": { }
+    "dnx451": {
+      "frameworkAssemblies": {
+        "System.Text.RegularExpressions": "4.0.0.0"
+      }
+    }
   }
 }
