@@ -30,7 +30,7 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.0-beta-*",
+        "Microsoft.CSharp": "4.0.1-beta-*",
         "xunit.assert": "2.1.0-*",
         "xunit.extensibility.execution": "2.1.0-*",
         "xunit.runner.dnx": "2.1.0-*"
