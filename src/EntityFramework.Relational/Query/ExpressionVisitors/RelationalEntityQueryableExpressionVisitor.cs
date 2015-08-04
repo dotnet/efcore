@@ -47,15 +47,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
 
-            if (queryModelVisitor.Queries.Count == 1
-                && !queryModelVisitor.RequiresClientFilter
-                && !queryModelVisitor.RequiresClientSelectMany
-                && !queryModelVisitor.RequiresClientProjection
-                && !queryModelVisitor.RequiresClientResultOperator)
-            {
-                QueryModelVisitor.AddSubquery(_querySource, queryModelVisitor.Queries.First());
-            }
-
             QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
 
             return queryModelVisitor.Expression;
@@ -168,13 +159,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var queryMethodArguments
                 = new List<Expression>
-                {
-                    Expression.Constant(_querySource),
-                    EntityQueryModelVisitor.QueryContextParameter,
-                    EntityQueryModelVisitor.QueryResultScopeParameter,
-                    _valueBufferParameter,
-                    Expression.Constant(0)
-                };
+                    {
+                        Expression.Constant(_querySource),
+                        EntityQueryModelVisitor.QueryContextParameter,
+                        EntityQueryModelVisitor.QueryResultScopeParameter,
+                        _valueBufferParameter,
+                        Expression.Constant(0)
+                    };
 
             if (QueryModelVisitor.QueryCompilationContext
                 .QuerySourceRequiresMaterialization(_querySource)
@@ -204,13 +195,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 queryMethodArguments.AddRange(
                     new[]
-                    {
-                        Expression.Constant(entityType),
-                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
-                        Expression.Constant(keyFactory),
-                        Expression.Constant(entityType.GetPrimaryKey().Properties),
-                        materializer
-                    });
+                        {
+                            Expression.Constant(entityType),
+                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
+                            Expression.Constant(keyFactory),
+                            Expression.Constant(entityType.GetPrimaryKey().Properties),
+                            materializer
+                        });
             }
 
             Func<ISqlQueryGenerator> sqlQueryGeneratorFactory;
@@ -250,12 +241,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             QueryResultScope parentQueryResultScope,
             ValueBuffer valueBuffer,
             int valueBufferOffset)
-        {
-            return new QueryResultScope<ValueBuffer>(
+            => new QueryResultScope<ValueBuffer>(
                 querySource,
                 valueBuffer.WithOffset(valueBufferOffset),
                 parentQueryResultScope);
-        }
 
         public static readonly MethodInfo CreateEntityMethodInfo
             = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()

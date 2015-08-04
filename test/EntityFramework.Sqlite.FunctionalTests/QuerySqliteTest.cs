@@ -1448,6 +1448,19 @@ CROSS JOIN ""Employees"" AS ""e3""",
                 Sql);
         }
 
+        public override void SelectMany_Joined_Take()
+        {
+            base.SelectMany_Joined_Take();
+
+            Assert.StartsWith(
+                @"SELECT ""c"".""CustomerID"", ""c"".""ContactName""
+FROM ""Customers"" AS ""c""
+
+SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
+FROM ""Orders"" AS ""o""",
+                Sql);
+        }
+
         public override void SelectMany_projection1()
         {
             base.SelectMany_projection1();

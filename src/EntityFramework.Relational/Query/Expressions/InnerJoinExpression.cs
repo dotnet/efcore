@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
         }
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 

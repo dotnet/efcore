@@ -308,6 +308,17 @@ namespace Microsoft.Data.Entity.Query.Sql
             return crossJoinExpression;
         }
 
+        public virtual Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+        {
+            Check.NotNull(crossApplyExpression, nameof(crossApplyExpression));
+
+            _sql.Append("CROSS APPLY ");
+
+            Visit(crossApplyExpression.TableExpression);
+
+            return crossApplyExpression;
+        }
+
         public virtual Expression VisitCount(CountExpression countExpression)
         {
             Check.NotNull(countExpression, nameof(countExpression));

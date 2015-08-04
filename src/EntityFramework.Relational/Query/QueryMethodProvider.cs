@@ -96,15 +96,12 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext, CommandBuilder commandBuilder, Func<ValueBuffer, T> shaper)
-        {
-            return
-                new QueryingEnumerable(
+            => new QueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
                     /*queryIndex*/ null,
                     queryContext.Logger)
                     .Select(shaper);
-        }
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 

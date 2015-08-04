@@ -3,16 +3,16 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
-    public abstract class JoinExpressionBase : TableExpressionBase
+    public class CrossApplyExpression : TableExpressionBase
     {
-        protected TableExpressionBase _tableExpression;
-        private Expression _predicate;
+        private readonly TableExpressionBase _tableExpression;
 
-        protected JoinExpressionBase([NotNull] TableExpressionBase tableExpression)
+        public CrossApplyExpression([NotNull] TableExpressionBase tableExpression)
             : base(
                 Check.NotNull(tableExpression, nameof(tableExpression)).QuerySource,
                 tableExpression.Alias)
@@ -22,22 +22,23 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual TableExpressionBase TableExpression => _tableExpression;
 
-        public virtual Expression Predicate
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
-            get { return _predicate; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, nameof(value));
+            Check.NotNull(visitor, nameof(visitor));
 
-                _predicate = value;
-            }
+            var specificVisitor = visitor as ISqlExpressionVisitor;
+
+            return specificVisitor != null
+                ? specificVisitor.VisitCrossApply(this)
+                : base.Accept(visitor);
         }
+
+        public override string ToString() => "CROSS APPLY " + _tableExpression;
+
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             visitor.Visit(_tableExpression);
-            visitor.Visit(_predicate);
 
             return this;
         }

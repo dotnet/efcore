@@ -2182,6 +2182,21 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
+        public override void SelectMany_Joined_Take()
+        {
+            base.SelectMany_Joined_Take();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [c].[ContactName]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT TOP(1000) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+) AS [t0]",
+                Sql);
+        }
+
         public override void Take_with_single()
         {
             base.Take_with_single();

@@ -69,6 +69,7 @@
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
     <Compile Include="Migrations\Infrastructure\ModelDifferContext.cs" />
+    <Compile Include="Query\Expressions\CrossApplyExpression.cs" />
     <Compile Include="Query\Internal\RelationalExpressionPrinter.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Builders\ColumnsBuilder.cs" />

@@ -83,6 +83,43 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual void ClearTables() => _tables.Clear();
 
+        public virtual bool IsCorrelated() => new CorrelationFindingExpressionVisitor().IsCorrelated(this);
+
+        private class CorrelationFindingExpressionVisitor : ExpressionVisitor
+        {
+            private SelectExpression _selectExpression;
+            private bool _correlated;
+
+            public bool IsCorrelated(SelectExpression selectExpression)
+            {
+                _selectExpression = selectExpression;
+
+                Visit(_selectExpression);
+
+                return _correlated;
+            }
+
+            public override Expression Visit(Expression expression)
+            {
+                if (!_correlated)
+                {
+                    var columnExpression = expression as ColumnExpression;
+
+                    if (columnExpression != null
+                        && !_selectExpression.HandlesQuerySource(columnExpression.Table.QuerySource))
+                    {
+                        _correlated = true;
+                    }
+                    else
+                    {
+                        return base.Visit(expression);
+                    }
+                }
+
+                return expression;
+            }
+        }
+
         public virtual bool HandlesQuerySource([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -276,10 +313,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
             return _projection.Count - 1;
         }
 
-        public virtual int AddToProjection([NotNull] AliasExpression aliasExpression)
-        {
-            return AddAliasToProjection(aliasExpression.Alias, aliasExpression.Expression);
-        }
+        public virtual int AddToProjection([NotNull] AliasExpression aliasExpression) 
+            => AddAliasToProjection(aliasExpression.Alias, aliasExpression.Expression);
 
         public virtual int AddAliasToProjection([CanBeNull] string alias, [NotNull] Expression expression)
         {
@@ -405,10 +440,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             AddToProjection(expression);
         }
 
-        public virtual void ClearProjection()
-        {
-            _projection.Clear();
-        }
+        public virtual void ClearProjection() => _projection.Clear();
 
         public virtual void RemoveRangeFromProjection(int index)
         {
@@ -507,10 +539,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual IReadOnlyList<Ordering> OrderBy => _orderBy;
 
-        public virtual void ClearOrderBy()
-        {
-            _orderBy.Clear();
-        }
+        public virtual void ClearOrderBy() => _orderBy.Clear();
 
         public virtual void ExplodeStarProjection()
         {
@@ -543,6 +572,19 @@ namespace Microsoft.Data.Entity.Query.Expressions
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
             _tables.Add(new CrossJoinExpression(tableExpression));
+            _projection.AddRange(projection);
+        }
+
+        public virtual void AddCrossApply(
+            [NotNull] TableExpressionBase tableExpression,
+            [NotNull] IEnumerable<Expression> projection)
+        {
+            Check.NotNull(tableExpression, nameof(tableExpression));
+            Check.NotNull(projection, nameof(projection));
+
+            tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
+
+            _tables.Add(new CrossApplyExpression(tableExpression));
             _projection.AddRange(projection);
         }
 
@@ -648,16 +690,31 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 ? specificVisitor.VisitSelect(this)
                 : base.Accept(visitor);
         }
-
+        
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            foreach (var expression in Projection)
+            {
+                visitor.Visit(expression);
+            }
+
+            foreach (var tableExpressionBase in Tables)
+            {
+                visitor.Visit(tableExpressionBase);
+            }
+
+            visitor.Visit(Predicate);
+
+            foreach (var ordering in OrderBy)
+            {
+                visitor.Visit(ordering.Expression);
+            }
+
             return this;
         }
 
-        public override string ToString()
-        {
-            return new DefaultQuerySqlGenerator(this, null).GenerateSql(new Dictionary<string, object>());
-        }
+        public override string ToString() 
+            => new DefaultQuerySqlGenerator(this, null).GenerateSql(new Dictionary<string, object>());
 
         // TODO: Make polymorphic
         public virtual Expression UpdateColumnExpression(

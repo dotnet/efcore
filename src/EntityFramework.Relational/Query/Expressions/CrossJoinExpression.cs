@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual TableExpressionBase TableExpression => _tableExpression;
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 
@@ -34,5 +34,12 @@ namespace Microsoft.Data.Entity.Query.Expressions
         }
 
         public override string ToString() => "CROSS JOIN " + _tableExpression;
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            visitor.Visit(_tableExpression);
+
+            return this;
+        }
     }
 }

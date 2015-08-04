@@ -23,17 +23,15 @@ namespace Microsoft.Data.Entity.Query
         private readonly Dictionary<IQuerySource, SelectExpression> _queriesBySource
             = new Dictionary<IQuerySource, SelectExpression>();
 
-        private readonly Dictionary<IQuerySource, SelectExpression> _subqueriesBySource
-            = new Dictionary<IQuerySource, SelectExpression>();
-
         private readonly Dictionary<IQuerySource, RelationalQueryModelVisitor> _subQueryModelVisitorsBySource
             = new Dictionary<IQuerySource, RelationalQueryModelVisitor>();
 
-        private bool _requiresClientFilter;
-        private bool _requiresClientResultOperator;
         private bool _bindParentQueries;
 
-        private RelationalProjectionExpressionVisitor _projectionVisitor;
+        private bool _requiresClientFilter;
+        private bool _requiresClientSelectMany;
+        private bool _requiresClientProjection;
+        private bool _requiresClientResultOperator;
 
         private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
 
@@ -46,9 +44,24 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual bool RequiresClientEval { get; set; }
-        public virtual bool RequiresClientSelectMany { get; set; }
-        public virtual bool RequiresClientFilter => _requiresClientFilter || RequiresClientEval;
-        public virtual bool RequiresClientProjection => _projectionVisitor.RequiresClientEval || RequiresClientEval;
+
+        public virtual bool RequiresClientSelectMany
+        {
+            get { return _requiresClientSelectMany || RequiresClientEval; }
+            set { _requiresClientSelectMany = value; }
+        }
+
+        public virtual bool RequiresClientFilter
+        {
+            get { return _requiresClientFilter || RequiresClientEval; }
+            set { _requiresClientFilter = value; }
+        }
+
+        public virtual bool RequiresClientProjection
+        {
+            get { return _requiresClientProjection || RequiresClientEval; }
+            set { _requiresClientProjection = value; }
+        }
 
         public virtual bool RequiresClientResultOperator
         {
@@ -80,14 +93,6 @@ namespace Microsoft.Data.Entity.Query
             _queriesBySource.Add(querySource, selectExpression);
         }
 
-        public virtual void AddSubquery([NotNull] IQuerySource querySource, [NotNull] SelectExpression selectExpression)
-        {
-            Check.NotNull(querySource, nameof(querySource));
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
-            _subqueriesBySource.Add(querySource, selectExpression);
-        }
-
         public virtual SelectExpression TryGetQuery([NotNull] IQuerySource querySource)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -109,8 +114,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(querySource, nameof(querySource));
 
-            return _projectionVisitor
-                = new RelationalProjectionExpressionVisitor(this, querySource);
+            return new RelationalProjectionExpressionVisitor(this, querySource);
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
@@ -225,7 +229,8 @@ namespace Microsoft.Data.Entity.Query
 
             var selectExpression = TryGetQuery(fromClause);
 
-            if (selectExpression != null)
+            if (selectExpression != null
+                && selectExpression.Tables.Count == 1)
             {
                 var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
@@ -237,8 +242,23 @@ namespace Microsoft.Data.Entity.Query
                     {
                         var readerOffset = previousSelectExpression.Projection.Count;
 
-                        previousSelectExpression
-                            .AddCrossJoin(selectExpression.Tables.Single(), selectExpression.Projection);
+                        var correlated = selectExpression.IsCorrelated();
+
+                        if (correlated)
+                        {
+                            if (!QueryCompilationContext.IsCrossApplySupported)
+                            {
+                                return;
+                            }
+
+                            previousSelectExpression
+                                .AddCrossApply(selectExpression.Tables.First(), selectExpression.Projection);
+                        }
+                        else
+                        {
+                            previousSelectExpression
+                                .AddCrossJoin(selectExpression.Tables.First(), selectExpression.Projection);
+                        }
 
                         _queriesBySource.Remove(fromClause);
 
@@ -255,23 +275,6 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
             }
-        }
-
-        private IQuerySource FindPreviousQuerySource(QueryModel queryModel, int index)
-        {
-            for (var i = index; i >= 0; i--)
-            {
-                var candidate = i == 0
-                    ? queryModel.MainFromClause
-                    : queryModel.BodyClauses[i - 1] as IQuerySource;
-
-                if (candidate != null)
-                {
-                    return candidate;
-                }
-            }
-
-            return null;
         }
 
         protected override Expression CompileAdditionalFromClauseExpression(
@@ -326,12 +329,13 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] JoinClause joinClause,
             [NotNull] QueryModel queryModel,
             int index,
-            Action baseVisitAction,
+            [NotNull] Action baseVisitAction,
             [NotNull] MethodInfo operatorToFlatten,
             bool outerJoin = false)
         {
             Check.NotNull(joinClause, nameof(joinClause));
             Check.NotNull(queryModel, nameof(queryModel));
+            Check.NotNull(baseVisitAction, nameof(baseVisitAction));
             Check.NotNull(operatorToFlatten, nameof(operatorToFlatten));
 
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
@@ -352,11 +356,10 @@ namespace Microsoft.Data.Entity.Query
 
                 if (selectExpression != null)
                 {
-                    var filteringExpressionVisitor
-                        = new SqlTranslatingExpressionVisitor(this, targetSelectExpression: null);
+                    var sqlTranslatingExpressionVisitor = new SqlTranslatingExpressionVisitor(this);
 
                     var predicate
-                        = filteringExpressionVisitor
+                        = sqlTranslatingExpressionVisitor
                             .Visit(
                                 Expression.Equal(
                                     joinClause.OuterKeySelector,
@@ -401,6 +404,23 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
+        private static IQuerySource FindPreviousQuerySource(QueryModel queryModel, int index)
+        {
+            for (var i = index; i >= 0; i--)
+            {
+                var candidate = i == 0
+                    ? queryModel.MainFromClause
+                    : queryModel.BodyClauses[i - 1] as IQuerySource;
+
+                if (candidate != null)
+                {
+                    return candidate;
+                }
+            }
+
+            return null;
+        }
+
         protected override Expression CompileGroupJoinInnerSequenceExpression(GroupJoinClause groupJoinClause, QueryModel queryModel)
         {
             Check.NotNull(groupJoinClause, nameof(groupJoinClause));
@@ -414,20 +434,43 @@ namespace Microsoft.Data.Entity.Query
         private Expression LiftSubQuery(
             IQuerySource querySource, Expression itemsExpression, QueryModel queryModel, Expression expression)
         {
-            SelectExpression subSelectExpression;
-            if (_subqueriesBySource.TryGetValue(querySource, out subSelectExpression)
+            var subQueryExpression = itemsExpression as SubQueryExpression;
+
+            if (subQueryExpression == null)
+            {
+                return expression;
+            }
+
+            var subQueryModelVisitor
+                = (RelationalQueryModelVisitor)QueryCompilationContext.CreateQueryModelVisitor(this);
+
+            subQueryModelVisitor.VisitSubQueryModel(subQueryExpression.QueryModel);
+
+            SelectExpression subSelectExpression = null;
+
+            if (subQueryModelVisitor.Queries.Count == 1
+                && !subQueryModelVisitor.RequiresClientFilter
+                && !subQueryModelVisitor.RequiresClientSelectMany
+                && !subQueryModelVisitor.RequiresClientProjection
+                && !subQueryModelVisitor.RequiresClientResultOperator)
+            {
+                subSelectExpression = subQueryModelVisitor.Queries.First();
+            }
+
+            if (subSelectExpression != null
                 && (!subSelectExpression.OrderBy.Any()
-                    || subSelectExpression.Limit != null))
+                    || subSelectExpression.Limit != null)
+                && (QueryCompilationContext.IsCrossApplySupported
+                    || (!subSelectExpression.IsCorrelated()
+                        || !(querySource is AdditionalFromClause))))
             {
                 subSelectExpression.PushDownSubquery().QuerySource = querySource;
 
                 AddQuery(querySource, subSelectExpression);
 
-                _subqueriesBySource.Remove(querySource);
-
                 var shapedQueryMethodExpression
                     = new ShapedQueryFindingExpressionVisitor(QueryCompilationContext)
-                        .Find(expression);
+                        .Find(subQueryModelVisitor.Expression);
 
                 var shaperLambda = (LambdaExpression)shapedQueryMethodExpression.Arguments[2];
                 var shaperMethodCall = (MethodCallExpression)shaperLambda.Body;
@@ -463,15 +506,13 @@ namespace Microsoft.Data.Entity.Query
                 if (querySourceReferenceExpression != null
                     && querySourceReferenceExpression.ReferencedQuerySource == querySource)
                 {
-                    var subQueryModel = (itemsExpression as SubQueryExpression)?.QueryModel;
-
-                    if (subQueryModel != null)
+                    if (subQueryExpression.QueryModel != null)
                     {
-                        queryModel.SelectClause.Selector = subQueryModel.SelectClause.Selector;
+                        queryModel.SelectClause.Selector = subQueryExpression.QueryModel.SelectClause.Selector;
 
                         QueryCompilationContext.QuerySourceMapping
                             .ReplaceMapping(
-                                subQueryModel.MainFromClause,
+                                subQueryExpression.QueryModel.MainFromClause,
                                 QueryResultScope.GetResult(
                                     QueryResultScopeParameter,
                                     querySource,
@@ -528,7 +569,7 @@ namespace Microsoft.Data.Entity.Query
                 }
             }
 
-            _requiresClientFilter |= requiresClientFilter;
+            RequiresClientFilter |= requiresClientFilter;
 
             if (RequiresClientFilter)
             {

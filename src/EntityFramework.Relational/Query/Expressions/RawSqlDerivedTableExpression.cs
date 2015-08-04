@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual object[] Parameters { get; }
 
-        protected override Expression Accept([NotNull] ExpressionVisitor visitor)
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
             Check.NotNull(visitor, nameof(visitor));
 

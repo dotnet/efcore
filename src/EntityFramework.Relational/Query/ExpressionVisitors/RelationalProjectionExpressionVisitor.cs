@@ -18,8 +18,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly IQuerySource _querySource;
 
-        private bool _requiresClientEval;
-
         public RelationalProjectionExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
@@ -33,8 +31,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private new RelationalQueryModelVisitor QueryModelVisitor
             => (RelationalQueryModelVisitor)base.QueryModelVisitor;
-
-        public virtual bool RequiresClientEval => _requiresClientEval;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -109,7 +105,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 {
                     if (!(expression is QuerySourceReferenceExpression))
                     {
-                        _requiresClientEval = true;
+                        _queryModelVisitor.RequiresClientProjection = true;
                     }
                 }
                 else

@@ -75,10 +75,9 @@ namespace Microsoft.Data.Entity.Query
             return relationalQueryModelVisitor;
         }
 
-        public override IExpressionPrinter CreateExpressionPrinter()
-        {
-            return new RelationalExpressionPrinter();
-        }
+        public override IExpressionPrinter CreateExpressionPrinter() => new RelationalExpressionPrinter();
+
+        public virtual bool IsCrossApplySupported => false;
 
         public virtual SelectExpression FindSelectExpression([NotNull] IQuerySource querySource)
         {

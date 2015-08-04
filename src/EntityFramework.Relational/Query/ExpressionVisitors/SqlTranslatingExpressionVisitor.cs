@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         public SqlTranslatingExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
-            [CanBeNull] SelectExpression targetSelectExpression,
+            [CanBeNull] SelectExpression targetSelectExpression = null,
             [CanBeNull] Expression topLevelPredicate = null,
             bool bindParentQueries = false,
             bool inProjection = false)
@@ -353,13 +353,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private AliasExpression CreateAliasedColumnExpressionCore(
             IProperty property, IQuerySource querySource, SelectExpression selectExpression)
-        {
-            return new AliasExpression(
+            => new AliasExpression(
                 new ColumnExpression(
                     _queryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
                     property,
                     selectExpression.GetTableForQuerySource(querySource)));
-        }
 
         protected override Expression VisitUnary(UnaryExpression expression)
         {

@@ -3630,6 +3630,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void SelectMany_Joined_Take()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                from o in os.Where(o => o.CustomerID == c.CustomerID).Take(1000)
+                select new { c.ContactName, o });
+        }
+
+        [Fact]
         public virtual void SelectMany_Joined_DefaultIfEmpty2()
         {
             AssertQuery<Customer, Order>((cs, os) =>
