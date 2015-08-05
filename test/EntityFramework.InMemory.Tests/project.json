@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "EntityFramework.Core.Tests": "1.0.0",
-    "EntityFramework.InMemory.FunctionalTests": "7.0.0-*"
+    "EntityFramework.InMemory.FunctionalTests": "1.0.0"
   },
   "commands": {
     "test": "xunit.runner.dnx"

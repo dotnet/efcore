@@ -28,7 +28,7 @@
     "net45": {
       "frameworkAssemblies": {
         "System.Collections": { "version": "4.0.0.0", "type": "build" },
-        "System.ComponentModel.DataAnnotations" : "4.0.0.0",
+        "System.ComponentModel.DataAnnotations": "4.0.0.0",
         "System.Diagnostics.Debug": { "version": "4.0.0.0", "type": "build" },
         "System.Diagnostics.Tools": { "version": "4.0.0.0", "type": "build" },
         "System.Globalization": { "version": "4.0.0.0", "type": "build" },
@@ -47,7 +47,7 @@
     "dnx451": {
       "frameworkAssemblies": {
         "System.Collections": "4.0.0.0",
-        "System.ComponentModel.DataAnnotations" : "4.0.0.0",
+        "System.ComponentModel.DataAnnotations": "4.0.0.0",
         "System.Diagnostics.Debug": "4.0.0.0",
         "System.Diagnostics.Tools": "4.0.0.0",
         "System.Globalization": "4.0.0.0",

@@ -21,7 +21,7 @@
     "dotnet": {
       "dependencies": {
         "System.IO.FileSystem": "4.0.0-*",
-        "Microsoft.CSharp":  "4.0.0-*"
+        "Microsoft.CSharp": "4.0.0-*"
       }
     }
   }
