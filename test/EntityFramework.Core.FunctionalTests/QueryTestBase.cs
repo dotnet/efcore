@@ -3527,7 +3527,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        //[Fact]
         public virtual void Convert_ToString()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
