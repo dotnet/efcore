@@ -55,6 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             _references.Add(MetadataReference.CreateFromFile(
                 Assembly.Load(new AssemblyName("Microsoft.CSharp, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")).Location));
 #endif
+            AddReferenceFromName("EntityFramework.Core");
             AddReferenceFromName("EntityFramework.Relational.Design");
         }
 

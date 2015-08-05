@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
     public class SqlServerDbContextCodeGeneratorHelper : DbContextCodeGeneratorHelper
     {
         private const string _dbContextSuffix = "Context";
+        private KeyConvention _keyConvention = new KeyConvention();
 
         public SqlServerDbContextCodeGeneratorHelper(
             [NotNull] DbContextGeneratorModel generatorModel)
@@ -25,14 +26,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
         protected override IRelationalMetadataExtensionProvider RelationalExtensions => new SqlServerMetadataExtensionProvider();
-
-        public override IEnumerable<IEntityType> OrderedEntityTypes()
-        {
-            // do not configure EntityTypes for which we had an error when generating
-            return GeneratorModel.MetadataModel.EntityTypes.OrderBy(e => e.Name)
-                .Where(e => ((EntityType)e).FindAnnotation(
-                    SqlServerMetadataModelProvider.AnnotationNameEntityTypeError) == null);
-        }
 
         public override string ClassName([NotNull] string connectionString)
         {
@@ -48,20 +41,29 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return base.ClassName(connectionString);
         }
 
-        public override void AddNavigationsConfiguration(EntityConfiguration entityConfiguration)
+        public override void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
         {
-            Check.NotNull(entityConfiguration, nameof(entityConfiguration));
+            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
+            base.AddPropertyFacetsConfiguration(propertyConfiguration);
+
+            AddValueGeneratedNeverFacetConfiguration(propertyConfiguration);
+        }
+
+        public virtual void AddValueGeneratedNeverFacetConfiguration(
+            [NotNull] PropertyConfiguration propertyConfiguration)
+        {
+            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
+
+            // If the EntityType has a single integer key KeyConvention assumes ValueGeneratedOnAdd().
+            // If the underlying column does not have Identity set then we need to set to
+            // ValueGeneratedNever() to override this behavior.
+            if (_keyConvention.ValueGeneratedOnAddProperty(
+                new List<Property> { (Property)propertyConfiguration.Property },
+                (EntityType)propertyConfiguration.EntityConfiguration.EntityType) != null)
             {
-                var dependentEndNavigationPropertyName =
-                    (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNameDependentEndNavPropName];
-                var principalEndNavigationPropertyName =
-                    (string)foreignKey[SqlServerMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
-
-                entityConfiguration.RelationshipConfigurations.Add(
-                    new RelationshipConfiguration(entityConfiguration, foreignKey,
-                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName));
+                propertyConfiguration.AddFacetConfiguration(
+                    new FacetConfiguration("ValueGeneratedNever()"));
             }
         }
     }

@@ -45,22 +45,6 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
-        /// Provider {providerTypeName} did not provide a ContextModelCodeGenerator.
-        /// </summary>
-        public static string NoContextModelCodeGenerator([CanBeNull] object providerTypeName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoContextModelCodeGenerator", "providerTypeName"), providerTypeName);
-        }
-
-        /// <summary>
-        /// Provider {providerTypeName} did not provide a EntityTypeModelCodeGenerator.
-        /// </summary>
-        public static string NoEntityTypeModelCodeGenerator([CanBeNull] object providerTypeName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoEntityTypeModelCodeGenerator", "providerTypeName"), providerTypeName);
-        }
-
-        /// <summary>
         /// OutputPath is required to generate code.
         /// </summary>
         public static string OutputPathRequired
@@ -101,11 +85,27 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
+        /// Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.
+        /// </summary>
+        public static string UnableToAddNavigationProperty([CanBeNull] object referencedEntityTypeName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToAddNavigationProperty", "referencedEntityTypeName"), referencedEntityTypeName);
+        }
+
+        /// <summary>
         /// Unable to create metadata reference from name {metadataReferenceName}.
         /// </summary>
         public static string UnableToCreateMetadataReference([CanBeNull] object metadataReferenceName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToCreateMetadataReference", "metadataReferenceName"), metadataReferenceName);
+        }
+
+        /// <summary>
+        /// Unable to generate EntityType {entityTypeName}. {errorMessage}
+        /// </summary>
+        public static string UnableToGenerateEntityType([CanBeNull] object entityTypeName, [CanBeNull] object errorMessage)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToGenerateEntityType", "entityTypeName", "errorMessage"), entityTypeName, errorMessage);
         }
 
         /// <summary>

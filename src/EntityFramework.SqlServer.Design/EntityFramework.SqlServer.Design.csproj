@@ -49,7 +49,6 @@
     <Compile Include="ReverseEngineering\Model\Table.cs" />
     <Compile Include="ReverseEngineering\SqlServerDbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqlServerDesignTimeMetadataProviderFactory.cs" />
-    <Compile Include="ReverseEngineering\SqlServerEntityTypeCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />
     <Compile Include="Utilities\SqlServerTypeMapping.cs" />
@@ -77,12 +76,6 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
     <None Include="project.json" />
-    <EmbeddedResource Include="ReverseEngineering\Templates\SqlServerDbContextTemplate.cshtml">
-      <LogicalName>EntityFramework.SqlServer.Design.ReverseEngineering.Templates.SqlServerDbContextTemplate.cshtml</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ReverseEngineering\Templates\SqlServerEntityTypeTemplate.cshtml">
-      <LogicalName>EntityFramework.SqlServer.Design.ReverseEngineering.Templates.SqlServerEntityTypeTemplate.cshtml</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
