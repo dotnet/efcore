@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "EntityFramework.Relational": "7.0.0-*",
-    "Microsoft.CodeAnalysis.CSharp": "1.0.0"
+    "Microsoft.CodeAnalysis.CSharp": "2.0.0-beta1-*",
+    "System.Reflection.Metadata": "1.1.0-alpha-*"
   },
   "frameworks": {
     "net45": {
