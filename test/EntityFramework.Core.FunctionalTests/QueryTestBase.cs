@@ -3374,7 +3374,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.Where(c => c.CustomerID.ToLower() == "alfki"),
                 entryCount: 1);
         }
-        
+
         [Fact]
         public virtual void Where_functions_nested()
         {
@@ -3383,8 +3383,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
-        ////[Fact]
-        public virtual void Convert_methods()
+        [Fact]
+        public virtual void Convert_ToByte()
         {
             var convertMethods = new List<Expression<Func<Order, bool>>>
             {
@@ -3396,7 +3396,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 o => Convert.ToByte(Convert.ToInt32(o.OrderID % 1)) >= 0,
                 o => Convert.ToByte(Convert.ToInt64(o.OrderID % 1)) >= 0,
                 o => Convert.ToByte(Convert.ToString(o.OrderID % 1)) >= 0,
+            };
 
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
+        public virtual void Convert_ToDecimal()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
                 o => Convert.ToDecimal(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -3405,7 +3420,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 o => Convert.ToDecimal(Convert.ToInt32(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToInt64(o.OrderID % 1)) >= 0,
                 o => Convert.ToDecimal(Convert.ToString(o.OrderID % 1)) >= 0,
+            };
 
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
+        public virtual void Convert_ToDouble()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
                 o => Convert.ToDouble(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -3414,7 +3444,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 o => Convert.ToDouble(Convert.ToInt32(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToInt64(o.OrderID % 1)) >= 0,
                 o => Convert.ToDouble(Convert.ToString(o.OrderID % 1)) >= 0,
+            };
 
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
+        public virtual void Convert_ToInt16()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
                 o => Convert.ToInt16(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -3423,7 +3468,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 o => Convert.ToInt16(Convert.ToInt32(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToInt64(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt16(Convert.ToString(o.OrderID % 1)) >= 0,
+            };
 
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
+        public virtual void Convert_ToInt32()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
                 o => Convert.ToInt32(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -3432,7 +3492,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 o => Convert.ToInt32(Convert.ToInt32(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToInt64(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt32(Convert.ToString(o.OrderID % 1)) >= 0,
+            };
 
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
+        public virtual void Convert_ToInt64()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
                 o => Convert.ToInt64(Convert.ToByte(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToDecimal(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToDouble(o.OrderID % 1)) >= 0,
@@ -3441,7 +3516,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 o => Convert.ToInt64(Convert.ToInt32(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToInt64(o.OrderID % 1)) >= 0,
                 o => Convert.ToInt64(Convert.ToString(o.OrderID % 1)) >= 0,
+            };
 
+            foreach (var convertMethod in convertMethods)
+            {
+                AssertQuery<Order>(
+                    os => os.Where(o => o.CustomerID == "ALFKI")
+                        .Where(convertMethod),
+                    entryCount: 6);
+            }
+        }
+
+        [Fact]
+        public virtual void Convert_ToString()
+        {
+            var convertMethods = new List<Expression<Func<Order, bool>>>
+            {
                 o => Convert.ToString(Convert.ToByte(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToDecimal(o.OrderID % 1)) != "10",
                 o => Convert.ToString(Convert.ToDouble(o.OrderID % 1)) != "10",

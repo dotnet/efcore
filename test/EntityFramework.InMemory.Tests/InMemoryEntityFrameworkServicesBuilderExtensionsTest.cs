@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         public InMemoryEntityFrameworkServicesBuilderExtensionsTest()
-            :base(InMemoryTestHelpers.Instance)
+            : base(InMemoryTestHelpers.Instance)
         {
         }
     }
