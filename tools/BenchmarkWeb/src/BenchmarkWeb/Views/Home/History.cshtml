@@ -1,0 +1,38 @@
+﻿@model IEnumerable<BenchmarkWeb.Models.Run>
+
+@{
+    ViewData["Title"] = "History";
+
+    var variationSeries = Model
+        .GroupBy(m => $"{m.ProductReportingVersion} {m.Variation}")
+        .ToArray();
+}
+
+<h1>@Model.First().TestClass - @Model.First().TestMethod</h1>
+
+<div id="chartdiv" style="height:600px; width:800px; "></div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $.jqplot(
+                'chartdiv',
+                [
+                    @foreach (var series in variationSeries)
+                    {
+                        <text>[@Html.Raw(string.Join(", ", series.Select(point => $"['{point.RunStarted}', {point.TimeElapsedPercentile95}]")))],</text>
+                    }
+                ],
+                {
+                    axes: {
+                        xaxis: {
+                            renderer: $.jqplot.DateAxisRenderer
+                        }
+                    },
+                    legend: { show: true },
+                    series: [@Html.Raw(string.Join(", ", variationSeries.Select(s => $"{{label: '{s.Key}'}}")))]
+                }
+            );
+        });
+    </script>
+}

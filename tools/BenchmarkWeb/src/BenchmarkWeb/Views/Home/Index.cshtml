@@ -1,0 +1,73 @@
+﻿@model IEnumerable<BenchmarkWeb.Models.Run>
+
+@{
+    ViewData["Title"] = "Latest Results";
+}
+
+<h1>Latest Results</h1>
+
+@foreach (var testClass in Model.GroupBy(r => r.TestClass))
+{
+    var frameworks = testClass
+        .Select(r => r.Framework)
+        .Distinct()
+        .OrderBy(f => f)
+        .ToArray();
+
+    <h2>@testClass.Key</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                @for (int i = 0; i < frameworks.Length; i++)
+                {
+                    <th colspan="3" class="@(i % 2 == 0 ? "active": "")" style="text-align: center">@frameworks[i]</th>
+                }
+            </tr>
+            <tr>
+                <th>Test</th>
+                <th>Variation</th>
+                @for (int i = 0; i < frameworks.Length; i++)
+                {
+                    var cellClass = i % 2 == 0 ? "active": "";
+                    <th class="@cellClass">EF6</th>
+                    <th class="@cellClass">EF7</th>
+                    <th class="@cellClass">Result</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var testMethod in testClass.GroupBy(c => c.TestMethod))
+            {
+                @foreach (var variation in testMethod.GroupBy(m => m.Variation))
+                {
+                    <tr>
+                        <td>@Html.ActionLink(testMethod.Key, "History", new { testClass = testClass.Key, testMethod = testMethod.Key })</td>
+                        <td>@variation.Key</td>
+                        @for (int i = 0; i < frameworks.Length; i++)
+                        {
+                            var results = variation.Where(v => v.Framework == frameworks[i]);
+                            var ef6 = results.Where(r => r.ProductReportingVersion == "EF6").SingleOrDefault();
+                            var ef7 = results.Where(r => r.ProductReportingVersion == "EF7").SingleOrDefault();
+                            var cellClass = i % 2 == 0 ? "active" : "";
+
+                            <td class="@cellClass" title="@ef6?.ToolTip">@ef6?.TimeElapsedPercentile95</td>
+                            <td class="@cellClass" title="@ef7?.ToolTip">@ef7?.TimeElapsedPercentile95</td>
+
+                            @if (ef6 != null && ef7 != null)
+                            {
+                                var difference = (double)(ef7.TimeElapsedPercentile95 - ef6.TimeElapsedPercentile95) / ef6.TimeElapsedPercentile95;
+                                <td class="@(difference > 0.1 ? "danger" : (difference <= 0 ? "success" : "warning"))">@string.Format("{0:P0}", difference)</td>
+                            }
+                            else
+                            {
+                                <td class="@cellClass"></td>
+                            }
+                        }
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
