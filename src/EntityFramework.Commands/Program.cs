@@ -100,8 +100,12 @@ namespace Microsoft.Data.Entity.Commands
                             var startupProject = update.Option(
                                 "-s|--startupProject <project>",
                                 "The start-up project to use. If omitted, the current project is used");
+							var environment = apply.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use",
+                                CommandOptionType.SingleValue);
                             update.HelpOption("-?|-h|--help");
-                            update.OnExecute(() => ApplyMigration(migrationName.Value, context.Value(), startupProject.Value()));
+                            update.OnExecute(() => ApplyMigration(migrationName.Value, context.Value(), startupProject.Value(), environment.Value()));
                         });
                 });
             app.Command(
@@ -336,13 +340,14 @@ namespace Microsoft.Data.Entity.Commands
         public virtual void ApplyMigration(
             [CanBeNull] string migration,
             [CanBeNull] string context,
-            [CanBeNull] string startupProject)
+            [CanBeNull] string startupProject,
+			[CanBeNull] string environment)
         {
             Execute(
                 startupProject,
                 () =>
                 {
-                    _migrationTool.ApplyMigration(migration, context, startupProject);
+                    _migrationTool.ApplyMigration(migration, context, startupProject, environment);
                 });
         }
 
