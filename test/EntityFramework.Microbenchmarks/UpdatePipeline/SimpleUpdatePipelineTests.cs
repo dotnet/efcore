@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off", true)]
         [BenchmarkVariation("Batching On", false)]
         public void Insert(MetricCollector collector, bool disableBatching)
@@ -42,7 +42,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off", true)]
         [BenchmarkVariation("Batching On", false)]
         public void Update(MetricCollector collector, bool disableBatching)
@@ -65,7 +65,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off", true)]
         [BenchmarkVariation("Batching On", false)]
         public void Delete(MetricCollector collector, bool disableBatching)
@@ -88,7 +88,7 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off", true)]
         [BenchmarkVariation("Batching On", false)]
         public void Mixed(MetricCollector collector, bool disableBatching)

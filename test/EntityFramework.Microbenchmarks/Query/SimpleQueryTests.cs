@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.Query
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Tracking On", true)]
         [BenchmarkVariation("Tracking Off", false)]
         public void LoadAll(MetricCollector collector, bool tracking)
@@ -35,7 +35,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Tracking On", true)]
         [BenchmarkVariation("Tracking Off", false)]
         public void Where(MetricCollector collector, bool tracking)
@@ -53,7 +53,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Tracking On", true)]
         [BenchmarkVariation("Tracking Off", false)]
         public void OrderBy(MetricCollector collector, bool tracking)
@@ -71,7 +71,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void Count(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -85,7 +85,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Tracking On", true)]
         [BenchmarkVariation("Tracking Off", false)]
         public void SkipTake(MetricCollector collector, bool tracking)
@@ -104,7 +104,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void GroupBy(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -125,7 +125,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 2, WarmupIterations = 1)]
+        [Benchmark(Iterations = 2)]
         [BenchmarkVariation("Tracking On", true)]
         [BenchmarkVariation("Tracking Off", false)]
         public void Include(MetricCollector collector, bool tracking)
@@ -144,7 +144,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void Projection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -159,7 +159,7 @@ namespace EntityFramework.Microbenchmarks.Query
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void ProjectionAcrossNavigation(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())

@@ -8,7 +8,7 @@ namespace EntityFramework.Microbenchmarks
 {
     public class CalibrationTests
     {
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void Calibration_100ms(MetricCollector collector)
         {
             using (collector.StartCollection())
@@ -17,7 +17,7 @@ namespace EntityFramework.Microbenchmarks
             }
         }
 
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void Calibration_100ms_controlled(MetricCollector collector)
         {
 

@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Add(MetricCollector collector, bool autoDetectChanges)
@@ -43,7 +43,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void AddCollection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -61,7 +61,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Attach(MetricCollector collector, bool autoDetectChanges)
@@ -85,7 +85,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         // Note: AttachCollection() not implemented because there is no
         //       API for bulk attach in EF6.x
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Remove(MetricCollector collector, bool autoDetectChanges)
@@ -106,7 +106,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void RemoveCollection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -121,7 +121,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
         public void Update(MetricCollector collector, bool autoDetectChanges)

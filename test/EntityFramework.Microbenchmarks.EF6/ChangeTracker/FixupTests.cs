@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AddChildren(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -44,7 +44,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         // Note: AddParents() not implemented because fixup to added parents 
         //       only happens during SaveChanges for EF6.x (not during Add)
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AttachChildren(MetricCollector collector)
         {
             List<Order> orders;
@@ -71,7 +71,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AttachParents(MetricCollector collector)
         {
             List<Customer> customers;
@@ -98,7 +98,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void QueryChildren(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -115,7 +115,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void QueryParents(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())

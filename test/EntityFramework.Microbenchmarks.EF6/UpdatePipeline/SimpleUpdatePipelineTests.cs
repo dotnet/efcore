@@ -18,7 +18,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off")]
         public void Insert(MetricCollector collector)
         {
@@ -40,7 +40,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off")]
         public void Update(MetricCollector collector)
         {
@@ -62,7 +62,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off")]
         public void Delete(MetricCollector collector)
         {
@@ -84,7 +84,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("Batching Off")]
         public void Mixed(MetricCollector collector)
         {

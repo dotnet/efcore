@@ -18,7 +18,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges Off")]
         public void Add(MetricCollector collector)
         {
@@ -40,7 +40,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void AddCollection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -59,7 +59,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges Off")]
         public void Attach(MetricCollector collector)
         {
@@ -79,7 +79,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
 
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void AttachCollection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -94,7 +94,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges Off")]
         public void Remove(MetricCollector collector)
         {
@@ -113,7 +113,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void RemoveCollection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -128,7 +128,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         [BenchmarkVariation("AutoDetectChanges Off")]
         public void Update(MetricCollector collector)
         {
@@ -147,7 +147,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 100, WarmupIterations = 5)]
+        [Benchmark]
         public void UpdateCollection(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())

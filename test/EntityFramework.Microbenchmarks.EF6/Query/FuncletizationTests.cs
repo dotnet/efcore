@@ -18,7 +18,7 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 50, WarmupIterations = 5)]
+        [Benchmark]
         public void NewQueryInstance(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -36,7 +36,7 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
             }
         }
 
-        [Benchmark(Iterations = 50, WarmupIterations = 5)]
+        [Benchmark]
         public void SameQueryInstance(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -56,7 +56,7 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
             }
         }
 
-        [Benchmark(Iterations = 50, WarmupIterations = 5)]
+        [Benchmark]
         public void ValueFromObject(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())

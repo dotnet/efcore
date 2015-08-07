@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AddChildren(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -41,7 +41,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AddParents(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -65,7 +65,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AttachChildren(MetricCollector collector)
         {
             List<Order> orders;
@@ -92,7 +92,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void AttachParents(MetricCollector collector)
         {
             List<Customer> customers;
@@ -119,7 +119,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void QueryChildren(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -136,7 +136,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             }
         }
 
-        [Benchmark(Iterations = 10, WarmupIterations = 5)]
+        [Benchmark(Iterations = 10)]
         public void QueryParents(MetricCollector collector)
         {
             using (var context = _fixture.CreateContext())

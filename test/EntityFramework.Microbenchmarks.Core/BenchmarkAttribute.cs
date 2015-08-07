@@ -9,8 +9,8 @@ namespace EntityFramework.Microbenchmarks.Core
     [XunitTestCaseDiscoverer("EntityFramework.Microbenchmarks.Core.BenchmarkTestCaseDiscoverer", "EntityFramework.Microbenchmarks.Core")]
     public class BenchmarkAttribute : FactAttribute
     {
-        public int Iterations { get; set; } = 1;
-        public int WarmupIterations { get; set; } 
+        public int Iterations { get; set; } = 100;
+        public int WarmupIterations { get; set; } = 1;
     }
 
 }
