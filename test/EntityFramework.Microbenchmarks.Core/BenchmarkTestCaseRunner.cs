@@ -86,9 +86,9 @@ namespace EntityFramework.Microbenchmarks.Core
             runSummary.PopulateMetrics();
             _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage(runSummary.ToString()));
 
-            if (BenchmarkConfig.Instance.ResultsDatabase != null)
+            foreach (var database in BenchmarkConfig.Instance.ResultDatabases)
             {
-                new SqlServerBenchmarkResultProcessor(BenchmarkConfig.Instance.ResultsDatabase).SaveSummary(runSummary);
+                new SqlServerBenchmarkResultProcessor(database).SaveSummary(runSummary);
             }
 
             return runSummary;

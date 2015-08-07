@@ -3,6 +3,8 @@
 
 using Microsoft.Framework.Configuration;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
@@ -15,10 +17,12 @@ namespace EntityFramework.Microbenchmarks.Core
                 .AddEnvironmentVariables()
                 .Build();
 
+            var resultDatabasesSection = config.GetConfigurationSection("benchmarks:resultDatabases");
+
             return new BenchmarkConfig
             {
                 RunIterations = bool.Parse(config.Get("benchmarks:runIterations")),
-                ResultsDatabase = config.Get("benchmarks:resultsDatabase"),
+                ResultDatabases = resultDatabasesSection.GetConfigurationSections().Select(s => resultDatabasesSection.Get(s.Key)).ToArray(),
                 BenchmarkDatabaseInstance = config.Get("benchmarks:benchmarkDatabaseInstance"),
                 ProductReportingVersion = config.Get("benchmarks:productReportingVersion"),
                 CustomData = config.Get("benchmarks:customData")
@@ -34,7 +38,7 @@ namespace EntityFramework.Microbenchmarks.Core
         }
 
         public bool RunIterations { get; private set; }
-        public string ResultsDatabase { get; private set; }
+        public IEnumerable<string> ResultDatabases { get; private set; }
         public string BenchmarkDatabaseInstance { get; private set; }
         public string ProductReportingVersion { get; private set; }
         public string CustomData { get; private set; }
