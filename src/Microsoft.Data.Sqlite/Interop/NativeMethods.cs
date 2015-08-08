@@ -26,6 +26,12 @@ namespace Microsoft.Data.Sqlite.Interop
 #if NET45 || DNX451 || DNXCORE50
         static NativeMethods()
         {
+#if DNXCORE50
+            if(!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return;
+            }
+#endif
             var loaded = NativeLibraryLoader.TryLoad("sqlite3");
 
 #if DNX451 || DNXCORE50
