@@ -46,14 +46,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static string CreateConnectionString(string name)
         {
-            return new SqlConnectionStringBuilder
-            {
-                DataSource = @"(localdb)\MSSQLLocalDB",
-                MultipleActiveResultSets = true,
-                InitialCatalog = name,
-                IntegratedSecurity = true,
-                ConnectTimeout = 30
-            }.ConnectionString;
+            var builder = SqlServerTestConfig.Instance.ConnectionStringBuilder;
+            builder.MultipleActiveResultSets = true;
+            builder.InitialCatalog = name;
+            return builder.ConnectionString;
         }
 
         protected override async Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)

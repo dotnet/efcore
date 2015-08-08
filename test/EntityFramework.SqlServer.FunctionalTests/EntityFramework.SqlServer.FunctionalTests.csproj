@@ -103,7 +103,12 @@
     <Compile Include="TransactionSqlServerTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
     <Compile Include="TestSqlServerModelSource.cs" />
+    <None Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="project.json" />
+    <Compile Include="SqlServerTestConfig.cs" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">

@@ -1,20 +1,25 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.Framework.Logging;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Xunit;
 using Xunit.Abstractions;
+
 #if DNX451 || DNXCORE50
 using System;
 using Microsoft.Dnx.Runtime;
@@ -25,8 +30,6 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
 {
     public class E2ETests : IClassFixture<E2EFixture>
     {
-        public const string E2EConnectionString =
-            @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30";
         
         private const string ProviderAssembyName = "EntityFramework.SqlServer.Design";
         private const string ProviderFullClassPath =
@@ -36,8 +39,8 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
         private const string ProviderEntityTypeTemplateName =
             ProviderAssembyName + "." + ReverseEngineeringGenerator.EntityTypeTemplateFileName;
         private const string TestNamespace = "E2ETest.Namespace";
-        private const string TestOutputDir = @"E2ETest\Output\Dir";
-        private const string CustomizedTemplateDir = @"E2ETest\CustomizedTemplate\Dir";
+        private const string TestOutputDir = "E2ETest/Output/Dir";
+        private const string CustomizedTemplateDir = "E2ETest/CustomizedTemplate/Dir";
 
         private static readonly List<string> _E2ETestExpectedWarnings = new List<string>
             {
@@ -79,10 +82,15 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             };
 
         private readonly ITestOutputHelper _output;
+        private readonly string _connStr;
 
         public E2ETests(ITestOutputHelper output)
         {
             _output = output;
+            var conn = SqlServerTestConfig.Instance.ConnectionStringBuilder;
+            conn.InitialCatalog = "SqlServerReverseEngineerTestE2E";
+            conn.MultipleActiveResultSets = true;
+            _connStr = conn.ConnectionString;
         }
 
         [Fact]
@@ -101,13 +109,16 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             var configuration = new ReverseEngineeringConfiguration
             {
                 Provider = provider,
-                ConnectionString = E2EConnectionString,
+                ConnectionString = _connStr,
                 Namespace = TestNamespace,
                 CustomTemplatePath = null, // not used for this test
                 OutputPath = TestOutputDir
             };
 
-            var expectedFileContents = InitializeE2EExpectedFileContents();
+            var expectedFileContents = InitializeE2EExpectedFileContents(new Dictionary<string, string>
+            {
+                { "$connection_string$", configuration.ConnectionString }
+            });
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
@@ -127,7 +138,7 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             var expectedFilePaths = _E2ETestExpectedFileNames.Select(name => Path.Combine(TestOutputDir, name));
             Assert.Equal(expectedFilePaths.Count(), filePaths.Count);
             i = 0;
-            foreach(var expectedFilePath in expectedFilePaths)
+            foreach (var expectedFilePath in expectedFilePaths)
             {
                 Assert.Equal(expectedFilePath, filePaths[i++]);
             }
@@ -178,7 +189,7 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             var configuration = new ReverseEngineeringConfiguration
             {
                 Provider = provider,
-                ConnectionString = E2EConnectionString,
+                ConnectionString = _connStr,
                 Namespace = TestNamespace,
                 CustomTemplatePath = CustomizedTemplateDir,
                 OutputPath = TestOutputDir
@@ -278,13 +289,19 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
             return serviceCollection;
         }
 
-        private Dictionary<string, string> InitializeE2EExpectedFileContents()
+        private Dictionary<string, string> InitializeE2EExpectedFileContents(IDictionary<string, string> templateValues)
         {
-            var expectedContents = new Dictionary<string, string>(); ;
+            var expectedContents = new Dictionary<string, string>();
+
             foreach (var fileName in _E2ETestExpectedFileNames)
             {
-                expectedContents[fileName] = File.ReadAllText(
-                    @"ReverseEngineering\ExpectedResults\E2E\" + fileName.Replace(".cs", ".expected"));
+                var contents = new StringBuilder(File.ReadAllText(
+                    Path.Combine("ReverseEngineering", "ExpectedResults", "E2E", fileName.Replace(".cs", ".expected"))));
+                foreach (var item in templateValues)
+                {
+                    contents.Replace(item.Key, item.Value);
+                }
+                expectedContents[fileName] = contents.ToString();
             }
 
             return expectedContents;
