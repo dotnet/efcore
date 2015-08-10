@@ -1,16 +1,16 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 
-namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
+namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
 {
     public class InMemoryFileService : IFileService
     {
         // maps directory name to a dictionary mapping file name to file contents
-        private Dictionary<string, Dictionary<string, string>> _nameToContentMap
+        private readonly Dictionary<string, Dictionary<string, string>> _nameToContentMap
             = new Dictionary<string, Dictionary<string, string>>();
 
         public virtual bool DirectoryExists(string directoryName)

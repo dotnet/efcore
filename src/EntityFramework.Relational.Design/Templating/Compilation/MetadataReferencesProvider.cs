@@ -59,6 +59,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
             AddReferenceFromName("EntityFramework.Relational.Design");
         }
 
+        public virtual void Add([NotNull] MetadataReference reference)
+            => _references.Add(Check.NotNull(reference, nameof(reference)));
+
         public virtual void AddReferenceFromName([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));

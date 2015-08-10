@@ -8,7 +8,7 @@
     <ProjectGuid>{6A05786F-C047-402E-A3A3-76898B644538}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntityFramework.SqlServer.Design.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.SqlServer.Design.FunctionalTests</RootNamespace>
     <AssemblyName>EntityFramework.SqlServer.Design.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -52,6 +52,10 @@
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
       <Name>EntityFramework.Core.FunctionalTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.Design.FunctionalTests\EntityFramework.Relational.Design.FunctionalTests.csproj">
+      <Project>{9ad9fe9f-dea7-4d2e-acc3-7cde92100cc8}</Project>
+      <Name>EntityFramework.Relational.Design.FunctionalTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
       <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
       <Name>EntityFramework.Relational.FunctionalTests</Name>
@@ -60,12 +64,6 @@
       <Project>{fa789ed6-2aac-4baa-a4fb-b600be2da956}</Project>
       <Name>EntityFramework.SqlServer.FunctionalTests</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ReverseEngineering\E2EFixture.cs" />
-    <Compile Include="ReverseEngineering\E2ETests.cs" />
-    <Compile Include="ReverseEngineering\InMemoryCommandLogger.cs" />
-    <Compile Include="ReverseEngineering\InMemoryFileService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="ReverseEngineering\E2E.sql" />
@@ -112,6 +110,10 @@
     <None Include="ReverseEngineering\ExpectedResults\E2E\Test_Spaces_Keywords_Table.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ReverseEngineering\SqlServerE2EFixture.cs" />
+    <Compile Include="ReverseEngineering\SqlServerE2ETests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

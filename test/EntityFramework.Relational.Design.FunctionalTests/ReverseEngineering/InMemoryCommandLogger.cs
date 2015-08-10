@@ -5,13 +5,11 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
+namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
 {
     public class InMemoryCommandLogger : CommandLogger
     {
-        public List<string> InformationMessages { get; } = new List<string>();
-        public List<string> VerboseMessages { get; } = new List<string>();
-        public List<string> WarningMessages { get; } = new List<string>();
+        public LoggerMessages Messages = new LoggerMessages();
 
         public InMemoryCommandLogger(string name)
             : base(name)
@@ -22,17 +20,24 @@ namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
 
         protected override void WriteWarning(string message)
         {
-            WarningMessages.Add(message);
+            Messages.Warn.Add(message);
         }
 
         protected override void WriteInformation(string message)
         {
-            InformationMessages.Add(message);
+            Messages.Info.Add(message);
         }
 
         protected override void WriteVerbose(string message)
         {
-            VerboseMessages.Add(message);
+            Messages.Verbose.Add(message);
         }
+    }
+
+    public class LoggerMessages
+    {
+        public List<string> Warn = new List<string>();
+        public List<string> Info = new List<string>();
+        public List<string> Verbose = new List<string>();
     }
 }

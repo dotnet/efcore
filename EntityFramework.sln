@@ -67,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Desi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Sqlite.Design.FunctionalTests", "test\EntityFramework.Sqlite.Design.FunctionalTests\EntityFramework.Sqlite.Design.FunctionalTests.csproj", "{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EntityFramework.Relational.Design.FunctionalTests", "test\EntityFramework.Relational.Design.FunctionalTests\EntityFramework.Relational.Design.FunctionalTests.csproj", "{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +195,10 @@ Global
 		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -228,5 +234,6 @@ Global
 		{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62} = {35BED7DE-CA6F-41EA-91E3-25CA7295C7B9}
 		{20EB96D6-18F3-4585-AEE0-E627C59C63FA} = {547020C0-976F-4542-81CE-7FD465595614}
 		{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD} = {547020C0-976F-4542-81CE-7FD465595614}
+		{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8} = {547020C0-976F-4542-81CE-7FD465595614}
 	EndGlobalSection
 EndGlobal

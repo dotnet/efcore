@@ -3,14 +3,14 @@
 
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 
-namespace EntityFramework.SqlServer.Design.ReverseEngineering.FunctionalTests
+namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
-    public class E2EFixture
+    public class SqlServerE2EFixture
     {
-        public E2EFixture()
+        public SqlServerE2EFixture()
         {
             SqlServerTestStore.CreateDatabase(
-                "SqlServerReverseEngineerTestE2E", @"ReverseEngineering\E2E.sql", true);
+                "SqlServerReverseEngineerTestE2E", "ReverseEngineering/E2E.sql", true);
         }
     }
 }
