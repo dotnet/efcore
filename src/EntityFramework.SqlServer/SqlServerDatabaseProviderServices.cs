@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.SqlServer.Update;
@@ -28,7 +29,6 @@ namespace Microsoft.Data.Entity.SqlServer
         }
 
         public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
-        public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<SqlServerQueryCompilationContextFactory>();
         public override IDatabaseCreator Creator => GetService<SqlServerDatabaseCreator>();
         public override IRelationalConnection RelationalConnection => GetService<ISqlServerConnection>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<SqlServerValueGeneratorSelector>();
@@ -47,5 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<SqlServerCompositeMethodCallTranslator>();
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqlServerCompositeMemberTranslator>();
         public override IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<SqlServerCompositeExpressionFragmentTranslator>();
+        public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<SqlServerQueryCompilationContextFactory>();
+        public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqlServerQuerySqlGeneratorFactory>();
     }
 }

@@ -8,6 +8,9 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
@@ -71,7 +74,22 @@ namespace Microsoft.Data.Entity.Infrastructure
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddScoped<RelationalQueryContextFactory>();
+                .AddScoped<IMaterializerFactory, MaterializerFactory>()
+                .AddScoped<ICommandBuilderFactory, CommandBuilderFactory>()
+                .AddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
+                .AddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
+                .AddScoped<IQueryFlatteningExpressionVisitorFactory, QueryFlatteningExpressionVisitorFactory>()
+                .AddScoped<IShapedQueryFindingExpressionVisitorFactory, ShapedQueryFindingExpressionVisitorFactory>()
+                .AddScoped<ISqlTranslatingExpressionVisitorFactory, SqlTranslatingExpressionVisitorFactory>()
+                .AddScoped<ISelectExpressionFactory, SelectExpressionFactory>()
+                .AddScoped<RelationalExpressionPrinter>()
+                .AddScoped<RelationalResultOperatorHandler>()
+                .AddScoped<RelationalQueryContextFactory>()
+                .AddScoped<RelationalQueryCompilationContextFactory>()
+                .AddScoped<RelationalEntityQueryableExpressionVisitorFactory>()
+                .AddScoped<RelationalQueryModelVisitorFactory>()
+                .AddScoped<RelationalProjectionExpressionVisitorFactory>()
+                .AddScoped(p => GetProviderServices(p).SqlQueryGeneratorFactory);
         }
 
         private static IRelationalDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)

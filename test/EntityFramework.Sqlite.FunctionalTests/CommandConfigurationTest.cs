@@ -120,12 +120,13 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         }
 
         private CommandBuilder SetupCommandBuilder()
-        {
-            var selectExpression = new SelectExpression();
-
-            return new CommandBuilder(
-                () => new DefaultQuerySqlGenerator(selectExpression, new SqliteTypeMapper()), new UntypedRelationalValueBufferFactoryFactory());
-        }
+            => new CommandBuilder(
+                new UntypedRelationalValueBufferFactoryFactory(),
+                new SqliteTypeMapper(),
+                new SelectExpression(
+                    new SqliteQuerySqlGeneratorFactory(
+                        new ParameterNameGeneratorFactory()))
+                    .CreateGenerator);
 
         [Fact]
         public void Constructed_update_statement_uses_default_when_CommandTimeout_not_configured()

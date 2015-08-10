@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -13,16 +14,24 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class EntityResultFindingExpressionVisitor : ExpressionVisitorBase
     {
+        private readonly IModel _model;
+        private readonly IEntityTrackingInfoFactory _entityTrackingInfoFactory;
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly ISet<IQuerySource> _untrackedQuerySources;
 
         private List<EntityTrackingInfo> _entityTrackingInfos;
 
         public EntityResultFindingExpressionVisitor(
+            [NotNull] IModel model,
+            [NotNull] IEntityTrackingInfoFactory entityTrackingInfoFactory,
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(entityTrackingInfoFactory, nameof(entityTrackingInfoFactory));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
+            _model = model;
+            _entityTrackingInfoFactory = entityTrackingInfoFactory;
             _queryCompilationContext = queryCompilationContext;
 
             _untrackedQuerySources
@@ -48,17 +57,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             if (!_untrackedQuerySources.Contains(querySourceReferenceExpression.ReferencedQuerySource))
             {
-                var entityType
-                    = _queryCompilationContext.Model
-                        .FindEntityType(querySourceReferenceExpression.Type);
+                var entityType = _model.FindEntityType(querySourceReferenceExpression.Type);
 
                 if (entityType != null)
                 {
-                    var entityTrackingInfo
-                        = new EntityTrackingInfo(
-                            _queryCompilationContext, querySourceReferenceExpression, entityType);
-
-                    _entityTrackingInfos.Add(entityTrackingInfo);
+                    _entityTrackingInfos.Add(
+                        _entityTrackingInfoFactory
+                            .Create(_queryCompilationContext, querySourceReferenceExpression, entityType));
                 }
             }
 

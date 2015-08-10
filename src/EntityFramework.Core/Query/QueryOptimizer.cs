@@ -17,7 +17,7 @@ using Remotion.Linq.Transformations;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class QueryOptimizer : SubQueryFromClauseFlattener
+    public class QueryOptimizer : SubQueryFromClauseFlattener, IQueryOptimizer
     {
         private class FromClauseData : IFromClause
         {
@@ -45,13 +45,18 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        private readonly IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
+        private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
 
-        public QueryOptimizer([NotNull] IReadOnlyCollection<QueryAnnotationBase> queryAnnotations)
+        public virtual void Optimize(
+            [NotNull] IReadOnlyCollection<QueryAnnotationBase> queryAnnotations,
+            [NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryAnnotations, nameof(queryAnnotations));
+            Check.NotNull(queryModel, nameof(queryModel));
 
             _queryAnnotations = queryAnnotations;
+
+            VisitQueryModel(queryModel);
         }
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)

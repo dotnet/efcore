@@ -13,8 +13,6 @@ namespace Microsoft.Data.Entity.Query.Sql
     {
         RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues);
 
-        IRelationalTypeMapper TypeMapper { get; }
-
         IRelationalValueBufferFactory CreateValueBufferFactory(
             [NotNull] IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,
             [NotNull] DbDataReader dataReader);

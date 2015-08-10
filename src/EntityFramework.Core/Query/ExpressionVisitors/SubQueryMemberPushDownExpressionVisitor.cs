@@ -6,7 +6,7 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class SubQueryMemberPushDownExpressionVisitor : ExpressionVisitorBase
+    public class SubQueryMemberPushDownExpressionVisitor : ExpressionVisitorBase, ISubQueryMemberPushDownExpressionVisitor
     {
         protected override Expression VisitMember(MemberExpression memberExpression)
         {

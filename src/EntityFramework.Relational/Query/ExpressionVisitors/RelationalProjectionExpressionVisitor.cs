@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -15,16 +16,24 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class RelationalProjectionExpressionVisitor : ProjectionExpressionVisitor
     {
+        private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
+        private readonly IEntityMaterializerSource _entityMaterializerSource;
         private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly IQuerySource _querySource;
 
         public RelationalProjectionExpressionVisitor(
+            [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
+            Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
+            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(querySource, nameof(querySource));
 
+            _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
+            _entityMaterializerSource = entityMaterializerSource;
             _queryModelVisitor = queryModelVisitor;
             _querySource = querySource;
         }
@@ -97,15 +106,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 && selectExpression != null)
             {
                 var sqlExpression
-                    = new SqlTranslatingExpressionVisitor(
-                        _queryModelVisitor, selectExpression, inProjection: true)
+                    = _sqlTranslatingExpressionVisitorFactory
+                        .Create(QueryModelVisitor, selectExpression, inProjection: true)
                         .Visit(expression);
 
                 if (sqlExpression == null)
                 {
                     if (!(expression is QuerySourceReferenceExpression))
                     {
-                        _queryModelVisitor.RequiresClientProjection = true;
+                        QueryModelVisitor.RequiresClientProjection = true;
                     }
                 }
                 else
@@ -153,7 +162,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                     typeof(ValueBuffer));
 
                             var readValueExpression
-                                = _queryModelVisitor.QueryCompilationContext.EntityMaterializerSource
+                                = _entityMaterializerSource
                                     .CreateReadValueCallExpression(valueBufferExpression, index);
 
                             var outputDataInfo

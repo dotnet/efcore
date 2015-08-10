@@ -8,8 +8,8 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Sqlite.Update;
@@ -34,7 +34,6 @@ namespace Microsoft.Data.Entity.Sqlite
         public override IModelSource ModelSource => GetService<SqliteModelSource>();
         public override IRelationalConnection RelationalConnection => GetService<SqliteDatabaseConnection>();
         public override IUpdateSqlGenerator UpdateSqlGenerator => GetService<SqliteUpdateSqlGenerator>();
-        public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<SqliteQueryCompilationContextFactory>();
         public override IValueGeneratorCache ValueGeneratorCache => GetService<SqliteValueGeneratorCache>();
         public override IRelationalTypeMapper TypeMapper => GetService<SqliteTypeMapper>();
         public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<SqliteModificationCommandBatchFactory>();
@@ -45,5 +44,6 @@ namespace Microsoft.Data.Entity.Sqlite
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqliteCompositeMemberTranslator>();
         public override IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<SqliteCompositeExpressionFragmentTranslator>();
         public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<SqliteMigrationsAnnotationProvider>();
+        public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqliteQuerySqlGeneratorFactory>();
     }
 }

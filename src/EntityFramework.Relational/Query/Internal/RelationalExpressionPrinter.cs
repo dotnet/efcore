@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                     stringBuilder.AppendLine("SelectExpression: ");
                     stringBuilder.IncrementIndent();
 
-                    var commandGenerator = commandBuilder.SqlGeneratorFactory();
+                    var commandGenerator = commandBuilder.SqlGeneratorFunc();
                     var sql = commandGenerator.GenerateSql(new Dictionary<string, object>()).CommandText;
 
                     var lines = sql.Split(new[] { Environment.NewLine }, StringSplitOptions.None);

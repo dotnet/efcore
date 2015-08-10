@@ -16,22 +16,26 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class MaterializerFactory
+    public class MaterializerFactory : IMaterializerFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
+        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
 
-        public MaterializerFactory([NotNull] IEntityMaterializerSource entityMaterializerSource)
+        public MaterializerFactory(
+            [NotNull] IEntityMaterializerSource entityMaterializerSource,
+            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
+            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
 
             _entityMaterializerSource = entityMaterializerSource;
+            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
         }
 
         public virtual Expression CreateMaterializer(
             [NotNull] IEntityType entityType,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,
-            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions,
             [CanBeNull] IQuerySource querySource)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -64,7 +68,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
             }
 
-            var discriminatorProperty = relationalExtensions.For(concreteEntityTypes[0]).DiscriminatorProperty;
+            var discriminatorProperty = _relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
             var discriminatorColumn
                 = selectExpression.Projection
@@ -73,7 +77,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    relationalExtensions.For(concreteEntityTypes[0]).DiscriminatorValue);
+                    _relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
 
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
@@ -126,7 +130,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 var discriminatorValue
                     = Expression.Constant(
-                        relationalExtensions.For(concreteEntityType).DiscriminatorValue);
+                        _relationalMetadataExtensionProvider.For(concreteEntityType).DiscriminatorValue);
 
                 materializer
                     = _entityMaterializerSource

@@ -8,6 +8,9 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.ValueGeneration;
 
@@ -21,9 +24,15 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public override IDatabase Database => GetService<RelationalDatabase>();
-        public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
-        public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
         public override IModelValidator ModelValidator => GetService<RelationalModelValidator>();
+        public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();
+        public override IExpressionPrinter ExpressionPrinter => GetService<RelationalExpressionPrinter>();
+        public override IResultOperatorHandler ResultOperatorHandler => GetService<RelationalResultOperatorHandler>();
+        public override IQueryContextFactory QueryContextFactory => GetService<RelationalQueryContextFactory>();
+        public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<RelationalQueryCompilationContextFactory>();
+        public override IEntityQueryableExpressionVisitorFactory EntityQueryableExpressionVisitorFactory => GetService<RelationalEntityQueryableExpressionVisitorFactory>();
+        public override IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory => GetService<RelationalQueryModelVisitorFactory>();
+        public override IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory => GetService<RelationalProjectionExpressionVisitorFactory>();
 
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();
         public virtual IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<MigrationsAnnotationProvider>();
@@ -43,5 +52,6 @@ namespace Microsoft.Data.Entity.Storage
         public abstract IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
         public abstract IRelationalDatabaseCreator RelationalDatabaseCreator { get; }
         public abstract IRelationalMetadataExtensionProvider MetadataExtensionProvider { get; }
+        public abstract ISqlQueryGeneratorFactory SqlQueryGeneratorFactory { get; }
     }
 }

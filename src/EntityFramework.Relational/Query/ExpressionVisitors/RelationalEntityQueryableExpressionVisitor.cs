@@ -25,15 +25,39 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private static readonly ParameterExpression _valueBufferParameter
             = Expression.Parameter(typeof(ValueBuffer));
 
+        private readonly IModel _model;
+        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly ISelectExpressionFactory _selectExpressionFactory;
+        private readonly IMaterializerFactory _materializerFactory;
+        private readonly ICommandBuilderFactory _commandBuilderFactory;
+        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
         private readonly IQuerySource _querySource;
 
         public RelationalEntityQueryableExpressionVisitor(
+            [NotNull] IModel model,
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] ISelectExpressionFactory selectExpressionFactory,
+            [NotNull] IMaterializerFactory materializerFactory,
+            [NotNull] ICommandBuilderFactory commandBuilderFactory,
+            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
+            Check.NotNull(materializerFactory, nameof(materializerFactory));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
             Check.NotNull(querySource, nameof(querySource));
 
+            _model = model;
+            _entityKeyFactorySource = entityKeyFactorySource;
+            _selectExpressionFactory = selectExpressionFactory;
+            _materializerFactory = materializerFactory;
+            _commandBuilderFactory = commandBuilderFactory;
+            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
             _querySource = querySource;
         }
 
@@ -61,7 +85,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     memberExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
+                            _relationalMetadataExtensionProvider.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -78,7 +102,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     methodCallExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            QueryModelVisitor.QueryCompilationContext.RelationalExtensions.For(property).ColumnName,
+                            _relationalMetadataExtensionProvider.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -92,9 +116,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var queryMethodInfo = CreateValueBufferMethodInfo;
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
-            var entityType = relationalQueryCompilationContext.Model.GetEntityType(elementType);
-            var selectExpression = new SelectExpression();
-            var name = relationalQueryCompilationContext.RelationalExtensions.For(entityType).TableName;
+            var entityType = _model.GetEntityType(elementType);
+            var selectExpression = _selectExpressionFactory.Create();
+            var name = _relationalMetadataExtensionProvider.For(entityType).TableName;
 
             var tableAlias
                 = _querySource.HasGeneratedItemName()
@@ -115,7 +139,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 selectExpression.AddTable(
                     new TableExpression(
                         name,
-                        relationalQueryCompilationContext.RelationalExtensions.For(entityType).Schema,
+                        _relationalMetadataExtensionProvider.For(entityType).Schema,
                         tableAlias,
                         _querySource));
             }
@@ -172,25 +196,22 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 || QueryModelVisitor.RequiresClientEval)
             {
                 var materializer
-                    = new MaterializerFactory(
-                        relationalQueryCompilationContext
-                            .EntityMaterializerSource)
+                    = _materializerFactory
                         .CreateMaterializer(
                             entityType,
                             selectExpression,
                             (p, se) =>
                                 se.AddToProjection(
-                                    relationalQueryCompilationContext.RelationalExtensions.For(p).ColumnName,
+                                    _relationalMetadataExtensionProvider.For(p).ColumnName,
                                     p,
                                     _querySource),
-                            QueryModelVisitor.QueryCompilationContext.RelationalExtensions,
                             _querySource);
 
                 queryMethodInfo
                     = CreateEntityMethodInfo.MakeGenericMethod(elementType);
 
                 var keyFactory
-                    = relationalQueryCompilationContext.EntityKeyFactorySource
+                    = _entityKeyFactorySource
                         .GetKeyFactory(entityType.GetPrimaryKey());
 
                 queryMethodArguments.AddRange(
@@ -204,27 +225,26 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         });
             }
 
-            Func<ISqlQueryGenerator> sqlQueryGeneratorFactory;
+            Func<ISqlQueryGenerator> sqlQueryGeneratorFunc;
 
             if (composable)
             {
-                sqlQueryGeneratorFactory = () =>
-                    relationalQueryCompilationContext.CreateSqlQueryGenerator(selectExpression);
+                sqlQueryGeneratorFunc = selectExpression.CreateGenerator;
             }
             else
             {
-                sqlQueryGeneratorFactory = () =>
-                    new RawSqlQueryGenerator(selectExpression, sqlString, sqlParameters, relationalQueryCompilationContext.TypeMapper);
+                sqlQueryGeneratorFunc = () =>
+                    selectExpression.CreateRawCommandGenerator(
+                        sqlString,
+                        sqlParameters);
             }
 
             return Expression.Call(
-                relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
+                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
                     .MakeGenericMethod(queryMethodInfo.ReturnType),
                 EntityQueryModelVisitor.QueryContextParameter,
                 Expression.Constant(
-                    new CommandBuilder(
-                        sqlQueryGeneratorFactory,
-                        relationalQueryCompilationContext.ValueBufferFactoryFactory)),
+                    _commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
                 Expression.Lambda(
                     Expression.Call(queryMethodInfo, queryMethodArguments),
                     _valueBufferParameter));

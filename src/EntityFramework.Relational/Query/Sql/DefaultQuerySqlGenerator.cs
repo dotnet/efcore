@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
-        private readonly SelectExpression _selectExpression;
+        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
         private RelationalCommandBuilder _sql;
         private ParameterNameGenerator _parameterNameGenerator;
@@ -46,20 +46,17 @@ namespace Microsoft.Data.Entity.Query.Sql
         };
 
         public DefaultQuerySqlGenerator(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] SelectExpression selectExpression)
         {
+            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(typeMapper, nameof(typeMapper));
 
-            _selectExpression = selectExpression;
-            TypeMapper = typeMapper;
+            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            SelectExpression = selectExpression;
         }
 
-        public virtual IRelationalTypeMapper TypeMapper { get; }
-
-        protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
-            = new ParameterNameGeneratorFactory();
+        protected virtual SelectExpression SelectExpression { get; }
 
         protected virtual ParameterNameGenerator ParameterNameGenerator => _parameterNameGenerator;
 
@@ -68,10 +65,10 @@ namespace Microsoft.Data.Entity.Query.Sql
             Check.NotNull(parameterValues, nameof(parameterValues));
 
             _sql = new RelationalCommandBuilder();
-            _parameterNameGenerator = ParameterNameGeneratorFactory.Create();
+            _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             _parameterValues = parameterValues;
 
-            Visit(_selectExpression);
+            Visit(SelectExpression);
 
             return _sql.RelationalCommand;
         }
@@ -82,13 +79,12 @@ namespace Microsoft.Data.Entity.Query.Sql
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
 
             return relationalValueBufferFactoryFactory
-                .Create(_selectExpression.GetProjectionTypes().ToArray(), indexMap: null);
+                .Create(SelectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
         protected virtual RelationalCommandBuilder Sql => _sql;
 
         protected virtual string ConcatOperator => "+";
-
         protected virtual string TrueLiteral => "1";
         protected virtual string FalseLiteral => "0";
         protected virtual string TypedTrueLiteral => "CAST(1 AS BIT)";

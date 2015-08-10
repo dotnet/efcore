@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class TaskBlockingExpressionVisitor : ExpressionVisitorBase
+    public class TaskBlockingExpressionVisitor : ExpressionVisitorBase, ITaskBlockingExpressionVisitor
     {
         public override Expression Visit(Expression expression)
         {

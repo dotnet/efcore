@@ -135,12 +135,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         private CommandBuilder setupCommandBuilder()
-        {
-            var selectExpression = new SelectExpression();
-
-            return new CommandBuilder(
-                () => new DefaultQuerySqlGenerator(selectExpression, new SqlServerTypeMapper()), new UntypedRelationalValueBufferFactoryFactory());
-        }
+            => new CommandBuilder(
+                new UntypedRelationalValueBufferFactoryFactory(),
+                new SqlServerTypeMapper(),
+                new SelectExpression(
+                    new SqlServerQuerySqlGeneratorFactory(
+                        new ParameterNameGeneratorFactory()))
+                    .CreateGenerator);
 
         [Fact]
         public void Constructed_update_statement_uses_default_when_commandTimeout_not_configured()

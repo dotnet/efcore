@@ -39,7 +39,6 @@ namespace Microsoft.Data.Entity
             VerifyScoped<SqliteCompositeMethodCallTranslator>();
             VerifyScoped<SqliteCompositeMemberTranslator>();
             VerifyScoped<SqliteCompositeExpressionFragmentTranslator>();
-            VerifyScoped<SqliteQueryCompilationContextFactory>();
         }
 
         public SqliteEntityFrameworkServicesBuilderExtensionsTest()

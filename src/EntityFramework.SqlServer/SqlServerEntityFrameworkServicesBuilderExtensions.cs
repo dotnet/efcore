@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators;
@@ -57,7 +58,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<SqlServerQueryCompilationContextFactory>()
                 .AddScoped<SqlServerCompositeExpressionFragmentTranslator>()
                 .AddScoped<SqlServerCompositeMemberTranslator>()
-                .AddScoped<SqlServerCompositeMethodCallTranslator>();
+                .AddScoped<SqlServerCompositeMethodCallTranslator>()
+                .AddScoped<SqlServerQuerySqlGeneratorFactory>();
         }
     }
 }

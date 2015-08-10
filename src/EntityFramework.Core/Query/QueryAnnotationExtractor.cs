@@ -13,7 +13,7 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class QueryAnnotationExtractor
+    public class QueryAnnotationExtractor : IQueryAnnotationExtractor
     {
         public virtual IReadOnlyCollection<QueryAnnotationBase> ExtractQueryAnnotations([NotNull] QueryModel queryModel)
         {

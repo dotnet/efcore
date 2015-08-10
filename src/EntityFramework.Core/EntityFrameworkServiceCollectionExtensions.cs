@@ -10,6 +10,8 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
@@ -122,10 +124,30 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
                 .AddScoped<IEntityQueryProvider, EntityQueryProvider>()
                 .AddScoped<IQueryCompiler, QueryCompiler>()
+                .AddScoped<IQueryAnnotationExtractor, QueryAnnotationExtractor>()
+                .AddScoped<IQueryOptimizer, QueryOptimizer>()
+                .AddScoped<IEntityTrackingInfoFactory, EntityTrackingInfoFactory>()
+                .AddScoped<ISubQueryMemberPushDownExpressionVisitor, SubQueryMemberPushDownExpressionVisitor>()
+                .AddScoped<ITaskBlockingExpressionVisitor, TaskBlockingExpressionVisitor>()
+                .AddScoped<IEntityResultFindingExpressionVisitorFactory, EntityResultFindingExpressionVisitorFactory>()
+                .AddScoped<IMemberAccessBindingExpressionVisitorFactory, MemberAccessBindingExpressionVisitorFactory>()
+                .AddScoped<INavigationRewritingExpressionVisitorFactory, NavigationRewritingExpressionVisitorFactory>()
+                .AddScoped<IOrderingExpressionVisitorFactory, OrderingExpressionVisitorFactory>()
+                .AddScoped<IQuerySourceTracingExpressionVisitorFactory, QuerySourceTracingExpressionVisitorFactory>()
+                .AddScoped<IRequiresMaterializationExpressionVisitorFactory, RequiresMaterializationExpressionVisitorFactory>()
                 .AddScoped<CompiledQueryCacheKeyGenerator>()
+                .AddScoped<ExpressionPrinter>()
+                .AddScoped<ResultOperatorHandler>()
+                .AddScoped<QueryCompilationContextFactory>()
+                .AddScoped<ProjectionExpressionVisitorFactory>()
                 .AddScoped(p => GetProviderServices(p).QueryContextFactory)
                 .AddScoped(p => GetProviderServices(p).QueryCompilationContextFactory)
-                .AddScoped(p => GetProviderServices(p).CompiledQueryCacheKeyGenerator);
+                .AddScoped(p => GetProviderServices(p).CompiledQueryCacheKeyGenerator)
+                .AddScoped(p => GetProviderServices(p).EntityQueryModelVisitorFactory)
+                .AddScoped(p => GetProviderServices(p).EntityQueryableExpressionVisitorFactory)
+                .AddScoped(p => GetProviderServices(p).ExpressionPrinter)
+                .AddScoped(p => GetProviderServices(p).ResultOperatorHandler)
+                .AddScoped(p => GetProviderServices(p).ProjectionExpressionVisitorFactory);
         }
 
         private static IDbContextServices GetContextServices(IServiceProvider serviceProvider)

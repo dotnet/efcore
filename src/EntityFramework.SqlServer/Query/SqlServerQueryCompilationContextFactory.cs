@@ -2,86 +2,45 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query
 {
     public class SqlServerQueryCompilationContextFactory : IQueryCompilationContextFactory
     {
-        private readonly IModel _model;
-        private readonly ILogger _logger;
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
-        private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
-        private readonly IMethodCallTranslator _compositeMethodCallTranslator;
-        private readonly IMemberTranslator _compositeMemberTranslator;
-        private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-        private readonly IRelationalTypeMapper _typeMapper;
-        private readonly IRelationalMetadataExtensionProvider _relationalExtensions;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
+        private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
 
         public SqlServerQueryCompilationContextFactory(
-            [NotNull] IModel model,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
-            [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
+            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
+            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory)
         {
-            _model = model;
-            _logger = loggerFactory.CreateLogger<Database>();
-            _entityMaterializerSource = entityMaterializerSource;
-            _entityKeyFactorySource = entityKeyFactorySource;
-            _clrPropertyGetterSource = clrPropertyGetterSource;
-            _compositeMethodCallTranslator = compositeMethodCallTranslator;
-            _compositeMemberTranslator = compositeMemberTranslator;
-            _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
-            _typeMapper = typeMapper;
-            _relationalExtensions = relationalExtensions;
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
+            Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
+
+            _loggerFactory = loggerFactory;
+            _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
+            _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
         }
 
         public virtual QueryCompilationContext Create(bool async)
             => async
                 ? new SqlServerQueryCompilationContext(
-                    _model,
-                    _logger,
+                    _loggerFactory,
+                    _entityQueryModelVisitorFactory,
+                    _requiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(),
-                    _entityMaterializerSource,
-                    _entityKeyFactorySource,
-                    _clrPropertyGetterSource,
-                    new AsyncQueryMethodProvider(),
-                    _compositeMethodCallTranslator,
-                    _compositeMemberTranslator,
-                    _compositeExpressionFragmentTranslator,
-                    _valueBufferFactoryFactory,
-                    _typeMapper,
-                    _relationalExtensions)
+                    new AsyncQueryMethodProvider())
                 : new SqlServerQueryCompilationContext(
-                    _model,
-                    _logger,
+                    _loggerFactory,
+                    _entityQueryModelVisitorFactory,
+                    _requiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),
-                    new RelationalResultOperatorHandler(),
-                    _entityMaterializerSource,
-                    _entityKeyFactorySource,
-                    _clrPropertyGetterSource,
-                    new QueryMethodProvider(),
-                    _compositeMethodCallTranslator,
-                    _compositeMemberTranslator,
-                    _compositeExpressionFragmentTranslator,
-                    _valueBufferFactoryFactory,
-                    _typeMapper,
-                    _relationalExtensions);
+                    new QueryMethodProvider());
     }
 }

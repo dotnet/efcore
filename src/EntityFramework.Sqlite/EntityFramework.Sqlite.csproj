@@ -79,9 +79,8 @@
     <Compile Include="Query\ExpressionTranslators\StringLengthTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\StringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\StringToUpperTranslator.cs" />
-    <Compile Include="Query\SqliteQueryCompilationContext.cs" />
-    <Compile Include="Query\SqliteQueryCompilationContextFactory.cs" />
-    <Compile Include="Query\SqliteQuerySqlGenerator.cs" />
+    <Compile Include="Query\Sql\SqliteQuerySqlGenerator.cs" />
+    <Compile Include="Query\Sql\SqliteQuerySqlGeneratorFactory.cs" />
     <Compile Include="Query\ExpressionTranslators\SqliteCompositeExpressionFragmentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\SqliteCompositeMemberTranslator.cs" />
     <Compile Include="SqliteDatabaseConnection.cs" />

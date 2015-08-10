@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators;
@@ -52,10 +52,10 @@ namespace Microsoft.Framework.DependencyInjection
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
         {
             return serviceCollection
-                .AddScoped<SqliteQueryCompilationContextFactory>()
                 .AddScoped<SqliteCompositeExpressionFragmentTranslator>()
                 .AddScoped<SqliteCompositeMemberTranslator>()
-                .AddScoped<SqliteCompositeMethodCallTranslator>();
+                .AddScoped<SqliteCompositeMethodCallTranslator>()
+                .AddScoped<SqliteQuerySqlGeneratorFactory>();
         }
     }
 }

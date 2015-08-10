@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -14,16 +15,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class RequiresMaterializationExpressionVisitor : ExpressionVisitorBase
     {
+        private readonly IModel _model;
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly Dictionary<IQuerySource, int> _querySources = new Dictionary<IQuerySource, int>();
 
         private QueryModel _queryModel;
         private Expression _parentSelector;
 
-        public RequiresMaterializationExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
+        public RequiresMaterializationExpressionVisitor(
+            [NotNull] IModel model,
+            [NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
+            Check.NotNull(model, nameof(model));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
+            _model = model;
             _queryModelVisitor = queryModelVisitor;
         }
 
@@ -53,8 +59,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 _querySources.Add(querySourceReferenceExpression.ReferencedQuerySource, 0);
             }
 
-            if (_queryModelVisitor.QueryCompilationContext.Model
-                .FindEntityType(querySourceReferenceExpression.Type) != null)
+            if (_model.FindEntityType(querySourceReferenceExpression.Type) != null)
             {
                 _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
             }
@@ -112,8 +117,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var leftSubQueryExpression = binaryExpression.Left as SubQueryExpression;
 
             if (leftSubQueryExpression != null
-                && _queryModelVisitor.QueryCompilationContext.Model
-                    .FindEntityType(leftSubQueryExpression.Type) != null)
+                && _model.FindEntityType(leftSubQueryExpression.Type) != null)
             {
                 _parentSelector = leftSubQueryExpression.QueryModel.SelectClause.Selector;
 
@@ -127,8 +131,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var rightSubQueryExpression = binaryExpression.Right as SubQueryExpression;
 
             if (rightSubQueryExpression != null
-                && _queryModelVisitor.QueryCompilationContext.Model
-                    .FindEntityType(rightSubQueryExpression.Type) != null)
+                && _model.FindEntityType(rightSubQueryExpression.Type) != null)
             {
                 _parentSelector = rightSubQueryExpression.QueryModel.SelectClause.Selector;
 

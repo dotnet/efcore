@@ -15,24 +15,28 @@ namespace Microsoft.Data.Entity.Query
     public class CommandBuilder
     {
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-        private readonly Func<ISqlQueryGenerator> _sqlGeneratorFactory;
+        private readonly IRelationalTypeMapper _typeMapper;
+        private readonly Func<ISqlQueryGenerator> _sqlGeneratorFunc;
 
         private IRelationalValueBufferFactory _valueBufferFactory;
 
         public CommandBuilder(
-            [NotNull] Func<ISqlQueryGenerator> sqlGeneratorFactory,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] Func<ISqlQueryGenerator> sqlGeneratorFunc)
         {
-            Check.NotNull(sqlGeneratorFactory, nameof(sqlGeneratorFactory));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(sqlGeneratorFunc, nameof(sqlGeneratorFunc));
 
-            _sqlGeneratorFactory = sqlGeneratorFactory;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
+            _typeMapper = typeMapper;
+            _sqlGeneratorFunc = sqlGeneratorFunc;
         }
 
         public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory;
 
-        public virtual Func<ISqlQueryGenerator> SqlGeneratorFactory => _sqlGeneratorFactory;
+        public virtual Func<ISqlQueryGenerator> SqlGeneratorFunc => _sqlGeneratorFunc;
 
         public virtual DbCommand Build(
             [NotNull] IRelationalConnection connection,
@@ -40,11 +44,11 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(connection, nameof(connection));
 
-            var commandGenerator = _sqlGeneratorFactory();
+            var commandGenerator = _sqlGeneratorFunc();
 
             return commandGenerator
                 .GenerateSql(parameterValues)
-                .CreateDbCommand(connection, commandGenerator.TypeMapper);
+                .CreateDbCommand(connection, _typeMapper);
         }
 
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)
@@ -54,7 +58,7 @@ namespace Microsoft.Data.Entity.Query
             LazyInitializer
                 .EnsureInitialized(
                     ref _valueBufferFactory,
-                    () => _sqlGeneratorFactory()
+                    () => _sqlGeneratorFunc()
                         .CreateValueBufferFactory(_valueBufferFactoryFactory, dataReader));
         }
     }

@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity
             VerifyScoped<IInMemoryDatabase>();
             VerifyScoped<InMemoryDatabaseCreator>();
             VerifyScoped<InMemoryQueryContextFactory>();
-            VerifyScoped<InMemoryQueryCompilationContextFactory>();
 
         }
 

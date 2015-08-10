@@ -5,12 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
@@ -18,45 +16,35 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public abstract class QueryCompilationContext
+    public class QueryCompilationContext
     {
+        private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
+        private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
+
         private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
-        protected QueryCompilationContext(
-            [NotNull] IModel model,
-            [NotNull] ILogger logger,
-            [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource)
+        public QueryCompilationContext(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
+            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] ILinqOperatorProvider linqOperatorProvider)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
+            Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
-            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
-            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
 
-            Model = model;
-            Logger = logger;
+            Logger = loggerFactory.CreateLogger<Database>();
+            _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
+            _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
             LinqOperatorProvider = linqOperatorProvider;
-            ResultOperatorHandler = resultOperatorHandler;
-            EntityMaterializerSource = entityMaterializerSource;
-            EntityKeyFactorySource = entityKeyFactorySource;
-            ClrPropertyGetterSource = clrPropertyGetterSource;
         }
 
-        public virtual IModel Model { get; }
         public virtual ILogger Logger { get; }
+
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; }
-        public virtual IResultOperatorHandler ResultOperatorHandler { get; }
-        public virtual IEntityMaterializerSource EntityMaterializerSource { get; }
-        public virtual IEntityKeyFactorySource EntityKeyFactorySource { get; }
-        public virtual IClrAccessorSource<IClrPropertyGetter> ClrPropertyGetterSource { get; }
 
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
@@ -77,15 +65,11 @@ namespace Microsoft.Data.Entity.Query
                 .OfType<QueryAnnotation>()
                 .Where(qa => qa.IsCallTo(Check.NotNull(methodInfo, nameof(methodInfo))));
 
-        public virtual EntityQueryModelVisitor CreateQueryModelVisitor() => CreateQueryModelVisitor(null);
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
+            => _entityQueryModelVisitorFactory.Create(this);
 
-        public abstract EntityQueryModelVisitor CreateQueryModelVisitor(
-            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor);
-
-        public virtual IExpressionPrinter CreateExpressionPrinter()
-        {
-            return new ExpressionPrinter();
-        }
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor([CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            => _entityQueryModelVisitorFactory.Create(parentEntityQueryModelVisitor.QueryCompilationContext, parentEntityQueryModelVisitor);
 
         public virtual void AddTrackableInclude(
             [NotNull] IQuerySource querySource, [NotNull] IReadOnlyList<INavigation> navigationPath)
@@ -127,11 +111,9 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
             Check.NotNull(queryModel, nameof(queryModel));
 
-            var requiresEntityMaterializationExpressionVisitor
-                = new RequiresMaterializationExpressionVisitor(queryModelVisitor);
-
             _querySourcesRequiringMaterialization
-                = requiresEntityMaterializationExpressionVisitor
+                = _requiresMaterializationExpressionVisitorFactory
+                    .Create(queryModelVisitor)
                     .FindQuerySourcesRequiringMaterialization(queryModel);
 
             foreach (var groupJoinClause in queryModel.BodyClauses.OfType<GroupJoinClause>())

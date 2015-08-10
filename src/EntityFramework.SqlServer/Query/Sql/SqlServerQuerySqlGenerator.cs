@@ -5,18 +5,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.Data.Entity.Query.Sql
 {
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         public SqlServerQuerySqlGenerator(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IRelationalTypeMapper typeMapper)
-            : base(selectExpression, typeMapper)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] SelectExpression selectExpression)
+            : base(parameterNameGeneratorFactory, selectExpression)
         {
         }
 

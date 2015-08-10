@@ -4,82 +4,59 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public abstract class RelationalQueryCompilationContext : QueryCompilationContext
+    public class RelationalQueryCompilationContext : QueryCompilationContext
     {
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
 
-        protected RelationalQueryCompilationContext(
-            [NotNull] IModel model,
-            [NotNull] ILogger logger,
+        public RelationalQueryCompilationContext(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
+            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] IResultOperatorHandler resultOperatorHandler,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
-            [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator,
-            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
+            [NotNull] IQueryMethodProvider queryMethodProvider)
             : base(
-                model,
-                logger,
-                linqOperatorProvider,
-                resultOperatorHandler,
-                entityMaterializerSource,
-                entityKeyFactorySource,
-                clrPropertyGetterSource)
-
+                Check.NotNull(loggerFactory, nameof(loggerFactory)),
+                Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
+                Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
+                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
-            Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
-            Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
-            Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
-            Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
 
             QueryMethodProvider = queryMethodProvider;
-            CompositeMethodCallTranslator = compositeMethodCallTranslator;
-            CompositeMemberTranslator = compositeMemberTranslator;
-            CompositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
-            ValueBufferFactoryFactory = valueBufferFactoryFactory;
-            TypeMapper = typeMapper;
-            RelationalExtensions = relationalExtensions;
         }
 
-        public override EntityQueryModelVisitor CreateQueryModelVisitor(
-            EntityQueryModelVisitor parentEntityQueryModelVisitor)
+        public virtual IQueryMethodProvider QueryMethodProvider { get; }
+
+        public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {
-            var relationalQueryModelVisitor
-                = new RelationalQueryModelVisitor(
-                    this, (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);
+            var relationalQueryModelVisitor =
+                (RelationalQueryModelVisitor)base.CreateQueryModelVisitor();
 
             _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);
 
             return relationalQueryModelVisitor;
         }
 
-        public override IExpressionPrinter CreateExpressionPrinter() => new RelationalExpressionPrinter();
-
         public virtual bool IsCrossApplySupported => false;
+
+        public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)
+        {
+            var relationalQueryModelVisitor =
+                (RelationalQueryModelVisitor)base.CreateQueryModelVisitor(parentEntityQueryModelVisitor);
+
+            _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);
+
+            return relationalQueryModelVisitor;
+        }
 
         public virtual SelectExpression FindSelectExpression([NotNull] IQuerySource querySource)
         {
@@ -87,31 +64,10 @@ namespace Microsoft.Data.Entity.Query
 
             return
                 (from v in _relationalQueryModelVisitors
-                    let selectExpression = v.TryGetQuery(querySource)
-                    where selectExpression != null
-                    select selectExpression)
-                    .First();
+                 let selectExpression = v.TryGetQuery(querySource)
+                 where selectExpression != null
+                 select selectExpression)
+                       .First();
         }
-
-        public virtual IQueryMethodProvider QueryMethodProvider { get; }
-
-        public virtual IMethodCallTranslator CompositeMethodCallTranslator { get; }
-
-        public virtual IMemberTranslator CompositeMemberTranslator { get; }
-
-        public virtual IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
-
-        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
-
-        public virtual IRelationalTypeMapper TypeMapper { get; }
-
-        public virtual ISqlQueryGenerator CreateSqlQueryGenerator([NotNull] SelectExpression selectExpression)
-        {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
-            return new DefaultQuerySqlGenerator(selectExpression, TypeMapper);
-        }
-
-        public virtual IRelationalMetadataExtensionProvider RelationalExtensions { get; }
     }
 }

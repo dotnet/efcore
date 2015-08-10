@@ -6,6 +6,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -18,6 +19,8 @@ namespace Microsoft.Data.Entity.Query
         private static readonly IEnumerable<IncludedEntity> _emptyIncludedEntities
             = Enumerable.Empty<IncludedEntity>();
 
+        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
         private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IEntityType _entityType;
         private readonly IReadOnlyList<IProperty> _entityKeyProperties;
@@ -26,10 +29,14 @@ namespace Microsoft.Data.Entity.Query
         private readonly IDictionary<INavigation, IncludedEntityTrackingInfo> _includedEntityTrackingInfos;
 
         public EntityTrackingInfo(
+            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QuerySourceReferenceExpression querySourceReferenceExpression,
             [NotNull] IEntityType entityType)
         {
+            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
@@ -38,12 +45,12 @@ namespace Microsoft.Data.Entity.Query
 
             _entityType = entityType;
             _queryCompilationContext = queryCompilationContext;
+            _entityKeyFactorySource = entityKeyFactorySource;
+            _clrPropertyGetterSource = clrPropertyGetterSource;
 
             _entityKeyProperties = _entityType.GetPrimaryKey().Properties;
 
-            _entityKeyFactory
-                = queryCompilationContext.EntityKeyFactorySource
-                    .GetKeyFactory(_entityType.GetPrimaryKey());
+            _entityKeyFactory = _entityKeyFactorySource.GetKeyFactory(_entityType.GetPrimaryKey());
 
             _includedNavigationPaths
                 = _queryCompilationContext
@@ -53,7 +60,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 _includedEntityTrackingInfos = new Dictionary<INavigation, IncludedEntityTrackingInfo>();
 
-                foreach (var navigation 
+                foreach (var navigation
                     in _includedNavigationPaths.SelectMany(ns => ns))
                 {
                     if (!_includedEntityTrackingInfos.ContainsKey(navigation))
@@ -65,7 +72,7 @@ namespace Microsoft.Data.Entity.Query
                             navigation,
                             new IncludedEntityTrackingInfo(
                                 targetEntityType,
-                                _queryCompilationContext.EntityKeyFactorySource.GetKeyFactory(targetKey),
+                                _entityKeyFactorySource.GetKeyFactory(targetKey),
                                 targetKey.Properties));
                     }
                 }
@@ -109,7 +116,7 @@ namespace Microsoft.Data.Entity.Query
             private EntityKeyFactory EntityKeyFactory { get; }
             private IReadOnlyList<IProperty> EntityKeyProperties { get; }
 
-            public virtual EntityKey CreateEntityKey(ValueBuffer valueBuffer) 
+            public virtual EntityKey CreateEntityKey(ValueBuffer valueBuffer)
                 => EntityKeyFactory.Create(EntityKeyProperties, valueBuffer);
         }
 
@@ -163,10 +170,10 @@ namespace Microsoft.Data.Entity.Query
 
                 if (navigation.IsCollection())
                 {
-                    var propertyGetter = _queryCompilationContext.ClrPropertyGetterSource.GetAccessor(navigation);
+                    var propertyGetter = _clrPropertyGetterSource.GetAccessor(navigation);
                     var referencedEntities = (IEnumerable<object>)propertyGetter.GetClrValue(entity);
 
-                    foreach (var referencedEntity 
+                    foreach (var referencedEntity
                         in referencedEntities.Where(referencedEntity => referencedEntity != null))
                     {
                         yield return new IncludedEntity(referencedEntity, _includedEntityTrackingInfos[navigation]);
@@ -180,9 +187,7 @@ namespace Microsoft.Data.Entity.Query
                 }
                 else
                 {
-                    var propertyGetter
-                        = _queryCompilationContext.ClrPropertyGetterSource
-                            .GetAccessor(navigation);
+                    var propertyGetter = _clrPropertyGetterSource.GetAccessor(navigation);
 
                     var referencedEntity = propertyGetter.GetClrValue(entity);
 

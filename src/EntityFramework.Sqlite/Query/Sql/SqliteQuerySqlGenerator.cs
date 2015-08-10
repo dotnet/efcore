@@ -3,20 +3,19 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.Data.Entity.Query.Sql
 {
     public class SqliteQuerySqlGenerator : DefaultQuerySqlGenerator
     {
         protected override string ConcatOperator => "||";
 
         public SqliteQuerySqlGenerator(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IRelationalTypeMapper typeMapper)
-            : base(selectExpression, typeMapper)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] SelectExpression selectExpression)
+            : base(parameterNameGeneratorFactory, selectExpression)
         {
         }
 
