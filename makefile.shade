@@ -65,8 +65,8 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
             {
                 CreatePartFromFile(
                     package,
-                    @"src/EntityFramework.Commands/build/netcore50/EntityFramework.Commands.targets",
-                    @"build/netcore50/EntityFramework.Commands.targets");
+                    @"src/EntityFramework.Commands/build/netcore50/EntityFramework.Commands.props",
+                    @"build/netcore50/EntityFramework.Commands.props");
                 CreatePartFromFile(
                     package,
                     @"src/EntityFramework.Commands/lib/netcore50/_._",

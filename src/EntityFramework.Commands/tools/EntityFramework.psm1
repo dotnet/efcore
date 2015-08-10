@@ -479,10 +479,11 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     if (!$skipBuild) {
         Write-Verbose 'Build started...'
 
+        # TODO: Only build required project. Don't use BuildProject, you can't specify platform
         $solutionBuild = $DTE.Solution.SolutionBuild
-        $solutionBuild.BuildProject($solutionBuild.ActiveConfiguration.Name, $project.UniqueName, $true)
+        $solutionBuild.Build($true)
         if ($solutionBuild.LastBuildInfo) {
-            throw "Build failed for project '$projectName'."
+            throw "Build failed."
         }
 
         Write-Verbose 'Build succeeded.'
