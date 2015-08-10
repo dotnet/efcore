@@ -45,7 +45,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual string VerbatimStringLiteral([NotNull] string stringLiteral)
             => CSharpUtilities.Instance.GenerateVerbatimStringLiteral(Check.NotNull(stringLiteral, nameof(stringLiteral)));
 
+        public abstract string UseMethodName { get; } // "UseSqlServer" for SqlServer, "UseSqlite" for Sqlite etc
+
         public virtual string ClassName([CanBeNull] string connectionString) => DefaultDbContextName;
+
+        public virtual IEnumerable<OptionsBuilderConfiguration> OnConfiguringConfigurations
+        {
+            get
+            {
+                var onConfiguringConfigurations = new List<OptionsBuilderConfiguration>();
+                AddConnectionStringConfiguration(onConfiguringConfigurations);
+                return onConfiguringConfigurations;
+            }
+        }
 
         public virtual IEnumerable<EntityConfiguration> EntityConfigurations
         {
@@ -71,6 +83,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
                 return entityConfigurations;
             }
+        }
+
+        public virtual void AddConnectionStringConfiguration(
+            [NotNull] List<OptionsBuilderConfiguration> optionsBuilderConfigurations)
+        {
+            Check.NotNull(optionsBuilderConfigurations, nameof(optionsBuilderConfigurations));
+
+            optionsBuilderConfigurations.Add(
+                new OptionsBuilderConfiguration(
+                    UseMethodName + "(" + VerbatimStringLiteral(GeneratorModel.ConnectionString)+ ")"));
         }
 
         public virtual void AddEntityFacetsConfiguration([NotNull] EntityConfiguration entityConfiguration)

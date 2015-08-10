@@ -39,6 +39,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return base.ClassName(connectionString);
         }
 
+        public override string UseMethodName => "UseSqlServer";
+
         public override void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));

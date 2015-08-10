@@ -15,5 +15,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             : base(model, extensionsProvider)
         {
         }
+
+        public override string UseMethodName => "UseSqlite";
     }
 }

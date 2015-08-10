@@ -64,6 +64,7 @@
     <Compile Include="ReverseEngineering\Configuration\FacetConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\NavigationPropertyConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\NavigationPropertyInitializerConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\OptionsBuilderConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="ReverseEngineering\DbContextCodeGeneratorHelper.cs" />
