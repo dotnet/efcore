@@ -73,6 +73,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
         }
 
+        public virtual IEnumerable<OptionsBuilderConfiguration> OnConfiguringConfigurations
+            => Enumerable.Empty<OptionsBuilderConfiguration>();
+
         public virtual void AddEntityFacetsConfiguration([NotNull] EntityConfiguration entityConfiguration)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));

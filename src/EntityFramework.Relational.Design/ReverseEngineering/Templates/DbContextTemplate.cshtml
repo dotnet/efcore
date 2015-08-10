@@ -104,7 +104,10 @@ var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(@Model.Helper.VerbatimStringLiteral(Model.ConnectionString));
+@foreach (var optionsBuilderConfig in Model.Helper.OnConfiguringConfigurations)
+{
+@:            options.@optionsBuilderConfig.MethodBody;
+}
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
