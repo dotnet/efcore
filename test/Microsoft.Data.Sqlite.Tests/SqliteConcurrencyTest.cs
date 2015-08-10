@@ -76,7 +76,7 @@ INSERT INTO a VALUES (2);";
                 selectCommand.CommandText = "SELECT * FROM a;";
 
                 var dropCommand = connection.CreateCommand();
-                dropCommand.CommandTimeout = 10;
+                dropCommand.CommandTimeout = 1;
                 dropCommand.CommandText = "DROP TABLE a;";
 
                 using (var reader = selectCommand.ExecuteReader())
@@ -105,6 +105,7 @@ INSERT INTO a VALUES (2);";
                 using (var connection2 = CreateConnection())
                 {
                     var dropCommand = connection2.CreateCommand();
+                    dropCommand.CommandTimeout = 1;
                     connection2.Open();
                     dropCommand.CommandText = "DROP TABLE a;";
                     using (var reader = selectCommand.ExecuteReader())
