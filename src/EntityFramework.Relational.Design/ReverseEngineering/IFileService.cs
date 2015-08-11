@@ -21,7 +21,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         bool IsFileReadOnly([NotNull] string directoryName, [NotNull] string fileName);
 
         /// <summary>
-        ///     Creates, if necessary, a 'file' located within the given directory and with the given name.
+        ///     Creates, if necessary, a directory with the specified name. Creates, if necessary,
+        ///     a 'file' located within the given directory and with the given name.
         ///     Ensures that the contents of the 'file' contain the given contents (overwriting if necessary).
         /// </summary>
         /// <returns>the full path of the output 'file'</returns>

@@ -63,6 +63,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SqlServer.D
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.Design.FunctionalTests", "test\EntityFramework.Relational.Design.FunctionalTests\EntityFramework.Relational.Design.FunctionalTests.xproj", "{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Sqlite.Design.FunctionalTests", "test\EntityFramework.Sqlite.Design.FunctionalTests\EntityFramework.Sqlite.Design.FunctionalTests.xproj", "{F16D1CFB-1C8E-45FC-AE53-9B4EA6A638FE}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Sqlite.Design", "src\EntityFramework.Sqlite.Design\EntityFramework.Sqlite.Design.xproj", "{42C587F9-65F4-46E8-8DF0-AC5EFE5CD7F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -181,6 +185,14 @@ Global
 		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F16D1CFB-1C8E-45FC-AE53-9B4EA6A638FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F16D1CFB-1C8E-45FC-AE53-9B4EA6A638FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F16D1CFB-1C8E-45FC-AE53-9B4EA6A638FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F16D1CFB-1C8E-45FC-AE53-9B4EA6A638FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42C587F9-65F4-46E8-8DF0-AC5EFE5CD7F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42C587F9-65F4-46E8-8DF0-AC5EFE5CD7F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42C587F9-65F4-46E8-8DF0-AC5EFE5CD7F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42C587F9-65F4-46E8-8DF0-AC5EFE5CD7F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -214,5 +226,7 @@ Global
 		{6A37E28F-00CB-4608-BE6E-9082D9DE2208} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{06E77A73-3B5B-46F0-B366-E4B3F32AC60C} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{F16D1CFB-1C8E-45FC-AE53-9B4EA6A638FE} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{42C587F9-65F4-46E8-8DF0-AC5EFE5CD7F7} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 	EndGlobalSection
 EndGlobal
