@@ -16,7 +16,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     public abstract class DbContextCodeGeneratorHelper
     {
         private const string DefaultDbContextName = "ModelContext";
-        private static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
+        protected static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
+        protected static readonly KeyConvention _keyConvention = new KeyConvention();
 
         protected DbContextCodeGeneratorHelper([NotNull] DbContextGeneratorModel generatorModel,
             IRelationalMetadataExtensionProvider extensionsProvider)
@@ -175,11 +176,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             AddRequiredFacetConfiguration(propertyConfiguration);
             AddMaxLengthFacetConfiguration(propertyConfiguration);
-            AddValueGeneratedFacetConfiguration(propertyConfiguration);
             AddColumnNameFacetConfiguration(propertyConfiguration);
             AddColumnTypeFacetConfiguration(propertyConfiguration);
             AddDefaultValueFacetConfiguration(propertyConfiguration);
             AddDefaultExpressionFacetConfiguration(propertyConfiguration);
+            AddValueGeneratedFacetConfiguration(propertyConfiguration);
         }
 
         public virtual void AddRequiredFacetConfiguration(
@@ -226,8 +227,18 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             switch (valueGenerated)
             {
                 case ValueGenerated.OnAdd:
-                    propertyConfiguration.AddFacetConfiguration(new FacetConfiguration("ValueGeneratedOnAdd()"));
+                    // If this property is the single integer primary key on the EntityType then
+                    // KeyConvention assumes ValueGeneratedOnAdd() so there is no need to add it.
+                    if (_keyConvention.ValueGeneratedOnAddProperty(
+                        new List<Property> { (Property)propertyConfiguration.Property },
+                        (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null)
+                    {
+                        propertyConfiguration.AddFacetConfiguration(
+                            new FacetConfiguration("ValueGeneratedOnAdd()"));
+                    }
+
                     break;
+
                 case ValueGenerated.OnAddOrUpdate:
                     propertyConfiguration.AddFacetConfiguration(new FacetConfiguration("ValueGeneratedOnAddOrUpdate()"));
                     break;

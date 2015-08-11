@@ -14,8 +14,6 @@ namespace E2ETest.Namespace
         {
             modelBuilder.Entity<AllDataTypes>(entity =>
             {
-                entity.Property(e => e.AllDataTypesID).ValueGeneratedNever();
-
                 entity.Property(e => e.bigintColumn).Required();
 
                 entity.Property(e => e.bitColumn).Required();
@@ -132,6 +130,10 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
 
                 entity.Property(e => e.AColumn).Required();
+
+                entity.Property(e => e.ValueGeneratedOnAddColumn)
+                    .Required()
+                    .ValueGeneratedOnAdd();
             });
 
             modelBuilder.Entity<SelfReferencing>(entity =>
