@@ -320,6 +320,9 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER Provider
     Specifies the provider to use. For example, EntityFramework.SqlServer.
 
+.PARAMETER OutputSubDirectory
+    Specifies the sub-directory of the project to use to output the classes. If omitted, the top-level project directory is used.
+
 .PARAMETER Project
     Specifies the project to use. If omitted, the default project is used.
 
@@ -334,6 +337,7 @@ function Scaffold-DbContext {
         [string] $Connection,
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
+        [string] $OutputSubDirectory,
         [string] $Project)
 
     $values = ProcessCommonParameters -projectName $Project
@@ -342,6 +346,7 @@ function Scaffold-DbContext {
     $artifacts = InvokeOperation $dteProject ReverseEngineer @{
         connectionString = $Connection
         provider = $Provider
+        relativeOutputDir = $OutputSubDirectory
     }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }

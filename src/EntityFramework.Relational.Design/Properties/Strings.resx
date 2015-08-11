@@ -126,11 +126,11 @@
   <data name="ErrorRunningEntityTypeTemplate" xml:space="preserve">
     <value>There was an error running the EntityType template. Message: {errorMessage}</value>
   </data>
-  <data name="NamespaceRequired" xml:space="preserve">
-    <value>Namespace is required to generate code.</value>
+  <data name="NotRelativePath" xml:space="preserve">
+    <value>Unable to use the output path, {outputPath}. It must be a relative path which is a sub-directory of the project directory {projectPath}.</value>
   </data>
-  <data name="OutputPathRequired" xml:space="preserve">
-    <value>OutputPath is required to generate code.</value>
+  <data name="ProjectPathRequired" xml:space="preserve">
+    <value>ProjectPath is required to generate code.</value>
   </data>
   <data name="ProviderRequired" xml:space="preserve">
     <value>Provider is required to generate code.</value>
@@ -140,6 +140,9 @@
   </data>
   <data name="ReadOnlyFiles" xml:space="preserve">
     <value>No files generated in directory {outputDirectoryName}. The following file(s) already exist and must be made writeable to continue: {readOnlyFiles}.</value>
+  </data>
+  <data name="RootNamespaceRequired" xml:space="preserve">
+    <value>Root namespace of the project is required to generate code.</value>
   </data>
   <data name="TemplateProcessingFailed" xml:space="preserve">
     <value>Template Processing Failed: {errorMessages}</value>
