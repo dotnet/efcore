@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 

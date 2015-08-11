@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.Caching.Memory;
+using Microsoft.Framework.DependencyInjection.Extensions;
 using Microsoft.Framework.Logging;
 
 // ReSharper disable once CheckNamespace

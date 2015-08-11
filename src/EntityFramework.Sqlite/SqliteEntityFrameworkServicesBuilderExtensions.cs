@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 

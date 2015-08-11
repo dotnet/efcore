@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Extensions;
 using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
