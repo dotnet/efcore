@@ -261,18 +261,25 @@ namespace Microsoft.Data.Entity.Commands
 
                 var connectionString = (string)args["connectionString"];
                 var providerAssemblyName = (string)args["provider"];
+                var @namespace = (string)(args.Contains("namespace") ? args["namespace"] : null);
+                var relativeOutputDir = (string)(args.Contains("relativeOutputDir") ? args["relativeOutputDir"] : null);
 
-                Execute(() => executor.ReverseEngineerImplAsync(providerAssemblyName, connectionString).GetAwaiter().GetResult());
+                Execute(() => executor
+                    .ReverseEngineerImplAsync(providerAssemblyName, connectionString, @namespace, relativeOutputDir)
+                    .GetAwaiter().GetResult());
             }
         }
 
         public virtual Task<IReadOnlyList<string>> ReverseEngineerImplAsync(
             [NotNull] string providerAssemblyName,
             [NotNull] string connectionString,
+            [CanBeNull] string @namespace,
+            [CanBeNull] string relativeOutputDir,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return CreateDatabaseTool().ReverseEngineerAsync(
-                providerAssemblyName, connectionString, _rootNamespace, _projectDir, cancellationToken);
+                providerAssemblyName, connectionString, @namespace ?? _rootNamespace,
+                _projectDir, relativeOutputDir, cancellationToken);
         }
 
         public class CustomizeReverseEngineer : OperationBase

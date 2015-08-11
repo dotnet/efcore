@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -59,14 +60,14 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
             for (var i = 0; i < expected.Files.Count; i++)
             {
-                Assert.True(actual.Exists(i), $"Could not find file '{expected.Files[i]}'");
+                Assert.True(actual.Exists(i), $"Could not find file '{actual.Files[i]}' in directory '{actual.Directory}'");
                 try
                 {
                     Assert.Equal(expected.Contents(i), actual.Contents(i));
                 }
                 catch (EqualException e)
                 {
-                    throw new XunitException($"Files did not match: '{expected.Files[i]}' and '{actual.Files[i]}'\n{e.Message}");
+                    throw new XunitException($"Files did not match: '{expected.Files[i]}' and '{actual.Files[i]}'" + Environment.NewLine + $"{e.Message}");
                 }
             }
         }

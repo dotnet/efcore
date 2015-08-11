@@ -9,18 +9,19 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
     public class FileSet
     {
         public List<string> Files = new List<string>();
-        private readonly string _directory;
         private readonly IFileService _fileService;
 
         public FileSet(IFileService fileService, string directory)
         {
             _fileService = fileService;
-            _directory = directory;
+            Directory = directory;
         }
 
+        public string Directory { get; }
+
         public bool Exists(int index) => Exists(Files[index]);
-        public bool Exists(string filepath) => _fileService.FileExists(_directory, filepath);
+        public bool Exists(string filepath) => _fileService.FileExists(Directory, filepath);
         public string Contents(int index) => Contents(Files[index]);
-        public string Contents(string filepath) => _fileService.RetrieveFileContents(_directory, filepath);
+        public string Contents(string filepath) => _fileService.RetrieveFileContents(Directory, filepath);
     }
 }
