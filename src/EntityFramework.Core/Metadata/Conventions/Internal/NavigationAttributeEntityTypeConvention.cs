@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         continue;
                     }
 
-                    var attributes = entityType.ClrType?.GetProperty(navigationPropertyInfo.Name)?.GetCustomAttributes<TAttribute>(true);
+                    var attributes = navigationPropertyInfo.GetCustomAttributes<TAttribute>(true);
                     if (attributes != null)
                     {
                         foreach (var attribute in attributes)

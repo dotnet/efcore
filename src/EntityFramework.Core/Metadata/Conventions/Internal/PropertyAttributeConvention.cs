@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -19,13 +20,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var clrType = propertyBuilder.Metadata.DeclaringEntityType.ClrType;
             var propertyName = propertyBuilder.Metadata.Name;
 
-            var clrProperty = clrType?.GetProperty(propertyName);
-            var attributes = clrProperty?.GetCustomAttributes<TAttribute>(true);
+            var propertyInfo = clrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == propertyName);
+            var attributes = propertyInfo?.GetCustomAttributes<TAttribute>(true);
             if (attributes != null)
             {
                 foreach (var attribute in attributes)
                 {
-                    propertyBuilder = Apply(propertyBuilder, attribute, clrProperty);
+                    propertyBuilder = Apply(propertyBuilder, attribute, propertyInfo);
                     if (propertyBuilder == null)
                     {
                         break;

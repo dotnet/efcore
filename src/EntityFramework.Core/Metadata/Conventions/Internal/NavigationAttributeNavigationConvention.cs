@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
             Check.NotNull(navigation, nameof(navigation));
 
-            var attributes = navigation.DeclaringEntityType?.ClrType?.GetProperty(navigation.Name)?.GetCustomAttributes<TAttribute>(true);
+            var attributes = navigation.DeclaringEntityType?.ClrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == navigation.Name)?.GetCustomAttributes<TAttribute>(true);
 
             if (attributes != null)
             {

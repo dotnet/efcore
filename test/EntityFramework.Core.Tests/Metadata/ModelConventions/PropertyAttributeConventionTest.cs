@@ -381,6 +381,15 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
         #endregion
 
+        [Fact]
+        public void Property_attribute_convention_runs_for_private_property()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var propertyBuilder = modelBuilder.Entity<A>().Property<int?>("PrivateProperty");
+
+            Assert.False(propertyBuilder.Metadata.IsNullable);
+        }
+
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
             var conventionSet = new ConventionSet();
@@ -416,6 +425,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             [Timestamp]
             public byte[] Timestamp { get; set; }
+
+            [Required]
+            private int? PrivateProperty { get; set; }
         }
 
         public class B
