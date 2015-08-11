@@ -5,10 +5,10 @@ using System.Reflection;
 using System.Resources;
 
 [assembly: NeutralResourcesLanguage("en-US")]
+[assembly: AssemblyMetadata("Serviceable", "True")]
 
 #if CSPROJ
 
-[assembly: AssemblyInformationalVersion("7.0.0-vsbuild")]
-#endif
+[assembly: AssemblyInformationalVersion("7.0.0-csproj")]
 
-[assembly: AssemblyMetadata("Serviceable", "True")]
+#endif

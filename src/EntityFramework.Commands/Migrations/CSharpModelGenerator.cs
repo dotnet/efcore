@@ -24,15 +24,19 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             _code = code;
         }
 
-        public virtual void Generate([NotNull] IModel model, [NotNull] IndentedStringBuilder stringBuilder)
+        public virtual void Generate(
+            [NotNull] string variable,
+            [NotNull] IModel model,
+            [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotEmpty(variable, nameof(variable));
             Check.NotNull(model, nameof(model));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             var annotations = model.Annotations.ToArray();
             if (annotations.Length != 0)
             {
-                stringBuilder.Append("builder");
+                stringBuilder.Append(variable);
 
                 using (stringBuilder.Indent())
                 {
@@ -42,7 +46,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 stringBuilder.AppendLine(";");
             }
 
-            GenerateEntityTypes(Sort(model.EntityTypes), stringBuilder);
+            GenerateEntityTypes(variable, Sort(model.EntityTypes), stringBuilder);
         }
 
         [Flags]
@@ -65,8 +69,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void GenerateEntityTypes(
-            IReadOnlyList<IEntityType> entityTypes, IndentedStringBuilder stringBuilder)
+            [NotNull] string variable,
+            [NotNull] IReadOnlyList<IEntityType> entityTypes,
+            [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotEmpty(variable, nameof(variable));
             Check.NotNull(entityTypes, nameof(entityTypes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
@@ -74,25 +81,30 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 stringBuilder.AppendLine();
 
-                GenerateEntityType(entityType, stringBuilder, GenerateEntityTypeOptions.Declared);
+                GenerateEntityType(variable, entityType, stringBuilder, GenerateEntityTypeOptions.Declared);
             }
 
             foreach (var entityType in entityTypes.Where(e => e.GetForeignKeys().Any()))
             {
                 stringBuilder.AppendLine();
 
-                GenerateEntityType(entityType, stringBuilder, GenerateEntityTypeOptions.Relationships);
+                GenerateEntityType(variable, entityType, stringBuilder, GenerateEntityTypeOptions.Relationships);
             }
         }
 
         protected virtual void GenerateEntityType(
-            [NotNull] IEntityType entityType, [NotNull] IndentedStringBuilder stringBuilder, GenerateEntityTypeOptions options)
+            [NotNull] string variable,
+            [NotNull] IEntityType entityType,
+            [NotNull] IndentedStringBuilder stringBuilder,
+            GenerateEntityTypeOptions options)
         {
+            Check.NotEmpty(variable, nameof(variable));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
-                .Append("builder.Entity(")
+                .Append(variable)
+                .Append(".Entity(")
                 .Append(_code.Literal(entityType.Name))
                 .AppendLine(", b =>");
 

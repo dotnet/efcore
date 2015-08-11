@@ -3,17 +3,17 @@
 
 using System;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Migrations.Sql;
+using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public class SqliteMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationSqlGenerator SqlGenerator
-            => new SqliteMigrationSqlGenerator(
+        protected override IMigrationsSqlGenerator SqlGenerator
+            => new SqliteMigrationsSqlGenerator(
                 new SqliteUpdateSqlGenerator(),
                 new SqliteTypeMapper(),
                 new SqliteMetadataExtensionProvider());
@@ -97,7 +97,8 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                         new AddForeignKeyOperation
                         {
                             Columns = new[] { "EmployerId" },
-                            ReferencedTable = "Companies"
+                            PrincipalTable = "Companies",
+                            PrincipalColumns = new[] { "Id" }
                         }
                      }
                  });
@@ -111,7 +112,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 "    \"EmployerId\" int," + EOL +
                 "    \"SSN\" char(11)," + EOL +
                 "    UNIQUE (\"SSN\")," + EOL +
-                "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\"" + EOL +
+                "    FOREIGN KEY (\"EmployerId\") REFERENCES \"Companies\" (\"Id\")" + EOL +
                 ");" + EOL,
                 Sql);
         }
@@ -119,7 +120,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
         [Fact]
         public void CreateSchemaOperation_not_supported()
         {
-            var ex = Assert.Throws<NotSupportedException>(() => Generate(new CreateSchemaOperation()));
+            var ex = Assert.Throws<NotSupportedException>(() => Generate(new EnsureSchemaOperation()));
             Assert.Equal(Strings.SchemasNotSupported, ex.Message);
         }
 

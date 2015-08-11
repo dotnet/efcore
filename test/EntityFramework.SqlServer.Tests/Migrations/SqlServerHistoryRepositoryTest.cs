@@ -4,15 +4,15 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Internal;
+using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public class SqlServerHistoryRepositoryTest
     {
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
             Assert.Equal(
                 "CREATE TABLE [__MigrationHistory] (" + EOL +
                 "    [MigrationId] nvarchar(150) NOT NULL," + EOL +
-                "    [ProductVersion] nvarchar(32)," + EOL +
+                "    [ProductVersion] nvarchar(32) NOT NULL," + EOL +
                 "    CONSTRAINT [PK_HistoryRow] PRIMARY KEY ([MigrationId])" + EOL +
                 ");" + EOL,
                 sql);
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 "IF OBJECT_ID(N'__MigrationHistory') IS NULL" + EOL +
                 "    CREATE TABLE [__MigrationHistory] (" + EOL +
                 "        [MigrationId] nvarchar(150) NOT NULL," + EOL +
-                "        [ProductVersion] nvarchar(32)," + EOL +
+                "        [ProductVersion] nvarchar(32) NOT NULL," + EOL +
                 "        CONSTRAINT [PK_HistoryRow] PRIMARY KEY ([MigrationId])" + EOL +
                 "    );" + EOL,
                 sql);
@@ -109,22 +109,20 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                 Mock.Of<IRelationalDatabaseCreator>(),
                 Mock.Of<ISqlStatementExecutor>(),
                 Mock.Of<ISqlServerConnection>(),
-                new MigrationModelFactory(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {
                         { typeof(SqlServerOptionsExtension), new SqlServerOptionsExtension() }
                     }),
-                new ModelDiffer(
+                new MigrationsModelDiffer(
                     annotationsProvider,
-                    new SqlServerMigrationAnnotationProvider()),
-                new SqlServerMigrationSqlGenerator(
+                    new SqlServerMigrationsAnnotationProvider()),
+                new SqlServerMigrationsSqlGenerator(
                     updateSqlGenerator,
                     new SqlServerTypeMapper(),
                     annotationsProvider),
                 annotationsProvider,
-                updateSqlGenerator,
-                Mock.Of<IServiceProvider>());
+                updateSqlGenerator);
         }
 
         private class Context : DbContext

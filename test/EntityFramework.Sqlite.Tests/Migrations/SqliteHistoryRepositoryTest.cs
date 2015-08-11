@@ -4,15 +4,15 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Internal;
+using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Moq;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public class SqliteHistoryRepositoryTest
     {
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Assert.Equal(
                 "CREATE TABLE \"__MigrationHistory\" (" + EOL +
                 "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK_HistoryRow\" PRIMARY KEY," + EOL +
-                "    \"ProductVersion\" TEXT" + EOL +
+                "    \"ProductVersion\" TEXT NOT NULL" + EOL +
                 ");" + EOL,
                 sql);
         }
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
             Assert.Equal(
                 "CREATE TABLE IF NOT EXISTS \"__MigrationHistory\" (" + EOL +
                 "    \"MigrationId\" TEXT NOT NULL CONSTRAINT \"PK_HistoryRow\" PRIMARY KEY," + EOL +
-                "    \"ProductVersion\" TEXT" + EOL +
+                "    \"ProductVersion\" TEXT NOT NULL" + EOL +
                 ");" + EOL,
                 sql);
         }
@@ -103,22 +103,20 @@ namespace Microsoft.Data.Entity.Sqlite.Migrations
                 Mock.Of<IRelationalDatabaseCreator>(),
                 Mock.Of<ISqlStatementExecutor>(),
                 Mock.Of<IRelationalConnection>(),
-                new MigrationModelFactory(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
                     {
                         { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
                     }),
-                new ModelDiffer(
+                new MigrationsModelDiffer(
                     annotationsProvider,
-                    new SqliteMigrationAnnotationProvider()),
-                new SqliteMigrationSqlGenerator(
+                    new SqliteMigrationsAnnotationProvider()),
+                new SqliteMigrationsSqlGenerator(
                     updateSqlGenerator,
                     new SqliteTypeMapper(),
                     annotationsProvider),
                 annotationsProvider,
-                updateSqlGenerator,
-                Mock.Of<IServiceProvider>());
+                updateSqlGenerator);
         }
 
         private class Context : DbContext

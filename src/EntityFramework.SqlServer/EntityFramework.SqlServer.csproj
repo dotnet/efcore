@@ -63,8 +63,8 @@
     <Compile Include="Metadata\SqlServerModelAnnotations.cs" />
     <Compile Include="Metadata\SqlServerPropertyAnnotations.cs" />
     <Compile Include="Metadata\SqlServerIdentityStrategy.cs" />
-    <Compile Include="Migrations\CreateDatabaseOperation.cs" />
-    <Compile Include="Migrations\DropDatabaseOperation.cs" />
+    <Compile Include="Migrations\Operations\CreateDatabaseOperation.cs" />
+    <Compile Include="Migrations\Operations\DropDatabaseOperation.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepository.cs" />
     <Compile Include="Query\Methods\ConvertTranslator.cs" />
     <Compile Include="Query\Methods\DateTimeNowTranslator.cs" />
@@ -90,7 +90,7 @@
     <Compile Include="SqlServerIndexBuilderExtensions.cs" />
     <Compile Include="SqlServerKeyBuilderExtensions.cs" />
     <Compile Include="SqlServerMetadataExtensions.cs" />
-    <Compile Include="Migrations\SqlServerMigrationAnnotationProvider.cs" />
+    <Compile Include="Migrations\SqlServerMigrationsAnnotationProvider.cs" />
     <Compile Include="SqlServerModelBuilderExtensions.cs" />
     <Compile Include="SqlServerModelSource.cs" />
     <Compile Include="SqlServerDatabaseProviderServices.cs" />
@@ -102,7 +102,7 @@
     <Compile Include="SqlServerConnection.cs" />
     <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseCreator.cs" />
-    <Compile Include="Migrations\SqlServerMigrationSqlGenerator.cs" />
+    <Compile Include="Migrations\SqlServerMigrationsSqlGenerator.cs" />
     <Compile Include="Update\SqlServerUpdateSqlGenerator.cs" />
     <Compile Include="SqlServerTypeMapper.cs" />
     <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />

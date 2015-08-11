@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Commands.Migrations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -73,9 +72,9 @@ namespace Microsoft.Data.Entity.Commands
             using (var context = CreateContext(contextType, startupAssemblyName))
             {
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
-                var migrationAssembly = services.GetRequiredService<IMigrationAssembly>();
+                var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
 
-                return migrationAssembly.Migrations;
+                return migrationsAssembly.Migrations;
             }
         }
 
@@ -92,7 +91,7 @@ namespace Microsoft.Data.Entity.Commands
                 var services = ((IAccessor<IServiceProvider>)context).Service;
                 var migrator = services.GetRequiredService<IMigrator>();
 
-                return migrator.ScriptMigrations(fromMigrationName, toMigrationName, idempotent);
+                return migrator.GenerateScript(fromMigrationName, toMigrationName, idempotent);
             }
         }
 
@@ -107,7 +106,7 @@ namespace Microsoft.Data.Entity.Commands
                 var services = ((IAccessor<IServiceProvider>)context).Service;
                 var migrator = services.GetRequiredService<IMigrator>();
 
-                migrator.ApplyMigrations(migrationName);
+                migrator.Migrate(migrationName);
             }
 
             _logger.Value.LogInformation(Strings.Done);
@@ -147,9 +146,10 @@ namespace Microsoft.Data.Entity.Commands
         public virtual IEnumerable<Type> GetContextTypes() =>
             ContextTool.GetContextTypes(_assembly)
                 .Concat(
-                    MigrationAssembly.GetMigrationTypes(_assembly)
-                        .Select(MigrationAssembly.TryGetContextType)
-                        .Where(t => t != null))
+                    _assembly.GetConstructibleTypes()
+                    .Where(t => typeof(Migration).IsAssignableFrom(t.AsType()))
+                    .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
+                    .Where(t => t != null))
                 .Distinct();
 
         protected virtual DbContext CreateContext(Type type, string startupAssemblyName)

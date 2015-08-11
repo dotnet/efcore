@@ -3,9 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
@@ -35,14 +35,14 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqlServerTypeMapper>()
                     .AddSingleton<SqlServerModelSource>()
                     .AddSingleton<SqlServerMetadataExtensionProvider>()
-                    .AddSingleton<SqlServerMigrationAnnotationProvider>()
+                    .AddSingleton<SqlServerMigrationsAnnotationProvider>()
                     .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                     .AddScoped<SqlServerModificationCommandBatchFactory>()
                     .AddScoped<SqlServerValueGeneratorSelector>()
                     .AddScoped<SqlServerDatabaseProviderServices>()
                     .AddScoped<SqlServerDatabase>()
                     .AddScoped<ISqlServerConnection, SqlServerConnection>()
-                    .AddScoped<SqlServerMigrationSqlGenerator>()
+                    .AddScoped<SqlServerMigrationsSqlGenerator>()
                     .AddScoped<SqlServerDatabaseCreator>()
                     .AddScoped<SqlServerHistoryRepository>()
                     .AddScoped<SqlServerCompositeMethodCallTranslator>()

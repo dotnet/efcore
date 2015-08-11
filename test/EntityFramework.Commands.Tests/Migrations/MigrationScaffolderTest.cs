@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -30,34 +30,33 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             where TContext : DbContext, new()
         {
             var context = new TContext();
-            var modelFactory = new MigrationModelFactory();
+            var idGenerator = new MigrationsIdGenerator();
             var code = new CSharpHelper();
 
             return new MigrationScaffolder(
                 context,
                 new Model(),
-                new MigrationAssembly(
+                new MigrationsAssembly(
                     context,
                     new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
-                    modelFactory),
-                new ModelDiffer(
+                    idGenerator),
+                new MigrationsModelDiffer(
                     new TestMetadataExtensionProvider(),
-                    new MigrationAnnotationProvider()),
-                new MigrationIdGenerator(),
+                    new MigrationsAnnotationProvider()),
+                idGenerator,
                 new CSharpMigrationGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpModelGenerator(code)),
                 new MockHistoryRepository(),
-                new LoggerFactory(),
-                modelFactory);
+                new LoggerFactory());
         }
 
         private class ContextWithSnapshot : DbContext
         {
         }
 
-        [ContextType(typeof(ContextWithSnapshot))]
+        [DbContext(typeof(ContextWithSnapshot))]
         private class ContextWithSnapshotModelSnapshot : ModelSnapshot
         {
-            public override void BuildModel(ModelBuilder modelBuilder)
+            protected override void BuildModel(ModelBuilder modelBuilder)
             {
             }
         }

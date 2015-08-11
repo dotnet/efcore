@@ -7,9 +7,9 @@ namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class RenameIndexOperation : MigrationOperation
     {
-        public virtual string Name { get; [param: NotNull] set; }
-        public virtual string NewName { get; [param: CanBeNull] set; }
-        public virtual string Schema { get; [param: CanBeNull] set; }
-        public virtual string Table { get; [param: CanBeNull] set; }
+        public virtual string Name { get;[param: NotNull] set; }
+        public virtual string NewName { get;[param: NotNull] set; }
+        public virtual string Schema { get;[param: CanBeNull] set; }
+        public virtual string Table { get;[param: CanBeNull] set; }
     }
 }

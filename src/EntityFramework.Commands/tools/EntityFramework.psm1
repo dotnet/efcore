@@ -147,7 +147,7 @@ function Update-Database {
     $targetFrameworkMoniker = GetProperty $dteProject.Properties TargetFrameworkMoniker
     $frameworkName = New-Object System.Runtime.Versioning.FrameworkName $targetFrameworkMoniker
     if ($frameworkName.Identifier -eq '.NETCore') {
-        throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.ApplyMigrations() at runtime.'
+        throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.Migrate() at runtime.'
     }
 
     InvokeOperation $dteProject ApplyMigration @{

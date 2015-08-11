@@ -3,7 +3,7 @@
 
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Migrations.History;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
@@ -22,9 +22,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   AND
   TABLE_NAME <> '" + HistoryRepository.DefaultTableName + "'";
 
-        public virtual string Id { get; [param: CanBeNull] set; }
-        public virtual string SchemaName { get; [param: CanBeNull] set; }
-        public virtual string TableName { get; [param: CanBeNull] set; }
+        public virtual string Id { get;[param: CanBeNull] set; }
+        public virtual string SchemaName { get;[param: CanBeNull] set; }
+        public virtual string TableName { get;[param: CanBeNull] set; }
 
         public static Table CreateFromReader([NotNull] SqlDataReader reader)
         {

@@ -64,6 +64,7 @@
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
+    <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Internal\ModelForeignKeyUndirectedGraphAdapter.cs" />
     <Compile Include="Internal\ModelNavigationsGraphAdapter.cs" />
     <Compile Include="Internal\Multigraph.cs" />
+    <Compile Include="Internal\ProductInfo.cs" />
     <Compile Include="Internal\PropertyListComparer.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />

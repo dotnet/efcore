@@ -700,7 +700,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             var generator = new CSharpModelGenerator(new CSharpHelper());
 
             var builder = new IndentedStringBuilder();
-            generator.Generate(model, builder);
+            generator.Generate("builder", model, builder);
             var code = builder.ToString();
 
             Assert.Equal(expectedCode, code);
@@ -718,12 +718,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                     BuildReference.ByName("EntityFramework.Relational")
                 },
                 Sources = { @"
-                    using System;
                     using Microsoft.Data.Entity;
                     using Microsoft.Data.Entity.Metadata;
                     using Microsoft.Data.Entity.Metadata.Conventions;
-                    using Microsoft.Data.Entity.Migrations.Infrastructure;
-
 
                     public static class ModelSnapshot
                     {

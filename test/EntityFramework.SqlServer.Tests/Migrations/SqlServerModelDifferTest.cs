@@ -1,15 +1,14 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Migrations
+namespace Microsoft.Data.Entity.Migrations.Internal
 {
-    public class SqlServerModelDifferTest : ModelDifferTestBase
+    public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     {
         [Fact]
         public void Create_table_overridden()
@@ -28,7 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     {
                         Assert.Equal(2, operations.Count);
 
-                        var createSchemaOperation = Assert.IsType<CreateSchemaOperation>(operations[0]);
+                        var createSchemaOperation = Assert.IsType<EnsureSchemaOperation>(operations[0]);
                         Assert.Equal("dbo", createSchemaOperation.Name);
 
                         var addTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
@@ -62,7 +61,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
                     {
                         Assert.Equal(2, operations.Count);
 
-                        var createSchemaOperation = Assert.IsType<CreateSchemaOperation>(operations[0]);
+                        var createSchemaOperation = Assert.IsType<EnsureSchemaOperation>(operations[0]);
                         Assert.Equal("dbo", createSchemaOperation.Name);
 
                         var addTableOperation = Assert.IsType<RenameTableOperation>(operations[1]);
@@ -693,9 +692,9 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
 
         protected override ModelBuilder CreateModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
 
-        protected override ModelDiffer CreateModelDiffer()
-            => new ModelDiffer(
+        protected override MigrationsModelDiffer CreateModelDiffer()
+            => new MigrationsModelDiffer(
                 new SqlServerMetadataExtensionProvider(),
-                new SqlServerMigrationAnnotationProvider());
+                new SqlServerMigrationsAnnotationProvider());
     }
 }

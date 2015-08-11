@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Migrations.Sql;
-using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -20,14 +18,14 @@ namespace Microsoft.Data.Entity.SqlServer
     public class SqlServerDatabaseCreator : RelationalDatabaseCreator
     {
         private readonly ISqlServerConnection _connection;
-        private readonly IModelDiffer _modelDiffer;
-        private readonly IMigrationSqlGenerator _sqlGenerator;
+        private readonly IMigrationsModelDiffer _modelDiffer;
+        private readonly IMigrationsSqlGenerator _sqlGenerator;
         private readonly ISqlStatementExecutor _statementExecutor;
 
         public SqlServerDatabaseCreator(
             [NotNull] ISqlServerConnection connection,
-            [NotNull] IModelDiffer modelDiffer,
-            [NotNull] IMigrationSqlGenerator sqlGenerator,
+            [NotNull] IMigrationsModelDiffer modelDiffer,
+            [NotNull] IMigrationsSqlGenerator sqlGenerator,
             [NotNull] ISqlStatementExecutor statementExecutor,
             [NotNull] IModel model)
             : base(model)

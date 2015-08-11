@@ -51,9 +51,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 "System",
                 "System.Collections.Generic",
-                "Microsoft.Data.Entity.Migrations",
-                "Microsoft.Data.Entity.Migrations.Builders",
-                "Microsoft.Data.Entity.Migrations.Operations"
+                "Microsoft.Data.Entity.Migrations"
             };
             namespaces.AddRange(GetNamespaces(upOperations.Concat(downOperations)));
             foreach (var n in namespaces.Distinct())
@@ -75,20 +73,20 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 using (builder.Indent())
                 {
                     builder
-                        .AppendLine("public override void Up(MigrationBuilder migration)")
+                        .AppendLine("protected override void Up(MigrationBuilder migrationBuilder)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        _operationGenerator.Generate("migration", upOperations, builder);
+                        _operationGenerator.Generate("migrationBuilder", upOperations, builder);
                     }
                     builder
                         .AppendLine("}")
                         .AppendLine()
-                        .AppendLine("public override void Down(MigrationBuilder migration)")
+                        .AppendLine("protected override void Down(MigrationBuilder migrationBuilder)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        _operationGenerator.Generate("migration", downOperations, builder);
+                        _operationGenerator.Generate("migrationBuilder", downOperations, builder);
                     }
                     builder.AppendLine("}");
                 }
@@ -104,14 +102,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Type contextType,
             string migrationName,
             string migrationId,
-            string productVersion,
             IModel targetModel)
         {
             Check.NotEmpty(migrationNamespace, nameof(migrationNamespace));
             Check.NotNull(contextType, nameof(contextType));
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotEmpty(migrationId, nameof(migrationId));
-            Check.NotEmpty(productVersion, nameof(productVersion));
             Check.NotNull(targetModel, nameof(targetModel));
 
             var builder = new IndentedStringBuilder();
@@ -119,8 +115,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 "System",
                 "Microsoft.Data.Entity",
+                "Microsoft.Data.Entity.Infrastructure",
                 "Microsoft.Data.Entity.Metadata",
-                "Microsoft.Data.Entity.Migrations.Infrastructure",
+                "Microsoft.Data.Entity.Migrations",
                 contextType.Namespace
             };
             namespaces.AddRange(GetNamespaces(targetModel));
@@ -138,7 +135,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             using (builder.Indent())
             {
                 builder
-                    .Append("[ContextType(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
+                    .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
                     .Append("partial class ").AppendLine(_code.Identifier(migrationName))
                     .AppendLine("{");
                 using (builder.Indent())
@@ -153,21 +150,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     builder
                         .AppendLine("}")
                         .AppendLine()
-                        .AppendLine("public override string ProductVersion")
-                        .AppendLine("{");
-                    using (builder.Indent())
-                    {
-                        builder.Append("get { return ").Append(_code.Literal(productVersion)).AppendLine("; }");
-                    }
-                    builder
-                        .AppendLine("}")
-                        .AppendLine()
-                        .AppendLine("public override void BuildTargetModel(ModelBuilder builder)")
+                        .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
                         // TODO: Optimize. This is repeated below
-                        _modelGenerator.Generate(targetModel, builder);
+                        _modelGenerator.Generate("modelBuilder", targetModel, builder);
                     }
                     builder.AppendLine("}");
                 }
@@ -194,8 +182,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 "System",
                 "Microsoft.Data.Entity",
+                "Microsoft.Data.Entity.Infrastructure",
                 "Microsoft.Data.Entity.Metadata",
-                "Microsoft.Data.Entity.Migrations.Infrastructure",
+                "Microsoft.Data.Entity.Migrations",
                 contextType.Namespace
             };
             namespaces.AddRange(GetNamespaces(model));
@@ -213,17 +202,17 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             using (builder.Indent())
             {
                 builder
-                    .Append("[ContextType(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
+                    .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
                     .Append("partial class ").Append(_code.Identifier(modelSnapshotName)).AppendLine(" : ModelSnapshot")
                     .AppendLine("{");
                 using (builder.Indent())
                 {
                     builder
-                        .AppendLine("public override void BuildModel(ModelBuilder builder)")
+                        .AppendLine("protected override void BuildModel(ModelBuilder modelBuilder)")
                         .AppendLine("{");
                     using (builder.Indent())
                     {
-                        _modelGenerator.Generate(model, builder);
+                        _modelGenerator.Generate("modelBuilder", model, builder);
                     }
                     builder.AppendLine("}");
                 }

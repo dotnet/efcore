@@ -7,8 +7,8 @@ namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class RestartSequenceOperation : MigrationOperation
     {
-        public virtual string Name { get; [param: NotNull] set; }
-        public virtual string Schema { get; [param: CanBeNull] set; }
-        public virtual long RestartWith { get; set; }
+        public virtual string Name { get;[param: NotNull] set; }
+        public virtual string Schema { get;[param: CanBeNull] set; }
+        public virtual long StartValue { get; set; } = 1L;
     }
 }

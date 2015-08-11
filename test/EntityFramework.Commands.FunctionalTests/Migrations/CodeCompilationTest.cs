@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -6,11 +6,9 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
 
@@ -42,22 +40,20 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 @"using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Migrations.Operations;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
 {
     public partial class MyMigration : Migration
     {
-        public override void Up(MigrationBuilder migration)
+        protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migration.Sql(
+            migrationBuilder.Sql(
                 ""-- TEST"")
                 .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
 
-        public override void Down(MigrationBuilder migration)
+        protected override void Down(MigrationBuilder migrationBuilder)
         {
         }
     }
@@ -70,19 +66,19 @@ namespace MyNamespace
                 typeof(MyContext),
                 "MyMigration",
                 "20150511161616_MyMigration",
-                "7.0.0",
                 new Model {["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(
                 @"using System;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
 {
-    [ContextType(typeof(CodeCompilationTest.MyContext))]
+    [DbContext(typeof(CodeCompilationTest.MyContext))]
     partial class MyMigration
     {
         public override string Id
@@ -90,14 +86,9 @@ namespace MyNamespace
             get { return ""20150511161616_MyMigration""; }
         }
 
-        public override string ProductVersion
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
-            get { return ""7.0.0""; }
-        }
-
-        public override void BuildTargetModel(ModelBuilder builder)
-        {
-            builder
+            modelBuilder
                 .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
     }
@@ -126,27 +117,17 @@ namespace MyNamespace
 
             var migrationType = assembly.GetType("MyNamespace.MyMigration", throwOnError: true, ignoreCase: false);
 
-            var contextTypeAttribute = migrationType.GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>();
+            var contextTypeAttribute = migrationType.GetTypeInfo().GetCustomAttribute<DbContextAttribute>();
             Assert.NotNull(contextTypeAttribute);
             Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 
             var migration = (Migration)Activator.CreateInstance(migrationType);
 
             Assert.Equal("20150511161616_MyMigration", migration.Id);
-            Assert.Equal("7.0.0", migration.ProductVersion);
 
-            var migrationBuilder = new MigrationBuilder();
-            migration.Up(migrationBuilder);
-            Assert.Equal(1, migrationBuilder.Operations.Count);
-
-            migrationBuilder = new MigrationBuilder();
-            migration.Down(migrationBuilder);
-            Assert.Empty(migrationBuilder.Operations);
-
-            var conventions = new ConventionSet();
-            var modelBuilder = new ModelBuilder(conventions);
-            migration.BuildTargetModel(modelBuilder);
-            Assert.Empty(modelBuilder.Model.EntityTypes);
+            Assert.Equal(1, migration.UpOperations.Count);
+            Assert.Empty(migration.DownOperations);
+            Assert.Empty(migration.TargetModel.EntityTypes);
         }
 
         [Fact]
@@ -165,19 +146,20 @@ namespace MyNamespace
                 new Model {["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(@"using System;
 using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Commands.Migrations;
 using System.Text.RegularExpressions;
 
 namespace MyNamespace
 {
-    [ContextType(typeof(CodeCompilationTest.MyContext))]
+    [DbContext(typeof(CodeCompilationTest.MyContext))]
     partial class MySnapshot : ModelSnapshot
     {
-        public override void BuildModel(ModelBuilder builder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
-            builder
+            modelBuilder
                 .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
     }
@@ -205,16 +187,12 @@ namespace MyNamespace
 
             var snapshotType = assembly.GetType("MyNamespace.MySnapshot", throwOnError: true, ignoreCase: false);
 
-            var contextTypeAttribute = snapshotType.GetTypeInfo().GetCustomAttribute<ContextTypeAttribute>();
+            var contextTypeAttribute = snapshotType.GetTypeInfo().GetCustomAttribute<DbContextAttribute>();
             Assert.NotNull(contextTypeAttribute);
             Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
-
-            var conventions = new ConventionSet();
-            var modelBuilder = new ModelBuilder(conventions);
-            snapshot.BuildModel(modelBuilder);
-            Assert.Empty(modelBuilder.Model.EntityTypes);
+            Assert.Empty(snapshot.Model.EntityTypes);
         }
 
         public class MyContext

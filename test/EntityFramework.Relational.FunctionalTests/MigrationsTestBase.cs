@@ -7,9 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -33,7 +30,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 db.Database.EnsureDeleted();
 
-                db.Database.ApplyMigrations();
+                db.Database.Migrate();
 
                 var history = db.GetService().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
@@ -51,7 +48,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 db.Database.EnsureDeleted();
 
                 var migrator = db.GetService().GetRequiredService<IMigrator>();
-                migrator.ApplyMigrations("Migration1");
+                migrator.Migrate("Migration1");
 
                 var history = db.GetService().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
@@ -66,10 +63,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var db = _fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
-                db.Database.ApplyMigrations();
+                db.Database.Migrate();
 
                 var migrator = db.GetService().GetRequiredService<IMigrator>();
-                migrator.ApplyMigrations(Migrator.InitialDatabase);
+                migrator.Migrate(Migration.InitialDatabase);
 
                 var history = db.GetService().GetRequiredService<IHistoryRepository>();
                 Assert.Empty(history.GetAppliedMigrations());
@@ -82,10 +79,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var db = _fixture.CreateContext())
             {
                 db.Database.EnsureDeleted();
-                db.Database.ApplyMigrations();
+                db.Database.Migrate();
 
                 var migrator = db.GetService().GetRequiredService<IMigrator>();
-                migrator.ApplyMigrations("Migration1");
+                migrator.Migrate("Migration1");
 
                 var history = db.GetService().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
@@ -120,7 +117,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected virtual async Task ExecuteAsync(IServiceProvider services, Action<MigrationBuilder> buildMigration)
         {
-            var generator = services.GetRequiredService<IMigrationSqlGenerator>();
+            var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
             var connection = services.GetRequiredService<IRelationalConnection>();
             var executor = services.GetRequiredService<ISqlStatementExecutor>();
 
@@ -143,9 +140,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 name: "CreatedTable",
                 columns: x => new
                 {
-                    Id = x.Column<int>(nullable: false),
-                    ColumnWithDefaultToDrop = x.Column<int>(nullable: true, defaultValue: 0),
-                    ColumnWithDefaultToAlter = x.Column<int>(nullable: true, defaultValue: 1)
+                    Id = x.Column<int>(isNullable: false),
+                    ColumnWithDefaultToDrop = x.Column<int>(isNullable: true, defaultValue: 0),
+                    ColumnWithDefaultToAlter = x.Column<int>(isNullable: true, defaultValue: 1)
                 },
                 constraints: x =>
                 {
@@ -174,7 +171,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             migrationBuilder.AlterColumn<int>(
                 name: "ColumnWithDefaultToAlter",
                 table: "CreatedTable",
-                nullable: true);
+                isNullable: true);
         }
 
         protected virtual Task AssertSecondMigrationAsync(DbConnection connection)

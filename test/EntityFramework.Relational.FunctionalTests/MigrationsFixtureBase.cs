@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Builders;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -47,12 +46,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [ContextType(typeof(MigrationsContext))]
+        [DbContext(typeof(MigrationsContext))]
         private class Migration1 : Migration
         {
             public override string Id => "00000000000001_Migration1";
 
-            public override void Up(MigrationBuilder migrationBuilder)
+            protected override void Up(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder
                     .CreateTable(
@@ -66,25 +65,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         columns: x => x.Id);
             }
 
-            public override void Down(MigrationBuilder migrationBuilder)
+            protected override void Down(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder.DropTable("Table1");
             }
         }
 
-        [ContextType(typeof(MigrationsContext))]
+        [DbContext(typeof(MigrationsContext))]
         private class Migration2 : Migration
         {
             public override string Id => "00000000000002_Migration2";
 
-            public override void Up(MigrationBuilder migrationBuilder)
+            protected override void Up(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder.RenameTable(
                     name: "Table1",
                     newName: "Table2");
             }
 
-            public override void Down(MigrationBuilder migrationBuilder)
+            protected override void Down(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder.RenameTable(
                     name: "Table2",

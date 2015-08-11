@@ -3,7 +3,7 @@
 
 using System.Data.SqlClient;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Migrations.History;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
@@ -35,19 +35,19 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model
   AND t.TABLE_TYPE = 'BASE TABLE'
   AND t.TABLE_NAME <> '" + HistoryRepository.DefaultTableName + "'";
 
-        public virtual string Id { get; [param: CanBeNull] set; }
-        public virtual string TableId { get; [param: CanBeNull] set; }
-        public virtual string ColumnName { get; [param: CanBeNull] set; }
-        public virtual int Ordinal { get; [param: CanBeNull] set; }
-        public virtual bool IsNullable { get; [param: CanBeNull] set; }
-        public virtual string DataType { get; [param: CanBeNull] set; }
-        public virtual int? MaxLength { get; [param: CanBeNull] set; }
-        public virtual int? NumericPrecision { get; [param: CanBeNull] set; }
-        public virtual int? DateTimePrecision { get; [param: CanBeNull] set; }
-        public virtual int? Scale { get; [param: CanBeNull] set; }
-        public virtual bool IsIdentity { get; [param: CanBeNull] set; }
-        public virtual bool IsStoreGenerated { get; [param: CanBeNull] set; }
-        public virtual string DefaultValue { get; [param: CanBeNull] set; }
+        public virtual string Id { get;[param: CanBeNull] set; }
+        public virtual string TableId { get;[param: CanBeNull] set; }
+        public virtual string ColumnName { get;[param: CanBeNull] set; }
+        public virtual int Ordinal { get;[param: CanBeNull] set; }
+        public virtual bool IsNullable { get;[param: CanBeNull] set; }
+        public virtual string DataType { get;[param: CanBeNull] set; }
+        public virtual int? MaxLength { get;[param: CanBeNull] set; }
+        public virtual int? NumericPrecision { get;[param: CanBeNull] set; }
+        public virtual int? DateTimePrecision { get;[param: CanBeNull] set; }
+        public virtual int? Scale { get;[param: CanBeNull] set; }
+        public virtual bool IsIdentity { get;[param: CanBeNull] set; }
+        public virtual bool IsStoreGenerated { get;[param: CanBeNull] set; }
+        public virtual string DefaultValue { get;[param: CanBeNull] set; }
 
         public static TableColumn CreateFromReader([NotNull] SqlDataReader reader)
         {

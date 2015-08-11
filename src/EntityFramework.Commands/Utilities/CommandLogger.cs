@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Migrations;
-using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 

@@ -3,9 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
-using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
@@ -34,13 +34,13 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddSingleton<SqliteMetadataExtensionProvider>()
                     .AddSingleton<SqliteTypeMapper>()
                     .AddSingleton<SqliteModelSource>()
-                    .AddSingleton<SqliteMigrationAnnotationProvider>()
+                    .AddSingleton<SqliteMigrationsAnnotationProvider>()
                     .AddSingleton<SqliteConventionSetBuilder>()
                     .AddScoped<SqliteModificationCommandBatchFactory>()
                     .AddScoped<SqliteDatabaseProviderServices>()
                     .AddScoped<SqliteDatabase>()
                     .AddScoped<SqliteDatabaseConnection>()
-                    .AddScoped<SqliteMigrationSqlGenerator>()
+                    .AddScoped<SqliteMigrationsSqlGenerator>()
                     .AddScoped<SqliteDatabaseCreator>()
                     .AddScoped<SqliteHistoryRepository>()
                     .AddScoped<SqliteCompositeMethodCallTranslator>()

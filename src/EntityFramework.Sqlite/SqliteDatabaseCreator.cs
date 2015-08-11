@@ -4,8 +4,7 @@
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Sql;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -14,26 +13,26 @@ namespace Microsoft.Data.Entity.Sqlite
     public class SqliteDatabaseCreator : RelationalDatabaseCreator
     {
         private readonly IRelationalConnection _connection;
-        private readonly IModelDiffer _modelDiffer;
-        private readonly IMigrationSqlGenerator _migrationSqlGenerator;
+        private readonly IMigrationsModelDiffer _modelDiffer;
+        private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
         private readonly ISqlStatementExecutor _executor;
 
         public SqliteDatabaseCreator(
             [NotNull] IRelationalConnection connection,
-            [NotNull] IModelDiffer modelDiffer,
-            [NotNull] IMigrationSqlGenerator migrationSqlGenerator,
+            [NotNull] IMigrationsModelDiffer modelDiffer,
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] ISqlStatementExecutor sqlStatementExecutor,
             [NotNull] IModel model)
             : base(model)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
-            Check.NotNull(migrationSqlGenerator, nameof(migrationSqlGenerator));
+            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(sqlStatementExecutor, nameof(sqlStatementExecutor));
 
             _connection = connection;
             _modelDiffer = modelDiffer;
-            _migrationSqlGenerator = migrationSqlGenerator;
+            _migrationsSqlGenerator = migrationsSqlGenerator;
             _executor = sqlStatementExecutor;
         }
 
@@ -46,7 +45,7 @@ namespace Microsoft.Data.Entity.Sqlite
         public override void CreateTables()
         {
             var operations = _modelDiffer.GetDifferences(null, Model);
-            var statements = _migrationSqlGenerator.Generate(operations, Model);
+            var statements = _migrationsSqlGenerator.Generate(operations, Model);
             _executor.ExecuteNonQuery(_connection, null, statements);
         }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Migrations.Builders;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
 

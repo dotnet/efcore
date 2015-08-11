@@ -69,8 +69,8 @@
     <Compile Include="Metadata\SqliteMetadataExtensionProvider.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensions.cs" />
     <Compile Include="Migrations\SqliteHistoryRepository.cs" />
-    <Compile Include="Migrations\SqliteMigrationAnnotationProvider.cs" />
-    <Compile Include="Migrations\SqliteMigrationSqlGenerator.cs" />
+    <Compile Include="Migrations\SqliteMigrationsAnnotationProvider.cs" />
+    <Compile Include="Migrations\SqliteMigrationsSqlGenerator.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>

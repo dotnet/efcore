@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -87,7 +88,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 }
 
                 builder.AppendLine(",")
-                    .Append("nullable: ")
+                    .Append("isNullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
                 if (operation.DefaultValueSql != null)
@@ -150,29 +151,24 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                             : "columns: ")
                     .Append(_code.Literal(operation.Columns));
 
-                if (operation.ReferencedSchema != null)
+                if (operation.PrincipalSchema != null)
                 {
                     builder
                         .AppendLine(",")
-                        .Append("referencedSchema: ")
-                        .Append(_code.Literal(operation.ReferencedSchema));
+                        .Append("principalSchema: ")
+                        .Append(_code.Literal(operation.PrincipalSchema));
                 }
 
                 builder
                     .AppendLine(",")
-                    .Append("referencedTable: ")
-                    .Append(_code.Literal(operation.ReferencedTable));
-
-                if (operation.ReferencedColumns != null)
-                {
-                    builder
-                        .AppendLine(",")
-                        .Append(
-                            operation.ReferencedColumns.Length == 1
-                                ? "referencedColumn: "
-                                : "referencedColumns: ")
-                        .Append(_code.Literal(operation.ReferencedColumns));
-                }
+                    .Append("principalTable: ")
+                    .Append(_code.Literal(operation.PrincipalTable))
+                    .AppendLine(",")
+                    .Append(
+                        operation.PrincipalColumns.Length == 1
+                            ? "principalColumn: "
+                            : "principalColumns: ")
+                    .Append(_code.Literal(operation.PrincipalColumns));
 
                 if (operation.OnUpdate != ReferentialAction.NoAction)
                 {
@@ -307,7 +303,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 }
 
                 builder.AppendLine(",")
-                    .Append("nullable: ")
+                    .Append("isNullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
                 if (operation.DefaultValueSql != null)
@@ -359,7 +355,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(_code.Literal(operation.Schema));
                 }
 
-                if (operation.IncrementBy != null)
+                if (operation.IncrementBy != 1)
                 {
                     builder
                         .AppendLine(",")
@@ -383,11 +379,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(_code.Literal(operation.MaxValue));
                 }
 
-                if (operation.Cycle)
+                if (operation.IsCyclic)
                 {
                     builder
                         .AppendLine(",")
-                        .Append("cycle: true");
+                        .Append("isCyclic: true");
                 }
 
                 builder.Append(")");
@@ -432,7 +428,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     builder
                         .AppendLine(",")
-                        .Append("unique: true");
+                        .Append("isUnique: true");
                 }
 
                 builder.Append(")");
@@ -441,13 +437,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
         }
 
-        protected virtual void Generate([NotNull] CreateSchemaOperation operation, [NotNull] IndentedStringBuilder builder)
+        protected virtual void Generate([NotNull] EnsureSchemaOperation operation, [NotNull] IndentedStringBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             builder
-                .Append(".CreateSchema(")
+                .Append(".EnsureSchema(")
                 .Append(_code.Literal(operation.Name))
                 .Append(")");
 
@@ -488,20 +484,20 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(_code.Literal(operation.Schema));
                 }
 
-                if (operation.StartWith.HasValue)
+                if (operation.StartValue != 1L)
                 {
                     builder
                         .AppendLine(",")
-                        .Append("startWith: ")
-                        .Append(_code.Literal(operation.StartWith.Value));
+                        .Append("startValue: ")
+                        .Append(_code.Literal(operation.StartValue));
                 }
 
-                if (operation.IncrementBy.HasValue)
+                if (operation.IncrementBy != 1)
                 {
                     builder
                         .AppendLine(",")
                         .Append("incrementBy: ")
-                        .Append(_code.Literal(operation.IncrementBy.Value));
+                        .Append(_code.Literal(operation.IncrementBy));
                 }
 
                 if (operation.MinValue.HasValue)
@@ -520,11 +516,11 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         .Append(_code.Literal(operation.MaxValue.Value));
                 }
 
-                if (operation.Cycle)
+                if (operation.IsCyclic)
                 {
                     builder
                         .AppendLine(",")
-                        .Append("cycle: true");
+                        .Append("isCyclic: true");
                 }
 
                 builder.Append(")");
@@ -591,7 +587,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                                 .Append(", ");
                         }
 
-                        builder.Append("nullable: ")
+                        builder.Append("isNullable: ")
                             .Append(_code.Literal(column.IsNullable));
 
                         if (column.DefaultValueSql != null)
@@ -656,7 +652,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     foreach (var uniqueConstraint in operation.UniqueConstraints)
                     {
                         builder
-                            .Append("table.Unique(")
+                            .Append("table.UniqueConstraint(")
                             .Append(_code.Literal(uniqueConstraint.Name))
                             .Append(", ")
                             .Append(_code.Lambda(uniqueConstraint.Columns.Select(c => map[c]).ToList()))
@@ -680,32 +676,29 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                                 .Append("name: ")
                                 .Append(_code.Literal(foreignKey.Name))
                                 .AppendLine(",")
-                                .Append("columns: ")
+                                .Append(foreignKey.Columns.Length == 1
+                                    ? "column: "
+                                    : "columns: ")
                                 .Append(_code.Lambda(foreignKey.Columns.Select(c => map[c]).ToList()));
 
-                            if (foreignKey.ReferencedSchema != null)
+                            if (foreignKey.PrincipalSchema != null)
                             {
                                 builder
                                     .AppendLine(",")
-                                    .Append("referencedSchema: ")
-                                    .Append(_code.Literal(foreignKey.ReferencedSchema));
+                                    .Append("principalSchema: ")
+                                    .Append(_code.Literal(foreignKey.PrincipalSchema));
                             }
 
                             builder
                                 .AppendLine(",")
-                                .Append("referencedTable: ")
-                                .Append(_code.Literal(foreignKey.ReferencedTable));
-
-                            if (foreignKey.ReferencedColumns != null)
-                            {
-                                builder
-                                    .AppendLine(",")
-                                    .Append(
-                                        foreignKey.ReferencedColumns.Length == 1
-                                            ? "referencedColumn: "
-                                            : "referencedColumns: ")
-                                    .Append(_code.Literal(foreignKey.ReferencedColumns));
-                            }
+                                .Append("principalTable: ")
+                                .Append(_code.Literal(foreignKey.PrincipalTable))
+                                .AppendLine(",")
+                                .Append(
+                                    foreignKey.PrincipalColumns.Length == 1
+                                        ? "principalColumn: "
+                                        : "principalColumns: ")
+                                .Append(_code.Literal(foreignKey.PrincipalColumns));
 
                             if (foreignKey.OnUpdate != ReferentialAction.NoAction)
                             {
@@ -1123,8 +1116,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 }
                 builder
                     .AppendLine(",")
-                    .Append("with: ")
-                    .Append(_code.Literal(operation.RestartWith))
+                    .Append("startValue: ")
+                    .Append(_code.Literal(operation.StartValue))
                     .Append(")");
 
                 Annotations(operation.Annotations, builder);
@@ -1155,7 +1148,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 }
 
                 builder.Append(")");
-
                 Annotations(operation.Annotations, builder);
             }
         }

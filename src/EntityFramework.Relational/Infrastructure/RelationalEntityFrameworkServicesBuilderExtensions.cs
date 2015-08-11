@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
@@ -30,29 +30,28 @@ namespace Microsoft.Data.Entity.Infrastructure
             builder.GetService().TryAdd(new ServiceCollection()
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
-                .AddSingleton<IMigrationIdGenerator, MigrationIdGenerator>()
+                .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()
                 .AddSingleton<UntypedValueBufferFactoryFactory>()
                 .AddSingleton<TypedValueBufferFactoryFactory>()
-                .AddSingleton<IMigrationModelFactory, MigrationModelFactory>()
-                .AddSingleton<MigrationAnnotationProvider>()
+                .AddSingleton<MigrationsAnnotationProvider>()
                 .AddScoped<RelationalModelValidator>()
                 .AddScoped<IMigrator, Migrator>()
-                .AddScoped<IMigrationAssembly, MigrationAssembly>()
+                .AddScoped<IMigrationsAssembly, MigrationsAssembly>()
                 .AddScoped<RelationalQueryContextFactory>()
                 .AddScoped<BatchExecutor>()
-                .AddScoped<ModelDiffer>()
+                .AddScoped<MigrationsModelDiffer>()
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<RelationalSqlExecutor>()
                 .AddScoped<SqlStatementExecutor>()
                 .AddScoped<CommandBatchPreparer>()
-                .AddScoped<IModelDiffer, ModelDiffer>()
+                .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
                 .AddScoped(p => GetProviderServices(p).ParameterNameGeneratorFactory)
                 .AddScoped(p => GetProviderServices(p).SqlStatementExecutor)
                 .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)
                 .AddScoped(p => GetProviderServices(p).CompositeMemberTranslator)
-                .AddScoped(p => GetProviderServices(p).MigrationAnnotationProvider)
+                .AddScoped(p => GetProviderServices(p).MigrationsAnnotationProvider)
                 .AddScoped(p => GetProviderServices(p).HistoryRepository)
-                .AddScoped(p => GetProviderServices(p).MigrationSqlGenerator)
+                .AddScoped(p => GetProviderServices(p).MigrationsSqlGenerator)
                 .AddScoped(p => GetProviderServices(p).RelationalConnection)
                 .AddScoped(p => GetProviderServices(p).TypeMapper)
                 .AddScoped(p => GetProviderServices(p).ModificationCommandBatchFactory)

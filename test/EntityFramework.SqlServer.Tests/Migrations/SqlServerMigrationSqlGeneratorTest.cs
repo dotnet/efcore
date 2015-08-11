@@ -2,17 +2,17 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Migrations.Sql;
+using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationSqlGenerator SqlGenerator =>
-            new SqlServerMigrationSqlGenerator(
+        protected override IMigrationsSqlGenerator SqlGenerator =>
+            new SqlServerMigrationsSqlGenerator(
                 new SqlServerUpdateSqlGenerator(),
                 new SqlServerTypeMapper(),
                 new SqlServerMetadataExtensionProvider());
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         [Fact]
         public virtual void CreateSchemaOperation()
         {
-            Generate(new CreateSchemaOperation { Name = "my" });
+            Generate(new EnsureSchemaOperation { Name = "my" });
 
             Assert.Equal(
                 "IF SCHEMA_ID(N'my') IS NULL EXEC(N'CREATE SCHEMA [my]');" + EOL,
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.SqlServer.Migrations
         [Fact]
         public virtual void CreateSchemaOperation_dbo()
         {
-            Generate(new CreateSchemaOperation { Name = "dbo" });
+            Generate(new EnsureSchemaOperation { Name = "dbo" });
 
             Assert.Equal(
                 ";" + EOL,

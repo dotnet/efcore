@@ -71,6 +71,7 @@
     <Compile Include="EntityFrameworkServiceCollectionExtensionsTest.cs" />
     <Compile Include="Extensions\PropertyExtensionsTest.cs" />
     <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
+    <Compile Include="Infrastructure\DbContextAttributeTest.cs" />
     <Compile Include="Infrastructure\ModelValidatorTest.cs" />
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />

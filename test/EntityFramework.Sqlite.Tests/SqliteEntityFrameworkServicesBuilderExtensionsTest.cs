@@ -1,8 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Sqlite.Metadata;
-using Microsoft.Data.Entity.Sqlite.Migrations;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Sqlite.Tests
             VerifySingleton<SqliteMetadataExtensionProvider>();
             VerifySingleton<SqliteTypeMapper>();
             VerifySingleton<SqliteModelSource>();
-            VerifySingleton<SqliteMigrationAnnotationProvider>();
+            VerifySingleton<SqliteMigrationsAnnotationProvider>();
             VerifySingleton<SqliteConventionSetBuilder>();
 
             // SQLite scoped
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Sqlite.Tests
             VerifyScoped<SqliteDatabaseProviderServices>();
             VerifyScoped<SqliteDatabase>();
             VerifyScoped<SqliteDatabaseConnection>();
-            VerifyScoped<SqliteMigrationSqlGenerator>();
+            VerifyScoped<SqliteMigrationsSqlGenerator>();
             VerifyScoped<SqliteDatabaseCreator>();
             VerifyScoped<SqliteHistoryRepository>();
             VerifyScoped<SqliteCompositeMethodCallTranslator>();

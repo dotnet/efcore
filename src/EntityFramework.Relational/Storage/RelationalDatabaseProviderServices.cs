@@ -5,9 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
-using Microsoft.Data.Entity.Migrations.Sql;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Methods;
 using Microsoft.Data.Entity.Update;
@@ -27,7 +25,7 @@ namespace Microsoft.Data.Entity.Storage
         public override IModelValidator ModelValidator => GetService<RelationalModelValidator>();
 
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();
-        public virtual IMigrationAnnotationProvider MigrationAnnotationProvider => GetService<MigrationAnnotationProvider>();
+        public virtual IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<MigrationsAnnotationProvider>();
         public virtual IBatchExecutor BatchExecutor => GetService<BatchExecutor>();
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedValueBufferFactoryFactory>();
         public virtual ICommandBatchPreparer CommandBatchPreparer => GetService<CommandBatchPreparer>();
@@ -37,7 +35,7 @@ namespace Microsoft.Data.Entity.Storage
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
         public abstract IMemberTranslator CompositeMemberTranslator { get; }
         public abstract IHistoryRepository HistoryRepository { get; }
-        public abstract IMigrationSqlGenerator MigrationSqlGenerator { get; }
+        public abstract IMigrationsSqlGenerator MigrationsSqlGenerator { get; }
         public abstract IRelationalConnection RelationalConnection { get; }
         public abstract IUpdateSqlGenerator UpdateSqlGenerator { get; }
         public abstract IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }

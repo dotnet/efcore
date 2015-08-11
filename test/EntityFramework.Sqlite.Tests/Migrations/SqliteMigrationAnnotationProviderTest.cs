@@ -7,19 +7,19 @@ using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public class SqliteMigrationAnnotationProviderTest
     {
         private readonly ModelBuilder _modelBuilder;
-        private readonly SqliteMigrationAnnotationProvider _provider;
+        private readonly SqliteMigrationsAnnotationProvider _provider;
 
         private readonly Annotation _autoincrement = new Annotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);
 
         public SqliteMigrationAnnotationProviderTest()
         {
             _modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet(), new Model());
-            _provider = new SqliteMigrationAnnotationProvider();
+            _provider = new SqliteMigrationsAnnotationProvider();
         }
 
         [Fact]

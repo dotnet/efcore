@@ -72,12 +72,9 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                         Sources = { @"
-                            using System;
                             using Microsoft.Data.Entity;
-                            using Microsoft.Data.Entity.Metadata;
+                            using Microsoft.Data.Entity.Infrastructure;
                             using Microsoft.Data.Entity.Migrations;
-                            using Microsoft.Data.Entity.Migrations.Builders;
-                            using Microsoft.Data.Entity.Migrations.Infrastructure;
 
                             namespace SimpleProject
                             {
@@ -91,16 +88,12 @@ namespace Microsoft.Data.Entity.Commands
 
                                 namespace Migrations
                                 {
-                                    [ContextType(typeof(SimpleContext))]
+                                    [DbContext(typeof(SimpleContext))]
                                     public class InitialCreate : Migration
                                     {
                                         public override string Id => ""201410102227260_InitialCreate"";
 
-                                        public override void Up(MigrationBuilder migrationBuilder)
-                                        {
-                                        }
-
-                                        public override void Down(MigrationBuilder migrationBuilder)
+                                        protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }
@@ -156,12 +149,9 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                     Sources = { @"
-                        using System;
                         using Microsoft.Data.Entity;
-                        using Microsoft.Data.Entity.Metadata;
+                        using Microsoft.Data.Entity.Infrastructure;
                         using Microsoft.Data.Entity.Migrations;
-                        using Microsoft.Data.Entity.Migrations.Builders;
-                        using Microsoft.Data.Entity.Migrations.Infrastructure;
 
                         namespace MyProject
                         {
@@ -181,16 +171,12 @@ namespace Microsoft.Data.Entity.Commands
                             {
                                 namespace Context1Migrations
                                 {
-                                    [ContextType(typeof(Context1))]
+                                    [DbContext(typeof(Context1))]
                                     public class Context1Migration : Migration
                                     {
                                         public override string Id => ""000000000000000_Context1Migration"";
 
-                                        public override void Up(MigrationBuilder migrationBuilder)
-                                        {
-                                        }
-
-                                        public override void Down(MigrationBuilder migrationBuilder)
+                                        protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }
@@ -198,16 +184,12 @@ namespace Microsoft.Data.Entity.Commands
 
                                 namespace Context2Migrations
                                 {
-                                    [ContextType(typeof(Context2))]
+                                    [DbContext(typeof(Context2))]
                                     public class Context2Migration : Migration
                                     {
                                         public override string Id => ""000000000000000_Context2Migration"";
 
-                                        public override void Up(MigrationBuilder migrationBuilder)
-                                        {
-                                        }
-
-                                        public override void Down(MigrationBuilder migrationBuilder)
+                                        protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }
@@ -270,12 +252,9 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByPath(contextsBuild.TargetPath)
                             },
                     Sources = { @"
-                        using System;
                         using Microsoft.Data.Entity;
-                        using Microsoft.Data.Entity.Metadata;
+                        using Microsoft.Data.Entity.Infrastructure;
                         using Microsoft.Data.Entity.Migrations;
-                        using Microsoft.Data.Entity.Migrations.Builders;
-                        using Microsoft.Data.Entity.Migrations.Infrastructure;
 
                         namespace MyProject
                         {
@@ -287,16 +266,12 @@ namespace Microsoft.Data.Entity.Commands
                             {
                                 namespace Context1Migrations
                                 {
-                                    [ContextType(typeof(Context1))]
+                                    [DbContext(typeof(Context1))]
                                     public class Context1Migration : Migration
                                     {
                                         public override string Id => ""000000000000000_Context1Migration"";
 
-                                        public override void Up(MigrationBuilder migrationBuilder)
-                                        {
-                                        }
-
-                                        public override void Down(MigrationBuilder migrationBuilder)
+                                        protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }
@@ -304,16 +279,12 @@ namespace Microsoft.Data.Entity.Commands
 
                                 namespace Context2Migrations
                                 {
-                                    [ContextType(typeof(Context2))]
+                                    [DbContext(typeof(Context2))]
                                     public class Context2Migration : Migration
                                     {
                                         public override string Id => ""000000000000000_Context2Migration"";
 
-                                        public override void Up(MigrationBuilder migrationBuilder)
-                                        {
-                                        }
-
-                                        public override void Down(MigrationBuilder migrationBuilder)
+                                        protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
                                     }

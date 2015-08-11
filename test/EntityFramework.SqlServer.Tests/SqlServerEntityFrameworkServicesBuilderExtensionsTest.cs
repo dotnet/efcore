@@ -1,8 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.SqlServer.Migrations;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModelSource>();
             VerifySingleton<SqlServerMetadataExtensionProvider>();
-            VerifySingleton<SqlServerMigrationAnnotationProvider>();
+            VerifySingleton<SqlServerMigrationsAnnotationProvider>();
 
             // SQL Server scoped
             VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<SqlServerDatabaseProviderServices>();
             VerifyScoped<SqlServerDatabase>();
             VerifyScoped<ISqlServerConnection>();
-            VerifyScoped<SqlServerMigrationSqlGenerator>();
+            VerifyScoped<SqlServerMigrationsSqlGenerator>();
             VerifyScoped<SqlServerDatabaseCreator>();
             VerifyScoped<SqlServerHistoryRepository>();
             VerifyScoped<SqlServerCompositeMethodCallTranslator>();

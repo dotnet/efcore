@@ -4,50 +4,39 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Migrations.History;
-using Microsoft.Data.Entity.Migrations.Infrastructure;
+using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Sqlite.Migrations
+namespace Microsoft.Data.Entity.Migrations
 {
     public class SqliteHistoryRepository : HistoryRepository
     {
-        private readonly SqliteUpdateSqlGenerator _sql;
-
         public SqliteHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
-            [NotNull] IMigrationModelFactory modelFactory,
             [NotNull] IDbContextOptions options,
-            [NotNull] IModelDiffer modelDiffer,
-            [NotNull] SqliteMigrationSqlGenerator migrationSqlGenerator,
+            [NotNull] IMigrationsModelDiffer modelDiffer,
+            [NotNull] SqliteMigrationsSqlGenerator sqlGenerator,
             [NotNull] SqliteMetadataExtensionProvider annotations,
-            [NotNull] SqliteUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IServiceProvider serviceProvider)
+            [NotNull] SqliteUpdateSqlGenerator sql)
             : base(
                   databaseCreator,
                   executor,
                   connection,
-                  modelFactory,
                   options,
                   modelDiffer,
-                  migrationSqlGenerator,
+                  sqlGenerator,
                   annotations,
-                  updateSqlGenerator,
-                  serviceProvider)
+                  sql)
         {
-            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
-
-            _sql = updateSqlGenerator;
         }
 
         protected override string ExistsSql
             => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = '" +
-                _sql.EscapeLiteral(TableName) +
+                Sql.EscapeLiteral(TableName) +
                 "' AND \"type\" = 'table';";
 
         protected override bool Exists(object value) => (long)value != 0L;

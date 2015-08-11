@@ -32,7 +32,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] Type contextType,
             [NotNull] string migrationName,
             [NotNull] string migrationId,
-            [NotNull] string productVersion,
             [NotNull] IModel targetModel);
 
         public abstract string GenerateSnapshot(

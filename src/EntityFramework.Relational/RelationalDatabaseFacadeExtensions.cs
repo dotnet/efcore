@@ -17,8 +17,8 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalDatabaseFacadeExtensions
     {
-        public static void ApplyMigrations([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().ApplyMigrations();
+        public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
         public static void ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
