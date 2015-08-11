@@ -39,14 +39,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return base.ClassName(connectionString);
         }
 
-        public override IEnumerable<OptionsBuilderConfiguration> OnConfiguringConfigurations
-            => new List<OptionsBuilderConfiguration>()
-                {
-                    new OptionsBuilderConfiguration(
-                        "UseSqlServer("
-                        + VerbatimStringLiteral(GeneratorModel.ConnectionString)
-                        + ")")
-                };
+        public override string UseMethodName => "UseSqlServer";
 
         public override void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
         {
