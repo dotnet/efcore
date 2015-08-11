@@ -387,6 +387,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             if (tableColumn.IsIdentity)
             {
+                property.ValueGenerated = ValueGenerated.OnAdd;
+
                 if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tableColumn.DataType])
                 {
                     Logger.LogWarning(
