@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     using (var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options))
                     {
                         // TODO: Delete DB if model changed
-
+                        context.Database.EnsureDeleted();
                         if (context.Database.EnsureCreated())
                         {
                             ComplexNavigationsModelInitializer.Seed(context);

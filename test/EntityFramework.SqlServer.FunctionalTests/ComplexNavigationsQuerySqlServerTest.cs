@@ -13,6 +13,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
         }
 
+        protected override void ClearLog()
+        {
+            TestSqlLoggerFactory.Reset();
+        }
+
         public override void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {
             base.Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql();
@@ -89,6 +94,39 @@ INNER JOIN (
     INNER JOIN [Level2] AS [l1] ON [l].[OneToMany_Required_InverseId] = [l1].[Id]
 ) AS [l1] ON [l].[OneToMany_Optional_InverseId] = [l1].[Id1]
 ORDER BY [l1].[Id], [l1].[Id0], [l1].[Id1]", Sql);
+        }
+
+        public override void Multi_level_include_with_short_circuiting()
+        {
+            base.Multi_level_include_with_short_circuiting();
+
+            Assert.Equal(
+                @"SELECT [x].[Name], [x].[LabelDefaultText], [x].[PlaceholderDefaultText], [c].[DefaultText], [c0].[DefaultText]
+FROM [ComplexNavigationField] AS [x]
+LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
+LEFT JOIN [ComplexNavigationString] AS [c0] ON [x].[PlaceholderDefaultText] = [c0].[DefaultText]
+ORDER BY [c].[DefaultText], [c0].[DefaultText]
+
+SELECT [c].[Text], [c].[ComplexNavigationStringDefaultText], [c].[LanguageName], [c1].[Name], [c1].[CultureString]
+FROM [ComplexNavigationGlobalization] AS [c]
+INNER JOIN (
+    SELECT DISTINCT [c].[DefaultText]
+    FROM [ComplexNavigationField] AS [x]
+    LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
+) AS [c0] ON [c].[ComplexNavigationStringDefaultText] = [c0].[DefaultText]
+LEFT JOIN [ComplexNavigationLanguage] AS [c1] ON [c].[LanguageName] = [c1].[Name]
+ORDER BY [c0].[DefaultText]
+
+SELECT [c].[Text], [c].[ComplexNavigationStringDefaultText], [c].[LanguageName], [c1].[Name], [c1].[CultureString]
+FROM [ComplexNavigationGlobalization] AS [c]
+INNER JOIN (
+    SELECT DISTINCT [c].[DefaultText], [c0].[DefaultText] AS [DefaultText0]
+    FROM [ComplexNavigationField] AS [x]
+    LEFT JOIN [ComplexNavigationString] AS [c] ON [x].[LabelDefaultText] = [c].[DefaultText]
+    LEFT JOIN [ComplexNavigationString] AS [c0] ON [x].[PlaceholderDefaultText] = [c0].[DefaultText]
+) AS [c0] ON [c].[ComplexNavigationStringDefaultText] = [c0].[DefaultText0]
+LEFT JOIN [ComplexNavigationLanguage] AS [c1] ON [c].[LanguageName] = [c1].[Name]
+ORDER BY [c0].[DefaultText], [c0].[DefaultText0]", Sql);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

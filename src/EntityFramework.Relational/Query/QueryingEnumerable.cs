@@ -18,11 +18,13 @@ namespace Microsoft.Data.Entity.Query
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
+        private readonly int? _queryIndex;
         private readonly ILogger _logger;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
+            int? queryIndex,
             [NotNull] ILogger logger)
         {
             Check.NotNull(relationalQueryContext, nameof(relationalQueryContext));
@@ -31,6 +33,7 @@ namespace Microsoft.Data.Entity.Query
 
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
+            _queryIndex = queryIndex;
             _logger = logger;
         }
 
@@ -68,7 +71,7 @@ namespace Microsoft.Data.Entity.Query
                         {
                             _queryingEnumerable._logger.LogCommand(command);
 
-                            _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this);
+                            _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
 
                             _dataReader = command.ExecuteReader();
 

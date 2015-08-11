@@ -183,6 +183,8 @@ WHERE [c].[City] = @__city_0",
                                 FROM ""Customers"" AS ""c""
                             ) AS ""c"" ON ""o"".""CustomerID"" = ""c"".""CustomerID""
                             ORDER BY ""c"".""CustomerID""
+                        , 
+                        queryIndex: 1
                     )
                     , 
                     materializer: (ValueBuffer prm5) => 

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly IQuerySource _querySource;
         private readonly IReadOnlyList<INavigation> _navigationPath;
         private readonly RelationalQueryCompilationContext _queryCompilationContext;
-        private readonly IReadOnlyList<int> _readerIndexes;
+        private readonly IReadOnlyList<int> _queryIndexes;
         private readonly bool _querySourceRequiresTracking;
 
         private bool _foundCreateEntityForQuerySource;
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
-            [NotNull] IReadOnlyList<int> readerIndexes,
+            [NotNull] IReadOnlyList<int> queryIndexes,
             bool querySourceRequiresTracking)
         {
             Check.NotNull(querySource, nameof(querySource));
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _querySource = querySource;
             _navigationPath = navigationPath;
             _queryCompilationContext = queryCompilationContext;
-            _readerIndexes = readerIndexes;
+            _queryIndexes = queryIndexes;
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
@@ -91,10 +91,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 = selectExpression.GetTableForQuerySource(querySource);
 
             var canProduceInnerJoin = true;
-            var includeReferenceCount = 0;
-
+            var navigationCount = 0;
             foreach (var navigation in navigationPath)
             {
+                var queryIndex = _queryIndexes[navigationCount];
+                navigationCount++;
+
                 var targetEntityType = navigation.GetTargetType();
                 var targetTableName = _queryCompilationContext.RelationalExtensions.For(targetEntityType).TableName;
                 var targetTableAlias = targetTableName[0].ToString().ToLower();
@@ -146,9 +148,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     targetTableExpression = joinedTableExpression;
 
-                    var readerIndex = _readerIndexes[includeReferenceCount];
-                    includeReferenceCount++;
-
                     yield return
                         Expression.Lambda(
                             Expression.Call(
@@ -158,7 +157,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                     EntityQueryModelVisitor.QueryContextParameter,
                                     typeof(RelationalQueryContext)),
                                 Expression.Constant(valueBufferOffset),
-                                Expression.Constant(readerIndex),
+                                Expression.Constant(queryIndex),
                                 materializer));
                 }
                 else
@@ -234,7 +233,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                     Expression.Constant(
                                         new CommandBuilder(
                                             () => _queryCompilationContext.CreateSqlQueryGenerator(targetSelectExpression),
-                                            _queryCompilationContext.ValueBufferFactoryFactory))),
+                                            _queryCompilationContext.ValueBufferFactoryFactory)),
+                                    Expression.Constant(queryIndex, typeof(int?))),
                                 materializer));
                 }
             }

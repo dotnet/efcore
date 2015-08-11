@@ -168,6 +168,7 @@ namespace Microsoft.Data.Entity.Query
                     {
                         openedNewReader = true;
                         openedReaderCount++;
+                        indexes.Add(openedReaderCount);
                     }
                     else
                     {

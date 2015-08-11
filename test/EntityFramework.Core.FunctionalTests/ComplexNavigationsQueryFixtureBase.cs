@@ -59,6 +59,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<Level4>().Collection(e => e.OneToMany_Required_Self).InverseReference(e => e.OneToMany_Required_Self_Inverse).Required(true);
             modelBuilder.Entity<Level4>().Collection(e => e.OneToMany_Optional_Self).InverseReference(e => e.OneToMany_Optional_Self_Inverse).Required(false);
+
+            modelBuilder.Entity<ComplexNavigationField>().Key(e => e.Name);
+            modelBuilder.Entity<ComplexNavigationString>().Key(e => e.DefaultText);
+            modelBuilder.Entity<ComplexNavigationGlobalization>().Key(e => e.Text);
+            modelBuilder.Entity<ComplexNavigationLanguage>().Key(e => e.Name);
+
+            modelBuilder.Entity<ComplexNavigationField>().Reference(f => f.Label);
+            modelBuilder.Entity<ComplexNavigationField>().Reference(f => f.Placeholder);
+
+            modelBuilder.Entity<ComplexNavigationString>().Collection(m => m.Globalizations);
+
+            modelBuilder.Entity<ComplexNavigationGlobalization>().Reference(g => g.Language);
         }
     }
 }

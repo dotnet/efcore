@@ -149,6 +149,7 @@ namespace Microsoft.Data.Entity.Query
                 new AsyncQueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
+                    /*queryIndex*/ null,
                     queryContext.Logger)
                     .Select(shaper);
         }
@@ -161,12 +162,15 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<ValueBuffer> _Query(
-            QueryContext queryContext, CommandBuilder commandBuilder)
+            QueryContext queryContext, 
+            CommandBuilder commandBuilder,
+            int? queryIndex)
         {
             return
                 new AsyncQueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
+                    queryIndex,
                     queryContext.Logger);
         }
 

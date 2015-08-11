@@ -19,5 +19,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
         public DbSet<Level2> LevelTwo { get; set; }
         public DbSet<Level3> LevelThree { get; set; }
         public DbSet<Level4> LevelFour { get; set; }
+
+        public DbSet<ComplexNavigationField> Fields { get; set; }
+        public DbSet<ComplexNavigationString> MultilingualStrings { get; set; }
+        public DbSet<ComplexNavigationGlobalization> Globalizations { get; set; }
+        public DbSet<ComplexNavigationLanguage> Languages { get; set; }
     }
 }

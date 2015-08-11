@@ -15,6 +15,7 @@ namespace Microsoft.Data.Entity.Query
     public class RelationalQueryContext : QueryContext
     {
         private readonly List<IValueBufferCursor> _activeQueries = new List<IValueBufferCursor>();
+        private readonly List<IValueBufferCursor> _activeIncludeQueries = new List<IValueBufferCursor>();
 
         private int _activeIncludeQueryOffset;
 
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IRelationalConnection Connection { get; }
 
-        public virtual void RegisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor)
+        public virtual void RegisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex)
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
@@ -44,10 +45,15 @@ namespace Microsoft.Data.Entity.Query
             }
 
             _activeQueries.Add(valueBufferCursor);
+
+            if (queryIndex.HasValue && queryIndex.Value > 0)
+            {
+                AddBufferCursorToIncludeQueriesList(valueBufferCursor, queryIndex.Value);
+            }
         }
 
         public virtual async Task RegisterValueBufferCursorAsync(
-            [NotNull] IValueBufferCursor valueBufferCursor, CancellationToken cancellationToken)
+            [NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex, CancellationToken cancellationToken)
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
@@ -58,6 +64,25 @@ namespace Microsoft.Data.Entity.Query
             }
 
             _activeQueries.Add(valueBufferCursor);
+
+            if (queryIndex.HasValue && queryIndex.Value > 0)
+            {
+                AddBufferCursorToIncludeQueriesList(valueBufferCursor, queryIndex.Value);
+            }
+        }
+
+        private void AddBufferCursorToIncludeQueriesList(IValueBufferCursor valueBufferCursor, int includeQueryIndex)
+        {
+            if (includeQueryIndex > _activeIncludeQueries.Count)
+            {
+                var missingEntries = includeQueryIndex - _activeIncludeQueries.Count;
+                for (int i = 0; i < missingEntries; i++)
+                {
+                    _activeIncludeQueries.Add(null);
+                }
+            }
+
+            _activeIncludeQueries[includeQueryIndex - 1] = valueBufferCursor;
         }
 
         public virtual void DeregisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor)
@@ -65,10 +90,20 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
             _activeQueries.Remove(valueBufferCursor);
+
+            var index = _activeIncludeQueries.IndexOf(valueBufferCursor);
+            if (index >= 0)
+            {
+                _activeIncludeQueries[index] = null;
+            }
         }
 
         public virtual ValueBuffer GetIncludeValueBuffer(int queryIndex)
-            => _activeQueries[_activeIncludeQueryOffset + queryIndex].Current;
+        {
+            return queryIndex == 0 
+                ? _activeQueries[_activeIncludeQueryOffset + queryIndex].Current
+                : _activeIncludeQueries[queryIndex - 1].Current;
+        }
 
         public virtual void BeginIncludeScope() => _activeIncludeQueryOffset = _activeQueries.Count;
 
@@ -78,6 +113,8 @@ namespace Microsoft.Data.Entity.Query
             {
                 _activeQueries.RemoveAt(i);
             }
+
+            _activeIncludeQueries.Clear();
 
             _activeIncludeQueryOffset = 0;
         }
