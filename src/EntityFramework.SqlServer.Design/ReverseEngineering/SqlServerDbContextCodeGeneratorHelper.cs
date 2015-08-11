@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
     public class SqlServerDbContextCodeGeneratorHelper : DbContextCodeGeneratorHelper
     {
         private const string _dbContextSuffix = "Context";
-        private KeyConvention _keyConvention = new KeyConvention();
 
         public SqlServerDbContextCodeGeneratorHelper(
             [NotNull] DbContextGeneratorModel generatorModel,
@@ -41,29 +40,26 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public override string UseMethodName => "UseSqlServer";
 
-        public override void AddPropertyFacetsConfiguration([NotNull] PropertyConfiguration propertyConfiguration)
-        {
-            Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
-
-            base.AddPropertyFacetsConfiguration(propertyConfiguration);
-
-            AddValueGeneratedNeverFacetConfiguration(propertyConfiguration);
-        }
-
-        public virtual void AddValueGeneratedNeverFacetConfiguration(
+        public override void AddValueGeneratedFacetConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            // If the EntityType has a single integer key KeyConvention assumes ValueGeneratedOnAdd().
-            // If the underlying column does not have Identity set then we need to set to
-            // ValueGeneratedNever() to override this behavior.
-            if (_keyConvention.ValueGeneratedOnAddProperty(
-                new List<Property> { (Property)propertyConfiguration.Property },
-                (EntityType)propertyConfiguration.EntityConfiguration.EntityType) != null)
+            // If this property is the single integer primary key on the EntityType then
+            // KeyConvention assumes ValueGeneratedOnAdd(). If the underlying column does
+            // not have Identity set then we need to set to ValueGeneratedNever() to
+            // override this behavior.
+            if (propertyConfiguration.Property.SqlServer().IdentityStrategy == null
+                && _keyConvention.ValueGeneratedOnAddProperty(
+                    new List<Property> { (Property)propertyConfiguration.Property },
+                    (EntityType)propertyConfiguration.EntityConfiguration.EntityType) != null)
             {
                 propertyConfiguration.AddFacetConfiguration(
                     new FacetConfiguration("ValueGeneratedNever()"));
+            }
+            else
+            {
+                base.AddValueGeneratedFacetConfiguration(propertyConfiguration);
             }
         }
     }
