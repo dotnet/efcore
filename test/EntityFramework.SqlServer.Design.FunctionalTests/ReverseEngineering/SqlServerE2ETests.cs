@@ -41,10 +41,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                         "EntityFramework.Relational",
                         "EntityFramework.SqlServer",
 #if DNXCORE50 || NETCORE50
-                   "System.Data.Common",
-                   "System.Linq.Expressions",
-                   "System.Reflection",
-    #else
+                        "System.Data.Common",
+                        "System.Linq.Expressions",
+                        "System.Reflection",
+#else
                     },
                 References =
                     {

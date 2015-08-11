@@ -34,9 +34,18 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="project.json" />
+    <None Include="ReverseEngineering\Expected\child.expected" />
+    <None Include="ReverseEngineering\Expected\parent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ReverseEngineering\SqliteE2ETest.cs" />
     <Compile Include="SqliteMetadataModelProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +76,10 @@
     <ProjectReference Include="..\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj">
       <Project>{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}</Project>
       <Name>EntityFramework.Core.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.Design.FunctionalTests\EntityFramework.Relational.Design.FunctionalTests.csproj">
+      <Project>{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}</Project>
+      <Name>EntityFramework.Relational.Design.FunctionalTests</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
       <Project>{82FAD20C-28C6-4B48-B7E4-971AC821E27A}</Project>
