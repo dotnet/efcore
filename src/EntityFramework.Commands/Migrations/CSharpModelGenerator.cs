@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
                         GenerateProperties(entityType.GetDeclaredProperties(), stringBuilder);
 
-                        GenerateKey(entityType.FindDeclaredPrimaryKey(), stringBuilder);
+                        GenerateKeys(entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
 
                         GenerateIndexes(entityType.GetDeclaredIndexes(), stringBuilder);
                     }
@@ -220,20 +220,42 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             GenerateAnnotations(property.Annotations.ToArray(), stringBuilder);
         }
 
-        protected virtual void GenerateKey(
-            [CanBeNull] IKey key, [NotNull] IndentedStringBuilder stringBuilder)
+        protected virtual void GenerateKeys(
+            [NotNull] IEnumerable<IKey> keys, [CanBeNull] IKey primaryKey, [NotNull] IndentedStringBuilder stringBuilder)
         {
+            Check.NotNull(keys, nameof(keys));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            if (key == null)
+            if (primaryKey != null)
             {
-                return;
+                GenerateKey(primaryKey, stringBuilder, primary: true);
             }
+
+            var firstKey = true;
+            foreach (var key in keys.Where(key => key != primaryKey && !key.EntityType.Model.FindReferencingForeignKeys(key).Any()))
+            {
+                if (!firstKey)
+                {
+                    stringBuilder.AppendLine();
+                }
+                else
+                {
+                    firstKey = false;
+                }
+
+                GenerateKey(key, stringBuilder, primary: false);
+            }
+        }
+
+        protected virtual void GenerateKey(
+            [NotNull] IKey key, [NotNull] IndentedStringBuilder stringBuilder, bool primary = false)
+        {
+            Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
                 .AppendLine()
                 .AppendLine()
-                .Append("b.Key(")
+                .Append(primary ? "b.Key(" : "b.AlternateKey(")
                 .Append(string.Join(", ", key.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");
 
@@ -246,12 +268,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         }
 
         protected virtual void GenerateIndexes(
-            [NotNull] IEnumerable<IIndex> Indexes, [NotNull] IndentedStringBuilder stringBuilder)
+            [NotNull] IEnumerable<IIndex> indexes, [NotNull] IndentedStringBuilder stringBuilder)
         {
-            Check.NotNull(Indexes, nameof(Indexes));
+            Check.NotNull(indexes, nameof(indexes));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            foreach (var index in Indexes)
+            foreach (var index in indexes)
             {
                 stringBuilder.AppendLine();
                 GenerateIndex(index, stringBuilder);

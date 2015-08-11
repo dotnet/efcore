@@ -232,6 +232,34 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         }
 
         [Fact]
+        public void Alternate_keys_are_stored_in_snapshot()
+        {
+            Test(
+                builder => { builder.Entity<EntityWithTwoProperties>().AlternateKey(t => new { t.Id, t.AlternateId }); },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int>(""AlternateId"");
+
+        b.Key(""Id"");
+
+        b.AlternateKey(""Id"", ""AlternateId"");
+    });
+",
+                o =>
+                {
+                    Assert.Collection(
+                        o.EntityTypes.First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
+                        t => Assert.Equal("Id", t.Name),
+                        t => Assert.Equal("AlternateId", t.Name)
+                        );
+                });
+        }
+
+        [Fact]
         public void Indexes_are_stored_in_snapshot()
         {
             Test(
@@ -323,7 +351,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         }
 
         [Fact]
-        public void Alternate_keys_are_stored_in_snapshot()
+        public void Relationship_principal_key_is_stored_in_snapshot()
         {
             Test(
                 builder =>
