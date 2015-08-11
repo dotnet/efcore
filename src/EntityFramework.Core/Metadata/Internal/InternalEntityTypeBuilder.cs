@@ -464,9 +464,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var detachedRelationships = new HashSet<RelationshipBuilderSnapshot>();
             var baseRelationshipsToBeRemoved = new HashSet<ForeignKey>();
+            var originalBaseType = Metadata.BaseType;
+
             if (baseEntityType != null)
             {
-                var originalBaseType = Metadata.BaseType;
                 Metadata.BaseType = null;
 
                 var duplicatedProperties = baseEntityType.Properties
@@ -601,6 +602,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     }
                 }
             }
+
+            ModelBuilder.ConventionDispatcher.OnBaseEntityTypeSet(this, originalBaseType);
 
             return this;
         }

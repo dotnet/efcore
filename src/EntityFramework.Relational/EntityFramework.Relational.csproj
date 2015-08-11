@@ -61,6 +61,7 @@
     <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder`.cs" />
+    <Compile Include="Metadata\Conventions\Internal\DiscriminatorConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalColumnAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalConventionSetBuilder.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalTableAttributeConvention.cs" />

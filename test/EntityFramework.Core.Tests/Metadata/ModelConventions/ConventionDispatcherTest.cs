@@ -50,6 +50,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.NotNull(entityTypeBuilder);
         }
+        
+        [Fact]
+        public void OnBaseEntityTypeSet_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            InternalEntityTypeBuilder entityTypeBuilder = null;
+            var convention = new Mock<IBaseTypeConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<EntityType>()))
+                .Returns<InternalEntityTypeBuilder, EntityType>((b, t) =>
+            {
+                Assert.NotNull(b);
+                Assert.Null(t);
+                entityTypeBuilder = b;
+                return true;
+            });
+            conventions.BaseEntityTypeSetConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IBaseTypeConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<EntityType>()))
+                .Returns<InternalEntityTypeBuilder, EntityType>((b, t) =>
+                {
+                    Assert.Null(t);
+                    Assert.Same(entityTypeBuilder, b);
+                return false;
+            });
+            conventions.BaseEntityTypeSetConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IBaseTypeConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<EntityType>()))
+                .Returns<InternalEntityTypeBuilder, EntityType>((b, t) =>
+            {
+                Assert.False(true);
+                return false;
+            });
+            conventions.BaseEntityTypeSetConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+
+            Assert.NotNull(builder.BaseType(typeof(Order), ConfigurationSource.Convention));
+
+            Assert.NotNull(entityTypeBuilder);
+        }
 
         [Fact]
         public void OnPropertyAdded_calls_apply_on_conventions_in_order()
@@ -334,6 +377,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public int OrderId { get; set; }
 
             public virtual OrderDetails OrderDetails { get; set; }
+        }
+        
+        private class SpecialOrder : Order
+        {
         }
 
         private class OrderDetails

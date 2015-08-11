@@ -11,14 +11,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class RelationalPropertyAttributeConventionTest
     {
-        public class A
-        {
-            public int Id { get; set; }
-
-            [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
-            public string Name { get; set; }
-        }
-
         [Fact]
         public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
@@ -29,7 +21,6 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal("Post Name", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnName);
             Assert.Equal("DECIMAL", entityBuilder.Property(e => e.Name).Metadata.Relational().ColumnType);
         }
-
 
         [Fact]
         public void ColumnAttribute_overrides_configuration_from_convention_source()
@@ -45,7 +36,6 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.Equal("Post Name", propertyBuilder.Metadata.Relational().ColumnName);
             Assert.Equal("DECIMAL", propertyBuilder.Metadata.Relational().ColumnType);
-
         }
 
         [Fact]
@@ -72,6 +62,14 @@ namespace Microsoft.Data.Entity.Metadata
             var modelBuilder = new InternalModelBuilder(new Model(), conventionSet);
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
+        }
+
+        private class A
+        {
+            public int Id { get; set; }
+
+            [Column("Post Name", Order = 1, TypeName = "DECIMAL")]
+            public string Name { get; set; }
         }
 
         private class TestConventionalSetBuilder : RelationalConventionSetBuilder

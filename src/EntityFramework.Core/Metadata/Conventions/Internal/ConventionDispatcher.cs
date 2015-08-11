@@ -34,6 +34,23 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return entityTypeBuilder;
         }
 
+        public virtual InternalEntityTypeBuilder OnBaseEntityTypeSet(
+            [NotNull] InternalEntityTypeBuilder entityTypeBuilder,
+            [CanBeNull] EntityType oldBaseType)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+
+            foreach (var entityTypeConvention in _conventionSet.BaseEntityTypeSetConventions)
+            {
+                if (!entityTypeConvention.Apply(entityTypeBuilder, oldBaseType))
+                {
+                    break;
+                }
+            }
+
+            return entityTypeBuilder;
+        }
+
         public virtual InternalRelationshipBuilder OnForeignKeyAdded([NotNull] InternalRelationshipBuilder relationshipBuilder)
         {
             Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
