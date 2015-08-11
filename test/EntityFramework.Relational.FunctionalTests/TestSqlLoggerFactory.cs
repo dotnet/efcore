@@ -80,6 +80,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Logger._testOutputHelper = testOutputHelper;
         }
 
+        public void Dispose()
+        {
+        }
+
         public static string Log => Logger._log.ToString();
         public static string Sql => string.Join(Environment.NewLine + Environment.NewLine, Logger._sqlStatements);
         public static List<string> SqlStatements => Logger._sqlStatements;

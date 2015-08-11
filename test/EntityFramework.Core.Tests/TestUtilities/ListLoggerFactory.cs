@@ -41,5 +41,9 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
         public void AddProvider(ILoggerProvider provider)
         {
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

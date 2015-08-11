@@ -1907,6 +1907,10 @@ namespace Microsoft.Data.Entity.Tests
             public void AddProvider(ILoggerProvider provider)
             {
             }
+
+            public void Dispose()
+            {
+            }
         }
 
         private class FakeModelSource : IModelSource
@@ -2145,10 +2149,10 @@ namespace Microsoft.Data.Entity.Tests
 
             public DbSet<Product> Products { get; set; }
 
-            protected internal override void OnModelCreating(ModelBuilder modelBuilder) 
+            protected internal override void OnModelCreating(ModelBuilder modelBuilder)
                 => Products.ToList();
 
-            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
         }
 

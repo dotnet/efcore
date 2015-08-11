@@ -24,6 +24,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public void AddProvider(ILoggerProvider provider)
             {
             }
+
+            public void Dispose()
+            {
+            }
         }
 
         public static readonly ILogger Instance = new TestFileLogger();

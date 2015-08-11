@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 modelBuilder.Entity<Blog>().Key(b => b.Url);
             }
 
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
         }
 
@@ -195,6 +195,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public ILogger CreateLogger(string name)
             {
                 return Logger;
+            }
+
+            public void Dispose()
+            {
             }
 
             public class TestLogger : ILogger
