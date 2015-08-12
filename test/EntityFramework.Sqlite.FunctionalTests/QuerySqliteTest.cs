@@ -93,17 +93,17 @@ WHERE ""e"".""ReportsTo"" IS NULL",
             base.Where_new_instance_field_access_closure_via_query_cache();
 
             Assert.Equal(
-                @"@__p_InstanceFieldValue_0: London
+                @"@__InstanceFieldValue_0: London
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""City"" = @__p_InstanceFieldValue_0
+WHERE ""c"".""City"" = @__InstanceFieldValue_0
 
-@__p_InstanceFieldValue_0: Seattle
+@__InstanceFieldValue_0: Seattle
 
 SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""City"" = @__p_InstanceFieldValue_0",
+WHERE ""c"".""City"" = @__InstanceFieldValue_0",
                 Sql);
         }
 
@@ -2496,7 +2496,11 @@ END",
             Assert.Equal(
                 @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
 FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" IN ('ABCDE', 'ALFKI')",
+WHERE ""c"".""CustomerID"" IN ('ABCDE', 'ALFKI')
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" IN ('ABCDE')",
                 Sql);
         }
 

@@ -216,10 +216,8 @@ namespace Microsoft.Data.Entity.Query
 
         private class FunctionEvaluationEnablingProcessor : IExpressionTreeProcessor
         {
-            public Expression Process(Expression expressionTree)
-            {
-                return new FunctionEvaluationEnablingVisitor().Visit(expressionTree);
-            }
+            public Expression Process(Expression expressionTree) 
+                => new FunctionEvaluationEnablingVisitor().Visit(expressionTree);
         }
 
         private class FunctionEvaluationEnablingVisitor : ExpressionVisitorBase
@@ -233,17 +231,16 @@ namespace Microsoft.Data.Entity.Query
                 }
 
                 var propertyWrapper = expression as PropertyEvaluationPreventingExpression;
-                if (propertyWrapper != null)
-                {
-                    return Visit(propertyWrapper.MemberExpression);
-                }
 
-                return base.VisitExtension(expression);
+                return propertyWrapper 
+                    != null ? Visit(propertyWrapper.MemberExpression) 
+                    : base.VisitExtension(expression);
             }
 
             protected override Expression VisitSubQuery(SubQueryExpression expression)
             {
                 var clonedModel = expression.QueryModel.Clone();
+
                 clonedModel.TransformExpressions(Visit);
 
                 return new SubQueryExpression(clonedModel);

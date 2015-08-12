@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             if (expression.NodeType == ExpressionType.Convert)
             {
-                if(expression.RemoveConvert() is ConstantExpression )
+                if (expression.RemoveConvert() is ConstantExpression)
                 {
                     return expression;
                 }
@@ -82,36 +83,50 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            if (e.NodeType != ExpressionType.Constant
-                && !typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
+            if (!typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
             {
-                try
-                {
-                    string parameterName;
-                    var parameterValue = ExpressionEvaluationHelpers.Evaluate(e, out parameterName);
+                var constantExpression = e as ConstantExpression;
 
-                    var compilerPrefixIndex = parameterName.LastIndexOf(">", StringComparison.Ordinal);
-                    if (compilerPrefixIndex != -1)
+                if (constantExpression == null
+                    || (constantExpression.Type != typeof(string)
+                        && constantExpression.Type != typeof(byte[])
+                        && constantExpression.Value is IEnumerable))
+                {
+                    try
                     {
-                        parameterName = parameterName.Substring(compilerPrefixIndex + 1);
+                        string parameterName;
+
+                        var parameterValue = ExpressionEvaluationHelpers.Evaluate(e, out parameterName);
+
+                        if (parameterName == null)
+                        {
+                            parameterName = "p";
+                        }
+
+                        var compilerPrefixIndex = parameterName.LastIndexOf(">", StringComparison.Ordinal);
+
+                        if (compilerPrefixIndex != -1)
+                        {
+                            parameterName = parameterName.Substring(compilerPrefixIndex + 1);
+                        }
+
+                        parameterName
+                            = $"{CompiledQueryCache.CompiledQueryParameterPrefix}{parameterName}_{_queryContext.ParameterValues.Count}";
+
+                        _queryContext.ParameterValues.Add(parameterName, parameterValue);
+
+                        return e.Type == expression.Type
+                            ? Expression.Parameter(e.Type, parameterName)
+                            : (Expression)Expression.Convert(
+                                Expression.Parameter(e.Type, parameterName),
+                                expression.Type);
                     }
-
-                    parameterName
-                        = $"{CompiledQueryCache.CompiledQueryParameterPrefix}{parameterName}_{_queryContext.ParameterValues.Count}";
-
-                    _queryContext.ParameterValues.Add(parameterName, parameterValue);
-
-                    return e.Type == expression.Type
-                        ? Expression.Parameter(e.Type, parameterName)
-                        : (Expression)Expression.Convert(
-                            Expression.Parameter(e.Type, parameterName),
-                            expression.Type);
-                }
-                catch (Exception exception)
-                {
-                    throw new InvalidOperationException(
-                        Strings.ExpressionParameterizationException(expression),
-                        exception);
+                    catch (Exception exception)
+                    {
+                        throw new InvalidOperationException(
+                            Strings.ExpressionParameterizationException(expression),
+                            exception);
+                    }
                 }
             }
 

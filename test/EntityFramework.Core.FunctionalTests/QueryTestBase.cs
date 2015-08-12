@@ -1252,6 +1252,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_poco_closure()
+        {
+            var customer = new Customer { CustomerID = "ALFKI" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
+
+            customer = new Customer { CustomerID = "ANATR" };
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => c.Equals(customer)).Select(c => c.CustomerID));
+        }
+
+        [Fact]
         public virtual void Select_bool_closure()
         {
             var boolean = false;
@@ -2078,6 +2092,61 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 join o in os on new Foo { Bar = c.CustomerID } equals new Foo { Bar = o.CustomerID }
                 select new { c, o });
         }
+        
+        [Fact]
+        public virtual void Join_local_collection_int_closure_is_cached_correctly()
+        {
+            var ids = new[] { 1, 2 };
+
+            AssertQuery<Employee>(es =>
+                from e in es
+                join id in ids on e.EmployeeID equals id
+                select e.EmployeeID);
+
+            ids = new[] { 3 };
+
+            AssertQuery<Employee>(es =>
+                from e in es
+                join id in ids on e.EmployeeID equals id
+                select e.EmployeeID);
+        }
+
+        [Fact]
+        public virtual void Join_local_string_closure_is_cached_correctly()
+        {
+            var ids = "12";
+
+            AssertQuery<Employee>(es =>
+                from e in es
+                join id in ids on e.EmployeeID equals id
+                select e.EmployeeID);
+
+            ids = "3";
+
+            AssertQuery<Employee>(es =>
+                from e in es
+                join id in ids on e.EmployeeID equals id
+                select e.EmployeeID);
+        }
+
+        [Fact]
+        public virtual void Join_local_bytes_closure_is_cached_correctly()
+        {
+            var ids = new byte[] { 1, 2 };
+
+            AssertQuery<Employee>(es =>
+                from e in es
+                join id in ids on e.EmployeeID equals id
+                select e.EmployeeID);
+
+            ids = new byte[] { 3 };
+
+            AssertQuery<Employee>(es =>
+                from e in es
+                join id in ids on e.EmployeeID equals id
+                select e.EmployeeID);
+        }
+
 
         [Fact]
         public virtual void Join_Where_Count()
@@ -3678,9 +3747,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Contains_with_local_array_closure()
         {
-            string[] ids = { "ABCDE", "ALFKI" };
+            var ids = new[] { "ABCDE", "ALFKI" };
+
             AssertQuery<Customer>(cs =>
                 cs.Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+
+            ids = new []{ "ABCDE" };
+
+            AssertQuery<Customer>(cs =>
+                cs.Where(c => ids.Contains(c.CustomerID)));
+        }
+
+        [Fact]
+        public virtual void Contains_with_local_int_array_closure()
+        {
+            var ids = new[] { 0, 1 };
+
+            AssertQuery<Employee>(es =>
+                es.Where(e => ids.Contains(e.EmployeeID)), entryCount: 1);
+
+            ids = new[] { 0 };
+
+            AssertQuery<Employee>(es =>
+                es.Where(e => ids.Contains(e.EmployeeID)));
         }
 
         [Fact]

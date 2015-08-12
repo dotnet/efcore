@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             if (methodCallExpression.Method.GetCustomAttribute<QueryAnnotationMethodAttribute>() != null)
             {
-                string argumentName;
+                string _;
 
                 methodCallExpression
                     = Expression.Call(
@@ -26,9 +26,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             new QueryAnnotation(
                                 methodCallExpression.Method,
                                 methodCallExpression.Arguments
-                                    .Select(a => ExpressionEvaluationHelpers.Evaluate(a, out argumentName))
+                                    .Select(a => ExpressionEvaluationHelpers.Evaluate(a, out _))
                                     .ToArray())));
             }
+
             return base.VisitMethodCall(methodCallExpression);
         }
     }

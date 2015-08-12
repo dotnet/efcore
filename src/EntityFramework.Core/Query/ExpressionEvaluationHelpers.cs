@@ -78,11 +78,6 @@ namespace Microsoft.Data.Entity.Query
                 }
             }
 
-            if (parameterName == null)
-            {
-                parameterName = "p";
-            }
-
             return Expression.Lambda<Func<object>>(
                 Expression.Convert(expression, typeof(object)))
                 .Compile()
