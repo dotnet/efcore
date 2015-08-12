@@ -36,7 +36,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="project.json" />
-    <None Include="ReverseEngineering\Expected\child.expected" />
+    <None Include="ReverseEngineering\Expected\child.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ReverseEngineering\Expected\parent.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

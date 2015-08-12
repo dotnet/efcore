@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7D68B03-3A5D-4710-9A1F-20D198E41F78}"
 EndProject
@@ -60,6 +60,8 @@ EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Sqlite.Tests", "test\EntityFramework.Sqlite.Tests\EntityFramework.Sqlite.Tests.xproj", "{6A37E28F-00CB-4608-BE6E-9082D9DE2208}"
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.SqlServer.Design.FunctionalTests", "test\EntityFramework.SqlServer.Design.FunctionalTests\EntityFramework.SqlServer.Design.FunctionalTests.xproj", "{06E77A73-3B5B-46F0-B366-E4B3F32AC60C}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "EntityFramework.Relational.Design.FunctionalTests", "test\EntityFramework.Relational.Design.FunctionalTests\EntityFramework.Relational.Design.FunctionalTests.xproj", "{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -175,6 +177,10 @@ Global
 		{06E77A73-3B5B-46F0-B366-E4B3F32AC60C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06E77A73-3B5B-46F0-B366-E4B3F32AC60C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06E77A73-3B5B-46F0-B366-E4B3F32AC60C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -207,5 +213,6 @@ Global
 		{BBC614FD-9B0B-41D1-9EB5-EFF6F375161D} = {E7D68B03-3A5D-4710-9A1F-20D198E41F78}
 		{6A37E28F-00CB-4608-BE6E-9082D9DE2208} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 		{06E77A73-3B5B-46F0-B366-E4B3F32AC60C} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
+		{6B2440FD-F40A-4EEA-B0CE-43E852133EDB} = {C605BAB7-B06E-4BDF-80B2-E661B7670E25}
 	EndGlobalSection
 EndGlobal
