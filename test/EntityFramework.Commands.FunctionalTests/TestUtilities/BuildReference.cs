@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                 .Locator
                 .ServiceProvider
                 .GetService<ILibraryExporter>()
-                .GetLibraryExport(name);
+                .GetExport(name);
             if (library != null)
             {
                 var metadataReference = library.MetadataReferences.Single();
