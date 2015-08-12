@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (DiscriminatorProperty == null)
             {
                 throw new InvalidOperationException(
-                    Strings.NoDiscriminator(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
+                    Strings.NoDiscriminatorForValue(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
             }
 
             if (value != null && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))

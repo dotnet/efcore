@@ -48,14 +48,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         #endregion
 
         [NotMapped]
-        public class A
+        private class A
         {
             public int Id { get; set; }
 
             public string Name { get; set; }
         }
 
-        public class B
+        private class B
         {
             public int Id { get; set; }
 

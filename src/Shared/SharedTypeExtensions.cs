@@ -75,6 +75,13 @@ namespace System
         public static bool IsPrimitive(this Type type)
             => type.IsInteger() || type.IsNonIntegerPrimitive();
 
+        public static bool IsInstantiable(this Type type)=> IsInstantiable(type.GetTypeInfo());
+
+        private static bool IsInstantiable(TypeInfo type)
+            => !type.IsAbstract
+               && !type.IsInterface
+               && (!type.IsGenericType || !type.IsGenericTypeDefinition);
+
         public static Type UnwrapEnumType(this Type type)
         {
             var isNullable = type.IsNullableType();
@@ -165,23 +172,23 @@ namespace System
         }
 
         private static readonly Dictionary<Type, object> _commonTypeDictionary = new Dictionary<Type, object>
-        {
-            { typeof(int), default(int) },
-            { typeof(Guid), default(Guid) },
-            { typeof(DateTime), default(DateTime) },
-            { typeof(DateTimeOffset), default(DateTimeOffset) },
-            { typeof(long), default(long) },
-            { typeof(bool), default(bool) },
-            { typeof(double), default(double) },
-            { typeof(short), default(short) },
-            { typeof(float), default(float) },
-            { typeof(byte), default(byte) },
-            { typeof(char), default(char) },
-            { typeof(uint), default(uint) },
-            { typeof(ushort), default(ushort) },
-            { typeof(ulong), default(ulong) },
-            { typeof(sbyte), default(sbyte) }
-        };
+            {
+                { typeof(int), default(int) },
+                { typeof(Guid), default(Guid) },
+                { typeof(DateTime), default(DateTime) },
+                { typeof(DateTimeOffset), default(DateTimeOffset) },
+                { typeof(long), default(long) },
+                { typeof(bool), default(bool) },
+                { typeof(double), default(double) },
+                { typeof(short), default(short) },
+                { typeof(float), default(float) },
+                { typeof(byte), default(byte) },
+                { typeof(char), default(char) },
+                { typeof(uint), default(uint) },
+                { typeof(ushort), default(ushort) },
+                { typeof(ulong), default(ulong) },
+                { typeof(sbyte), default(sbyte) }
+            };
 
         public static object GetDefaultValue(this Type type)
         {

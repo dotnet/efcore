@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }
 
-        public class A
+        private class A
         {
             [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
             public int Id { get; set; }

@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .Metadata;
             
-            Assert.Equal(Strings.NoDiscriminator("Customer", "Customer"),
+            Assert.Equal(Strings.NoDiscriminatorForValue("Customer", "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.Relational().DiscriminatorValue = "V").Message);
         }

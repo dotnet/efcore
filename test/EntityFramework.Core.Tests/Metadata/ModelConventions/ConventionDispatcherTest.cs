@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.NotNull(entityTypeBuilder);
         }
-        
+
         [Fact]
         public void OnBaseEntityTypeSet_calls_apply_on_conventions_in_order()
         {
@@ -60,31 +60,31 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var convention = new Mock<IBaseTypeConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<EntityType>()))
                 .Returns<InternalEntityTypeBuilder, EntityType>((b, t) =>
-            {
-                Assert.NotNull(b);
-                Assert.Null(t);
-                entityTypeBuilder = b;
-                return true;
-            });
+                    {
+                        Assert.NotNull(b);
+                        Assert.Null(t);
+                        entityTypeBuilder = b;
+                        return true;
+                    });
             conventions.BaseEntityTypeSetConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IBaseTypeConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<EntityType>()))
                 .Returns<InternalEntityTypeBuilder, EntityType>((b, t) =>
-                {
-                    Assert.Null(t);
-                    Assert.Same(entityTypeBuilder, b);
-                return false;
-            });
+                    {
+                        Assert.Null(t);
+                        Assert.Same(entityTypeBuilder, b);
+                        return false;
+                    });
             conventions.BaseEntityTypeSetConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IBaseTypeConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalEntityTypeBuilder>(), It.IsAny<EntityType>()))
                 .Returns<InternalEntityTypeBuilder, EntityType>((b, t) =>
-            {
-                Assert.False(true);
-                return false;
-            });
+                    {
+                        Assert.False(true);
+                        return false;
+                    });
             conventions.BaseEntityTypeSetConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -182,27 +182,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             InternalKeyBuilder keyBuilder = null;
             var convention = new Mock<IKeyConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>())).Returns<InternalKeyBuilder>(b =>
-            {
-                Assert.NotNull(b);
-                keyBuilder = new InternalKeyBuilder(b.Metadata, b.ModelBuilder);
-                return keyBuilder;
-            });
+                {
+                    Assert.NotNull(b);
+                    keyBuilder = new InternalKeyBuilder(b.Metadata, b.ModelBuilder);
+                    return keyBuilder;
+                });
             conventions.KeyAddedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IKeyConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>())).Returns<InternalKeyBuilder>(b =>
-            {
-                Assert.Same(keyBuilder, b);
-                return null;
-            });
+                {
+                    Assert.Same(keyBuilder, b);
+                    return null;
+                });
             conventions.KeyAddedConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IKeyConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalKeyBuilder>())).Returns<InternalKeyBuilder>(b =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.KeyAddedConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions);
@@ -249,35 +249,35 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var orderDetailsIgnored = false;
             var convention = new Mock<INavigationConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
-            {
-                Assert.NotNull(b);
-                relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, ConfigurationSource.Convention);
-                return relationshipBuilder;
-            });
+                {
+                    Assert.NotNull(b);
+                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, ConfigurationSource.Convention);
+                    return relationshipBuilder;
+                });
             conventions.NavigationAddedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<INavigationConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
-            {
-                Assert.Same(relationshipBuilder, b);
-                if (n.Name == "Order")
                 {
-                    orderIgnored = true;
-                }
-                if (n.Name == "OrderDetails")
-                {
-                    orderDetailsIgnored = true;
-                }
-                return null;
-            });
+                    Assert.Same(relationshipBuilder, b);
+                    if (n.Name == "Order")
+                    {
+                        orderIgnored = true;
+                    }
+                    if (n.Name == "OrderDetails")
+                    {
+                        orderDetailsIgnored = true;
+                    }
+                    return null;
+                });
             conventions.NavigationAddedConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<INavigationConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.NavigationAddedConventions.Add(extraConvention.Object);
 
             var builder = new InternalModelBuilder(new Model(), conventions);
@@ -302,27 +302,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             InternalModelBuilder modelBuilder = null;
             var convention = new Mock<IModelConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
-            {
-                Assert.NotNull(b);
-                modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
-                return b;
-            });
+                {
+                    Assert.NotNull(b);
+                    modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
+                    return b;
+                });
             conventions.ModelInitializedConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IModelConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
-            {
-                nullConventionCalled = true;
-                return null;
-            });
+                {
+                    nullConventionCalled = true;
+                    return null;
+                });
             conventions.ModelInitializedConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IModelConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.ModelInitializedConventions.Add(extraConvention.Object);
 
             var builder = new ModelBuilder(conventions);
@@ -342,27 +342,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             InternalModelBuilder modelBuilder = null;
             var convention = new Mock<IModelConvention>();
             convention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
-            {
-                Assert.NotNull(b);
-                modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
-                return b;
-            });
+                {
+                    Assert.NotNull(b);
+                    modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
+                    return b;
+                });
             conventions.ModelBuiltConventions.Add(convention.Object);
 
             var nullConvention = new Mock<IModelConvention>();
             nullConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
-            {
-                nullConventionCalled = true;
-                return null;
-            });
+                {
+                    nullConventionCalled = true;
+                    return null;
+                });
             conventions.ModelBuiltConventions.Add(nullConvention.Object);
 
             var extraConvention = new Mock<IModelConvention>();
             extraConvention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
-            {
-                Assert.False(true);
-                return null;
-            });
+                {
+                    Assert.False(true);
+                    return null;
+                });
             conventions.ModelBuiltConventions.Add(extraConvention.Object);
 
             var builder = new ModelBuilder(conventions).Validate();
@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             public virtual OrderDetails OrderDetails { get; set; }
         }
-        
+
         private class SpecialOrder : Order
         {
         }
@@ -388,6 +388,5 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public int Id { get; set; }
             public virtual Order Order { get; set; }
         }
-
     }
 }

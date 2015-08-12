@@ -415,9 +415,25 @@ namespace Microsoft.Data.Entity.Relational.Internal
         /// <summary>
         /// Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.
         /// </summary>
-        public static string NoDiscriminator([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
+        public static string NoDiscriminatorForValue([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NoDiscriminator", "entityType", "rootEntityType"), entityType, rootEntityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoDiscriminatorForValue", "entityType", "rootEntityType"), entityType, rootEntityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.
+        /// </summary>
+        public static string NoDiscriminatorProperty([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoDiscriminatorProperty", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.
+        /// </summary>
+        public static string NoDiscriminatorValue([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoDiscriminatorValue", "entityType"), entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

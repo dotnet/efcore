@@ -268,7 +268,13 @@
   <data name="DiscriminitatorValueIncompatible" xml:space="preserve">
     <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
   </data>
-  <data name="NoDiscriminator" xml:space="preserve">
+  <data name="NoDiscriminatorForValue" xml:space="preserve">
     <value>Cannot set discriminator value for entity type '{entityType}' because the root entity type '{rootEntityType}' doesn't have a discriminator property set.</value>
+  </data>
+  <data name="NoDiscriminatorProperty" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.</value>
+  </data>
+  <data name="NoDiscriminatorValue" xml:space="preserve">
+    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
   </data>
 </root>

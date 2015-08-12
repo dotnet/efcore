@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             return foreignKey;
         }
 
-        public class A
+        protected class A
         {
             public int? P0 { get; set; }
             public int? P1 { get; set; }
@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             public int? P3 { get; set; }
         }
 
-        public class B
+        protected class B
         {
             public int? P0 { get; set; }
             public int? P1 { get; set; }

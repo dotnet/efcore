@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
         }
 
-        public class A<T>
+        private class A<T>
         {
 
         }

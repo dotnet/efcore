@@ -11,14 +11,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class RelationalEntityTypeAttributeConventionTest
     {
-        [Table("MyTable", Schema = "MySchema")]
-        public class A
-        {
-            public int Id { get; set; }
-
-            public string Name { get; set; }
-        }
-
         [Fact]
         public void TableAttribute_sets_column_name_order_and_type_with_conventional_builder()
         {
@@ -70,6 +62,14 @@ namespace Microsoft.Data.Entity.Metadata
 
         private class TestConventionalSetBuilder : RelationalConventionSetBuilder
         {
+        }
+
+        [Table("MyTable", Schema = "MySchema")]
+        private class A
+        {
+            public int Id { get; set; }
+
+            public string Name { get; set; }
         }
     }
 }

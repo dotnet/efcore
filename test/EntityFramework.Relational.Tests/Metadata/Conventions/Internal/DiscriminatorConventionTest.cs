@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
 
             Assert.NotNull(discriminator);
             Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Equal("EntityBase", baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal("Entity", entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
             
             entityTypeBuilder.BaseType((Type)null, ConfigurationSource.Convention);
             Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: baseTypeBuilder.Metadata));

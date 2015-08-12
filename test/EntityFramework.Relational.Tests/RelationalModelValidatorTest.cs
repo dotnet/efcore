@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public virtual void Does_not_detects_duplicate_table_names_in_different_schema()
+        public virtual void Does_not_detect_duplicate_table_names_in_different_schema()
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
@@ -52,17 +52,91 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public virtual void Does_not_detects_duplicate_table_names_for_inherited_entities()
+        public virtual void Does_not_detect_duplicate_table_names_for_inherited_entities()
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
             var entityC = model.AddEntityType(typeof(C));
             entityC.BaseType = entityA;
 
+            var discriminatorProperty = entityA.AddProperty("D", typeof(int));
+            entityA.Relational().DiscriminatorProperty = discriminatorProperty;
+            entityA.Relational().DiscriminatorValue = 0;
+            entityC.Relational().DiscriminatorValue = 1;
+
             CreateModelValidator().Validate(model);
         }
 
-        public class C : A
+        [Fact]
+        public virtual void Passes_for_non_hierarchical_model()
+        {
+            var model = new Entity.Metadata.Model();
+            model.AddEntityType(typeof(A));
+
+            CreateModelValidator().Validate(model);
+        }
+        
+        [Fact]
+        public virtual void Does_not_detect_non_instantiable_types()
+        {
+            var model = new Entity.Metadata.Model();
+            var entityAbstract = model.AddEntityType(typeof(Abstract));
+            var entityGeneric = model.AddEntityType(typeof(Generic<>));
+            entityGeneric.BaseType = entityAbstract;
+
+            CreateModelValidator().Validate(model);
+        }
+        
+        [Fact]
+        public virtual void Detects_missing_discriminator_property()
+        {
+            var model = new Entity.Metadata.Model();
+            var entityA = model.AddEntityType(typeof(A));
+            var entityC = model.AddEntityType(typeof(C));
+            entityC.BaseType = entityA;
+
+            VerifyError(Strings.NoDiscriminatorProperty(entityC.DisplayName()), model);
+        }
+
+        [Fact]
+        public virtual void Detects_missing_discriminator_value_on_base()
+        {
+            var model = new Entity.Metadata.Model();
+            var entityA = model.AddEntityType(typeof(A));
+            var entityAbstract = model.AddEntityType(typeof(Abstract));
+            entityAbstract.BaseType = entityA;
+
+            var discriminatorProperty = entityA.AddProperty("D", typeof(int));
+            entityA.Relational().DiscriminatorProperty = discriminatorProperty;
+            entityAbstract.Relational().DiscriminatorValue = 1;
+            
+            VerifyError(Strings.NoDiscriminatorValue(entityA.DisplayName()), model);
+        }
+
+        [Fact]
+        public virtual void Detects_missing_discriminator_value_on_leaf()
+        {
+            var model = new Entity.Metadata.Model();
+            var entityAbstract = model.AddEntityType(typeof(Abstract));
+            var entityGeneric = model.AddEntityType(typeof(Generic<string>));
+            entityGeneric.BaseType = entityAbstract;
+
+            var discriminatorProperty = entityAbstract.AddProperty("D", typeof(int));
+            entityAbstract.Relational().DiscriminatorProperty = discriminatorProperty;
+            entityAbstract.Relational().DiscriminatorValue = 0;
+            
+            VerifyError(Strings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
+        }
+
+        protected class C : A
+        {
+        }
+        
+        protected abstract class Abstract : A
+        {
+        }
+
+        protected class Generic<T> : Abstract
         {
         }
 
