@@ -80,7 +80,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             var dbContextClassName = configuration.ContextClassName
                                      ?? dbContextCodeGeneratorHelper.ClassName(configuration.ConnectionString);
-            CheckOutputFiles(configuration.OutputPath, dbContextClassName, metadataModel);
+            CheckOutputFiles(configuration.ProjectPath, configuration.RelativeOutputPath, dbContextClassName, metadataModel);
+            var outputPath = configuration.RelativeOutputPath == null
+                ? configuration.ProjectPath
+                : Path.Combine(configuration.ProjectPath, configuration.RelativeOutputPath);
 
             var dbContextTemplate = LoadTemplate(configuration.CustomTemplatePath,
                     GetDbContextTemplateFileName(provider), () => provider.DbContextTemplate);
@@ -95,7 +98,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             // output DbContext .cs file
             var dbContextFileName = dbContextClassName + FileExtension;
             var dbContextFileFullPath = FileService.OutputFile(
-                configuration.OutputPath, dbContextFileName, templateResult.GeneratedText);
+                outputPath, dbContextFileName, templateResult.GeneratedText);
             resultingFiles.Add(dbContextFileFullPath);
 
             var entityTypeTemplate = LoadTemplate(configuration.CustomTemplatePath,
@@ -123,7 +126,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityType.DisplayName() + FileExtension;
                 var entityTypeFileFullPath = FileService.OutputFile(
-                    configuration.OutputPath, entityTypeFileName, templateResult.GeneratedText);
+                    outputPath, entityTypeFileName, templateResult.GeneratedText);
                 resultingFiles.Add(entityTypeFileFullPath);
             }
 
@@ -166,15 +169,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void CheckOutputFiles(
-            [NotNull] string outputDirectoryName,
+            [NotNull] string projectPath,
+            [CanBeNull] string relativeOutputPath,
             [NotNull] string dbContextClassName,
             [NotNull] IModel metadataModel)
         {
-            Check.NotEmpty(outputDirectoryName, nameof(outputDirectoryName));
+            Check.NotEmpty(projectPath, nameof(projectPath));
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
             Check.NotNull(metadataModel, nameof(metadataModel));
 
-            if (!FileService.DirectoryExists(outputDirectoryName))
+            var outputPath = relativeOutputPath == null
+                ? projectPath
+                : Path.Combine(projectPath, relativeOutputPath);
+
+            if (!FileService.DirectoryExists(outputPath))
             {
                 return;
             }
@@ -189,7 +197,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var readOnlyFiles = new List<string>();
             foreach (var fileName in filesToTest)
             {
-                if (FileService.IsFileReadOnly(outputDirectoryName, fileName))
+                if (FileService.IsFileReadOnly(outputPath, fileName))
                 {
                     readOnlyFiles.Add(fileName);
                 }
@@ -199,7 +207,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 throw new InvalidOperationException(
                     Strings.ReadOnlyFiles(
-                        outputDirectoryName, string.Join(", ", readOnlyFiles)));
+                        outputPath, string.Join(", ", readOnlyFiles)));
             }
         }
 
@@ -229,7 +237,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 throw new ArgumentException(Strings.ConnectionStringRequired);
             }
 
-            if (string.IsNullOrEmpty(configuration.OutputPath))
+            if (string.IsNullOrEmpty(configuration.ProjectPath))
             {
                 throw new ArgumentException(Strings.OutputPathRequired);
             }

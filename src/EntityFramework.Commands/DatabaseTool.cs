@@ -37,13 +37,14 @@ namespace Microsoft.Data.Entity.Commands
         public virtual Task<IReadOnlyList<string>> ReverseEngineerAsync(
             [NotNull] string runtimeProviderAssemblyName,
             [NotNull] string connectionString,
-            [NotNull] string rootNamespace,
+            [NotNull] string @namespace,
             [NotNull] string projectDir,
+            [CanBeNull] string relativeOutputDir,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
             Check.NotEmpty(connectionString, nameof(connectionString));
-            Check.NotEmpty(rootNamespace, nameof(rootNamespace));
+            Check.NotEmpty(@namespace, nameof(@namespace));
             Check.NotEmpty(projectDir, nameof(projectDir));
 
             var designTimeMetadataProviderFactory =
@@ -58,9 +59,10 @@ namespace Microsoft.Data.Entity.Commands
             {
                 Provider = designTimeProvider,
                 ConnectionString = connectionString,
-                Namespace = rootNamespace,
+                Namespace = @namespace,
                 CustomTemplatePath = projectDir,
-                OutputPath = projectDir
+                ProjectPath = projectDir,
+                RelativeOutputPath = relativeOutputDir
             };
 
             return generator.GenerateAsync(configuration, cancellationToken);
