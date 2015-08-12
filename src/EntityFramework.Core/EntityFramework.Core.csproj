@@ -149,6 +149,7 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\InversePropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeNavigationConvention.cs" />
