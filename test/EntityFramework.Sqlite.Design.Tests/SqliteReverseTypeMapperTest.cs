@@ -29,9 +29,22 @@ namespace Microsoft.Data.Entity.SqlServer.Design
 
         [InlineData("unknown_type", typeof(string))]
         [InlineData(null, typeof(string))]
-        public void It_maps_types(string typeName, Type clrType)
+        public void It_maps_not_null_types(string typeName, Type clrType)
         {
-            Assert.Equal(clrType, new SqliteReverseTypeMapper().GetClrType(typeName));
+            Assert.Equal(clrType, new SqliteReverseTypeMapper().GetClrType(typeName, nullable: false));
+        }
+
+        [Theory]
+        [InlineData("TEXT", typeof(string))]
+        [InlineData("Integer", typeof(long?))]
+        [InlineData("Blob", typeof(byte[]))]
+        [InlineData("real", typeof(double?))]
+        [InlineData("numeric", typeof(string))]
+
+        [InlineData(null, typeof(string))]
+        public void It_maps_nullable_types(string typeName, Type clrType)
+        {
+            Assert.Equal(clrType, new SqliteReverseTypeMapper().GetClrType(typeName, nullable: true));
         }
     }
 }

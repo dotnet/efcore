@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             {
                 connection.Open();
                 var tables = new Dictionary<string, string>();
-                var indexes = new List<SqliteIndex>();
+                var indexes = new List<SqliteIndexInfo>();
                 var master = connection.CreateCommand();
                 master.CommandText = "SELECT type, name, sql, tbl_name FROM sqlite_master";
                 using (var reader = master.ExecuteReader())
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         }
                         else if (type == "index")
                         {
-                            indexes.Add(new SqliteIndex
+                            indexes.Add(new SqliteIndexInfo
                                 {
                                     Name = name,
                                     TableName = tableName,
@@ -76,12 +76,13 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
                 LoadTablesAndColumns(connection, modelBuilder, tables.Keys);
                 LoadIndexes(connection, modelBuilder, indexes);
-                LoadForeignKeys(connection, modelBuilder, tables.Keys);
 
                 foreach (var item in tables)
                 {
                     SqliteDmlParser.ParseTableDefinition(modelBuilder, item.Key, item.Value);
                 }
+
+                LoadForeignKeys(connection, modelBuilder, tables.Keys);
             }
 
             return modelBuilder.Model;
@@ -106,53 +107,59 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 var fkList = connection.CreateCommand();
                 fkList.CommandText = $"PRAGMA foreign_key_list(\"{tableName.Replace("\"", "\"\"")}\");";
 
-                var foreignKeys = new Dictionary<int, ForeignKey>();
+                var foreignKeys = new Dictionary<int, ForeignKeyInfo>();
                 using (var reader = fkList.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         var id = reader.GetInt32((int)ForeignKeyList.Id);
                         var refTable = reader.GetString((int)ForeignKeyList.Table);
-                        ForeignKey foreignKey;
+                        ForeignKeyInfo foreignKey;
                         if (!foreignKeys.TryGetValue(id, out foreignKey))
                         {
-                            foreignKeys.Add(id, (foreignKey = new ForeignKey { Table = tableName, ReferencedTable = refTable }));
+                            foreignKeys.Add(id, (foreignKey = new ForeignKeyInfo { Table = tableName, ReferencedTable = refTable }));
                         }
                         foreignKey.From.Add(reader.GetString((int)ForeignKeyList.From));
                         foreignKey.To.Add(reader.GetString((int)ForeignKeyList.To));
                     }
                 }
 
-                var entityType = modelBuilder.Entity(tableName).Metadata;
+                var dependentEntityType = modelBuilder.Entity(tableName).Metadata;
 
-                foreach (var foreignKey in foreignKeys.Values)
+                foreach (var fkInfo in foreignKeys.Values)
                 {
                     try
                     {
-                        var referenceType = modelBuilder.Model.EntityTypes.First(e => e.Name.Equals(foreignKey.ReferencedTable, StringComparison.OrdinalIgnoreCase));
+                        var principalEntityType = modelBuilder.Model.EntityTypes.First(e => e.Name.Equals(fkInfo.ReferencedTable, StringComparison.OrdinalIgnoreCase));
 
                         var principalProps = new List<Property>();
-                        foreach (var to in foreignKey.To)
+                        foreach (var to in fkInfo.To)
                         {
-                            var prop = referenceType.Properties.First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase));
+                            var prop = principalEntityType.Properties.First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase));
                             principalProps.Add(prop);
                         }
 
-                        var principalKey = referenceType.GetOrAddKey(principalProps.AsReadOnly());
+                        var principalKey = principalEntityType.GetOrAddKey(principalProps.AsReadOnly());
 
                         var depProps = new List<Property>();
 
-                        foreach (var from in foreignKey.From)
+                        foreach (var from in fkInfo.From)
                         {
-                            var prop = entityType.Properties.First(p => p.Sqlite().ColumnName.Equals(from, StringComparison.OrdinalIgnoreCase));
+                            var prop = dependentEntityType.Properties.First(p => p.Sqlite().ColumnName.Equals(from, StringComparison.OrdinalIgnoreCase));
                             depProps.Add(prop);
                         }
 
-                        entityType.GetOrAddForeignKey(depProps.AsReadOnly(), principalKey, referenceType);
+                        var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps.AsReadOnly(), principalKey, principalEntityType);
+
+                        if(dependentEntityType.FindIndex(depProps.AsReadOnly())?.IsUnique == true
+                            || dependentEntityType.GetKeys().Any(k=>k.Properties.All(p=>depProps.Contains(p))))
+                        {
+                            foreignKey.IsUnique = true;
+                        }
                     }
                     catch (InvalidOperationException)
                     {
-                        LogFailedForeignKey(foreignKey);
+                        LogFailedForeignKey(fkInfo);
                     }
                 }
             }
@@ -165,10 +172,10 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             Name
         }
 
-        private void LogFailedForeignKey(ForeignKey foreignKey)
+        private void LogFailedForeignKey(ForeignKeyInfo foreignKey)
             => Logger.LogWarning(Strings.ForeignKeyScaffoldError(foreignKey.Table, string.Join(",", foreignKey.From)));
 
-        private void LoadIndexes(SqliteConnection connection, ModelBuilder modelBuilder, ICollection<SqliteIndex> indexes)
+        private void LoadIndexes(SqliteConnection connection, ModelBuilder modelBuilder, ICollection<SqliteIndexInfo> indexes)
         {
             foreach (var index in indexes)
             {
@@ -235,7 +242,11 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                                 var colName = reader.GetString((int)TableInfo.Name);
                                 var typeName = reader.GetString((int)TableInfo.Type);
 
-                                var clrType = _typeMapper.GetClrType(typeName);
+                                var isPk = reader.GetBoolean((int)TableInfo.Pk);
+
+                                var notNull = isPk || reader.GetBoolean((int)TableInfo.NotNull);
+
+                                var clrType = _typeMapper.GetClrType(typeName, nullable: !notNull);
 
                                 var property = builder.Property(clrType, colName)
                                     .HasColumnName(colName);
@@ -251,14 +262,13 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                                     property.HasDefaultValueSql(defaultVal);
                                 }
 
-                                if (reader.GetBoolean((int)TableInfo.NotNull))
-                                {
-                                    property.Required();
-                                }
-
-                                if (reader.GetBoolean((int)TableInfo.Pk))
+                                if (isPk)
                                 {
                                     keyProps.Add(colName);
+                                }
+                                else
+                                {
+                                    property.Required(notNull);
                                 }
                             }
                         }
@@ -271,14 +281,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             }
         }
 
-        private class SqliteIndex
+        private class SqliteIndexInfo
         {
             public string Name { get; set; }
             public string TableName { get; set; }
             public string Sql { get; set; }
         }
 
-        private class ForeignKey
+        private class ForeignKeyInfo
         {
             public string Table { get; set; }
             public string ReferencedTable { get; set; }

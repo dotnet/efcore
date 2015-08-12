@@ -36,13 +36,34 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="project.json" />
-    <None Include="ReverseEngineering\Expected\child.expected">
+    <None Include="ReverseEngineering\Expected\ManyToMany\Users_Groups.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\parent.expected">
+    <None Include="ReverseEngineering\Expected\ManyToMany\Groups.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\ManyToMany\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\ManyToMany\Users.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\OneToOne\Dependent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\OneToOne\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\OneToOne\Principal.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Simple\child.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Simple\parent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\Simple\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

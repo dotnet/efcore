@@ -44,20 +44,36 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         // Splits on commas, accounting for commas with parenthesis and quotes
         public static IEnumerable<string> ParseStatements(string sql)
         {
-            var start = sql.IndexOf('(') + 1;
+            char c;
+            var start = 0;
+            while ((c = sql[start++]) != '(')
+            {
+                if (c == '"')
+                {
+                    while (sql[start++] != '"') ;
+                }
+                if (c == '\'')
+                {
+                    while (sql[start++] != '\'') ;
+                }
+            }
             var statementsChunk = sql.Substring(start, sql.LastIndexOf(')') - start);
 
-            return SafeSplit(statementsChunk, ',');
+            return SafeSplit(statementsChunk, ',').Select(s=>s.Trim());
         }
 
         public static void ParseColumnDefinition(EntityTypeBuilder entityBuilder, string statement)
         {
             var paramName = UnescapeString(SafeSplit(statement, ' ').First());
             var prop = entityBuilder.Metadata.FindProperty(paramName);
-
-            if (statement.IndexOf(" AUTOINCREMENT", StringComparison.OrdinalIgnoreCase) > 0)
+            if (prop == null)
             {
-                prop?.AddAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement, true);
+                return;
+            }
+
+            if (statement.IndexOf(" UNIQUE", StringComparison.OrdinalIgnoreCase) > 0)
+            {
+                entityBuilder.Index(prop.Name).Unique();
             }
         }
 
@@ -100,6 +116,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
         public static string UnescapeString(string identifier)
         {
+            identifier = identifier.Trim();
             var firstChar = identifier[0];
             char quote;
             if (firstChar != identifier[identifier.Length - 1])
@@ -135,7 +152,10 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 c = str[idx];
                 if (c == separator)
                 {
-                    yield return str.Substring(lastStart, idx - lastStart).Trim();
+                    if (idx > lastStart)
+                    {
+                        yield return str.Substring(lastStart, idx - lastStart).Trim(separator);
+                    }
                     lastStart = idx + 1;
                 }
                 else if (c == '(')
@@ -170,7 +190,10 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                     while (++idx < str.Length && str[idx] != '\'') ;
                 }
             }
-            yield return str.Substring(lastStart, idx - lastStart).Trim();
+            if (idx > lastStart)
+            {
+                yield return str.Substring(lastStart, idx - lastStart).Trim(separator);
+            }
         }
     }
 }

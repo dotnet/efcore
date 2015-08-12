@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
         ///     It uses the same heuristics from
         ///     <see href="https://www.sqlite.org/datatype3.html">"2.1 Determination of Column Affinity"</see>
         /// </summary>
-        public virtual Type GetClrType([CanBeNull] string typeName)
+        public virtual Type GetClrType([CanBeNull] string typeName, [NotNull] bool nullable)
         {
             if (string.IsNullOrEmpty(typeName))
             {
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
             Type clrType;
             foreach (var rules in _typeRules)
             {
-                clrType = rules(typeName);
+                clrType = rules(typeName, nullable);
                 if (clrType != null)
                 {
                     return clrType;
@@ -38,12 +38,28 @@ namespace Microsoft.Data.Entity.Sqlite.Design
 
         private static readonly Type _default = typeof(string);
 
-        private readonly Func<string, Type>[] _typeRules =
+        private readonly Func<string, bool, Type>[] _typeRules =
             {
-                name => Contains(name, "INT") ? typeof(long) : null,
-                name => Contains(name, "CHAR") || Contains(name, "CLOB") || Contains(name, "TEXT") ? typeof(string) : null,
-                name => Contains(name, "BLOB") ? typeof(byte[]) : null,
-                name => Contains(name, "REAL") || Contains(name, "FLOA") || Contains(name, "DOUB") ? typeof(double) : null
+                (name, nullable) =>
+                    {
+                        if (Contains(name, "INT"))
+                        {
+                            return nullable ? typeof(long?) : typeof(long);
+                        }
+                        return null;
+                    },
+                (name, nullable) => Contains(name, "CHAR") || Contains(name, "CLOB") || Contains(name, "TEXT") ? typeof(string) : null,
+                (name, nullable) => Contains(name, "BLOB") ? typeof(byte[]) : null,
+                (name, nullable) =>
+                    {
+                        if (Contains(name, "REAL")
+                            || Contains(name, "FLOA")
+                            || Contains(name, "DOUB"))
+                        {
+                            return nullable ? typeof(double?) : typeof(double);
+                        }
+                        return null;
+                    }
             };
 
         private static bool Contains(string haystack, string needle)

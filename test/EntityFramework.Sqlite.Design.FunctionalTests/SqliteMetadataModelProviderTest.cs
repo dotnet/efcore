@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
-using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -54,7 +53,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.Equal(typeof(string), entityType.FindProperty("col1").ClrType);
 
             Assert.Equal("unsigned big int", entityType.FindProperty("col2").Sqlite().ColumnType);
-            Assert.Equal(typeof(long), entityType.FindProperty("col2").ClrType);
+            Assert.Equal(typeof(long?), entityType.FindProperty("col2").ClrType);
         }
 
         [Fact]
@@ -104,21 +103,10 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         }
 
         [Theory]
-        [InlineData("Id", "CREATE TABLE t (Id integer primary key autoincrement);")]
-        [InlineData("Id", "CREATE TABLE t (otherColumn text, Id integer primary key autoincrement);")]
-        [InlineData("I D", "CREATE TABLE t (otherColumn text, \"I D\" integer primary key autoincrement);")]
-        [InlineData("I \" D", "CREATE TABLE t (otherColumn text, \"I \"\" D\" integer primary key autoincrement);")]
-        public void It_identifies_autoincrement(string propName, string sql)
-        {
-            var entityType = GetModel(sql).GetEntityType("t");
-
-            Assert.True((bool)entityType.FindProperty(propName).GetAnnotation(SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement).Value);
-        }
-
-        [Theory]
         [InlineData(new[] { "Id" }, "CREATE TABLE t (Id int, Unique(id))")]
         [InlineData(new[] { "Id" }, "CREATE TABLE t (Id int); CREATE UNIQUE INDEX idx_1 on t (id);")]
         [InlineData(new[] { "Qu\"oted" }, "CREATE TABLE t (\"Qu\"\"oted\" text, Unique(\"Qu\"\"oted\"))")]
+        [InlineData(new[] { "Qu\"oted" }, "CREATE TABLE t (\"Qu\"\"oted\" text UNIQUE);")]
         [InlineData(new[] { "Qu\"oted" }, "CREATE TABLE t (\"Qu\"\"oted\" text); CREATE Unique INDEX idx_1 on t(\"Qu\"\"oted\");")]
         public void It_gets_unique_indexes(string[] columns, string create)
         {
@@ -228,6 +216,79 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             GetModel(sql);
 
             Assert.Contains("Warning: " + Strings.ForeignKeyScaffoldError("Children", "ParentId"), _logger.FullLog);
+        }
+
+        [Fact]
+        public void It_assigns_uniqueness_to_foreign_key()
+        {
+            var sql = @"CREATE TABLE Friends ( 
+    Id PRIMARY KEY, 
+    BuddyId UNIQUE, 
+    FOREIGN KEY (BuddyId) REFERENCES Friends(Id)
+);";
+            var table = GetModel(sql).GetEntityType("Friends");
+
+            var fk = table.GetForeignKey(new[] { table.GetProperty("BuddyId") });
+
+            Assert.True(fk.IsUnique);
+        }
+
+        [Fact]
+        public void It_assigns_uniqueness_to_pk_foreign_key()
+        {
+            var sql = @"
+CREATE TABLE Family (Id PRIMARY KEY);
+CREATE TABLE Friends ( 
+    Id PRIMARY KEY, 
+    FOREIGN KEY (Id) REFERENCES Family(Id)
+);";
+            var table = GetModel(sql).GetEntityType("Friends");
+
+            var fk = table.GetForeignKey(new[] { table.GetProperty("Id") });
+
+            Assert.True(fk.IsUnique);
+        }
+
+        [Fact]
+        public void It_does_not_assigns_uniqueness_to_foreign_key()
+        {
+            var sql = @"CREATE TABLE Friends ( 
+    Id PRIMARY KEY, 
+    BuddyId, 
+    FOREIGN KEY (BuddyId) REFERENCES Friends(Id)
+);";
+            var table = GetModel(sql).GetEntityType("Friends");
+
+            var fk = table.GetForeignKey(new[] { table.GetProperty("BuddyId") });
+
+            Assert.False(fk.IsUnique);
+        }
+
+        [Fact]
+        public void It_assigns_uniqueness_to_composite_foreign_key()
+        {
+            var sql = @"CREATE TABLE DoubleMint ( A , B);
+CREATE TABLE Gum ( A, B, 
+    UNIQUE (A,B),
+    FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
+);";
+            var dependent = GetModel(sql).GetEntityType("Gum");
+            var foreignKey = dependent.GetForeignKey(new[] { dependent.GetProperty("A"), dependent.GetProperty("B") });
+
+            Assert.True(foreignKey.IsUnique);
+        }
+
+        [Fact]
+        public void It_does_not_assign_uniqueness_to_composite_foreign_key()
+        {
+            var sql = @"CREATE TABLE DoubleMint ( A , B);
+CREATE TABLE Gum ( A, B, 
+    FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
+);";
+            var dependent = GetModel(sql).GetEntityType("Gum");
+            var foreignKey = dependent.GetForeignKey(new[] { dependent.GetProperty("A"), dependent.GetProperty("B") });
+
+            Assert.False(foreignKey.IsUnique);
         }
 
         private IModel GetModel(string createSql)

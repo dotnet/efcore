@@ -20,7 +20,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design
                     {
                         "CREATE TABLE t ( Int decimal(10,3) default (IF(1 + (3) = 3, 10.2, NULL)) , col2);",
                         new[] { "Int decimal(10,3) default (IF(1 + (3) = 3, 10.2, NULL))", "col2" }
-                    }
+                    },
+                new object [] { "CREATE TABLE '(' ( A,B)", new object[] {"A","B"}}
             };
 
         [Theory]
@@ -43,10 +44,12 @@ namespace Microsoft.Data.Entity.Sqlite.Design
 
         [Theory]
         [InlineData(',', "a,b,c", new[] { "a", "b", "c" })]
-        [InlineData(',', "a',' ,b,c", new[] { "a','", "b", "c" })]
+        [InlineData(',', "a',' ,b,c", new[] { "a',' ", "b", "c" })]
         [InlineData(',', "(a')' ,b),c", new[] { "(a')' ,b)", "c" })]
         [InlineData(',', "\",,,\",\",,,\"", new[] { "\",,,\"", "\",,,\"" })]
         [InlineData(',', "\",',\",\",',\"", new[] { "\",',\"", "\",',\"" })]
+        [InlineData(',', @"`~!@#$%^&*()+=-[];'',.<>/?|\", new [] { @"`~!@#$%^&*()+=-[];''", @".<>/?|\" })]
+        [InlineData(' ', @"CREATE TABLE '`~!@#$%^&*()+=-[];''"",.<>/?|\ ' ", new [] {"CREATE","TABLE", @"'`~!@#$%^&*()+=-[];''"",.<>/?|\ '" })]
         public void It_safely_splits(char sep, string input, string[] results)
         {
             Assert.Equal(results, SqliteDmlParser.SafeSplit(input, sep));
