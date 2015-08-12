@@ -1,4 +1,6 @@
 {
+  "version": "7.0.0-*",
+  "description":"Reusable EntityFramework.Relational.Design functional tests for provider writers.",
   "dependencies": {
 	"EntityFramework.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework.Commands": "7.0.0-*",

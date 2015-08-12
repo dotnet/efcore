@@ -16,7 +16,8 @@ k-standard-goals
     var Configuration = E("Configuration") ?? "Debug";
 
     var projectFiles = Files.Include("test/EntityFramework.Relational.FunctionalTests/project.json")
-        .Include("test/EntityFramework.Core.FunctionalTests/project.json");
+        .Include("test/EntityFramework.Core.FunctionalTests/project.json")
+        .Include("test/EntityFramework.Relational.Design.FunctionalTests/project.json");
     if (ShouldRunInParallel)
     {
         Parallel.ForEach(projectFiles, projectFile => DnuPack(projectFile, BUILD_DIR, Configuration));
@@ -54,6 +55,7 @@ var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configur
     var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win/native"}'
     copy outputDir='${sqliteTestDir}'
     copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}'
+    copy outputDir='test/EntityFramework.Sqlite.Design.FunctionalTests/bin/${E("Configuration")}'
 
 #nupkg-patch target='compile'
     @{
