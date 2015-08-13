@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel;
 using Xunit;
-using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -13,31 +13,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TTestStore : TestStore
         where TFixture : GearsOfWarQueryFixtureBase<TTestStore>, new()
     {
-        protected GearsOfWarContext CreateContext()
-        {
-            return Fixture.CreateContext(TestStore);
-        }
-
-        protected GearsOfWarQueryTestBase(TFixture fixture)
-        {
-            Fixture = fixture;
-
-            TestStore = Fixture.CreateTestStore();
-        }
-
-        protected TFixture Fixture { get; }
-
-        protected TTestStore TestStore { get; }
-
-        protected virtual void ClearLog()
-        {
-        }
-
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
-
         [Fact]
         public virtual void Include_multiple_one_to_one_and_one_to_many()
         {
@@ -138,8 +113,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var weapons = result.Single().Weapons.ToList();
                 Assert.Equal(2, weapons.Count);
-                Assert.Equal("Marcus' Lancer", weapons[0].Name);
-                Assert.Equal("Marcus' Gnasher", weapons[1].Name);
+                Assert.Contains("Marcus' Lancer", weapons.Select(w => w.Name));
+                Assert.Contains("Marcus' Gnasher", weapons.Select(w => w.Name));
             }
         }
 
@@ -203,7 +178,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal("Marcus", result[3].Nickname);
                 Assert.Equal("Paduk", result[4].Nickname);
 
-                for (int i = 0; i < expectedGearCount; i++)
+                for (var i = 0; i < expectedGearCount; i++)
                 {
                     Assert.Equal(gearAssignedCities[result[i]?.Nickname], result[i].AssignedCity?.Name);
                     Assert.Equal(gearCitiesOfBirth[result[i]?.Nickname], result[i].CityOfBirth?.Name);
@@ -326,5 +301,172 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(1, weapons.Count);
             }
         }
+
+        [Fact]
+        public virtual void Select_Where_Navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from ct in context.Set<CogTag>()
+                        where ct.Gear.Nickname == "Marcus"
+                        select ct).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from ct1 in context.Set<CogTag>()
+                        from ct2 in context.Set<CogTag>()
+                        where ct1.Gear.Nickname == ct2.Gear.Nickname
+                        select new { ct1, ct2 }).ToList();
+
+                Assert.Equal(5, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from ct1 in context.Set<CogTag>()
+                        from ct2 in context.Set<CogTag>()
+                        where ct1.Gear.Nickname == ct2.Gear.Nickname
+                        select new { ct1.Id, C2 = ct2.Id }).ToList();
+
+                Assert.Equal(5, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Client()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from o in context.Set<CogTag>()
+                        where o.Gear.IsMarcus
+                        select o).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Null()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from ct in context.Set<CogTag>()
+                        where ct.Gear == null
+                        select ct).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Null_Reverse()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from ct in context.Set<CogTag>()
+                        where null == ct.Gear
+                        select ct).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Equals_Navigation()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from ct1 in context.Set<CogTag>()
+                        from ct2 in context.Set<CogTag>()
+                        where ct1.Gear == ct2.Gear
+                        select new { ct1, ct2 }).ToList();
+
+                Assert.Equal(6, cogTags.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Navigation_Included()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from o in context.Set<CogTag>().Include(o => o.Gear)
+                        where o.Gear.Nickname == "Marcus"
+                        select o).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+                Assert.True(cogTags.All(o => o.Gear != null));
+            }
+        }
+
+        [Fact]
+        public virtual void Singleton_Navigation_With_Member_Access()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from o in context.Set<CogTag>()
+                        where o.Gear.Nickname == "Marcus"
+                        where o.Gear.CityOrBirthName != "Ephyra"
+                        select new { B = o.Gear.CityOrBirthName }).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+                Assert.True(cogTags.All(o => o.B != null));
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Singleton_Navigation_With_Member_Access()
+        {
+            using (var context = CreateContext())
+            {
+                var cogTags
+                    = (from o in context.Set<CogTag>()
+                        where o.Gear.Nickname == "Marcus"
+                        where o.Gear.CityOrBirthName != "Ephyra"
+                        select new { A = o.Gear, B = o.Gear.CityOrBirthName }).ToList();
+
+                Assert.Equal(1, cogTags.Count);
+                Assert.True(cogTags.All(o => o.A != null && o.B != null));
+            }
+        }
+
+        protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
+
+        protected GearsOfWarQueryTestBase(TFixture fixture)
+        {
+            Fixture = fixture;
+
+            TestStore = Fixture.CreateTestStore();
+        }
+
+        protected TFixture Fixture { get; }
+
+        protected TTestStore TestStore { get; }
+
+        protected virtual void ClearLog()
+        {
+        }
+
+        public void Dispose() => TestStore.Dispose();
     }
 }

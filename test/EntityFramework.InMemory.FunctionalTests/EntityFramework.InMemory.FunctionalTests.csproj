@@ -36,10 +36,12 @@
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="AsNoTrackingInMemoryTest.cs" />
     <Compile Include="ChangeTrackingInMemoryTest.cs" />
+    <Compile Include="GearsOfWarQueryInMemoryTest.cs" />
     <Compile Include="InMemoryFixture.cs" />
     <Compile Include="GraphUpdatesInMemoryTest.cs" />
     <Compile Include="InheritanceInMemoryFixture.cs" />
     <Compile Include="InMemoryTestHelpers.cs" />
+    <Compile Include="GearsOfWarQueryInMemoryFixture.cs" />
     <Compile Include="NullKeysInMemoryTest.cs" />
     <Compile Include="GraphUpdatesInMemoryTestBase.cs" />
     <Compile Include="InheritanceInMemoryTest.cs" />

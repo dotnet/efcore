@@ -151,24 +151,41 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var binaryExpression = expression as BinaryExpression;
             var leftConstantExpression = binaryExpression?.Left as ConstantExpression;
             var leftExpressions = leftConstantExpression?.Value as Expression[];
+            var rightConstantExpression = binaryExpression?.Right as ConstantExpression;
+            var rightExpressions = rightConstantExpression?.Value as Expression[];
 
-            if (leftExpressions != null)
+            if (leftExpressions != null
+                && (rightConstantExpression != null
+                    && rightConstantExpression.Value == null))
             {
-                var rightConstantExpression = binaryExpression.Right as ConstantExpression;
+                rightExpressions
+                    = Enumerable
+                        .Repeat<Expression>(rightConstantExpression, leftExpressions.Length)
+                        .ToArray();
+            }
 
-                var rightExpressions = rightConstantExpression?.Value as Expression[];
+            if (rightExpressions != null
+                && (leftConstantExpression != null
+                    && leftConstantExpression.Value == null))
+            {
+                leftExpressions
+                    = Enumerable
+                        .Repeat<Expression>(leftConstantExpression, rightExpressions.Length)
+                        .ToArray();
+            }
 
-                if (rightExpressions != null
-                    && leftExpressions.Length == rightExpressions.Length)
-                {
-                    return leftExpressions
-                        .Zip(rightExpressions, (l, r) =>
-                            Expression.MakeBinary(expressionType, l, r))
-                        .Aggregate((e1, e2) =>
-                            expressionType == ExpressionType.Equal
-                                ? Expression.AndAlso(e1, e2)
-                                : Expression.OrElse(e1, e2));
-                }
+            if (leftExpressions != null
+                && rightExpressions != null
+                && leftExpressions.Length == rightExpressions.Length)
+            {
+                return leftExpressions
+                    .Zip(rightExpressions, (l, r) =>
+                        TransformNullComparison(l, r, binaryExpression.NodeType)
+                        ?? Expression.MakeBinary(expressionType, l, r))
+                    .Aggregate((e1, e2) =>
+                        expressionType == ExpressionType.Equal
+                            ? Expression.AndAlso(e1, e2)
+                            : Expression.OrElse(e1, e2));
             }
 
             return expression;
@@ -206,8 +223,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     && constantExpression.Value == null)
                 {
                     var columnExpression
-                        = left.TryGetColumnExpression()
-                          ?? right.TryGetColumnExpression();
+                        = left.RemoveConvert().TryGetColumnExpression()
+                          ?? right.RemoveConvert().TryGetColumnExpression();
 
                     if (columnExpression != null)
                     {
@@ -404,6 +421,22 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     return Expression.Constant(memberBindings);
                 }
             }
+            else if (NavigationRewritingExpressionVisitor.IsCompositeKey(newExpression.Type))
+            {
+                var propertyCallExpressions
+                    = ((NewArrayExpression)newExpression.Arguments.Single()).Expressions;
+
+                var memberBindings
+                    = propertyCallExpressions
+                        .Select(Visit)
+                        .Where(e => e != null)
+                        .ToArray();
+
+                if (memberBindings.Length == propertyCallExpressions.Count)
+                {
+                    return Expression.Constant(memberBindings);
+                }
+            }
 
             return null;
         }
@@ -478,26 +511,26 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         private static readonly Type[] _supportedConstantTypes =
-        {
-            typeof(bool),
-            typeof(byte),
-            typeof(byte[]),
-            typeof(char),
-            typeof(decimal),
-            typeof(DateTime),
-            typeof(DateTimeOffset),
-            typeof(double),
-            typeof(float),
-            typeof(Guid),
-            typeof(int),
-            typeof(long),
-            typeof(sbyte),
-            typeof(short),
-            typeof(string),
-            typeof(uint),
-            typeof(ulong),
-            typeof(ushort)
-        };
+            {
+                typeof(bool),
+                typeof(byte),
+                typeof(byte[]),
+                typeof(char),
+                typeof(decimal),
+                typeof(DateTime),
+                typeof(DateTimeOffset),
+                typeof(double),
+                typeof(float),
+                typeof(Guid),
+                typeof(int),
+                typeof(long),
+                typeof(sbyte),
+                typeof(short),
+                typeof(string),
+                typeof(uint),
+                typeof(ulong),
+                typeof(ushort)
+            };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {

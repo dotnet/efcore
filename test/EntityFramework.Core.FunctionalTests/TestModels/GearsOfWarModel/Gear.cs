@@ -37,5 +37,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
 
         // 1 - many self reference
         public virtual ICollection<Gear> Reports { get; set; }
+
+        public bool IsMarcus => Nickname == "Marcus";
     }
 }
