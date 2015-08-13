@@ -1,0 +1,13 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public class Dependent
+    {
+        public string Id { get; set; }
+        public long? PrincipalId { get; set; }
+    }
+}

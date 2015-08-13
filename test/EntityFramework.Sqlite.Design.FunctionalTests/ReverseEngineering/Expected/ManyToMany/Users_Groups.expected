@@ -7,6 +7,7 @@ namespace E2E.Sqlite
 {
     public class Users_Groups
     {
+        public string Id { get; set; }
         public string GroupId { get; set; }
         public string UserId { get; set; }
 

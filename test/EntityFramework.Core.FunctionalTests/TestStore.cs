@@ -46,7 +46,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     if (!_createdDatabases.Contains(name))
                     {
-                        initializeDatabase();
+                        if (initializeDatabase != null)
+                        {
+                            initializeDatabase();
+                        }
 
                         _createdDatabases.Add(name);
 

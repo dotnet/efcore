@@ -156,7 +156,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_loads_multiple_key_references()
         {
-            var sql = @"CREATE TABLE Parent ( Id_A INT, Id_B INT ); 
+            var sql = @"CREATE TABLE Parent ( Id_A INT, Id_B INT, PRIMARY KEY (ID_A, id_b) ); 
                         CREATE TABLE Children (
                             Id INT PRIMARY KEY,
                             ParentId_A INT,
@@ -267,7 +267,7 @@ CREATE TABLE Friends (
         [Fact]
         public void It_assigns_uniqueness_to_composite_foreign_key()
         {
-            var sql = @"CREATE TABLE DoubleMint ( A , B);
+            var sql = @"CREATE TABLE DoubleMint ( A , B, PRIMARY KEY (A,B));
 CREATE TABLE Gum ( A, B, 
     UNIQUE (A,B),
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
@@ -281,7 +281,7 @@ CREATE TABLE Gum ( A, B,
         [Fact]
         public void It_does_not_assign_uniqueness_to_composite_foreign_key()
         {
-            var sql = @"CREATE TABLE DoubleMint ( A , B);
+            var sql = @"CREATE TABLE DoubleMint ( A , B, UNIQUE (A,B));
 CREATE TABLE Gum ( A, B, 
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";

@@ -20,6 +20,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldError", "depTable", "depProperties"), depTable, depProperties);
         }
 
+        /// <summary>
+        /// Unable to identify the primary key for table '{tableName}'.
+        /// </summary>
+        public static string MissingPrimaryKey([CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingPrimaryKey", "tableName"), tableName);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

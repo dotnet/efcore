@@ -132,27 +132,43 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                     {
                         var principalEntityType = modelBuilder.Model.EntityTypes.First(e => e.Name.Equals(fkInfo.ReferencedTable, StringComparison.OrdinalIgnoreCase));
 
-                        var principalProps = new List<Property>();
-                        foreach (var to in fkInfo.To)
+                        var principalProps = fkInfo.To
+                            .Select(to => principalEntityType
+                                .Properties
+                                .First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase))
+                            )
+                            .ToList()
+                            .AsReadOnly();
+
+                        var principalKey = principalEntityType.FindKey(principalProps);
+                        if (principalKey == null)
                         {
-                            var prop = principalEntityType.Properties.First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase));
-                            principalProps.Add(prop);
+                            var index = principalEntityType.FindIndex(principalProps);
+                            if (index != null
+                                && index.IsUnique == true)
+                            {
+                                principalKey = principalEntityType.AddKey(principalProps);
+                            }
+                            else
+                            {
+                                LogFailedForeignKey(fkInfo);
+                                continue;
+                            }
                         }
 
-                        var principalKey = principalEntityType.GetOrAddKey(principalProps.AsReadOnly());
+                        var depProps = fkInfo.From
+                            .Select(
+                                @from => dependentEntityType
+                                    .Properties.
+                                    First(p => p.Sqlite().ColumnName.Equals(@from, StringComparison.OrdinalIgnoreCase))
+                            )
+                            .ToList()
+                            .AsReadOnly();
 
-                        var depProps = new List<Property>();
+                        var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
 
-                        foreach (var from in fkInfo.From)
-                        {
-                            var prop = dependentEntityType.Properties.First(p => p.Sqlite().ColumnName.Equals(from, StringComparison.OrdinalIgnoreCase));
-                            depProps.Add(prop);
-                        }
-
-                        var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps.AsReadOnly(), principalKey, principalEntityType);
-
-                        if(dependentEntityType.FindIndex(depProps.AsReadOnly())?.IsUnique == true
-                            || dependentEntityType.GetKeys().Any(k=>k.Properties.All(p=>depProps.Contains(p))))
+                        if (dependentEntityType.FindIndex(depProps)?.IsUnique == true
+                            || dependentEntityType.GetKeys().Any(k => k.Properties.All(p => depProps.Contains(p))))
                         {
                             foreignKey.IsUnique = true;
                         }
@@ -276,6 +292,12 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         if (keyProps.Count > 0)
                         {
                             builder.Key(keyProps.ToArray());
+                        }
+                        else
+                        {
+                            var errorMessage = Strings.MissingPrimaryKey(tableName);
+                            builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
+                            Logger.LogWarning(errorMessage);
                         }
                     });
             }

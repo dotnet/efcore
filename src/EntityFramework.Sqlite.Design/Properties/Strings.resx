@@ -120,4 +120,7 @@
   <data name="ForeignKeyScaffoldError" xml:space="preserve">
     <value>Could not scaffold the foreign key {depTable}({depProperties}). One of the referenced properties or the referenced table could not be found.</value>
   </data>
+  <data name="MissingPrimaryKey" xml:space="preserve">
+    <value>Unable to identify the primary key for table '{tableName}'.</value>
+  </data>
 </root>

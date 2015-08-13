@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
     {
         private static int _scratchCount;
 
-        public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase) =>
+        public static SqliteTestStore GetOrCreateShared(string name, Action initializeDatabase = null) =>
             new SqliteTestStore(name).CreateShared(initializeDatabase);
 
         public static SqliteTestStore CreateScratch(bool sharedCache = false)

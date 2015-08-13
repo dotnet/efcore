@@ -48,6 +48,24 @@
     <None Include="ReverseEngineering\Expected\ManyToMany\Users.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="ReverseEngineering\Expected\NoPrincipalPk\Dependent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\NoPrincipalPk\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\NoPrincipalPk\Principal.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\OneToMany\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\OneToMany\OneToManyDependent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\OneToMany\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ReverseEngineering\Expected\OneToOne\Dependent.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -57,13 +75,10 @@
     <None Include="ReverseEngineering\Expected\OneToOne\Principal.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\Simple\child.expected">
+    <None Include="ReverseEngineering\Expected\SelfRef\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\Simple\parent.expected">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\Simple\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\SelfRef\SelfRef.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
