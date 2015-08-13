@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
         public virtual ILogger CreateLogger(string name) => _creator(name);
 
-        public void Dispose()
+        public virtual Dispose()
         {
         }
     }
