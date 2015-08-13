@@ -239,7 +239,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             if (string.IsNullOrEmpty(configuration.ProjectPath))
             {
-                throw new ArgumentException(Strings.OutputPathRequired);
+                throw new ArgumentException(Strings.ProjectPathRequired);
+            }
+
+            if (configuration.RelativeOutputPath != null
+                && string.Empty != Path.GetPathRoot(configuration.RelativeOutputPath))
+            {
+                throw new ArgumentException(Strings.NotRelativePath(configuration.RelativeOutputPath));
             }
 
             if (string.IsNullOrEmpty(configuration.Namespace))

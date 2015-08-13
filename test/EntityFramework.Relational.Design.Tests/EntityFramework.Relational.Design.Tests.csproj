@@ -32,10 +32,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="NullLogger.cs" />
+    <Compile Include="ReverseEngineering\NullDatabaseMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\NullFileService.cs" />
+    <Compile Include="ReverseEngineering\ReverseEngineeringGeneratorTests.cs" />
     <None Include="App.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
       <Project>{7028a7e3-0ad8-4606-a922-8189c8a704e0}</Project>
       <Name>EntityFramework.Relational.Design</Name>
@@ -44,6 +52,9 @@
       <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
       <Name>EntityFramework.Core.Tests</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

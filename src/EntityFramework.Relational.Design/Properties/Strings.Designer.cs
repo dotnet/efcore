@@ -45,11 +45,19 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
-        /// OutputPath is required to generate code.
+        /// Unable to use the output path, {outputPath}. It must be a relative path (relative to the project directory).
         /// </summary>
-        public static string OutputPathRequired
+        public static string NotRelativePath([CanBeNull] object outputPath)
         {
-            get { return GetString("OutputPathRequired"); }
+            return string.Format(CultureInfo.CurrentCulture, GetString("NotRelativePath", "outputPath"), outputPath);
+        }
+
+        /// <summary>
+        /// ProjectPath is required to generate code.
+        /// </summary>
+        public static string ProjectPathRequired
+        {
+            get { return GetString("ProjectPathRequired"); }
         }
 
         /// <summary>

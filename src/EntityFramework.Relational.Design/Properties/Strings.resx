@@ -129,8 +129,11 @@
   <data name="NamespaceRequired" xml:space="preserve">
     <value>Namespace is required to generate code.</value>
   </data>
-  <data name="OutputPathRequired" xml:space="preserve">
-    <value>OutputPath is required to generate code.</value>
+  <data name="NotRelativePath" xml:space="preserve">
+    <value>Unable to use the output path, {outputPath}. It must be a relative path (relative to the project directory).</value>
+  </data>
+  <data name="ProjectPathRequired" xml:space="preserve">
+    <value>ProjectPath is required to generate code.</value>
   </data>
   <data name="ProviderRequired" xml:space="preserve">
     <value>Provider is required to generate code.</value>
