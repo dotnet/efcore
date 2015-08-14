@@ -129,7 +129,7 @@ namespace EntityFramework.Microbenchmarks.Core
                 .AddEnvironmentVariables()
                 .Build();
 
-            return config.Get("computerName");
+            return config["computerName"];
 #else
             return Environment.MachineName;
 #endif

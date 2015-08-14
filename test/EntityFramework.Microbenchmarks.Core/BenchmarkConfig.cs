@@ -17,15 +17,15 @@ namespace EntityFramework.Microbenchmarks.Core
                 .AddEnvironmentVariables()
                 .Build();
 
-            var resultDatabasesSection = config.GetConfigurationSection("benchmarks:resultDatabases");
+            var resultDatabasesSection = config.GetSection("benchmarks:resultDatabases");
 
             return new BenchmarkConfig
             {
-                RunIterations = bool.Parse(config.Get("benchmarks:runIterations")),
-                ResultDatabases = resultDatabasesSection.GetConfigurationSections().Select(s => resultDatabasesSection.Get(s.Key)).ToArray(),
-                BenchmarkDatabaseInstance = config.Get("benchmarks:benchmarkDatabaseInstance"),
-                ProductReportingVersion = config.Get("benchmarks:productReportingVersion"),
-                CustomData = config.Get("benchmarks:customData")
+                RunIterations = bool.Parse(config["benchmarks:runIterations"]),
+                ResultDatabases = resultDatabasesSection.GetChildren().Select(s => resultDatabasesSection[s.Key]).ToArray(),
+                BenchmarkDatabaseInstance = config["benchmarks:benchmarkDatabaseInstance"],
+                ProductReportingVersion = config["benchmarks:productReportingVersion"],
+                CustomData = config["benchmarks:customData"]
             };
         });
 
