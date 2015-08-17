@@ -15,10 +15,16 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
         public virtual Expression Translate([NotNull] MemberExpression memberExpression)
         {
             if (memberExpression.Expression == null
-                && memberExpression.Member.DeclaringType == typeof(DateTime)
-                && memberExpression.Member.Name == "Now")
+                && memberExpression.Member.DeclaringType == typeof(DateTime))
             {
-                return new SqlFunctionExpression("GETDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                if (memberExpression.Member.Name == "Now")
+                {
+                    return new SqlFunctionExpression("GETDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                }
+                else if (memberExpression.Member.Name == "UtcNow")
+                {
+                    return new SqlFunctionExpression("GETUTCDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                }
             }
 
             return null;
