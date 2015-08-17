@@ -66,23 +66,23 @@
     },
     "dotnet": {
       "dependencies": {
-        "System.Collections": "4.0.10-*",
-        "System.Collections.Concurrent": "4.0.10-*",
-        "System.ComponentModel": "4.0.0-*",
-        "System.ComponentModel.Annotations": "4.0.10-*",
-        "System.Diagnostics.Debug": "4.0.10-*",
-        "System.Diagnostics.Tools": "4.0.0-*",
-        "System.Linq": "4.0.0-*",
-        "System.Linq.Queryable": "4.0.0-*",
-        "System.ObjectModel": "4.0.10-*",
+        "System.Collections": "4.0.11-beta-*",
+        "System.Collections.Concurrent": "4.0.11-beta-*",
+        "System.ComponentModel": "4.0.1-beta-*",
+        "System.ComponentModel.Annotations": "4.0.11-beta-*",
+        "System.Diagnostics.Debug": "4.0.11-beta-*",
+        "System.Diagnostics.Tools": "4.0.1-beta-*",
+        "System.Linq": "4.0.1-beta-*",
+        "System.Linq.Queryable": "4.0.1-beta-*",
+        "System.ObjectModel": "4.0.11-beta-*",
         "System.Reflection": "4.0.10-*",
-        "System.Reflection.Extensions": "4.0.0-*",
-        "System.Resources.ResourceManager": "4.0.0-*",
-        "System.Runtime": "4.0.20-*",
-        "System.Runtime.Extensions": "4.0.10-*",
-        "System.Runtime.InteropServices": "4.0.20-*",
-        "System.Threading": "4.0.10-*",
-        "System.Threading.Tasks": "4.0.10-*"
+        "System.Reflection.Extensions": "4.0.1-beta-*",
+        "System.Resources.ResourceManager": "4.0.1-beta-*",
+        "System.Runtime": "4.0.21-beta-*",
+        "System.Runtime.Extensions": "4.0.11-beta-*",
+        "System.Runtime.InteropServices": "4.0.21-beta-*",
+        "System.Threading": "4.0.11-beta-*",
+        "System.Threading.Tasks": "4.0.11-beta-*"
       }
     }
   }

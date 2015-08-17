@@ -21,7 +21,7 @@
     "dnxcore50": {
       "dependencies": {
         "System.Data.SqlClient": "4.0.0-*",
-        "System.Text.Encoding.CodePages": "4.0.0-*",
+        "System.Text.Encoding.CodePages": "4.0.1-beta-*",
         "System.Threading.Thread": "4.0.0-*"
       }
     }
