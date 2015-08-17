@@ -3400,5 +3400,28 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal("FK_MountAnimal_Person_RiderId", operation.Name);
                 });
         }
+
+        [Fact] // See #2802
+        public void Diff_IProperty_compares_values_not_references()
+        {
+            Execute(
+                source => source.Entity(
+                    "Stork",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<bool>("Value").HasDefaultValue(true);
+                    }),
+                 target => target.Entity(
+                    "Stork",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<bool>("Value").HasDefaultValue(true);
+                    }),
+                 Assert.Empty);
+        }
     }
 }

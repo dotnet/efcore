@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             if (isNullableChanged
                 || columnTypeChanged
                 || sourceAnnotations.GeneratedValueSql != targetAnnotations.GeneratedValueSql
-                || sourceAnnotations.DefaultValue != targetAnnotations.DefaultValue
+                || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
                 || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
