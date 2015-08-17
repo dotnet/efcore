@@ -71,6 +71,7 @@ namespace Microsoft.Data.Entity.Migrations
                     /*defaultValue:*/ null,
                     /*defaultValueSql:*/ null,
                     operation.ComputedColumnSql,
+                    /*identity:*/ false,
                     operation,
                     model,
                     builder);
@@ -301,6 +302,40 @@ namespace Microsoft.Data.Entity.Migrations
             IModel model,
             SqlBatchBuilder builder)
         {
+            var valueGenerationStrategy = annotatable[
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerIdentityStrategy?;
+
+            ColumnDefinition(
+                schema,
+                table,
+                name,
+                clrType,
+                type,
+                nullable,
+                defaultValue,
+                defaultValueSql,
+                computedColumnSql,
+                valueGenerationStrategy == SqlServerIdentityStrategy.IdentityColumn,
+                annotatable,
+                model,
+                builder);
+        }
+
+        protected virtual void ColumnDefinition(
+            string schema,
+            string table,
+            string name,
+            Type clrType,
+            string type,
+            bool nullable,
+            object defaultValue,
+            string defaultValueSql,
+            string computedColumnSql,
+            bool identity,
+            IAnnotatable annotatable,
+            IModel model,
+            SqlBatchBuilder builder)
+        {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));
             Check.NotNull(annotatable, nameof(annotatable));
@@ -330,9 +365,7 @@ namespace Microsoft.Data.Entity.Migrations
                 model,
                 builder);
 
-            var valueGenerationStrategy = annotatable[
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerIdentityStrategy?;
-            if (valueGenerationStrategy == SqlServerIdentityStrategy.IdentityColumn)
+            if (identity)
             {
                 builder.Append(" IDENTITY");
             }

@@ -121,6 +121,30 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         [Fact]
+        public virtual void AlterColumnOperation_with_identity()
+        {
+            Generate(
+                new AlterColumnOperation
+                {
+                    Table = "People",
+                    Name = "Id",
+                    ClrType = typeof(int),
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
+                        SqlServerIdentityStrategy.IdentityColumn
+                });
+
+            Assert.Equal(
+                "DECLARE @var0 sysname;" + EOL +
+                "SELECT @var0 = [d].[name]" + EOL +
+                "FROM [sys].[default_constraints] [d]" + EOL +
+                "INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id]" + EOL +
+                "WHERE ([d].[parent_object_id] = OBJECT_ID(N'People') AND [c].[name] = N'Id');" + EOL +
+                "IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']');" + EOL +
+                "ALTER TABLE [People] ALTER COLUMN [Id] int NOT NULL;" + EOL,
+                Sql);
+        }
+
+        [Fact]
         public virtual void CreateDatabaseOperation()
         {
             Generate(new CreateDatabaseOperation { Name = "Northwind" });
