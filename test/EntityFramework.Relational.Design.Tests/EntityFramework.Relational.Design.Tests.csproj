@@ -32,7 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <None Include="App.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

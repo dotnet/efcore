@@ -69,7 +69,6 @@
     <Content Include="ReverseEngineering\E2E.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="project.json" />
     <None Include="ReverseEngineering\ExpectedResults\E2E\AllDataTypes.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
