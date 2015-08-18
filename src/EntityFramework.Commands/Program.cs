@@ -18,7 +18,6 @@ using Microsoft.Dnx.Runtime.Common.CommandLine;
 
 namespace Microsoft.Data.Entity.Commands
 {
-    // TODO: Add verbose option
     public class Program
     {
         private readonly string _projectDir;
@@ -307,7 +306,6 @@ namespace Microsoft.Data.Entity.Commands
             var any = false;
             foreach (var context in contexts)
             {
-                // TODO: Show simple names
                 _logger.LogInformation(context.FullName);
                 any = true;
             }
@@ -356,7 +354,6 @@ namespace Microsoft.Data.Entity.Commands
                     var any = false;
                     foreach (var migration in migrations)
                     {
-                        // TODO: Show simple names
                         _logger.LogInformation(migration.Id);
                         any = true;
                     }

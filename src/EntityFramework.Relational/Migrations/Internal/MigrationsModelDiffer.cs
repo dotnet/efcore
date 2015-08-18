@@ -595,7 +595,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var targetEntityTypeAnnotations = Annotations.For(declaringRootEntityType);
             var targetPrincipalEntityTypeAnnotations = Annotations.For(target.PrincipalEntityType.RootType());
 
-            // TODO: Set OnDelete (See #1084)
             var operation = new AddForeignKeyOperation
             {
                 Schema = targetEntityTypeAnnotations.Schema,

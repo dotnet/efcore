@@ -247,7 +247,6 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
-            // TODO: Determine safe names (See #1774)
             CreateMigrationTool().GetMigrations(contextTypeName, _startupAssemblyName).Select(
                 m => new Hashtable { ["MigrationId"] = m.Id, ["MigrationName"] = m.Id, ["SafeName"] = m.Id });
 
