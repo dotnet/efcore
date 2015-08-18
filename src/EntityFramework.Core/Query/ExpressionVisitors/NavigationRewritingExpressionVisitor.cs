@@ -19,8 +19,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class NavigationRewritingExpressionVisitor : RelinqExpressionVisitor
     {
         private readonly EntityQueryModelVisitor _queryModelVisitor;
-
         private readonly List<NavigationJoin> _navigationJoins = new List<NavigationJoin>();
+
+        private QueryModel _queryModel;
 
         private class NavigationJoin
         {
@@ -77,9 +78,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _queryModelVisitor = queryModelVisitor;
         }
 
+        private NavigationRewritingExpressionVisitor(
+            EntityQueryModelVisitor queryModelVisitor, IEntityQueryProvider entityQueryProvider)
+            : this(queryModelVisitor)
+        {
+            _entityQueryProvider = entityQueryProvider;
+        }
+
         public virtual void Rewrite([NotNull] QueryModel queryModel)
         {
             Check.NotNull(queryModel, nameof(queryModel));
+
+            _queryModel = queryModel;
 
             queryModel.TransformExpressions(Visit);
 
@@ -101,6 +111,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     queryModel.BodyClauses.Insert(i++, nj.JoinClause);
                 }
             }
+        }
+
+        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        {
+            var navigationRewritingExpressionVisitor
+                = new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider);
+
+            navigationRewritingExpressionVisitor.Rewrite(subQueryExpression.QueryModel);
+
+            return subQueryExpression;
         }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
@@ -240,6 +260,28 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             foreach (var navigation in navigations)
             {
+                var targetEntityType = navigation.GetTargetType();
+
+                if (navigation.IsCollection())
+                {
+                    _queryModel.MainFromClause.FromExpression = CreateEntityQueryable(targetEntityType);
+
+                    var innerQuerySourceReferenceExpression
+                        = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
+
+                    _queryModel.BodyClauses.Add(
+                        new WhereClause(
+                            Expression.Equal(
+                                CreateKeyAccessExpression(
+                                    querySourceReferenceExpression,
+                                    navigation.ForeignKey.Properties),
+                                CreateKeyAccessExpression(
+                                    innerQuerySourceReferenceExpression,
+                                    navigation.ForeignKey.PrincipalKey.Properties))));
+
+                    return _queryModel.MainFromClause.FromExpression;
+                }
+
                 var navigationJoin
                     = navigationJoins
                         .FirstOrDefault(nj =>
@@ -248,19 +290,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 if (navigationJoin == null)
                 {
-                    var targetEntityType = navigation.GetTargetType();
-
                     var joinClause
                         = new JoinClause(
                             $"{querySourceReferenceExpression.ReferencedQuerySource.ItemName}.{navigation.Name}",
                             targetEntityType.ClrType,
-                            Expression.Constant(
-                                _createEntityQueryableMethod
-                                    .MakeGenericMethod(targetEntityType.ClrType)
-                                    .Invoke(null, new object[]
-                                        {
-                                            _entityQueryProvider
-                                        })),
+                            CreateEntityQueryable(targetEntityType),
                             CreateKeyAccessExpression(
                                 querySourceReferenceExpression,
                                 navigation.ForeignKey.Properties),
@@ -349,6 +383,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             public override int GetHashCode() => 0;
         }
+
+        private ConstantExpression CreateEntityQueryable(IEntityType targetEntityType)
+            => Expression.Constant(
+                _createEntityQueryableMethod
+                    .MakeGenericMethod(targetEntityType.ClrType)
+                    .Invoke(null, new object[]
+                        {
+                            _entityQueryProvider
+                        }));
 
         private static readonly MethodInfo _createEntityQueryableMethod
             = typeof(NavigationRewritingExpressionVisitor)

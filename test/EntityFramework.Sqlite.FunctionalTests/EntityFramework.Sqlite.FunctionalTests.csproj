@@ -73,6 +73,7 @@
     <Compile Include="OneToOneQuerySqliteFixture.cs" />
     <Compile Include="OptimisticConcurrencySqliteTest.cs" />
     <Compile Include="PropertyEntrySqliteTest.cs" />
+    <Compile Include="QueryNavigationsInMemoryTest.cs" />
     <Compile Include="QuerySqliteTest.cs" />
     <Compile Include="SentinelGraphUpdatesSqliteTest.cs" />
     <Compile Include="SqliteTestHelpers.cs" />

@@ -23,10 +23,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         public bool IsLondon => City == "London";
 
-        protected bool Equals(Customer other)
-        {
-            return string.Equals(CustomerID, other.CustomerID);
-        }
+        protected bool Equals(Customer other) => string.Equals(CustomerID, other.CustomerID);
 
         public override bool Equals(object obj)
         {
@@ -43,14 +40,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
                    && Equals((Customer)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return CustomerID.GetHashCode();
-        }
+        public override int GetHashCode() => CustomerID.GetHashCode();
 
-        public override string ToString()
-        {
-            return "Customer " + CustomerID;
-        }
+        public override string ToString() => "Customer " + CustomerID;
     }
 }

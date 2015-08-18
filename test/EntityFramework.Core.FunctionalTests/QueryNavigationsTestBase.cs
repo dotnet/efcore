@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleUnintendedReferenceComparison
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -13,13 +14,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         // TODO:
-        // - Composite keys
-        // - o1.Customer == o2.Customer
-        // - o1.Customer.Name == foo.Customer.Name
-        // - Collections, sub-queries (Any etc.).
-        // - Deep paths
         // - One to ones
-        // - Client eval
         // - Async
 
         [Fact]
@@ -43,9 +38,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o1 in context.Set<Order>()
-                       from o2 in context.Set<Order>()
-                       where o1.Customer.City == o2.Customer.City
-                       select new { o1, o2 }).ToList();
+                        from o2 in context.Set<Order>()
+                        where o1.Customer.City == o2.Customer.City
+                        select new { o1, o2 }).ToList();
 
                 Assert.Equal(14786, orders.Count);
             }
@@ -58,9 +53,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o1 in context.Set<Order>()
-                       from o2 in context.Set<Order>()
-                       where o1.Customer.City == o2.Customer.City
-                       select new { o1.CustomerID, C2 = o2.CustomerID }).ToList();
+                        from o2 in context.Set<Order>()
+                        where o1.Customer.City == o2.Customer.City
+                        select new { o1.CustomerID, C2 = o2.CustomerID }).ToList();
 
                 Assert.Equal(14786, orders.Count);
             }
@@ -73,8 +68,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o in context.Set<Order>()
-                       where o.Customer.IsLondon
-                       select o).ToList();
+                        where o.Customer.IsLondon
+                        select o).ToList();
 
                 Assert.Equal(46, orders.Count);
             }
@@ -143,9 +138,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o1 in context.Set<Order>()
-                       from o2 in context.Set<Order>()
-                       where o1.Customer == o2.Customer
-                       select new { o1, o2 }).ToList();
+                        from o2 in context.Set<Order>()
+                        where o1.Customer == o2.Customer
+                        select new { o1, o2 }).ToList();
 
                 Assert.Equal(10712, orders.Count);
             }
@@ -173,9 +168,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o in context.Set<Order>()
-                       where o.Customer.City == "Seattle"
-                       where o.Customer.Phone != "555 555 5555"
-                       select new { B = o.Customer.City }).ToList();
+                        where o.Customer.City == "Seattle"
+                        where o.Customer.Phone != "555 555 5555"
+                        select new { B = o.Customer.City }).ToList();
 
                 Assert.Equal(14, orders.Count);
                 Assert.True(orders.All(o => o.B != null));
@@ -269,6 +264,225 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.Equal(14, orders.Count);
                 Assert.True(orders.All(o => o.A != null && o.B != null));
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_any()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { Any = c.Orders.Any() }).ToList();
+
+                Assert.Equal(91, customers.Count);
+                Assert.Equal(89, customers.Count(c => c.Any));
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_any()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        where c.Orders.Any()
+                        select c).ToList();
+
+                Assert.Equal(89, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_any_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                       where c.Orders.Any(o => o.OrderID > 0)
+                       select c).ToList();
+
+                Assert.Equal(89, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_all()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { All = c.Orders.All(o => o.CustomerID == "ALFKI") })
+                        .ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_all_client()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { All = c.Orders.All(o => o.ShipCity == "London") })
+                        .ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_all()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        where c.Orders.All(o => o.CustomerID == "ALFKI")
+                        select c).ToList();
+
+                Assert.Equal(3, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_all_client()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        where c.Orders.All(o => o.ShipCity == "London")
+                        select c).ToList();
+
+                Assert.Equal(2, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_count()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { c.Orders.Count }).ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_count()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        where c.Orders.Count() > 5
+                        select c).ToList();
+
+                Assert.Equal(63, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_count_reverse()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        where 5 < c.Orders.Count()
+                        select c).ToList();
+
+                Assert.Equal(63, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_orderby_nav_prop_count()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        orderby c.Orders.Count()
+                        select c).ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_long_count()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { C = c.Orders.LongCount() }).ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_sum()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { Sum = c.Orders.Sum(o => o.OrderID) }).ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_where_nav_prop_sum()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        where c.Orders.Sum(o => o.OrderID) > 1000
+                        select c).ToList();
+
+                Assert.Equal(89, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_first_or_default()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { First = c.Orders.FirstOrDefault() }).ToList();
+
+                Assert.Equal(91, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Collection_select_nav_prop_first_or_default_then_nav_prop()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>()
+                        select new { c.Orders.FirstOrDefault().Customer }).ToList();
+
+                Assert.Equal(91, customers.Count);
             }
         }
 

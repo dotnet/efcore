@@ -25,9 +25,7 @@ namespace Microsoft.Data.Entity.InMemory.Query
         }
 
         protected override ExpressionVisitor CreateQueryingExpressionVisitor(IQuerySource querySource)
-        {
-            return new InMemoryEntityQueryableExpressionVisitor(this, querySource);
-        }
+            => new InMemoryEntityQueryableExpressionVisitor(this, querySource);
 
         protected override void IncludeNavigations(
             IncludeSpecification includeSpecification,
@@ -208,10 +206,10 @@ namespace Microsoft.Data.Entity.InMemory.Query
                     .QuerySourceRequiresMaterialization(_querySource))
                 {
                     var materializer
-                       = new MaterializerFactory(QueryModelVisitor
-                           .QueryCompilationContext
-                           .EntityMaterializerSource)
-                           .CreateMaterializer(entityType);
+                        = new MaterializerFactory(QueryModelVisitor
+                            .QueryCompilationContext
+                            .EntityMaterializerSource)
+                            .CreateMaterializer(entityType);
 
                     return Expression.Call(
                         _entityQueryMethodInfo.MakeGenericMethod(elementType),

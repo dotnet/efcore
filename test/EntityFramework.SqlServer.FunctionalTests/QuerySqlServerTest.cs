@@ -116,9 +116,41 @@ WHERE ([e].[Title] = (
                  Sql);
         }
 
-        public override void Select_Where_Subquery_Deep()
+        public override void Select_Subquery_Single()
         {
-            base.Select_Where_Subquery_Deep();
+            base.Select_Subquery_Single();
+
+            Assert.Equal(
+                 @"SELECT TOP(2) [od].[OrderID]
+FROM [Order Details] AS [od]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                 Sql);
+        }
+
+        public override void Select_Where_Subquery_Deep_Single()
+        {
+            base.Select_Where_Subquery_Deep_Single();
+
+            Assert.StartsWith(
+                 @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+
+SELECT [o].[OrderID], [o].[CustomerID]
+FROM [Orders] AS [o]
+
+SELECT [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]",
+                 Sql);
+        }
+
+        public override void Select_Where_Subquery_Deep_First()
+        {
+            base.Select_Where_Subquery_Deep_First();
 
             Assert.StartsWith(
                  @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]

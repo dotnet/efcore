@@ -45,9 +45,10 @@ namespace Microsoft.Data.Entity.Query.Expressions
             : base(null, Check.NotEmpty(alias, nameof(alias)))
         {
         }
+
         public override Type Type => _projection.Count == 1
-          ? _projection[0].Type
-          : base.Type;
+            ? _projection[0].Type
+            : base.Type;
 
         public virtual SelectExpression Clone([NotNull] string alias)
         {
@@ -55,14 +56,14 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             var selectExpression
                 = new SelectExpression(alias)
-                {
-                    _limit = _limit,
-                    _offset = _offset,
-                    _isDistinct = _isDistinct,
-                    _subqueryDepth = _subqueryDepth,
-                    _projectStar = _projectStar,
-                    Predicate = Predicate
-                };
+                    {
+                        _limit = _limit,
+                        _offset = _offset,
+                        _isDistinct = _isDistinct,
+                        _subqueryDepth = _subqueryDepth,
+                        _projectStar = _projectStar,
+                        Predicate = Predicate
+                    };
 
             selectExpression._projection.AddRange(_projection);
 
@@ -242,7 +243,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             subquery.AddTables(_tables);
             subquery.AddToOrderBy(_orderBy);
             subquery.Predicate = Predicate;
-            
+
             subquery._limit = _limit;
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
@@ -252,7 +253,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             _limit = null;
             _offset = null;
             _isDistinct = false;
-            
+
             Predicate = null;
             ClearTables();
             ClearProjection();
@@ -307,6 +308,11 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 return AddToProjection(aliasExpression);
             }
 
+            if (expression is SelectExpression)
+            {
+                ClearProjection();
+            }
+
             _projection.Add(expression);
 
             _projectStar = false;
@@ -314,7 +320,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             return _projection.Count - 1;
         }
 
-        public virtual int AddToProjection([NotNull] AliasExpression aliasExpression) 
+        public virtual int AddToProjection([NotNull] AliasExpression aliasExpression)
             => AddAliasToProjection(aliasExpression.Alias, aliasExpression.Expression);
 
         public virtual int AddAliasToProjection([CanBeNull] string alias, [NotNull] Expression expression)
@@ -554,9 +560,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
                     _projection.Add(
                         new AliasExpression(aliasExpression.Alias, expression)
-                        {
-                            SourceMember = aliasExpression.SourceMember
-                        });
+                            {
+                                SourceMember = aliasExpression.SourceMember
+                            });
                 }
 
                 _projectStar = false;
@@ -619,7 +625,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             return AddOuterJoin(tableExpression, Enumerable.Empty<AliasExpression>());
         }
-        
+
         public virtual JoinExpressionBase AddOuterJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
@@ -691,7 +697,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 ? specificVisitor.VisitSelect(this)
                 : base.Accept(visitor);
         }
-        
+
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
             foreach (var expression in Projection)
@@ -748,9 +754,9 @@ namespace Microsoft.Data.Entity.Query.Expressions
                     = new AliasExpression(
                         aliasExpression.Alias,
                         UpdateColumnExpression(aliasExpression.Expression, tableExpression))
-                    {
-                        SourceMember = aliasExpression.SourceMember
-                    };
+                        {
+                            SourceMember = aliasExpression.SourceMember
+                        };
 
                 return newAliasExpression;
             }

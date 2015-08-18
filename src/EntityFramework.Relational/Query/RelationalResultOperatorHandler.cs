@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
@@ -48,39 +47,35 @@ namespace Microsoft.Data.Entity.Query
 
             public Expression EvalOnServer => QueryModelVisitor.Expression;
 
-            public Expression EvalOnClient
+            public Expression EvalOnClient(bool requiresClientResultOperator = true)
             {
-                get
-                {
-                    if (!(ResultOperator is CastResultOperator))
-                    {
-                        QueryModelVisitor.RequiresClientResultOperator = true;
-                    }
+                QueryModelVisitor.RequiresClientResultOperator = requiresClientResultOperator;
 
-                    return _resultOperatorHandler
-                        .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
-                }
+                return _resultOperatorHandler
+                    .HandleResultOperator(QueryModelVisitor, ResultOperator, QueryModel);
             }
         }
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
             _resultHandlers = new Dictionary<Type, Func<HandlerContext, Expression>>
-            {
-                { typeof(AllResultOperator), HandleAll },
-                { typeof(AnyResultOperator), HandleAny },
-                { typeof(CountResultOperator), HandleCount },
-                { typeof(LongCountResultOperator), HandleLongCount },
-                { typeof(DistinctResultOperator), HandleDistinct },
-                { typeof(FirstResultOperator), HandleFirst },
-                { typeof(LastResultOperator), HandleLast },
-                { typeof(MaxResultOperator), HandleMax },
-                { typeof(MinResultOperator), HandleMin },
-                { typeof(OfTypeResultOperator), HandleOfType },
-                { typeof(SingleResultOperator), HandleSingle },
-                { typeof(SkipResultOperator), HandleSkip },
-                { typeof(SumResultOperator), HandleSum },
-                { typeof(TakeResultOperator), HandleTake }
-            };
+                {
+                    { typeof(AllResultOperator), HandleAll },
+                    { typeof(AnyResultOperator), HandleAny },
+                    { typeof(CastResultOperator), HandleCast },
+                    { typeof(ContainsResultOperator), HandleContains },
+                    { typeof(CountResultOperator), HandleCount },
+                    { typeof(LongCountResultOperator), HandleLongCount },
+                    { typeof(DistinctResultOperator), HandleDistinct },
+                    { typeof(FirstResultOperator), HandleFirst },
+                    { typeof(LastResultOperator), HandleLast },
+                    { typeof(MaxResultOperator), HandleMax },
+                    { typeof(MinResultOperator), HandleMin },
+                    { typeof(OfTypeResultOperator), HandleOfType },
+                    { typeof(SingleResultOperator), HandleSingle },
+                    { typeof(SkipResultOperator), HandleSkip },
+                    { typeof(SumResultOperator), HandleSum },
+                    { typeof(TakeResultOperator), HandleTake }
+                };
 
         private readonly IResultOperatorHandler _resultOperatorHandler = new ResultOperatorHandler();
 
@@ -115,7 +110,7 @@ namespace Microsoft.Data.Entity.Query
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
                 || selectExpression == null)
             {
-                return handlerContext.EvalOnClient;
+                return handlerContext.EvalOnClient();
             }
 
             return resultHandler(handlerContext);
@@ -139,6 +134,14 @@ namespace Microsoft.Data.Entity.Query
                 innerSelectExpression.AddTables(handlerContext.SelectExpression.Tables);
                 innerSelectExpression.Predicate = Expression.Not(predicate);
 
+                if (handlerContext.SelectExpression.Predicate != null)
+                {
+                    innerSelectExpression.Predicate
+                        = Expression.AndAlso(
+                            handlerContext.SelectExpression.Predicate,
+                            innerSelectExpression.Predicate);
+                }
+
                 SetProjectionConditionalExpression(
                     handlerContext,
                     Expression.Condition(
@@ -150,7 +153,7 @@ namespace Microsoft.Data.Entity.Query
                 return TransformClientExpression<bool>(handlerContext);
             }
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleAny(HandlerContext handlerContext)
@@ -170,6 +173,12 @@ namespace Microsoft.Data.Entity.Query
 
             return TransformClientExpression<bool>(handlerContext);
         }
+
+        private static Expression HandleCast(HandlerContext handlerContext)
+            => handlerContext.EvalOnClient(requiresClientResultOperator: false);
+
+        private static Expression HandleContains(HandlerContext handlerContext)
+            => handlerContext.EvalOnClient(requiresClientResultOperator: false);
 
         private static Expression HandleCount(HandlerContext handlerContext)
         {
@@ -205,7 +214,7 @@ namespace Microsoft.Data.Entity.Query
                     .Invoke(null, new object[] { handlerContext });
             }
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleMax(HandlerContext handlerContext)
@@ -222,7 +231,7 @@ namespace Microsoft.Data.Entity.Query
                     .Invoke(null, new object[] { handlerContext });
             }
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleSum(HandlerContext handlerContext)
@@ -239,7 +248,7 @@ namespace Microsoft.Data.Entity.Query
                     .Invoke(null, new object[] { handlerContext });
             }
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient();
         }
 
         private static Expression HandleDistinct(HandlerContext handlerContext)
@@ -276,7 +285,7 @@ namespace Microsoft.Data.Entity.Query
         {
             handlerContext.SelectExpression.Limit = 1;
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
         }
 
         private static Expression HandleLast(HandlerContext handlerContext)
@@ -294,7 +303,7 @@ namespace Microsoft.Data.Entity.Query
                 handlerContext.SelectExpression.Limit = 1;
             }
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
         }
 
         private static Expression HandleOfType(HandlerContext handlerContext)
@@ -308,7 +317,7 @@ namespace Microsoft.Data.Entity.Query
 
             if (entityType == null)
             {
-                return handlerContext.EvalOnClient;
+                return handlerContext.EvalOnClient();
             }
 
             var concreteEntityTypes
@@ -377,7 +386,7 @@ namespace Microsoft.Data.Entity.Query
         {
             handlerContext.SelectExpression.Limit = 2;
 
-            return handlerContext.EvalOnClient;
+            return handlerContext.EvalOnClient(requiresClientResultOperator: false);
         }
 
         private static Expression HandleSkip(HandlerContext handlerContext)
@@ -398,7 +407,8 @@ namespace Microsoft.Data.Entity.Query
             return handlerContext.EvalOnServer;
         }
 
-        private static void SetProjectionConditionalExpression(HandlerContext handlerContext, ConditionalExpression conditionalExpression)
+        private static void SetProjectionConditionalExpression(
+            HandlerContext handlerContext, ConditionalExpression conditionalExpression)
         {
             handlerContext.SelectExpression.SetProjectionConditionalExpression(conditionalExpression);
             handlerContext.SelectExpression.ClearTables();

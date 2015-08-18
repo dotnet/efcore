@@ -9,8 +9,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public interface IEntityMaterializerSource
     {
-        Expression CreateReadValueExpression(
-            [NotNull] Expression valueBuffer, [NotNull] Type type, int index);
+        Expression CreateReadValueExpression([NotNull] Expression valueBuffer, [NotNull] Type type, int index);
+
+        Expression CreateReadValueCallExpression([NotNull] Expression valueBuffer, int index);
 
         Expression CreateMaterializeExpression(
             [NotNull] IEntityType entityType,

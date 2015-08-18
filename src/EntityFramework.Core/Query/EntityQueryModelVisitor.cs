@@ -161,9 +161,10 @@ namespace Microsoft.Data.Entity.Query
 
             new QueryOptimizer(QueryCompilationContext.QueryAnnotations).VisitQueryModel(queryModel);
 
-            var navigationRewritingExpressionTreeVisitor = new NavigationRewritingExpressionVisitor(this);
+            var navigationRewritingExpressionVisitor 
+                = new NavigationRewritingExpressionVisitor(this);
 
-            navigationRewritingExpressionTreeVisitor.Rewrite(queryModel);
+            navigationRewritingExpressionVisitor.Rewrite(queryModel);
 
             var subQueryMemberPushDownExpressionVisitor = new SubQueryMemberPushDownExpressionVisitor();
 
@@ -415,21 +416,18 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static ICollection<Func<TResult, object>> GetEntityAccessors<TResult>(
             IEnumerable<EntityTrackingInfo> entityTrackingInfos,
-            Expression selector)
-        {
-            return
-                (from entityTrackingInfo in entityTrackingInfos
-                    select
-                        (Func<TResult, object>)
-                            AccessorFindingExpressionVisitor
-                                .FindAccessorLambda(
-                                    entityTrackingInfo.QuerySourceReferenceExpression,
-                                    selector,
-                                    Expression.Parameter(typeof(TResult)))
-                                .Compile()
-                    )
-                    .ToList();
-        }
+            Expression selector) 
+            => (from entityTrackingInfo in entityTrackingInfos
+                select
+                    (Func<TResult, object>)
+                        AccessorFindingExpressionVisitor
+                            .FindAccessorLambda(
+                                entityTrackingInfo.QuerySourceReferenceExpression,
+                                selector,
+                                Expression.Parameter(typeof(TResult)))
+                            .Compile()
+                )
+                .ToList();
 
         protected virtual Func<QueryContext, TResults> CreateExecutorLambda<TResults>()
         {

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
@@ -10,6 +9,7 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
@@ -78,9 +78,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     if (aliasExpression != null)
                     {
-                        aliasExpression.SourceMember 
-                            = newExpression.Members?[i] 
-                                ?? (newExpression.Arguments[i] as MemberExpression)?.Member;
+                        aliasExpression.SourceMember
+                            = newExpression.Members?[i]
+                              ?? (newExpression.Arguments[i] as MemberExpression)?.Member;
                     }
                 }
             }
@@ -146,14 +146,30 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                 aliasExpression.SourceExpression = expression;
                             }
 
-                            return
-                                QueryModelVisitor.BindReadValueMethod(
-                                    expression.Type,
-                                    QueryResultScope.GetResult(
-                                        EntityQueryModelVisitor.QueryResultScopeParameter,
-                                        _querySource,
-                                        typeof(ValueBuffer)),
-                                    index);
+                            var valueBufferExpression
+                                = QueryResultScope.GetResult(
+                                    EntityQueryModelVisitor.QueryResultScopeParameter,
+                                    _querySource,
+                                    typeof(ValueBuffer));
+
+                            var readValueExpression
+                                = _queryModelVisitor.QueryCompilationContext.EntityMaterializerSource
+                                    .CreateReadValueCallExpression(valueBufferExpression, index);
+
+                            var outputDataInfo
+                                = (expression as SubQueryExpression)?.QueryModel
+                                    .GetOutputDataInfo();
+
+                            if (outputDataInfo is StreamedScalarValueInfo)
+                            {
+                                // Compensate for possible nulls
+                                readValueExpression
+                                    = Expression.Coalesce(
+                                        readValueExpression,
+                                        Expression.Default(expression.Type));
+                            }
+
+                            return Expression.Convert(readValueExpression, expression.Type);
                         }
                     }
                 }

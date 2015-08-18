@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var tableAlias
                 = _querySource.HasGeneratedItemName()
-                    ? name[0].ToString().ToLower()
+                    ? name[0].ToString().ToLowerInvariant()
                     : _querySource.ItemName;
 
             var fromSqlAnnotation

@@ -185,10 +185,10 @@ WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [
             base.Select_Where_Navigation_Null();
 
             Assert.Equal(
-                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL",
-                 Sql);
+                Sql);
         }
 
         public override void Select_Where_Navigation_Null_Deep()
@@ -196,11 +196,11 @@ WHERE [e].[ReportsTo] IS NULL",
             base.Select_Where_Navigation_Null_Deep();
 
             Assert.Equal(
-                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 INNER JOIN [Employees] AS [e.Manager] ON [e].[ReportsTo] = [e.Manager].[EmployeeID]
 WHERE [e.Manager].[ReportsTo] IS NULL",
-                 Sql);
+                Sql);
         }
 
         public override void Select_Where_Navigation_Null_Reverse()
@@ -208,10 +208,269 @@ WHERE [e.Manager].[ReportsTo] IS NULL",
             base.Select_Where_Navigation_Null_Reverse();
 
             Assert.Equal(
-                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[ReportsTo] IS NULL",
-                 Sql);
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_any()
+        {
+            base.Collection_select_nav_prop_any();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM [Orders] AS [o]
+                WHERE [c].[CustomerID] = [o].[CustomerID])
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_any()
+        {
+            base.Collection_where_nav_prop_any();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM [Orders] AS [o]
+                WHERE [c].[CustomerID] = [o].[CustomerID])
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_any_predicate()
+        {
+            base.Collection_where_nav_prop_any_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN
+            (EXISTS (
+                SELECT 1
+                FROM [Orders] AS [o]
+                WHERE ([o].[OrderID] > 0 AND [c].[CustomerID] = [o].[CustomerID]))
+            )
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_all()
+        {
+            base.Collection_select_nav_prop_all();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT CASE
+        WHEN
+            (NOT (EXISTS (
+                SELECT 1
+                FROM [Orders] AS [o]
+                WHERE ([c].[CustomerID] = [o].[CustomerID] AND NOT ([o].[CustomerID] = 'ALFKI')))
+            ))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_all_client()
+        {
+            base.Collection_select_nav_prop_all_client();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_all()
+        {
+            base.Collection_where_nav_prop_all();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (
+    SELECT CASE
+        WHEN
+            (NOT (EXISTS (
+                SELECT 1
+                FROM [Orders] AS [o]
+                WHERE ([c].[CustomerID] = [o].[CustomerID] AND NOT ([o].[CustomerID] = 'ALFKI')))
+            ))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+) = 1",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_all_client()
+        {
+            base.Collection_where_nav_prop_all_client();
+
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_count()
+        {
+            base.Collection_select_nav_prop_count();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_count()
+        {
+            base.Collection_where_nav_prop_count();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ((
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) > 5)",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_count_reverse()
+        {
+            base.Collection_where_nav_prop_count_reverse();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (5 < (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+))",
+                Sql);
+        }
+
+        public override void Collection_orderby_nav_prop_count()
+        {
+            base.Collection_orderby_nav_prop_count();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_long_count()
+        {
+            base.Collection_select_nav_prop_long_count();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT COUNT_BIG(*)
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_sum()
+        {
+            base.Collection_select_nav_prop_sum();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+)
+FROM [Customers] AS [c]",
+                Sql);
+        }
+
+        public override void Collection_where_nav_prop_sum()
+        {
+            base.Collection_where_nav_prop_sum();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE ((
+    SELECT SUM([o].[OrderID])
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) > 1000)",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_first_or_default()
+        {
+            base.Collection_select_nav_prop_first_or_default();
+
+            // TODO: Projection sub-query lifting
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
+        public override void Collection_select_nav_prop_first_or_default_then_nav_prop()
+        {
+            base.Collection_select_nav_prop_first_or_default_then_nav_prop();
+
+            // TODO: Projection sub-query lifting
+            Assert.StartsWith(
+                @"SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
+                Sql);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

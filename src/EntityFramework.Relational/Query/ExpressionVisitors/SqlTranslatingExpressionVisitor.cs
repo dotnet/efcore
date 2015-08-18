@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing;
 
 // ReSharper disable AssignNullToNotNullAttribute
@@ -491,14 +492,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     }
                 }
             }
-            else if (!_inProjection)
+            else if (!(subQueryModel.GetOutputDataInfo() is StreamedSequenceInfo))
             {
+                if (_inProjection
+                    && !(subQueryModel.GetOutputDataInfo() is StreamedScalarValueInfo))
+                {
+                    return null;
+                }
+
                 var querySourceReferenceExpression
                     = subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
 
                 if (querySourceReferenceExpression == null
-                    || !_queryModelVisitor.QueryCompilationContext
-                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource))
+                    || (_inProjection 
+                        || !_queryModelVisitor.QueryCompilationContext
+                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource)))
                 {
                     var queryModelVisitor
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
@@ -508,7 +516,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     if (queryModelVisitor.Queries.Count == 1
                         && !queryModelVisitor.RequiresClientFilter
-                        && !queryModelVisitor.RequiresClientProjection)
+                        && !queryModelVisitor.RequiresClientProjection
+                        && !queryModelVisitor.RequiresClientResultOperator)
                     {
                         var selectExpression = queryModelVisitor.Queries.First();
 

@@ -4133,9 +4133,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         products.Expression)));
             }
         }
-        
+
         [Fact]
-        public virtual void Select_Where_Subquery_Deep()
+        public virtual void Select_Subquery_Single()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = (from od in context.Set<OrderDetail>()
+                        select (from o in context.Set<Order>()
+                            where od.OrderID == o.OrderID
+                            select o).First())
+                        .Take(2)
+                        .ToList();
+
+                Assert.Equal(2, orderDetails.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Subquery_Deep_Single()
         {
             using (var context = CreateContext())
             {
@@ -4150,6 +4167,31 @@ namespace Microsoft.Data.Entity.FunctionalTests
                                select c
                                ).Single()
                            ).Single()
+                           .City == "Seattle"
+                       select od)
+                        .Take(2)
+                        .ToList();
+
+                Assert.Equal(2, orderDetails.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Select_Where_Subquery_Deep_First()
+        {
+            using (var context = CreateContext())
+            {
+                var orderDetails
+                    = (from od in context.Set<OrderDetail>()
+                       where (
+                           from o in context.Set<Order>()
+                           where od.OrderID == o.OrderID
+                           select (
+                               from c in context.Set<Customer>()
+                               where o.CustomerID == c.CustomerID
+                               select c
+                               ).First()
+                           ).First()
                            .City == "Seattle"
                        select od)
                         .Take(2)

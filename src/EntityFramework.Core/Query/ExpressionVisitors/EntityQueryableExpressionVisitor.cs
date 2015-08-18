@@ -18,12 +18,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
-        {
-            return constantExpression.Type.GetTypeInfo().IsGenericType
-                   && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
+            => constantExpression.Type.GetTypeInfo().IsGenericType
+               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
                 ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
                 : constantExpression;
-        }
 
         protected abstract Expression VisitEntityQueryable([NotNull] Type elementType);
     }

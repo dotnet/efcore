@@ -111,7 +111,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var leftSubQueryExpression = binaryExpression.Left as SubQueryExpression;
 
-            if (leftSubQueryExpression != null)
+            if (leftSubQueryExpression != null
+                && _queryModelVisitor.QueryCompilationContext.Model
+                    .FindEntityType(leftSubQueryExpression.Type) != null)
             {
                 _parentSelector = leftSubQueryExpression.QueryModel.SelectClause.Selector;
 
@@ -124,7 +126,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var rightSubQueryExpression = binaryExpression.Right as SubQueryExpression;
 
-            if (rightSubQueryExpression != null)
+            if (rightSubQueryExpression != null
+                && _queryModelVisitor.QueryCompilationContext.Model
+                    .FindEntityType(rightSubQueryExpression.Type) != null)
             {
                 _parentSelector = rightSubQueryExpression.QueryModel.SelectClause.Selector;
 
@@ -144,7 +148,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(subQueryExpression, nameof(subQueryExpression));
 
+            var oldParentSelector = _parentSelector;
+
+            _parentSelector = subQueryExpression.QueryModel.SelectClause.Selector;
+
             subQueryExpression.QueryModel.TransformExpressions(Visit);
+
+            _parentSelector = oldParentSelector;
 
             var querySourceReferenceExpression
                 = subQueryExpression.QueryModel.SelectClause.Selector
