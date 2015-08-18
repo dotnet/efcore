@@ -66,11 +66,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var resultingFiles = new List<string>();
             var provider = configuration.Provider;
             var metadataModel = GetMetadataModel(provider, configuration);
+            var @namespace = string.IsNullOrEmpty(configuration.CustomNamespace)
+                ? ConstructNamespace(configuration.ProjectRootNamespace,
+                    configuration.ProjectPath, configuration.RelativeOutputPath)
+                : configuration.CustomNamespace;
 
             var dbContextGeneratorModel = new DbContextGeneratorModel
             {
                 ClassName = configuration.ContextClassName,
-                Namespace = configuration.Namespace,
+                Namespace = @namespace,
                 ConnectionString = configuration.ConnectionString,
                 Generator = this,
                 MetadataModel = metadataModel
@@ -108,7 +112,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var entityTypeGeneratorModel = new EntityTypeGeneratorModel
                 {
                     EntityType = entityType,
-                    Namespace = configuration.Namespace,
+                    Namespace = @namespace,
                     ConnectionString = configuration.ConnectionString,
                     Generator = this
                 };
@@ -243,14 +247,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             if (configuration.RelativeOutputPath != null
-                && string.Empty != Path.GetPathRoot(configuration.RelativeOutputPath))
+                && (Path.IsPathRooted(configuration.RelativeOutputPath)
+                    || !Path.GetFullPath(
+                            Path.Combine(configuration.ProjectPath, configuration.RelativeOutputPath))
+                        .StartsWith(Path.GetFullPath(configuration.ProjectPath))))
             {
-                throw new ArgumentException(Strings.NotRelativePath(configuration.RelativeOutputPath));
+                throw new ArgumentException(Strings.NotRelativePath(configuration.RelativeOutputPath, configuration.ProjectPath));
             }
 
-            if (string.IsNullOrEmpty(configuration.Namespace))
+            if (string.IsNullOrEmpty(configuration.ProjectRootNamespace))
             {
-                throw new ArgumentException(Strings.NamespaceRequired);
+                throw new ArgumentException(Strings.RootNamespaceRequired);
             }
         }
 
@@ -264,6 +271,27 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             return providerTemplateFunc.Invoke();
+        }
+
+        private static char[] directorySeparatorChars = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
+        private string ConstructNamespace(string rootNamespace, string projectPath, string relativePath)
+        {
+            if (string.IsNullOrEmpty(relativePath))
+            {
+                return rootNamespace;
+            }
+
+            var @namespace = rootNamespace;
+            var projectPathPrefixLength = Path.GetFullPath(projectPath).Count();
+            var canonicalizedRelativePath = Path.GetFullPath(Path.Combine(projectPath, relativePath))
+                .Substring(projectPathPrefixLength + 1);
+            foreach (var pathPart in canonicalizedRelativePath
+                .Split(directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries))
+            {
+                @namespace += "." + CSharpUtilities.Instance.GenerateCSharpIdentifier(pathPart, null);
+            }
+
+            return @namespace;
         }
     }
 }

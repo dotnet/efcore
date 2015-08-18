@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
             {
                 Provider = null,
                 ConnectionString = null,
-                Namespace = null,
+                CustomNamespace = null,
                 CustomTemplatePath = null,
                 ProjectPath = null,
                 RelativeOutputPath = null
@@ -37,12 +37,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
                     () => GetGenerator().GenerateAsync(configuration).GetAwaiter().GetResult()).Message);
 
             configuration.ProjectPath = "NonEmptyProjectPath";
-            Assert.Equal(Strings.NamespaceRequired,
+            Assert.Equal(Strings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => GetGenerator().GenerateAsync(configuration).GetAwaiter().GetResult()).Message);
 
-            configuration.RelativeOutputPath = @"\NotARelativePath";
-            Assert.Equal(Strings.NotRelativePath(@"\NotARelativePath"),
+            configuration.RelativeOutputPath = @"\AnAbsolutePath";
+            Assert.Equal(Strings.NotRelativePath(@"\AnAbsolutePath", "NonEmptyProjectPath"),
+                Assert.Throws<ArgumentException>(
+                    () => GetGenerator().GenerateAsync(configuration).GetAwaiter().GetResult()).Message);
+
+            configuration.RelativeOutputPath = @"Looks\Like\A\RelativePath\..\..\..\..\..\But\Is\Not";
+            Assert.Equal(Strings.NotRelativePath(@"Looks\Like\A\RelativePath\..\..\..\..\..\But\Is\Not", "NonEmptyProjectPath"),
+                Assert.Throws<ArgumentException>(
+                    () => GetGenerator().GenerateAsync(configuration).GetAwaiter().GetResult()).Message);
+
+            configuration.RelativeOutputPath = @"A\Real\RelativePath";
+            Assert.Equal(Strings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => GetGenerator().GenerateAsync(configuration).GetAwaiter().GetResult()).Message);
         }

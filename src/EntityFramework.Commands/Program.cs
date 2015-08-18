@@ -130,12 +130,12 @@ namespace Microsoft.Data.Entity.Commands
                             var provider = scaffold.Argument(
                                 "[provider]",
                                 "The provider to use. For example, EntityFramework.SqlServer");
-                            var @namespace = scaffold.Option(
+                            var customNamespace = scaffold.Option(
                                 "-n|--namespace <context_namespace>",
-                                "Overrides the namespace of the generated classes.");
+                                "The namespace of the generated classes. If omitted, the root namespace of the project is used.");
                             var relativeOutputPath = scaffold.Option(
                                 "-o|--output-path <path>",
-                                "Relative path to the sub-directory of the project where the classes should be output.");
+                                "Relative path to the sub-directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
                             scaffold.HelpOption("-?|-h|--help");
                             scaffold.OnExecute(
                                 async () =>
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Commands
                                     await ReverseEngineerAsync(
                                         connection.Value,
                                         provider.Value,
-                                        @namespace.Value(),
+                                        customNamespace.Value(),
                                         relativeOutputPath.Value(),
                                         _applicationShutdown.ShutdownRequested);
 
@@ -414,12 +414,12 @@ namespace Microsoft.Data.Entity.Commands
         public virtual async Task ReverseEngineerAsync(
             [NotNull] string connectionString,
             [NotNull] string providerAssemblyName,
-            [CanBeNull] string @namespace,
+            [CanBeNull] string customNamespace,
             [CanBeNull] string relativeOutputDirectory,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseTool.ReverseEngineerAsync(
-                providerAssemblyName, connectionString, @namespace ?? _rootNamespace,
+                providerAssemblyName, connectionString, customNamespace, _rootNamespace,
                 _projectDir, relativeOutputDirectory);
 
             _logger.LogInformation("Done");

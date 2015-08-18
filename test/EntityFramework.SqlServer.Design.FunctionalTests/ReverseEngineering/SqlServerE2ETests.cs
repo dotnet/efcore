@@ -19,9 +19,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         protected override string ProviderName => "EntityFramework.SqlServer.Design";
         protected override IDesignTimeMetadataProviderFactory GetFactory() => new SqlServerDesignTimeMetadataProviderFactory();
         public virtual string TestNamespace => "E2ETest.Namespace";
-        public virtual string TestProjectDir => "E2ETest/Output";
+        public virtual string TestProjectDir => Path.Combine("E2ETest", "Output");
         public virtual string TestSubDir => "SubDir";
-        public virtual string CustomizedTemplateDir => "E2ETest/CustomizedTemplate/Dir";
+        public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
 
         public virtual string ProviderDbContextTemplateName
             => ProviderName + "." + ReverseEngineeringGenerator.DbContextTemplateFileName;
@@ -82,9 +82,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 {
                     Provider = MetadataModelProvider,
                     ConnectionString = _connectionString,
-                    Namespace = TestNamespace,
+                    CustomNamespace = null, // tests what happens when this is not overridden
                     CustomTemplatePath = null, // not used for this test
                     ProjectPath = TestProjectDir,
+                    ProjectRootNamespace = TestNamespace,
                     RelativeOutputPath = TestSubDir
                 };
 
@@ -95,7 +96,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                     Files = filePaths.Select(Path.GetFileName).ToList()
                 };
 
-            var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine("ReverseEngineering", "ExpectedResults", "E2E"))
+            var expectedFileSet = new FileSet(new FileSystemFileService(),
+                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E"),
+                contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir))
                 {
                     Files = _expectedFiles
                 };
@@ -125,9 +128,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 {
                     Provider = MetadataModelProvider,
                     ConnectionString = _connectionString,
-                    Namespace = TestNamespace,
+                    CustomNamespace = TestNamespace,
                     CustomTemplatePath = CustomizedTemplateDir,
                     ProjectPath = TestProjectDir,
+                    ProjectRootNamespace = "DoesNotMatter", // tests that this is ignored if CustomNamespace is set
                     RelativeOutputPath = null // tests outputting to top-level directory
                 };
             InMemoryFiles.OutputFile(CustomizedTemplateDir, ProviderDbContextTemplateName, "DbContext template");

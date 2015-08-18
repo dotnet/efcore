@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS child (Id INT PRIMARY KEY, ParentId INT, FOREIGN KEY 
                 {
                     Provider = MetadataModelProvider,
                     ConnectionString = testStore.Connection.ConnectionString,
-                    Namespace = "E2E.Sqlite",
-                    ProjectPath = "testout"
+                    ProjectPath = "testout",
+                    ProjectRootNamespace = "E2E.Sqlite"
                 }).GetAwaiter().GetResult();
             var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected")
                 {

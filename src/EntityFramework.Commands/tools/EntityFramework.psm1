@@ -321,7 +321,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Specifies the provider to use. For example, EntityFramework.SqlServer.
 
 .PARAMETER Namespace
-    Overrides the namespace for the output classes. If omitted, the root namespace of the project is used.
+    The namespace for the output classes. If omitted, the root namespace of the project is used.
 
 .PARAMETER OutputSubDirectory
     Specifies the sub-directory of the project to use to output the classes. If omitted, the top-level project directory is used.
