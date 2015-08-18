@@ -17,7 +17,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
             {
                 Provider = null,
                 ConnectionString = null,
-                CustomNamespace = null,
                 CustomTemplatePath = null,
                 ProjectPath = null,
                 RelativeOutputPath = null

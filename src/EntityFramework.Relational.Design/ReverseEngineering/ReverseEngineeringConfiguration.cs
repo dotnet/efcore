@@ -11,7 +11,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual IDatabaseMetadataModelProvider Provider { get; [param: NotNull] set; }
         public virtual string ConnectionString { get; [param: NotNull] set; }
         public virtual string ContextClassName { get;[param: CanBeNull] set; }
-        public virtual string CustomNamespace { get;[param: NotNull] set; }
         public virtual string CustomTemplatePath { get; [param: NotNull] set; }
         public virtual string ProjectPath { get;[param: NotNull] set; }
         public virtual string ProjectRootNamespace { get;[param: NotNull] set; }

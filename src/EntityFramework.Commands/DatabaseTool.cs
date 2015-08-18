@@ -37,7 +37,6 @@ namespace Microsoft.Data.Entity.Commands
         public virtual Task<IReadOnlyList<string>> ReverseEngineerAsync(
             [NotNull] string runtimeProviderAssemblyName,
             [NotNull] string connectionString,
-            [CanBeNull] string customNamespace,
             [NotNull] string projectRootNamespace,
             [NotNull] string projectDir,
             [CanBeNull] string relativeOutputDir,
@@ -60,7 +59,6 @@ namespace Microsoft.Data.Entity.Commands
             {
                 Provider = designTimeProvider,
                 ConnectionString = connectionString,
-                CustomNamespace = customNamespace,
                 CustomTemplatePath = projectDir,
                 ProjectPath = projectDir,
                 ProjectRootNamespace = projectRootNamespace,

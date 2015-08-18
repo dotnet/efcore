@@ -82,7 +82,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 {
                     Provider = MetadataModelProvider,
                     ConnectionString = _connectionString,
-                    CustomNamespace = null, // tests what happens when this is not overridden
                     CustomTemplatePath = null, // not used for this test
                     ProjectPath = TestProjectDir,
                     ProjectRootNamespace = TestNamespace,
@@ -128,10 +127,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 {
                     Provider = MetadataModelProvider,
                     ConnectionString = _connectionString,
-                    CustomNamespace = TestNamespace,
                     CustomTemplatePath = CustomizedTemplateDir,
                     ProjectPath = TestProjectDir,
-                    ProjectRootNamespace = "DoesNotMatter", // tests that this is ignored if CustomNamespace is set
+                    ProjectRootNamespace = TestNamespace,
                     RelativeOutputPath = null // tests outputting to top-level directory
                 };
             InMemoryFiles.OutputFile(CustomizedTemplateDir, ProviderDbContextTemplateName, "DbContext template");

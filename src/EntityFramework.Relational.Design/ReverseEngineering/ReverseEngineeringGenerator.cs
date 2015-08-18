@@ -66,10 +66,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var resultingFiles = new List<string>();
             var provider = configuration.Provider;
             var metadataModel = GetMetadataModel(provider, configuration);
-            var @namespace = string.IsNullOrEmpty(configuration.CustomNamespace)
-                ? ConstructNamespace(configuration.ProjectRootNamespace,
-                    configuration.ProjectPath, configuration.RelativeOutputPath)
-                : configuration.CustomNamespace;
+            var @namespace = ConstructNamespace(configuration.ProjectRootNamespace,
+                    configuration.ProjectPath, configuration.RelativeOutputPath);
 
             var dbContextGeneratorModel = new DbContextGeneratorModel
             {
