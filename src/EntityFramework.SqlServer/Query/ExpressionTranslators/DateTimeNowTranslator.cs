@@ -18,7 +18,14 @@ namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
                 && memberExpression.Member.DeclaringType == typeof(DateTime)
                 && memberExpression.Member.Name == nameof(DateTime.Now))
             {
-                return new SqlFunctionExpression("GETDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                if (memberExpression.Member.Name == "Now")
+                {
+                    return new SqlFunctionExpression("GETDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                }
+                else if (memberExpression.Member.Name == "UtcNow")
+                {
+                    return new SqlFunctionExpression("GETUTCDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                }
             }
 
             return null;
