@@ -43,14 +43,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReverseEngineering\Configuration\SqlServerModelConfiguration.cs" />
     <Compile Include="ReverseEngineering\Model\ForeignKeyColumnMapping.cs" />
     <Compile Include="ReverseEngineering\Model\TableColumn.cs" />
     <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
     <Compile Include="ReverseEngineering\Model\Table.cs" />
-    <Compile Include="ReverseEngineering\SqlServerCodeGeneratorHelperFactory.cs" />
-    <Compile Include="ReverseEngineering\SqlServerDbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqlServerDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\SqlServerModelConfigurationFactory.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />
     <Compile Include="Utilities\SqlServerTypeMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

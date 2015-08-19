@@ -1,48 +1,52 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
-using Microsoft.Data.Entity.Relational.Design.Templating;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Relational.Design.Templating;
+using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration
 {
-    public class SqlServerDbContextCodeGeneratorHelper : DbContextCodeGeneratorHelper
+    public class SqlServerModelConfiguration : ModelConfiguration
     {
-        public SqlServerDbContextCodeGeneratorHelper(
-            [NotNull] DbContextGeneratorModel generatorModel, 
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider, 
-            [NotNull] ModelUtilities modelUtilities)
-            : base(generatorModel, extensionsProvider, modelUtilities)
-        {
-        }
-
         private const string _dbContextSuffix = "Context";
 
-        public override string ClassName([NotNull] string connectionString)
+        public SqlServerModelConfiguration(
+            [NotNull] IModel model,
+            [NotNull] CustomConfiguration customConfiguration,
+            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider,
+            [NotNull] CSharpUtilities cSharpUtilities,
+            [NotNull] ModelUtilities modelUtilities)
+            : base(model, customConfiguration, extensionsProvider, cSharpUtilities, modelUtilities)
         {
-            Check.NotEmpty(connectionString, nameof(connectionString));
-
-            var builder = new SqlConnectionStringBuilder(connectionString);
-            if (builder.InitialCatalog != null)
-            {
-                return CSharpUtilities.Instance.GenerateCSharpIdentifier(
-                    builder.InitialCatalog + _dbContextSuffix, null);
-            }
-
-            return base.ClassName(connectionString);
         }
 
         public override string UseMethodName => nameof(SqlServerDbContextOptionsExtensions.UseSqlServer);
 
-        public override void AddValueGeneratedFacetConfiguration(
+        public override string ClassName()
+        {
+            if (CustomConfiguration.ContextClassName != null)
+            {
+                return CustomConfiguration.ContextClassName;
+            }
+
+            var builder = new SqlConnectionStringBuilder(CustomConfiguration.ConnectionString);
+            if (builder.InitialCatalog != null)
+            {
+                return CSharpUtilities.GenerateCSharpIdentifier(
+                    builder.InitialCatalog + _dbContextSuffix, null);
+            }
+
+            return base.ClassName();
+        }
+
+        public override void AddValueGeneratedConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
@@ -56,12 +60,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     new List<Property> { (Property)propertyConfiguration.Property },
                     (EntityType)propertyConfiguration.EntityConfiguration.EntityType) != null)
             {
-                propertyConfiguration.AddFacetConfiguration(
-                    new FacetConfiguration(nameof(PropertyBuilder.ValueGeneratedNever) + "()"));
+                propertyConfiguration.FluentApiConfigurations.Add(
+                    new FluentApiConfiguration(nameof(PropertyBuilder.ValueGeneratedNever)));
             }
             else
             {
-                base.AddValueGeneratedFacetConfiguration(propertyConfiguration);
+                base.AddValueGeneratedConfiguration(propertyConfiguration);
             }
         }
     }

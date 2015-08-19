@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
 {
-    public class ReverseEngineeringGeneratorTests
+    public class ReverseEngineeringConfigurationTests
     {
         [Fact]
         public void Throws_exceptions_for_incorrect_configuration()
