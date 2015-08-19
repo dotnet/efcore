@@ -54,7 +54,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 return expression;
             }
 
-            return Expression.MakeBinary(expression.NodeType, left, right);
+            return Expression.MakeBinary(
+                expression.NodeType, 
+                left, 
+                right, 
+                expression.IsLiftedToNull, 
+                expression.Method);
         }
     }
 }

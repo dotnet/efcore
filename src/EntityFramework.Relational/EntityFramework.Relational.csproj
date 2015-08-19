@@ -80,7 +80,9 @@
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
     <Compile Include="Migrations\MigrationsAssemblyExtensions.cs" />
     <Compile Include="Query\Expressions\CrossApplyExpression.cs" />
+    <Compile Include="Query\ExpressionVisitors\StringCompareExpressionOptimizer.cs" />
     <Compile Include="Query\Internal\RelationalExpressionPrinter.cs" />
+    <Compile Include="Query\Methods\StringCompareTranslator.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Operations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Operations\Builders\CreateTableBuilder.cs" />

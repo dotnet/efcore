@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
@@ -25,6 +27,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private readonly bool _bindParentQueries;
         private readonly bool _inProjection;
+        private static MethodInfo _stringCompareMethodInfo = typeof(string).GetTypeInfo().GetDeclaredMethods("Compare")
+            .Where(m => m.GetParameters().Count() == 2).Single();
 
         public SqlTranslatingExpressionVisitor(
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
@@ -122,7 +126,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     return leftExpression != null
                            && rightExpression != null
-                        ? Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression)
+                        ? Expression.MakeBinary(
+                            binaryExpression.NodeType, 
+                            leftExpression, 
+                            rightExpression, 
+                            binaryExpression.IsLiftedToNull, 
+                            binaryExpression.Method)
                         : null;
                 }
             }

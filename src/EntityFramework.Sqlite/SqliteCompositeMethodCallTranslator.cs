@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.Sqlite
         {
             new MathAbsTranslator(),
             new StringToLowerTranslator(),
-            new StringToUpperTranslator()
+            new StringToUpperTranslator(),
+            new SqliteStringCompareTranslator()
         };
 
         public SqliteCompositeMethodCallTranslator([NotNull] ILoggerFactory loggerFactory)

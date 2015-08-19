@@ -14,6 +14,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Methods;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -29,6 +30,22 @@ namespace Microsoft.Data.Entity.Query.Sql
         private List<CommandParameter> _commandParameters;
         private IDictionary<string, object> _parameterValues;
         private int _rawSqlParameterIndex;
+
+        private static readonly Dictionary<ExpressionType, string> _binaryOperatorMap = new Dictionary<ExpressionType, string>
+        {
+            { ExpressionType.Equal, " = " },
+            { ExpressionType.NotEqual, " <> " },
+            { ExpressionType.GreaterThan, " > " },
+            { ExpressionType.GreaterThanOrEqual, " >= " },
+            { ExpressionType.LessThan, " < " },
+            { ExpressionType.LessThanOrEqual, " <= " },
+            { ExpressionType.AndAlso, " AND " },
+            { ExpressionType.OrElse, " OR " },
+            { ExpressionType.Subtract, " - " },
+            { ExpressionType.Multiply, " * " },
+            { ExpressionType.Divide, " / " },
+            { ExpressionType.Modulo, " % " },
+        };
 
         public DefaultQuerySqlGenerator(
             [NotNull] SelectExpression selectExpression,
@@ -692,53 +709,19 @@ namespace Microsoft.Data.Entity.Query.Sql
                 }
 
                 string op;
-
-                switch (binaryExpression.NodeType)
+                if (!TryGenerateBinaryOperator(binaryExpression.NodeType, out op))
                 {
-                    case ExpressionType.Equal:
-                        op = " = ";
-                        break;
-                    case ExpressionType.NotEqual:
-                        op = " <> ";
-                        break;
-                    case ExpressionType.GreaterThan:
-                        op = " > ";
-                        break;
-                    case ExpressionType.GreaterThanOrEqual:
-                        op = " >= ";
-                        break;
-                    case ExpressionType.LessThan:
-                        op = " < ";
-                        break;
-                    case ExpressionType.LessThanOrEqual:
-                        op = " <= ";
-                        break;
-                    case ExpressionType.AndAlso:
-                        op = " AND ";
-                        break;
-                    case ExpressionType.OrElse:
-                        op = " OR ";
-                        break;
-                    case ExpressionType.Add:
-                        op = (binaryExpression.Left.Type == typeof(string)
-                              && binaryExpression.Right.Type == typeof(string))
-                            ? " " + ConcatOperator + " "
-                            : " + ";
-                        break;
-                    case ExpressionType.Subtract:
-                        op = " - ";
-                        break;
-                    case ExpressionType.Multiply:
-                        op = " * ";
-                        break;
-                    case ExpressionType.Divide:
-                        op = " / ";
-                        break;
-                    case ExpressionType.Modulo:
-                        op = " % ";
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    switch (binaryExpression.NodeType)
+                    {
+                        case ExpressionType.Add:
+                            op = (binaryExpression.Left.Type == typeof(string)
+                                  && binaryExpression.Right.Type == typeof(string))
+                                ? " " + ConcatOperator + " "
+                                : " + ";
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
 
                 _sql.Append(op);
@@ -840,6 +823,36 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
+            if (sqlFunctionExpression.FunctionName == StringCompareTranslator.StringCompareMethodName)
+            {
+                var arguments = sqlFunctionExpression.Arguments.ToList();
+                if (sqlFunctionExpression.Type == typeof(bool))
+                {
+                    Visit(arguments[0]);
+                    _sql.Append(GenerateBinaryOperator((ExpressionType)((ConstantExpression)arguments[2]).Value));
+                    Visit(arguments[1]);
+
+                    return sqlFunctionExpression;
+                }
+                else if (sqlFunctionExpression.Type == typeof(int))
+                {
+                    var expandedExpression = Expression.Condition(
+                        Expression.Equal(arguments[0], arguments[1]),
+                        Expression.Constant(0, typeof(int)),
+                        Expression.Condition(
+                            new SqlFunctionExpression(
+                                StringCompareTranslator.StringCompareMethodName,
+                                new[] { arguments[0], arguments[1], Expression.Constant(ExpressionType.GreaterThan) },
+                                typeof(bool)),
+                            Expression.Constant(1),
+                            Expression.Constant(-1)));
+
+                    Visit(expandedExpression);
+
+                    return sqlFunctionExpression;
+                }
+            }
+
             _sql.Append(sqlFunctionExpression.FunctionName);
             _sql.Append("(");
 
@@ -940,6 +953,16 @@ namespace Microsoft.Data.Entity.Query.Sql
             return parameterName;
         }
 
+        protected virtual bool TryGenerateBinaryOperator(ExpressionType op, out string result)
+        {
+            return _binaryOperatorMap.TryGetValue(op, out result);
+        }
+
+        protected virtual string GenerateBinaryOperator(ExpressionType op)
+        {
+            return _binaryOperatorMap[op];
+        }
+
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
             => new NotImplementedException(visitMethod);
 
@@ -954,7 +977,6 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual string GenerateLiteral([NotNull] Enum value)
             => string.Format(CultureInfo.InvariantCulture, "{0:d}", value);
-
 
         private readonly Dictionary<DbType, string> _dbTypeNameMapping = new Dictionary<DbType, string>
         {

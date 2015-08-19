@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 {
     public class MathTruncateTranslator : IMethodCallTranslator
     {
-        private static readonly IEnumerable<MethodInfo> _methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods("Truncate");
+        private static readonly IEnumerable<MethodInfo> _methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Truncate));
 
         public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
         {

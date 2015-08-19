@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.Methods
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (methodCallExpression.Method.Name == "Equals"
+            if (methodCallExpression.Method.Name == nameof(object.Equals)
                 && methodCallExpression.Arguments.Count == 1)
             {
                 var argument = methodCallExpression.Arguments[0];

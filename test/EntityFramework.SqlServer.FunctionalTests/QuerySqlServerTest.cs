@@ -2949,6 +2949,175 @@ WHERE [c].[ContactName] LIKE ('%' + @__LocalMethod1_0 + '%')",
                 Sql);
         }
 
+        public override void String_Compare_simple()
+        {
+            base.String_Compare_simple();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = 'ALFKI'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <> 'ALFKI'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] > 'ALFKI'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <= 'ALFKI'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] > 'ALFKI'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <= 'ALFKI'",
+                Sql);
+        }
+
+        public override void String_Compare_complex()
+        {
+            base.String_Compare_complex();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN
+        ([c].[CustomerID] = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END = 42)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (42 <> CASE
+    WHEN
+        ([c].[CustomerID] = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN
+        ([c].[CustomerID] = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END > 42)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (42 >= CASE
+    WHEN
+        ([c].[CustomerID] = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (42 < CASE
+    WHEN
+        ([c].[CustomerID] = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN
+        ([c].[CustomerID] = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END <= 42)",
+                Sql);
+        }
+
+        public override void String_Compare_nested()
+        {
+            base.String_Compare_nested();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = 'M' + [c].[CustomerID]
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] <> UPPER([c].[CustomerID])
+
+@__ToUpper_0: ALF
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] > REPLACE('ALFKI', @__ToUpper_0, [c].[CustomerID])
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (42 >= CASE
+    WHEN
+        (([c].[CustomerID] = 'M' + [c].[CustomerID]))
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > 'M' + [c].[CustomerID])
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (42 < CASE
+    WHEN
+        (([c].[CustomerID] = UPPER([c].[CustomerID])))
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > UPPER([c].[CustomerID]))
+        THEN 1 ELSE -1
+    END
+END)
+
+@__ToUpper_0: ALF
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (CASE
+    WHEN
+        (([c].[CustomerID] = REPLACE('ALFKI', @__ToUpper_0, [c].[CustomerID])))
+    THEN 0 ELSE CASE
+        WHEN
+            ([c].[CustomerID] > REPLACE('ALFKI', @__ToUpper_0, [c].[CustomerID]))
+        THEN 1 ELSE -1
+    END
+END <= 42)",
+                Sql);
+        }
+
         public override void Where_math_abs1()
         {
             base.Where_math_abs1();

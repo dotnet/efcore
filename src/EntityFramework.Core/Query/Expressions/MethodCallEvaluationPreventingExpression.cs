@@ -30,8 +30,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var newObject = visitor.Visit(MethodCall.Object);
             var newArguments = visitor.VisitAndConvert(MethodCall.Arguments, "VisitChildren");
 
-            if (newObject != MethodCall.Object
-                || newArguments != MethodCall.Arguments)
+            if (newObject != MethodCall.Object || newArguments != MethodCall.Arguments)
             {
                 return new MethodCallEvaluationPreventingExpression(
                     Call(newObject, MethodCall.Method, newArguments));

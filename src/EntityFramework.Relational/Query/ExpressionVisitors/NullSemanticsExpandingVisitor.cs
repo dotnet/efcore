@@ -110,12 +110,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            if (left == expression.Left
-                && right == expression.Right)
+            if (left == expression.Left && right == expression.Right)
             {
                 return expression;
             }
-            return Expression.MakeBinary(expression.NodeType, left, right);
+
+            return Expression.MakeBinary(expression.NodeType, left, right, expression.IsLiftedToNull, expression.Method);
         }
 
         protected override Expression VisitExtension(Expression expression)

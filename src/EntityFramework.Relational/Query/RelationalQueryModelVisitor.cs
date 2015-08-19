@@ -129,10 +129,14 @@ namespace Microsoft.Data.Entity.Query
                         .GetCustomQueryAnnotations(RelationalQueryableExtensions.UseRelationalNullSemanticsMethodInfo)
                         .Any());
 
+            var stringCompareOptimizer = new StringCompareExpressionOptimizer();
             foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
             {
                 selectExpression.Predicate
                     = compositePredicateVisitor.Visit(selectExpression.Predicate);
+
+                selectExpression.Predicate
+                    = stringCompareOptimizer.Visit(selectExpression.Predicate);
             }
         }
 

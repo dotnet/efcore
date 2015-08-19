@@ -75,6 +75,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="Query\Methods\MathAbsTranslator.cs" />
+    <Compile Include="Query\Methods\SqliteStringCompareTranslator.cs" />
     <Compile Include="Query\Methods\StringLengthTranslator.cs" />
     <Compile Include="Query\Methods\StringToLowerTranslator.cs" />
     <Compile Include="Query\Methods\StringToUpperTranslator.cs" />

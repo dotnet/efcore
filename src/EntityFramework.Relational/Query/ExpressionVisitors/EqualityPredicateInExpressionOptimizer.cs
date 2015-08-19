@@ -127,7 +127,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             if (leftExpression != binaryExpression.Left
                 || rightExpression != binaryExpression.Right)
             {
-                return Expression.MakeBinary(binaryExpression.NodeType, leftExpression, rightExpression);
+                return Expression.MakeBinary(
+                    binaryExpression.NodeType, 
+                    leftExpression, 
+                    rightExpression, 
+                    binaryExpression.IsLiftedToNull, 
+                    binaryExpression.Method);
             }
 
             return null;

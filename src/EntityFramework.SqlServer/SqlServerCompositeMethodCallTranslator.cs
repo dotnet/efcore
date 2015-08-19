@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer
             new StringReplaceTranslator(),
             new StringToLowerTranslator(),
             new StringToUpperTranslator(),
+            new SqlServerStringCompareTranslator(),
             new ConvertTranslator(),
         };
 

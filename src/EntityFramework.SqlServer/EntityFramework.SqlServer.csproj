@@ -50,6 +50,7 @@
     <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerPropertyBuilderAnnotations.cs" />
+    <Compile Include="Query\Methods\SqlServerStringCompareTranslator.cs" />
     <Compile Include="Update\ISqlServerUpdateSqlGenerator.cs" />
     <Compile Include="Metadata\ISqlServerIndexAnnotations.cs" />
     <Compile Include="Metadata\ISqlServerKeyAnnotations.cs" />

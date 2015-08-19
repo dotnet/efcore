@@ -11,10 +11,10 @@ namespace Microsoft.Data.Entity.Query.Methods
     public class ContainsTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
-            = typeof(string).GetRuntimeMethod("Contains", new[] { typeof(string) });
+            = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
 
         private static readonly MethodInfo _concat
-            = typeof(string).GetRuntimeMethod("Concat", new[] { typeof(string), typeof(string) });
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {

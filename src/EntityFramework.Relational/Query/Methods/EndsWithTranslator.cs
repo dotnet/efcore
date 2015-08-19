@@ -11,10 +11,10 @@ namespace Microsoft.Data.Entity.Query.Methods
     public class EndsWithTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo _methodInfo
-            = typeof(string).GetRuntimeMethod("EndsWith", new[] { typeof(string) });
+            = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) });
 
         private static readonly MethodInfo _concat
-            = typeof(string).GetRuntimeMethod("Concat", new[] { typeof(string), typeof(string) });
+            = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {

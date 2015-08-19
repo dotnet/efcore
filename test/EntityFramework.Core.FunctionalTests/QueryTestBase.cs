@@ -3331,6 +3331,90 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 19);
         }
 
+        [Fact]
+        public virtual void String_Compare_simple()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 0),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 != string.Compare(c.CustomerID, "ALFKI")),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 0),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 >= string.Compare(c.CustomerID, "ALFKI")),
+                entryCount: 1);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 < string.Compare(c.CustomerID, "ALFKI")),
+                entryCount: 90);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") <= 0),
+                entryCount: 1);
+        }
+
+        [Fact]
+        public virtual void String_Compare_complex()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") == 42),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 42 != string.Compare(c.CustomerID, "ALFKI")),
+                entryCount: 91);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > 42),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 42 >= string.Compare(c.CustomerID, "ALFKI")),
+                entryCount: 91);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 42 < string.Compare(c.CustomerID, "ALFKI")),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") <= 42),
+                entryCount: 91);
+        }
+
+        [Fact]
+        public virtual void String_Compare_nested()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "M" + c.CustomerID) == 0),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 0 != string.Compare(c.CustomerID, c.CustomerID.ToUpper())),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) > 0),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 42 >= string.Compare(c.CustomerID, "M" + c.CustomerID)),
+                entryCount: 91);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => 42 < string.Compare(c.CustomerID, c.CustomerID.ToUpper())),
+                entryCount: 0);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI".Replace("ALF".ToUpper(), c.CustomerID)) <= 42),
+                entryCount: 91);
+        }
+
         protected static string LocalMethod1()
         {
             return "M";

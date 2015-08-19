@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query.Methods
 {
     public class MathRoundTranslator : IMethodCallTranslator
     {
-        private static IEnumerable<MethodInfo> _methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods("Round")
+        private static IEnumerable<MethodInfo> _methodInfos = typeof(Math).GetTypeInfo().GetDeclaredMethods(nameof(Math.Round))
             .Where(m => m.GetParameters().Count() == 1
                 || (m.GetParameters().Count() == 2 && m.GetParameters()[1].ParameterType == typeof(int)));
 

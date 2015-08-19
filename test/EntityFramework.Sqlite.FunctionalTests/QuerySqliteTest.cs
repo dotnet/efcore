@@ -1151,6 +1151,161 @@ WHERE (length(""c"".""City"") = 6)",
                 Sql);
         }
 
+        public override void String_Compare_simple()
+        {
+            base.String_Compare_simple();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = 'ALFKI'
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" <> 'ALFKI'
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" > 'ALFKI'
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" <= 'ALFKI'
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" > 'ALFKI'
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" <= 'ALFKI'",
+                Sql);
+        }
+
+        public override void String_Compare_complex()
+        {
+            base.String_Compare_complex();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (CASE
+    WHEN
+        (""c"".""CustomerID"" = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END = 42)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (42 <> CASE
+    WHEN
+        (""c"".""CustomerID"" = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (CASE
+    WHEN
+        (""c"".""CustomerID"" = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END > 42)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (42 >= CASE
+    WHEN
+        (""c"".""CustomerID"" = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (42 < CASE
+    WHEN
+        (""c"".""CustomerID"" = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (CASE
+    WHEN
+        (""c"".""CustomerID"" = 'ALFKI')
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'ALFKI')
+        THEN 1 ELSE -1
+    END
+END <= 42)",
+                Sql);
+        }
+
+        public override void String_Compare_nested()
+        {
+            base.String_Compare_nested();
+
+            Assert.Equal(
+                @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" = 'M' || ""c"".""CustomerID""
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE ""c"".""CustomerID"" <> upper(""c"".""CustomerID"")
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (42 >= CASE
+    WHEN
+        ((""c"".""CustomerID"" = 'M' || ""c"".""CustomerID""))
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > 'M' || ""c"".""CustomerID"")
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""
+WHERE (42 < CASE
+    WHEN
+        ((""c"".""CustomerID"" = upper(""c"".""CustomerID"")))
+    THEN 0 ELSE CASE
+        WHEN
+            (""c"".""CustomerID"" > upper(""c"".""CustomerID""))
+        THEN 1 ELSE -1
+    END
+END)
+
+SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
+FROM ""Customers"" AS ""c""",
+                Sql);
+        }
+
         public override void Where_is_null()
         {
             base.Where_is_null();
