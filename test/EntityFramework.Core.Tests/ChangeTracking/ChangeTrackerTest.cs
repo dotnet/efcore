@@ -232,9 +232,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         Id = 1,
                         Products = new List<Product>
                             {
-                                new Product { Id = 1, Details = new ProductDetails { Id = 1 } },
-                                new Product { Id = 2, Details = new ProductDetails { Id = 2 } },
-                                new Product { Id = 3, Details = new ProductDetails { Id = 3 } }
+                                new Product { Id = 1, CategoryId = 1, Details = new ProductDetails { Id = 1 } },
+                                new Product { Id = 2, CategoryId = 1, Details = new ProductDetails { Id = 2 } },
+                                new Product { Id = 3, CategoryId = 1, Details = new ProductDetails { Id = 3 } }
                             }
                     };
 
@@ -259,7 +259,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 Assert.Equal(EntityState.Unchanged, context.Entry(category.Products[2].Details).State);
 
                 Assert.Same(category, category.Products[0].Category);
-                Assert.Same(category, category.Products[1].Category);
+                Assert.Null(category.Products[1].Category);
                 Assert.Same(category, category.Products[2].Category);
 
                 Assert.Equal(category.Id, category.Products[0].CategoryId);
@@ -326,9 +326,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         Id = 77,
                         Products = new List<Product>
                             {
-                                new Product { Id = 77 },
-                                new Product { Id = 0 },
-                                new Product { Id = 78 }
+                                new Product { Id = 77, CategoryId = expectModified ? 0 : 77 },
+                                new Product { Id = 0, CategoryId = expectModified ? 0 : 77 },
+                                new Product { Id = 78, CategoryId = expectModified ? 0 : 77 }
                             }
                     };
 
@@ -369,9 +369,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         Id = 77,
                         Products = new List<Product>
                             {
-                                new Product { Id = 77 },
-                                new Product { Id = 0 },
-                                new Product { Id = 78 }
+                                new Product { Id = 77, CategoryId = 77 },
+                                new Product { Id = 0, CategoryId = 77 },
+                                new Product { Id = 78, CategoryId = 77 }
                             }
                     };
 
