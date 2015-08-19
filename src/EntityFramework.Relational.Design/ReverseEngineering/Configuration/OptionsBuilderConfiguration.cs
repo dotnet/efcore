@@ -6,15 +6,19 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 {
-    public class OptionsBuilderConfiguration
+    public class OptionsBuilderConfiguration : IFluentApiConfiguration
     {
         public OptionsBuilderConfiguration([NotNull] string methodBody)
         {
-            Check.NotNull(methodBody, nameof(methodBody));
+            Check.NotEmpty(methodBody, nameof(methodBody));
 
-            MethodBody = methodBody;
+            FluentApi = methodBody;
         }
 
-        public virtual string MethodBody { get; }
+        public virtual bool HasAttributeEquivalent { get; } = false;
+        public virtual string For { get; }
+
+        public virtual string FluentApi { get;[param: NotNull] set; }
+
     }
 }

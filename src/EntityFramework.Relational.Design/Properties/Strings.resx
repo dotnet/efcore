@@ -120,6 +120,9 @@
   <data name="ConnectionStringRequired" xml:space="preserve">
     <value>ConnectionString is required to generate code.</value>
   </data>
+  <data name="ErrorMessageWithLineNumber" xml:space="preserve">
+    <value>At line {lineNumber}. Message: {message}</value>
+  </data>
   <data name="ErrorRunningDbContextTemplate" xml:space="preserve">
     <value>There was an error running the DbContext template. Message: {errorMessage}</value>
   </data>

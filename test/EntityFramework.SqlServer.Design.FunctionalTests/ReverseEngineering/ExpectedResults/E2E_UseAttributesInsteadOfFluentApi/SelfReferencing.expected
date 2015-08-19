@@ -1,0 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class SelfReferencing
+    {
+        public int SelfReferencingID { get; set; }
+        [Required]
+        public string Description { get; set; }
+        [Required]
+        public string Name { get; set; }
+        public int? SelfReferenceFK { get; set; }
+
+        [ForeignKey("SelfReferenceFK")]
+        [InverseProperty("InverseSelfReferenceFKNavigation")]
+        public virtual SelfReferencing SelfReferenceFKNavigation { get; set; }
+        [InverseProperty("SelfReferenceFKNavigation")]
+        public virtual ICollection<SelfReferencing> InverseSelfReferenceFKNavigation { get; set; }
+    }
+}

@@ -67,7 +67,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                         var formatter = new DiagnosticFormatter();
                         var errorMessages = result.Diagnostics
                             .Where(IsError)
-                            .Select(d => formatter.Format(d));
+                            .Select(d => Strings.ErrorMessageWithLineNumber(
+                                d.Location.SourceSpan.Start, formatter.Format(d)));
 
                         return CompiledAssemblyResult.FromErrorMessages(errorMessages);
                     }

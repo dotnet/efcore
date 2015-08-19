@@ -1,39 +1,61 @@
 @inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
 @using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 @{
-    string errorMessageAnnotation = Model.Helper.ErrorMessageAnnotation;
+    var useAttributesOverFluentApi = true;
+    string errorMessageAnnotation = Model.ErrorMessageAnnotation;
 }@if (errorMessageAnnotation != null) {
 @:// @errorMessageAnnotation
 }
 else {
 @:using System;
 @:using System.Collections.Generic;
-@:using Microsoft.Data.Entity;
+if (useAttributesOverFluentApi) {
+@:using System.ComponentModel.DataAnnotations;
+@:using System.ComponentModel.DataAnnotations.Schema;
+}@:using Microsoft.Data.Entity;
 @:using Microsoft.Data.Entity.Metadata;
 @:
-@:namespace @Model.Namespace
+@:namespace @Model.ModelConfiguration.Namespace()
 @:{
+    if (useAttributesOverFluentApi)
+    {
+        foreach(var attrConfig in Model.AttributeConfigurations)
+        {
+@:    [@attrConfig.AttributeBody]
+        }
+    }
 @:    public class @Model.EntityType.Name
 @:    {
     @* dnxcore50 requires this be cast, similarly below *@
-    if ((int)(Model.Helper.NavPropInitializers.Count) > 0) {
+    if ((int)(Model.NavigationPropertyInitializerConfigurations.Count) > 0) {
 @:        public @(Model.EntityType.Name)()
 @:        {
-        foreach (var navPropInitializer in Model.Helper.NavPropInitializers)
+        foreach (var navPropInitializer in Model.NavigationPropertyInitializerConfigurations)
         {
 @:            @navPropInitializer.NavigationPropertyName = new HashSet<@navPropInitializer.PrincipalEntityTypeName>();
         }
 @:        }
 @:
     }
-    foreach (var property in Model.Helper.OrderedEntityProperties)
+    foreach (var property in ModelUtilities.OrderedProperties(Model.EntityType))
     {
+        if (useAttributesOverFluentApi)
+        {
+            var propertyConfiguration = Model.FindPropertyConfiguration(property);
+            if (propertyConfiguration != null)
+            {
+                foreach (var attrConfig in propertyConfiguration.AttributeConfigurations)
+                {
+@:        [@attrConfig.AttributeBody]
+                }
+            }
+        }
 @:        public @CSharpUtilities.GetTypeName(property.ClrType) @property.Name { get; set; }
     }
-    if ((int)(Model.Helper.NavigationProperties.Count) > 0)
+    if ((int)(Model.NavigationPropertyConfigurations.Count) > 0)
     {
 @:
-        foreach (NavigationPropertyConfiguration navProp in Model.Helper.NavigationProperties)
+        foreach (NavigationPropertyConfiguration navProp in Model.NavigationPropertyConfigurations)
         {
             if (navProp.ErrorAnnotation != null)
             {
@@ -41,6 +63,13 @@ else {
             }
             else
             {
+                if (useAttributesOverFluentApi)
+                {
+                    foreach (var attrConfig in navProp.AttributeConfigurations)
+                    {
+@:        [@attrConfig.AttributeBody]
+                    }
+                }
 @:        public virtual @navProp.Type @navProp.Name { get; set; }
             }
         }

@@ -23,12 +23,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         public virtual string TestSubDir => "SubDir";
         public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
 
-        public virtual string ProviderDbContextTemplateName
-            => ProviderName + "." + ReverseEngineeringGenerator.DbContextTemplateFileName;
-
-        public virtual string ProviderEntityTypeTemplateName
-            => ProviderName + "." + ReverseEngineeringGenerator.EntityTypeTemplateFileName;
-
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
             : base(output)
         {
@@ -45,16 +39,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",
+                        "System.ComponentModel.Annotations",
 #else
                     },
                 References =
                     {
                         MetadataReference.CreateFromFile(
                             Assembly.Load(new AssemblyName(
-                                "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location)
+                                "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
+                        MetadataReference.CreateFromFile(
+                            Assembly.Load(new AssemblyName(
+                                "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location),
 #endif
                     }
-            };
+        };
 
         private const string _connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30";
 
@@ -76,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             };
 
         [Fact]
-        public void E2ETest()
+        public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
             var configuration = new ReverseEngineeringConfiguration
                 {
@@ -95,7 +93,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 };
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
-                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E"),
+                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_UseAttributesInsteadOfFluentApi"),
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir))
                 {
                     Files = _expectedFiles
@@ -115,6 +113,62 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                             @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
                         }
                 });
+            AssertEqualFileContents(expectedFileSet, actualFileSet);
+            AssertCompile(actualFileSet);
+        }
+
+        [Fact]
+        public void E2ETest_AllFluentApi()
+        {
+            var configuration = new ReverseEngineeringConfiguration
+            {
+                ConnectionString = _connectionString,
+                CustomTemplatePath = "AllFluentApiTemplatesDir",
+                ProjectPath = TestProjectDir,
+                ProjectRootNamespace = TestNamespace,
+                RelativeOutputPath = null // not used for this test
+            };
+
+            // use templates where the flag to use attributes instead of fluent API has been turned off
+            var dbContextTemplate = MetadataModelProvider.DbContextTemplate
+                .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");
+            var entityTypeTemplate = MetadataModelProvider.EntityTypeTemplate
+                .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");
+            InMemoryFiles.OutputFile("AllFluentApiTemplatesDir", ProviderDbContextTemplateName, dbContextTemplate);
+            InMemoryFiles.OutputFile("AllFluentApiTemplatesDir", ProviderEntityTypeTemplateName, entityTypeTemplate);
+
+            var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+
+            var actualFileSet = new FileSet(InMemoryFiles, TestProjectDir)
+            {
+                Files = filePaths.Select(Path.GetFileName).ToList()
+            };
+
+            var expectedFileSet = new FileSet(new FileSystemFileService(),
+                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_AllFluentApi"))
+            {
+                Files = _expectedFiles
+            };
+
+            AssertLog(new LoggerMessages
+            {
+                Warn =
+                        {
+                            @"For column [dbo][AllDataTypes][hierarchyidColumn]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
+                            @"For column [dbo][AllDataTypes][sql_variantColumn]. Could not find type mapping for SQL Server type sql_variant. Skipping column.",
+                            @"For column [dbo][AllDataTypes][xmlColumn]. Could not find type mapping for SQL Server type xml. Skipping column.",
+                            @"For column [dbo][AllDataTypes][geographyColumn]. Could not find type mapping for SQL Server type geography. Skipping column.",
+                            @"For column [dbo][AllDataTypes][geometryColumn]. Could not find type mapping for SQL Server type geometry. Skipping column.",
+                            @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerIdentityStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
+                            @"For column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
+                            @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
+                        },
+                Info =
+                        {
+                            "Using custom template " + Path.Combine("AllFluentApiTemplatesDir", ProviderDbContextTemplateName),
+                            "Using custom template " + Path.Combine("AllFluentApiTemplatesDir", ProviderEntityTypeTemplateName)
+                        }
+            });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }

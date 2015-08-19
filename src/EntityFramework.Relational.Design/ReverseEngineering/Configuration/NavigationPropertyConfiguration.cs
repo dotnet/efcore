@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -27,5 +28,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual string ErrorAnnotation { get; [param: NotNull] private set; }
         public virtual string Type { get; [param: NotNull] private set; }
         public virtual string Name { get; [param: NotNull] private set; }
+        public virtual List<IAttributeConfiguration> AttributeConfigurations { get; } = new List<IAttributeConfiguration>();
     }
 }

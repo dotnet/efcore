@@ -1,0 +1,21 @@
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public partial class ModelContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite(@"Data Source=ManyToManyAttributes.db;Cache=Private");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
+
+        public virtual DbSet<Groups> Groups { get; set; }
+        public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<Users_Groups> Users_Groups { get; set; }
+    }
+}

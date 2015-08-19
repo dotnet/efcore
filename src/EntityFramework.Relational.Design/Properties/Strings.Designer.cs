@@ -21,6 +21,14 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
+        /// At line {lineNumber}. Message: {message}
+        /// </summary>
+        public static string ErrorMessageWithLineNumber([CanBeNull] object lineNumber, [CanBeNull] object message)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMessageWithLineNumber", "lineNumber", "message"), lineNumber, message);
+        }
+
+        /// <summary>
         /// There was an error running the DbContext template. Message: {errorMessage}
         /// </summary>
         public static string ErrorRunningDbContextTemplate([CanBeNull] object errorMessage)

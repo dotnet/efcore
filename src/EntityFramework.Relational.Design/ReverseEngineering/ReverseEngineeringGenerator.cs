@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -20,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
-        private readonly CodeGeneratorHelperFactory _helperFactory;
+        private readonly ModelConfigurationFactory _modelConfigurationFactory;
         private readonly IDatabaseMetadataModelProvider _provider;
         public const string DbContextTemplateFileName = "DbContextTemplate.cshtml";
         public const string EntityTypeTemplateFileName = "EntityTypeTemplate.cshtml";
@@ -32,19 +33,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] ModelUtilities modelUtilities, 
             [NotNull] ITemplating templating,
             [NotNull] IDatabaseMetadataModelProvider metadataModelProvider, 
-            [NotNull] CodeGeneratorHelperFactory helperFactory)
+            [NotNull] ModelConfigurationFactory modelConfigurationFactory)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(fileService, nameof(fileService));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
             Check.NotNull(templating, nameof(templating));
-            Check.NotNull(helperFactory, nameof(helperFactory));
+            Check.NotNull(modelConfigurationFactory, nameof(modelConfigurationFactory));
 
             Logger = logger;
             FileService = fileService;
             Templating = templating;
             _provider = metadataModelProvider;
-            _helperFactory = helperFactory;
+            _modelConfigurationFactory = modelConfigurationFactory;
         }
 
         public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
@@ -70,18 +71,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var @namespace = ConstructNamespace(configuration.ProjectRootNamespace,
                     configuration.ProjectPath, configuration.RelativeOutputPath);
 
-            var dbContextGeneratorModel = new DbContextGeneratorModel
+            var customConfiguration = new CustomConfiguration()
             {
-                ClassName = configuration.ContextClassName,
-                Namespace = @namespace,
                 ConnectionString = configuration.ConnectionString,
-                MetadataModel = metadataModel
+                ContextClassName = configuration.ContextClassName,
+                Namespace = @namespace,
             };
-            var dbContextCodeGeneratorHelper = _helperFactory.DbContextHelper(dbContextGeneratorModel);
-            dbContextGeneratorModel.Helper = dbContextCodeGeneratorHelper;
+            var modelConfiguration = _modelConfigurationFactory
+                .CreateModelConfiguration(metadataModel, customConfiguration);
 
-            var dbContextClassName = configuration.ContextClassName
-                                     ?? dbContextCodeGeneratorHelper.ClassName(configuration.ConnectionString);
+            var dbContextClassName = modelConfiguration.ClassName();
             CheckOutputFiles(configuration.ProjectPath, configuration.RelativeOutputPath, dbContextClassName, metadataModel);
             var outputPath = configuration.RelativeOutputPath == null
                 ? configuration.ProjectPath
@@ -90,7 +89,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var dbContextTemplate = LoadTemplate(configuration.CustomTemplatePath,
                     GetDbContextTemplateFileName(), () => _provider.DbContextTemplate);
             var templateResult = await Templating.RunTemplateAsync(
-                dbContextTemplate, dbContextGeneratorModel, _provider, cancellationToken);
+                dbContextTemplate, modelConfiguration, _provider, cancellationToken);
             if (templateResult.ProcessingException != null)
             {
                 throw new InvalidOperationException(
@@ -107,19 +106,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 GetEntityTypeTemplateFileName(), () => _provider.EntityTypeTemplate);
             foreach (var entityType in metadataModel.EntityTypes)
             {
-                // TODO decouple models and helpers to remove the bidirectional references
-                var entityTypeGeneratorModel = new EntityTypeGeneratorModel
-                {
-                    EntityType = entityType,
-                    Namespace = @namespace,
-                    ConnectionString = configuration.ConnectionString
-                };
-                
-                var entityTypeCodeGeneratorHelper = _helperFactory.EntityTypeHelper(entityTypeGeneratorModel);
-                entityTypeGeneratorModel.Helper = entityTypeCodeGeneratorHelper;
-
                 templateResult = await Templating.RunTemplateAsync(
-                    entityTypeTemplate, entityTypeGeneratorModel, _provider, cancellationToken);
+                    entityTypeTemplate,
+                    modelConfiguration.GetEntityConfiguration((EntityType)entityType),
+                    _provider,
+                    cancellationToken);
                 if (templateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(

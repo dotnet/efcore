@@ -55,7 +55,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
 
                 if (!generatorResults.Success)
                 {
-                    var messages = generatorResults.ParserErrors.Select(e => e.Message);
+                    var messages = generatorResults.ParserErrors.Select(
+                        e => Strings.ErrorMessageWithLineNumber(e.Location.LineIndex, e.Message));
                     return new TemplateResult
                     {
                         GeneratedText = string.Empty,

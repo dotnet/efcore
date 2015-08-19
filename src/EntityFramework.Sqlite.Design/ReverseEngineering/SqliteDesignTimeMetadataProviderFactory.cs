@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 .AddScoped<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
                 .AddScoped<SqliteReverseTypeMapper>()
                 .AddScoped<IRelationalMetadataExtensionProvider, SqliteMetadataExtensionProvider>()
-                .AddScoped<CodeGeneratorHelperFactory, SqliteCodeGeneratorHelperFactory>();
+                .AddScoped<ModelConfigurationFactory, SqliteModelConfigurationFactory>();
         }
     }
 }
