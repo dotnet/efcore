@@ -1,24 +1,45 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
     public abstract class RelationalDatabaseCreator : IRelationalDatabaseCreator
     {
-        protected RelationalDatabaseCreator([NotNull] IModel model)
+        private readonly IMigrationsModelDiffer _modelDiffer;
+        private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
+
+        protected RelationalDatabaseCreator(
+            [NotNull] IModel model,
+            [NotNull] IRelationalConnection connection,
+            [NotNull] IMigrationsModelDiffer modelDiffer,
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
+            [NotNull] ISqlStatementExecutor sqlStatementExecutor)
         {
             Check.NotNull(model, nameof(model));
+            Check.NotNull(connection, nameof(connection));
+            Check.NotNull(modelDiffer, nameof(modelDiffer));
+            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
+            Check.NotNull(sqlStatementExecutor, nameof(sqlStatementExecutor));
 
             Model = model;
+            Connection = connection;
+            SqlStatementExecutor = sqlStatementExecutor;
+            _modelDiffer = modelDiffer;
+            _migrationsSqlGenerator = migrationsSqlGenerator;
         }
 
         protected virtual IModel Model { get; }
+        protected virtual IRelationalConnection Connection { get; }
+        protected virtual ISqlStatementExecutor SqlStatementExecutor { get; }
 
         public abstract bool Exists();
 
@@ -51,16 +72,19 @@ namespace Microsoft.Data.Entity.Storage
             return Task.FromResult(0);
         }
 
-        public abstract void CreateTables();
+        public virtual void CreateTables()
+            => SqlStatementExecutor.ExecuteNonQuery(
+                Connection,
+                GetCreateTablesCommands());
 
         public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+            => SqlStatementExecutor.ExecuteNonQueryAsync(
+                Connection,
+                GetCreateTablesCommands(),
+                cancellationToken);
 
-            CreateTables();
-
-            return Task.FromResult(0);
-        }
+        protected virtual IEnumerable<RelationalCommand> GetCreateTablesCommands()
+            => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
 
         public abstract bool HasTables();
 
