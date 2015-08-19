@@ -36,7 +36,6 @@
     <Compile Include="ReverseEngineering\NullDatabaseMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\NullFileService.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGeneratorTests.cs" />
-    <None Include="App.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
