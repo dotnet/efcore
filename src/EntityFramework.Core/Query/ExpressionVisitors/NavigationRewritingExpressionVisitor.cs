@@ -150,6 +150,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         newLeft = leftNavigationJoin.JoinClause.OuterKeySelector;
 
                         NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
+
+                        if (IsCompositeKey(newLeft.Type))
+                        {
+                            newRight = CreateNullCompositeKey(newLeft);
+                        }
                     }
                     else
                     {
@@ -167,6 +172,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         newRight = rightNavigationJoin.JoinClause.OuterKeySelector;
 
                         NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
+
+                        if (IsCompositeKey(newRight.Type))
+                        {
+                            newLeft = CreateNullCompositeKey(newRight);
+                        }
                     }
                     else
                     {
@@ -177,6 +187,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             return Expression.MakeBinary(binaryExpression.NodeType, newLeft, newRight);
         }
+
+        private static NewExpression CreateNullCompositeKey(Expression otherExpression)
+            => Expression.New(
+                _compositeKeyCtor,
+                Expression.NewArrayInit(
+                    typeof(object),
+                    Enumerable.Repeat(
+                        Expression.Constant(null),
+                        ((NewArrayExpression)((NewExpression)otherExpression).Arguments.Single()).Expressions.Count)));
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -300,7 +319,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private static readonly ConstructorInfo _compositeKeyCtor
             = typeof(CompositeKey).GetTypeInfo().DeclaredConstructors.Single();
 
-
         public static bool IsCompositeKey([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
@@ -312,10 +330,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             public static bool operator ==(CompositeKey x, CompositeKey y) => x.Equals(y);
             public static bool operator !=(CompositeKey x, CompositeKey y) => !x.Equals(y);
-            public static bool operator ==(CompositeKey x, object _) => x._values.All(v => v == null);
-            public static bool operator !=(CompositeKey x, object y) => !(x == y);
-            public static bool operator ==(object y, CompositeKey x) => x == y;
-            public static bool operator !=(object y, CompositeKey x) => x != y;
 
             private readonly object[] _values;
 
