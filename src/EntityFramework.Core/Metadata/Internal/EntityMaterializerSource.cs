@@ -24,30 +24,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _memberMapper = memberMapper;
         }
 
-        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index)
-        {
-            Expression expression = Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
-
-            if (type.IsNullableType())
-            {
-                var underlyingType = type.UnwrapNullableType();
-                if (underlyingType.GetTypeInfo().IsEnum)
-                {
-                    return Expression.Condition(
-                        Expression.ReferenceEqual(
-                            expression,
-                            Expression.Constant(null)),
-                        Expression.Constant(null, type),
-                        Expression.Convert(
-                            Expression.Convert(
-                                expression,
-                                underlyingType.UnwrapEnumType()),
-                            type));
-                }
-            }
-
-            return Expression.Convert(expression, type);
-        }
+        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index) 
+            => Expression.Convert(Expression.Call(valueBuffer, _readValue, Expression.Constant(index)), type);
 
         public virtual Expression CreateMaterializeExpression(
             IEntityType entityType,

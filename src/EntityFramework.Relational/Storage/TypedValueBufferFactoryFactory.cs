@@ -22,13 +22,13 @@ namespace Microsoft.Data.Entity.Storage
 
         private struct CacheKey
         {
-            public CacheKey(IReadOnlyCollection<Type> valueTypes, IReadOnlyList<int> indexMap)
+            public CacheKey(IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
             {
                 ValueTypes = valueTypes;
                 IndexMap = indexMap;
             }
 
-            public IReadOnlyCollection<Type> ValueTypes { get; }
+            public IReadOnlyList<Type> ValueTypes { get; }
             public IReadOnlyList<int> IndexMap { get; }
 
             private bool Equals(CacheKey other)
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Storage
             = new ThreadSafeDictionaryCache<CacheKey, Func<DbDataReader, object[]>>();
 
         public virtual IRelationalValueBufferFactory Create(
-            IReadOnlyCollection<Type> valueTypes, IReadOnlyList<int> indexMap)
+            IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
         {
             Check.NotNull(valueTypes, nameof(valueTypes));
 

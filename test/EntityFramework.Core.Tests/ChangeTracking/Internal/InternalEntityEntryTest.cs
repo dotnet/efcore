@@ -1498,20 +1498,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity)
-        {
-            return contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
+            => contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
                     contextServices.GetRequiredService<IEntityEntryMetadataServices>())
-                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity));
-        }
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity), null);
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, ValueBuffer valueBuffer)
-        {
-            return contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
+            => contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory(
                     contextServices.GetRequiredService<IEntityEntryMetadataServices>())
-                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer));
-        }
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer), null);
 
         protected virtual Model BuildModel()
         {

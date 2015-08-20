@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             // Issue #240
             var entity = entityType.HasClrType() ? Activator.CreateInstance(entityType.ClrType) : null;
 
-            return _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
+            return _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
         }
 
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 var entityType = _model.GetEntityType(entity.GetType());
 
-                entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
+                entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
 
                 _detachedEntityReferenceMap[entity] = new WeakReference<InternalEntityEntry>(entry);
             }
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return existingEntry;
             }
 
-            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer));
+            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer), valueBuffer);
 
             AddToIdentityMap(entityType, entityKey, newEntry);
 

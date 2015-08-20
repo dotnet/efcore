@@ -11,15 +11,15 @@ namespace Microsoft.Data.Entity.Storage
     {
         public static readonly ValueBuffer Empty = new ValueBuffer();
 
-        private readonly IReadOnlyList<object> _values;
+        private readonly IList<object> _values;
         private readonly int _offset;
 
-        public ValueBuffer([NotNull] IReadOnlyList<object> values)
+        public ValueBuffer([NotNull] IList<object> values)
             : this(values, 0)
         {
         }
 
-        public ValueBuffer([NotNull] IReadOnlyList<object> values, int offset)
+        public ValueBuffer([NotNull] IList<object> values, int offset)
         {
             Debug.Assert(values != null);
             Debug.Assert(offset >= 0);
@@ -28,7 +28,11 @@ namespace Microsoft.Data.Entity.Storage
             _offset = offset;
         }
 
-        public object this[int index] => _values[_offset + index];
+        public object this[int index]
+        {
+            get { return _values[_offset + index]; }
+            [param: CanBeNull] set { _values[_offset + index] = value; }
+        }
 
         public int Count => _values.Count - _offset;
 

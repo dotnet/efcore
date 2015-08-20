@@ -36,8 +36,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected virtual IEntityEntryMetadataServices MetadataServices { get; }
 
-        public virtual Sidecar OriginalValues => TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
-                                                 ?? AddSidecar(MetadataServices.CreateOriginalValues(this));
+        public virtual Sidecar OriginalValues
+        {
+            get
+            {
+                return TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
+                       ?? AddSidecar(MetadataServices.CreateOriginalValues(this));
+            }
+            [param: NotNull] set { AddSidecar(value); }
+        }
 
         public virtual Sidecar RelationshipsSnapshot => TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
                                                         ?? AddSidecar(MetadataServices.CreateRelationshipSnapshot(this));

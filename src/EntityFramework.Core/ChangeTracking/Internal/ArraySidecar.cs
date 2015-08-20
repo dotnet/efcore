@@ -24,10 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected override object ReadValue(IPropertyBase property) => _values[IndexChecked(property)];
 
-        protected override void WriteValue(IPropertyBase property, object value)
-        {
-            _values[IndexChecked(property)] = value;
-        }
+        protected override void WriteValue(IPropertyBase property, object value) => _values[IndexChecked(property)] = value;
 
         private int IndexChecked(IPropertyBase property)
         {

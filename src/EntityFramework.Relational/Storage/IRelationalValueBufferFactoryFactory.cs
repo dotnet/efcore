@@ -10,6 +10,6 @@ namespace Microsoft.Data.Entity.Storage
     public interface IRelationalValueBufferFactoryFactory
     {
         IRelationalValueBufferFactory Create(
-            [NotNull] IReadOnlyCollection<Type> valueTypes, [CanBeNull] IReadOnlyList<int> indexMap);
+            [NotNull] IReadOnlyList<Type> valueTypes, [CanBeNull] IReadOnlyList<int> indexMap);
     }
 }

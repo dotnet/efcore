@@ -13,12 +13,16 @@ namespace Microsoft.Data.Entity.Storage
     public class RemappingUntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
         private readonly IReadOnlyList<int> _indexMap;
+        private readonly Action<object[]> _processValuesAction;
 
-        public RemappingUntypedRelationalValueBufferFactory([NotNull] IReadOnlyList<int> indexMap)
+        public RemappingUntypedRelationalValueBufferFactory(
+            [NotNull] IReadOnlyList<int> indexMap, 
+            [CanBeNull] Action<object[]> processValuesAction)
         {
             Check.NotNull(indexMap, nameof(indexMap));
 
             _indexMap = indexMap;
+            _processValuesAction = processValuesAction;
         }
 
         public virtual ValueBuffer Create(DbDataReader dataReader)
@@ -34,6 +38,8 @@ namespace Microsoft.Data.Entity.Storage
             var values = new object[dataReader.FieldCount];
 
             dataReader.GetValues(values);
+
+            _processValuesAction?.Invoke(values);
 
             var remappedValues = new object[_indexMap.Count];
 

@@ -4,11 +4,20 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
     public class UntypedRelationalValueBufferFactory : IRelationalValueBufferFactory
     {
+        private readonly Action<object[]> _processValuesAction;
+
+        public UntypedRelationalValueBufferFactory([CanBeNull] Action<object[]> processValuesAction)
+        {
+            _processValuesAction = processValuesAction;
+        }
+
         public virtual ValueBuffer Create(DbDataReader dataReader)
         {
             Debug.Assert(dataReader != null); // hot path
@@ -23,6 +32,8 @@ namespace Microsoft.Data.Entity.Storage
             var values = new object[fieldCount];
 
             dataReader.GetValues(values);
+
+            _processValuesAction?.Invoke(values);
 
             for (var i = 0; i < fieldCount; i++)
             {
