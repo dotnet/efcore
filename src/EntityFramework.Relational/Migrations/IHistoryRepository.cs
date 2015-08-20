@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Migrations
 {
-    // TODO: Consider upgrade scenarios
     public interface IHistoryRepository
     {
         bool Exists();

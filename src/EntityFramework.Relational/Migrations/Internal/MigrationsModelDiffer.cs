@@ -33,7 +33,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             typeof(AddUniqueConstraintOperation),
             typeof(AlterColumnOperation),
             typeof(AlterSequenceOperation),
-            typeof(CreateIndexOperation)
+            typeof(CreateIndexOperation),
+            typeof(RestartSequenceOperation)
         };
 
         private static readonly Type[] _renameOperationTypes =
@@ -595,7 +596,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var targetEntityTypeAnnotations = Annotations.For(declaringRootEntityType);
             var targetPrincipalEntityTypeAnnotations = Annotations.For(target.PrincipalEntityType.RootType());
 
-            // TODO: Set OnDelete (See #1084)
             var operation = new AddForeignKeyOperation
             {
                 Schema = targetEntityTypeAnnotations.Schema,
@@ -737,6 +737,16 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Name = source.Name,
                     NewSchema = schemaChanged ? target.Schema : null,
                     NewName = renamed ? target.Name : null
+                };
+            }
+
+            if (source.StartValue != target.StartValue)
+            {
+                yield return new RestartSequenceOperation
+                {
+                    Schema = source.Schema,
+                    Name = source.Name,
+                    StartValue = target.StartValue
                 };
             }
 

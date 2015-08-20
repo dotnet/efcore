@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Query
 
         private bool _requiresClientFilter;
         private bool _requiresClientSelectMany;
+        private bool _requiresClientJoin;
         private bool _requiresClientProjection;
         private bool _requiresClientResultOperator;
 
@@ -49,6 +50,12 @@ namespace Microsoft.Data.Entity.Query
         {
             get { return _requiresClientSelectMany || RequiresClientEval; }
             set { _requiresClientSelectMany = value; }
+        }
+
+        public virtual bool RequiresClientJoin
+        {
+            get { return _requiresClientJoin || RequiresClientEval; }
+            set { _requiresClientJoin = value; }
         }
 
         public virtual bool RequiresClientFilter
@@ -238,7 +245,8 @@ namespace Microsoft.Data.Entity.Query
             {
                 var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
-                if (previousQuerySource != null)
+                if (previousQuerySource != null
+                    && !RequiresClientJoin)
                 {
                     var previousSelectExpression = TryGetQuery(previousQuerySource);
 
@@ -342,6 +350,8 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(baseVisitAction, nameof(baseVisitAction));
             Check.NotNull(operatorToFlatten, nameof(operatorToFlatten));
 
+            RequiresClientJoin = true;
+
             var previousQuerySource = FindPreviousQuerySource(queryModel, index);
 
             var previousSelectExpression
@@ -398,6 +408,8 @@ namespace Microsoft.Data.Entity.Query
                                 previousSelectProjectionCount,
                                 operatorToFlatten)
                                 .Visit(Expression);
+
+                        RequiresClientJoin = false;
                     }
                     else
                     {

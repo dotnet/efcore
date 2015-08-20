@@ -186,6 +186,28 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
+        protected override void Generate([NotNull] CreateIndexOperation operation, [CanBeNull] IModel model, [NotNull] SqlBatchBuilder builder)
+        {
+            base.Generate(operation, model, builder);
+
+            var clustered = operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] as bool?;
+            if (operation.IsUnique && clustered != true)
+            {
+                builder.Append(" WHERE ");
+                for (var i = 0; i < operation.Columns.Length; i++)
+                {
+                    if (i != 0)
+                    {
+                        builder.Append(" AND ");
+                    }
+
+                    builder
+                        .Append(base.Sql.DelimitIdentifier(operation.Columns[i]))
+                        .Append(" IS NOT NULL");
+                }
+            }
+        }
+
         protected override void Generate(EnsureSchemaOperation operation, IModel model, SqlBatchBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));

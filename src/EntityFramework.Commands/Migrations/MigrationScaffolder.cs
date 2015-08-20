@@ -167,7 +167,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     if (migrationFile != null)
                     {
                         _logger.Value.LogInformation(Strings.RemovingMigration(migration.Id));
-                        // TODO: Test version control. If broken, delete and write files in the commands
                         File.Delete(migrationFile);
                         files.MigrationFile = migrationFile;
                     }
@@ -251,7 +250,6 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var modelSnapshotDirectory = GetDirectory(projectDir, modelSnapshotFileName, migration.ModelSnapshotSubnamespace);
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
-            // TODO: Test version control. If broken, determine paths in Scaffold and write files in the commands
             _logger.Value.LogVerbose(Strings.WritingMigration(migrationFile));
             Directory.CreateDirectory(migrationDirectory);
             File.WriteAllText(migrationFile, migration.MigrationCode);

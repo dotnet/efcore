@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class GearsOfWarQuerySqlServerFixture : GearsOfWarQueryRelationalFixture<SqlServerTestStore>
     {
-        public static readonly string DatabaseName = "GearsOfWarQueryTest";
+        public const string DatabaseName = "GearsOfWarQueryTest";
 
         private readonly IServiceProvider _serviceProvider;
 

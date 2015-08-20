@@ -157,6 +157,24 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql);
         }
 
+        public override void CreateIndexOperation_nonunique()
+        {
+            base.CreateIndexOperation_nonunique();
+
+            Assert.Equal(
+                "CREATE INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
+                Sql);
+        }
+
+        public override void CreateIndexOperation_unique()
+        {
+            base.CreateIndexOperation_unique();
+
+            Assert.Equal(
+                "CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;" + EOL,
+                Sql);
+        }
+
         [Fact]
         public virtual void CreateIndexOperation_clustered()
         {
@@ -171,6 +189,42 @@ namespace Microsoft.Data.Entity.Migrations
 
             Assert.Equal(
                 "CREATE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_unique_clustered()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = true
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE CLUSTERED INDEX [IX_People_Name] ON [People] ([Name]);" + EOL,
+                Sql);
+        }
+
+        [Fact]
+        public virtual void CreateIndexOperation_unique_nonclustered()
+        {
+            Generate(
+                new CreateIndexOperation
+                {
+                    Name = "IX_People_Name",
+                    Table = "People",
+                    Columns = new[] { "Name" },
+                    IsUnique = true,
+                    [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] = false
+                });
+
+            Assert.Equal(
+                "CREATE UNIQUE NONCLUSTERED INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;" + EOL,
                 Sql);
         }
 

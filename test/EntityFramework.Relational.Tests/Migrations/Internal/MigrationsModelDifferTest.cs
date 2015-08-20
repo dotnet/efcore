@@ -1588,7 +1588,16 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                operations => Assert.Empty(operations));
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<RestartSequenceOperation>(operations[0]);
+
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Golf", operation.Name);
+                    Assert.Equal(5, operation.StartValue);
+                });
         }
 
         [Fact]

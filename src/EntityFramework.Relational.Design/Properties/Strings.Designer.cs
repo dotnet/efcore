@@ -37,19 +37,19 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
-        /// Namespace is required to generate code.
+        /// Unable to use the output path, {outputPath}. It must be a relative path which is a sub-directory of the project directory {projectPath}.
         /// </summary>
-        public static string NamespaceRequired
+        public static string NotRelativePath([CanBeNull] object outputPath, [CanBeNull] object projectPath)
         {
-            get { return GetString("NamespaceRequired"); }
+            return string.Format(CultureInfo.CurrentCulture, GetString("NotRelativePath", "outputPath", "projectPath"), outputPath, projectPath);
         }
 
         /// <summary>
-        /// OutputPath is required to generate code.
+        /// ProjectPath is required to generate code.
         /// </summary>
-        public static string OutputPathRequired
+        public static string ProjectPathRequired
         {
-            get { return GetString("OutputPathRequired"); }
+            get { return GetString("ProjectPathRequired"); }
         }
 
         /// <summary>
@@ -74,6 +74,14 @@ namespace Microsoft.Data.Entity.Relational.Design
         public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ReadOnlyFiles", "outputDirectoryName", "readOnlyFiles"), outputDirectoryName, readOnlyFiles);
+        }
+
+        /// <summary>
+        /// Root namespace of the project is required to generate code.
+        /// </summary>
+        public static string RootNamespaceRequired
+        {
+            get { return GetString("RootNamespaceRequired"); }
         }
 
         /// <summary>

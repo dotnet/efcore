@@ -1565,6 +1565,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Unchanged);
 
+            product1.Category = category;
+            product2.Category = category;
+
             category.Products.Remove(product1);
 
             // DetectChanges still needed here because INotifyCollectionChanged not supported (Issue #445)

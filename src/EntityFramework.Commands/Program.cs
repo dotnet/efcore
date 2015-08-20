@@ -18,7 +18,6 @@ using Microsoft.Dnx.Runtime.Common.CommandLine;
 
 namespace Microsoft.Data.Entity.Commands
 {
-    // TODO: Add verbose option
     public class Program
     {
         private readonly string _projectDir;
@@ -130,6 +129,9 @@ namespace Microsoft.Data.Entity.Commands
                             var provider = scaffold.Argument(
                                 "[provider]",
                                 "The provider to use. For example, EntityFramework.SqlServer");
+                            var relativeOutputPath = scaffold.Option(
+                                "-o|--output-path <path>",
+                                "Relative path to the sub-directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
                             scaffold.HelpOption("-?|-h|--help");
                             scaffold.OnExecute(
                                 async () =>
@@ -152,6 +154,7 @@ namespace Microsoft.Data.Entity.Commands
                                     await ReverseEngineerAsync(
                                         connection.Value,
                                         provider.Value,
+                                        relativeOutputPath.Value(),
                                         _applicationShutdown.ShutdownRequested);
 
                                     return 0;
@@ -307,7 +310,6 @@ namespace Microsoft.Data.Entity.Commands
             var any = false;
             foreach (var context in contexts)
             {
-                // TODO: Show simple names
                 _logger.LogInformation(context.FullName);
                 any = true;
             }
@@ -356,7 +358,6 @@ namespace Microsoft.Data.Entity.Commands
                     var any = false;
                     foreach (var migration in migrations)
                     {
-                        // TODO: Show simple names
                         _logger.LogInformation(migration.Id);
                         any = true;
                     }
@@ -406,10 +407,12 @@ namespace Microsoft.Data.Entity.Commands
         public virtual async Task ReverseEngineerAsync(
             [NotNull] string connectionString,
             [NotNull] string providerAssemblyName,
+            [CanBeNull] string relativeOutputDirectory,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseTool.ReverseEngineerAsync(
-                providerAssemblyName, connectionString, _rootNamespace, _projectDir);
+                providerAssemblyName, connectionString, _rootNamespace,
+                _projectDir, relativeOutputDirectory);
 
             _logger.LogInformation("Done");
         }

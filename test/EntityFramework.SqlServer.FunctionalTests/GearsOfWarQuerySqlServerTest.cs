@@ -3,21 +3,12 @@
 
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryTestBase<SqlServerTestStore, GearsOfWarQuerySqlServerFixture>
     {
-        public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        protected override void ClearLog()
-        {
-            TestSqlLoggerFactory.Reset();
-        }
-
         public override void Include_multiple_one_to_one_and_one_to_many()
         {
             base.Include_multiple_one_to_one_and_one_to_many();
@@ -281,6 +272,136 @@ FROM [Weapon] AS [w]
 WHERE [w].[AmmunitionType] IS NULL",
                 Sql);
         }
+
+        public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar()
+        {
+            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar();
+
+            Assert.Equal(
+                @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
+FROM [CogTag] AS [ct1]
+INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname] AND [ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+CROSS JOIN [CogTag] AS [ct2]
+INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname] AND [ct2].[GearSquadId] = [ct2.Gear].[SquadId])
+WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
+                Sql);
+        }
+
+        public override void Select_Singleton_Navigation_With_Member_Access()
+        {
+            base.Select_Singleton_Navigation_With_Member_Access();
+
+            Assert.Equal(
+                @"SELECT [o.Gear].[Nickname], [o.Gear].[SquadId], [o.Gear].[AssignedCityName], [o.Gear].[CityOrBirthName], [o.Gear].[FullName], [o.Gear].[LeaderNickname], [o.Gear].[LeaderSquadId], [o.Gear].[Rank]
+FROM [CogTag] AS [o]
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])
+WHERE ([o.Gear].[Nickname] = 'Marcus' AND [o.Gear].[CityOrBirthName] <> 'Ephyra')",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation()
+        {
+            base.Select_Where_Navigation();
+
+            Assert.Equal(
+                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
+FROM [CogTag] AS [ct]
+INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname] AND [ct].[GearSquadId] = [ct.Gear].[SquadId])
+WHERE [ct.Gear].[Nickname] = 'Marcus'",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Client()
+        {
+            base.Select_Where_Navigation_Client();
+
+            Assert.Equal(
+                @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [o.Gear].[Nickname], [o.Gear].[SquadId], [o.Gear].[AssignedCityName], [o.Gear].[CityOrBirthName], [o.Gear].[FullName], [o.Gear].[LeaderNickname], [o.Gear].[LeaderSquadId], [o.Gear].[Rank]
+FROM [CogTag] AS [o]
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Equals_Navigation()
+        {
+            base.Select_Where_Navigation_Equals_Navigation();
+
+            Assert.Equal(
+                @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
+FROM [CogTag] AS [ct1]
+CROSS JOIN [CogTag] AS [ct2]
+WHERE (([ct1].[GearNickName] = [ct2].[GearNickName] OR ([ct1].[GearNickName] IS NULL AND [ct2].[GearNickName] IS NULL)) AND ([ct1].[GearSquadId] = [ct2].[GearSquadId] OR ([ct1].[GearSquadId] IS NULL AND [ct2].[GearSquadId] IS NULL)))",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Included()
+        {
+            base.Select_Where_Navigation_Included();
+
+            Assert.Equal(
+                @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [CogTag] AS [o]
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([o].[GearNickName] = [g].[Nickname] AND [o].[GearSquadId] = [g].[SquadId])
+WHERE [o.Gear].[Nickname] = 'Marcus'",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Null()
+        {
+            base.Select_Where_Navigation_Null();
+
+            Assert.Equal(
+                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
+FROM [CogTag] AS [ct]
+WHERE ([ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL)",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Null_Reverse()
+        {
+            base.Select_Where_Navigation_Null_Reverse();
+
+            Assert.Equal(
+                @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
+FROM [CogTag] AS [ct]
+WHERE ([ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL)",
+                Sql);
+        }
+
+        public override void Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected()
+        {
+            base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected();
+
+            Assert.Equal(
+                @"SELECT [ct1].[Id], [ct2].[Id]
+FROM [CogTag] AS [ct1]
+INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname] AND [ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+CROSS JOIN [CogTag] AS [ct2]
+INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname] AND [ct2].[GearSquadId] = [ct2.Gear].[SquadId])
+WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
+                Sql);
+        }
+
+        public override void Singleton_Navigation_With_Member_Access()
+        {
+            base.Singleton_Navigation_With_Member_Access();
+
+            Assert.Equal(
+                @"SELECT [o.Gear].[CityOrBirthName]
+FROM [CogTag] AS [o]
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])
+WHERE ([o.Gear].[Nickname] = 'Marcus' AND [o.Gear].[CityOrBirthName] <> 'Ephyra')",
+                Sql);
+        }
+
+        public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+            : base(fixture)
+        {
+            //TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
+        }
+
+        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         private static string Sql => TestSqlLoggerFactory.Sql;
     }

@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
 
                 AssertLog(new LoggerMessages());
@@ -97,8 +97,8 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
 
                 AssertLog(new LoggerMessages());
@@ -144,8 +144,8 @@ CREATE TABLE Users_Groups (
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
 
                 AssertLog(new LoggerMessages());
@@ -185,8 +185,8 @@ CREATE TABLE Users_Groups (
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
 
                 AssertLog(new LoggerMessages());
@@ -242,8 +242,8 @@ CREATE TABLE String (
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
 
                 AssertLog(new LoggerMessages());
@@ -267,8 +267,8 @@ CREATE TABLE String (
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
                 var errorMessage = Strings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
@@ -300,8 +300,8 @@ CREATE TABLE Principal ( Id INT);");
                     {
                         Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Namespace = "E2E.Sqlite",
-                        OutputPath = "testout"
+                        ProjectPath = "testout",
+                        ProjectRootNamespace = "E2E.Sqlite",
                     });
 
                 var expectedLog = new LoggerMessages
@@ -353,9 +353,9 @@ CREATE TABLE Principal ( Id INT);");
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
                         Provider = MetadataModelProvider,
-                        Namespace = "Test",
-                        OutputPath = outputDir,
-                        CustomTemplatePath = templatesDir
+                        ProjectPath = outputDir,
+                        CustomTemplatePath = templatesDir,
+                        ProjectRootNamespace = "Test",
                     };
                 var filePaths = await Generator.GenerateAsync(config);
 

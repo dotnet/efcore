@@ -3,7 +3,6 @@
 
 namespace Microsoft.Data.Entity.Commands
 {
-    // TODO: Consider version resiliency
     public interface IResultHandler
     {
         void OnResult(object value);

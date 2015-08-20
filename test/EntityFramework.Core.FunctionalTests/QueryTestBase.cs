@@ -1998,6 +1998,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Client_Join_select_many()
+        {
+            AssertQuery<Employee>(es =>
+                from e1 in es
+                join e2 in es on e1.EmployeeID equals GetEmployeeID(e2)
+                from e3 in es
+                select new { e1, e2, e3 },
+                entryCount: 9);
+        }
+
+        private int GetEmployeeID(Employee employee)
+        {
+            return employee.EmployeeID;
+        }
+
+        [Fact]
         public virtual void Join_customers_orders_select()
         {
             AssertQuery<Customer, Order>((cs, os) =>

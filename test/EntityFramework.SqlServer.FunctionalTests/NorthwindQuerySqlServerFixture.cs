@@ -30,11 +30,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder();
+
             optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+
             _options = optionsBuilder.Options;
 
-            _serviceProvider.GetRequiredService<ILoggerFactory>()
-                .MinimumLevel = LogLevel.Debug;
+            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
         }
 
         public override NorthwindContext CreateContext()
@@ -46,9 +47,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return context;
         }
 
-        public void Dispose()
-        {
-            _testStore.Dispose();
-        }
+        public void Dispose() => _testStore.Dispose();
     }
 }

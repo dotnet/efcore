@@ -193,76 +193,83 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private void InitialFixup(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
-            foreach (var navigation in entityType.GetNavigations())
+
+            // If the new state is unchanged (such as from a query or Attach) then we are going
+            // to assume that the FK value is the source of truth and not attempt to ascertain
+            // relationships from navigation properties
+            if (entry.EntityState != EntityState.Unchanged)
             {
-                var navigationValue = entry[navigation];
-                if (navigationValue != null)
+                foreach (var navigation in entityType.GetNavigations())
                 {
-                    if (navigation.IsCollection())
+                    var navigationValue = entry[navigation];
+                    if (navigationValue != null)
                     {
-                        NavigationCollectionChangedAction(
-                            entry,
-                            navigation,
-                            ((IEnumerable)navigationValue).Cast<object>().ToList(),
-                            Enumerable.Empty<object>());
-                    }
-                    else
-                    {
-                        NavigationReferenceChangedAction(
-                            entry,
-                            navigation,
-                            null,
-                            navigationValue);
-                    }
-                }
-            }
-
-            var entries = entry.StateManager.Entries.ToList();
-
-            // TODO: Perf on this state manager query
-            foreach (var navigation in _model.EntityTypes
-                .SelectMany(e => e.GetNavigations())
-                .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
-            {
-                IClrCollectionAccessor collectionAccessor = null;
-                if (navigation.IsCollection())
-                {
-                    collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
-                }
-
-                var navigationEntityType = navigation.DeclaringEntityType;
-
-                foreach (var relatedEntry in entries)
-                {
-                    if (!navigationEntityType.IsAssignableFrom(relatedEntry.EntityType)
-                        || relatedEntry == entry)
-                    {
-                        continue;
-                    }
-
-                    if (collectionAccessor != null)
-                    {
-                        if (collectionAccessor.Contains(relatedEntry.Entity, entry.Entity))
+                        if (navigation.IsCollection())
                         {
                             NavigationCollectionChangedAction(
-                                relatedEntry,
+                                entry,
                                 navigation,
-                                new[] { entry.Entity },
+                                ((IEnumerable)navigationValue).Cast<object>().ToList(),
                                 Enumerable.Empty<object>());
                         }
-                    }
-                    else
-                    {
-                        var navigationValue = relatedEntry[navigation];
-                        if (navigationValue != null)
+                        else
                         {
-                            if (ReferenceEquals(navigationValue, entry.Entity))
+                            NavigationReferenceChangedAction(
+                                entry,
+                                navigation,
+                                null,
+                                navigationValue);
+                        }
+                    }
+                }
+
+                var entries = entry.StateManager.Entries.ToList();
+
+                // TODO: Perf on this state manager query
+                foreach (var navigation in _model.EntityTypes
+                    .SelectMany(e => e.GetNavigations())
+                    .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
+                {
+                    IClrCollectionAccessor collectionAccessor = null;
+                    if (navigation.IsCollection())
+                    {
+                        collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
+                    }
+
+                    var navigationEntityType = navigation.DeclaringEntityType;
+
+                    foreach (var relatedEntry in entries)
+                    {
+                        if (!navigationEntityType.IsAssignableFrom(relatedEntry.EntityType)
+                            || relatedEntry == entry)
+                        {
+                            continue;
+                        }
+
+                        if (collectionAccessor != null)
+                        {
+                            if (collectionAccessor.Contains(relatedEntry.Entity, entry.Entity))
                             {
-                                NavigationReferenceChangedAction(
+                                NavigationCollectionChangedAction(
                                     relatedEntry,
                                     navigation,
-                                    null,
-                                    navigationValue);
+                                    new[] { entry.Entity },
+                                    Enumerable.Empty<object>());
+                            }
+                        }
+                        else
+                        {
+                            var navigationValue = relatedEntry[navigation];
+                            if (navigationValue != null)
+                            {
+                                if (ReferenceEquals(navigationValue, entry.Entity))
+                                {
+                                    NavigationReferenceChangedAction(
+                                        relatedEntry,
+                                        navigation,
+                                        null,
+                                        navigationValue);
+                                }
                             }
                         }
                     }

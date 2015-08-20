@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -63,7 +64,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            private void Remove(NavigationJoin navigationJoin) 
+            private void Remove(NavigationJoin navigationJoin)
                 => RemoveNavigationJoin(NavigationJoins, navigationJoin);
         }
 
@@ -122,7 +123,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 = _navigationJoins
                     .SelectMany(nj => nj.Iterate())
                     .FirstOrDefault(nj => ReferenceEquals(nj.QuerySourceReferenceExpression, newLeft));
-            
+
             var rightNavigationJoin
                 = _navigationJoins
                     .SelectMany(nj => nj.Iterate())
@@ -149,6 +150,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         newLeft = leftNavigationJoin.JoinClause.OuterKeySelector;
 
                         NavigationJoin.RemoveNavigationJoin(_navigationJoins, leftNavigationJoin);
+
+                        if (IsCompositeKey(newLeft.Type))
+                        {
+                            newRight = CreateNullCompositeKey(newLeft);
+                        }
                     }
                     else
                     {
@@ -166,6 +172,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         newRight = rightNavigationJoin.JoinClause.OuterKeySelector;
 
                         NavigationJoin.RemoveNavigationJoin(_navigationJoins, rightNavigationJoin);
+
+                        if (IsCompositeKey(newRight.Type))
+                        {
+                            newLeft = CreateNullCompositeKey(newRight);
+                        }
                     }
                     else
                     {
@@ -181,6 +192,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 binaryExpression.IsLiftedToNull, 
                 binaryExpression.Method);
         }
+
+        private static NewExpression CreateNullCompositeKey(Expression otherExpression)
+            => Expression.New(
+                _compositeKeyCtor,
+                Expression.NewArrayInit(
+                    typeof(object),
+                    Enumerable.Repeat(
+                        Expression.Constant(null),
+                        ((NewArrayExpression)((NewExpression)otherExpression).Arguments.Single()).Expressions.Count)));
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
@@ -241,18 +261,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                         {
                                             _entityQueryProvider
                                         })),
-                            CreatePropertyCallExpression(
+                            CreateKeyAccessExpression(
                                 querySourceReferenceExpression,
-                                navigation.ForeignKey.Properties.Single()),
+                                navigation.ForeignKey.Properties),
                             Expression.Constant(null));
 
                     var innerQuerySourceReferenceExpression
                         = new QuerySourceReferenceExpression(joinClause);
 
-                    Expression innerKeySelector
-                        = CreatePropertyCallExpression(
+                    var innerKeySelector
+                        = CreateKeyAccessExpression(
                             innerQuerySourceReferenceExpression,
-                            targetEntityType.GetPrimaryKey().Properties.Single());
+                            navigation.ForeignKey.PrincipalKey.Properties);
 
                     if (innerKeySelector.Type != joinClause.OuterKeySelector.Type)
                     {
@@ -280,12 +300,55 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return querySourceReferenceExpression;
         }
 
-        private static MethodCallExpression CreatePropertyCallExpression(Expression target, IProperty property)
+        private static Expression CreateKeyAccessExpression(Expression target, IReadOnlyList<IProperty> properties)
+        {
+            return properties.Count == 1
+                ? CreatePropertyExpression(target, properties[0])
+                : Expression.New(
+                    _compositeKeyCtor,
+                    Expression.NewArrayInit(
+                        typeof(object),
+                        properties
+                            .Select(p => Expression.Convert(CreatePropertyExpression(target, p), typeof(object)))
+                            .Cast<Expression>()
+                            .ToArray()));
+        }
+
+        private static Expression CreatePropertyExpression(Expression target, IProperty property)
             => Expression.Call(
                 null,
                 EntityQueryModelVisitor.PropertyMethodInfo.MakeGenericMethod(property.ClrType),
                 target,
                 Expression.Constant(property.Name));
+
+        private static readonly ConstructorInfo _compositeKeyCtor
+            = typeof(CompositeKey).GetTypeInfo().DeclaredConstructors.Single();
+
+        public static bool IsCompositeKey([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return type == typeof(CompositeKey);
+        }
+
+        private struct CompositeKey
+        {
+            public static bool operator ==(CompositeKey x, CompositeKey y) => x.Equals(y);
+            public static bool operator !=(CompositeKey x, CompositeKey y) => !x.Equals(y);
+
+            private readonly object[] _values;
+
+            [UsedImplicitly]
+            public CompositeKey(object[] values)
+            {
+                _values = values;
+            }
+
+            public override bool Equals(object obj)
+                => _values.SequenceEqual(((CompositeKey)obj)._values);
+
+            public override int GetHashCode() => 0;
+        }
 
         private static readonly MethodInfo _createEntityQueryableMethod
             = typeof(NavigationRewritingExpressionVisitor)
