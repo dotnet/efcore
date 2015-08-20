@@ -60,13 +60,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [DbContext(typeof(BloggingContext))]
+        [Migration("00000000000000_Empty")]
         public class EmptyMigration : Migration
         {
             protected override void Up(MigrationBuilder migrationBuilder)
             {
             }
-
-            public override string Id => "Empty";
         }
     }
 }

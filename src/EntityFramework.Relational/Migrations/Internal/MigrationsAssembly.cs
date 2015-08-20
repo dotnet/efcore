@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
     public class MigrationsAssembly : IMigrationsAssembly
     {
         private readonly IMigrationsIdGenerator _idGenerator;
-        private readonly LazyRef<IReadOnlyList<Migration>> _migrations;
+        private readonly LazyRef<IReadOnlyDictionary<string, TypeInfo>> _migrations;
         private readonly LazyRef<ModelSnapshot> _modelSnapshot;
 
         public MigrationsAssembly(
@@ -35,13 +35,15 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 : Assembly.Load(new AssemblyName(assemblyName));
 
             _idGenerator = idGenerator;
-            _migrations = new LazyRef<IReadOnlyList<Migration>>(
-                () => assembly.GetConstructibleTypes()
-                    .Where(t => typeof(Migration).IsAssignableFrom(t.AsType())
-                        && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
-                    .Select(t => (Migration)Activator.CreateInstance(t.AsType()))
-                    .OrderBy(m => m.Id)
-                    .ToList());
+            _migrations = new LazyRef<IReadOnlyDictionary<string, TypeInfo>>(
+                () => (
+                        from t in assembly.GetConstructibleTypes()
+                        where t.IsSubclassOf(typeof(Migration))
+                            && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType
+                        let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
+                        orderby id
+                        select new { Key = id, Element = t })
+                    .ToDictionary(i => i.Key, i => i.Element));
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
                         from t in assembly.GetConstructibleTypes()
@@ -51,22 +53,18 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     .FirstOrDefault());
         }
 
-        public virtual IReadOnlyList<Migration> Migrations => _migrations.Value;
+        public virtual IReadOnlyDictionary<string, TypeInfo> Migrations => _migrations.Value;
         public virtual ModelSnapshot ModelSnapshot => _modelSnapshot.Value;
 
-        public virtual Migration FindMigration(string nameOrId)
-        {
-            Check.NotEmpty(nameOrId, nameof(nameOrId));
+        public virtual string FindMigrationId(string nameOrId)
+            => Migrations.Keys
+                .Where(
+                    _idGenerator.IsValidId(nameOrId)
+                        ? (Func<string, bool>)(id => string.Equals(id, nameOrId, StringComparison.OrdinalIgnoreCase))
+                        : id => string.Equals(_idGenerator.GetName(id), nameOrId, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
 
-            var candidates = _idGenerator.IsValidId(nameOrId)
-                ? Migrations.Where(m => m.Id == nameOrId)
-                    .Concat(Migrations.Where(m => string.Equals(m.Id, nameOrId, StringComparison.OrdinalIgnoreCase)))
-                : Migrations.Where(m => _idGenerator.GetName(m.Id) == nameOrId)
-                    .Concat(
-                        Migrations.Where(
-                            m => string.Equals(_idGenerator.GetName(m.Id), nameOrId, StringComparison.OrdinalIgnoreCase)));
-
-            return candidates.FirstOrDefault();
-        }
+        public virtual Migration CreateMigration(TypeInfo migrationClass)
+            => (Migration)Activator.CreateInstance(migrationClass.AsType());
     }
 }

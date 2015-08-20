@@ -12,31 +12,27 @@ namespace Microsoft.Data.Entity.Migrations.Internal
     public class MigrationsAssemblyTest
     {
         [Fact]
-        public void FindMigration_matches_id_when_exact_case()
-            => Assert.IsType<Migration2>(CreateMigrationsAssembly().FindMigration("20150302103100_FLUTTER"));
+        public void FindMigrationId_returns_first_candidate_when_id()
+            => Assert.Equal(
+                "20150302103100_Flutter",
+                CreateMigrationsAssembly().FindMigrationId("20150302103100_FLUTTER"));
 
         [Fact]
-        public void FindMigration_returns_first_candidate_migration()
-            => Assert.IsType<Migration1>(CreateMigrationsAssembly().FindMigration("20150302103100_flutter"));
+        public void FindMigrationId_returns_first_candidate_when_name()
+            => Assert.Equal(
+                "20150302103100_Flutter",
+                CreateMigrationsAssembly().FindMigrationId("FLUTTER"));
 
         [Fact]
-        public void FindMigration_matches_name_when_exact_case()
-            => Assert.IsType<Migration2>(CreateMigrationsAssembly().FindMigration("FLUTTER"));
+        public void FindMigrationId_returns_null_when_no_match()
+            => Assert.Null(CreateMigrationsAssembly().FindMigrationId("Spike"));
 
         [Fact]
-        public void FindMigration_returns_migration_of_first_candidate_name()
-            => Assert.IsType<Migration1>(CreateMigrationsAssembly().FindMigration("flutter"));
-
-        [Fact]
-        public void FindMigration_returns_null_when_no_match()
-            => Assert.Null(CreateMigrationsAssembly().FindMigration("Spike"));
-
-        [Fact]
-        public void GetMigration_throws_when_no_match()
+        public void GetMigrationId_throws_when_no_match()
             => Assert.Equal(
                 Strings.MigrationNotFound("Spike"),
                 Assert.Throws<InvalidOperationException>(
-                        () => CreateMigrationsAssembly().GetMigration("Spike"))
+                        () => CreateMigrationsAssembly().GetMigrationId("Spike"))
                     .Message);
 
         private IMigrationsAssembly CreateMigrationsAssembly()
@@ -54,20 +50,18 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         }
 
         [DbContext(typeof(Context))]
+        [Migration("20150302103100_Flutter")]
         private class Migration1 : Migration
         {
-            public override string Id { get; } = "20150302103100_Flutter";
-
             protected override void Up(MigrationBuilder migrationBuilder)
             {
             }
         }
 
         [DbContext(typeof(Context))]
+        [Migration("20150302103100_FLUTTER")]
         private class Migration2 : Migration
         {
-            public override string Id { get; } = "20150302103100_FLUTTER";
-
             protected override void Up(MigrationBuilder migrationBuilder)
             {
             }

@@ -2,14 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Migrations
 {
     public interface IMigrationsAssembly
     {
-        IReadOnlyList<Migration> Migrations { get; }
+        IReadOnlyDictionary<string, TypeInfo> Migrations { get; }
         ModelSnapshot ModelSnapshot { get; }
-        Migration FindMigration([NotNull] string nameOrId);
+        string FindMigrationId([NotNull] string nameOrId);
+        Migration CreateMigration([NotNull] TypeInfo migrationClass);
     }
 }

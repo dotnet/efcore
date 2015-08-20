@@ -47,10 +47,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [DbContext(typeof(MigrationsContext))]
+        [Migration("00000000000001_Migration1")]
         private class Migration1 : Migration
         {
-            public override string Id => "00000000000001_Migration1";
-
             protected override void Up(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder
@@ -72,10 +71,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [DbContext(typeof(MigrationsContext))]
+        [Migration("00000000000002_Migration2")]
         private class Migration2 : Migration
         {
-            public override string Id => "00000000000002_Migration2";
-
             protected override void Up(MigrationBuilder migrationBuilder)
             {
                 migrationBuilder.RenameTable(

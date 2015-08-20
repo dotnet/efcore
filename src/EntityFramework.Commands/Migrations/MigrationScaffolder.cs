@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -62,13 +63,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
 
-            if (_migrationsAssembly.FindMigration(migrationName) != null)
+            if (_migrationsAssembly.FindMigrationId(migrationName) != null)
             {
                 throw new InvalidOperationException(Strings.DuplicateMigrationName(migrationName));
             }
 
             var lastMigration = _migrationsAssembly.Migrations.LastOrDefault();
-            var migrationNamespace = GetNamespace(lastMigration?.GetType(), rootNamespace + ".Migrations");
+            var migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), rootNamespace + ".Migrations");
             var modelSnapshot = _migrationsAssembly.ModelSnapshot;
             var lastModel = modelSnapshot?.Model;
             var upOperations = _modelDiffer.GetDifferences(lastModel, _model);
@@ -114,7 +115,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 
             return new ScaffoldedMigration(
                 _migrationCodeGenerator.Language,
-                lastMigration?.Id,
+                lastMigration.Key,
                 migrationCode,
                 migrationId,
                 migrationMetadataCode,
@@ -148,25 +149,27 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var language = _migrationCodeGenerator.Language;
 
             IModel model = null;
-            var migrations = _migrationsAssembly.Migrations;
+            var migrations = _migrationsAssembly.Migrations
+                .Select(m => _migrationsAssembly.CreateMigration(m.Value))
+                .ToList();
             if (migrations.Count != 0)
             {
-                var migration = migrations.Last();
+                var migration = migrations[migrations.Count - 1];
                 model = migration.TargetModel;
 
                 if (!_modelDiffer.HasDifferences(model, modelSnapshot.Model))
                 {
                     if (_historyRepository.GetAppliedMigrations().Any(
-                        e => e.MigrationId.Equals(migration.Id, StringComparison.OrdinalIgnoreCase)))
+                        e => e.MigrationId.Equals(migration.GetId(), StringComparison.OrdinalIgnoreCase)))
                     {
-                        throw new InvalidOperationException(Strings.UnapplyMigration(migration.Id));
+                        throw new InvalidOperationException(Strings.UnapplyMigration(migration.GetId()));
                     }
 
-                    var migrationFileName = migration.Id + language;
+                    var migrationFileName = migration.GetId() + language;
                     var migrationFile = TryGetProjectFile(projectDir, migrationFileName);
                     if (migrationFile != null)
                     {
-                        _logger.Value.LogInformation(Strings.RemovingMigration(migration.Id));
+                        _logger.Value.LogInformation(Strings.RemovingMigration(migration.GetId()));
                         File.Delete(migrationFile);
                         files.MigrationFile = migrationFile;
                     }
@@ -175,7 +178,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                         _logger.Value.LogWarning(Strings.NoMigrationFile(migrationFileName, migration.GetType().FullName));
                     }
 
-                    var migrationMetadataFileName = migration.Id + ".Designer" + language;
+                    var migrationMetadataFileName = migration.GetId() + ".Designer" + language;
                     var migrationMetadataFile = TryGetProjectFile(projectDir, migrationMetadataFileName);
                     if (migrationMetadataFile != null)
                     {

@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Commands
 
         public virtual IEnumerable<IDictionary> GetMigrationsImpl([CanBeNull] string contextTypeName) =>
             CreateMigrationTool().GetMigrations(contextTypeName, _startupAssemblyName).Select(
-                m => new Hashtable { ["MigrationId"] = m.Id, ["MigrationName"] = m.Id, ["SafeName"] = m.Id });
+                id => new Hashtable {["MigrationId"] = id,["MigrationName"] = id,["SafeName"] = id });
 
         public class ReverseEngineer : OperationBase
         {

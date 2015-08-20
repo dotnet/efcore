@@ -77,6 +77,8 @@
     <Compile Include="Metadata\RelationalEntityTypeExtensions.cs" />
     <Compile Include="Metadata\RelationalModelExtensions.cs" />
     <Compile Include="Metadata\RelationalPropertyExtensions.cs" />
+    <Compile Include="Migrations\Internal\MigrationExtensions.cs" />
+    <Compile Include="Migrations\MigrationAttribute.cs" />
     <Compile Include="Migrations\MigrationsAssemblyExtensions.cs" />
     <Compile Include="Query\Expressions\CrossApplyExpression.cs" />
     <Compile Include="Query\Internal\RelationalExpressionPrinter.cs" />

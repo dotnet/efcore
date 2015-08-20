@@ -5,7 +5,8 @@ using System;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class QueryAnnotationMethodAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class QueryAnnotationMethodAttribute : Attribute
     {
     }
 }

@@ -136,20 +136,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             {
                 builder
                     .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
+                    .Append("[Migration(").Append(_code.Literal(migrationId)).AppendLine(")]")
                     .Append("partial class ").AppendLine(_code.Identifier(migrationName))
                     .AppendLine("{");
                 using (builder.Indent())
                 {
                     builder
-                        .AppendLine("public override string Id")
-                        .AppendLine("{");
-                    using (builder.Indent())
-                    {
-                        builder.Append("get { return ").Append(_code.Literal(migrationId)).AppendLine("; }");
-                    }
-                    builder
-                        .AppendLine("}")
-                        .AppendLine()
                         .AppendLine("protected override void BuildTargetModel(ModelBuilder modelBuilder)")
                         .AppendLine("{");
                     using (builder.Indent())

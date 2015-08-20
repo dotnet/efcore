@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class DbContextAttribute : Attribute
+    public sealed class DbContextAttribute : Attribute
     {
         public DbContextAttribute([NotNull] Type contextType)
         {
@@ -17,6 +17,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             ContextType = contextType;
         }
 
-        public virtual Type ContextType { get; }
+        public Type ContextType { get; }
     }
 }

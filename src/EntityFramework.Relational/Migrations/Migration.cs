@@ -33,8 +33,6 @@ namespace Microsoft.Data.Entity.Migrations
             _downOperations = new LazyRef<List<MigrationOperation>>(() => BuildOperations(Down));
         }
 
-        public abstract string Id { get; }
-
         public virtual IModel TargetModel => _targetModel.Value;
         public virtual IReadOnlyList<MigrationOperation> UpOperations => _upOperations.Value;
         public virtual IReadOnlyList<MigrationOperation> DownOperations => _downOperations.Value;

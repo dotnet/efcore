@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Runtime.Common.CommandLine;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity.Commands
                     var any = false;
                     foreach (var migration in migrations)
                     {
-                        _logger.LogInformation(migration.Id);
+                        _logger.LogInformation(migration);
                         any = true;
                     }
 

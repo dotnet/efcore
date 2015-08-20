@@ -7,24 +7,20 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-    public class ProviderDesignTimeServicesAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Assembly)]
+    public sealed class ProviderDesignTimeServicesAttribute : Attribute
     {
-        public ProviderDesignTimeServicesAttribute([NotNull] string typeName)
-            : this(typeName, null)
-        {
-        }
-
         public ProviderDesignTimeServicesAttribute(
-            [NotNull] string typeName, [CanBeNull] string assemblyName)
+            [NotNull] string typeName, [NotNull] string assemblyName)
         {
-            Check.NotNull(typeName, nameof(typeName));
+            Check.NotEmpty(typeName, nameof(typeName));
+            Check.NotEmpty(assemblyName, nameof(assemblyName));
 
             TypeName = typeName;
             AssemblyName = assemblyName;
         }
 
-        public virtual string TypeName { get; }
-        public virtual string AssemblyName { get; }
+        public string TypeName { get; }
+        public string AssemblyName { get; }
     }
 }

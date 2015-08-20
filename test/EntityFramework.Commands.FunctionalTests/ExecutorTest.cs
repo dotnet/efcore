@@ -89,10 +89,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Migrations
                                 {
                                     [DbContext(typeof(SimpleContext))]
+                                    [Migration(""201410102227260_InitialCreate"")]
                                     public class InitialCreate : Migration
                                     {
-                                        public override string Id => ""201410102227260_InitialCreate"";
-
                                         protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -172,10 +171,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context1Migrations
                                 {
                                     [DbContext(typeof(Context1))]
+                                    [Migration(""000000000000000_Context1Migration"")]
                                     public class Context1Migration : Migration
                                     {
-                                        public override string Id => ""000000000000000_Context1Migration"";
-
                                         protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -185,10 +183,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context2Migrations
                                 {
                                     [DbContext(typeof(Context2))]
+                                    [Migration(""000000000000000_Context2Migration"")]
                                     public class Context2Migration : Migration
                                     {
-                                        public override string Id => ""000000000000000_Context2Migration"";
-
                                         protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -267,10 +264,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context1Migrations
                                 {
                                     [DbContext(typeof(Context1))]
+                                    [Migration(""000000000000000_Context1Migration"")]
                                     public class Context1Migration : Migration
                                     {
-                                        public override string Id => ""000000000000000_Context1Migration"";
-
                                         protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }
@@ -280,10 +276,9 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Context2Migrations
                                 {
                                     [DbContext(typeof(Context2))]
+                                    [Migration(""000000000000000_Context2Migration"")]
                                     public class Context2Migration : Migration
                                     {
-                                        public override string Id => ""000000000000000_Context2Migration"";
-
                                         protected override void Up(MigrationBuilder migrationBuilder)
                                         {
                                         }

@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
-        public virtual IEnumerable<Migration> GetMigrations(
+        public virtual IEnumerable<string> GetMigrations(
             [CanBeNull] string contextTypeName,
             [CanBeNull] string startupAssemblyName)
         {
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Commands
                 var services = new DesignTimeServices(((IAccessor<IServiceProvider>)context).Service);
                 var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
 
-                return migrationsAssembly.Migrations;
+                return migrationsAssembly.Migrations.Keys;
             }
         }
 
