@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull] set { SetHiLoSequenceName(value); }
         }
 
-        protected virtual bool SetHiLoSequenceName(string value)
+        protected virtual bool SetHiLoSequenceName([CanBeNull] string value)
             => Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceName, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string HiLoSequenceSchema
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull] set { SetHiLoSequenceSchema(value); }
         }
 
-        protected virtual bool SetHiLoSequenceSchema(string value)
+        protected virtual bool SetHiLoSequenceSchema([CanBeNull] string value)
             => Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual int? HiLoSequencePoolSize

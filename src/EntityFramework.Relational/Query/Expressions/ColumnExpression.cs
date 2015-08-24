@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor) => this;
 
-        protected bool Equals(ColumnExpression other)
+        protected virtual bool Equals([NotNull] ColumnExpression other)
             => _property.Equals(other._property)
                && _tableExpression.Equals(other._tableExpression);
 

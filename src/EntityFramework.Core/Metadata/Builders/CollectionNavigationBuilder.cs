@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder InverseReferenceBuilder(string reference)
+        protected virtual InternalRelationshipBuilder InverseReferenceBuilder([CanBeNull] string reference)
             => Builder.DependentToPrincipal(
                 reference,
                 ConfigurationSource.Explicit,

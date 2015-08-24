@@ -101,9 +101,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        protected virtual object CopyValueFromEntry(IPropertyBase property) => _entry[property];
+        protected virtual object CopyValueFromEntry([NotNull] IPropertyBase property) => _entry[property];
 
-        protected virtual void CopyValueToEntry(IPropertyBase property, object value) => _entry[property] = value;
+        protected virtual void CopyValueToEntry([NotNull] IPropertyBase property, [CanBeNull] object value) => _entry[property] = value;
 
         protected sealed class NullSentinel
         {

@@ -91,8 +91,8 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
         public virtual IDisposable BeginScopeImpl(object state) => null;
 
-        protected abstract void WriteWarning(string message);
-        protected abstract void WriteInformation(string message);
-        protected abstract void WriteVerbose(string message);
+        protected abstract void WriteWarning([NotNull] string message);
+        protected abstract void WriteInformation([NotNull] string message);
+        protected abstract void WriteVerbose([NotNull] string message);
     }
 }

@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
             Annotations = annotations;
         }
 
-        protected RelationalAnnotations Annotations { get; }
+        protected virtual RelationalAnnotations Annotations { get; }
 
         protected virtual IIndex Index => (IIndex)Annotations.Metadata;
 

@@ -345,19 +345,19 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected virtual void ColumnDefinition(
-            string schema,
-            string table,
-            string name,
-            Type clrType,
-            string type,
+            [CanBeNull] string schema,
+            [CanBeNull] string table,
+            [NotNull] string name,
+            [NotNull] Type clrType,
+            [CanBeNull] string type,
             bool nullable,
-            object defaultValue,
-            string defaultValueSql,
-            string computedColumnSql,
+            [CanBeNull] object defaultValue,
+            [CanBeNull] string defaultValueSql,
+            [CanBeNull] string computedColumnSql,
             bool identity,
-            IAnnotatable annotatable,
-            IModel model,
-            SqlBatchBuilder builder)
+            [NotNull] IAnnotatable annotatable,
+            [CanBeNull] IModel model,
+            [NotNull] SqlBatchBuilder builder)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));

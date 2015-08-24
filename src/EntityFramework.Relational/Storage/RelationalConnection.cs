@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual DbConnection DbConnection => _connection.Value;
 
-        public virtual IRelationalTransaction Transaction { get; protected set; }
+        public virtual IRelationalTransaction Transaction { get; [param: NotNull] protected set; }
 
         public virtual int? CommandTimeout
         {

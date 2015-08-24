@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata
             Annotations = annotations;
         }
 
-        protected RelationalAnnotations Annotations { get; }
+        protected virtual RelationalAnnotations Annotations { get; }
 
         protected virtual IProperty Property => (IProperty)Annotations.Metadata;
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull] set { SetColumnName(value); }
         }
 
-        protected bool SetColumnName([CanBeNull] string value)
+        protected virtual bool SetColumnName([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.ColumnName, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string ColumnType
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull] set { SetColumnType(value); }
         }
 
-        protected bool SetColumnType([CanBeNull] string value)
+        protected virtual bool SetColumnType([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.ColumnType, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string GeneratedValueSql
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull] set { SetGeneratedValueSql(value); }
         }
 
-        protected bool SetGeneratedValueSql([CanBeNull] string value)
+        protected virtual bool SetGeneratedValueSql([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.GeneratedValueSql, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual object DefaultValue
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata
             set { SetDefaultValue(value); }
         }
 
-        protected bool SetDefaultValue([CanBeNull] object value)
+        protected virtual bool SetDefaultValue([CanBeNull] object value)
         {
             var typedAnnotation = new TypedAnnotation(value);
             return Annotations.SetAnnotation(RelationalAnnotationNames.DefaultValueType, typedAnnotation.TypeString) &&

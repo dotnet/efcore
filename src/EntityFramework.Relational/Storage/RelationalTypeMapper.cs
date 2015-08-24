@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Storage
         protected abstract IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
 
         // Not useing IRelationalMetadataExtensionProvider here because type mappers are Singletons
-        protected abstract string GetColumnType(IProperty property);
+        protected abstract string GetColumnType([NotNull] IProperty property);
 
         public virtual RelationalTypeMapping MapPropertyType(IProperty property)
         {

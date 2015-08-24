@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+
+// ReSharper disable StringEndsWithIsCultureSpecific
+// ReSharper disable StringStartsWithIsCultureSpecific
 
 namespace Microsoft.Data.Entity
 {
@@ -30,12 +32,13 @@ namespace Microsoft.Data.Entity
                           && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
                           && type.Namespace != null
                           && !type.Namespace.EndsWith(".Compiled")
-                    from method in type.GetMethods(PublicInstance)
+                    from method in type.GetMethods(AnyInstance)
                     where method.DeclaringType == type
                           && !(method.IsVirtual && !method.IsFinal)
                           && !method.Name.StartsWith("add_")
                           && !method.Name.StartsWith("remove_")
-                   select type.FullName + "." + method.Name)
+                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                    select type.FullName + "." + method.Name)
                     .ToList();
 
             Assert.False(
@@ -51,9 +54,12 @@ namespace Microsoft.Data.Entity
                     where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
                     let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
                     let events = type.GetEvents()
-                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
+                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
                         .Concat<MethodBase>(type.GetConstructors())
-                    where method.DeclaringType == type
+                   where method.DeclaringType == type
+                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                          && (method is ConstructorInfo 
+                            || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
                     where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                     where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                     from parameter in method.GetParameters()
@@ -76,9 +82,10 @@ namespace Microsoft.Data.Entity
             var asyncMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                     where type.IsVisible
-                    from method in type.GetMethods(PublicInstance | BindingFlags.Static)
+                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
                     where method.DeclaringType == type
-                    where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType)
+                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                   where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType)
                     select method).ToList();
 
             var asyncMethodsWithToken
@@ -107,7 +114,7 @@ namespace Microsoft.Data.Entity
 
             var missingSuffixMethods
                 = asyncMethods
-                    .Where(method => !method.Name.EndsWith("Async"))
+                    .Where(method => !method.Name.EndsWith("Async") && method.DeclaringType != null)
                     .Select(method => method.DeclaringType.Name + "." + method.Name)
                     .Except(GetAsyncSuffixExceptions())
                     .ToList();
@@ -117,15 +124,9 @@ namespace Microsoft.Data.Entity
                 "\r\n-- Missing async suffix --\r\n" + string.Join(Environment.NewLine, missingSuffixMethods));
         }
 
-        protected virtual IEnumerable<string> GetCancellationTokenExceptions()
-        {
-            return Enumerable.Empty<string>();
-        }
+        protected virtual IEnumerable<string> GetCancellationTokenExceptions() => Enumerable.Empty<string>();
 
-        protected virtual IEnumerable<string> GetAsyncSuffixExceptions()
-        {
-            return Enumerable.Empty<string>();
-        }
+        protected virtual IEnumerable<string> GetAsyncSuffixExceptions() => Enumerable.Empty<string>();
 
         protected abstract Assembly TargetAssembly { get; }
 

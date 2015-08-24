@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             ExtensionsProvider = extensionsProvider;
         }
 
-        protected IRelationalMetadataExtensionProvider ExtensionsProvider { get; private set; }
+        protected virtual IRelationalMetadataExtensionProvider ExtensionsProvider { get; private set; }
 
         public virtual DbContextGeneratorModel GeneratorModel { get; }
 

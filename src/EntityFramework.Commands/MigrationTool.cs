@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Commands
                     .Where(t => t != null))
                 .Distinct();
 
-        protected virtual DbContext CreateContext(Type type, string startupAssemblyName)
+        protected virtual DbContext CreateContext([NotNull] Type type, [NotNull] string startupAssemblyName)
         {
             var context = new ContextTool(_services).CreateContext(type, startupAssemblyName);
             var services = ((IAccessor<IServiceProvider>)context).Service;
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Commands
             return context;
         }
 
-        protected virtual MigrationScaffolder CreateScaffolder(IServiceProvider services)
+        protected virtual MigrationScaffolder CreateScaffolder([NotNull] IServiceProvider services)
         {
             // TODO: Can this be hidden in DesignTimeServices?
             return ActivatorUtilities.CreateInstance<MigrationScaffolder>(services);

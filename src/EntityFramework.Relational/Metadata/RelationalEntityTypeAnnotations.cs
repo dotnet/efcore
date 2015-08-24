@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
             Annotations = annotations;
         }
 
-        protected RelationalAnnotations Annotations { get; }
+        protected virtual RelationalAnnotations Annotations { get; }
 
         protected virtual IEntityType EntityType => (IEntityType)Annotations.Metadata;
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull] set { SetTableName(value); }
         }
 
-        protected virtual bool SetTableName(string value)
+        protected virtual bool SetTableName([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.TableName, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual string Schema
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull] set { SetSchema(value); }
         }
 
-        protected virtual bool SetSchema(string value)
+        protected virtual bool SetSchema([CanBeNull] string value)
             => Annotations.SetAnnotation(RelationalAnnotationNames.Schema, Check.NullButNotEmpty(value, nameof(value)));
 
         public virtual IProperty DiscriminatorProperty
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Metadata
             [param: CanBeNull] set { SetDiscriminatorValue(value); }
         }
 
-        protected virtual bool SetDiscriminatorValue(object value)
+        protected virtual bool SetDiscriminatorValue([CanBeNull] object value)
         {
             if (DiscriminatorProperty == null)
             {

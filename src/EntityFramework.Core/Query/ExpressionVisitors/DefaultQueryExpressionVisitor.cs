@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return queryModelVisitor.Expression;
         }
 
-        protected EntityQueryModelVisitor CreateQueryModelVisitor()
+        protected virtual EntityQueryModelVisitor CreateQueryModelVisitor()
             => QueryModelVisitor.QueryCompilationContext
                 .CreateQueryModelVisitor(_entityQueryModelVisitor);
 

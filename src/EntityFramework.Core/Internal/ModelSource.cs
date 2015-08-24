@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.Internal
     public abstract class ModelSource : IModelSource
     {
         private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
-        protected IDbSetFinder SetFinder { get; }
-        protected ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
+        protected virtual IDbSetFinder SetFinder { get; }
+        protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 
         protected ModelSource(
             [NotNull] IDbSetFinder setFinder,
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Internal
                 : conventionSetBuilder.AddConventions(conventionSet);
         }
 
-        protected virtual void FindSets(ModelBuilder modelBuilder, DbContext context)
+        protected virtual void FindSets([NotNull] ModelBuilder modelBuilder, [NotNull] DbContext context)
         {
             foreach (var setInfo in SetFinder.FindSets(context))
             {

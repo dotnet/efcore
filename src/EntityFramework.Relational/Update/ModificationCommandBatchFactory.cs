@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Update
             UpdateSqlGenerator = sqlGenerator;
         }
 
-        protected IUpdateSqlGenerator UpdateSqlGenerator { get; }
+        protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
 
         public abstract ModificationCommandBatch Create(
             IDbContextOptions options,

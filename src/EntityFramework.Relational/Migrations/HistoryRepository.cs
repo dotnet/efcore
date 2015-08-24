@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Migrations
                 () => annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion))).ColumnName);
         }
 
-        protected IUpdateSqlGenerator Sql { get; }
+        protected virtual IUpdateSqlGenerator Sql { get; }
         protected virtual string TableName { get; }
         protected virtual string TableSchema { get; }
         protected virtual string MigrationIdColumnName => _migrationIdColumnName.Value;
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual bool Exists()
             => _databaseCreator.Exists() && Exists(_executor.ExecuteScalar(_connection, ExistsSql));
 
-        protected abstract bool Exists(object value);
+        protected abstract bool Exists([NotNull] object value);
 
         public abstract string GetCreateIfNotExistsScript();
 
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Migrations
             return commands[0].CommandText;
         }
 
-        protected virtual void ConfigureTable(EntityTypeBuilder<HistoryRow> history)
+        protected virtual void ConfigureTable([NotNull] EntityTypeBuilder<HistoryRow> history)
         {
             history.ToTable(DefaultTableName);
             history.Key(h => h.MigrationId);

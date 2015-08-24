@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             };
         }
 
-        protected virtual string GetNamespace(Type siblingType, string defaultNamespace)
+        protected virtual string GetNamespace([CanBeNull] Type siblingType, [NotNull] string defaultNamespace)
         {
             if (siblingType != null)
             {

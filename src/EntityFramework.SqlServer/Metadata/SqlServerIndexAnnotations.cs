@@ -24,6 +24,6 @@ namespace Microsoft.Data.Entity.SqlServer.Metadata
             [param: CanBeNull] set { SetIsClustered(value); }
         }
 
-        protected bool SetIsClustered(bool? value) => Annotations.SetAnnotation(SqlServerAnnotationNames.Clustered, value);
+        protected virtual bool SetIsClustered(bool? value) => Annotations.SetAnnotation(SqlServerAnnotationNames.Clustered, value);
     }
 }

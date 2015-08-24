@@ -488,7 +488,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             return node;
         }
 
-        protected virtual string PostProcess(string queryPlan)
+        protected virtual string PostProcess([NotNull] string queryPlan)
         {
             var processedPlan = queryPlan
                 .Replace("Microsoft.Data.Entity.Query.", "")

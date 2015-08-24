@@ -309,7 +309,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return new CollectionNavigationBuilder(CollectionBuilder(relatedEntityType, navigationName));
         }
 
-        protected virtual InternalRelationshipBuilder ReferenceBuilder(EntityType relatedEntityType, string navigationName)
+        protected virtual InternalRelationshipBuilder ReferenceBuilder(
+            [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.Relationship(
                 relatedEntityType,
                 Metadata,
@@ -318,7 +319,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 configurationSource: ConfigurationSource.Explicit,
                 strictPrincipal: relatedEntityType == Metadata);
 
-        protected virtual InternalRelationshipBuilder CollectionBuilder(EntityType relatedEntityType, string navigationName)
+        protected virtual InternalRelationshipBuilder CollectionBuilder(
+            [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.Relationship(
                 Metadata,
                 relatedEntityType,
@@ -327,7 +329,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 configurationSource: ConfigurationSource.Explicit,
                 isUnique: false);
         
-        protected virtual InternalPropertyBuilder PropertyBuilder([NotNull] Type propertyType, string propertyName)
+        protected virtual InternalPropertyBuilder PropertyBuilder(
+            [NotNull] Type propertyType, [CanBeNull] string propertyName)
         {
             Check.NotNull(propertyType, nameof(propertyType));
             Check.NotEmpty(propertyName, nameof(propertyName));

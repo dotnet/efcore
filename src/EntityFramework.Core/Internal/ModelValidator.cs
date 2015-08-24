@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Internal
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.Internal
             EnsureValidForeignKeyChains(model);
         }
 
-        protected void EnsureNoShadowEntities(IModel model)
+        protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
         {
             var firstShadowEntity = model.EntityTypes.FirstOrDefault(entityType => !entityType.HasClrType());
             if (firstShadowEntity != null)
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Internal
             }
         }
 
-        protected void EnsureNoShadowKeys(IModel model)
+        protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
         {
             foreach (var entityType in model.EntityTypes)
             {
@@ -61,7 +62,7 @@ namespace Microsoft.Data.Entity.Internal
             }
         }
 
-        protected void EnsureClrPropertyTypesMatch(IModel model)
+        protected virtual void EnsureClrPropertyTypesMatch([NotNull] IModel model)
         {
             foreach (var entityType in model.EntityTypes)
             {
@@ -88,7 +89,7 @@ namespace Microsoft.Data.Entity.Internal
             }
         }
 
-        protected void EnsureValidForeignKeyChains(IModel model)
+        protected virtual void EnsureValidForeignKeyChains([NotNull] IModel model)
         {
             var verifiedProperties = new Dictionary<IProperty, IProperty>();
             foreach (var entityType in model.EntityTypes)
@@ -198,11 +199,11 @@ namespace Microsoft.Data.Entity.Internal
             return rootPrincipal;
         }
 
-        protected virtual void ShowError(string message)
+        protected virtual void ShowError([NotNull] string message)
         {
             throw new InvalidOperationException(message);
         }
 
-        protected abstract void ShowWarning(string message);
+        protected abstract void ShowWarning([NotNull] string message);
     }
 }

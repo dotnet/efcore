@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Update
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
-        protected StringBuilder CachedCommandText { get; set; }
+        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
         protected int LastCachedCommandIndex;
 
         protected ReaderModificationCommandBatch(
@@ -123,7 +123,9 @@ namespace Microsoft.Data.Entity.Update
             return command;
         }
 
-        protected virtual void PopulateParameters(RelationalParameterList parameterList, ColumnModification columnModification)
+        protected virtual void PopulateParameters(
+            [NotNull] RelationalParameterList parameterList,
+            [NotNull] ColumnModification columnModification)
         {
             if (columnModification.ParameterName != null)
             {
@@ -219,11 +221,11 @@ namespace Microsoft.Data.Entity.Update
             }
         }
 
-        protected abstract void Consume(DbDataReader reader, DbContext context);
+        protected abstract void Consume([NotNull] DbDataReader reader, [NotNull] DbContext context);
 
         protected abstract Task ConsumeAsync(
-            DbDataReader reader,
-            DbContext context,
+            [NotNull] DbDataReader reader,
+            [NotNull] DbContext context,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -239,13 +239,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         ? Remove(source, diffContext)
                         : Enumerable.Empty<MigrationOperation>();
 
-        protected virtual IEnumerable<MigrationOperation> Add(IModel target, DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IModel target, [NotNull] DiffContext diffContext)
             => GetSchemas(target).SelectMany(Add)
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
                 .Concat(target.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IModel source, DiffContext diffContext) =>
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext) =>
             source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext))
                 .Concat(Annotations.For(source).Sequences.SelectMany(Remove));
 
@@ -253,30 +253,30 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         #region Schema
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<string> source, IEnumerable<string> target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IEnumerable<string> source, [NotNull] IEnumerable<string> target)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
                 (s, t) => s == t);
 
-        protected virtual IEnumerable<MigrationOperation> Diff(string source, string target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] string source, [NotNull] string target)
             => Enumerable.Empty<MigrationOperation>();
 
-        protected virtual IEnumerable<MigrationOperation> Add(string target)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] string target)
         {
             yield return new EnsureSchemaOperation { Name = target };
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(string source) => Enumerable.Empty<MigrationOperation>();
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] string source) => Enumerable.Empty<MigrationOperation>();
 
         #endregion
 
         #region IEntityType
 
         protected virtual IEnumerable<MigrationOperation> Diff(
-            IEnumerable<IEntityType> source,
-            IEnumerable<IEntityType> target,
-            DiffContext diffContext)
+            [NotNull] IEnumerable<IEntityType> source,
+            [NotNull] IEnumerable<IEntityType> target,
+            [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -298,9 +298,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     StringComparison.OrdinalIgnoreCase));
 
         protected virtual IEnumerable<MigrationOperation> Diff(
-            IEntityType source,
-            IEntityType target,
-            DiffContext diffContext)
+            [NotNull] IEntityType source,
+            [NotNull] IEntityType target,
+            [NotNull] DiffContext diffContext)
         {
             var sourceAnnotations = Annotations.For(source);
             var targetAnnotations = Annotations.For(target);
@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Add(IEntityType target, DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IEntityType target, [NotNull] DiffContext diffContext)
         {
             var targetAnnotations = Annotations.For(target);
 
@@ -356,7 +356,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IEntityType source, DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove(
+            [NotNull] IEntityType source, [NotNull] DiffContext diffContext)
         {
             var sourceAnnotations = Annotations.For(source);
 
@@ -375,9 +376,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         #region IProperty
 
         protected virtual IEnumerable<MigrationOperation> Diff(
-            IEnumerable<IProperty> source,
-            IEnumerable<IProperty> target,
-            DiffContext diffContext)
+            [NotNull] IEnumerable<IProperty> source,
+            [NotNull] IEnumerable<IProperty> target,
+            [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -395,7 +396,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Annotations.For(t).ColumnName,
                     StringComparison.OrdinalIgnoreCase));
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IProperty source, IProperty target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IProperty source, [NotNull] IProperty target)
         {
             var sourceAnnotations = Annotations.For(source);
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
@@ -450,7 +451,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Add(IProperty target, bool inline = false)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IProperty target, bool inline = false)
         {
             var targetAnnotations = Annotations.For(target);
             var targetEntityTypeAnnotations = Annotations.For(target.DeclaringEntityType.RootType());
@@ -475,7 +476,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             yield return operation;
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IProperty source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IProperty source)
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
 
@@ -492,9 +493,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         #region IKey
 
         protected virtual IEnumerable<MigrationOperation> Diff(
-            IEnumerable<IKey> source,
-            IEnumerable<IKey> target,
-            DiffContext diffContext)
+            [NotNull] IEnumerable<IKey> source,
+            [NotNull] IEnumerable<IKey> target,
+            [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
@@ -502,12 +503,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
                           && s.IsPrimaryKey() == t.IsPrimaryKey());
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IKey source, IKey target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IKey source, [NotNull] IKey target)
             => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
                 ? Remove(source).Concat(Add(target))
                 : Enumerable.Empty<MigrationOperation>();
 
-        protected virtual IEnumerable<MigrationOperation> Add(IKey target)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IKey target)
         {
             var targetAnnotations = Annotations.For(target);
             var targetEntityTypeAnnotations = Annotations.For(target.EntityType.RootType());
@@ -538,7 +539,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             yield return operation;
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IKey source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IKey source)
         {
             var sourceAnnotations = Annotations.For(source);
             var sourceEntityTypeAnnotations = Annotations.For(source.EntityType.RootType());
@@ -568,9 +569,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         #region IForeignKey
 
         protected virtual IEnumerable<MigrationOperation> Diff(
-            IEnumerable<IForeignKey> source,
-            IEnumerable<IForeignKey> target,
-            DiffContext diffContext)
+            [NotNull] IEnumerable<IForeignKey> source,
+            [NotNull] IEnumerable<IForeignKey> target,
+            [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source,
                 target,
@@ -585,12 +586,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                                && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties);
                     });
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IForeignKey source, IForeignKey target, DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
             => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
                 ? Remove(source, diffContext).Concat(Add(target, diffContext))
                 : Enumerable.Empty<MigrationOperation>();
 
-        protected virtual IEnumerable<MigrationOperation> Add(IForeignKey target, DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
         {
             var declaringRootEntityType = target.DeclaringEntityType.RootType();
             var targetEntityTypeAnnotations = Annotations.For(declaringRootEntityType);
@@ -619,7 +621,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IForeignKey source, DiffContext diffContext)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IForeignKey source, [NotNull] DiffContext diffContext)
         {
             var declaringRootEntityType = source.DeclaringEntityType.RootType();
             var sourceEntityTypeAnnotations = Annotations.For(declaringRootEntityType);
@@ -641,9 +643,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         #region IIndex
 
         protected virtual IEnumerable<MigrationOperation> Diff(
-            IEnumerable<IIndex> source,
-            IEnumerable<IIndex> target,
-            DiffContext diffContext)
+            [NotNull] IEnumerable<IIndex> source,
+            [NotNull] IEnumerable<IIndex> target,
+            [NotNull] DiffContext diffContext)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
@@ -654,7 +656,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties),
                 (s, t) => s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties));
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IIndex source, IIndex target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IIndex source, [NotNull] IIndex target)
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
             var sourceName = Annotations.For(source).Name;
@@ -682,7 +684,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Add(IIndex target)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] IIndex target)
         {
             var targetEntityTypeAnnotations = Annotations.For(target.DeclaringEntityType.RootType());
 
@@ -699,7 +701,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             yield return operation;
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(IIndex source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IIndex source)
         {
             var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
 
@@ -715,7 +717,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         #region ISequence
 
-        protected virtual IEnumerable<MigrationOperation> Diff(IEnumerable<ISequence> source, IEnumerable<ISequence> target)
+        protected virtual IEnumerable<MigrationOperation> Diff(
+            [NotNull] IEnumerable<ISequence> source,
+            [NotNull] IEnumerable<ISequence> target)
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
@@ -725,7 +729,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                           && s.ClrType == t.ClrType);
 
-        protected virtual IEnumerable<MigrationOperation> Diff(ISequence source, ISequence target)
+        protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target)
         {
             var schemaChanged = source.Schema != target.Schema;
             var renamed = source.Name != target.Name;
@@ -767,7 +771,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<MigrationOperation> Add(ISequence target)
+        protected virtual IEnumerable<MigrationOperation> Add([NotNull] ISequence target)
         {
             yield return new CreateSequenceOperation
             {
@@ -782,7 +786,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             };
         }
 
-        protected virtual IEnumerable<MigrationOperation> Remove(ISequence source)
+        protected virtual IEnumerable<MigrationOperation> Remove([NotNull] ISequence source)
         {
             yield return new DropSequenceOperation
             {
@@ -794,12 +798,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         #endregion
 
         protected virtual IEnumerable<MigrationOperation> DiffCollection<T>(
-            IEnumerable<T> sources,
-            IEnumerable<T> targets,
-            Func<T, T, IEnumerable<MigrationOperation>> diff,
-            Func<T, IEnumerable<MigrationOperation>> add,
-            Func<T, IEnumerable<MigrationOperation>> remove,
-            params Func<T, T, bool>[] predicates)
+            [NotNull] IEnumerable<T> sources,
+            [NotNull] IEnumerable<T> targets,
+            [NotNull] Func<T, T, IEnumerable<MigrationOperation>> diff,
+            [NotNull] Func<T, IEnumerable<MigrationOperation>> add,
+            [NotNull] Func<T, IEnumerable<MigrationOperation>> remove,
+            [NotNull] params Func<T, T, bool>[] predicates)
         {
             var sourceList = sources.ToList();
             var targetList = targets.ToList();
@@ -853,10 +857,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual string[] GetColumns(IEnumerable<IProperty> properties)
+        protected virtual string[] GetColumns([NotNull] IEnumerable<IProperty> properties)
             => properties.Select(p => Annotations.For(p).ColumnName).ToArray();
 
-        protected virtual bool HasDifferences(IEnumerable<IAnnotation> source, IEnumerable<IAnnotation> target)
+        protected virtual bool HasDifferences([NotNull] IEnumerable<IAnnotation> source, [NotNull] IEnumerable<IAnnotation> target)
         {
             var unmatched = new List<IAnnotation>(target);
 
@@ -874,7 +878,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return unmatched.Count != 0;
         }
 
-        protected virtual void CopyAnnotations(IEnumerable<IAnnotation> annotations, Annotatable annotatable)
+        protected virtual void CopyAnnotations([NotNull] IEnumerable<IAnnotation> annotations, [NotNull] Annotatable annotatable)
         {
             foreach (var annotation in annotations)
             {
@@ -882,11 +886,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        protected virtual IEnumerable<string> GetSchemas(IModel model)
+        protected virtual IEnumerable<string> GetSchemas([NotNull] IModel model)
             => model.GetRootEntityTypes().Select(t => Annotations.For(t).Schema).Where(s => !string.IsNullOrEmpty(s))
                 .Distinct();
 
-        protected virtual object GetDefaultValue(Type type)
+        protected virtual object GetDefaultValue([NotNull] Type type)
             => type == typeof(string)
                 ? string.Empty
                 : type.IsArray

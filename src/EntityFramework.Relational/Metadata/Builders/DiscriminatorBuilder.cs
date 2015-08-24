@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             AnnotationsBuilder = annotationsBuilder;
         }
 
-        protected RelationalEntityTypeBuilderAnnotations AnnotationsBuilder { get; }
+        protected virtual RelationalEntityTypeBuilderAnnotations AnnotationsBuilder { get; }
         
         public virtual DiscriminatorBuilder HasValue<TEntity>([CanBeNull] object value)
             => HasValue(typeof(TEntity), value);

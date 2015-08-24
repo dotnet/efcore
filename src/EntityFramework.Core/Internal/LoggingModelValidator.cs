@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Internal
             Logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<ModelValidator>);
         }
 
-        protected LazyRef<ILogger> Logger { get; }
+        protected virtual LazyRef<ILogger> Logger { get; }
 
         protected override void ShowWarning(string message) => Logger.Value.LogWarning(message);
     }

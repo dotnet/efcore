@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             [NotNull] string modelSnapshotName,
             [NotNull] IModel model);
 
-        protected virtual IEnumerable<string> GetNamespaces(IEnumerable<MigrationOperation> operations)
+        protected virtual IEnumerable<string> GetNamespaces([NotNull] IEnumerable<MigrationOperation> operations)
             => GetAnnotationNamespaces(GetAnnotatables(operations));
 
         private IEnumerable<IAnnotatable> GetAnnotatables(IEnumerable<MigrationOperation> operations)
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             }
         }
 
-        protected virtual IEnumerable<string> GetNamespaces(IModel model)
+        protected virtual IEnumerable<string> GetNamespaces([NotNull] IModel model)
             => GetAnnotationNamespaces(GetAnnotatables(model));
 
         private IEnumerable<IAnnotatable> GetAnnotatables(IModel model)

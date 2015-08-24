@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
             Annotations = annotations;
         }
 
-        protected RelationalAnnotations Annotations { get; }
+        protected virtual RelationalAnnotations Annotations { get; }
 
         protected virtual IKey Key => (IKey)Annotations.Metadata;
 

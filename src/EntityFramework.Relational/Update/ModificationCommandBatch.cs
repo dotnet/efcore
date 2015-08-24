@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Update
             UpdateSqlGenerator = sqlGenerator;
         }
 
-        protected IUpdateSqlGenerator UpdateSqlGenerator { get; private set; }
+        protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; private set; }
 
         public abstract IReadOnlyList<ModificationCommand> ModificationCommands { get; }
 

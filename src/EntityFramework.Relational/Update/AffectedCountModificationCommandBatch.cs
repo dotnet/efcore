@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Update
 
         // contains true if the command at the corresponding index is the last command in its result set
         // the last value will not be read
-        protected IList<bool> ResultSetEnds => _resultSetEnd;
+        protected virtual IList<bool> ResultSetEnds => _resultSetEnd;
 
         public override bool AddCommand(ModificationCommand modificationCommand)
         {
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Update
             }
         }
 
-        protected virtual int ConsumeResultSetWithPropagation(int commandIndex, DbDataReader reader, DbContext context)
+        protected virtual int ConsumeResultSetWithPropagation(int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context)
         {
             var rowsAffected = 0;
             do
@@ -156,7 +156,8 @@ namespace Microsoft.Data.Entity.Update
             return commandIndex;
         }
 
-        protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
+        protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
+            int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context, CancellationToken cancellationToken)
         {
             var rowsAffected = 0;
             do
@@ -185,7 +186,7 @@ namespace Microsoft.Data.Entity.Update
             return commandIndex;
         }
 
-        protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, DbDataReader reader, DbContext context)
+        protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context)
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < ResultSetEnds.Count
@@ -212,7 +213,8 @@ namespace Microsoft.Data.Entity.Update
             return commandIndex;
         }
 
-        protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(int commandIndex, DbDataReader reader, DbContext context, CancellationToken cancellationToken)
+        protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
+            int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context, CancellationToken cancellationToken)
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < ResultSetEnds.Count
@@ -249,7 +251,7 @@ namespace Microsoft.Data.Entity.Update
             return entries;
         }
 
-        protected void ThrowAggregateUpdateConcurrencyException(
+        protected virtual void ThrowAggregateUpdateConcurrencyException(
             int commandIndex,
             int expectedRowsAffected,
             int rowsAffected)

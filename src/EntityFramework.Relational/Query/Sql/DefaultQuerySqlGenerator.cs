@@ -407,7 +407,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             return inExpression;
         }
 
-        protected virtual Expression VisitNotIn(InExpression inExpression)
+        protected virtual Expression VisitNotIn([NotNull] InExpression inExpression)
         {
             if (inExpression.Values != null)
             {
@@ -492,7 +492,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         protected virtual IReadOnlyList<Expression> ExtractNonNullExpressionValues(
-            IReadOnlyList<Expression> inExpressionValues)
+            [NotNull] IReadOnlyList<Expression> inExpressionValues)
         {
             var inValuesNotNull = new List<Expression>();
             foreach (var inValue in inExpressionValues)
