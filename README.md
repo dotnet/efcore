@@ -12,3 +12,6 @@ Entity Framework 7 (EF7) provides a familiar developer experience to previous ve
 
 ## Getting Started
 To get started with EF7, see the [Entity Framework Wiki](https://github.com/aspnet/EntityFramework/wiki).
+
+## Roadmap
+EF 7 is currently pre-release. For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFramework/wiki/Roadmap) article in the wiki.
