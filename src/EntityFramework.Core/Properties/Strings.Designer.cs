@@ -1132,6 +1132,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("SelfReferencingNavigationWithInverseProperty", "property", "entityType", "referencedProperty", "referencedEntityType"), property, entityType, referencedProperty, referencedEntityType);
         }
 
+        /// <summary>
+        /// Data binding directly to a store query is not supported. Instead materialize the results into a collection, by calling a method such as ToList() or ToArray(), and bind to the collection. This should be done to avoid sending a query to the database each time the databound control iterates the data.
+        /// </summary>
+        public static string DataBindingWithIListSource
+        {
+            get { return GetString("DataBindingWithIListSource"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
