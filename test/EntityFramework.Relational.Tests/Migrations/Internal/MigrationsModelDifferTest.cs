@@ -3019,6 +3019,48 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         }
 
         [Fact]
+        public void Create_table_with_foreign_key_on_base_type()
+        {
+            Execute(
+                _ => { },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("HandlerId");
+                            x.Reference("Person").InverseCollection().ForeignKey("HandlerId");
+                        });
+                    modelBuilder.Entity("Wyvern").BaseType("Animal");
+                },
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+                    Assert.IsType<CreateTableOperation>(operations[0]);
+
+                    var createTableOperation = Assert.IsType<CreateTableOperation>(operations[1]);
+                    Assert.Equal("Animal", createTableOperation.Name);
+                    Assert.Equal(1, createTableOperation.ForeignKeys.Count);
+
+                    var addForeignKeyOperation = createTableOperation.ForeignKeys[0];
+                    Assert.Equal("FK_Animal_Person_HandlerId", addForeignKeyOperation.Name);
+                    Assert.Equal(new[] { "HandlerId" }, addForeignKeyOperation.Columns);
+                    Assert.Equal("Person", addForeignKeyOperation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, addForeignKeyOperation.PrincipalColumns);
+                });
+        }
+
+        [Fact]
         public void Create_table_with_foreign_key_on_subtype()
         {
             Execute(
@@ -3170,6 +3212,62 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal(new[] { "PreyId" }, addForeignKeyOperation.Columns);
                     Assert.Equal("Animal", addForeignKeyOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addForeignKeyOperation.PrincipalColumns);
+                });
+        }
+
+        [Fact]
+        public void Add_foreign_key_on_base_type()
+        {
+            Execute(
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("HandlerId");
+                        });
+                    modelBuilder.Entity("Drakee").BaseType("Animal");
+                },
+                modelBuilder =>
+                {
+                    modelBuilder.Entity(
+                        "Person",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                        });
+                    modelBuilder.Entity(
+                        "Animal",
+                        x =>
+                        {
+                            x.Property<int>("Id");
+                            x.Key("Id");
+                            x.Property<int>("HandlerId");
+                            x.Reference("Person").InverseCollection().ForeignKey("HandlerId");
+                        });
+                    modelBuilder.Entity("Drakee").BaseType("Animal");
+                },
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("Animal", operation.Table);
+                    Assert.Equal("FK_Animal_Person_HandlerId", operation.Name);
+                    Assert.Equal(new[] { "HandlerId" }, operation.Columns);
+                    Assert.Equal("Person", operation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
                 });
         }
 

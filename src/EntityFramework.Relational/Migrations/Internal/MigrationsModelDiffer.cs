@@ -230,8 +230,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
                     .Concat(
                         Diff(
-                            source.EntityTypes.SelectMany(t => t.GetForeignKeys()),
-                            target.EntityTypes.SelectMany(t => t.GetForeignKeys()),
+                            source.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()),
+                            target.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()),
                             diffContext))
                 : target != null
                     ? Add(target, diffContext)
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             => GetSchemas(target).SelectMany(Add)
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
-                .Concat(target.EntityTypes.SelectMany(t => t.GetForeignKeys()).SelectMany(k => Add(k, diffContext)));
+                .Concat(target.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         protected virtual IEnumerable<MigrationOperation> Remove(IModel source, DiffContext diffContext) =>
             source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext))
