@@ -12,10 +12,13 @@ namespace Microsoft.Data.Entity.Storage.Commands
     public class RelationalCommandBuilder
     {
         private readonly IndentedStringBuilder _stringBuilder = new IndentedStringBuilder();
-        private readonly RelationalParameterList _parameterList = new RelationalParameterList();
 
         public virtual RelationalCommandBuilder AppendLine()
-            => AppendLine(string.Empty);
+        {
+            _stringBuilder.AppendLine();
+
+            return this;
+        }
 
         public virtual RelationalCommandBuilder Append([NotNull] object o)
         {
@@ -47,12 +50,36 @@ namespace Microsoft.Data.Entity.Storage.Commands
         public virtual RelationalCommand RelationalCommand
             => new RelationalCommand(
                 _stringBuilder.ToString(),
-                _parameterList.RelationalParameters.ToArray());
+                RelationalParameterList.RelationalParameters.ToArray());
 
-        public virtual RelationalParameterList RelationalParameterList
-            => _parameterList;
+        public virtual RelationalParameterList RelationalParameterList { get; } = new RelationalParameterList();
 
         public virtual IDisposable Indent()
             => _stringBuilder.Indent();
+
+        public virtual int Length => _stringBuilder.Length;
+
+        public virtual RelationalCommandBuilder Clear()
+        {
+            _stringBuilder.Clear();
+
+            return this;
+        }
+
+        public virtual RelationalCommandBuilder IncrementIndent()
+        {
+            _stringBuilder.IncrementIndent();
+
+            return this;
+        }
+
+        public virtual RelationalCommandBuilder DecrementIndent()
+        {
+            _stringBuilder.DecrementIndent();
+
+            return this;
+        }
+
+        public override string ToString() => _stringBuilder.ToString();
     }
 }

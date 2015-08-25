@@ -438,12 +438,12 @@ namespace Microsoft.Data.Entity.Migrations
                 });
         }
 
-        protected virtual void Generate(MigrationOperation operation)
+        protected virtual void Generate(params MigrationOperation[] operation)
         {
-            var batch = SqlGenerator.Generate(new[] { operation });
+            var batch = SqlGenerator.Generate(operation);
 
             Sql = string.Join(
-                EOL + "GO" + EOL + EOL,
+                "GO" + EOL + EOL,
                 batch.Select(b => b.CommandText));
         }
     }

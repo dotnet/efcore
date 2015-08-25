@@ -255,6 +255,21 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql);
         }
 
+        [Fact]
+        public void Generate_doesnt_batch_by_default()
+        {
+            Generate(
+                new SqlOperation { Sql = "SELECT 1" },
+                new SqlOperation { Sql = "SELECT 2" });
+
+            Assert.Equal(
+                "SELECT 1;" + EOL +
+                "GO" + EOL +
+                EOL +
+                "SELECT 2;" + EOL,
+                Sql);
+        }
+
         private class ConcreteUpdateSqlGenerator : UpdateSqlGenerator
         {
             protected override void AppendIdentityWhereCondition(

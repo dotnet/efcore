@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Update
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
 
-        public override string BatchSeparator => "GO";
+        public override string BatchSeparator => "GO" + Environment.NewLine;
 
         public override string DelimitIdentifier(string identifier)
             => "[" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "]";

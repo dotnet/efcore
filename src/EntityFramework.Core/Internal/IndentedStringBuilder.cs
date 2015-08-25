@@ -26,6 +26,8 @@ namespace Microsoft.Data.Entity.Internal
             _indent = from._indent;
         }
 
+        public virtual int Length => _stringBuilder.Length;
+
         public virtual IndentedStringBuilder Append([NotNull] object o)
         {
             DoIndent();
@@ -68,6 +70,13 @@ namespace Microsoft.Data.Entity.Internal
                     AppendLine(line);
                 }
             }
+
+            return this;
+        }
+
+        public virtual IndentedStringBuilder Clear()
+        {
+            _stringBuilder.Clear();
 
             return this;
         }

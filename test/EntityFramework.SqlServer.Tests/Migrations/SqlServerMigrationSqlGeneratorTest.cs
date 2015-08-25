@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(new CreateDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
-                "CREATE DATABASE [Northwind]" + EOL +
+                "CREATE DATABASE [Northwind];" + EOL +
                 "GO" + EOL +
                 EOL +
                 "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET READ_COMMITTED_SNAPSHOT ON');" + EOL,
@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(new DropDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
-                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE')" + EOL +
+                "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE');" + EOL +
                 "GO" + EOL +
                 EOL +
                 "DROP DATABASE [Northwind];" + EOL,

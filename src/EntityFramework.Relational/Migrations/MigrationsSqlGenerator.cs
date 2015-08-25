@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -76,10 +77,10 @@ namespace Microsoft.Data.Entity.Migrations
             foreach (var operation in operations)
             {
                 Generate(operation, model, builder);
-                builder.AppendLine(Sql.BatchCommandSeparator);
+                builder
+                    .AppendLine(Sql.BatchCommandSeparator)
+                    .EndBatch();
             }
-
-            builder.EndBatch();
 
             return builder.RelationalCommands;
         }
@@ -574,6 +575,8 @@ namespace Microsoft.Data.Entity.Migrations
             [CanBeNull] string defaultValueSql,
             [NotNull] SqlBatchBuilder builder)
         {
+            Check.NotNull(builder, nameof(builder));
+
             if (defaultValueSql != null)
             {
                 builder
@@ -705,6 +708,11 @@ namespace Microsoft.Data.Entity.Migrations
                     break;
                 case ReferentialAction.SetDefault:
                     builder.Append("SET DEFAULT");
+                    break;
+                default:
+                    Debug.Assert(
+                        referentialAction == ReferentialAction.NoAction,
+                        "Unexpected value: " + referentialAction);
                     break;
             }
         }

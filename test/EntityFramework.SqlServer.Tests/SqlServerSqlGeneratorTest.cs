@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public override void BatchSeparator_returns_seperator()
         {
-            Assert.Equal("GO", CreateSqlGenerator().BatchSeparator);
+            Assert.Equal("GO" + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
         }
 
         [Fact]

@@ -5,53 +5,76 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage.Commands;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     public class SqlBatchBuilder
     {
         private readonly List<RelationalCommand> _commands = new List<RelationalCommand>();
-        private RelationalCommandBuilder _commandBuilder;
+        private readonly RelationalCommandBuilder _commandBuilder = new RelationalCommandBuilder();
 
         public virtual IReadOnlyList<RelationalCommand> RelationalCommands => _commands;
 
-
-        public SqlBatchBuilder()
-        {
-            _commandBuilder = new RelationalCommandBuilder();
-        }
-
         public virtual SqlBatchBuilder EndBatch()
         {
-            var command = _commandBuilder.RelationalCommand;
-
-            if(!string.IsNullOrEmpty(command.CommandText))
+            if (_commandBuilder.Length != 0)
             {
-                _commands.Add(command);
+                _commands.Add(_commandBuilder.RelationalCommand);
+                _commandBuilder.Clear();
             }
-
-            _commandBuilder = new RelationalCommandBuilder();
 
             return this;
         }
 
         public virtual SqlBatchBuilder Append([NotNull] object o)
         {
+            Check.NotNull(o, nameof(o));
+
             _commandBuilder.Append(o);
 
             return this;
         }
 
         public virtual SqlBatchBuilder AppendLine()
-            => AppendLine(string.Empty);
-
-        public virtual SqlBatchBuilder AppendLine([NotNull] object o, bool suppressTransaction = false)
         {
+            _commandBuilder.AppendLine();
+
+            return this;
+        }
+
+        public virtual SqlBatchBuilder AppendLine([NotNull] object o)
+        {
+            Check.NotNull(o, nameof(o));
+
             _commandBuilder.AppendLine(o);
 
             return this;
         }
 
+        public virtual SqlBatchBuilder AppendLines([NotNull] object o)
+        {
+            Check.NotNull(o, nameof(o));
+
+            _commandBuilder.AppendLines(o);
+
+            return this;
+        }
+
         public virtual IDisposable Indent() => _commandBuilder.Indent();
+
+        public virtual SqlBatchBuilder IncrementIndent()
+        {
+            _commandBuilder.IncrementIndent();
+
+            return this;
+        }
+
+        public virtual SqlBatchBuilder DecrementIndent()
+        {
+            _commandBuilder.DecrementIndent();
+
+            return this;
+        }
     }
 }
