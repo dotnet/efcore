@@ -41,8 +41,10 @@ namespace Microsoft.Data.Entity.Commands
         }
 
 #if DNX451 || DNXCORE50
-        protected virtual DbContext TryCreateContextFromStartup(Type type, string startupAssemblyName)
+        protected virtual DbContext TryCreateContextFromStartup([NotNull] Type type, [CanBeNull] string startupAssemblyName)
         {
+            Check.NotNull(type, nameof(type));
+
             var hostBuilder = new WebHostBuilder(_services);
             if (startupAssemblyName != null)
             {
