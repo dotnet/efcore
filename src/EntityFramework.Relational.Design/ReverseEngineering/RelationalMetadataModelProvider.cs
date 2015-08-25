@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             CoreAnnotationNames.ShadowIndexAnnotation
         };
 
-        public const string AnnotationPrefix = "RelationalMetadataModelProvider:";
+        public const string AnnotationPrefix = nameof(RelationalMetadataModelProvider) + ":";
         public const string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
         public const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";

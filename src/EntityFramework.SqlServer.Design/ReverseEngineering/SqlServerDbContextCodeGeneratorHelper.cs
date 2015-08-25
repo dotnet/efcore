@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Metadata.Builders;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return base.ClassName(connectionString);
         }
 
-        public override string UseMethodName => "UseSqlServer";
+        public override string UseMethodName => nameof(SqlServerDbContextOptionsExtensions.UseSqlServer);
 
         public override void AddValueGeneratedFacetConfiguration(
             [NotNull] PropertyConfiguration propertyConfiguration)
@@ -56,7 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     (EntityType)propertyConfiguration.EntityConfiguration.EntityType) != null)
             {
                 propertyConfiguration.AddFacetConfiguration(
-                    new FacetConfiguration("ValueGeneratedNever()"));
+                    new FacetConfiguration(nameof(PropertyBuilder.ValueGeneratedNever) + "()"));
             }
             else
             {

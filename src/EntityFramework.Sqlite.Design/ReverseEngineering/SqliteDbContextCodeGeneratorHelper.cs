@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
     public class SqliteDbContextCodeGeneratorHelper : DbContextCodeGeneratorHelper
     {
-        public override string UseMethodName => "UseSqlite";
+        public override string UseMethodName => nameof(SqliteDbContextOptionsBuilderExtensions.UseSqlite);
 
         public SqliteDbContextCodeGeneratorHelper(
             [NotNull] DbContextGeneratorModel generatorModel, 

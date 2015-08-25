@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.SqlServer.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
@@ -16,6 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             base.AddMetadataProviderServices(serviceCollection);
             serviceCollection.AddScoped<IDatabaseMetadataModelProvider, SqlServerMetadataModelProvider>()
                 .AddScoped<IRelationalMetadataExtensionProvider, SqlServerMetadataExtensionProvider>()
+                .AddScoped<SqlServerLiteralUtilities>()
                 .AddScoped<CodeGeneratorHelperFactory, SqlServerCodeGeneratorHelperFactory>();
         }
     }

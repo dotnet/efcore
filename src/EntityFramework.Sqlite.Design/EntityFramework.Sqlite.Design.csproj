@@ -69,9 +69,6 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ReverseEngineering\Templates\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
