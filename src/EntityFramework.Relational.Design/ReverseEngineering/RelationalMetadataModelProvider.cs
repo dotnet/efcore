@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
+using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -16,7 +16,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public abstract class ReverseEngineeringMetadataModelProvider : IDatabaseMetadataModelProvider
+    public abstract class RelationalMetadataModelProvider : IDatabaseMetadataModelProvider
     {
         public static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
         {
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             CoreAnnotationNames.ShadowIndexAnnotation
         };
 
-        public const string AnnotationPrefix = "ReverseEngineeringMetadataModelProvider:";
+        public const string AnnotationPrefix = "RelationalMetadataModelProvider:";
         public const string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
         public const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
         public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
@@ -33,11 +33,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
         public static readonly string DbContextTemplateResourceName =
-            typeof(ReverseEngineeringMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
+            typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
             + ".ReverseEngineering.Templates.DbContextTemplate.cshtml";
 
         public static readonly string EntityTypeTemplateResourceName =
-            typeof(ReverseEngineeringMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
+            typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
             + ".ReverseEngineering.Templates.EntityTypeTemplate.cshtml";
 
         private readonly Dictionary<EntityType, EntityType> _relationalToCodeGenEntityTypeMap =
@@ -46,17 +46,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             new Dictionary<Property, Property>();
 
         public virtual ILogger Logger { get; private set; }
-        public virtual ModelUtilities ModelUtilities { get; private set; }
+        private readonly ModelUtilities _modelUtilities;
 
         protected abstract IRelationalMetadataExtensionProvider ExtensionsProvider { get; }
 
-        public ReverseEngineeringMetadataModelProvider([NotNull] ILogger logger, [NotNull] ModelUtilities modelUtilities)
+        protected RelationalMetadataModelProvider([NotNull] ILogger logger, [NotNull] ModelUtilities modelUtilities)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
 
             Logger = logger;
-            ModelUtilities = modelUtilities;
+            _modelUtilities = modelUtilities;
         }
 
         public virtual IModel GenerateMetadataModel([NotNull] string connectionString)
@@ -81,31 +81,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual string DbContextTemplate
-        {
-            get
-            {
-                return ReadFromResource(
-                    typeof(ReverseEngineeringMetadataModelProvider).GetTypeInfo().Assembly,
-                    DbContextTemplateResourceName);
-            }
-        }
-
-        public abstract DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper(DbContextGeneratorModel model);
+            => ReadFromResource(
+                typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
+                DbContextTemplateResourceName);
 
         public virtual string EntityTypeTemplate
-        {
-            get
-            {
-                return ReadFromResource(
-                    typeof(ReverseEngineeringMetadataModelProvider).GetTypeInfo().Assembly,
-                    EntityTypeTemplateResourceName);
-            }
-        }
-
-        public virtual EntityTypeCodeGeneratorHelper EntityTypeCodeGeneratorHelper(EntityTypeGeneratorModel model)
-        {
-            return new EntityTypeCodeGeneratorHelper(model, ExtensionsProvider);
-        }
+            => ReadFromResource(
+                typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
+                EntityTypeTemplateResourceName);
 
         public virtual void AddReferencesForTemplates(MetadataReferencesProvider metadataReferencesProvider)
         {
@@ -121,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         /// adding Navigations requires that the underlying EntityType have an underlying
         /// CLR type which is not possible here. Instead they will be constructed from the ForeignKeys.
         /// Errors generating EntityTypes can be attached to those EntityTypes using an
-        /// annotation of name <see cref="ReverseEngineeringMetadataModelProvider.AnnotationNameEntityTypeError"/>.
+        /// annotation of name <see cref="RelationalMetadataModelProvider.AnnotationNameEntityTypeError"/>.
         /// Such EntityTypes will have files generated for them but the file will only contain
         /// the error message as a comment.
         /// </summary>
@@ -134,7 +117,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(relationalModel, nameof(relationalModel));
             Check.NotNull(nameMapper, nameof(nameMapper));
 
-            var codeGenModel = new Entity.Metadata.Model();
+            var codeGenModel = new Model();
             foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
             {
                 var codeGenEntityType = codeGenModel
@@ -219,7 +202,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
                 existingIdentifiers.Add(entityType.Name);
                 existingIdentifiers.AddRange(
-                    ModelUtilities.OrderedProperties(entityType).Select(p => p.Name));
+                    _modelUtilities.OrderedProperties(entityType).Select(p => p.Name));
             }
 
             foreach (var entityType in codeGenModel.EntityTypes)
@@ -229,7 +212,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     // set up the name of the navigation property on the dependent end of the foreign key
                     var dependentEndNavigationPropertyCandidateName =
-                        ModelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
+                        _modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
                     var dependentEndNavigationPropertyName =
                         CSharpUtilities.Instance.GenerateCSharpIdentifier(
                             dependentEndNavigationPropertyCandidateName,
@@ -249,7 +232,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                 CultureInfo.CurrentCulture,
                                 SelfReferencingPrincipalEndNavigationNamePattern,
                                 dependentEndNavigationPropertyName)
-                            : ModelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
+                            : _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
                     var principalEndNavigationPropertyName =
                         CSharpUtilities.Instance.GenerateCSharpIdentifier(
                             principalEndNavigationPropertyCandidateName,

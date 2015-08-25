@@ -5,23 +5,25 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
+using Microsoft.Data.Entity.Relational.Design.Templating;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerDbContextCodeGeneratorHelper : DbContextCodeGeneratorHelper
     {
-        private const string _dbContextSuffix = "Context";
-
         public SqlServerDbContextCodeGeneratorHelper(
-            [NotNull] DbContextGeneratorModel generatorModel,
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider)
-            : base(generatorModel, extensionsProvider)
+            [NotNull] DbContextGeneratorModel generatorModel, 
+            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider, 
+            [NotNull] ModelUtilities modelUtilities)
+            : base(generatorModel, extensionsProvider, modelUtilities)
         {
         }
+
+        private const string _dbContextSuffix = "Context";
 
         public override string ClassName([NotNull] string connectionString)
         {

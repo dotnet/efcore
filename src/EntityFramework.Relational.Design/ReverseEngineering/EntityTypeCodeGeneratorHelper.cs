@@ -6,43 +6,34 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class EntityTypeCodeGeneratorHelper
     {
-        public EntityTypeCodeGeneratorHelper([NotNull] EntityTypeGeneratorModel generatorModel,
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider)
+        private readonly ModelUtilities _modelUtilities;
+
+        public EntityTypeCodeGeneratorHelper(
+            [NotNull] EntityTypeGeneratorModel generatorModel,
+            [NotNull] ModelUtilities modelUtilities)
         {
             Check.NotNull(generatorModel, nameof(generatorModel));
-            Check.NotNull(extensionsProvider, nameof(extensionsProvider));
+            Check.NotNull(modelUtilities, nameof(modelUtilities));
 
             GeneratorModel = generatorModel;
-            ExtensionsProvider = extensionsProvider;
+            _modelUtilities = modelUtilities;
         }
-
-        protected virtual IRelationalMetadataExtensionProvider ExtensionsProvider { get; private set; }
 
         public virtual EntityTypeGeneratorModel GeneratorModel { get; }
 
         public virtual IEnumerable<IProperty> OrderedEntityProperties
-        {
-            get
-            {
-                return GeneratorModel.Generator.ModelUtilities
-                    .OrderedProperties(GeneratorModel.EntityType);
-            }
-        }
+            => _modelUtilities.OrderedProperties(GeneratorModel.EntityType);
 
         public virtual string ErrorMessageAnnotation
-        {
-            get
-            {
-                return (string)GeneratorModel
-                    .EntityType[ReverseEngineeringMetadataModelProvider.AnnotationNameEntityTypeError];
-            }
-        }
+            => (string)GeneratorModel
+                .EntityType[RelationalMetadataModelProvider.AnnotationNameEntityTypeError];
 
         public virtual IEnumerable<NavigationPropertyInitializerConfiguration> NavPropInitializers
         {
@@ -58,9 +49,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                         .GetForeignKeys().Where(fk => fk.PrincipalEntityType == GeneratorModel.EntityType))
                     {
                         var navigationPropertyName =
-                            (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
+                            (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
                         if (((EntityType)otherEntityType)
-                            .FindAnnotation(ReverseEngineeringMetadataModelProvider.AnnotationNameEntityTypeError) == null)
+                            .FindAnnotation(RelationalMetadataModelProvider.AnnotationNameEntityTypeError) == null)
                         {
                             if (!foreignKey.IsUnique)
                             {
@@ -91,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                         .GetForeignKeys().Where(fk => fk.PrincipalEntityType == GeneratorModel.EntityType))
                     {
                         if (((EntityType)otherEntityType)
-                            .FindAnnotation(ReverseEngineeringMetadataModelProvider.AnnotationNameEntityTypeError) != null)
+                            .FindAnnotation(RelationalMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                         {
                             navProps.Add(new NavigationPropertyConfiguration(
                                 Strings.UnableToAddNavigationProperty(otherEntityType.Name)));
@@ -103,7 +94,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                 : "ICollection<" + otherEntityType.Name + ">";
                             navProps.Add(new NavigationPropertyConfiguration(
                                 referencedType,
-                                (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
+                                (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
                         }
                     }
                 }
@@ -113,7 +104,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     // set up the navigation property on this end of foreign keys owned by this EntityType
                     navProps.Add(new NavigationPropertyConfiguration(
                         foreignKey.PrincipalEntityType.Name,
-                        (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNameDependentEndNavPropName]));
+                        (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName]));
 
                     // set up the other navigation property for self-referencing foreign keys owned by this EntityType
                     if (((ForeignKey)foreignKey).IsSelfReferencing())
@@ -123,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                             : "ICollection<" + foreignKey.DeclaringEntityType.Name + ">";
                         navProps.Add(new NavigationPropertyConfiguration(
                             referencedType,
-                            (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
+                            (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]));
                     }
                 }
 

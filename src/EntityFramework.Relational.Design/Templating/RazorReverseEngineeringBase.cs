@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.Templating
 {
@@ -14,6 +15,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
         private TextWriter Output { get; set; }
 
         public virtual dynamic Model { get; [param: NotNull] set; }
+
+        public virtual ModelUtilities ModelUtilities { get; [param: NotNull] set; }
+        public virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] set; }
 
         public abstract Task ExecuteAsync();
 

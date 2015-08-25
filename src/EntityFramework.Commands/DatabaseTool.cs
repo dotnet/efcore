@@ -53,11 +53,9 @@ namespace Microsoft.Data.Entity.Commands
             designTimeMetadataProviderFactory.AddMetadataProviderServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var designTimeProvider = serviceProvider.GetRequiredService<IDatabaseMetadataModelProvider>();
             var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             var configuration = new ReverseEngineeringConfiguration
             {
-                Provider = designTimeProvider,
                 ConnectionString = connectionString,
                 CustomTemplatePath = projectDir,
                 ProjectPath = projectDir,
@@ -81,10 +79,9 @@ namespace Microsoft.Data.Entity.Commands
             designTimeMetadataProviderFactory.AddMetadataProviderServices(serviceCollection);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
-            var designTimeProvider = serviceProvider.GetRequiredService<IDatabaseMetadataModelProvider>();
             var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
 
-            return generator.Customize(designTimeProvider, projectDir);
+            return generator.Customize(projectDir);
         }
 
         public virtual IDesignTimeMetadataProviderFactory GetDesignTimeMetadataProviderFactory(

@@ -1,8 +1,8 @@
 @inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@using System.Collections.Generic
 @using System.Linq
 @using System.Text
 @using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
-@using Microsoft.Data.Entity.Relational.Design.Utilities
 @using Microsoft.Data.Entity.Metadata
 @functions
 {
@@ -44,8 +44,7 @@
     }
 
     string LayoutRelationshipConfigurationLine(RelationshipConfiguration rc,
-        string dependentEndLambdaIdentifier, string principalEndLambdaIdentifier,
-        ModelUtilities modelUtilities)
+        string dependentEndLambdaIdentifier, string principalEndLambdaIdentifier)
     {
         var sb = new StringBuilder();
         sb.Append("Reference(");
@@ -87,7 +86,7 @@
         sb.Append("(");
         sb.Append(dependentEndLambdaIdentifier);
         sb.Append(" => ");
-        sb.Append(modelUtilities.GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
+        sb.Append(ModelUtilities.GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
         sb.Append(")");
 
         return sb.ToString();
@@ -116,7 +115,7 @@ var className = Model.ClassName ?? Model.Helper.ClassName(Model.ConnectionString
 var firstEntity = true;
 }@foreach (var entityConfig in Model.Helper.EntityConfigurations)
 {
-    @if (!firstEntity)
+    if (!firstEntity)
     {
 @:
     }
@@ -124,9 +123,9 @@ var firstEntity = true;
 @:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
 @:            {
     var firstEntityFacet = true;
-    @foreach (var entityFacet in entityConfig.FacetConfigurations)
+    foreach (var entityFacet in entityConfig.FacetConfigurations)
     {
-        @if (!firstEntityFacet)
+        if (!firstEntityFacet)
         {
 @:
         }
@@ -134,9 +133,9 @@ var firstEntity = true;
 @:                entity.@(entityFacet.ToString());
     }                        
     var firstProperty = true;
-    @foreach (var propertyConfig in entityConfig.PropertyConfigurations)
+    foreach (var propertyConfig in entityConfig.PropertyConfigurations)
     {
-        @if (!firstEntityFacet || !firstProperty)
+        if (!firstEntityFacet || !firstProperty)
         {
 @:
         }
@@ -145,9 +144,9 @@ var firstEntity = true;
         @* dnxcore50 requires line below be cast to explicit data type, not var. Similarly
            for other explicit casts farther down this template. *@
         int propertyConfigurationLineCount = propertyConfigurationLines.Count;
-        @if (propertyConfigurationLineCount == 1)
+        if (propertyConfigurationLineCount == 1)
         {
-            @foreach (var line in propertyConfigurationLines)
+            foreach (var line in propertyConfigurationLines)
             {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))@(line);
             }
@@ -156,7 +155,7 @@ var firstEntity = true;
         {
 @:                entity.Property(e => e.@(propertyConfig.Property.Name))
             var lineCount = 0;
-            @foreach (string line in propertyConfigurationLines)
+            foreach (string line in propertyConfigurationLines)
             {
                 var outputLine = line;
                 if (++lineCount == propertyConfigurationLineCount)
@@ -168,14 +167,14 @@ var firstEntity = true;
         }
     }
     var firstNavigation = true;
-    @foreach (var relationshipConfig in entityConfig.RelationshipConfigurations)
+    foreach (var relationshipConfig in entityConfig.RelationshipConfigurations)
     {
-        @if (!firstEntityFacet || !firstProperty || !firstNavigation)
+        if (!firstEntityFacet || !firstProperty || !firstNavigation)
         {
 @:
         }
         firstNavigation = false;
-@:                entity.@LayoutRelationshipConfigurationLine(relationshipConfig, "d", "p", Model.Generator.ModelUtilities);
+@:                entity.@LayoutRelationshipConfigurationLine(relationshipConfig, "d", "p");
     }
 @:            });
 }

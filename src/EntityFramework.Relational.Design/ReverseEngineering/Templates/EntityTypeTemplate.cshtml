@@ -16,26 +16,26 @@ else {
 @:    public class @Model.EntityType.Name
 @:    {
     @* dnxcore50 requires this be cast, similarly below *@
-    @if ((int)(Model.Helper.NavPropInitializers.Count) > 0) {
+    if ((int)(Model.Helper.NavPropInitializers.Count) > 0) {
 @:        public @(Model.EntityType.Name)()
 @:        {
-        @foreach (var navPropInitializer in Model.Helper.NavPropInitializers)
+        foreach (var navPropInitializer in Model.Helper.NavPropInitializers)
         {
 @:            @navPropInitializer.NavigationPropertyName = new HashSet<@navPropInitializer.PrincipalEntityTypeName>();
         }
 @:        }
 @:
     }
-    @foreach (var property in Model.Helper.OrderedEntityProperties)
+    foreach (var property in Model.Helper.OrderedEntityProperties)
     {
-@:        public @Model.Generator.CSharpCodeGeneratorHelper.GetTypeName(property.ClrType) @property.Name { get; set; }
+@:        public @CSharpUtilities.GetTypeName(property.ClrType) @property.Name { get; set; }
     }
-    @if ((int)(Model.Helper.NavigationProperties.Count) > 0)
+    if ((int)(Model.Helper.NavigationProperties.Count) > 0)
     {
 @:
-        @foreach (NavigationPropertyConfiguration navProp in Model.Helper.NavigationProperties)
+        foreach (NavigationPropertyConfiguration navProp in Model.Helper.NavigationProperties)
         {
-            @if (navProp.ErrorAnnotation != null)
+            if (navProp.ErrorAnnotation != null)
             {
 @:        // @navProp.ErrorAnnotation
             }

@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
@@ -14,7 +16,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             base.AddMetadataProviderServices(serviceCollection);
             serviceCollection
                 .AddScoped<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
-                .AddScoped<SqliteReverseTypeMapper>();
+                .AddScoped<SqliteReverseTypeMapper>()
+                .AddScoped<IRelationalMetadataExtensionProvider, SqliteMetadataExtensionProvider>()
+                .AddScoped<CodeGeneratorHelperFactory, SqliteCodeGeneratorHelperFactory>();
         }
     }
 }

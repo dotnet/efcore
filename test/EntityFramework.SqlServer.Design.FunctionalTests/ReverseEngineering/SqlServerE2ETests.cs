@@ -80,7 +80,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         {
             var configuration = new ReverseEngineeringConfiguration
                 {
-                    Provider = MetadataModelProvider,
                     ConnectionString = _connectionString,
                     CustomTemplatePath = null, // not used for this test
                     ProjectPath = TestProjectDir,
@@ -125,7 +124,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         {
             var configuration = new ReverseEngineeringConfiguration
                 {
-                    Provider = MetadataModelProvider,
                     ConnectionString = _connectionString,
                     CustomTemplatePath = CustomizedTemplateDir,
                     ProjectPath = TestProjectDir,
@@ -169,7 +167,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         [Fact]
         public virtual void Can_output_templates_to_be_customized()
         {
-            var filePaths = Generator.Customize(MetadataModelProvider, TestProjectDir);
+            var filePaths = Generator.Customize(TestProjectDir);
 
             AssertLog(new LoggerMessages());
 

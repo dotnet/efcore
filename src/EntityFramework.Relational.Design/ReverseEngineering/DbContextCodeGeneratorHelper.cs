@@ -7,8 +7,9 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
+using Microsoft.Data.Entity.Relational.Design.Templating;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -18,15 +19,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private const string DefaultDbContextName = "ModelContext";
         protected static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
         protected static readonly KeyConvention _keyConvention = new KeyConvention();
+        private readonly ModelUtilities _modelUtilities;
 
         protected DbContextCodeGeneratorHelper([NotNull] DbContextGeneratorModel generatorModel,
-            IRelationalMetadataExtensionProvider extensionsProvider)
+            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider,
+            [NotNull] ModelUtilities modelUtilities)
         {
             Check.NotNull(generatorModel, nameof(generatorModel));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
+            Check.NotNull(modelUtilities, nameof(modelUtilities));
 
             GeneratorModel = generatorModel;
             ExtensionsProvider = extensionsProvider;
+            _modelUtilities = modelUtilities;
         }
 
         protected virtual IRelationalMetadataExtensionProvider ExtensionsProvider { get; private set; }
@@ -38,10 +43,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual IEnumerable<IEntityType> OrderedEntityTypes() =>
             GeneratorModel.MetadataModel.EntityTypes
                 .Where(e => ((EntityType)e).FindAnnotation(
-                    ReverseEngineeringMetadataModelProvider.AnnotationNameEntityTypeError) == null);
+                    RelationalMetadataModelProvider.AnnotationNameEntityTypeError) == null);
 
         public virtual IEnumerable<IProperty> OrderedProperties([NotNull] IEntityType entityType)
-            => GeneratorModel.Generator.ModelUtilities.OrderedProperties(Check.NotNull(entityType, nameof(entityType)));
+            => _modelUtilities.OrderedProperties(Check.NotNull(entityType, nameof(entityType)));
 
         public virtual string VerbatimStringLiteral([NotNull] string stringLiteral)
             => CSharpUtilities.Instance.GenerateVerbatimStringLiteral(Check.NotNull(stringLiteral, nameof(stringLiteral)));
@@ -111,9 +116,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
             {
                 var dependentEndNavigationPropertyName =
-                    (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNameDependentEndNavPropName];
+                    (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName];
                 var principalEndNavigationPropertyName =
-                    (string)foreignKey[ReverseEngineeringMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
+                    (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
 
                 entityConfiguration.RelationshipConfigurations.Add(
                     new RelationshipConfiguration(entityConfiguration, foreignKey,
@@ -144,7 +149,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             entityConfiguration.FacetConfigurations.Add(
                 new FacetConfiguration(
                     "Key(e => "
-                    + GeneratorModel.Generator.ModelUtilities.GenerateLambdaToKey(key.Properties, "e")
+                    + _modelUtilities.GenerateLambdaToKey(key.Properties, "e")
                     + ")"));
         }
 

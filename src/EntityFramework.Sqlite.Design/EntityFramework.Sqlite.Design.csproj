@@ -52,7 +52,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="ReverseEngineering\SqliteContextCodeGeneratorHelper.cs" />
+    <Compile Include="ReverseEngineering\SqliteCodeGeneratorHelperFactory.cs" />
+    <Compile Include="ReverseEngineering\SqliteDbContextCodeGeneratorHelper.cs" />
     <Compile Include="ReverseEngineering\SqliteDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\SqliteDmlParser.cs" />
     <Compile Include="ReverseEngineering\SqliteMetadataModelProvider.cs" />

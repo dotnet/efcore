@@ -16,7 +16,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
-    public class SqliteMetadataModelProvider : ReverseEngineeringMetadataModelProvider
+    public class SqliteMetadataModelProvider : RelationalMetadataModelProvider
     {
         private readonly SqliteReverseTypeMapper _typeMapper;
 
@@ -32,8 +32,6 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         }
 
         protected override IRelationalMetadataExtensionProvider ExtensionsProvider => new SqliteMetadataExtensionProvider();
-
-        public override DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper(DbContextGeneratorModel model) => new SqliteContextCodeGeneratorHelper(model, ExtensionsProvider);
 
         public override IModel ConstructRelationalModel([NotNull] string connectionString)
         {

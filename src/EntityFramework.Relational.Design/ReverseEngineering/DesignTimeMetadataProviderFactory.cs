@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
+using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -14,12 +14,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         public virtual void AddMetadataProviderServices([NotNull] IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<CSharpCodeGeneratorHelper, CSharpCodeGeneratorHelper>();
-            serviceCollection.AddScoped<ModelUtilities, ModelUtilities>();
-            serviceCollection.AddScoped<ICompilationService, RoslynCompilationService>();
-            serviceCollection.AddScoped<MetadataReferencesProvider, MetadataReferencesProvider>();
-            serviceCollection.AddScoped<ITemplating, RazorTemplating>();
-            serviceCollection.AddScoped<ReverseEngineeringGenerator, ReverseEngineeringGenerator>();
+            Check.NotNull(serviceCollection, nameof(serviceCollection));
+
+            serviceCollection.AddScoped<ModelUtilities, ModelUtilities>()
+                .AddScoped<ICompilationService, RoslynCompilationService>()
+                .AddScoped<MetadataReferencesProvider>()
+                .AddScoped<ITemplating, RazorTemplating>()
+                .AddScoped<ReverseEngineeringGenerator>()
+                .AddScoped<CSharpUtilities>();
         }
     }
 }

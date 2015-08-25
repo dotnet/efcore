@@ -42,7 +42,6 @@ CREATE TABLE IF NOT EXISTS Dependent (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -95,7 +94,6 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -142,7 +140,6 @@ CREATE TABLE Users_Groups (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -183,7 +180,6 @@ CREATE TABLE Users_Groups (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -240,7 +236,6 @@ CREATE TABLE String (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -265,7 +260,6 @@ CREATE TABLE String (
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -298,7 +292,6 @@ CREATE TABLE Principal ( Id INT);");
 
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
-                        Provider = MetadataModelProvider,
                         ConnectionString = testStore.Connection.ConnectionString,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
@@ -352,7 +345,6 @@ CREATE TABLE Principal ( Id INT);");
                 var config = new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
-                        Provider = MetadataModelProvider,
                         ProjectPath = outputDir,
                         CustomTemplatePath = templatesDir,
                         ProjectRootNamespace = "Test",
@@ -387,7 +379,7 @@ CREATE TABLE Principal ( Id INT);");
             var entityTypeFileName = "EntityFramework.Sqlite.Design." + ReverseEngineeringGenerator.EntityTypeTemplateFileName;
             var outputDir = "templates/";
 
-            var filePaths = Generator.Customize(MetadataModelProvider, outputDir);
+            var filePaths = Generator.Customize(outputDir);
 
             AssertLog(new LoggerMessages());
 

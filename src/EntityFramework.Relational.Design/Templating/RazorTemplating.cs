@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNet.Razor;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.Templating
@@ -19,15 +20,24 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
     {
         private readonly ICompilationService _compilationService;
         private readonly MetadataReferencesProvider _metadataReferencesProvider;
+        private readonly ModelUtilities _modelUtilities;
+        private readonly CSharpUtilities _csharpUtiliies;
 
-        public RazorTemplating([NotNull] ICompilationService compilationService,
-            [NotNull] MetadataReferencesProvider metadataReferencesProvider)
+        public RazorTemplating(
+            [NotNull] ICompilationService compilationService,
+            [NotNull] MetadataReferencesProvider metadataReferencesProvider, 
+            [NotNull] ModelUtilities modelUtilities, 
+            [NotNull] CSharpUtilities csharpUtiliies)
         {
             Check.NotNull(compilationService, nameof(compilationService));
             Check.NotNull(metadataReferencesProvider, nameof(metadataReferencesProvider));
+            Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(csharpUtiliies, nameof(csharpUtiliies));
 
             _compilationService = compilationService;
             _metadataReferencesProvider = metadataReferencesProvider;
+            _modelUtilities = modelUtilities;
+            _csharpUtiliies = csharpUtiliies;
         }
 
         public virtual async Task<TemplateResult> RunTemplateAsync(string content,
@@ -73,6 +83,8 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                 if (razorTemplate != null)
                 {
                     razorTemplate.Model = templateModel;
+                    razorTemplate.ModelUtilities = _modelUtilities;
+                    razorTemplate.CSharpUtilities = _csharpUtiliies;
                     //ToDo: If there are errors executing the code, they are missed here.
                     result = await razorTemplate.ExecuteTemplateAsync(cancellationToken);
                 }

@@ -11,9 +11,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         IModel GenerateMetadataModel([NotNull] string connectionString);
         string DbContextTemplate { get; }
-        DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper([NotNull] DbContextGeneratorModel model);
         string EntityTypeTemplate { get; }
-        EntityTypeCodeGeneratorHelper EntityTypeCodeGeneratorHelper([NotNull] EntityTypeGeneratorModel model);
         void AddReferencesForTemplates([NotNull] MetadataReferencesProvider metadataReferencesProvider);
     }
 }

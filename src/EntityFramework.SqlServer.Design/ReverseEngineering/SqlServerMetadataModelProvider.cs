@@ -18,7 +18,7 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
-    public class SqlServerMetadataModelProvider : ReverseEngineeringMetadataModelProvider
+    public class SqlServerMetadataModelProvider : RelationalMetadataModelProvider
     {
         private static readonly List<string> DataTypesForNumericPrecisionAndScale = new List<string> { "decimal", "numeric" };
         private static readonly List<string> DataTypesForDateTimePrecisionAndScale = new List<string> { "datetime2" };
@@ -47,11 +47,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         }
 
         protected override IRelationalMetadataExtensionProvider ExtensionsProvider => new SqlServerMetadataExtensionProvider();
-
-        public override DbContextCodeGeneratorHelper DbContextCodeGeneratorHelper(DbContextGeneratorModel model)
-        {
-            return new SqlServerDbContextCodeGeneratorHelper(model, ExtensionsProvider);
-        }
 
         public override IModel ConstructRelationalModel([NotNull] string connectionString)
         {

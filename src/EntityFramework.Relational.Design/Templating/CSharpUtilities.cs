@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
+namespace Microsoft.Data.Entity.Relational.Design.Templating
 {
     public class CSharpUtilities
     {
@@ -263,6 +263,50 @@ namespace Microsoft.Data.Entity.Relational.Design.CodeGeneration
             }
 
             return finalIdentifier;
+        }
+
+        private static readonly Dictionary<Type, string> _primitiveTypeNames = new Dictionary<Type, string>
+        {
+            { typeof(bool), "bool" },
+            { typeof(byte), "byte" },
+            { typeof(byte[]), "byte[]" },
+            { typeof(sbyte), "sbyte" },
+            { typeof(short), "short" },
+            { typeof(ushort), "ushort" },
+            { typeof(int), "int" },
+            { typeof(uint), "uint" },
+            { typeof(long), "long" },
+            { typeof(ulong), "ulong" },
+            { typeof(char), "char" },
+            { typeof(float), "float" },
+            { typeof(double), "double" },
+            { typeof(string), "string" },
+            { typeof(decimal), "decimal" }
+        };
+
+
+        public virtual string GetTypeName([NotNull] Type propertyType)
+        {
+            Check.NotNull(propertyType, nameof(propertyType));
+
+            var isNullableType = propertyType.GetTypeInfo().IsGenericType
+                                 && typeof(Nullable<>) == propertyType.GetGenericTypeDefinition();
+            var type = isNullableType
+                ? Nullable.GetUnderlyingType(propertyType)
+                : propertyType;
+
+            string typeName;
+            if (!_primitiveTypeNames.TryGetValue(type, out typeName))
+            {
+                typeName = type.Name;
+            }
+
+            if (isNullableType)
+            {
+                typeName += "?";
+            }
+
+            return typeName;
         }
     }
 }
