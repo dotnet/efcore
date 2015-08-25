@@ -26,13 +26,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = new Customer[1000];
                 for (var i = 0; i < customers.Length; i++)
                 {
                     customers[i] = new Customer { Name = "Customer " + i };
                 }
 
-                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
                 using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
@@ -44,10 +45,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        public void AddCollection(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AddCollection(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = new Customer[1000];
                 for (var i = 0; i < customers.Length; i++)
                 {
@@ -68,10 +73,11 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
-
-                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+                
                 using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
@@ -92,10 +98,11 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = context.Customers.ToArray();
                 Assert.Equal(1000, customers.Length);
 
-                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
                 using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
@@ -107,10 +114,14 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         }
 
         [Benchmark]
-        public void RemoveCollection(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void RemoveCollection(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = context.Customers.ToArray();
                 Assert.Equal(1000, customers.Length);
 
@@ -128,10 +139,11 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
+                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
 
-                context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
                 using (collector.StartCollection())
                 {
                     foreach (var customer in customers)

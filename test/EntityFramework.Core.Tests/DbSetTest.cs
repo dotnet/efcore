@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -346,6 +348,16 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(
                     ((IAccessor<IServiceProvider>)context).Service,
                     ((IAccessor<IServiceProvider>)context.Products).Service);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_using_with_IListSource()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Equal(Strings.DataBindingWithIListSource,
+                    Assert.Throws<NotSupportedException>(() => ((IListSource) context.Gus).GetList()).Message);
             }
         }
 

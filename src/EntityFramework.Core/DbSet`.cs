@@ -4,11 +4,17 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+#if NET45 || DNX451
+using System.ComponentModel;
+#endif
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+#if NET45 || DNX451
+using Microsoft.Data.Entity.Internal;
+#endif
 using Microsoft.Data.Entity.Query;
 
 namespace Microsoft.Data.Entity
@@ -31,7 +37,7 @@ namespace Microsoft.Data.Entity
     ///     </para>
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
-    public abstract class DbSet<TEntity>
+    public abstract partial class DbSet<TEntity>
         : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
         where TEntity : class
     {
@@ -277,4 +283,18 @@ namespace Microsoft.Data.Entity
             get { throw new NotImplementedException(); }
         }
     }
+
+#if NET45 || DNX451
+
+    public abstract partial class DbSet<TEntity> : IListSource
+        where TEntity : class
+    {
+        IList IListSource.GetList()
+        {
+            throw new NotSupportedException(Strings.DataBindingWithIListSource);
+        }
+
+        bool IListSource.ContainsListCollection => false;
+    }
+#endif
 }

@@ -5,7 +5,6 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;

@@ -19,11 +19,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges Off")]
-        public void Add(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Add(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = new Customer[1000];
                 for (var i = 0; i < customers.Length; i++)
                 {
@@ -41,10 +44,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void AddCollection(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AddCollection(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = new Customer[1000];
                 for (var i = 0; i < customers.Length; i++)
                 {
@@ -60,11 +67,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges Off")]
-        public void Attach(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Attach(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
 
@@ -80,10 +90,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void AttachCollection(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void AttachCollection(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
 
@@ -95,11 +109,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges Off")]
-        public void Remove(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Remove(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = context.Customers.ToArray();
                 Assert.Equal(1000, customers.Length);
 
@@ -114,10 +131,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void RemoveCollection(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void RemoveCollection(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = context.Customers.ToArray();
                 Assert.Equal(1000, customers.Length);
 
@@ -129,11 +150,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        [BenchmarkVariation("AutoDetectChanges Off")]
-        public void Update(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void Update(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
 
@@ -148,10 +172,14 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark]
-        public void UpdateCollection(MetricCollector collector)
+        [BenchmarkVariation("AutoDetectChanges On", true)]
+        [BenchmarkVariation("AutoDetectChanges Off", false)]
+        public void UpdateCollection(MetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
+                context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
+
                 var customers = GetAllCustomersFromDatabase();
                 Assert.Equal(1000, customers.Length);
 
