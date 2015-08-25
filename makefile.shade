@@ -8,7 +8,7 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 use-standard-lifecycle
 k-standard-goals
 
-#compile-tests target='test-compile'
+#compile-tests target='compile'
   @{
     var BASE_DIR = Directory.GetCurrentDirectory();
     var TARGET_DIR = Path.Combine(BASE_DIR, "artifacts");
