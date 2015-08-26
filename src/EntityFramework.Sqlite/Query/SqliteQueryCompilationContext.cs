@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
@@ -41,6 +42,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query
                 queryMethodProvider,
                 compositeMethodCallTranslator,
                 compositeMemberTranslator,
+                compositeExpressionFragmentTranslator,
                 valueBufferFactoryFactory,
                 typeMapper,
                 relationalExtensions)

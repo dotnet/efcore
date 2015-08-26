@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.Storage
         private readonly IDbContextOptions _options;
         private readonly IMethodCallTranslator _compositeMethodCallTranslator;
         private readonly IMemberTranslator _compositeMemberTranslator;
+        private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
 
         protected RelationalDatabase(
             [NotNull] IModel model,
@@ -41,6 +42,7 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(model, loggerFactory)
@@ -55,6 +57,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
             Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
+            Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(relationalExtensions, nameof(relationalExtensions));
 
@@ -68,6 +71,7 @@ namespace Microsoft.Data.Entity.Storage
             _options = options;
             _compositeMethodCallTranslator = compositeMethodCallTranslator;
             _compositeMemberTranslator = compositeMemberTranslator;
+            _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
 
             TypeMapper = typeMapper;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
@@ -110,7 +114,8 @@ namespace Microsoft.Data.Entity.Storage
                 new RelationalResultOperatorHandler(),
                 new QueryMethodProvider(),
                 _compositeMethodCallTranslator,
-                _compositeMemberTranslator)
+                _compositeMemberTranslator,
+                _compositeExpressionFragmentTranslator)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));
@@ -121,7 +126,8 @@ namespace Microsoft.Data.Entity.Storage
                 new RelationalResultOperatorHandler(),
                 new AsyncQueryMethodProvider(),
                 _compositeMethodCallTranslator,
-                _compositeMemberTranslator)
+                _compositeMemberTranslator,
+                _compositeExpressionFragmentTranslator)
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));
@@ -131,6 +137,7 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
-            [NotNull] IMemberTranslator compositeMemberTranslator);
+            [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator);
     }
 }

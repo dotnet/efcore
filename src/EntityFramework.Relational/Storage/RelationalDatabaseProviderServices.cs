@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.ValueGeneration;
 
@@ -34,6 +34,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
         public abstract IMemberTranslator CompositeMemberTranslator { get; }
+        public abstract IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
         public abstract IHistoryRepository HistoryRepository { get; }
         public abstract IMigrationsSqlGenerator MigrationsSqlGenerator { get; }
         public abstract IRelationalConnection RelationalConnection { get; }

@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -9,8 +8,8 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Query.Methods;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -35,6 +34,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] IMethodCallTranslator compositeMethodCallTranslator,
             [NotNull] IMemberTranslator compositeMemberTranslator,
+            [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
@@ -51,6 +51,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
             Check.NotNull(compositeMethodCallTranslator, nameof(compositeMethodCallTranslator));
             Check.NotNull(compositeMemberTranslator, nameof(compositeMemberTranslator));
+            Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(relationalExtensions, nameof(relationalExtensions));
@@ -58,6 +59,7 @@ namespace Microsoft.Data.Entity.Query
             QueryMethodProvider = queryMethodProvider;
             CompositeMethodCallTranslator = compositeMethodCallTranslator;
             CompositeMemberTranslator = compositeMemberTranslator;
+            CompositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
             ValueBufferFactoryFactory = valueBufferFactoryFactory;
             TypeMapper = typeMapper;
             RelationalExtensions = relationalExtensions;
@@ -96,6 +98,8 @@ namespace Microsoft.Data.Entity.Query
         public virtual IMethodCallTranslator CompositeMethodCallTranslator { get; }
 
         public virtual IMemberTranslator CompositeMemberTranslator { get; }
+
+        public virtual IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
 
         public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
 

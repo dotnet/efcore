@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.DependencyInjection;
@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Tests
             var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
             var methodCallTranslatorMock = new Mock<IMethodCallTranslator>();
             var memberTranslatorMock = new Mock<IMemberTranslator>();
+            var fragmentTranslatorMock = new Mock<IExpressionFragmentTranslator>();
             var typeMapperMock = new Mock<IRelationalTypeMapper>();
             var relationalExtensionsMock = new Mock<IRelationalMetadataExtensionProvider>();
 
@@ -40,6 +41,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddInstance(valueBufferMock.Object)
                 .AddInstance(methodCallTranslatorMock.Object)
                 .AddInstance(memberTranslatorMock.Object)
+                .AddInstance(fragmentTranslatorMock.Object)
                 .AddInstance(typeMapperMock.Object)
                 .AddInstance(relationalExtensionsMock.Object)
                 .AddScoped<FakeRelationalDatabase>();
@@ -66,6 +68,7 @@ namespace Microsoft.Data.Entity.Tests
             var valueBufferMock = new Mock<IRelationalValueBufferFactoryFactory>();
             var methodCallTranslatorMock = new Mock<IMethodCallTranslator>();
             var memberTranslatorMock = new Mock<IMemberTranslator>();
+            var fragmentTranslatorMock = new Mock<IExpressionFragmentTranslator>();
             var typeMapperMock = new Mock<IRelationalTypeMapper>();
             var relationalExtensionsMock = new Mock<IRelationalMetadataExtensionProvider>();
 
@@ -76,6 +79,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddInstance(valueBufferMock.Object)
                 .AddInstance(methodCallTranslatorMock.Object)
                 .AddInstance(memberTranslatorMock.Object)
+                .AddInstance(fragmentTranslatorMock.Object)
                 .AddInstance(typeMapperMock.Object)
                 .AddInstance(relationalExtensionsMock.Object)
                 .AddScoped<FakeRelationalDatabase>();
@@ -107,6 +111,7 @@ namespace Microsoft.Data.Entity.Tests
                 IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
                 IMethodCallTranslator compositeMethodCallTranslator,
                 IMemberTranslator compositeMemberTranslator,
+                IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
                 IRelationalTypeMapper typeMapper,
                 IRelationalMetadataExtensionProvider relationalExtensions)
                 : base(
@@ -122,6 +127,7 @@ namespace Microsoft.Data.Entity.Tests
                     valueBufferFactoryFactory,
                     compositeMethodCallTranslator,
                     compositeMemberTranslator,
+                    compositeExpressionFragmentTranslator,
                     typeMapper,
                     relationalExtensions)
             {
@@ -132,7 +138,8 @@ namespace Microsoft.Data.Entity.Tests
                 IResultOperatorHandler resultOperatorHandler,
                 IQueryMethodProvider queryMethodProvider,
                 IMethodCallTranslator compositeMethodCallTranslator,
-                IMemberTranslator compositeMemberTranslator) =>
+                IMemberTranslator compositeMemberTranslator,
+                IExpressionFragmentTranslator compositeExpressionFragmentTranslator) =>
                     new FakeQueryCompilationContext(
                         Model,
                         Logger,
@@ -144,6 +151,7 @@ namespace Microsoft.Data.Entity.Tests
                         queryMethodProvider,
                         compositeMethodCallTranslator,
                         compositeMemberTranslator,
+                        compositeExpressionFragmentTranslator,
                         ValueBufferFactoryFactory,
                         TypeMapper,
                         RelationalExtensions);
@@ -162,6 +170,7 @@ namespace Microsoft.Data.Entity.Tests
                 IQueryMethodProvider queryMethodProvider,
                 IMethodCallTranslator compositeMethodCallTranslator,
                 IMemberTranslator compositeMemberTranslator,
+                IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
                 IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
                 IRelationalTypeMapper typeMapper,
                 IRelationalMetadataExtensionProvider relationalExtensions)
@@ -176,6 +185,7 @@ namespace Microsoft.Data.Entity.Tests
                     queryMethodProvider,
                     compositeMethodCallTranslator,
                     compositeMemberTranslator,
+                    compositeExpressionFragmentTranslator,
                     valueBufferFactoryFactory,
                     typeMapper,
                     relationalExtensions)

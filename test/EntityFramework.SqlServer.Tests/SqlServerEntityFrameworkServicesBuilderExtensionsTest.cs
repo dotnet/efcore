@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
@@ -37,6 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             VerifyScoped<SqlServerHistoryRepository>();
             VerifyScoped<SqlServerCompositeMethodCallTranslator>();
             VerifyScoped<SqlServerCompositeMemberTranslator>();
+            VerifyScoped<SqlServerCompositeExpressionFragmentTranslator>();
         }
 
         public SqlServerEntityFrameworkServicesBuilderExtensionsTest()

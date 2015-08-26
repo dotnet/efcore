@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped(p => GetProviderServices(p).SqlStatementExecutor)
                 .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)
                 .AddScoped(p => GetProviderServices(p).CompositeMemberTranslator)
+                .AddScoped(p => GetProviderServices(p).CompositeExpressionFragmentTranslator)
                 .AddScoped(p => GetProviderServices(p).MigrationsAnnotationProvider)
                 .AddScoped(p => GetProviderServices(p).HistoryRepository)
                 .AddScoped(p => GetProviderServices(p).MigrationsSqlGenerator)

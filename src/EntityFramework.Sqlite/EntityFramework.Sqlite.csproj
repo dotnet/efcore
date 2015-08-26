@@ -74,20 +74,22 @@
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="Query\Methods\MathAbsTranslator.cs" />
-    <Compile Include="Query\Methods\StringLengthTranslator.cs" />
-    <Compile Include="Query\Methods\StringToLowerTranslator.cs" />
-    <Compile Include="Query\Methods\StringToUpperTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\MathAbsTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\SqliteStringCompareTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\StringLengthTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\StringToLowerTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\StringToUpperTranslator.cs" />
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
     <Compile Include="Query\SqliteQuerySqlGenerator.cs" />
-    <Compile Include="SqliteCompositeMemberTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\SqliteCompositeExpressionFragmentTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\SqliteCompositeMemberTranslator.cs" />
     <Compile Include="SqliteDatabaseConnection.cs" />
     <Compile Include="SqliteDatabaseCreator.cs" />
     <Compile Include="SqliteConventionSetBuilder.cs" />
     <Compile Include="SqliteDbContextOptionsBuilder.cs" />
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="SqliteEntityFrameworkServicesBuilderExtensions.cs" />
-    <Compile Include="SqliteCompositeMethodCallTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\SqliteCompositeMethodCallTranslator.cs" />
     <Compile Include="SqliteModelSource.cs" />
     <Compile Include="Update\SqliteUpdateSqlGenerator.cs" />
     <Compile Include="SqliteTypeMapper.cs" />

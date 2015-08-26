@@ -28,5 +28,6 @@ namespace Microsoft.Data.Entity.Query.Sql
         Expression VisitMax([NotNull] MaxExpression maxExpression);
         Expression VisitIn([NotNull] InExpression inExpression);
         Expression VisitSqlFunction([NotNull] SqlFunctionExpression sqlFunctionExpression);
+        Expression VisitStringCompare([NotNull] StringCompareExpression stringCompareExpression);
     }
 }

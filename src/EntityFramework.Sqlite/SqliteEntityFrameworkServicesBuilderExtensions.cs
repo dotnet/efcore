@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
@@ -44,7 +45,8 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<SqliteDatabaseCreator>()
                     .AddScoped<SqliteHistoryRepository>()
                     .AddScoped<SqliteCompositeMethodCallTranslator>()
-                    .AddScoped<SqliteCompositeMemberTranslator>());
+                    .AddScoped<SqliteCompositeMemberTranslator>()
+                    .AddScoped<SqliteCompositeExpressionFragmentTranslator>());
 
             return services;
         }

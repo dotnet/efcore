@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
     [DebuggerDisplay("{this.FunctionName}({string.Join(\", \", this.Arguments)})")]
     public class SqlFunctionExpression : Expression
     {
-        private readonly List<Expression> _arguments;
+        private readonly ReadOnlyCollection<Expression> _arguments;
 
         public SqlFunctionExpression(
             [NotNull] string functionName,
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             [NotNull] Type returnType)
         {
             FunctionName = functionName;
-            _arguments = arguments.ToList();
+            _arguments = new ReadOnlyCollection<Expression>(arguments.ToList());
             Type = returnType;
         }
 
@@ -49,10 +49,10 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var arguments = visitor.VisitAndConvert(new ReadOnlyCollection<Expression>(_arguments), "VisitChildren");
+            var newArguments = visitor.VisitAndConvert(_arguments, "VisitChildren");
 
-            return arguments != Arguments
-                ? new SqlFunctionExpression(FunctionName, arguments, Type)
+            return newArguments != _arguments
+                ? new SqlFunctionExpression(FunctionName, newArguments, Type)
                 : this;
         }
     }

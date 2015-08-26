@@ -3,7 +3,7 @@
 
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.Storage
@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.Storage
         ISqlStatementExecutor SqlStatementExecutor { get; }
         IMethodCallTranslator CompositeMethodCallTranslator { get; }
         IMemberTranslator CompositeMemberTranslator { get; }
+        IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
         IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
     }
 }

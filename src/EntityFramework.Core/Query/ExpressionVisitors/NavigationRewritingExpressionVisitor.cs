@@ -185,7 +185,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            return Expression.MakeBinary(binaryExpression.NodeType, newLeft, newRight);
+            return Expression.MakeBinary(
+                binaryExpression.NodeType, 
+                newLeft, 
+                newRight, 
+                binaryExpression.IsLiftedToNull, 
+                binaryExpression.Method);
         }
 
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)

@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Tests;
@@ -35,6 +36,7 @@ namespace Microsoft.Data.Entity.Sqlite.Tests
             VerifyScoped<SqliteHistoryRepository>();
             VerifyScoped<SqliteCompositeMethodCallTranslator>();
             VerifyScoped<SqliteCompositeMemberTranslator>();
+            VerifyScoped<SqliteCompositeExpressionFragmentTranslator>();
         }
 
         public SqliteEntityFrameworkServicesBuilderExtensionsTest()

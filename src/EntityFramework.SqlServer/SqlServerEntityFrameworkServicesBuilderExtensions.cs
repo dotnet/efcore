@@ -6,6 +6,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.SqlServer.Update;
 using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
@@ -46,7 +47,8 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<SqlServerDatabaseCreator>()
                     .AddScoped<SqlServerHistoryRepository>()
                     .AddScoped<SqlServerCompositeMethodCallTranslator>()
-                    .AddScoped<SqlServerCompositeMemberTranslator>());
+                    .AddScoped<SqlServerCompositeMemberTranslator>()
+                    .AddScoped<SqlServerCompositeExpressionFragmentTranslator>());
 
             return builder;
         }

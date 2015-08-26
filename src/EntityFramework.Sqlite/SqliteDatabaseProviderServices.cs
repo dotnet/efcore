@@ -8,8 +8,9 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query.Methods;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Sqlite.Update;
 using Microsoft.Data.Entity.Sqlite.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
@@ -41,6 +42,7 @@ namespace Microsoft.Data.Entity.Sqlite
         public override IRelationalMetadataExtensionProvider MetadataExtensionProvider => GetService<SqliteMetadataExtensionProvider>();
         public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<SqliteCompositeMethodCallTranslator>();
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqliteCompositeMemberTranslator>();
+        public override IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<SqliteCompositeExpressionFragmentTranslator>();
         public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<SqliteMigrationsAnnotationProvider>();
     }
 }
