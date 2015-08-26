@@ -18,7 +18,7 @@ namespace EntityFramework.Microbenchmarks.Core
             _diagnosticMessageSink = diagnosticMessageSink;
         }
 
-        public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
+        public virtual IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
         {
             var variations = testMethod.Method
                 .GetCustomAttributes(typeof(BenchmarkVariationAttribute))

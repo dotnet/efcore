@@ -32,11 +32,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChangeTracker\DbSetOperationTests.cs" />
     <Compile Include="ChangeTracker\FixupTests.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="InitializationTests.cs" />
+    <Compile Include="Models\AdventureWorks\AdventureWorksContext.cs" />
+    <Compile Include="Models\AdventureWorks\AdventureWorksFixture.cs" />
     <Compile Include="Models\Orders\OrdersContext.cs" />
     <Compile Include="Models\Orders\OrdersFixture.cs" />
     <Compile Include="Models\Orders\OrdersSeedData.cs" />
