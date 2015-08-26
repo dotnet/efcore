@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.SqlClient;
-using Microsoft.Framework.Configuration;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
@@ -13,23 +11,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private const int DefaultConnectTimeout = 30;
         private const bool DefaultIntegratedSecurity = true;
 
-        private static readonly IConfiguration _config;
-
-        static SqlConnectionStringBuilderExtensions()
-        {
-            var configBuilder = new ConfigurationBuilder(".")
-                .AddJsonFile("config.json", optional: true)
-                .AddJsonFile("config.test.json", optional: true)
-                .AddEnvironmentVariables();
-
-            _config = configBuilder.Build()
-                        .GetSection("Test:SqlServer");
-        }
-
         public static SqlConnectionStringBuilder ApplyConfiguration(this SqlConnectionStringBuilder builder)
         {
+            var config = TestEnvironment.Config;
+
             int connectTimeout;
-            if (!int.TryParse(_config["ConnectTimeout"], out connectTimeout))
+            if (!int.TryParse(config["ConnectTimeout"], out connectTimeout))
             {
                 connectTimeout = DefaultConnectTimeout;
             }
@@ -37,23 +24,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             builder.ConnectTimeout = connectTimeout;
 
             bool integratedSecurity;
-            if (!bool.TryParse(_config["IntegratedSecurity"], out integratedSecurity))
+            if (!bool.TryParse(config["IntegratedSecurity"], out integratedSecurity))
             {
                 integratedSecurity = DefaultIntegratedSecurity;
             }
 
             builder.IntegratedSecurity = integratedSecurity;
 
-            builder.DataSource = string.IsNullOrEmpty(_config["DataSource"]) ? DefaultDataSource : _config["DataSource"];
+            builder.DataSource = string.IsNullOrEmpty(config["DataSource"]) ? DefaultDataSource : config["DataSource"];
 
-            if (!string.IsNullOrEmpty(_config["UserID"]))
+            if (!string.IsNullOrEmpty(config["UserID"]))
             {
-                builder.UserID = _config["UserID"];
+                builder.UserID = config["UserID"];
             }
 
-            if (!string.IsNullOrEmpty(_config["Password"]))
+            if (!string.IsNullOrEmpty(config["Password"]))
             {
-                builder.Password = _config["Password"];
+                builder.Password = config["Password"];
             }
 
             return builder;

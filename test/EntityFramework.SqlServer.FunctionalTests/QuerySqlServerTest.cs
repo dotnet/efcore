@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -768,6 +769,8 @@ FROM (
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Skip()
         {
             base.Skip();
@@ -780,6 +783,8 @@ OFFSET 5 ROWS",
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Skip_no_orderby()
         {
             base.Skip_no_orderby();
@@ -792,6 +797,8 @@ OFFSET 5 ROWS",
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Skip_Take()
         {
             base.Skip_Take();
@@ -804,6 +811,8 @@ OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Take_Skip()
         {
             base.Take_Skip();
@@ -820,6 +829,8 @@ OFFSET 5 ROWS",
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Take_Skip_Distinct()
         {
             base.Take_Skip_Distinct();
@@ -2332,6 +2343,22 @@ FROM [Customers] AS [c]",
 FROM [Customers] AS [c]",
                 Sql);
         }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Distinct_Skip() => base.Distinct_Skip();
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Distinct_Skip_Take() => base.Distinct_Skip_Take();
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Skip_Distinct() => base.Skip_Distinct();
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Skip_Take_Distinct() => base.Skip_Take_Distinct();
 
         public override void OrderBy()
         {
@@ -3870,6 +3897,8 @@ WHERE COALESCE([c].[CompanyName], [c].[ContactName]) = 'The Big Cheese'",
                 Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Take_skip_null_coalesce_operator()
         {
             base.Take_skip_null_coalesce_operator();
@@ -3896,6 +3925,8 @@ FROM [Customers] AS [c]
 ORDER BY [Coalesce]", Sql);
         }
 
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Select_take_skip_null_coalesce_operator()
         {
             base.Select_take_skip_null_coalesce_operator();

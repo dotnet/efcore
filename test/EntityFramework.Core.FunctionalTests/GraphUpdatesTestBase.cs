@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore = Fixture.CreateTestStore();
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
@@ -111,7 +112,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
@@ -200,7 +201,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.FK)]
@@ -259,7 +260,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
         public virtual void Save_removed_required_many_to_one_dependents(ChangeMechanism changeMechanism)
@@ -291,7 +292,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -377,7 +378,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -465,7 +466,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //}
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -553,7 +554,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //}
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.FK)]
@@ -609,7 +610,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_one_to_one(ChangeMechanism changeMechanism)
@@ -635,7 +636,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_non_PK_one_to_one(ChangeMechanism changeMechanism)
@@ -661,7 +662,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -736,7 +737,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -785,7 +786,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -860,7 +861,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
@@ -948,7 +949,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
         [InlineData((int)ChangeMechanism.Dependent, false)]
@@ -1037,7 +1038,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.FK)]
@@ -1096,7 +1097,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
         public virtual void Save_removed_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
@@ -1128,7 +1129,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -1214,7 +1215,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -1303,7 +1304,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //}
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -1392,7 +1393,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             //}
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.FK)]
@@ -1448,7 +1449,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
@@ -1474,7 +1475,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent)]
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
@@ -1500,7 +1501,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -1575,7 +1576,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
@@ -1624,7 +1625,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Dependent, false)]
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]

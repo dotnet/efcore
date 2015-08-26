@@ -138,6 +138,11 @@
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
+    <Compile Include="TestUtilities\Xunit\ConditionalAttributeDiscoverer.cs" />
+    <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
+    <Compile Include="TestUtilities\Xunit\ConditionalTheoryAttribute.cs" />
+    <Compile Include="TestUtilities\Xunit\ITestCondition.cs" />
+    <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />
     <None Include="project.json" />
   </ItemGroup>

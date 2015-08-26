@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+            var sqlOptions = optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString).ApplyConfiguration();
 
             return optionsBuilder.Options;
         }

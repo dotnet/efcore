@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -38,9 +39,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         public class SequenceHiLo : TestBase<SequenceHiLo.BlogContext>
         {
-            [Fact]
+            [ConditionalFact]
             public void Insert_with_sequence_HiLo()
             {
                 using (var context = new BlogContext())
@@ -68,7 +70,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class IdentityColumnWithDefaultValue : TestBase<IdentityColumnWithDefaultValue.BlogContext>
         {
-            [Fact]
+            [ConditionalFact]
+            [SqlServerCondition(SqlServerCondition.SupportsSequences)]
             public void Insert_with_default_value_from_sequence()
             {
                 using (var context = new BlogContext())
@@ -105,7 +108,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class ReadOnlyIdentityColumnWithDefaultValue : TestBase<ReadOnlyIdentityColumnWithDefaultValue.BlogContext>
         {
-            [Fact]
+            [ConditionalFact]
+            [SqlServerCondition(SqlServerCondition.SupportsSequences)]
             public void Insert_with_default_value_from_sequence()
             {
                 using (var context = new BlogContext())
@@ -540,7 +544,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class ReadOnlyIdentityColumnWithDefaultValueThrows : TestBase<ReadOnlyIdentityColumnWithDefaultValueThrows.BlogContext>
         {
-            [Fact]
+            [ConditionalFact]
+            [SqlServerCondition(SqlServerCondition.SupportsSequences)]
             public void Insert_explicit_value_throws_when_readonly_before_save()
             {
                 using (var context = new BlogContext())

@@ -125,7 +125,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .ServiceCollection()
                     .AddInstance<ILoggerFactory>(loggingFactory)
                     .BuildServiceProvider();
-
                 using (var db = new BloggingContext(serviceProvider, optionsBuilder.Options))
                 {
                     var toUpdate = db.Blogs.Single(b => b.Name == "Blog1");
@@ -139,35 +138,35 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     db.Entry(toDelete).State = EntityState.Deleted;
 
                     var toAdd = db.Add(new Blog
-                    {
-                        Name = "Blog to Insert",
-                        George = true,
-                        TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
-                        NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
-                        ToEat = 64,
-                        OrNothing = 0.123456789,
-                        Fuse = 777,
-                        WayRound = 9876543210,
-                        Away = 0.12345f,
-                        AndChew = new byte[16]
-                    }).Entity;
-                    var addedId = toAdd.Id;
+                        {
+                            Name = "Blog to Insert",
+                            George = true,
+                            TheGu = new Guid("0456AEF1-B7FC-47AA-8102-975D6BA3A9BF"),
+                            NotFigTime = new DateTime(1973, 9, 3, 0, 10, 33, 777),
+                            ToEat = 64,
+                            OrNothing = 0.123456789,
+                            Fuse = 777,
+                            WayRound = 9876543210,
+                            Away = 0.12345f,
+                            AndChew = new byte[16]
+                        }).Entity;
 
                     await db.SaveChangesAsync();
 
+                    var addedId = toAdd.Id;
                     Assert.NotEqual(0, addedId);
 
                     Assert.Equal(EntityState.Unchanged, db.Entry(toUpdate).State);
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(5, TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.Equal(4, TestSqlLoggerFactory.SqlStatements.Count);
                     Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[0]);
                     Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[1]);
-                    Assert.Contains("@p0: " + deletedId, TestSqlLoggerFactory.SqlStatements[3]);
-                    Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[4]);
-                    Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[4]);
-                    Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[4]);
+                    Assert.Contains("@p0: " + deletedId, TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[3]);
+                    Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[3]);
+                    Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[3]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'",
@@ -187,6 +186,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     Assert.Equal(1, rows);
                 }
+
             }
         }
 
@@ -536,11 +536,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public BloggingContext(IServiceProvider serviceProvider, DbContextOptions options)
                 : base(serviceProvider, options)
             {
-            }
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.UseSqlServerSequenceHiLo();
             }
         }
 

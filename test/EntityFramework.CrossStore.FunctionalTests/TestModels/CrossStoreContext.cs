@@ -23,7 +23,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                 .Entity<SimpleEntity>(eb =>
                     {
                         eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);
-                        eb.Property(e => e.Id).UseSqlServerSequenceHiLo();
                         eb.ToTable("RelationalSimpleEntity"); // TODO: specify schema when #948 is fixed
                         eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
                         eb.Key(e => e.Id);

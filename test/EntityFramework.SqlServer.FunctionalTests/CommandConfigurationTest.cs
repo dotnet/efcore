@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
@@ -299,7 +300,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        [Theory]
+        [ConditionalTheory]
+        [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [InlineData(51, 6)]
         [InlineData(50, 5)]
         [InlineData(20, 2)]
@@ -401,7 +403,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.UseSqlServerSequenceHiLo();
+                if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true)
+                {
+                    modelBuilder.UseSqlServerSequenceHiLo();
+                }
             }
         }
 

@@ -90,6 +90,7 @@
     <Compile Include="OptimisticConcurrencySqlServerTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
+    <Compile Include="Utilities\DbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Utilities\SqlFileLogger.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="SentinelGraphUpdatesSqlServerTest.cs" />
     <Compile Include="MonsterFixupSqlServerTest.cs" />
     <Compile Include="Utilities\SqlConnectionStringBuilderExtensions.cs" />
+    <Compile Include="Utilities\SqlServerConditionAttribute.cs" />
     <Compile Include="Utilities\SqlServerTestStore.cs" />
     <Compile Include="SqlServerValueGenerationScenariosTest.cs" />
     <Compile Include="StoreGeneratedSqlServerTest.cs" />
@@ -105,6 +107,7 @@
     <Compile Include="TransactionSqlServerFixture.cs" />
     <Compile Include="TransactionSqlServerTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
+    <Compile Include="Utilities\TestEnvironment.cs" />
     <Compile Include="Utilities\TestSqlServerModelSource.cs" />
     <None Include="config.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
