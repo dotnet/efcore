@@ -88,21 +88,25 @@
     <Compile Include="OptimisticConcurrencySqlServerTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
-    <Compile Include="SqlFileLogger.cs" />
+    <Compile Include="Utilities\SqlFileLogger.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
     <Compile Include="SentinelGraphUpdatesSqlServerTest.cs" />
     <Compile Include="MonsterFixupSqlServerTest.cs" />
-    <Compile Include="SqlServerTestStore.cs" />
+    <Compile Include="Utilities\SqlConnectionStringBuilderExtensions.cs" />
+    <Compile Include="Utilities\SqlServerTestStore.cs" />
     <Compile Include="SqlServerValueGenerationScenariosTest.cs" />
     <Compile Include="StoreGeneratedSqlServerTest.cs" />
     <Compile Include="SqlExecutorSqlServerTest.cs" />
     <Compile Include="TransactionSqlServerFixture.cs" />
     <Compile Include="TransactionSqlServerTest.cs" />
     <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
-    <Compile Include="TestSqlServerModelSource.cs" />
+    <Compile Include="Utilities\TestSqlServerModelSource.cs" />
+    <None Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -132,7 +136,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Northwind.sql" />
+    <Content Include="Northwind.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

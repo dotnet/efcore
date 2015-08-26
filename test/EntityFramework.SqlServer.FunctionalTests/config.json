@@ -1,0 +1,11 @@
+{
+    "Test": {
+        "SqlServer": {
+            "DataSource": "(localdb)\\MSSQLLocalDB",
+            "IntegratedSecurity": true,
+            "ConnectTimeout": 30,
+            "UserID": null,
+            "Password": null
+        }
+    }
+}

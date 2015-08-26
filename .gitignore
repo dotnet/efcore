@@ -27,3 +27,5 @@ nuget.exe
 *.lock.json
 *.db
 .vs/
+config.test.json
+*.log

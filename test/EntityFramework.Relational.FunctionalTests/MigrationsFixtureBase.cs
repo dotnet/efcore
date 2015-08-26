@@ -3,46 +3,19 @@
 
 using System;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class MigrationsFixtureBase
     {
-        private readonly LazyRef<IServiceProvider> _services;
+        public abstract MigrationsContext CreateContext();
 
-        protected MigrationsFixtureBase()
+        public class MigrationsContext : DbContext
         {
-            _services = new LazyRef<IServiceProvider>(
-                () =>
-                {
-                    var services = new ServiceCollection();
-                    ConfigureServices(services);
-
-                    return services.BuildServiceProvider();
-                });
-        }
-
-        public DbContext CreateContext() => new MigrationsContext(_services.Value, OnConfiguring);
-
-        protected abstract void ConfigureServices(IServiceCollection services);
-        protected abstract void OnConfiguring(DbContextOptionsBuilder optionsBuilder);
-
-        private class MigrationsContext : DbContext
-        {
-            private readonly Action<DbContextOptionsBuilder> _configure;
-
-            public MigrationsContext(IServiceProvider serviceProvider, Action<DbContextOptionsBuilder> configure)
-                : base(serviceProvider)
+            public MigrationsContext(IServiceProvider serviceProvider, DbContextOptions options)
+                : base(serviceProvider, options)
             {
-                _configure = configure;
-            }
-
-            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                _configure(optionsBuilder);
             }
         }
 
@@ -56,9 +29,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .CreateTable(
                         name: "Table1",
                         columns: x => new
-                        {
-                            Id = x.Column<int>()
-                        })
+                            {
+                                Id = x.Column<int>()
+                            })
                     .PrimaryKey(
                         name: "PK_Table1",
                         columns: x => x.Id);

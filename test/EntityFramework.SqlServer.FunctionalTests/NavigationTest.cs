@@ -3,26 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class NavigationTest
+    public class NavigationTest : IClassFixture<NavigationTestFixture>
     {
         [Fact]
         public void Duplicate_entries_are_not_created_for_navigations_to_principal()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<GoTContext>()
-                .ServiceCollection()
-                .BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<GoTContext>())
+            using (var context = _fixture.CreateContext())
             {
                 context.ConfigAction = modelBuilder =>
                     {
@@ -42,14 +37,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public void Duplicate_entries_are_not_created_for_navigations_to_dependant()
         {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .AddDbContext<GoTContext>()
-                .ServiceCollection()
-                .BuildServiceProvider();
-
-            using (var context = serviceProvider.GetRequiredService<GoTContext>())
+            using (var context = _fixture.CreateContext())
             {
                 context.ConfigAction = modelBuilder =>
                     {
@@ -64,6 +52,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.Equal("'Person' {'LoverId'} -> 'Person' {'Id'}", entityType.GetForeignKeys().First().ToString());
                 Assert.Equal("'Person' {'SiblingReverseId'} -> 'Person' {'Id'}", entityType.GetForeignKeys().Skip(1).First().ToString());
             }
+        }
+
+        private readonly NavigationTestFixture _fixture;
+
+        public NavigationTest(NavigationTestFixture fixture)
+        {
+            _fixture = fixture;
         }
     }
 
@@ -80,6 +75,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
     public class GoTContext : DbContext
     {
+        public GoTContext(IServiceProvider serviceProvider, DbContextOptions options)
+            : base(serviceProvider, options)
+        {
+        }
+
         public DbSet<Person> People { get; set; }
         public Func<ModelBuilder, int> ConfigAction { get; set; }
 
@@ -87,10 +87,34 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             ConfigAction.Invoke(modelBuilder);
         }
+    }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public class NavigationTestFixture
+    {
+        private readonly DbContextOptions _options;
+        private readonly IServiceProvider _serviceProvider;
+
+        public NavigationTestFixture()
         {
-            optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=StateManagerBug;Trusted_Connection=True;MultipleActiveResultSets=true");
+            _serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection()
+                .BuildServiceProvider();
+
+            var connStrBuilder = new SqlConnectionStringBuilder
+            {
+                InitialCatalog = "StateManagerBug",
+                MultipleActiveResultSets = true,
+                ["Trusted_Connection"] = true
+            };
+            connStrBuilder.ApplyConfiguration();
+
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(connStrBuilder.ConnectionString);
+            _options = optionsBuilder.Options;
         }
+
+        public virtual GoTContext CreateContext() => new GoTContext(_serviceProvider, _options);
     }
 }

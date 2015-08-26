@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     await command.ExecuteNonQueryAsync();
 
-                    var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
+                    var userFolder = Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME");
 
                     if (userFolder != null)
                     {
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     command.ExecuteNonQuery();
 
-                    var userFolder = Environment.GetEnvironmentVariable("USERPROFILE");
+                    var userFolder = Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME");
 
                     if (userFolder != null)
                     {
@@ -452,7 +452,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                     while (await dataReader.ReadAsync())
                     {
-                        results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                        try
+                        {
+                            results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
+                        }
+                        catch (NotImplementedException e)
+                        {
+                            // TODO remove workaround for mono limitation.
+                            results = results.Concat(new[] { (T)dataReader.GetValue(0) });
+                        }
                     }
 
                     return results;
@@ -494,15 +502,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public static string CreateConnectionString(string name)
         {
-            return new SqlConnectionStringBuilder
+            var connStrBuilder = new SqlConnectionStringBuilder
                 {
-                    DataSource = @"(localdb)\MSSQLLocalDB",
-                    MultipleActiveResultSets = new Random().Next(0, 2) == 1,
                     //MultipleActiveResultSets = false,
-                    InitialCatalog = name,
-                    IntegratedSecurity = true,
-                    ConnectTimeout = 30
-                }.ConnectionString;
+                    MultipleActiveResultSets = new Random().Next(0, 2) == 1,
+                    InitialCatalog = name
+                };
+            return connStrBuilder.ApplyConfiguration().ConnectionString;
         }
     }
 }
