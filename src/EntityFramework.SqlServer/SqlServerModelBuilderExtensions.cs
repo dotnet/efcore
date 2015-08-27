@@ -143,8 +143,8 @@ namespace Microsoft.Data.Entity
                 modelBuilder.SqlServerSequence(name, schema).IncrementsBy(10).Metadata;
 
             model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
-            model.SqlServer().HiLoSequenceName = sequence.Name;
-            model.SqlServer().HiLoSequenceSchema = sequence.Schema;
+            model.SqlServer().HiLoSequenceName = name;
+            model.SqlServer().HiLoSequenceSchema = schema;
 
             return modelBuilder;
         }

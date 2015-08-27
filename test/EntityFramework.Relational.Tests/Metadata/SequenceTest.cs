@@ -69,6 +69,31 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
+        public void Can_get_model_default_schema_if_sequence_schema_not_specified()
+        {
+            var model = new Model();
+
+            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo");
+
+            Assert.Null(sequence.Schema);
+
+            model.Relational().DefaultSchema = "db0";
+
+            Assert.Equal("db0", sequence.Schema);
+        }
+
+        [Fact]
+        public void Can_get_sequence_schema_if_specified_explicitly()
+        {
+            var model = new Model();
+
+            model.Relational().DefaultSchema = "db0";
+            var sequence = new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "db1");
+
+            Assert.Equal("db1", sequence.Schema);
+        }
+
+        [Fact]
         public void Can_serialize_and_deserialize()
         {
             var model = new Model();

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
-        public void Can_get_and_set_schema_name()
+        public void Can_get_and_set_schema_name_on_entity_type()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
@@ -71,6 +71,26 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal("db0", entityType.Relational().Schema);
 
             entityType.Relational().Schema = null;
+
+            Assert.Null(entityType.Relational().Schema);
+        }
+
+        [Fact]
+        public void Gets_model_schema_if_schema_on_entity_type_not_set()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            var entityType = modelBuilder
+                .Entity<Customer>()
+                .Metadata;
+
+            Assert.Null(entityType.Relational().Schema);
+
+            modelBuilder.Model.Relational().DefaultSchema = "db0";
+
+            Assert.Equal("db0", entityType.Relational().Schema);
+
+            modelBuilder.Model.Relational().DefaultSchema = null;
 
             Assert.Null(entityType.Relational().Schema);
         }
@@ -301,7 +321,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var entityType = modelBuilder
                 .Entity<Customer>()
                 .Metadata;
-            
+
             Assert.Equal(Strings.NoDiscriminatorForValue("Customer", "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.Relational().DiscriminatorValue = "V").Message);
@@ -325,6 +345,24 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                     entityType.Relational().DiscriminatorValue = "V").Message);
 
             entityType.Relational().DiscriminatorValue = null;
+        }
+
+        [Fact]
+        public void Can_get_and_set_schema_name_on_model()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
+            var extensions = model.Relational();
+
+            Assert.Null(extensions.DefaultSchema);
+
+            extensions.DefaultSchema = "db0";
+
+            Assert.Equal("db0", extensions.DefaultSchema);
+
+            extensions.DefaultSchema = null;
+
+            Assert.Null(extensions.DefaultSchema);
         }
 
         [Fact]
@@ -423,6 +461,80 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Same(sequence2.ClrType, sequence.ClrType);
         }
 
+        [Fact]
+        public void Sequence_is_in_model_schema_if_schema_not_specified()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
+            var extensions = model.Relational();
+            extensions.DefaultSchema = "Smoo";
+
+            Assert.Null(extensions.FindSequence("Foo"));
+            Assert.Null(model.Relational().FindSequence("Foo"));
+
+            var sequence = extensions.GetOrAddSequence("Foo");
+
+            Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(1, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.ClrType);
+        }
+
+        [Fact]
+        public void Returns_same_sequence_if_schema_not_specified_explicitly()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
+            var extensions = model.Relational();
+
+            Assert.Null(extensions.FindSequence("Foo"));
+            Assert.Null(model.Relational().FindSequence("Foo"));
+
+            var sequence = extensions.GetOrAddSequence("Foo");
+
+            Assert.Equal("Foo", extensions.FindSequence("Foo").Name);
+            Assert.Equal("Foo", model.Relational().FindSequence("Foo").Name);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Null(sequence.Schema);
+            Assert.Equal(1, sequence.IncrementBy);
+            Assert.Equal(1, sequence.StartValue);
+            Assert.Null(sequence.MinValue);
+            Assert.Null(sequence.MaxValue);
+            Assert.Same(typeof(long), sequence.ClrType);
+
+            extensions.DefaultSchema = "Smoo";
+
+            var sequence2 = extensions.GetOrAddSequence("Foo");
+
+            sequence.StartValue = 1729;
+            sequence.IncrementBy = 11;
+            sequence.MinValue = 2001;
+            sequence.MaxValue = 2010;
+            sequence.ClrType = typeof(int);
+
+            Assert.Equal("Foo", sequence.Name);
+            Assert.Equal("Smoo", sequence.Schema);
+            Assert.Equal(11, sequence.IncrementBy);
+            Assert.Equal(1729, sequence.StartValue);
+            Assert.Equal(2001, sequence.MinValue);
+            Assert.Equal(2010, sequence.MaxValue);
+            Assert.Same(typeof(int), sequence.ClrType);
+
+            Assert.Equal(sequence2.Name, sequence.Name);
+            Assert.Equal(sequence2.Schema, sequence.Schema);
+            Assert.Equal(sequence2.IncrementBy, sequence.IncrementBy);
+            Assert.Equal(sequence2.StartValue, sequence.StartValue);
+            Assert.Equal(sequence2.MinValue, sequence.MinValue);
+            Assert.Equal(sequence2.MaxValue, sequence.MaxValue);
+            Assert.Same(sequence2.ClrType, sequence.ClrType);
+        }
 
         [Fact]
         public void Can_get_multiple_sequences()

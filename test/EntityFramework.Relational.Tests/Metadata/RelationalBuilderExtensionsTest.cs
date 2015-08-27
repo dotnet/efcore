@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal("Customizer", entityType.Relational().TableName);
             Assert.Equal("db0", entityType.Relational().Schema);
         }
-        
+
         [Fact]
         public void Can_set_discriminator_value_using_property_expression()
         {
@@ -377,6 +377,88 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
             Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+        }
+
+
+        [Fact]
+        public void Can_set_schema_on_model()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            Assert.Null(modelBuilder.Model.Relational().DefaultSchema);
+
+            modelBuilder.HasDefaultSchema("db0");
+
+            Assert.Equal("db0", modelBuilder.Model.Relational().DefaultSchema);
+        }
+
+        [Fact]
+        public void Model_schema_is_used_if_table_schema_not_set()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .ToTable("Customizer");
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Null(entityType.Relational().Schema);
+
+            modelBuilder.HasDefaultSchema("db0");
+
+            Assert.Equal("db0", modelBuilder.Model.Relational().DefaultSchema);
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("db0", entityType.Relational().Schema);
+        }
+
+        [Fact]
+        public void Model_schema_is_not_used_if_table_schema_is_set()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.HasDefaultSchema("db0");
+
+            modelBuilder
+                .Entity<Customer>()
+                .ToTable("Customizer", "db1");
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+
+            Assert.Equal("db0", modelBuilder.Model.Relational().DefaultSchema);
+            Assert.Equal("Customer", entityType.DisplayName());
+            Assert.Equal("Customizer", entityType.Relational().TableName);
+            Assert.Equal("db1", entityType.Relational().Schema);
+        }
+
+        [Fact]
+        public void Sequence_is_in_model_schema_if_not_specified_explicitly()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.HasDefaultSchema("Tasty");
+            modelBuilder.Sequence("Snook");
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
+
+            Assert.Equal("Tasty", modelBuilder.Model.Relational().DefaultSchema);
+            ValidateSchemaNamedSequence(sequence);
+        }
+
+        [Fact]
+        public void Sequence_is_not_in_model_schema_if_specified_explicitly()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.HasDefaultSchema("db0");
+            modelBuilder.Sequence("Snook", "Tasty");
+
+            var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
+
+            Assert.Equal("db0", modelBuilder.Model.Relational().DefaultSchema);
+            ValidateSchemaNamedSequence(sequence);
         }
 
         [Fact]
@@ -781,7 +863,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             public IEnumerable<Order> Orders { get; set; }
         }
-        
+
         private class SpecialCustomer : Customer
         {
         }

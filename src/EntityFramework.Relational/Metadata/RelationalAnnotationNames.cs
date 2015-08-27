@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
         public const string DefaultValueType = "DefaultValueType";
         public const string TableName = "TableName";
         public const string Schema = "Schema";
+        public const string DefaultSchema = "DefaultSchema";
         public const string Name = "Name";
         public const string Sequence = "Sequence:";
         public const string DiscriminatorProperty = "DiscriminatorProperty";

@@ -125,5 +125,17 @@ namespace Microsoft.Data.Entity
 
             return modelBuilder;
         }
+
+        public static ModelBuilder HasDefaultSchema(
+            [NotNull] this ModelBuilder modelBuilder,
+            [CanBeNull] string schema)
+        {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NullButNotEmpty(schema, nameof(schema));
+
+            modelBuilder.Model.Relational().DefaultSchema = schema;
+
+            return modelBuilder;
+        }
     }
 }

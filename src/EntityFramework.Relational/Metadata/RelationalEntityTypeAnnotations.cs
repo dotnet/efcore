@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata
             get
             {
                 var rootAnnotations = new RelationalAnnotations(EntityType.RootType(), Annotations.ProviderPrefix);
-                return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.Schema);
+                return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.Schema) ?? ((Model)EntityType.Model).Relational().DefaultSchema;
             }
             [param: CanBeNull] set { SetSchema(value); }
         }

@@ -11,5 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
         ISequence FindSequence([NotNull] string name, [CanBeNull] string schema = null);
 
         IReadOnlyList<ISequence> Sequences { get; }
+
+        string DefaultSchema { get; }
     }
 }

@@ -120,8 +120,8 @@ namespace Microsoft.Data.Entity
 
             property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
             property.ValueGenerated = ValueGenerated.OnAdd;
-            property.SqlServer().HiLoSequenceName = sequence.Name;
-            property.SqlServer().HiLoSequenceSchema = sequence.Schema;
+            property.SqlServer().HiLoSequenceName = name;
+            property.SqlServer().HiLoSequenceSchema = schema;
 
             return propertyBuilder;
         }

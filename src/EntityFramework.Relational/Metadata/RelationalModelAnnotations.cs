@@ -50,5 +50,14 @@ namespace Microsoft.Data.Entity.Metadata
                 Annotations.ProviderPrefix ?? RelationalAnnotationNames.Prefix,
                 Check.NotEmpty(name, nameof(name)),
                 Check.NullButNotEmpty(schema, nameof(schema)));
+
+        public virtual string DefaultSchema
+        {
+            get
+            {
+                return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultSchema);
+            }
+            [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DefaultSchema, Check.NullButNotEmpty(value, nameof(value))); }
+        }
     }
 }

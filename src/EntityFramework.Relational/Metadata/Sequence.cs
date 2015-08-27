@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual string Name => GetData().Name;
 
-        public virtual string Schema => GetData().Schema;
+        public virtual string Schema => GetData().Schema ?? Model.Relational().DefaultSchema;
 
         public virtual long StartValue
         {
