@@ -252,6 +252,6 @@ namespace Microsoft.Data.Sqlite
             NativeMethods.sqlite3_bind_blob(stmt, index, value, value.Length, Constants.SQLITE_TRANSIENT);
 
         private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
-            NativeMethods.sqlite3_bind_text(stmt, index, value, value.Length, Constants.SQLITE_TRANSIENT);
+            NativeMethods.sqlite3_bind_text(stmt, index, value, Constants.SQLITE_TRANSIENT);
     }
 }

@@ -455,6 +455,28 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetString_works_utf8() =>
+            GetX_works(
+                "SELECT '测试测试测试';",
+                r => r.GetString(0),
+                "测试测试测试");
+
+        [Fact]
+        public void GetFieldValue_works_utf8() =>
+            GetX_works(
+                "SELECT '测试测试测试';",
+                r => r.GetFieldValue<string>(0),
+                "测试测试测试");
+
+        [Fact]
+        public void GetValue_to_string_works_utf8() =>
+            GetX_works(
+                "SELECT '测试测试测试';",
+                r => r.GetValue(0) as string,
+                "测试测试测试");
+
+
+        [Fact]
         public void GetString_works() =>
             GetX_works(
                 "SELECT 'test';",

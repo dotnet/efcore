@@ -101,12 +101,13 @@ namespace Microsoft.Data.Sqlite.Interop
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
         private static extern int sqlite3_bind_text(Sqlite3StmtHandle pStmt, int i, IntPtr zData, int n, IntPtr xDel);
 
-        public static int sqlite3_bind_text(Sqlite3StmtHandle pStmt, int i, string data, int n, IntPtr xDel)
+        public static int sqlite3_bind_text(Sqlite3StmtHandle pStmt, int i, string data, IntPtr xDel)
         {
-            var zData = MarshalEx.StringToHGlobalUTF8(data);
+            int nLen;
+            var zData = MarshalEx.StringToHGlobalUTF8(data, out nLen);
             try
             {
-                return sqlite3_bind_text(pStmt, i, zData, n, xDel);
+                return sqlite3_bind_text(pStmt, i, zData, nLen, xDel);
             }
             finally
             {
