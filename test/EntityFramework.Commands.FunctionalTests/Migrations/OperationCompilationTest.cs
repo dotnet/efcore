@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "mb.AddColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\"," + EOL +
-                "    isNullable: false);" + EOL,
+                "    nullable: false);" + EOL,
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
-                "    isNullable: true," + EOL +
+                "    nullable: true," + EOL +
                 "    defaultValue: 1);" + EOL,
                 o =>
                 {
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "mb.AddColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\"," + EOL +
-                "    isNullable: false," + EOL +
+                "    nullable: false," + EOL +
                 "    defaultValueSql: \"1\");" + EOL,
                 o =>
                 {
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "mb.AddColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\"," + EOL +
-                "    isNullable: false," + EOL +
+                "    nullable: false," + EOL +
                 "    computedColumnSql: \"1\");" + EOL,
                 o =>
                 {
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "mb.AlterColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\"," + EOL +
-                "    isNullable: false);" + EOL,
+                "    nullable: false);" + EOL,
                 o =>
                 {
                     Assert.Equal("Id", o.Name);
@@ -395,7 +395,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\"," + EOL +
                 "    type: \"int\"," + EOL +
-                "    isNullable: true," + EOL +
+                "    nullable: true," + EOL +
                 "    defaultValue: 1);" + EOL,
                 o =>
                 {
@@ -423,7 +423,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "mb.AlterColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\"," + EOL +
-                "    isNullable: false," + EOL +
+                "    nullable: false," + EOL +
                 "    defaultValueSql: \"1\");" + EOL,
                 o =>
                 {
@@ -447,7 +447,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "mb.AlterColumn<int>(" + EOL +
                 "    name: \"Id\"," + EOL +
                 "    table: \"Post\"," + EOL +
-                "    isNullable: false," + EOL +
+                "    nullable: false," + EOL +
                 "    computedColumnSql: \"1\");" + EOL,
                 o =>
                 {
@@ -486,7 +486,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    incrementBy: 3," + EOL +
                 "    minValue: 2L," + EOL +
                 "    maxValue: 4L," + EOL +
-                "    isCyclic: true);" + EOL,
+                "    cyclic: true);" + EOL,
                 o =>
                 {
                     Assert.Equal("DefaultSequence", o.Name);
@@ -537,7 +537,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    table: \"Post\"," + EOL +
                 "    column: \"Title\"," + EOL +
-                "    isUnique: true);" + EOL,
+                "    unique: true);" + EOL,
                 o =>
                 {
                     Assert.Equal("IX_Post_Title", o.Name);
@@ -637,7 +637,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    incrementBy: 5," + EOL +
                 "    minValue: 2L," + EOL +
                 "    maxValue: 4L," + EOL +
-                "    isCyclic: true);" + EOL,
+                "    cyclic: true);" + EOL,
                 o =>
                 {
                     Assert.Equal("DefaultSequence", o.Name);
@@ -673,7 +673,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    incrementBy: 5," + EOL +
                 "    minValue: 2L," + EOL +
                 "    maxValue: 4L," + EOL +
-                "    isCyclic: true);" + EOL,
+                "    cyclic: true);" + EOL,
                 o =>
                 {
                     Assert.Equal("DefaultSequence", o.Name);
@@ -708,7 +708,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id = table.Column<int>(isNullable: false)" + EOL +
+                "        Id = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -751,7 +751,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", isNullable: true, defaultValue: 1)" + EOL +
+                "        PostId = table.Column<int>(name: \"Post Id\", type: \"int\", nullable: true, defaultValue: 1)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -794,7 +794,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id = table.Column<int>(isNullable: false, defaultValueSql: \"1\")" + EOL +
+                "        Id = table.Column<int>(nullable: false, defaultValueSql: \"1\")" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -832,7 +832,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id = table.Column<int>(isNullable: false, computedColumnSql: \"1\")" + EOL +
+                "        Id = table.Column<int>(nullable: false, computedColumnSql: \"1\")" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -875,7 +875,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        BlogId = table.Column<int>(isNullable: false)" + EOL +
+                "        BlogId = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -930,7 +930,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        BlogId = table.Column<int>(isNullable: false)" + EOL +
+                "        BlogId = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -988,8 +988,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        BlogId1 = table.Column<int>(isNullable: false)," + EOL +
-                "        BlogId2 = table.Column<int>(isNullable: false)" + EOL +
+                "        BlogId1 = table.Column<int>(nullable: false)," + EOL +
+                "        BlogId2 = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -1033,7 +1033,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id = table.Column<int>(isNullable: false)" + EOL +
+                "        Id = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -1074,7 +1074,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id = table.Column<int>(isNullable: false)" + EOL +
+                "        Id = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -1114,8 +1114,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        Id1 = table.Column<int>(isNullable: false)," + EOL +
-                "        Id2 = table.Column<int>(isNullable: false)" + EOL +
+                "        Id1 = table.Column<int>(nullable: false)," + EOL +
+                "        Id2 = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -1156,7 +1156,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        AltId = table.Column<int>(isNullable: false)" + EOL +
+                "        AltId = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -1200,7 +1200,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    schema: \"dbo\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        AltId = table.Column<int>(isNullable: false)" + EOL +
+                "        AltId = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +
@@ -1243,8 +1243,8 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    name: \"Post\"," + EOL +
                 "    columns: table => new" + EOL +
                 "    {" + EOL +
-                "        AltId1 = table.Column<int>(isNullable: false)," + EOL +
-                "        AltId2 = table.Column<int>(isNullable: false)" + EOL +
+                "        AltId1 = table.Column<int>(nullable: false)," + EOL +
+                "        AltId2 = table.Column<int>(nullable: false)" + EOL +
                 "    }," + EOL +
                 "    constraints: table =>" + EOL +
                 "    {" + EOL +

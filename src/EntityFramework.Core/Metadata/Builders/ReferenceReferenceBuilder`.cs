@@ -237,10 +237,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     Configures whether this is a required relationship (i.e. whether the foreign key property(s) can
         ///     be assigned null).
         /// </summary>
-        /// <param name="isRequired"> A value indicating whether this is a required relationship. </param>
+        /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(Builder.Required(isRequired, ConfigurationSource.Explicit));
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool required = true)
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }

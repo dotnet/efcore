@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] string table,
             [CanBeNull] string type = null,
             [CanBeNull] string schema = null,
-            bool isNullable = false,
+            bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null)
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Migrations
                 Name = name,
                 ClrType = typeof(T),
                 ColumnType = type,
-                IsNullable = isNullable,
+                IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] string table,
             [CanBeNull] string type = null,
             [CanBeNull] string schema = null,
-            bool isNullable = false,
+            bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null)
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Migrations
                 Name = name,
                 ClrType = typeof(T),
                 ColumnType = type,
-                IsNullable = isNullable,
+                IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Migrations
             [CanBeNull] int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
-            bool isCyclic = false)
+            bool cyclic = false)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.Migrations
                 IncrementBy = incrementBy,
                 MinValue = minValue,
                 MaxValue = maxValue,
-                IsCyclic = isCyclic
+                IsCyclic = cyclic
             };
             Operations.Add(operation);
 
@@ -225,20 +225,20 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] string table,
             [NotNull] string column,
             [CanBeNull] string schema = null,
-            bool isUnique = false)
+            bool unique = false)
             => CreateIndex(
                 name,
                 table,
                 new[] { column },
                 schema,
-                isUnique);
+                unique);
 
         public virtual OperationBuilder<CreateIndexOperation> CreateIndex(
             [NotNull] string name,
             [NotNull] string table,
             [NotNull] string[] columns,
             [CanBeNull] string schema = null,
-            bool isUnique = false)
+            bool unique = false)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotEmpty(table, nameof(table));
@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity.Migrations
                 Table = table,
                 Name = name,
                 Columns = columns,
-                IsUnique = isUnique
+                IsUnique = unique
             };
             Operations.Add(operation);
 
@@ -278,8 +278,8 @@ namespace Microsoft.Data.Entity.Migrations
             [CanBeNull] int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
-            bool isCyclic = false)
-            => CreateSequence<long>(name, schema, startValue, incrementBy, minValue, maxValue, isCyclic);
+            bool cyclic = false)
+            => CreateSequence<long>(name, schema, startValue, incrementBy, minValue, maxValue, cyclic);
 
         public virtual OperationBuilder<CreateSequenceOperation> CreateSequence<T>(
             [NotNull] string name,
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Migrations
             [CanBeNull] int incrementBy = 1,
             [CanBeNull] long? minValue = null,
             [CanBeNull] long? maxValue = null,
-            bool isCyclic = false)
+            bool cyclic = false)
         {
             Check.NotEmpty(name, nameof(name));
 
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.Migrations
                 IncrementBy = incrementBy,
                 MinValue = minValue,
                 MaxValue = maxValue,
-                IsCyclic = isCyclic
+                IsCyclic = cyclic
             };
             Operations.Add(operation);
 

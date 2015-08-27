@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        protected override bool Exists(object value) => value != DBNull.Value;
+        protected override bool InterpretExistsResult(object value) => value != DBNull.Value;
 
         public override string GetInsertScript(HistoryRow row)
         {

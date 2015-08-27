@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.Data.Entity.Infrastructure
 {
     public abstract class ModelSnapshot
     {

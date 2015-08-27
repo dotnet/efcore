@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Storage
         public void Can_create_simple_parameter()
         {
             var parameter = new RelationalTypeMapping("int")
-                .CreateParameter(CreateTestCommand(), "Name", 17, isNullable: false);
+                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Storage
         public void Can_create_simple_nullable_parameter()
         {
             var parameter = new RelationalTypeMapping("int")
-                .CreateParameter(CreateTestCommand(), "Name", 17, isNullable: true);
+                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Storage
         public void Can_create_simple_parameter_with_DbType()
         {
             var parameter = new RelationalTypeMapping("int", DbType.Int32)
-                .CreateParameter(CreateTestCommand(), "Name", 17, isNullable: false);
+                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: false);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Storage
         public void Can_create_simple_nullable_parameter_with_DbType()
         {
             var parameter = new RelationalTypeMapping("int", DbType.Int32)
-                .CreateParameter(CreateTestCommand(), "Name", 17, isNullable: true);
+                .CreateParameter(CreateTestCommand(), "Name", 17, nullable: true);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Storage
         public void Can_create_required_string_parameter()
         {
             var parameter = new RelationalSizedTypeMapping("nvarchar(23)", DbType.String, 23)
-                .CreateParameter(CreateTestCommand(), "Name", "Value", isNullable: false);
+                .CreateParameter(CreateTestCommand(), "Name", "Value", nullable: false);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Storage
         public void Can_create_string_parameter()
         {
             var parameter = new RelationalSizedTypeMapping("nvarchar(23)", DbType.String, 23)
-                .CreateParameter(CreateTestCommand(), "Name", "Value", isNullable: true);
+                .CreateParameter(CreateTestCommand(), "Name", "Value", nullable: true);
 
             Assert.Equal(ParameterDirection.Input, parameter.Direction);
             Assert.Equal("Name", parameter.ParameterName);

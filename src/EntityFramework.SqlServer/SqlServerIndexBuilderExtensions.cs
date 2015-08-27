@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity
             return indexBuilder;
         }
 
-        public static IndexBuilder SqlServerClustered([NotNull] this IndexBuilder indexBuilder, bool isClustered = true)
+        public static IndexBuilder SqlServerClustered([NotNull] this IndexBuilder indexBuilder, bool clustered = true)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 
-            indexBuilder.Metadata.SqlServer().IsClustered = isClustered;
+            indexBuilder.Metadata.SqlServer().IsClustered = clustered;
 
             return indexBuilder;
         }

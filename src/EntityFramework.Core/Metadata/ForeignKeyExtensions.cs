@@ -16,13 +16,13 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] this ForeignKey foreignKey,
             [NotNull] EntityType principalType,
             [NotNull] EntityType dependentType,
-            bool? isUnique)
+            bool? unique)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            return (isUnique == null || ((IForeignKey)foreignKey).IsUnique == isUnique)
+            return (unique == null || ((IForeignKey)foreignKey).IsUnique == unique)
                    && foreignKey.PrincipalEntityType == principalType
                    && foreignKey.DeclaringEntityType == dependentType;
         }
@@ -33,13 +33,13 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] EntityType dependentType,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
-            bool? isUnique)
+            bool? unique)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            return foreignKey.IsCompatible(principalType, dependentType, isUnique)
+            return foreignKey.IsCompatible(principalType, dependentType, unique)
                    && (foreignKeyProperties == null
                        || !foreignKeyProperties.Any()
                        || foreignKey.Properties.SequenceEqual(foreignKeyProperties))
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] string navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
-            bool? isUnique)
+            bool? unique)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(principalType, nameof(principalType));
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var existingNavigationToPrincipal = foreignKey.DependentToPrincipal;
             var existingNavigationToDependent = foreignKey.PrincipalToDependent;
-            return foreignKey.IsCompatible(principalType, dependentType, foreignKeyProperties, principalProperties, isUnique)
+            return foreignKey.IsCompatible(principalType, dependentType, foreignKeyProperties, principalProperties, unique)
                    && (existingNavigationToPrincipal == null || existingNavigationToPrincipal.Name == navigationToPrincipal)
                    && (existingNavigationToDependent == null || existingNavigationToDependent.Name == navigationToDependent);
         }

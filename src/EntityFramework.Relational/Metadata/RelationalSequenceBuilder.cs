@@ -47,9 +47,9 @@ namespace Microsoft.Data.Entity.Metadata
             return this;
         }
 
-        public virtual RelationalSequenceBuilder IsCyclic(bool isCyclic = true)
+        public virtual RelationalSequenceBuilder IsCyclic(bool cyclic = true)
         {
-            _sequence.IsCyclic = isCyclic;
+            _sequence.IsCyclic = cyclic;
 
             return this;
         }

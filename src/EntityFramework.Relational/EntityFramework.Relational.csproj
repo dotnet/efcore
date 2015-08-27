@@ -115,7 +115,7 @@
     <Compile Include="Migrations\Internal\MigrationsAssembly.cs" />
     <Compile Include="Migrations\Internal\MigrationsIdGenerator.cs" />
     <Compile Include="Migrations\Internal\Migrator.cs" />
-    <Compile Include="Migrations\ModelSnapshot.cs" />
+    <Compile Include="Infrastructure\ModelSnapshot.cs" />
     <Compile Include="Metadata\IRelationalEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\IRelationalForeignKeyAnnotations.cs" />
     <Compile Include="Metadata\IRelationalIndexAnnotations.cs" />

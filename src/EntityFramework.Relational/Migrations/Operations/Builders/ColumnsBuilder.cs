@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Migrations.Operations.Builders
         public virtual OperationBuilder<AddColumnOperation> Column<T>(
             [CanBeNull] string type = null,
             [CanBeNull] string name = null,
-            bool isNullable = false,
+            bool nullable = false,
             [CanBeNull] object defaultValue = null,
             [CanBeNull] string defaultValueSql = null,
             [CanBeNull] string computedColumnSql = null)
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Migrations.Operations.Builders
                 Name = name,
                 ClrType = typeof(T),
                 ColumnType = type,
-                IsNullable = isNullable,
+                IsNullable = nullable,
                 DefaultValue = defaultValue,
                 DefaultValueSql = defaultValueSql,
                 ComputedColumnSql = computedColumnSql

@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql.EscapeLiteral(TableName) +
                 "' AND \"type\" = 'table';";
 
-        protected override bool Exists(object value) => (long)value != 0L;
+        protected override bool InterpretExistsResult(object value) => (long)value != 0L;
 
         public override string GetCreateIfNotExistsScript()
         {

@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity
             return keyBuilder;
         }
 
-        public static KeyBuilder SqlServerClustered([NotNull] this KeyBuilder keyBuilder, bool isClustered = true)
+        public static KeyBuilder SqlServerClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 
-            keyBuilder.Metadata.SqlServer().IsClustered = isClustered;
+            keyBuilder.Metadata.SqlServer().IsClustered = clustered;
 
             return keyBuilder;
         }

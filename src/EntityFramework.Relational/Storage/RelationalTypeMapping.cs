@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] DbCommand command,
             [NotNull] string name,
             [CanBeNull] object value,
-            bool? isNullable = null)
+            bool? nullable = null)
         {
             Check.NotNull(command, nameof(command));
 
@@ -36,9 +36,9 @@ namespace Microsoft.Data.Entity.Storage
             parameter.ParameterName = name;
             parameter.Value = value ?? DBNull.Value;
 
-            if (isNullable.HasValue)
+            if (nullable.HasValue)
             {
-                parameter.IsNullable = isNullable.Value;
+                parameter.IsNullable = nullable.Value;
             }
 
             if (StoreType.HasValue)

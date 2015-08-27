@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations
     // TODO: Leverage update pipeline for GetInsertScript & GetDeleteScript
     public abstract class HistoryRepository : IHistoryRepository
     {
-        public const string DefaultTableName = "__MigrationHistory";
+        public const string DefaultTableName = "__EFMigrationsHistory";
 
         private readonly IRelationalDatabaseCreator _databaseCreator;
         private readonly ISqlStatementExecutor _executor;
@@ -90,9 +90,10 @@ namespace Microsoft.Data.Entity.Migrations
         protected abstract string ExistsSql { get; }
 
         public virtual bool Exists()
-            => _databaseCreator.Exists() && Exists(_executor.ExecuteScalar(_connection, ExistsSql));
+            => _databaseCreator.Exists() && InterpretExistsResult(_executor.ExecuteScalar(_connection, ExistsSql));
 
-        protected abstract bool Exists([NotNull] object value);
+        /// <returns>true if the table exists; otherwise, false.</returns>
+        protected abstract bool InterpretExistsResult([NotNull] object value);
 
         public abstract string GetCreateIfNotExistsScript();
 

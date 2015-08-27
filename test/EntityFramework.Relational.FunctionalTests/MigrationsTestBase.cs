@@ -140,9 +140,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 name: "CreatedTable",
                 columns: x => new
                 {
-                    Id = x.Column<int>(isNullable: false),
-                    ColumnWithDefaultToDrop = x.Column<int>(isNullable: true, defaultValue: 0),
-                    ColumnWithDefaultToAlter = x.Column<int>(isNullable: true, defaultValue: 1)
+                    Id = x.Column<int>(nullable: false),
+                    ColumnWithDefaultToDrop = x.Column<int>(nullable: true, defaultValue: 0),
+                    ColumnWithDefaultToAlter = x.Column<int>(nullable: true, defaultValue: 1)
                 },
                 constraints: x =>
                 {
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             migrationBuilder.AlterColumn<int>(
                 name: "ColumnWithDefaultToAlter",
                 table: "CreatedTable",
-                isNullable: true);
+                nullable: true);
         }
 
         protected virtual Task AssertSecondMigrationAsync(DbConnection connection)

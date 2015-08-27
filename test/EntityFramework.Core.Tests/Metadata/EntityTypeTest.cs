@@ -849,7 +849,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_foreignKey_throws_when_parent_type_has_foreignKey_on_same_properties()
         {
@@ -871,7 +871,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     specialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_foreignKey_throws_when_grandparent_type_has_foreignKey_on_same_properties()
         {
@@ -896,7 +896,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     verySpecialOrderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_foreignKey_throws_when_child_type_has_foreignKey_on_same_properties()
         {
@@ -918,7 +918,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     orderType.GetOrAddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_foreignKey_throws_when_grandchild_type_has_foreignKey_on_same_properties()
         {
@@ -1033,7 +1033,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 Assert.Throws<ArgumentException>(() => entityType.AddIndex(new[] { idProperty })).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_an_index_throws_when_parent_type_has_index_on_same_properties()
         {
@@ -1052,7 +1052,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     specialOrderType.GetOrAddIndex(indexProperty)).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_an_index_throws_when_grandparent_type_has_index_on_same_properties()
         {
@@ -1074,7 +1074,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     verySpecialOrderType.GetOrAddIndex(indexProperty)).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_an_index_throws_when_child_type_has_index_on_same_properties()
         {
@@ -1093,7 +1093,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     orderType.GetOrAddIndex(indexProperty)).Message);
         }
 
-        // Issue #2514 
+        // Issue #2514
         //[Fact]
         public void Adding_an_index_throws_when_grandchild_type_has_index_on_same_properties()
         {
@@ -1649,7 +1649,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SomeInverse",
                 null,
                 null,
-                isUnique: false));
+                unique: false));
         }
 
         [Fact]
@@ -1671,7 +1671,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     "SomeInverse",
                     new[] { fkProperty },
                     new Property[0],
-                    isUnique: false));
+                    unique: false));
         }
 
         [Fact]
@@ -1700,7 +1700,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     "SomeInverse",
                     new[] { fkProperty1, fkProperty2 },
                     new Property[0],
-                    isUnique: false));
+                    unique: false));
         }
 
         [Fact]
@@ -1721,7 +1721,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     "SomeInverse",
                     null,
                     null,
-                    isUnique: false));
+                    unique: false));
         }
 
         [Fact]
@@ -1741,7 +1741,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     "SomeInverse",
                     null,
                     null,
-                    isUnique: false));
+                    unique: false));
         }
 
         [Fact]
@@ -1760,7 +1760,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                     "SomeInverse",
                     null,
                     null,
-                    isUnique: false));
+                    unique: false));
         }
 
         [Fact]
@@ -1776,7 +1776,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SomeInverse",
                 new[] { fkProperty },
                 new Property[0],
-                isUnique: false);
+                unique: false);
 
             Assert.Null(newFk);
         }
@@ -1794,7 +1794,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SomeInverse",
                 new[] { fkProperty },
                 new Property[0],
-                isUnique: false);
+                unique: false);
 
             Assert.Null(newFk);
         }
@@ -1812,7 +1812,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 "SomeInverse",
                 new[] { fkProperty },
                 new Property[0],
-                isUnique: false);
+                unique: false);
 
             Assert.Null(newFk);
         }

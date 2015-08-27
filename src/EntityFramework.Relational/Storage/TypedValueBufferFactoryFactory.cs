@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public class TypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
+    public class TypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
         private static readonly MethodInfo _getFieldValueMethod
             = typeof(DbDataReader).GetTypeInfo().GetDeclaredMethod("GetFieldValue");

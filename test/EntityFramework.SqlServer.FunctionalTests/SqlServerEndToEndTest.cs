@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class TestTypedValueBufferFactoryFactory : TypedValueBufferFactoryFactory
+        public class TestTypedValueBufferFactoryFactory : TypedRelationalValueBufferFactoryFactory
         {
         }
 

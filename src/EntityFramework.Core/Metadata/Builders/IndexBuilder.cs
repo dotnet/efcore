@@ -74,11 +74,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Configures whether this index is unique (i.e. the value(s) for each instance must be unique).
         /// </summary>
-        /// <param name="isUnique"> A value indicating whether this index is unique. </param>
+        /// <param name="unique"> A value indicating whether this index is unique. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual IndexBuilder Unique(bool isUnique = true)
+        public virtual IndexBuilder Unique(bool unique = true)
         {
-            Builder.IsUnique(isUnique, ConfigurationSource.Explicit);
+            Builder.IsUnique(unique, ConfigurationSource.Explicit);
 
             return this;
         }

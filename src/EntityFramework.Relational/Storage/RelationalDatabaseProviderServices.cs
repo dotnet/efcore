@@ -27,16 +27,16 @@ namespace Microsoft.Data.Entity.Storage
         public virtual IRelationalTypeMapper TypeMapper => GetService<RelationalTypeMapper>();
         public virtual IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<MigrationsAnnotationProvider>();
         public virtual IBatchExecutor BatchExecutor => GetService<BatchExecutor>();
-        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedValueBufferFactoryFactory>();
+        public virtual IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory => GetService<TypedRelationalValueBufferFactoryFactory>();
         public virtual ICommandBatchPreparer CommandBatchPreparer => GetService<CommandBatchPreparer>();
         public virtual ISqlStatementExecutor SqlStatementExecutor => GetService<SqlStatementExecutor>();
         public virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory => GetService<ParameterNameGeneratorFactory>();
+        public virtual IMigrationsSqlGenerator MigrationsSqlGenerator => GetService<MigrationsSqlGenerator>();
 
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
         public abstract IMemberTranslator CompositeMemberTranslator { get; }
         public abstract IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
         public abstract IHistoryRepository HistoryRepository { get; }
-        public abstract IMigrationsSqlGenerator MigrationsSqlGenerator { get; }
         public abstract IRelationalConnection RelationalConnection { get; }
         public abstract IUpdateSqlGenerator UpdateSqlGenerator { get; }
         public abstract IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }

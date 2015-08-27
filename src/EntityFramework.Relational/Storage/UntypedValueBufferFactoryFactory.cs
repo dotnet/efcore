@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public class UntypedValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
+    public class UntypedRelationalValueBufferFactoryFactory : IRelationalValueBufferFactoryFactory
     {
         private struct CacheKey
         {

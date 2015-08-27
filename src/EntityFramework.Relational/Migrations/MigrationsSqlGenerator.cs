@@ -17,7 +17,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
 {
-    public abstract class MigrationsSqlGenerator : IMigrationsSqlGenerator
+    public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     {
         private static readonly IReadOnlyDictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel, SqlBatchBuilder>> _generateActions =
             new Dictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel, SqlBatchBuilder>>
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Migrations
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly IRelationalMetadataExtensionProvider _annotations;
 
-        protected MigrationsSqlGenerator(
+        public MigrationsSqlGenerator(
             [NotNull] IUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider annotations)
@@ -163,15 +163,21 @@ namespace Microsoft.Data.Entity.Migrations
             UniqueConstraint(operation, model, builder);
         }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] AlterColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual void Generate(
             [NotNull] AlterSequenceOperation operation,
@@ -188,10 +194,13 @@ namespace Microsoft.Data.Entity.Migrations
             SequenceOptions(operation, model, builder);
         }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] RenameTableOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual void Generate(
             [NotNull] CreateIndexOperation operation,
@@ -220,10 +229,13 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(")");
         }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] EnsureSchemaOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual void Generate(
             [NotNull] CreateSequenceOperation operation,
@@ -330,10 +342,13 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.DelimitIdentifier(operation.Name));
         }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] DropIndexOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual void Generate(
             [NotNull] DropPrimaryKeyOperation operation,
@@ -404,15 +419,21 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.DelimitIdentifier(operation.Name));
         }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] RenameColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
-        protected abstract void Generate(
+        protected virtual void Generate(
             [NotNull] RenameSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder);
+            [NotNull] SqlBatchBuilder builder)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual void Generate(
             [NotNull] RestartSequenceOperation operation,

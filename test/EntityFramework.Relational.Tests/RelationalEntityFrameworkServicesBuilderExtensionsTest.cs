@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IParameterNameGeneratorFactory>();
             VerifySingleton<IComparer<ModificationCommand>>();
             VerifySingleton<IMigrationsIdGenerator>();
-            VerifySingleton<UntypedValueBufferFactoryFactory>();
-            VerifySingleton<TypedValueBufferFactoryFactory>();
+            VerifySingleton<UntypedRelationalValueBufferFactoryFactory>();
+            VerifySingleton<TypedRelationalValueBufferFactoryFactory>();
 
             VerifyScoped<IMigrator>();
             VerifyScoped<IMigrationsAssembly>();
@@ -53,6 +53,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IRelationalDatabaseCreator>();
             VerifyScoped<IUpdateSqlGenerator>();
             VerifyScoped<IRelationalMetadataExtensionProvider>();
+            VerifyScoped<MigrationsSqlGenerator>();
         }
 
         protected RelationalEntityFrameworkServicesBuilderExtensionsTest(RelationalTestHelpers testHelpers)

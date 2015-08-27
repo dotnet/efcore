@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -16,7 +15,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
@@ -126,7 +124,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             var selectExpression = new SelectExpression();
 
             return new CommandBuilder(
-                () => new DefaultQuerySqlGenerator(selectExpression, new SqliteTypeMapper()), new UntypedValueBufferFactoryFactory());
+                () => new DefaultQuerySqlGenerator(selectExpression, new SqliteTypeMapper()), new UntypedRelationalValueBufferFactoryFactory());
         }
 
         [Fact]

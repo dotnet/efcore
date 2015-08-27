@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 }
 
                 builder.AppendLine(",")
-                    .Append("isNullable: ")
+                    .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
                 if (operation.DefaultValueSql != null)
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 }
 
                 builder.AppendLine(",")
-                    .Append("isNullable: ")
+                    .Append("nullable: ")
                     .Append(_code.Literal(operation.IsNullable));
 
                 if (operation.DefaultValueSql != null)
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     builder
                         .AppendLine(",")
-                        .Append("isCyclic: true");
+                        .Append("cyclic: true");
                 }
 
                 builder.Append(")");
@@ -428,7 +428,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     builder
                         .AppendLine(",")
-                        .Append("isUnique: true");
+                        .Append("unique: true");
                 }
 
                 builder.Append(")");
@@ -520,7 +520,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 {
                     builder
                         .AppendLine(",")
-                        .Append("isCyclic: true");
+                        .Append("cyclic: true");
                 }
 
                 builder.Append(")");
@@ -587,7 +587,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                                 .Append(", ");
                         }
 
-                        builder.Append("isNullable: ")
+                        builder.Append("nullable: ")
                             .Append(_code.Literal(column.IsNullable));
 
                         if (column.DefaultValueSql != null)

@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
                 .Concat(entityType.GetDerivedTypes())
                 .Where(et => !et.IsAbstract());
         }
-        
+
         public static IEnumerable<EntityType> GetConcreteTypesInHierarchy([NotNull] this EntityType entityType)
             => ((IEntityType)entityType).GetConcreteTypesInHierarchy().Cast<EntityType>();
 
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.Metadata
             [CanBeNull] string navigationToDependent,
             [CanBeNull] IReadOnlyList<Property> foreignKeyProperties,
             [CanBeNull] IReadOnlyList<Property> principalProperties,
-            bool? isUnique)
+            bool? unique)
         {
             Check.NotNull(principalType, nameof(principalType));
 
@@ -289,7 +289,7 @@ namespace Microsoft.Data.Entity.Metadata
                     navigationToDependent,
                     foreignKeyProperties,
                     principalProperties,
-                    isUnique));
+                    unique));
         }
 
         public static IKey GetPrimaryKey([NotNull] this IEntityType entityType)
