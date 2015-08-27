@@ -10,11 +10,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public abstract class RelationalCompositeMethodCallTranslator : IMethodCallTranslator
     {
-        private readonly List<IMethodCallTranslator> _relationalTranslators;
+        private readonly List<IMethodCallTranslator> _translators;
 
         public RelationalCompositeMethodCallTranslator([NotNull] ILoggerFactory loggerFactory)
         {
-            _relationalTranslators = new List<IMethodCallTranslator>
+            _translators = new List<IMethodCallTranslator>
             {
                 new ContainsTranslator(),
                 new EndsWithTranslator(),
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 
         public virtual Expression Translate(MethodCallExpression expression)
         {
-            foreach (var translator in Translators)
+            foreach (var translator in _translators)
             {
                 var translatedMethodCall = translator.Translate(expression);
                 if (translatedMethodCall != null)
@@ -37,6 +37,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             return null;
         }
 
-        protected virtual IReadOnlyList<IMethodCallTranslator> Translators => _relationalTranslators;
+        protected virtual void AddTranslators([NotNull] IEnumerable<IMethodCallTranslator> translators)
+        {
+            _translators.AddRange(translators);
+        }
     }
 }

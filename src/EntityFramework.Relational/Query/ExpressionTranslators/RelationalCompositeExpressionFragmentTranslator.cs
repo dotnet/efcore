@@ -3,12 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public class RelationalCompositeExpressionFragmentTranslator : IExpressionFragmentTranslator
     {
-        private readonly List<IExpressionFragmentTranslator> _relationalTranslators 
+        private readonly List<IExpressionFragmentTranslator> _translators 
             = new List<IExpressionFragmentTranslator>
             {
                 new StringCompareTranslator()
@@ -16,7 +17,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 
         public virtual Expression Translate(Expression expression)
         {
-            foreach (var translator in Translators)
+            foreach (var translator in _translators)
             {
                 var result = translator.Translate(expression);
                 if (result != null)
@@ -28,6 +29,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             return null;
         }
 
-        protected virtual IReadOnlyList<IExpressionFragmentTranslator> Translators => _relationalTranslators;
+        protected virtual void AddTranslators([NotNull] IEnumerable<IExpressionFragmentTranslator> translators)
+        {
+            _translators.AddRange(translators);
+        }
     }
 }

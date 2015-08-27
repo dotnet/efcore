@@ -3,16 +3,17 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public abstract class RelationalCompositeMemberTranslator : IMemberTranslator
     {
-        private readonly List<IMemberTranslator> _relationalTranslators = new List<IMemberTranslator>();
+        private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
 
         public virtual Expression Translate(MemberExpression expression)
         {
-            foreach (var translator in Translators)
+            foreach (var translator in _translators)
             {
                 var translatedMember = translator.Translate(expression);
                 if (translatedMember != null)
@@ -24,6 +25,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             return null;
         }
 
-        protected virtual IReadOnlyList<IMemberTranslator> Translators => _relationalTranslators;
+        protected virtual void AddTranslators([NotNull] IEnumerable<IMemberTranslator> translators)
+        {
+            _translators.AddRange(translators);
+        }
     }
 }
