@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
         /// </param>
-        protected internal virtual void OnConfiguring([NotNull] DbContextOptionsBuilder optionsBuilder)
+        protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
 
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific
         ///     to a given database.
         /// </param>
-        protected internal virtual void OnModelCreating([NotNull] ModelBuilder modelBuilder)
+        protected internal virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
         }
 

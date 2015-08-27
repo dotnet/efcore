@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Xunit;
 
 // ReSharper disable StringEndsWithIsCultureSpecific
@@ -60,14 +61,16 @@ namespace Microsoft.Data.Entity
                           && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                           && (method is ConstructorInfo 
                             || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
-                    where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                          && method.Name != nameof(DbContext.OnConfiguring)
+                          && method.Name != nameof(DbContext.OnModelCreating)
+                   where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                     where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
                     from parameter in method.GetParameters()
                     where !parameter.ParameterType.IsValueType
                           && !parameter.GetCustomAttributes()
                               .Any(
-                                  a => a.GetType().Name == "NotNullAttribute"
-                                       || a.GetType().Name == "CanBeNullAttribute")
+                                  a => a.GetType().Name == nameof(NotNullAttribute)
+                                       || a.GetType().Name == nameof(CanBeNullAttribute))
                     select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
                     .ToList();
 
