@@ -23,6 +23,36 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.timestampColumn).ValueGeneratedOnAddOrUpdate();
             });
 
+            modelBuilder.Entity<OneToManyDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+            });
+
+            modelBuilder.Entity<OneToManyPrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+            });
+
+            modelBuilder.Entity<OneToOneDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
+            });
+
+            modelBuilder.Entity<OneToOnePrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
+            });
+
+            modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
+            });
+
+            modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
+            });
+
             modelBuilder.Entity<PropertyConfiguration>(entity =>
             {
                 entity.Property(e => e.PropertyConfigurationID).ValueGeneratedNever();

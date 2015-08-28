@@ -9,9 +9,7 @@ namespace E2E.Sqlite
 {
     public class OneToManyDependent
     {
-        [Key]
         public long OneToManyDependentID1 { get; set; }
-        [Key]
         public long OneToManyDependentID2 { get; set; }
         public long? OneToManyDependentFK1 { get; set; }
         public long? OneToManyDependentFK2 { get; set; }

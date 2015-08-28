@@ -51,6 +51,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual CustomConfiguration CustomConfiguration { get;[param: NotNull] set; }
 
         public abstract string UseMethodName { get; } // "UseSqlServer" for SqlServer, "UseSqlite" for Sqlite etc
+        public virtual string DefaultSchemaName { get; } // e.g. "dbo for SqlServer. Leave null if there is no concept of a default schema.
         public virtual string ClassName() => DefaultDbContextName;
 
         public virtual string Namespace() => CustomConfiguration.Namespace;
@@ -154,16 +155,18 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 return;
             }
 
-            entityConfiguration.FluentApiConfigurations.Add(
-                new KeyFluentApiConfiguration("e", key.Properties));
-
-            foreach (var property in key.Properties)
+            var keyFluentApi = new KeyFluentApiConfiguration("e", key.Properties);
+            if (key.Properties.Count == 1)
             {
+                keyFluentApi.HasAttributeEquivalent = true;
+
                 var propertyConfiguration =
-                    entityConfiguration.GetOrAddPropertyConfiguration(entityConfiguration, property);
+                    entityConfiguration.GetOrAddPropertyConfiguration(
+                        entityConfiguration, key.Properties.First());
                 propertyConfiguration.AttributeConfigurations.Add(
                     new AttributeConfiguration(nameof(KeyAttribute)));
             }
+            entityConfiguration.FluentApiConfigurations.Add(keyFluentApi);
         }
 
         public virtual void AddTableNameConfiguration([NotNull] EntityConfiguration entityConfiguration)
@@ -172,7 +175,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
             var entityType = entityConfiguration.EntityType;
             if (ExtensionsProvider.For(entityType).Schema != null
-                && ExtensionsProvider.For(entityType).Schema != "dbo")
+                && ExtensionsProvider.For(entityType).Schema != DefaultSchemaName)
             {
                 var delimitedTableName =
                     CSharpUtilities.Instance.DelimitString(ExtensionsProvider.For(entityType).TableName);

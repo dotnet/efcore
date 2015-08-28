@@ -9,9 +9,7 @@ namespace E2ETest.Namespace
 {
     public class OneToOneSeparateFKPrincipal
     {
-        [Key]
         public int OneToOneSeparateFKPrincipalID1 { get; set; }
-        [Key]
         public int OneToOneSeparateFKPrincipalID2 { get; set; }
         [Required]
         public string SomeOneToOneSeparateFKPrincipalColumn { get; set; }

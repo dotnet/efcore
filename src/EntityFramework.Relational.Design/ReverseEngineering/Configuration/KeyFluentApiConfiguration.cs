@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 new ModelUtilities().GenerateLambdaToKey(properties, lambdaIdentifier));
         }
 
-        public virtual bool HasAttributeEquivalent { get; } = true;
+        public virtual bool HasAttributeEquivalent { get; set; } = false;
         public virtual string For { get; } = null;
 
         public virtual string FluentApi { get;[param: NotNull] private set; }

@@ -9,9 +9,7 @@ namespace E2ETest.Namespace
 {
     public class OneToOnePrincipal
     {
-        [Key]
         public int OneToOnePrincipalID1 { get; set; }
-        [Key]
         public int OneToOnePrincipalID2 { get; set; }
         [Required]
         public string SomeOneToOnePrincipalColumn { get; set; }

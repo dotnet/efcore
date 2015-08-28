@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
         {
         }
 
+        public override string DefaultSchemaName => "dbo";
         public override string UseMethodName => nameof(SqlServerDbContextOptionsExtensions.UseSqlServer);
 
         public override string ClassName()

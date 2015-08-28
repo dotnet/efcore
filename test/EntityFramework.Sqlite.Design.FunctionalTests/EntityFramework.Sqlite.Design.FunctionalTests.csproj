@@ -129,6 +129,8 @@
   <ItemGroup>
     <Compile Include="ReverseEngineering\SqliteAllFluentApiE2ETest.cs" />
     <Compile Include="ReverseEngineering\SqliteAttributesInsteadOfFluentApiE2ETest.cs" />
+    <Compile Include="ReverseEngineering\SqliteCheckTemplates.cs" />
+    <Compile Include="ReverseEngineering\SqliteE2ETestBase.cs" />
     <Compile Include="SqliteMetadataModelProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>

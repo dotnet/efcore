@@ -14,9 +14,7 @@ namespace E2ETest.Namespace
             OneToManyDependent = new HashSet<OneToManyDependent>();
         }
 
-        [Key]
         public int OneToManyPrincipalID1 { get; set; }
-        [Key]
         public int OneToManyPrincipalID2 { get; set; }
         [Required]
         public string Other { get; set; }

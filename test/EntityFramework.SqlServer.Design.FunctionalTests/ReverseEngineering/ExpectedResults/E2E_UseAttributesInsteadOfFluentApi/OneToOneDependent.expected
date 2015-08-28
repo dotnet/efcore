@@ -9,9 +9,7 @@ namespace E2ETest.Namespace
 {
     public class OneToOneDependent
     {
-        [Key]
         public int OneToOneDependentID1 { get; set; }
-        [Key]
         public int OneToOneDependentID2 { get; set; }
         [Required]
         public string SomeDependentEndColumn { get; set; }

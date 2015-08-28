@@ -103,6 +103,11 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         }
         protected virtual void SetupTemplates(string templateOutputDir)
         {
+            if (templateOutputDir == null)
+            {
+                return;
+            }
+
             // use templates where the flag to use attributes instead of fluent API has been turned off
             var dbContextTemplate = MetadataModelProvider.DbContextTemplate
                 .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");

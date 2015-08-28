@@ -7,13 +7,15 @@ namespace E2E.Sqlite
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite(@"Data Source=OneToMany.db;Cache=Private");
+            options.UseSqlite(@"Data Source=OneToManyAttributes.db;Cache=Private");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
+                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+
                 entity.Property(e => e.OneToManyDependentID1).HasColumnType("INT");
 
                 entity.Property(e => e.OneToManyDependentID2).HasColumnType("INT");
@@ -27,6 +29,8 @@ namespace E2E.Sqlite
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
+                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+
                 entity.Property(e => e.OneToManyPrincipalID1).HasColumnType("INT");
 
                 entity.Property(e => e.OneToManyPrincipalID2).HasColumnType("INT");
