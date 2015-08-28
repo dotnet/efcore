@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToOnePrincipal
+    {
+        [Key]
+        public int OneToOnePrincipalID1 { get; set; }
+        [Key]
+        public int OneToOnePrincipalID2 { get; set; }
+        [Required]
+        public string SomeOneToOnePrincipalColumn { get; set; }
+
+        [InverseProperty("OneToOneDependentNavigation")]
+        public virtual OneToOneDependent OneToOneDependent { get; set; }
+    }
+}

@@ -15,9 +15,9 @@ using Xunit.Abstractions;
 
 namespace EntityFramework.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
-    public class SqliteE2ETest : E2ETestBase
+    public class SqliteAllFluentApiE2ETest : E2ETestBase
     {
-        public SqliteE2ETest(ITestOutputHelper output)
+        public SqliteAllFluentApiE2ETest(ITestOutputHelper output)
             : base(output)
         {
         }
@@ -25,7 +25,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests.ReverseEngineering
         [Fact]
         public async void One_to_one()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne").AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOneFluentApi").AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE IF NOT EXISTS Principal ( 
@@ -40,16 +40,18 @@ CREATE TABLE IF NOT EXISTS Dependent (
 ");
                 testStore.Transaction.Commit();
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
 
-                AssertLog(new LoggerMessages());
+                AssertLog(ExpectedLoggerMessages);
 
-                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/OneToOne")
+                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/AllFluentApi/OneToOne")
                     {
                         Files =
                             {
@@ -70,7 +72,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
         [Fact]
         public async void One_to_many()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany").AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("OneToManyFluentApi").AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE IF NOT EXISTS OneToManyPrincipal ( 
@@ -92,16 +94,18 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 ");
                 testStore.Transaction.Commit();
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
 
-                AssertLog(new LoggerMessages());
+                AssertLog(ExpectedLoggerMessages);
 
-                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/OneToMany")
+                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/AllFluentApi/OneToMany")
                     {
                         Files =
                             {
@@ -122,7 +126,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
         [Fact]
         public async void Many_to_many()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToMany").AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("ManyToManyFluentApi").AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
 CREATE TABLE Users ( Id PRIMARY KEY);
@@ -138,16 +142,18 @@ CREATE TABLE Users_Groups (
 ");
                 testStore.Transaction.Commit();
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
 
-                AssertLog(new LoggerMessages());
+                AssertLog(ExpectedLoggerMessages);
 
-                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/ManyToMany")
+                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/AllFluentApi/ManyToMany")
                     {
                         Files =
                             {
@@ -169,7 +175,7 @@ CREATE TABLE Users_Groups (
         [Fact]
         public async void Self_referencing()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRef").AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("SelfRefFluentApi").AsTransient())
             {
                 testStore.ExecuteNonQuery(@"CREATE TABLE SelfRef (
     Id INTEGER PRIMARY KEY,
@@ -178,16 +184,18 @@ CREATE TABLE Users_Groups (
 );");
                 testStore.Transaction.Commit();
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
 
-                AssertLog(new LoggerMessages());
+                AssertLog(ExpectedLoggerMessages);
 
-                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/SelfRef")
+                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/AllFluentApi/SelfRef")
                     {
                         Files =
                             {
@@ -234,14 +242,16 @@ CREATE TABLE String (
 );
 ");
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
 
-                AssertLog(new LoggerMessages());
+                AssertLog(ExpectedLoggerMessages);
 
                 var files = new FileSet(InMemoryFiles, "testout")
                     {
@@ -258,9 +268,11 @@ CREATE TABLE String (
             {
                 testStore.ExecuteNonQuery("CREATE TABLE Alicia ( Keys TEXT );");
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
@@ -270,8 +282,13 @@ CREATE TABLE String (
                         Warn =
                             {
                                 errorMessage
+                            },
+                        Info =
+                            {
+                                "Using custom template " + Path.Combine(TemplateDir, ProviderDbContextTemplateName),
+                                "Using custom template " + Path.Combine(TemplateDir, ProviderEntityTypeTemplateName)
                             }
-                    };
+                };
                 AssertLog(expectedLog);
                 Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents("testout", "Alicia.cs"));
             }
@@ -280,7 +297,7 @@ CREATE TABLE String (
         [Fact]
         public async void Principal_missing_primary_key()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipal").AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalFluentApi").AsTransient())
             {
                 testStore.ExecuteNonQuery(@"CREATE TABLE Dependent ( 
     Id PRIMARY KEY,
@@ -290,9 +307,11 @@ CREATE TABLE String (
 CREATE TABLE Principal ( Id INT);");
                 testStore.Transaction.Commit();
 
+                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                     {
                         ConnectionString = testStore.Connection.ConnectionString,
+                        CustomTemplatePath = TemplateDir,
                         ProjectPath = "testout",
                         ProjectRootNamespace = "E2E.Sqlite",
                     });
@@ -303,11 +322,16 @@ CREATE TABLE Principal ( Id INT);");
                             {
                                 Strings.MissingPrimaryKey("Principal"),
                                 Strings.ForeignKeyScaffoldError("Dependent","PrincipalId"),
+                            },
+                        Info =
+                            {
+                                "Using custom template " + Path.Combine(TemplateDir, ProviderDbContextTemplateName),
+                                "Using custom template " + Path.Combine(TemplateDir, ProviderEntityTypeTemplateName)
                             }
-                    };
+                };
                 AssertLog(expectedLog);
 
-                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/NoPrincipalPk")
+                var expectedFileSet = new FileSet(new FileSystemFileService(), "ReverseEngineering/Expected/AllFluentApi/NoPrincipalPk")
                     {
                         Files =
                             {
@@ -315,7 +339,7 @@ CREATE TABLE Principal ( Id INT);");
                                 "Dependent.expected",
                                 "Principal.expected",
                             }
-                    };
+                };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                     {
                         Files = results.Select(Path.GetFileName).ToList()
@@ -409,18 +433,37 @@ CREATE TABLE Principal ( Id INT);");
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",
+                        "System.ComponentModel.Annotations",
 #else
                     },
                 References =
                     {
                         MetadataReference.CreateFromFile(
                             Assembly.Load(new AssemblyName(
-                                "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location)
+                                "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
+                        MetadataReference.CreateFromFile(
+                            Assembly.Load(new AssemblyName(
+                                "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location),
 #endif
                     }
-            };
+        };
 
         protected override string ProviderName => "EntityFramework.Sqlite.Design";
         protected override IDesignTimeMetadataProviderFactory GetFactory() => new SqliteDesignTimeMetadataProviderFactory();
+        protected virtual string TemplateDir { get; } = "TemplatesDir";
+        protected virtual LoggerMessages ExpectedLoggerMessages
+        {
+            get
+            {
+                return new LoggerMessages
+                {
+                    Info =
+                        {
+                            "Using custom template " + Path.Combine(TemplateDir, ProviderDbContextTemplateName),
+                            "Using custom template " + Path.Combine(TemplateDir, ProviderEntityTypeTemplateName)
+                        }
+                };
+            }
+        }
     }
 }

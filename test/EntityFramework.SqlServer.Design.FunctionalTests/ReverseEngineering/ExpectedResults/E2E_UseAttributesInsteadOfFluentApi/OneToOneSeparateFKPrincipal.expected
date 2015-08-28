@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToOneSeparateFKPrincipal
+    {
+        [Key]
+        public int OneToOneSeparateFKPrincipalID1 { get; set; }
+        [Key]
+        public int OneToOneSeparateFKPrincipalID2 { get; set; }
+        [Required]
+        public string SomeOneToOneSeparateFKPrincipalColumn { get; set; }
+
+        [InverseProperty("OneToOneSeparateFKDependentFK")]
+        public virtual OneToOneSeparateFKDependent OneToOneSeparateFKDependent { get; set; }
+    }
+}

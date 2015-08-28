@@ -1,0 +1,75 @@
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public partial class SqlServerReverseEngineerTestE2EContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AllDataTypes>(entity =>
+            {
+                entity.Property(e => e.datetime2Column).HasColumnType("datetime2(7)");
+
+                entity.Property(e => e.decimalColumn).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.numericColumn).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.timestampColumn).ValueGeneratedOnAddOrUpdate();
+            });
+
+            modelBuilder.Entity<PropertyConfiguration>(entity =>
+            {
+                entity.Property(e => e.PropertyConfigurationID).ValueGeneratedNever();
+
+                entity.Property(e => e.RowversionColumn).ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.WithDateDefaultExpression)
+                    .HasColumnType("datetime2(7)")
+                    .HasDefaultValueSql("getdate()");
+
+                entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
+
+                entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");
+
+                entity.Property(e => e.WithMoneyDefaultValue).HasDefaultValue(0.00m);
+            });
+
+            modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>
+            {
+                entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
+
+                entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
+            });
+
+            modelBuilder.Entity<SelfReferencing>(entity =>
+            {
+                entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
+            });
+
+            modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>
+            {
+                entity.Property(e => e.Test_Spaces_Keywords_TableID).ValueGeneratedNever();
+            });
+        }
+
+        public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
+        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
+        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
+        public virtual DbSet<OneToOneDependent> OneToOneDependent { get; set; }
+        public virtual DbSet<OneToOnePrincipal> OneToOnePrincipal { get; set; }
+        public virtual DbSet<OneToOneSeparateFKDependent> OneToOneSeparateFKDependent { get; set; }
+        public virtual DbSet<OneToOneSeparateFKPrincipal> OneToOneSeparateFKPrincipal { get; set; }
+        public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
+        public virtual DbSet<ReferredToByTableWithUnmappablePrimaryKeyColumn> ReferredToByTableWithUnmappablePrimaryKeyColumn { get; set; }
+        public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
+        public virtual DbSet<Test_Spaces_Keywords_Table> Test_Spaces_Keywords_Table { get; set; }
+    }
+}

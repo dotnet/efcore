@@ -35,54 +35,100 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
-    <None Include="ReverseEngineering\Expected\ManyToMany\Users_Groups.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Groups.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\ManyToMany\Groups.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\ManyToMany\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\ManyToMany\Users.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Users_Groups.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\NoPrincipalPk\Dependent.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\Dependent.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\NoPrincipalPk\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\NoPrincipalPk\Principal.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\Principal.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\OneToMany\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\OneToMany\OneToManyDependent.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\OneToManyDependent.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\OneToMany\OneToManyPrincipal.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\OneToManyPrincipal.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\OneToOne\Dependent.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOne\Dependent.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\OneToOne\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOne\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\OneToOne\Principal.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\OneToOne\Principal.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\SelfRef\ModelContext.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\SelfRef\ModelContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\SelfRef\SelfRef.expected">
+    <None Include="ReverseEngineering\Expected\AllFluentApi\SelfRef\SelfRef.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\ManyToMany\Groups.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\ManyToMany\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\ManyToMany\Users.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\ManyToMany\Users_Groups.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\NoPrincipalPk\Dependent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\NoPrincipalPk\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\NoPrincipalPk\Principal.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToMany\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToMany\OneToManyDependent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToMany\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToOne\Dependent.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToOne\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToOne\Principal.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\SelfRef\ModelContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\SelfRef\SelfRef.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReverseEngineering\SqliteE2ETest.cs" />
+    <Compile Include="ReverseEngineering\SqliteAllFluentApiE2ETest.cs" />
+    <Compile Include="ReverseEngineering\SqliteAttributesInsteadOfFluentApiE2ETest.cs" />
     <Compile Include="SqliteMetadataModelProviderTest.cs" />
   </ItemGroup>
   <ItemGroup>

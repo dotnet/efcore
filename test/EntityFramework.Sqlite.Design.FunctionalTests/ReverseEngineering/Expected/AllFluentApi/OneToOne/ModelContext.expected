@@ -7,7 +7,7 @@ namespace E2E.Sqlite
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite(@"Data Source=OneToOne.db;Cache=Private");
+            options.UseSqlite(@"Data Source=OneToOneFluentApi.db;Cache=Private");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,0 +1,31 @@
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public partial class ModelContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite(@"Data Source=OneToOne.db;Cache=Private");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Dependent>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnType("INT");
+
+                entity.Property(e => e.PrincipalId).HasColumnType("INT");
+            });
+
+            modelBuilder.Entity<Principal>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnType("INTEGER");
+            });
+        }
+
+        public virtual DbSet<Dependent> Dependent { get; set; }
+        public virtual DbSet<Principal> Principal { get; set; }
+    }
+}

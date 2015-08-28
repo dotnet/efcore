@@ -70,43 +70,82 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
-    <None Include="ReverseEngineering\ExpectedResults\E2E\AllDataTypes.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\AllDataTypes.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\OneToManyDependent.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToManyDependent.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\OneToManyPrincipal.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToManyPrincipal.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\OneToOneDependent.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOneDependent.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\OneToOnePrincipal.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOnePrincipal.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\OneToOneSeparateFKDependent.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOneSeparateFKDependent.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\OneToOneSeparateFKPrincipal.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOneSeparateFKPrincipal.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\PropertyConfiguration.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\PropertyConfiguration.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\ReferredToByTableWithUnmappablePrimaryKeyColumn.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\ReferredToByTableWithUnmappablePrimaryKeyColumn.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\SelfReferencing.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\SelfReferencing.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\SqlServerReverseEngineerTestE2EContext.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\TableWithUnmappablePrimaryKeyColumn.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\TableWithUnmappablePrimaryKeyColumn.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E\Test_Spaces_Keywords_Table.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\Test_Spaces_Keywords_Table.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\AllDataTypes.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToManyDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToManyPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToOneDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToOnePrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToOneSeparateFKDependent.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToOneSeparateFKPrincipal.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\PropertyConfiguration.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\ReferredToByTableWithUnmappablePrimaryKeyColumn.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\SelfReferencing.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\TableWithUnmappablePrimaryKeyColumn.expected">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\Test_Spaces_Keywords_Table.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -114,6 +153,7 @@
     <Compile Include="ReverseEngineering\SqlServerE2EFixture.cs" />
     <Compile Include="ReverseEngineering\SqlServerE2ETests.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

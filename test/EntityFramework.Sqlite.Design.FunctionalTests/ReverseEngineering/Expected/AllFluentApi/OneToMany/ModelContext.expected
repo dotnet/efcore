@@ -1,0 +1,51 @@
+﻿using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public partial class ModelContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite(@"Data Source=OneToManyFluentApi.db;Cache=Private");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OneToManyDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+
+                entity.Property(e => e.OneToManyDependentID1).HasColumnType("INT");
+
+                entity.Property(e => e.OneToManyDependentID2).HasColumnType("INT");
+
+                entity.Property(e => e.OneToManyDependentFK1).HasColumnType("INT");
+
+                entity.Property(e => e.OneToManyDependentFK2).HasColumnType("INT");
+
+                entity.Property(e => e.SomeDependentEndColumn)
+                    .Required()
+                    .HasColumnType("VARCHAR");
+
+                entity.Reference(d => d.OneToManyDependentFK).InverseCollection(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
+            });
+
+            modelBuilder.Entity<OneToManyPrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+
+                entity.Property(e => e.OneToManyPrincipalID1).HasColumnType("INT");
+
+                entity.Property(e => e.OneToManyPrincipalID2).HasColumnType("INT");
+
+                entity.Property(e => e.Other)
+                    .Required()
+                    .HasColumnType("TEXT");
+            });
+        }
+
+        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
+        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
+    }
+}
