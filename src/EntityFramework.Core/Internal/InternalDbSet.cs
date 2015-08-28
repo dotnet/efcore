@@ -43,18 +43,18 @@ namespace Microsoft.Data.Entity.Internal
             _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => (EntityQueryable<TEntity>)source);
         }
 
-        public override EntityEntry<TEntity> Add(TEntity entity)
+        public override EntityEntry<TEntity> Add(TEntity entity, bool includeDependents = true)
         {
             Check.NotNull(entity, nameof(entity));
 
-            return _context.Add(entity);
+            return _context.Add(entity, includeDependents);
         }
 
-        public override EntityEntry<TEntity> Attach(TEntity entity)
+        public override EntityEntry<TEntity> Attach(TEntity entity, bool includeDependents = true)
         {
             Check.NotNull(entity, nameof(entity));
 
-            return _context.Attach(entity);
+            return _context.Attach(entity, includeDependents);
         }
 
         public override EntityEntry<TEntity> Remove(TEntity entity)
@@ -64,11 +64,11 @@ namespace Microsoft.Data.Entity.Internal
             return _context.Remove(entity);
         }
 
-        public override EntityEntry<TEntity> Update(TEntity entity)
+        public override EntityEntry<TEntity> Update(TEntity entity, bool includeDependents = true)
         {
             Check.NotNull(entity, nameof(entity));
 
-            return _context.Update(entity);
+            return _context.Update(entity, includeDependents);
         }
 
         public override void AddRange(params TEntity[] entities)
@@ -99,18 +99,18 @@ namespace Microsoft.Data.Entity.Internal
             _context.UpdateRange(entities);
         }
 
-        public override void AddRange(IEnumerable<TEntity> entities)
+        public override void AddRange(IEnumerable<TEntity> entities, bool includeDependents = true)
         {
             Check.NotNull(entities, nameof(entities));
 
-            _context.AddRange(entities);
+            _context.AddRange(entities, includeDependents);
         }
 
-        public override void AttachRange(IEnumerable<TEntity> entities)
+        public override void AttachRange(IEnumerable<TEntity> entities, bool includeDependents = true)
         {
             Check.NotNull(entities, nameof(entities));
 
-            _context.AttachRange(entities);
+            _context.AttachRange(entities, includeDependents);
         }
 
         public override void RemoveRange(IEnumerable<TEntity> entities)
@@ -120,11 +120,11 @@ namespace Microsoft.Data.Entity.Internal
             _context.RemoveRange(entities);
         }
 
-        public override void UpdateRange(IEnumerable<TEntity> entities)
+        public override void UpdateRange(IEnumerable<TEntity> entities, bool includeDependents = true)
         {
             Check.NotNull(entities, nameof(entities));
 
-            _context.UpdateRange(entities);
+            _context.UpdateRange(entities, includeDependents);
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => _entityQueryable.Value.GetEnumerator();

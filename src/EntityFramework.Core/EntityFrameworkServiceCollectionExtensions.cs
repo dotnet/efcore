@@ -99,6 +99,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped<IEntityEntryGraphIterator, EntityEntryGraphIterator>()
                 .AddScoped<IDbContextServices, DbContextServices>()
                 .AddScoped<IDatabaseProviderSelector, DatabaseProviderSelector>()
+                .AddScoped<IEntityGraphAttacher, EntityGraphAttacher>()
                 .AddScoped<ValueGeneratorSelector>()
                 .AddScoped(p => GetContextServices(p).Model)
                 .AddScoped(p => GetContextServices(p).Context)

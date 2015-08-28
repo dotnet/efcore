@@ -37,6 +37,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="ApiConsistencyTestBase.cs" />
+    <Compile Include="ChangeTracking\AggregatesTest.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
     <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />

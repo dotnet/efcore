@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.Data.Entity.ChangeTracking;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
@@ -17,25 +16,43 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context()
         {
-            TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+            TrackEntitiesTest((c, e) => c.Add(e, includeDependents: false), (c, e) => c.Add(e, includeDependents: false), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached()
         {
-            TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+            TrackEntitiesTest((c, e) => c.Attach(e, includeDependents: false), (c, e) => c.Attach(e, includeDependents: false), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated()
         {
-            TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
+            TrackEntitiesTest((c, e) => c.Update(e, includeDependents: false), (c, e) => c.Update(e, includeDependents: false), EntityState.Modified);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_deleted()
         {
             TrackEntitiesTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+        }
+
+        [Fact]
+        public void Can_add_new_entities_to_context_graph()
+        {
+            TrackEntitiesTest((c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_to_context_to_be_attached_graph()
+        {
+            TrackEntitiesTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_existing_entities_to_context_to_be_updated_graph()
+        {
+            TrackEntitiesTest((c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Modified);
         }
 
         private static void TrackEntitiesTest(
@@ -168,25 +185,43 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_multiple_new_entities_to_set_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e), EntityState.Added);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e, includeDependents: false), (c, e) => c.Products.AddRange(e, includeDependents: false), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e), EntityState.Unchanged);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e, includeDependents: false), (c, e) => c.Products.AttachRange(e, includeDependents: false), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e), EntityState.Modified);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e, includeDependents: false), (c, e) => c.Products.UpdateRange(e, includeDependents: false), EntityState.Modified);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_set_to_be_deleted_Enumerable()
         {
             TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e), EntityState.Deleted);
+        }
+
+        [Fact]
+        public void Can_add_multiple_new_entities_to_set_Enumerable_graph()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e), EntityState.Added);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_set_to_be_attached_Enumerable_graph()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e), EntityState.Unchanged);
+        }
+
+        [Fact]
+        public void Can_add_multiple_existing_entities_to_set_to_be_updated_Enumerable_graph()
+        {
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e), EntityState.Modified);
         }
 
         private static void TrackMultipleEntitiesTestEnumerable(
@@ -223,25 +258,43 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_no_new_entities_to_set_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e, includeDependents: false), (c, e) => c.Products.AddRange(e, includeDependents: false));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e, includeDependents: false), (c, e) => c.Products.AttachRange(e, includeDependents: false));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e, includeDependents: false), (c, e) => c.Products.UpdateRange(e, includeDependents: false));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_set_to_be_deleted_Enumerable()
         {
             TrackNoEntitiesTestEnumerable((c, e) => c.Categories.RemoveRange(e), (c, e) => c.Products.RemoveRange(e));
+        }
+
+        [Fact]
+        public void Can_add_no_new_entities_to_set_Enumerable_graph()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AddRange(e), (c, e) => c.Products.AddRange(e));
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_set_to_be_attached_Enumerable_graph()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.AttachRange(e), (c, e) => c.Products.AttachRange(e));
+        }
+
+        [Fact]
+        public void Can_add_no_existing_entities_to_set_to_be_updated_Enumerable_graph()
+        {
+            TrackNoEntitiesTestEnumerable((c, e) => c.Categories.UpdateRange(e), (c, e) => c.Products.UpdateRange(e));
         }
 
         private static void TrackNoEntitiesTestEnumerable(
@@ -259,31 +312,31 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Add_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Detached, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Unchanged, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Deleted, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Modified, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Categories.Add(e), EntityState.Added, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e, includeDependents: false), EntityState.Detached, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e, includeDependents: false), EntityState.Unchanged, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e, includeDependents: false), EntityState.Deleted, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e, includeDependents: false), EntityState.Modified, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Categories.Add(e, includeDependents: false), EntityState.Added, EntityState.Added);
         }
 
         [Fact]
         public void Can_use_Attach_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Detached, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Unchanged, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Deleted, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Modified, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Categories.Attach(e), EntityState.Added, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, includeDependents: false), EntityState.Detached, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, includeDependents: false), EntityState.Unchanged, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, includeDependents: false), EntityState.Deleted, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, includeDependents: false), EntityState.Modified, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Categories.Attach(e, includeDependents: false), EntityState.Added, EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_use_Update_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Detached, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Unchanged, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Deleted, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Modified, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Categories.Update(e), EntityState.Added, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e, includeDependents: false), EntityState.Detached, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e, includeDependents: false), EntityState.Unchanged, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e, includeDependents: false), EntityState.Deleted, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e, includeDependents: false), EntityState.Modified, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Categories.Update(e, includeDependents: false), EntityState.Added, EntityState.Modified);
         }
 
         [Fact]

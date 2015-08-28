@@ -46,12 +46,16 @@ namespace Microsoft.Data.Entity
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
+        /// <param name="includeDependents">
+        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
+        ///     the same rules. If false, then only the given entity will be tracked.
+        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Add([NotNull] TEntity entity, bool includeDependents = true)
         {
             throw new NotImplementedException();
         }
@@ -61,12 +65,16 @@ namespace Microsoft.Data.Entity
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
+        /// <param name="includeDependents">
+        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
+        ///     the same rules. If false, then only the given entity will be tracked.
+        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Attach([NotNull] TEntity entity, bool includeDependents = true)
         {
             throw new NotImplementedException();
         }
@@ -98,17 +106,21 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(TEntity)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(TEntity, bool)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
+        /// <param name="includeDependents">
+        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
+        ///     the same rules. If false, then only the given entity will be tracked.
+        /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity)
+        public virtual EntityEntry<TEntity> Update([NotNull] TEntity entity, bool includeDependents = true)
         {
             throw new NotImplementedException();
         }
@@ -155,7 +167,7 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(TEntity)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(TEntity, bool)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
@@ -170,7 +182,11 @@ namespace Microsoft.Data.Entity
         ///     be inserted into the database when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities)
+        /// <param name="includeDependents">
+        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
+        ///     the same rules. If false, then only the given entity will be tracked.
+        /// </param>
+        public virtual void AddRange([NotNull] IEnumerable<TEntity> entities, bool includeDependents = true)
         {
             throw new NotImplementedException();
         }
@@ -180,7 +196,11 @@ namespace Microsoft.Data.Entity
         ///     operation will be performed when <see cref="DbContext.SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities)
+        /// <param name="includeDependents">
+        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
+        ///     the same rules. If false, then only the given entity will be tracked.
+        /// </param>
+        public virtual void AttachRange([NotNull] IEnumerable<TEntity> entities, bool includeDependents = true)
         {
             throw new NotImplementedException();
         }
@@ -207,12 +227,16 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(TEntity)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(TEntity, bool)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities)
+        /// <param name="includeDependents">
+        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
+        ///     the same rules. If false, then only the given entity will be tracked.
+        /// </param>
+        public virtual void UpdateRange([NotNull] IEnumerable<TEntity> entities, bool includeDependents = true)
         {
             throw new NotImplementedException();
         }

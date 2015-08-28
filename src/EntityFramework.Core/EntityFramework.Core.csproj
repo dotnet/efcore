@@ -56,7 +56,11 @@
       <Link>Extensions\Internal\LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="ChangeTracking\ChangeTrackerFactory.cs" />
+    <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
+    <Compile Include="ChangeTracking\EntityGraphNodeBase.cs" />
     <Compile Include="ChangeTracking\IChangeTrackerFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
+    <Compile Include="ChangeTracking\Internal\IEntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleNullSentinelEntityKeyFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ValueBufferOriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\ValueBufferSidecar.cs" />

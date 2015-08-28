@@ -2504,7 +2504,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var tracker = new KeyValueEntityTracker();
 
-                context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e));
+                context.ChangeTracker.TrackGraph(CreateFullGraph(), e => tracker.TrackEntity(e.Entry));
                 context.SaveChanges();
             }
 

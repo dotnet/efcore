@@ -1326,7 +1326,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 
             foreach (var entity in toAdd.SelectMany(l => l))
             {
-                Add(entity);
+                Add(entity, includeDependents: false);
             }
 
             if (saveChanges)

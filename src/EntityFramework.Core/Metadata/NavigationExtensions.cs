@@ -28,10 +28,8 @@ namespace Microsoft.Data.Entity.Metadata
                 : navigation.ForeignKey.DependentToPrincipal;
         }
 
-        public static Navigation FindInverse([NotNull] this Navigation navigation)
-        {
-            return (Navigation)((INavigation)navigation).FindInverse();
-        }
+        public static Navigation FindInverse([NotNull] this Navigation navigation) 
+            => (Navigation)((INavigation)navigation).FindInverse();
 
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
         {
@@ -42,10 +40,8 @@ namespace Microsoft.Data.Entity.Metadata
                 : navigation.ForeignKey.DeclaringEntityType;
         }
 
-        public static EntityType GetTargetType([NotNull] this Navigation navigation)
-        {
-            return (EntityType)((INavigation)navigation).GetTargetType();
-        }
+        public static EntityType GetTargetType([NotNull] this Navigation navigation) 
+            => (EntityType)((INavigation)navigation).GetTargetType();
 
         public static bool IsCompatible(
             [NotNull] this Navigation navigation,
