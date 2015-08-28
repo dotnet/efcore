@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Sql;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -711,6 +712,18 @@ namespace Microsoft.Data.Entity.Query.Expressions
             }
 
             return this;
+        }
+
+        // TODO: Use generator from DI
+        public override string ToString()
+            => new DefaultQuerySqlGenerator(this, new NullTypeMapper())
+                .GenerateSql(new Dictionary<string, object>()).CommandText;
+
+        private class NullTypeMapper : IRelationalTypeMapper
+        {
+            public RelationalTypeMapping MapPropertyType(IProperty property) => new RelationalTypeMapping("?");
+
+            public RelationalTypeMapping GetDefaultMapping(Type clrType) => new RelationalTypeMapping("?");
         }
 
         // TODO: Make polymorphic
