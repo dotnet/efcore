@@ -42,35 +42,41 @@ namespace EntityFramework.Microbenchmarks.EF6
         {
             using (collector.StartCollection())
             {
-                using (var context = _fixture.CreateContext())
+                for (int i = 0; i < 10; i++)
                 {
-                    context.Department.First();
+                    using (var context = _fixture.CreateContext())
+                    {
+                        context.Department.First();
+                    }
                 }
             }
         }
 
         [AdventureWorksDatabaseBenchmark]
-        [BenchmarkVariation("Warm", false)]
+        [BenchmarkVariation("Warm")]
         public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector)
         {
             using (collector.StartCollection())
             {
-                using (var context = _fixture.CreateContext())
+                for (int i = 0; i < 10; i++)
                 {
-                    context.Department.Add(new Department
+                    using (var context = _fixture.CreateContext())
                     {
-                        Name = "Benchmarking",
-                        GroupName = "Engineering"
-                    });
+                        context.Department.Add(new Department
+                        {
+                            Name = "Benchmarking",
+                            GroupName = "Engineering"
+                        });
 
-                    using (context.Database.BeginTransaction())
-                    {
-                        context.SaveChanges();
+                        using (context.Database.BeginTransaction())
+                        {
+                            context.SaveChanges();
 
-                        // Don't mesure transaction rollback
-                        collector.StopCollection();
+                            // Don't mesure transaction rollback
+                            collector.StopCollection();
+                        }
+                        collector.StartCollection();
                     }
-                    collector.StartCollection();
                 }
             }
         }

@@ -53,7 +53,7 @@ namespace EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers
             public SkippedTestCase(IMessageSink diagnosticMessageSink, Xunit.Sdk.TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
                 : base(diagnosticMessageSink, defaultMethodDisplay, testMethod)
             {
-                SkipReason = $"AdventureWorks_2014 database does not exist on {BenchmarkConfig.Instance.BenchmarkDatabaseInstance}. Download the AdventureWorks backup from https://msftdbprodsamples.codeplex.com/downloads/get/880661 and restore it to {BenchmarkConfig.Instance.BenchmarkDatabaseInstance} to enable these tests.";
+                SkipReason = $"AdventureWorks2014 database does not exist on {BenchmarkConfig.Instance.BenchmarkDatabaseInstance}. Download the AdventureWorks backup from https://msftdbprodsamples.codeplex.com/downloads/get/880661 and restore it to {BenchmarkConfig.Instance.BenchmarkDatabaseInstance} to enable these tests.";
             }
         }
     }

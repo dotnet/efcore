@@ -96,6 +96,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Address>().Property(e => e.PostalCode).IsRequired();
 
+            modelBuilder.Entity<Address>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Address>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<Address>()
                 .HasRequired(d => d.StateProvince)
                 .WithMany(p => p.Address)
@@ -106,12 +110,20 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<AddressType>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<AddressType>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<AddressType>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<BillOfMaterials>().ToTable("BillOfMaterials", "Production");
 
             modelBuilder.Entity<BillOfMaterials>().Property(e => e.PerAssemblyQty).HasPrecision(8, 2);
 
             modelBuilder.Entity<BillOfMaterials>().Property(e => e.UnitMeasureCode).IsRequired();
+
+            modelBuilder.Entity<BillOfMaterials>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<BillOfMaterials>().Property(e => e.StartDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<BillOfMaterials>()
                 .HasRequired(d => d.Component)
@@ -131,6 +143,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<BusinessEntity>().ToTable("BusinessEntity", "Person");
 
+            modelBuilder.Entity<BusinessEntity>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<BusinessEntity>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<BusinessEntityAddress>().HasKey(e => new
             {
@@ -139,9 +155,11 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 e.AddressTypeID
             });
 
-
             modelBuilder.Entity<BusinessEntityAddress>().ToTable("BusinessEntityAddress", "Person");
 
+            modelBuilder.Entity<BusinessEntityAddress>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<BusinessEntityAddress>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<BusinessEntityAddress>()
                 .HasRequired(d => d.Address)
@@ -163,6 +181,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<BusinessEntityContact>().ToTable("BusinessEntityContact", "Person");
 
+            modelBuilder.Entity<BusinessEntityContact>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<BusinessEntityContact>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<BusinessEntityContact>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithMany(p => p.BusinessEntityContact)
@@ -183,6 +205,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ContactType>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<ContactType>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<CountryRegion>().HasKey(e => e.CountryRegionCode);
 
@@ -190,10 +214,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<CountryRegion>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<CountryRegion>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<CountryRegionCurrency>().HasKey(e => new { e.CountryRegionCode, e.CurrencyCode });
 
             modelBuilder.Entity<CountryRegionCurrency>().ToTable("CountryRegionCurrency", "Sales");
+
+            modelBuilder.Entity<CountryRegionCurrency>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<CountryRegionCurrency>()
                 .HasRequired(d => d.CountryRegionCodeNavigation)
@@ -212,10 +240,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<CreditCard>().Property(e => e.CardType).IsRequired();
 
+            modelBuilder.Entity<CreditCard>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<Culture>().ToTable("Culture", "Production");
 
             modelBuilder.Entity<Culture>().Property(e => e.Name).IsRequired();
+
+            modelBuilder.Entity<Culture>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
 
             modelBuilder.Entity<Currency>().HasKey(e => e.CurrencyCode);
@@ -224,12 +256,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Currency>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<Currency>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<CurrencyRate>().ToTable("CurrencyRate", "Sales");
 
             modelBuilder.Entity<CurrencyRate>().Property(e => e.FromCurrencyCode).IsRequired();
 
             modelBuilder.Entity<CurrencyRate>().Property(e => e.ToCurrencyCode).IsRequired();
+
+            modelBuilder.Entity<CurrencyRate>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<CurrencyRate>()
                 .HasRequired(d => d.FromCurrencyCodeNavigation)
@@ -247,6 +283,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Customer>().Property(e => e.AccountNumber)
                 .IsRequired()
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder.Entity<Customer>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Customer>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<Customer>()
                 .HasRequired(d => d.Person)
@@ -270,12 +310,18 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Department>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<Department>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<EmailAddress>().HasKey(e => new { e.BusinessEntityID, e.EmailAddressID });
 
             modelBuilder.Entity<EmailAddress>().ToTable("EmailAddress", "Person");
 
             modelBuilder.Entity<EmailAddress>().Property(e => e.EmailAddress1).HasColumnName("EmailAddress");
+
+            modelBuilder.Entity<EmailAddress>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<EmailAddress>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<EmailAddress>()
                 .HasRequired(d => d.BusinessEntity)
@@ -299,6 +345,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Employee>().Property(e => e.OrganizationLevel).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
+            modelBuilder.Entity<Employee>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Employee>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<Employee>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Employee);
@@ -307,6 +357,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<EmployeeDepartmentHistory>().HasKey(e => new { e.BusinessEntityID, e.StartDate, e.DepartmentID, e.ShiftID });
 
             modelBuilder.Entity<EmployeeDepartmentHistory>().ToTable("EmployeeDepartmentHistory", "HumanResources");
+
+            modelBuilder.Entity<EmployeeDepartmentHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<EmployeeDepartmentHistory>()
                 .HasRequired(d => d.BusinessEntity)
@@ -328,6 +380,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<EmployeePayHistory>().ToTable("EmployeePayHistory", "HumanResources");
 
+            modelBuilder.Entity<EmployeePayHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<EmployeePayHistory>()
             .HasRequired(d => d.BusinessEntity)
                                   .WithMany(p => p.EmployeePayHistory)
@@ -336,8 +390,12 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Illustration>().ToTable("Illustration", "Production");
 
+            modelBuilder.Entity<Illustration>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<JobCandidate>().ToTable("JobCandidate", "HumanResources");
+
+            modelBuilder.Entity<JobCandidate>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<JobCandidate>()
                 .HasRequired(d => d.BusinessEntity)
@@ -351,6 +409,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Location>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<Location>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<Password>().HasKey(e => e.BusinessEntityID);
 
@@ -359,6 +419,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Password>().Property(e => e.PasswordHash).IsRequired();
 
             modelBuilder.Entity<Password>().Property(e => e.PasswordSalt).IsRequired();
+
+            modelBuilder.Entity<Password>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Password>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<Password>()
                 .HasRequired(d => d.BusinessEntity)
@@ -375,6 +439,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Person>().Property(e => e.PersonType).IsRequired();
 
+            modelBuilder.Entity<Person>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Person>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<Person>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Person);
@@ -383,6 +451,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<PersonCreditCard>().HasKey(e => new { e.BusinessEntityID, e.CreditCardID });
 
             modelBuilder.Entity<PersonCreditCard>().ToTable("PersonCreditCard", "Sales");
+
+            modelBuilder.Entity<PersonCreditCard>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<PersonCreditCard>()
                 .HasRequired(d => d.BusinessEntity)
@@ -399,11 +469,15 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<PersonPhone>().ToTable("PersonPhone", "Person");
 
-            modelBuilder.Entity<PersonPhone>().HasRequired(d => d.BusinessEntity)
+            modelBuilder.Entity<PersonPhone>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<PersonPhone>()
+                .HasRequired(d => d.BusinessEntity)
                 .WithMany(p => p.PersonPhone)
                 .HasForeignKey(d => d.BusinessEntityID);
 
-            modelBuilder.Entity<PersonPhone>().HasRequired(d => d.PhoneNumberType)
+            modelBuilder.Entity<PersonPhone>()
+                .HasRequired(d => d.PhoneNumberType)
                 .WithMany(p => p.PersonPhone)
                 .HasForeignKey(d => d.PhoneNumberTypeID);
 
@@ -411,6 +485,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<PhoneNumberType>().ToTable("PhoneNumberType", "Person");
 
             modelBuilder.Entity<PhoneNumberType>().Property(e => e.Name).IsRequired();
+
+            modelBuilder.Entity<PhoneNumberType>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
 
             modelBuilder.Entity<Product>().ToTable("Product", "Production");
@@ -420,6 +496,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Product>().Property(e => e.ProductNumber).IsRequired();
 
             modelBuilder.Entity<Product>().Property(e => e.Weight).HasPrecision(8, 2);
+
+            modelBuilder.Entity<Product>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Product>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<Product>()
                 .HasRequired(d => d.ProductModel)
@@ -445,10 +525,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ProductCategory>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<ProductCategory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ProductCategory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<ProductCostHistory>().HasKey(e => new { e.ProductID, e.StartDate });
 
             modelBuilder.Entity<ProductCostHistory>().ToTable("ProductCostHistory", "Production");
+
+            modelBuilder.Entity<ProductCostHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductCostHistory>()
                 .HasRequired(d => d.Product)
@@ -460,10 +546,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ProductDescription>().Property(e => e.Description).IsRequired();
 
+            modelBuilder.Entity<ProductDescription>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ProductDescription>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<ProductDocument>().HasKey(e => new { e.ProductID, e.DocumentNode });
 
             modelBuilder.Entity<ProductDocument>().ToTable("ProductDocument", "Production");
+
+            modelBuilder.Entity<ProductDocument>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductDocument>()
                 .HasRequired(d => d.Product)
@@ -476,6 +568,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductInventory>().ToTable("ProductInventory", "Production");
 
             modelBuilder.Entity<ProductInventory>().Property(e => e.Shelf).IsRequired();
+
+            modelBuilder.Entity<ProductInventory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ProductInventory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductInventory>()
                 .HasRequired(d => d.Location)
@@ -492,6 +588,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ProductListPriceHistory>().ToTable("ProductListPriceHistory", "Production");
 
+            modelBuilder.Entity<ProductListPriceHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<ProductListPriceHistory>()
                 .HasRequired(d => d.Product)
                 .WithMany(p => p.ProductListPriceHistory)
@@ -502,10 +600,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ProductModel>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<ProductModel>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ProductModel>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<ProductModelIllustration>().HasKey(e => new { e.ProductModelID, e.IllustrationID });
 
             modelBuilder.Entity<ProductModelIllustration>().ToTable("ProductModelIllustration", "Production");
+
+            modelBuilder.Entity<ProductModelIllustration>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductModelIllustration>()
                 .HasRequired(d => d.Illustration)
@@ -521,6 +625,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductModelProductDescriptionCulture>().HasKey(e => new { e.ProductModelID, e.ProductDescriptionID, e.CultureID });
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>().ToTable("ProductModelProductDescriptionCulture", "Production");
+
+            modelBuilder.Entity<ProductModelProductDescriptionCulture>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>()
                 .HasRequired(d => d.Culture)
@@ -540,10 +646,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ProductPhoto>().ToTable("ProductPhoto", "Production");
 
+            modelBuilder.Entity<ProductPhoto>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<ProductProductPhoto>().HasKey(e => new { e.ProductID, e.ProductPhotoID });
 
             modelBuilder.Entity<ProductProductPhoto>().ToTable("ProductProductPhoto", "Production");
+
+            modelBuilder.Entity<ProductProductPhoto>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductProductPhoto>()
                 .HasRequired(d => d.Product)
@@ -562,6 +672,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ProductReview>().Property(e => e.ReviewerName).IsRequired();
 
+            modelBuilder.Entity<ProductReview>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ProductReview>().Property(e => e.ReviewDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<ProductReview>()
                 .HasRequired(d => d.Product)
                 .WithMany(p => p.ProductReview)
@@ -571,6 +685,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductSubcategory>().ToTable("ProductSubcategory", "Production");
 
             modelBuilder.Entity<ProductSubcategory>().Property(e => e.Name).IsRequired();
+
+            modelBuilder.Entity<ProductSubcategory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ProductSubcategory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductSubcategory>()
                 .HasRequired(d => d.ProductCategory)
@@ -583,6 +701,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductVendor>().ToTable("ProductVendor", "Purchasing");
 
             modelBuilder.Entity<ProductVendor>().Property(e => e.UnitMeasureCode).IsRequired();
+
+            modelBuilder.Entity<ProductVendor>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductVendor>()
                 .HasRequired(d => d.BusinessEntity)
@@ -608,6 +728,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<PurchaseOrderDetail>().Property(e => e.RejectedQty).HasPrecision(8, 2);
 
+            modelBuilder.Entity<PurchaseOrderDetail>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<PurchaseOrderDetail>().Property(e => e.StockedQty)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
                 .HasPrecision(9, 2);
@@ -629,6 +751,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<PurchaseOrderHeader>().Property(e => e.TotalDue).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
+            modelBuilder.Entity<PurchaseOrderHeader>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<PurchaseOrderHeader>().Property(e => e.OrderDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
             modelBuilder.Entity<PurchaseOrderHeader>()
                 .HasRequired(d => d.Employee)
                 .WithMany(p => p.PurchaseOrderHeader)
@@ -649,10 +775,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SalesOrderDetail>().ToTable("SalesOrderDetail", "Sales");
 
+            modelBuilder.Entity<SalesOrderDetail>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesOrderDetail>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<SalesOrderDetail>().Property(e => e.LineTotal)
-                            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
-                            .HasColumnType("numeric")
-                            .HasPrecision(38, 6);
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity)
+                .HasColumnType("numeric")
+                .HasPrecision(38, 6);
 
             modelBuilder.Entity<SalesOrderDetail>()
                 .HasRequired(d => d.SalesOrder)
@@ -674,6 +804,12 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<SalesOrderHeader>().Property(e => e.TotalDue).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder.Entity<SalesOrderHeader>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesOrderHeader>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesOrderHeader>().Property(e => e.OrderDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<SalesOrderHeader>()
                 .HasRequired(d => d.BillToAddress)
@@ -720,6 +856,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SalesOrderHeaderSalesReason>().ToTable("SalesOrderHeaderSalesReason", "Sales");
 
+            modelBuilder.Entity<SalesOrderHeaderSalesReason>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<SalesOrderHeaderSalesReason>()
                 .HasRequired(d => d.SalesOrder)
                 .WithMany(p => p.SalesOrderHeaderSalesReason)
@@ -735,6 +873,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SalesPerson>().ToTable("SalesPerson", "Sales");
 
+            modelBuilder.Entity<SalesPerson>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesPerson>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<SalesPerson>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.SalesPerson);
@@ -749,6 +891,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SalesPersonQuotaHistory>().ToTable("SalesPersonQuotaHistory", "Sales");
 
+            modelBuilder.Entity<SalesPersonQuotaHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesPersonQuotaHistory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<SalesPersonQuotaHistory>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithMany(p => p.SalesPersonQuotaHistory)
@@ -761,10 +907,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SalesReason>().Property(e => e.ReasonType).IsRequired();
 
+            modelBuilder.Entity<SalesReason>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<SalesTaxRate>().ToTable("SalesTaxRate", "Sales");
 
             modelBuilder.Entity<SalesTaxRate>().Property(e => e.Name).IsRequired();
+
+            modelBuilder.Entity<SalesTaxRate>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesTaxRate>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<SalesTaxRate>()
                 .HasRequired(d => d.StateProvince)
@@ -782,6 +934,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SalesTerritory>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<SalesTerritory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesTerritory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<SalesTerritory>()
                 .HasRequired(d => d.CountryRegionCodeNavigation)
                 .WithMany(p => p.SalesTerritory)
@@ -791,6 +947,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<SalesTerritoryHistory>().HasKey(e => new { e.BusinessEntityID, e.StartDate, e.TerritoryID });
 
             modelBuilder.Entity<SalesTerritoryHistory>().ToTable("SalesTerritoryHistory", "Sales");
+
+            modelBuilder.Entity<SalesTerritoryHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SalesTerritoryHistory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<SalesTerritoryHistory>()
                 .HasRequired(d => d.BusinessEntity)
@@ -807,18 +967,30 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<ScrapReason>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<ScrapReason>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<Shift>().ToTable("Shift", "HumanResources");
 
             modelBuilder.Entity<Shift>().Property(e => e.Name).IsRequired();
+
+            modelBuilder.Entity<Shift>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
 
             modelBuilder.Entity<ShipMethod>().ToTable("ShipMethod", "Purchasing");
 
             modelBuilder.Entity<ShipMethod>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<ShipMethod>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ShipMethod>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<ShoppingCartItem>().ToTable("ShoppingCartItem", "Sales");
+
+            modelBuilder.Entity<ShoppingCartItem>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<ShoppingCartItem>().Property(e => e.DateCreated).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<ShoppingCartItem>()
                 .HasRequired(d => d.Product)
@@ -834,10 +1006,18 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<SpecialOffer>().Property(e => e.Type).IsRequired();
 
+            modelBuilder.Entity<SpecialOffer>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SpecialOffer>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
 
             modelBuilder.Entity<SpecialOfferProduct>().HasKey(e => new { e.SpecialOfferID, e.ProductID });
 
             modelBuilder.Entity<SpecialOfferProduct>().ToTable("SpecialOfferProduct", "Sales");
+
+            modelBuilder.Entity<SpecialOfferProduct>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<SpecialOfferProduct>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<SpecialOfferProduct>()
                 .HasRequired(d => d.Product)
@@ -858,6 +1038,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<StateProvince>().Property(e => e.StateProvinceCode).IsRequired();
 
+            modelBuilder.Entity<StateProvince>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<StateProvince>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<StateProvince>()
                 .HasRequired(d => d.CountryRegionCodeNavigation)
                 .WithMany(p => p.StateProvince)
@@ -875,6 +1059,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Store>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<Store>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<Store>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<Store>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Store);
@@ -891,6 +1079,10 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<TransactionHistory>().Property(e => e.TransactionType).IsRequired();
 
+            modelBuilder.Entity<TransactionHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<TransactionHistory>().Property(e => e.TransactionDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
             modelBuilder.Entity<TransactionHistory>()
                 .HasRequired(d => d.Product)
                 .WithMany(p => p.TransactionHistory)
@@ -903,12 +1095,18 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<TransactionHistoryArchive>().Property(e => e.TransactionType).IsRequired();
 
+            modelBuilder.Entity<TransactionHistoryArchive>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
+            modelBuilder.Entity<TransactionHistoryArchive>().Property(e => e.TransactionDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
 
             modelBuilder.Entity<UnitMeasure>().HasKey(e => e.UnitMeasureCode);
 
             modelBuilder.Entity<UnitMeasure>().ToTable("UnitMeasure", "Production");
 
             modelBuilder.Entity<UnitMeasure>().Property(e => e.Name).IsRequired();
+
+            modelBuilder.Entity<UnitMeasure>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
 
             modelBuilder.Entity<Vendor>().HasKey(e => e.BusinessEntityID);
@@ -919,6 +1117,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<Vendor>().Property(e => e.Name).IsRequired();
 
+            modelBuilder.Entity<Vendor>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
+
             modelBuilder.Entity<Vendor>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Vendor);
@@ -927,6 +1127,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<WorkOrder>().ToTable("WorkOrder", "Production");
 
             modelBuilder.Entity<WorkOrder>().Property(e => e.StockedQty).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder.Entity<WorkOrder>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<WorkOrder>()
                 .HasRequired(d => d.Product)
@@ -944,6 +1146,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<WorkOrderRouting>().ToTable("WorkOrderRouting", "Production");
 
             modelBuilder.Entity<WorkOrderRouting>().Property(e => e.ActualResourceHrs).HasPrecision(9, 4);
+
+            modelBuilder.Entity<WorkOrderRouting>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<WorkOrderRouting>()
                 .HasRequired(d => d.Location)
