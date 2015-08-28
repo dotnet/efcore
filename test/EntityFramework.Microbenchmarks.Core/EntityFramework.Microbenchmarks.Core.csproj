@@ -43,6 +43,7 @@
     <Compile Include="BenchmarkTestCaseDiscoverer.cs" />
     <Compile Include="BenchmarkTestCaseRunner.cs" />
     <Compile Include="BenchmarkVariationAttribute.cs" />
+    <Compile Include="ColdStartSandbox.cs" />
     <Compile Include="MetricCollector.cs" />
     <Compile Include="Models\AdventureWorks\Address.cs" />
     <Compile Include="Models\AdventureWorks\AddressType.cs" />

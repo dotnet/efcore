@@ -6,7 +6,16 @@ using System.Diagnostics;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
-    public class MetricCollector
+#if !DNXCORE50
+    public partial class MetricCollector : MarshalByRefObject
+    {
+        private partial class Scope : MarshalByRefObject
+        {
+        }
+    }
+#endif
+
+    public partial class MetricCollector 
     {
         private bool _collecting;
         private readonly Scope _scope;
@@ -59,7 +68,7 @@ namespace EntityFramework.Microbenchmarks.Core
             return GC.GetTotalMemory(forceFullCollection: true);
         }
 
-        private class Scope : IDisposable
+        private partial class Scope : IDisposable
         {
             private readonly MetricCollector _collector;
 

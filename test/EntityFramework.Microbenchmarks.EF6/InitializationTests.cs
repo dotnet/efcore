@@ -5,6 +5,7 @@ using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks;
 using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
 using EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks;
+using System;
 using System.Data.Entity;
 using System.Data.SqlClient;
 using System.Linq;
@@ -14,71 +15,28 @@ namespace EntityFramework.Microbenchmarks.EF6
 {
     public class InitializationTests : IClassFixture<AdventureWorksFixture>
     {
-        private readonly AdventureWorksFixture _fixture;
-
-        public InitializationTests(AdventureWorksFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
         [Benchmark]
-        [BenchmarkVariation("Warm")]
-        public void CreateAndDisposeUnusedContext(MetricCollector collector)
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [BenchmarkVariation("Warm (100 instances)", false, 100)]
+        public void CreateAndDisposeUnusedContext(MetricCollector collector, bool cold, int count)
         {
-            using (collector.StartCollection())
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    using (var context = _fixture.CreateContext())
-                    {
-                    }
-                }
-            }
+            RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
         }
 
         [AdventureWorksDatabaseBenchmark]
-        [BenchmarkVariation("Warm")]
-        public void InitializeAndQuery_AdventureWorks(MetricCollector collector)
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [BenchmarkVariation("Warm (10 instances)", false, 10)]
+        public void InitializeAndQuery_AdventureWorks(MetricCollector collector, bool cold, int count)
         {
-            using (collector.StartCollection())
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    using (var context = _fixture.CreateContext())
-                    {
-                        context.Department.First();
-                    }
-                }
-            }
+            RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
         }
 
         [AdventureWorksDatabaseBenchmark]
-        [BenchmarkVariation("Warm")]
-        public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector)
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+        [BenchmarkVariation("Warm (10 instances)", false, 10)]
+        public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, bool cold, int count)
         {
-            using (collector.StartCollection())
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    using (var context = _fixture.CreateContext())
-                    {
-                        context.Department.Add(new Department
-                        {
-                            Name = "Benchmarking",
-                            GroupName = "Engineering"
-                        });
-
-                        using (context.Database.BeginTransaction())
-                        {
-                            context.SaveChanges();
-
-                            // Don't mesure transaction rollback
-                            collector.StopCollection();
-                        }
-                        collector.StartCollection();
-                    }
-                }
-            }
+            RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));
         }
 
         [Benchmark]
@@ -93,6 +51,79 @@ namespace EntityFramework.Microbenchmarks.EF6
             collector.StopCollection();
 
             Assert.Equal(67, model.ConceptualModel.EntityTypes.Count());
+        }
+
+        private void RunColdStartEnabledTest(bool cold, Action<ColdStartEnabledTests> test)
+        {
+            if (cold)
+            {
+                using (var sandbox = new ColdStartSandbox())
+                {
+                    var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
+                    test(testClass);
+                }
+            }
+            else
+            {
+                test(new ColdStartEnabledTests());
+            }
+        }
+
+        private class ColdStartEnabledTests : MarshalByRefObject
+        {
+            public void CreateAndDisposeUnusedContext(MetricCollector collector, int count)
+            {
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        using (var context = AdventureWorksFixture.CreateContext())
+                        {
+                        }
+                    }
+                }
+            }
+
+            public void InitializeAndQuery_AdventureWorks(MetricCollector collector, int count)
+            {
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        using (var context = AdventureWorksFixture.CreateContext())
+                        {
+                            context.Department.First();
+                        }
+                    }
+                }
+            }
+
+            public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, int count)
+            {
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        using (var context = AdventureWorksFixture.CreateContext())
+                        {
+                            context.Department.Add(new Department
+                            {
+                                Name = "Benchmarking",
+                                GroupName = "Engineering"
+                            });
+
+                            using (context.Database.BeginTransaction())
+                            {
+                                context.SaveChanges();
+
+                                // Don't mesure transaction rollback
+                                collector.StopCollection();
+                            }
+                            collector.StartCollection();
+                        }
+                    }
+                }
+            }
         }
     }
 }

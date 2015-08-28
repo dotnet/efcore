@@ -8,81 +8,42 @@ using EntityFramework.Microbenchmarks.Models.AdventureWorks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.SqlServer;
+using System;
 using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks
 {
-    public class InitializationTests : IClassFixture<AdventureWorksFixture>
+    public partial class InitializationTests : IClassFixture<AdventureWorksFixture>
     {
-        private readonly AdventureWorksFixture _fixture;
-
-        public InitializationTests(AdventureWorksFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
         [Benchmark]
-        [BenchmarkVariation("Cold", true)]
-        [BenchmarkVariation("Warm", false)]
-        public void CreateAndDisposeUnusedContext(MetricCollector collector, bool cold)
+#if !DNXCORE50
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
+        [BenchmarkVariation("Warm (100 instances)", false, 100)]
+        public void CreateAndDisposeUnusedContext(MetricCollector collector, bool cold, int count)
         {
-            using (collector.StartCollection())
-            {
-                for (int i = 0; i < 100; i++)
-                {
-                    using (var context = _fixture.CreateContext(cold))
-                    {
-                    }
-                }
-            }
+            RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
         }
 
         [AdventureWorksDatabaseBenchmark]
-        [BenchmarkVariation("Cold", true)]
-        [BenchmarkVariation("Warm", false)]
-        public void InitializeAndQuery_AdventureWorks(MetricCollector collector, bool cold)
+#if !DNXCORE50
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
+        [BenchmarkVariation("Warm (10 instances)", false, 10)]
+        public void InitializeAndQuery_AdventureWorks(MetricCollector collector, bool cold, int count)
         {
-            using (collector.StartCollection())
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    using (var context = _fixture.CreateContext(cold))
-                    {
-                        context.Department.First();
-                    }
-                }
-            }
+            RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
         }
 
         [AdventureWorksDatabaseBenchmark]
-        [BenchmarkVariation("Cold", true)]
-        [BenchmarkVariation("Warm", false)]
-        public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, bool cold)
+#if !DNXCORE50
+        [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
+        [BenchmarkVariation("Warm (10 instances)", false, 10)]
+        public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, bool cold, int count)
         {
-            using (collector.StartCollection())
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    using (var context = _fixture.CreateContext(cold))
-                    {
-                        context.Department.Add(new Department
-                        {
-                            Name = "Benchmarking",
-                            GroupName = "Engineering"
-                        });
-
-                        using (context.Database.BeginTransaction())
-                        {
-                            context.SaveChanges();
-
-                            // Don't mesure transaction rollback
-                            collector.StopCollection();
-                        }
-                        collector.StartCollection();
-                    }
-                }
-            }
+            RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));
         }
 
         [Benchmark]
@@ -101,6 +62,89 @@ namespace EntityFramework.Microbenchmarks
             collector.StopCollection();
 
             Assert.Equal(67, model.EntityTypes.Count());
+        }
+
+        private void RunColdStartEnabledTest(bool cold, Action<ColdStartEnabledTests> test)
+        {
+            if (cold)
+            {
+#if DNXCORE50
+                throw new NotSupportedException("ColdStartSandbox can not be used on CoreCLR.");
+#else
+                using (var sandbox = new ColdStartSandbox())
+                {
+                    var testClass = sandbox.CreateInstance<ColdStartEnabledTests>();
+                    test(testClass);
+                }
+#endif
+            }
+            else
+            {
+                test(new ColdStartEnabledTests());
+            }
+        }
+
+#if !DNXCORE50
+        private partial class ColdStartEnabledTests : MarshalByRefObject
+        {
+        }
+#endif
+
+        private partial class ColdStartEnabledTests
+        {
+            public void CreateAndDisposeUnusedContext(MetricCollector collector, int count)
+            {
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        using (var context = AdventureWorksFixture.CreateContext())
+                        {
+                        }
+                    }
+                }
+            }
+
+            public void InitializeAndQuery_AdventureWorks(MetricCollector collector, int count)
+            {
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        using (var context = AdventureWorksFixture.CreateContext())
+                        {
+                            context.Department.First();
+                        }
+                    }
+                }
+            }
+
+            public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, int count)
+            {
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < count; i++)
+                    {
+                        using (var context = AdventureWorksFixture.CreateContext())
+                        {
+                            context.Department.Add(new Department
+                            {
+                                Name = "Benchmarking",
+                                GroupName = "Engineering"
+                            });
+
+                            using (context.Database.BeginTransaction())
+                            {
+                                context.SaveChanges();
+
+                                // Don't mesure transaction rollback
+                                collector.StopCollection();
+                            }
+                            collector.StartCollection();
+                        }
+                    }
+                }
+            }
         }
     }
 }
