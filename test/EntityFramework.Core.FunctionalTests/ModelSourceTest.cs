@@ -3,6 +3,8 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Extensions;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -43,7 +45,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var servicProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .AddDbContext<>()
+                .AddDbContext<JustSomeOtherContext>(builder => builder.UseConvention<JustSomeConvention>())
+                .ServiceCollection()
+                .AddSingleton<InMemoryModelSource, MyModelSource>()
+                .BuildServiceProvider();
+
+            using (var context = servicProvider.GetRequiredService<JustSomeOtherContext>())
+            {
+                var model = context.Model;
+
+                Assert.Equal("Us!", model["AllYourModelAreBelongTo"]);
+                Assert.Equal("Us!", model.EntityTypes.Single(e => e.DisplayName() == "Base")["AllYourBaseAreBelongTo"]);
+            }
+            
         }
 
         private class MyModelSource : InMemoryModelSource
@@ -88,7 +102,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public JustSomeOtherContext(IServiceProvider serviceProvider) : base(serviceProvider)
             {
                 
-            } 
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseInMemoryDatabase();
+        }
+
+        private class JustSomeConvention : IModelBuilderConvention
+        {
+            public void Apply(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Peak>();
+                modelBuilder.Entity<Base>().Annotation("AllYourBaseAreBelongTo", "Us!");
+
+            }
         }
 
         private class Base

@@ -9,12 +9,13 @@ namespace Microsoft.Data.Entity.Extensions
 {
     public static class ModelBuilderContributorDbContextOptionsExtensions
     {
-        public static DbContextOptionsBuilder UseContributor<TContributor>(this DbContextOptionsBuilder builder)
+        public static DbContextOptionsBuilder UseConvention<TContributor>(this DbContextOptionsBuilder builder)
             where TContributor : class, IModelBuilderConvention
         {
             var extension = builder.Options.FindExtension<ModelBuilderContributorExtension>() ??
                             new ModelBuilderContributorExtension();
             extension.AddConvention<TContributor>();
+            ((IDbContextOptionsBuilderInfrastructure) builder).AddOrUpdateExtension(extension);
             return builder;
         }
     }
