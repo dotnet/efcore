@@ -57,7 +57,8 @@ namespace Microsoft.Data.Entity.Internal
                 return _providerServices.Value.ModelSource.GetModel(
                     _context,
                     _providerServices.Value.ConventionSetBuilder,
-                    _providerServices.Value.ModelValidator);
+                    _providerServices.Value.ModelValidator,
+                    _providerServices.Value.ModelBuilderConventionSource);
             }
             finally
             {

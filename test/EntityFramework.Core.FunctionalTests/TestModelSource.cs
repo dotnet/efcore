@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             _onModelCreating = onModelCreating;
         }
 
-        protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
+        protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator, IModelBuilderConventionSource modelBuilderContributorSource)
         {
             var conventionSet = CreateConventionSet(conventionSetBuilder);
             var model = new Model();
             var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);
-
+            ApplyConventions(modelBuilder, modelBuilderContributorSource);
             _onModelCreating(modelBuilder);
 
             validator.Validate(model);

@@ -36,6 +36,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+
+        [Fact]
+        public void Creates_model_using_conventions()
+        {
+            var servicProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddInMemoryDatabase()
+                .AddDbContext<>()
+        }
+
         private class MyModelSource : InMemoryModelSource
         {
             public MyModelSource(
@@ -45,9 +55,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
             }
 
-            protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
+            protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator, IModelBuilderConventionSource modelBuilderContributorSource)
             {
-                var model = base.CreateModel(context, conventionSetBuilder, validator) as Model;
+                var model = base.CreateModel(context, conventionSetBuilder, validator, modelBuilderContributorSource) as Model;
 
                 model["AllYourModelAreBelongTo"] = "Us!";
 
@@ -71,6 +81,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder.UseInMemoryDatabase();
+        }
+
+        private class JustSomeOtherContext : DbContext
+        {
+            public JustSomeOtherContext(IServiceProvider serviceProvider) : base(serviceProvider)
+            {
+                
+            } 
         }
 
         private class Base

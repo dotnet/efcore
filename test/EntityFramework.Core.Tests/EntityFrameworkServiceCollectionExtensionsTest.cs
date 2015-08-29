@@ -89,6 +89,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IValueGeneratorCache>();
             VerifyScoped<IModelSource>();
             VerifyScoped<IModelValidator>();
+            VerifyScoped<IModelBuilderConventionSource>();
             VerifySingleton<IDatabaseProvider>(isExistingReplaced: true);
         }
 
