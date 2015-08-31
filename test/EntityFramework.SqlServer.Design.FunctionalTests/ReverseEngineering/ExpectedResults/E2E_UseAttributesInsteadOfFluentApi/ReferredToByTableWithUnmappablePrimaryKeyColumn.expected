@@ -12,7 +12,6 @@ namespace E2ETest.Namespace
         public int ReferredToByTableWithUnmappablePrimaryKeyColumnID { get; set; }
         [Required]
         public string AColumn { get; set; }
-        [Required]
         public int ValueGeneratedOnAddColumn { get; set; }
 
         // Unable to add a Navigation Property referencing type TableWithUnmappablePrimaryKeyColumn because of errors generating that EntityType.

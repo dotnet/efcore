@@ -10,41 +10,30 @@ namespace E2ETest.Namespace
     public class AllDataTypes
     {
         public int AllDataTypesID { get; set; }
-        [Required]
         public long bigintColumn { get; set; }
         public byte[] binaryColumn { get; set; }
-        [Required]
         public bool bitColumn { get; set; }
         public string charColumn { get; set; }
-        [Required]
         public DateTime dateColumn { get; set; }
         public DateTime? datetime2Column { get; set; }
         public DateTime? datetimeColumn { get; set; }
         public DateTimeOffset? datetimeoffsetColumn { get; set; }
-        [Required]
         public decimal decimalColumn { get; set; }
-        [Required]
         public double floatColumn { get; set; }
         public byte[] imageColumn { get; set; }
-        [Required]
         public int intColumn { get; set; }
-        [Required]
         public decimal moneyColumn { get; set; }
         public string ncharColumn { get; set; }
         public string ntextColumn { get; set; }
-        [Required]
         public decimal numericColumn { get; set; }
         public string nvarcharColumn { get; set; }
         public float? realColumn { get; set; }
         public DateTime? smalldatetimeColumn { get; set; }
-        [Required]
         public short smallintColumn { get; set; }
-        [Required]
         public decimal smallmoneyColumn { get; set; }
         public string textColumn { get; set; }
         public DateTime? timeColumn { get; set; }
         public byte[] timestampColumn { get; set; }
-        [Required]
         public byte tinyintColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }
         public byte[] varbinaryColumn { get; set; }
