@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             Assert.Equal(
                 "DELETE FROM [__EFMigrationsHistory]" + EOL +
-                "WHERE [MigrationId] = N'Migration1';",
+                "WHERE [MigrationId] = N'Migration1';" + EOL,
                 sql);
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             Assert.Equal(
                 "INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])" + EOL +
-                "VALUES (N'Migration1', N'7.0.0');",
+                "VALUES (N'Migration1', N'7.0.0');" + EOL,
                 sql);
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var sql = CreateHistoryRepository().GetEndIfScript();
 
-            Assert.Equal("END", sql);
+            Assert.Equal("END" + EOL, sql);
         }
 
         private static IHistoryRepository CreateHistoryRepository()

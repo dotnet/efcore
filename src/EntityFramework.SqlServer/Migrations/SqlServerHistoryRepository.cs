@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.EscapeLiteral(row.MigrationId))
                 .Append("', N'")
                 .Append(Sql.EscapeLiteral(row.ProductVersion))
-                .Append("');")
+                .AppendLine("');")
                 .ToString();
         }
 
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = N'")
                 .Append(Sql.EscapeLiteral(migrationId))
-                .Append("';")
+                .AppendLine("';")
                 .ToString();
         }
 
@@ -151,6 +151,6 @@ namespace Microsoft.Data.Entity.Migrations
                 .ToString();
         }
 
-        public override string GetEndIfScript() => "END";
+        public override string GetEndIfScript() => "END" + Environment.NewLine;
     }
 }

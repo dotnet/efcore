@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Migrations
     {
         void Migrate([CanBeNull] string targetMigration = null);
 
-        string GenerateScript([CanBeNull] string fromMigration, [CanBeNull] string toMigration, bool idempotent = false);
+        string GenerateScript([CanBeNull] string fromMigration = null, [CanBeNull] string toMigration = null, bool idempotent = false);
     }
 }

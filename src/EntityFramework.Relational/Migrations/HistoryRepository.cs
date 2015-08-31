@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.EscapeLiteral(row.MigrationId))
                 .Append("', '")
                 .Append(Sql.EscapeLiteral(row.ProductVersion))
-                .Append("');")
+                .AppendLine("');")
                 .ToString();
         }
 
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = '")
                 .Append(Sql.EscapeLiteral(migrationId))
-                .Append("';")
+                .AppendLine("';")
                 .ToString();
         }
 

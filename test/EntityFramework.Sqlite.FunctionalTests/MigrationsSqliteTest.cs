@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
@@ -16,6 +17,61 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public MigrationsSqliteTest(MigrationsSqliteFixture fixture)
             : base(fixture)
         {
+        }
+
+        public override void Can_generate_up_scripts()
+        {
+            base.Can_generate_up_scripts();
+
+            Assert.Equal(
+                @"CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
+    ""MigrationId"" TEXT NOT NULL CONSTRAINT ""PK_HistoryRow"" PRIMARY KEY,
+    ""ProductVersion"" TEXT NOT NULL
+);
+
+CREATE TABLE ""Table1"" (
+    ""Id"" INTEGER NOT NULL CONSTRAINT ""PK_Table1"" PRIMARY KEY
+);
+
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('00000000000001_Migration1', '7.0.0-test');
+
+ALTER TABLE ""Table1"" RENAME TO ""Table2"";
+
+INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
+VALUES ('00000000000002_Migration2', '7.0.0-test');
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_idempotent_up_scripts()
+        {
+            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
+        }
+
+        public override void Can_generate_down_scripts()
+        {
+            base.Can_generate_down_scripts();
+
+            Assert.Equal(
+                @"ALTER TABLE ""Table2"" RENAME TO ""Table1"";
+
+DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = '00000000000002_Migration2';
+
+DROP TABLE ""Table1"";
+
+DELETE FROM ""__EFMigrationsHistory""
+WHERE ""MigrationId"" = '00000000000001_Migration1';
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_idempotent_down_scripts()
+        {
+            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_down_scripts());
         }
 
         protected override void AssertFirstMigration(DbConnection connection)

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Update;
@@ -149,8 +148,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         }
 
         public virtual string GenerateScript(
-            string fromMigration,
-            string toMigration,
+            string fromMigration = null,
+            string toMigration = null,
             bool idempotent = false)
         {
             var migrations = _migrationsAssembly.Migrations;
@@ -190,8 +189,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         if (migration.GetId() == migrations.Keys.First())
                         {
                             builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
-                            builder.AppendLine(_sql.BatchSeparator);
-                            builder.AppendLine();
+                            builder.Append(_sql.BatchSeparator);
                         }
 
                         checkFirst = false;
@@ -212,11 +210,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         }
                         else
                         {
-                            builder.Append(command.CommandText);
+                            builder.AppendLine(command.CommandText);
                         }
 
-                        builder.AppendLine(_sql.BatchSeparator);
-                        builder.AppendLine();
+                        builder.Append(_sql.BatchSeparator);
                     }
                 }
             }
@@ -251,11 +248,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         }
                         else
                         {
-                            builder.Append(command.CommandText);
+                            builder.AppendLine(command.CommandText);
                         }
 
-                        builder.AppendLine(_sql.BatchSeparator);
-                        builder.AppendLine();
+                        builder.Append(_sql.BatchSeparator);
                     }
                 }
             }
@@ -267,15 +263,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         {
             Check.NotNull(migration, nameof(migration));
 
-            var operations = new List<MigrationOperation>(migration.UpOperations);
-            // TODO: Append to batch instead
-            operations.Add(
-                new SqlOperation
-                {
-                    Sql = _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion()))
-                });
+            var commands = new List<RelationalCommand>();
+            commands.AddRange(_sqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
+            commands.Add(
+                new RelationalCommand(
+                    _historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion()))));
 
-            return _sqlGenerator.Generate(operations, migration.TargetModel);
+            return commands;
         }
 
         protected virtual IReadOnlyList<RelationalCommand> GenerateDownSql(
@@ -284,16 +278,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         {
             Check.NotNull(migration, nameof(migration));
 
-            var operations = new List<MigrationOperation>(migration.DownOperations);
+            var commands = new List<RelationalCommand>();
+            commands.AddRange(_sqlGenerator.Generate(migration.DownOperations, previousMigration?.TargetModel));
+            commands.Add(new RelationalCommand(_historyRepository.GetDeleteScript(migration.GetId())));
 
-            // TODO: Append to batch instead
-            operations.Add(new SqlOperation { Sql = _historyRepository.GetDeleteScript(migration.GetId()) });
-
-            var targetModel = previousMigration != null
-                ? previousMigration.TargetModel
-                : null;
-
-            return _sqlGenerator.Generate(operations, targetModel);
+            return commands;
         }
 
         private void Execute([NotNull] IEnumerable<RelationalCommand> relationalCommands, bool ensureDatabase = false)

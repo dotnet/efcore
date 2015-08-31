@@ -6,6 +6,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
@@ -17,11 +18,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : MigrationsFixtureBase, new()
     {
         private readonly TFixture _fixture;
+        private string _sql;
 
         public MigrationsTestBase(TFixture fixture)
         {
             _fixture = fixture;
         }
+
+        protected string Sql => _sql;
 
         [Fact]
         public void Can_apply_all_migrations()
@@ -88,6 +92,57 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Collection(
                     history.GetAppliedMigrations(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_up_scripts()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+
+                SetSql(migrator.GenerateScript());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_idempotent_up_scripts()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+
+                SetSql(migrator.GenerateScript(idempotent: true));
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_down_scripts()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+
+                SetSql(
+                    migrator.GenerateScript(
+                        fromMigration: "Migration2",
+                        toMigration: Migration.InitialDatabase));
+            }
+        }
+
+        [Fact]
+        public virtual void Can_generate_idempotent_down_scripts()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+
+                SetSql(
+                    migrator.GenerateScript(
+                        fromMigration: "Migration2",
+                        toMigration: Migration.InitialDatabase,
+                        idempotent: true));
             }
         }
 
@@ -184,5 +239,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected virtual void AssertSecondMigration(DbConnection connection)
         {
         }
+
+        private void SetSql(string value) => _sql = value.Replace(ProductInfo.GetVersion(), "7.0.0-test");
     }
 }

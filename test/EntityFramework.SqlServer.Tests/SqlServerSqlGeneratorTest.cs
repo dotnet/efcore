@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
 using Xunit;
@@ -163,7 +162,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public override void BatchSeparator_returns_seperator()
         {
-            Assert.Equal("GO" + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
+            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
         }
 
         [Fact]

@@ -16,6 +16,162 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
         }
 
+        public override void Can_generate_up_scripts()
+        {
+            base.Can_generate_up_scripts();
+
+            Assert.Equal(
+                @"IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK_HistoryRow] PRIMARY KEY ([MigrationId])
+    );
+
+GO
+
+CREATE TABLE [Table1] (
+    [Id] int NOT NULL,
+    CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+);
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+
+GO
+
+EXEC sp_rename N'Table1', N'Table2';
+
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_idempotent_up_scripts()
+        {
+            base.Can_generate_idempotent_up_scripts();
+
+            Assert.Equal(
+                @"IF OBJECT_ID(N'__EFMigrationsHistory') IS NULL
+    CREATE TABLE [__EFMigrationsHistory] (
+        [MigrationId] nvarchar(150) NOT NULL,
+        [ProductVersion] nvarchar(32) NOT NULL,
+        CONSTRAINT [PK_HistoryRow] PRIMARY KEY ([MigrationId])
+    );
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+BEGIN
+    CREATE TABLE [Table1] (
+        [Id] int NOT NULL,
+        CONSTRAINT [PK_Table1] PRIMARY KEY ([Id])
+    );
+END
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000001_Migration1', N'7.0.0-test');
+END
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+BEGIN
+    EXEC sp_rename N'Table1', N'Table2';
+END
+
+GO
+
+IF NOT EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000002_Migration2', N'7.0.0-test');
+END
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_down_scripts()
+        {
+            base.Can_generate_down_scripts();
+
+            Assert.Equal(
+                @"EXEC sp_rename N'Table2', N'Table1';
+
+GO
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000002_Migration2';
+
+GO
+
+DROP TABLE [Table1];
+
+GO
+
+DELETE FROM [__EFMigrationsHistory]
+WHERE [MigrationId] = N'00000000000001_Migration1';
+
+GO
+
+",
+                Sql);
+        }
+
+        public override void Can_generate_idempotent_down_scripts()
+        {
+            base.Can_generate_idempotent_down_scripts();
+
+            Assert.Equal(
+                @"IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+BEGIN
+    EXEC sp_rename N'Table2', N'Table1';
+END
+
+GO
+
+IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000002_Migration2')
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000002_Migration2';
+END
+
+GO
+
+IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+BEGIN
+    DROP TABLE [Table1];
+END
+
+GO
+
+IF EXISTS(SELECT * FROM [__EFMigrationsHistory] WHERE [MigrationId] = N'00000000000001_Migration1')
+BEGIN
+    DELETE FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000001_Migration1';
+END
+
+GO
+
+",
+                Sql);
+        }
+
         protected override async Task AssertFirstMigrationAsync(DbConnection connection)
         {
             var sql = await GetDatabaseSchemaAsync(connection);
