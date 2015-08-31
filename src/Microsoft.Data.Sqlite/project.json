@@ -23,7 +23,6 @@
                 "System.IO.FileSystem": "4.0.0-*",
                 "System.Linq": "4.0.0-*",
                 "System.Runtime.InteropServices": "4.0.20-*",
-                "System.Runtime.InteropServices.RuntimeInformation": "4.0.0-*",
                 "System.Threading.Thread": "4.0.0-*",
                 "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
                 "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"

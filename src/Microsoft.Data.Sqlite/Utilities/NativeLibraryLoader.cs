@@ -38,9 +38,19 @@ namespace Microsoft.Framework.Internal
 #if NET45
             applicationBase = AppDomain.CurrentDomain.BaseDirectory;
 #elif DNX451 || DNXCORE50
-            applicationBase = CallContextServiceLocator
+            var serviceProvider = CallContextServiceLocator
                 .Locator
-                .ServiceProvider
+                .ServiceProvider;
+
+            var runtimeEnv = serviceProvider
+                .GetRequiredService<IRuntimeEnvironment>();
+
+            if(runtimeEnv.OperatingSystem != "Windows")
+            {
+                return true;
+            }
+
+            applicationBase = serviceProvider
                 .GetRequiredService<IApplicationEnvironment>()
                 .ApplicationBasePath;
 #else
