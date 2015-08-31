@@ -10,7 +10,6 @@ namespace E2E.Sqlite
     public class Dependent
     {
         public long Id { get; set; }
-        [Required]
         public long PrincipalId { get; set; }
 
         [ForeignKey("PrincipalId")]

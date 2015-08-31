@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -230,7 +231,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            if (!propertyConfiguration.Property.IsNullable)
+            if (!propertyConfiguration.Property.IsNullable
+                && propertyConfiguration.Property.ClrType.IsNullableType())
             {
                 var entityKeyProperties =
                     ((EntityType)propertyConfiguration.EntityConfiguration.EntityType)

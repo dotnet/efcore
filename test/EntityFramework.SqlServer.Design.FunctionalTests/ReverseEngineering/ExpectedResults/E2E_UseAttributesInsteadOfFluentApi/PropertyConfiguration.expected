@@ -10,20 +10,14 @@ namespace E2ETest.Namespace
     public class PropertyConfiguration
     {
         public byte PropertyConfigurationID { get; set; }
-        [Required]
         public int A { get; set; }
-        [Required]
         public int B { get; set; }
         [Required]
         public byte[] RowversionColumn { get; set; }
         public int? SumOfAAndB { get; set; }
-        [Required]
         public DateTime WithDateDefaultExpression { get; set; }
-        [Required]
         public int WithDefaultValue { get; set; }
-        [Required]
         public Guid WithGuidDefaultExpression { get; set; }
-        [Required]
         public decimal WithMoneyDefaultValue { get; set; }
     }
 }
