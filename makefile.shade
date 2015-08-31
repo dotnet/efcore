@@ -21,63 +21,14 @@ var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win-x86/native/sqlite3.dll
             Tuple.Create("sqlite3.dll", sqliteDllPath),
             Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win/native/x86/sqlite3.dll"));
         DownloadAndExtract(
-            "http://sqlite.org/2015/sqlite-uap-3081101.vsix",
+            "https://sqlite.org/2015/sqlite-uap-3081101.vsix",
             Tuple.Create("Redist/Retail/x86/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-x86/native/sqlite3.dll"),
             Tuple.Create("Redist/Retail/x64/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-x64/native/sqlite3.dll"),
             Tuple.Create("Redist/Retail/ARM/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-arm/native/sqlite3.dll"));
     }
 
-#nupkg-patch target='compile'
-    @{
-        var packagePaths = Files.Include("artifacts/build/**/Microsoft.Data.Sqlite.*.nupkg")
-            .Exclude("**/*.symbols.nupkg");
-        foreach (var packagePath in packagePaths)
-        {
-            using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
-            {
-                CreatePartFromFile(
-                    package,
-                    sqliteDllPath,
-                    @"runtimes/win-x86/native/sqlite3.dll");
-                CreatePartFromFile(
-                    package,
-                    "src/Microsoft.Data.Sqlite/runtimes/win/native/x86/sqlite3.dll",
-                    @"runtimes/win/native/x86/sqlite3.dll");
-                CreatePartFromFile(
-                    package,
-                    "src/Microsoft.Data.Sqlite/runtimes/win10-x86/native/sqlite3.dll",
-                    @"runtimes/win10-x86/native/sqlite3.dll");
-                CreatePartFromFile(
-                    package,
-                    "src/Microsoft.Data.Sqlite/runtimes/win10-x64/native/sqlite3.dll",
-                    @"runtimes/win10-x64/native/sqlite3.dll");
-                CreatePartFromFile(
-                    package,
-                    "src/Microsoft.Data.Sqlite/runtimes/win10-arm/native/sqlite3.dll",
-                    @"runtimes/win10-arm/native/sqlite3.dll");
-            }
-        }
-    }
-
 functions
     @{
-        PackagePart CreatePartFromFile(
-            Package destination,
-            string sourceFileName,
-            string partUriString)
-        {
-            var partUri = PackUriHelper.CreatePartUri(new Uri(partUriString, UriKind.Relative));
-            var packagePart = destination.CreatePart(partUri, "application/octet", CompressionOption.Maximum);
-
-            using (var sourceStream = File.OpenRead(sourceFileName))
-            using (var stream = packagePart.GetStream())
-            {
-                sourceStream.CopyTo(stream);
-            }
-
-            return packagePart;
-        }
-
         void DownloadAndExtract(
             string uri,
             params Tuple<string, string>[] files)
