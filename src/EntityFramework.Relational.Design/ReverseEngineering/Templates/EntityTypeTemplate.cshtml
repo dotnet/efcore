@@ -41,7 +41,7 @@ if (useAttributesOverFluentApi) {
     {
         if (useAttributesOverFluentApi)
         {
-            var propertyConfiguration = Model.FindPropertyConfiguration(property);
+            PropertyConfiguration propertyConfiguration = Model.FindPropertyConfiguration(property);
             if (propertyConfiguration != null)
             {
                 foreach (var attrConfig in propertyConfiguration.AttributeConfigurations)
