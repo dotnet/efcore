@@ -10,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
@@ -72,7 +73,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, database, isAsync: false, compiler: (q, ds) =>
+                = GetOrAdd(query, queryContext, database, async: false, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
@@ -106,7 +107,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, database, isAsync: true, compiler: (q, ds) =>
+                = GetOrAdd(query, queryContext, database, async: true, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryContext, nameof(queryContext));
 
             var compiledQuery
-                = GetOrAdd(query, queryContext, database, isAsync: true, compiler: (q, ds) =>
+                = GetOrAdd(query, queryContext, database, async: true, compiler: (q, ds) =>
                     {
                         var queryModel = CreateQueryParser().GetParsedQuery(q);
 
@@ -153,21 +154,20 @@ namespace Microsoft.Data.Entity.Query
             Expression query,
             QueryContext queryContext,
             IDatabase database,
-            bool isAsync,
+            bool async,
             Func<Expression, IDatabase, CompiledQuery> compiler)
         {
-            query = new QueryAnnotatingExpressionVisitor()
-                .Visit(query);
+            query = new QueryAnnotatingExpressionVisitor().Visit(query);
 
             var parameterizedQuery
                 = ParameterExtractingExpressionVisitor
                     .ExtractParameters(query, queryContext, new NullEvaluatableExpressionFilter());
 
-            var cacheKey
-                = database.Model.GetHashCode().ToString()
-                  + isAsync
-                  + new ExpressionStringBuilder()
-                      .Build(query);
+            var cacheKey 
+                = new CompiledQueryCacheKey(
+                    new ExpressionStringBuilder().Build(query), 
+                    database.Model, 
+                    async);
 
             CompiledQuery compiledQuery;
             lock (_compiledQueryLockObject)
@@ -180,6 +180,40 @@ namespace Microsoft.Data.Entity.Query
             }
 
             return compiledQuery;
+        }
+
+        private struct CompiledQueryCacheKey
+        {
+            private readonly string _query;
+            private readonly IModel _model;
+            private readonly bool _async;
+
+            public CompiledQueryCacheKey(string query, IModel model, bool async)
+            {
+                _query = query;
+                _model = model;
+                _async = async;
+            }
+
+            public override bool Equals(object obj)
+                => !ReferenceEquals(null, obj)
+                   && (obj is CompiledQueryCacheKey && Equals((CompiledQueryCacheKey)obj));
+
+            private bool Equals(CompiledQueryCacheKey other)
+                => string.Equals(_query, other._query)
+                   && _model.Equals(other._model)
+                   && _async == other._async;
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    var hashCode = _query.GetHashCode();
+                    hashCode = (hashCode * 397) ^ _model.GetHashCode();
+                    hashCode = (hashCode * 397) ^ _async.GetHashCode();
+                    return hashCode;
+                }
+            }
         }
 
         private static Delegate CompileQuery(
