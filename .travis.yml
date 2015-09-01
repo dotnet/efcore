@@ -1,16 +1,8 @@
 language: csharp
 mono:
   - alpha
-  - 4.0.2
 os:
-  - osx
   - linux
-matrix:
-  exclude:
-    - os: linux
-      mono: 4.0.2
-    - os: osx
-      mono: alpha
 
 install: ./install_dependencies.sh
 before_script:

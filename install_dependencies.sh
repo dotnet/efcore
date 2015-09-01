@@ -6,12 +6,3 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
 	sudo apt-cache show sqlite3
 	sudo apt-get install -y sqlite3=3.7.15.1-1~travis1
 fi
-
-if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-	brew update
-	brew outdated sqlite || brew upgrade sqlite
-	brew link sqlite --force
-fi
-
-
-
