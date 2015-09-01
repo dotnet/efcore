@@ -13,33 +13,35 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class SqlServerSequenceValueGenerator<TValue> : HiLoValueGenerator<TValue>
     {
-        private readonly ISqlStatementExecutor _executor;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
         private readonly ISqlServerConnection _connection;
         private readonly ISequence _sequence;
 
         public SqlServerSequenceValueGenerator(
-            [NotNull] ISqlStatementExecutor executor,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
             [NotNull] SqlServerSequenceValueGeneratorState generatorState,
             [NotNull] ISqlServerConnection connection)
             : base(generatorState)
         {
-            Check.NotNull(executor, nameof(executor));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(connection, nameof(connection));
 
+            _commandBuilderFactory = commandBuilderFactory;
             _sequence = generatorState.Sequence;
-            _executor = executor;
             _sqlGenerator = sqlGenerator;
             _connection = connection;
         }
 
         protected override long GetNewLowValue()
             => (long)Convert.ChangeType(
-                _executor.ExecuteScalar(
-                    _connection,
-                    _sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema)),
+                _commandBuilderFactory
+                    .Create()
+                    .Append(_sqlGenerator.GenerateNextSequenceValueOperation(_sequence.Name, _sequence.Schema))
+                    .BuildRelationalCommand()
+                    .ExecuteScalar(_connection),
                 typeof(long),
                 CultureInfo.InvariantCulture);
 

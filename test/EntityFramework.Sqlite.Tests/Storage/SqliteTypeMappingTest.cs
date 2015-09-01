@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Test
 {
     public class SqliteTypeMappingTest : RelationalTypeMappingTest
     {

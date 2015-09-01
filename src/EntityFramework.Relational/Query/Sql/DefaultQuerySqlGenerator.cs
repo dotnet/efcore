@@ -24,8 +24,9 @@ namespace Microsoft.Data.Entity.Query.Sql
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
-        private RelationalCommandBuilder _sql;
+        private IRelationalCommandBuilder _sql;
         private ParameterNameGenerator _parameterNameGenerator;
         private IDictionary<string, object> _parameterValues;
 
@@ -47,12 +48,15 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public DefaultQuerySqlGenerator(
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
 
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            _commandBuilderFactory = commandBuilderFactory;
             SelectExpression = selectExpression;
         }
 
@@ -60,17 +64,17 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual ParameterNameGenerator ParameterNameGenerator => _parameterNameGenerator;
 
-        public virtual RelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _sql = new RelationalCommandBuilder();
+            _sql = _commandBuilderFactory.Create();
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             _parameterValues = parameterValues;
 
             Visit(SelectExpression);
 
-            return _sql.RelationalCommand;
+            return _sql.BuildRelationalCommand();
         }
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
@@ -82,7 +86,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 .Create(SelectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
-        protected virtual RelationalCommandBuilder Sql => _sql;
+        protected virtual IRelationalCommandBuilder Sql => _sql;
 
         protected virtual string ConcatOperator => "+";
         protected virtual string TrueLiteral => "1";
@@ -255,11 +259,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         private void VisitJoin(
-            IReadOnlyList<Expression> expressions, Action<RelationalCommandBuilder> joinAction = null)
+            IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
             => VisitJoin(expressions, e => Visit(e), joinAction);
 
         private void VisitJoin<T>(
-            IReadOnlyList<T> items, Action<T> itemAction, Action<RelationalCommandBuilder> joinAction = null)
+            IReadOnlyList<T> items, Action<T> itemAction, Action<IRelationalCommandBuilder> joinAction = null)
         {
             joinAction = joinAction ?? (isb => isb.Append(", "));
 

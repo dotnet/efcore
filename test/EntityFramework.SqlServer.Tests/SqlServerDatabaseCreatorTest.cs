@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<ISqlStatementExecutor, FakeSqlStatementExecutor>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -98,7 +97,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<ISqlStatementExecutor, FakeSqlStatementExecutor>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -149,22 +148,60 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             }
         }
 
-        private class FakeSqlStatementExecutor : SqlStatementExecutor
+        private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
-            public FakeSqlStatementExecutor(ILoggerFactory loggerFactory, IRelationalTypeMapper typeMapper)
-                : base(loggerFactory, typeMapper)
+            public ILoggerFactory LoggerFactory { get; }
+            public IRelationalTypeMapper TypeMapper { get; }
+
+            public FakeRelationalCommandBuilderFactory(ILoggerFactory loggerFactory, IRelationalTypeMapper typeMapper)
             {
+                LoggerFactory = loggerFactory;
+                TypeMapper = typeMapper;
             }
 
-            public override void ExecuteNonQuery(IRelationalConnection connection, IEnumerable<RelationalCommand> relationalCommands)
+            public IRelationalCommandBuilder Create()
             {
-            }
-
-            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, IEnumerable<RelationalCommand> relationalCommands, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return Task.FromResult(0);
+                return new FakeRelationalCommandBuilder(this);
             }
         }
+
+        private class FakeRelationalCommandBuilder : RelationalCommandBuilder
+        {
+            private FakeRelationalCommandBuilderFactory _factory;
+
+            public FakeRelationalCommandBuilder(FakeRelationalCommandBuilderFactory factory)
+                : base(factory.LoggerFactory, factory.TypeMapper)
+            {
+                _factory = factory;
+            }
+
+            public override IRelationalCommand BuildRelationalCommand()
+            {
+                return new FakeRelationalCommand(_factory);
+            }
+        }
+
+        private class FakeRelationalCommand : RelationalCommand
+        {
+            public FakeRelationalCommand(FakeRelationalCommandBuilderFactory factory)
+                : base(
+                      factory.LoggerFactory,
+                      factory.TypeMapper,
+                      "CommandText",
+                      new RelationalParameter[] { })
+            {
+            }
+
+            public override void ExecuteNonQuery(IRelationalConnection connection)
+            {
+            }
+
+            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return Task.FromResult<int>(0);
+            }
+        }
+
 
         private static SqlException CreateSqlException(int number)
         {

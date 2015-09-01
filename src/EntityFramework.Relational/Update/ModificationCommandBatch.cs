@@ -5,10 +5,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Update
 {
@@ -27,17 +25,10 @@ namespace Microsoft.Data.Entity.Update
 
         public abstract bool AddCommand([NotNull] ModificationCommand modificationCommand);
 
-        public abstract void Execute(
-            [NotNull] IRelationalTransaction transaction,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] DbContext context,
-            [NotNull] ILogger logger);
+        public abstract void Execute([NotNull] IRelationalConnection connection);
 
         public abstract Task ExecuteAsync(
-            [NotNull] IRelationalTransaction transaction,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] DbContext context,
-            [NotNull] ILogger logger,
+            [NotNull] IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

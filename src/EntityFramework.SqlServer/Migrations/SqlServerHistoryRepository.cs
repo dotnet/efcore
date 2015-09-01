@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Migrations
     {
         public SqlServerHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] ISqlStatementExecutor executor,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlServerConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] ISqlServerUpdateSqlGenerator sql)
             : base(
                 databaseCreator,
-                executor,
+                commandBuilderFactory,
                 connection,
                 options,
                 modelDiffer,

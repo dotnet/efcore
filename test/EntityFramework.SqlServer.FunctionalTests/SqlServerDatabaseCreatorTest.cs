@@ -407,9 +407,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 ISqlServerConnection connection,
                 IMigrationsModelDiffer modelDiffer,
                 IMigrationsSqlGenerator sqlGenerator,
-                ISqlStatementExecutor statementExecutor,
+                IRelationalCommandBuilderFactory commandBuilderFactory,
                 IModel model)
-                : base(connection, modelDiffer, sqlGenerator, statementExecutor, model)
+                : base(connection, modelDiffer, sqlGenerator, commandBuilderFactory, model)
             {
             }
 

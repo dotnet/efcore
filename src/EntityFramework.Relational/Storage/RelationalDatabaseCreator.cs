@@ -15,30 +15,30 @@ namespace Microsoft.Data.Entity.Storage
     {
         private readonly IMigrationsModelDiffer _modelDiffer;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
         protected RelationalDatabaseCreator(
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] ISqlStatementExecutor sqlStatementExecutor)
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(sqlStatementExecutor, nameof(sqlStatementExecutor));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 
             Model = model;
             Connection = connection;
-            SqlStatementExecutor = sqlStatementExecutor;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
+            _commandBuilderFactory = commandBuilderFactory;
         }
 
         protected virtual IModel Model { get; }
         protected virtual IRelationalConnection Connection { get; }
-        protected virtual ISqlStatementExecutor SqlStatementExecutor { get; }
 
         public abstract bool Exists();
 
@@ -72,27 +72,39 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual void CreateTables()
-            => SqlStatementExecutor.ExecuteNonQuery(
-                Connection,
-                GetCreateTablesCommands());
+        {
+            foreach (var command in GetCreateTablesCommands())
+            {
+                command.ExecuteNonQuery(Connection);
+            }
+        }
 
-        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => SqlStatementExecutor.ExecuteNonQueryAsync(
-                Connection,
-                GetCreateTablesCommands(),
-                cancellationToken);
+        public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        {
+            foreach (var command in GetCreateTablesCommands())
+            {
+                await command.ExecuteNonQueryAsync(Connection, cancellationToken);
+            }
+        }
 
-        protected virtual IEnumerable<RelationalCommand> GetCreateTablesCommands()
+        protected virtual IEnumerable<IRelationalCommand> GetCreateTablesCommands()
             => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
 
-        protected abstract bool HasTables();
+        protected virtual bool HasTables()
+            => EvaluateHasTablesResult(GetHasTablesCommand().ExecuteScalar(Connection));
 
-        protected virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+        protected virtual async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => EvaluateHasTablesResult(await GetHasTablesCommand().ExecuteScalarAsync(Connection, cancellationToken));
 
-            return Task.FromResult(HasTables());
-        }
+        protected abstract bool EvaluateHasTablesResult([CanBeNull] object result);
+
+        protected virtual IRelationalCommand GetHasTablesCommand()
+            => _commandBuilderFactory
+                .Create()
+                .Append(GetHasTablesSql())
+                .BuildRelationalCommand();
+
+        protected abstract string GetHasTablesSql();
 
         public virtual bool EnsureDeleted()
         {

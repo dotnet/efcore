@@ -33,12 +33,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public virtual Func<ISqlQueryGenerator> SqlGeneratorFunc => _sqlGeneratorFunc;
 
-        public virtual DbCommand Build(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IDictionary<string, object> parameterValues)
-            => _sqlGeneratorFunc()
-                .GenerateSql(parameterValues)
-                .CreateDbCommand(connection, _typeMapper);
+        public virtual IRelationalCommand Build([NotNull] IDictionary<string, object> parameterValues)
+            => _sqlGeneratorFunc().GenerateSql(parameterValues);
 
         public virtual void NotifyReaderCreated([NotNull] DbDataReader dataReader)
             => LazyInitializer

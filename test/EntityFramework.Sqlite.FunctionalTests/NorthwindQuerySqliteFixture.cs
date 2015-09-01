@@ -25,12 +25,14 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlite()
                 .ServiceCollection()
+
                 .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString);
+            optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString)
+                .SuppressForeignKeysEnforcement();
             _options = optionsBuilder.Options;
 
             _serviceProvider.GetRequiredService<ILoggerFactory>()

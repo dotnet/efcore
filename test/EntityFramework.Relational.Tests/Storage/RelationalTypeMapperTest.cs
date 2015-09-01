@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Tests.Model
+namespace Microsoft.Data.Entity.Tests
 {
     public class RelationalTypeMapperTest
     {

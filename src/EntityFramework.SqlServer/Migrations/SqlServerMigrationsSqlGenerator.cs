@@ -19,9 +19,10 @@ namespace Microsoft.Data.Entity.Migrations
 
         public SqlServerMigrationsSqlGenerator(
             [NotNull] ISqlServerUpdateSqlGenerator sql,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider annotations)
-            : base(sql, typeMapper, annotations)
+            : base(sql, commandBuilderFactory, typeMapper, annotations)
         {
         }
 

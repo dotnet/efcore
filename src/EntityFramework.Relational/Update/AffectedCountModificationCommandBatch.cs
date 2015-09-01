@@ -10,8 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update
 {
@@ -24,8 +24,9 @@ namespace Microsoft.Data.Entity.Update
         private readonly List<bool> _resultSetEnd = new List<bool>();
 
         protected AffectedCountModificationCommandBatch(
-            [NotNull] IUpdateSqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+            [NotNull] IUpdateSqlGenerator sqlGenerator,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+            : base(sqlGenerator, commandBuilderFactory)
         {
         }
 
@@ -44,7 +45,7 @@ namespace Microsoft.Data.Entity.Update
             return added;
         }
 
-        protected override void Consume(DbDataReader reader, DbContext context)
+        protected override void Consume(DbDataReader reader)
         {
             Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
             var commandIndex = 0;
@@ -55,8 +56,8 @@ namespace Microsoft.Data.Entity.Update
                 do
                 {
                     commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                        ? ConsumeResultSetWithPropagation(commandIndex, reader, context)
-                        : ConsumeResultSetWithoutPropagation(commandIndex, reader, context);
+                        ? ConsumeResultSetWithPropagation(commandIndex, reader)
+                        : ConsumeResultSetWithoutPropagation(commandIndex, reader);
                     actualResultSetCount++;
                 }
                 while (commandIndex < ResultSetEnds.Count
@@ -87,7 +88,6 @@ namespace Microsoft.Data.Entity.Update
 
         protected override async Task ConsumeAsync(
             DbDataReader reader,
-            DbContext context,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Debug.Assert(ResultSetEnds.Count == ModificationCommands.Count);
@@ -99,8 +99,8 @@ namespace Microsoft.Data.Entity.Update
                 do
                 {
                     commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                        ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, context, cancellationToken)
-                        : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, context, cancellationToken);
+                        ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, cancellationToken)
+                        : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, cancellationToken);
                     actualResultSetCount++;
                 }
                 while (commandIndex < ResultSetEnds.Count
@@ -127,7 +127,9 @@ namespace Microsoft.Data.Entity.Update
             }
         }
 
-        protected virtual int ConsumeResultSetWithPropagation(int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context)
+        protected virtual int ConsumeResultSetWithPropagation(
+            int commandIndex,
+            [NotNull] DbDataReader reader)
         {
             var rowsAffected = 0;
             do
@@ -157,7 +159,9 @@ namespace Microsoft.Data.Entity.Update
         }
 
         protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
-            int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context, CancellationToken cancellationToken)
+            int commandIndex,
+            [NotNull] DbDataReader reader,
+            CancellationToken cancellationToken)
         {
             var rowsAffected = 0;
             do
@@ -186,7 +190,9 @@ namespace Microsoft.Data.Entity.Update
             return commandIndex;
         }
 
-        protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context)
+        protected virtual int ConsumeResultSetWithoutPropagation(
+            int commandIndex,
+            [NotNull] DbDataReader reader)
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < ResultSetEnds.Count
@@ -214,7 +220,9 @@ namespace Microsoft.Data.Entity.Update
         }
 
         protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
-            int commandIndex, [NotNull] DbDataReader reader, [NotNull] DbContext context, CancellationToken cancellationToken)
+            int commandIndex,
+            [NotNull] DbDataReader reader,
+            CancellationToken cancellationToken)
         {
             var expectedRowsAffected = 1;
             while (++commandIndex < ResultSetEnds.Count

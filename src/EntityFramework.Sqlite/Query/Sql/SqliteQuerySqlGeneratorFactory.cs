@@ -11,18 +11,23 @@ namespace Microsoft.Data.Entity.Query.Sql
     public class SqliteQuerySqlGeneratorFactory : ISqlQueryGeneratorFactory
     {
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
         public SqliteQuerySqlGeneratorFactory(
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            _commandBuilderFactory = commandBuilderFactory;
         }
 
         public virtual ISqlQueryGenerator CreateGenerator([NotNull] SelectExpression selectExpression)
             => new SqliteQuerySqlGenerator(
                 _parameterNameGeneratorFactory,
+                _commandBuilderFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)));
 
         public virtual ISqlQueryGenerator CreateRawCommandGenerator(
@@ -31,6 +36,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             [NotNull] object[] parameters)
             => new RawSqlQueryGenerator(
                 _parameterNameGeneratorFactory,
+                _commandBuilderFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotNull(sql, nameof(sql)),
                 Check.NotNull(parameters, nameof(parameters)));

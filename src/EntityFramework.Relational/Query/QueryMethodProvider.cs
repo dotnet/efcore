@@ -100,8 +100,7 @@ namespace Microsoft.Data.Entity.Query
             => new QueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
-                    /*queryIndex*/ null,
-                    queryContext.Logger)
+                    /*queryIndex:*/ null)
                     .Select(shaper);
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
@@ -120,8 +119,7 @@ namespace Microsoft.Data.Entity.Query
                 new QueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
-                    queryIndex,
-                    queryContext.Logger);
+                    queryIndex);
         }
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;

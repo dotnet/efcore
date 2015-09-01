@@ -2,84 +2,100 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public class RelationalCommandBuilder
+    public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly IndentedStringBuilder _stringBuilder = new IndentedStringBuilder();
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly IRelationalTypeMapper _typeMapper;
 
-        public virtual RelationalCommandBuilder AppendLine()
+        public RelationalCommandBuilder(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IRelationalTypeMapper typeMapper)
         {
-            _stringBuilder.AppendLine();
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+
+            _loggerFactory = loggerFactory;
+            _typeMapper = typeMapper;
+        }
+
+        protected readonly IndentedStringBuilder StringBuilder = new IndentedStringBuilder();
+
+        public virtual IRelationalCommandBuilder AppendLine()
+        {
+            StringBuilder.AppendLine();
 
             return this;
         }
 
-        public virtual RelationalCommandBuilder Append([NotNull] object o)
-        {
-            Check.NotNull(o, nameof(o));
-
-            _stringBuilder.Append(o);
-
-            return this;
-        }
-
-        public virtual RelationalCommandBuilder AppendLine([NotNull] object o)
-        {
-            Check.NotNull(o, nameof(o));
-
-            _stringBuilder.AppendLine(o);
-
-            return this;
-        }
-
-        public virtual RelationalCommandBuilder AppendLines([NotNull] object o)
+        public virtual IRelationalCommandBuilder Append([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
-            _stringBuilder.AppendLines(o);
+            StringBuilder.Append(o);
 
             return this;
         }
 
-        public virtual RelationalCommand RelationalCommand
+        public virtual IRelationalCommandBuilder AppendLine([NotNull] object o)
+        {
+            Check.NotNull(o, nameof(o));
+
+            StringBuilder.AppendLine(o);
+
+            return this;
+        }
+
+        public virtual IRelationalCommandBuilder AppendLines([NotNull] object o)
+        {
+            Check.NotNull(o, nameof(o));
+
+            StringBuilder.AppendLines(o);
+
+            return this;
+        }
+
+        public virtual IRelationalCommand BuildRelationalCommand()
             => new RelationalCommand(
-                _stringBuilder.ToString(),
-                RelationalParameterList.RelationalParameters.ToArray());
+                _loggerFactory,
+                _typeMapper,
+                StringBuilder.ToString(),
+                RelationalParameterList.RelationalParameters);
 
         public virtual RelationalParameterList RelationalParameterList { get; } = new RelationalParameterList();
 
         public virtual IDisposable Indent()
-            => _stringBuilder.Indent();
+            => StringBuilder.Indent();
 
-        public virtual int Length => _stringBuilder.Length;
+        public virtual int Length => StringBuilder.Length;
 
-        public virtual RelationalCommandBuilder Clear()
+        public virtual IRelationalCommandBuilder Clear()
         {
-            _stringBuilder.Clear();
+            StringBuilder.Clear();
 
             return this;
         }
 
-        public virtual RelationalCommandBuilder IncrementIndent()
+        public virtual IRelationalCommandBuilder IncrementIndent()
         {
-            _stringBuilder.IncrementIndent();
+            StringBuilder.IncrementIndent();
 
             return this;
         }
 
-        public virtual RelationalCommandBuilder DecrementIndent()
+        public virtual IRelationalCommandBuilder DecrementIndent()
         {
-            _stringBuilder.DecrementIndent();
+            StringBuilder.DecrementIndent();
 
             return this;
         }
 
-        public override string ToString() => _stringBuilder.ToString();
+        public override string ToString() => StringBuilder.ToString();
     }
 }

@@ -19,14 +19,15 @@ namespace Microsoft.Data.Entity.Migrations
     public class SqliteMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         public SqliteMigrationsSqlGenerator(
-            [NotNull] SqliteUpdateSqlGenerator sql,
-            [NotNull] SqliteTypeMapper typeMapper,
-            [NotNull] SqliteMetadataExtensionProvider annotations)
-            : base(sql, typeMapper, annotations)
+            [NotNull] IUpdateSqlGenerator sql,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider annotations)
+            : base(sql, commandBuilderFactory, typeMapper, annotations)
         {
         }
 
-        public override IReadOnlyList<RelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
+        public override IReadOnlyList<IRelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
             => base.Generate(LiftForeignKeyOperations(operations), model);
 
         private IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)
