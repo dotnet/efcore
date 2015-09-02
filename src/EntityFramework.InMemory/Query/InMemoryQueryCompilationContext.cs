@@ -4,12 +4,11 @@
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.InMemory.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class InMemoryQueryCompilationContext : QueryCompilationContext
     {

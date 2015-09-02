@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.InMemory.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class MaterializerFactory
     {

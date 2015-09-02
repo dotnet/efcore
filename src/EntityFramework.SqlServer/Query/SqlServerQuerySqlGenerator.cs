@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator
     {

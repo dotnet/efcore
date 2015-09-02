@@ -5,12 +5,12 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.InMemory.Query;
+using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.InMemory
+namespace Microsoft.Data.Entity
 {
     public class InMemoryDatabaseProviderServices : DatabaseProviderServices
     {
@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.InMemory
 
         public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
         public override IDatabase Database => GetService<IInMemoryDatabase>();
+        public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<InMemoryQueryCompilationContextFactory>();
         public override IQueryContextFactory QueryContextFactory => GetService<InMemoryQueryContextFactory>();
         public override IDatabaseCreator Creator => GetService<InMemoryDatabaseCreator>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<InMemoryValueGeneratorSelector>();

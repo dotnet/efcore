@@ -1,10 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.InMemory.Query;
+using Microsoft.Data.Entity.InMemory;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Tests;
 
-namespace Microsoft.Data.Entity.InMemory.Tests
+namespace Microsoft.Data.Entity
 {
     public class InMemoryEntityFrameworkServicesBuilderExtensionsTest : EntityFrameworkServiceCollectionExtensionsTest
     {
@@ -19,10 +20,12 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             // In memory scoped
             VerifyScoped<InMemoryValueGeneratorSelector>();
-            VerifyScoped<InMemoryQueryContextFactory>();
             VerifyScoped<InMemoryDatabaseProviderServices>();
             VerifyScoped<IInMemoryDatabase>();
             VerifyScoped<InMemoryDatabaseCreator>();
+            VerifyScoped<InMemoryQueryContextFactory>();
+            VerifyScoped<InMemoryQueryCompilationContextFactory>();
+
         }
 
         public InMemoryEntityFrameworkServicesBuilderExtensionsTest()

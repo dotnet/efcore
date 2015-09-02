@@ -3,8 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.InMemory;
-using Microsoft.Data.Entity.InMemory.Query;
+using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection.Extensions;
@@ -25,16 +26,23 @@ namespace Microsoft.Framework.DependencyInjection
                 .Singleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>());
 
             service.TryAdd(new ServiceCollection()
-                    .AddSingleton<InMemoryValueGeneratorCache>()
-                    .AddSingleton<IInMemoryStore, InMemoryStore>()
-                    .AddSingleton<InMemoryModelSource>()
-                    .AddScoped<InMemoryValueGeneratorSelector>()
-                    .AddScoped<InMemoryQueryContextFactory>()
-                    .AddScoped<InMemoryDatabaseProviderServices>()
-                    .AddScoped<IInMemoryDatabase, InMemoryDatabase>()
-                    .AddScoped<InMemoryDatabaseCreator>());
+                .AddSingleton<InMemoryValueGeneratorCache>()
+                .AddSingleton<IInMemoryStore, InMemoryStore>()
+                .AddSingleton<InMemoryModelSource>()
+                .AddScoped<InMemoryValueGeneratorSelector>()
+                .AddScoped<InMemoryDatabaseProviderServices>()
+                .AddScoped<IInMemoryDatabase, InMemoryDatabase>()
+                .AddScoped<InMemoryDatabaseCreator>()
+                .AddQuery());
 
             return builder;
+        }
+
+        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddScoped<InMemoryQueryContextFactory>()
+                .AddScoped<InMemoryQueryCompilationContextFactory>();
         }
     }
 }

@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             new SqlServerOptionsExtension().ApplyServices(builder);
 
-            Assert.True(services.Any(sd => sd.ServiceType == typeof(SqlServerDatabase)));
+            Assert.True(services.Any(sd => sd.ServiceType == typeof(RelationalDatabase)));
         }
     }
 }

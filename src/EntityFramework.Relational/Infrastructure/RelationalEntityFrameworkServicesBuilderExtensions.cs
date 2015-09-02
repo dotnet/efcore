@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<RelationalModelValidator>()
                 .AddScoped<IMigrator, Migrator>()
                 .AddScoped<IMigrationsAssembly, MigrationsAssembly>()
-                .AddScoped<RelationalQueryContextFactory>()
+                .AddScoped<RelationalDatabase>()
                 .AddScoped<BatchExecutor>()
                 .AddScoped<MigrationsModelDiffer>()
                 .AddScoped<RelationalValueGeneratorSelector>()
@@ -62,9 +62,16 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped(p => GetProviderServices(p).ValueBufferFactoryFactory)
                 .AddScoped(p => GetProviderServices(p).RelationalDatabaseCreator)
                 .AddScoped(p => GetProviderServices(p).UpdateSqlGenerator)
-                .AddScoped(p => GetProviderServices(p).MetadataExtensionProvider));
+                .AddScoped(p => GetProviderServices(p).MetadataExtensionProvider)
+                .AddQuery());
 
             return builder;
+        }
+
+        private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
+        {
+            return serviceCollection
+                .AddScoped<RelationalQueryContextFactory>();
         }
 
         private static IRelationalDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)

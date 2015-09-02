@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Sqlite
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(SqliteDatabase).Assembly;
+        protected override Assembly TargetAssembly => typeof(SqliteDatabaseConnection).Assembly;
     }
 }

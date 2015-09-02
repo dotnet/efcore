@@ -18,7 +18,9 @@ namespace Microsoft.Data.Entity.Storage
         IConventionSetBuilder ConventionSetBuilder { get; }
         IModelSource ModelSource { get; }
         IModelValidator ModelValidator { get; }
-        IQueryContextFactory QueryContextFactory { get; }
         IValueGeneratorCache ValueGeneratorCache { get; }
+        IQueryContextFactory QueryContextFactory { get; }
+        IQueryCompilationContextFactory QueryCompilationContextFactory { get; }
+        ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator { get; }
     }
 }

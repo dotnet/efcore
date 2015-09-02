@@ -8,7 +8,7 @@
     <ProjectGuid>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.SqlServer</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>EntityFramework.SqlServer</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -47,6 +47,7 @@
     <Compile Include="ISqlServerConnection.cs" />
     <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerInternalMetadataBuilderExtensions.cs" />
+    <Compile Include="Query\SqlServerQueryCompilationContextFactory.cs" />
     <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerPropertyBuilderAnnotations.cs" />
@@ -102,7 +103,6 @@
     <Compile Include="Update\SqlServerModificationCommandBatchFactory.cs" />
     <Compile Include="SqlServerOptionsExtension.cs" />
     <Compile Include="SqlServerConnection.cs" />
-    <Compile Include="SqlServerDatabase.cs" />
     <Compile Include="SqlServerDatabaseCreator.cs" />
     <Compile Include="Migrations\SqlServerMigrationsSqlGenerator.cs" />
     <Compile Include="Update\SqlServerUpdateSqlGenerator.cs" />

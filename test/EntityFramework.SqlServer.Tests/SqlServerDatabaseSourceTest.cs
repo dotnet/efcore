@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Returns_appropriate_name()
         {
             Assert.Equal(
-                typeof(SqlServerDatabase).GetTypeInfo().Assembly.GetName().Name,
+                typeof(SqlServerConnection).GetTypeInfo().Assembly.GetName().Name,
                 new SqlServerDatabaseProviderServices(SqlServerTestHelpers.Instance.CreateServiceProvider()).InvariantName);
         }
 

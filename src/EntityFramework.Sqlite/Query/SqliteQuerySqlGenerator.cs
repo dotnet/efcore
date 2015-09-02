@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Sqlite.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class SqliteQuerySqlGenerator : DefaultQuerySqlGenerator
     {

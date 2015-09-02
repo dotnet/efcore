@@ -31,11 +31,14 @@ namespace Microsoft.Data.Entity.Storage
         public virtual IConventionSetBuilder ConventionSetBuilder => null;
         public virtual IValueGeneratorSelector ValueGeneratorSelector => GetService<ValueGeneratorSelector>();
         public virtual IModelValidator ModelValidator => GetService<LoggingModelValidator>();
+        public virtual ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator
+            => GetService<CompiledQueryCacheKeyGenerator>();
 
         public abstract IDatabase Database { get; }
         public abstract IDatabaseCreator Creator { get; }
         public abstract IModelSource ModelSource { get; }
-        public abstract IQueryContextFactory QueryContextFactory { get; }
         public abstract IValueGeneratorCache ValueGeneratorCache { get; }
+        public abstract IQueryContextFactory QueryContextFactory { get; }
+        public abstract IQueryCompilationContextFactory QueryCompilationContextFactory { get; }
     }
 }

@@ -8,7 +8,7 @@
     <ProjectGuid>{E340807B-ECBB-41DF-A164-23FE833C76DE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Sqlite</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>EntityFramework.Sqlite</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -80,6 +80,7 @@
     <Compile Include="Query\ExpressionTranslators\StringToLowerTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\StringToUpperTranslator.cs" />
     <Compile Include="Query\SqliteQueryCompilationContext.cs" />
+    <Compile Include="Query\SqliteQueryCompilationContextFactory.cs" />
     <Compile Include="Query\SqliteQuerySqlGenerator.cs" />
     <Compile Include="Query\ExpressionTranslators\SqliteCompositeExpressionFragmentTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\SqliteCompositeMemberTranslator.cs" />
@@ -99,7 +100,6 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>Utilities\CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="SqliteDatabase.cs" />
     <Compile Include="SqliteDatabaseProviderServices.cs" />
     <Compile Include="SqliteOptionsExtension.cs" />
     <Compile Include="ValueGeneration\SqliteValueGeneratorCache.cs" />

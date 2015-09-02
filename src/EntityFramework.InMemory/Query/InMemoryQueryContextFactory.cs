@@ -3,31 +3,39 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.InMemory.Query
+namespace Microsoft.Data.Entity.Query
 {
     public class InMemoryQueryContextFactory : QueryContextFactory
     {
         private readonly IInMemoryDatabase _database;
+        private readonly DbContext _context;
 
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
+            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IInMemoryDatabase database,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] DbContext context)
             : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
         {
             Check.NotNull(database, nameof(database));
+            Check.NotNull(context, nameof(context));
 
             _database = database;
+            _context = context;
         }
 
-        public override QueryContext Create() => new InMemoryQueryContext(Logger, CreateQueryBuffer(), _database.Store);
+        public override QueryContext Create()
+            => new InMemoryQueryContext(Logger, CreateQueryBuffer(), _database.Store)
+            {
+                ContextType = _context.GetType()
+            };
     }
 }

@@ -9,10 +9,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.InMemory.Query;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -23,41 +21,26 @@ namespace Microsoft.Data.Entity.InMemory
 {
     public class InMemoryDatabase : Database, IInMemoryDatabase
     {
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
-        private readonly bool _persist;
         private readonly ThreadSafeLazyRef<IInMemoryStore> _database;
 
         public InMemoryDatabase(
-            [NotNull] IModel model,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
-            [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
             [NotNull] IInMemoryStore persistentStore,
-            [NotNull] IDbContextOptions options,
-            [NotNull] ILoggerFactory loggerFactory)
-            : base(model, loggerFactory)
+            [NotNull] IDbContextOptions options)
+            : base(queryCompilationContextFactory)
         {
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
             Check.NotNull(persistentStore, nameof(persistentStore));
             Check.NotNull(options, nameof(options));
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
-
-            _entityKeyFactorySource = entityKeyFactorySource;
-            _entityMaterializerSource = entityMaterializerSource;
-            _clrPropertyGetterSource = clrPropertyGetterSource;
 
             var storeConfig = options.Extensions
                 .OfType<InMemoryOptionsExtension>()
                 .FirstOrDefault();
 
-            _persist = storeConfig?.Persist ?? true;
-
             _database = new ThreadSafeLazyRef<IInMemoryStore>(
-                () => _persist
+                () => storeConfig?.Persist ?? true
                     ? persistentStore
                     : new InMemoryStore(loggerFactory));
         }
@@ -72,15 +55,8 @@ namespace Microsoft.Data.Entity.InMemory
             CancellationToken cancellationToken = default(CancellationToken))
             => Task.FromResult(_database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries))));
 
-        public override Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
-            => new InMemoryQueryCompilationContext(
-                Model,
-                Logger,
-                _entityMaterializerSource,
-                _entityKeyFactorySource,
-                _clrPropertyGetterSource)
-                .CreateQueryModelVisitor()
-                .CreateQueryExecutor<TResult>(Check.NotNull(queryModel, nameof(queryModel)));
+        public virtual bool EnsureDatabaseCreated(IModel model)
+            => _database.Value.EnsureCreated(Check.NotNull(model, nameof(model)));
 
         public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {
@@ -90,8 +66,5 @@ namespace Microsoft.Data.Entity.InMemory
 
             return qc => syncQueryExecutor(qc).ToAsyncEnumerable();
         }
-
-        public virtual bool EnsureDatabaseCreated(IModel model)
-            => _database.Value.EnsureCreated(Check.NotNull(model, nameof(model)));
     }
 }
