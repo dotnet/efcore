@@ -27,13 +27,12 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         {
             _output = output;
 
-            var serviceCollection = new ServiceCollection();
+            var serviceCollection = new ServiceCollection()
+                .AddScoped(typeof(ILogger), sp => _logger = new InMemoryCommandLogger("E2ETest"))
+                .AddScoped(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
 
             GetFactory().AddMetadataProviderServices(serviceCollection);
-            var serviceProvider = serviceCollection
-                .AddScoped(typeof(ILogger), sp => _logger = new InMemoryCommandLogger("E2ETest"))
-                .AddScoped(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService())
-                .BuildServiceProvider();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             MetadataModelProvider = serviceProvider.GetRequiredService<IDatabaseMetadataModelProvider>();
@@ -53,10 +52,6 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         protected abstract E2ECompiler GetCompiler();
         protected abstract string ProviderName { get; }
         protected abstract IDesignTimeMetadataProviderFactory GetFactory();
-        protected string ProviderDbContextTemplateName
-            => ProviderName + "." + ReverseEngineeringGenerator.DbContextTemplateFileName;
-        protected string ProviderEntityTypeTemplateName
-            => ProviderName + "." + ReverseEngineeringGenerator.EntityTypeTemplateFileName;
 
         protected virtual void AssertEqualFileContents(FileSet expected, FileSet actual)
         {
@@ -101,21 +96,5 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
                 Assert.True(false, "Failed to compile: see Compilation Errors in Output.");
             }
         }
-        protected virtual void SetupTemplates(string templateOutputDir)
-        {
-            if (templateOutputDir == null)
-            {
-                return;
-            }
-
-            // use templates where the flag to use attributes instead of fluent API has been turned off
-            var dbContextTemplate = MetadataModelProvider.DbContextTemplate
-                .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");
-            var entityTypeTemplate = MetadataModelProvider.EntityTypeTemplate
-                .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");
-            InMemoryFiles.OutputFile(templateOutputDir, ProviderDbContextTemplateName, dbContextTemplate);
-            InMemoryFiles.OutputFile(templateOutputDir, ProviderEntityTypeTemplateName, entityTypeTemplate);
-        }
-
     }
 }

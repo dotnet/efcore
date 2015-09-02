@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating
+namespace Microsoft.Data.Entity.Relational.Design.Utilities
 {
     public class CSharpUtilities
     {

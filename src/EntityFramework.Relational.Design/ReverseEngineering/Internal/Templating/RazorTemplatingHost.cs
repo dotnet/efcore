@@ -7,7 +7,7 @@ using Microsoft.AspNet.Razor;
 using Microsoft.AspNet.Razor.CodeGenerators;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating
 {
     internal class RazorTemplatingHost : RazorEngineHost
     {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
             "System.Linq",
             "System.Collections.Generic",
             "System.Dynamic",
-            "Microsoft.Data.Entity.Relational.Design.Templating"
+            "Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating"
         };
 
         public RazorTemplatingHost([NotNull] Type baseType)

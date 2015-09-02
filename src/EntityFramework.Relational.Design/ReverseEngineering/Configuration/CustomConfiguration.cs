@@ -10,5 +10,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual string ConnectionString { get;[param: NotNull] set; }
         public virtual string ContextClassName { get;[param: CanBeNull] set; }
         public virtual string Namespace { get;[param: CanBeNull] set; }
+        public virtual bool UseFluentApiOnly { get; set; }
     }
 }

@@ -67,25 +67,26 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             return propertyConfiguration;
         }
 
-        public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useAttributesOverFluentApi)
+        public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiOnly)
         {
-            return (useAttributesOverFluentApi
-                ? FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent)
-                : FluentApiConfigurations)
+            return (useFluentApiOnly
+                ? FluentApiConfigurations
+                : FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent))
                 .ToList();
         }
 
-        public virtual List<PropertyConfiguration> GetPropertyConfigurations(bool useAttributesOverFluentApi)
+        public virtual List<PropertyConfiguration> GetPropertyConfigurations(bool useFluentApiOnly)
         {
             return PropertyConfigurations
-                .Where(pc => pc.GetFluentApiConfigurations(useAttributesOverFluentApi).Any()).ToList();
+                .Where(pc => pc.GetFluentApiConfigurations(useFluentApiOnly).Any()).ToList();
         }
 
-        public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useAttributesOverFluentApi)
+        public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useFluentApiOnly)
         {
-            return useAttributesOverFluentApi
-                ? Enumerable.Empty<RelationshipConfiguration>().ToList()
-                : RelationshipConfigurations;
+            return (useFluentApiOnly
+                ? RelationshipConfigurations
+                : Enumerable.Empty<RelationshipConfiguration>())
+                .ToList();
         }
     }
 }

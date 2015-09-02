@@ -9,14 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNet.Razor;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating
 {
-    public class RazorTemplating : ITemplating
+    public class RazorTemplating
     {
         private readonly ICompilationService _compilationService;
         private readonly MetadataReferencesProvider _metadataReferencesProvider;
@@ -40,10 +39,12 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
             _csharpUtiliies = csharpUtiliies;
         }
 
-        public virtual async Task<TemplateResult> RunTemplateAsync(string content,
-            dynamic templateModel, IDatabaseMetadataModelProvider provider,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual async Task<TemplateResult> RunTemplateAsync([NotNull] string content,
+            [NotNull] dynamic templateModel, CancellationToken cancellationToken = default(CancellationToken))
         {
+            Check.NotNull(content, nameof(content));
+            Check.NotNull(templateModel, nameof(templateModel));
+
             cancellationToken.ThrowIfCancellationRequested();
 
             var host = new RazorTemplatingHost(typeof(RazorReverseEngineeringBase));
@@ -55,8 +56,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
 
                 if (!generatorResults.Success)
                 {
-                    var messages = generatorResults.ParserErrors.Select(
-                        e => Strings.ErrorMessageWithLineNumber(e.Location.LineIndex, e.Message));
+                    var messages = generatorResults.ParserErrors.Select(e => e.Message);
                     return new TemplateResult
                     {
                         GeneratedText = string.Empty,
@@ -64,7 +64,6 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating
                     };
                 }
 
-                provider.AddReferencesForTemplates(_metadataReferencesProvider);
                 var references = _metadataReferencesProvider.GetApplicationReferences();
                 var templateResult = _compilationService.Compile(
                     new List<string> { generatorResults.GeneratedCode }, references);

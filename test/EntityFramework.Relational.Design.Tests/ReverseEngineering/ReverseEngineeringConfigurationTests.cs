@@ -14,7 +14,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = null,
-                CustomTemplatePath = null,
                 ProjectPath = null,
                 RelativeOutputPath = null
             };
