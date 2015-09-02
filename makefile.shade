@@ -1,10 +1,7 @@
 use assembly='System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'
 use assembly='System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a'
-use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
 use namespace='System.IO.Compression'
-use namespace='System.IO.Packaging'
 use namespace='System.Net.Http'
-use namespace='System.IO'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
