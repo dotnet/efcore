@@ -323,11 +323,13 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER OutputSubDirectory
     Specifies the sub-directory of the project to use to output the classes. If omitted, the top-level project directory is used.
 
+.PARAMETER UseFluentApi
+    Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.
+
 .PARAMETER Project
     Specifies the project to use. If omitted, the default project is used.
 
 .LINK
-    Scaffold-DbContextTemplate
     about_EntityFramework
 #>
 function Scaffold-DbContext {
@@ -338,6 +340,7 @@ function Scaffold-DbContext {
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
         [string] $OutputSubDirectory,
+        [switch] $UseFluentApi,
         [string] $Project)
 
     $values = ProcessCommonParameters -projectName $Project
@@ -347,48 +350,7 @@ function Scaffold-DbContext {
         connectionString = $Connection
         provider = $Provider
         relativeOutputDir = $OutputSubDirectory
-    }
-
-    $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
-    $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
-    ShowConsole
-}
-
-#
-# Scaffold-DbContextTemplate
-#
-
-Register-TabExpansion Scaffold-DbContextTemplate @{
-    Provider = { param ($tabExpansionContext) GetProviders $tabExpansionContext.Project }
-    Project = { GetProjects }
-}
-
-<#
-.SYNOPSIS
-    Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
-
-.DESCRIPTION
-    Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
-
-.PARAMETER Provider
-    Specifies the provider to use. For example, EntityFramework.SqlServer.
-
-.PARAMETER Project
-    Specifies the project to use. If omitted, the default project is used.
-
-.LINK
-    Scaffold-DbContext
-    about_EntityFramework
-#>
-function Scaffold-DbContextTemplate {
-    [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Provider, [string] $Project)
-
-    $values = ProcessCommonParameters -projectName $Project
-    $dteProject = $values.Project
-
-    $artifacts = InvokeOperation $dteProject CustomizeReverseEngineer @{
-        provider = $Provider
+        useFluentApi = $UseFluentApi
     }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }

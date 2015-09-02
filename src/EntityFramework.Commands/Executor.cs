@@ -261,9 +261,10 @@ namespace Microsoft.Data.Entity.Commands
                 var connectionString = (string)args["connectionString"];
                 var providerAssemblyName = (string)args["provider"];
                 var relativeOutputDir = (string)(args.Contains("relativeOutputDir") ? args["relativeOutputDir"] : null);
+                var useFluentApi = (bool)args["useFluentApi"];
 
                 Execute(() => executor
-                    .ReverseEngineerImplAsync(providerAssemblyName, connectionString, relativeOutputDir)
+                    .ReverseEngineerImplAsync(providerAssemblyName, connectionString, relativeOutputDir, useFluentApi)
                     .GetAwaiter().GetResult());
             }
         }
@@ -272,30 +273,12 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string providerAssemblyName,
             [NotNull] string connectionString,
             [CanBeNull] string relativeOutputDir,
+            bool useFluentApi,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return CreateDatabaseTool().ReverseEngineerAsync(
                 providerAssemblyName, connectionString, _rootNamespace,
-                _projectDir, relativeOutputDir, cancellationToken);
-        }
-
-        public class CustomizeReverseEngineer : OperationBase
-        {
-            public CustomizeReverseEngineer([NotNull] Executor executor, [NotNull] object resultHandler, [NotNull] IDictionary args)
-                : base(resultHandler)
-            {
-                Check.NotNull(executor, nameof(executor));
-                Check.NotNull(args, nameof(args));
-
-                var providerAssemblyName = (string)args["provider"];
-
-                Execute(() => executor.CustomizeReverseEngineerImpl(providerAssemblyName));
-            }
-        }
-
-        public virtual IReadOnlyList<string> CustomizeReverseEngineerImpl([NotNull] string providerAssemblyName)
-        {
-            return CreateDatabaseTool().CustomizeReverseEngineer(providerAssemblyName, _projectDir);
+                _projectDir, relativeOutputDir, useFluentApi, cancellationToken);
         }
 
         public abstract class OperationBase : MarshalByRefObject

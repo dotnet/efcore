@@ -1,4 +1,4 @@
-@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@inherits Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.RazorReverseEngineeringBase
 @using System.Collections.Generic
 @using System.Linq
 @using System.Text
@@ -7,10 +7,10 @@
 @functions
 {
     List<string> LayoutPropertyConfigurationLines(PropertyConfiguration pc,
-        string propertyLambdaIdentifier, string indent, bool useAttributesOverFluentApi)
+        string propertyLambdaIdentifier, string indent, bool useFluentApi)
     {
         var lines = new List<string>();
-        foreach (var keyValuePair in pc.GetFluentApiConfigurations(useAttributesOverFluentApi))
+        foreach (var keyValuePair in pc.GetFluentApiConfigurations(useFluentApi))
         {
             var forMethod = keyValuePair.Key;
             var fluentApiConfigurationList = keyValuePair.Value;
@@ -98,7 +98,7 @@
     }
 }
 @{
-    var useAttributesOverFluentApi = true;
+    var useFluentApi = this.Model.CustomConfiguration.UseFluentApi;
 }using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
@@ -120,9 +120,9 @@ namespace @Model.Namespace()
 var firstEntity = true;
 }@foreach (EntityConfiguration entityConfig in Model.OrderedEntityConfigurations())
 {
-    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(useAttributesOverFluentApi);
-    var propertyConfigurations = entityConfig.GetPropertyConfigurations(useAttributesOverFluentApi);
-    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(useAttributesOverFluentApi);
+    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(useFluentApi);
+    var propertyConfigurations = entityConfig.GetPropertyConfigurations(useFluentApi);
+    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(useFluentApi);
     if (fluentApiConfigurations.Count == 0
         && propertyConfigurations.Count == 0
         && relationshipConfigurations.Count == 0)
@@ -154,7 +154,7 @@ var firstEntity = true;
     foreach (var propertyConfig in propertyConfigurations)
     {
         var propertyConfigurationLines = LayoutPropertyConfigurationLines(
-            propertyConfig, "property", "    ", useAttributesOverFluentApi);
+            propertyConfig, "property", "    ", useFluentApi);
         @* dnxcore50 requires line below be cast to explicit data type, not var. Similarly
             for other explicit casts farther down this template. *@
         int propertyConfigurationLineCount = propertyConfigurationLines.Count;

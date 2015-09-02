@@ -27,12 +27,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual List<FluentApiConfiguration> FluentApiConfigurations { get; } = new List<FluentApiConfiguration>();
 
         public virtual Dictionary<string, List<FluentApiConfiguration>>
-            GetFluentApiConfigurations(bool useAttributesOverFluentApi)
+            GetFluentApiConfigurations(bool useFluentApiExclusively)
         {
             var fluentApiConfigsDictionary = new Dictionary<string, List<FluentApiConfiguration>>();
-            var fluentApiConfigs = useAttributesOverFluentApi
-                ? FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent)
-                : FluentApiConfigurations;
+            var fluentApiConfigs = useFluentApiExclusively
+                ? FluentApiConfigurations
+                : FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent);
             foreach (var fluentApiConfiguration in fluentApiConfigs)
             {
                 var @for = fluentApiConfiguration.For ?? string.Empty;

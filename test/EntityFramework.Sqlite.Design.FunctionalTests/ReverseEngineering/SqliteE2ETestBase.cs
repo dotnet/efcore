@@ -40,16 +40,15 @@ CREATE TABLE IF NOT EXISTS Dependent (
 ");
                 testStore.Transaction.Commit();
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
 
-                AssertLog(ExpectedLoggerMessages);
+                AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToOne"))
                 {
@@ -94,16 +93,15 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
 ");
                 testStore.Transaction.Commit();
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
 
-                AssertLog(ExpectedLoggerMessages);
+                AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToMany"))
                 {
@@ -142,16 +140,15 @@ CREATE TABLE Users_Groups (
 ");
                 testStore.Transaction.Commit();
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
 
-                AssertLog(ExpectedLoggerMessages);
+                AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "ManyToMany"))
                 {
@@ -184,16 +181,15 @@ CREATE TABLE Users_Groups (
 );");
                 testStore.Transaction.Commit();
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
 
-                AssertLog(ExpectedLoggerMessages);
+                AssertLog(new LoggerMessages());
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "SelfRef"))
                 {
@@ -219,13 +215,12 @@ CREATE TABLE Users_Groups (
             {
                 testStore.ExecuteNonQuery("CREATE TABLE Alicia ( Keys TEXT );");
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
                 var errorMessage = Strings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
@@ -235,14 +230,6 @@ CREATE TABLE Users_Groups (
                                 errorMessage
                             }
                 };
-                if (TemplateDir != null)
-                {
-                    expectedLog.Info.AddRange(
-                        new[] {
-                                "Using custom template " + Path.Combine(TemplateDir, ProviderDbContextTemplateName),
-                                "Using custom template " + Path.Combine(TemplateDir, ProviderEntityTypeTemplateName)
-                            });
-                }
                 AssertLog(expectedLog);
                 Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents("testout", "Alicia.cs"));
             }
@@ -261,13 +248,12 @@ CREATE TABLE Users_Groups (
 CREATE TABLE Principal ( Id INT);");
                 testStore.Transaction.Commit();
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
 
                 var expectedLog = new LoggerMessages
@@ -278,14 +264,6 @@ CREATE TABLE Principal ( Id INT);");
                                 Strings.ForeignKeyScaffoldError("Dependent","PrincipalId"),
                             }
                 };
-                if (TemplateDir != null)
-                {
-                    expectedLog.Info.AddRange(
-                        new[] {
-                                "Using custom template " + Path.Combine(TemplateDir, ProviderDbContextTemplateName),
-                                "Using custom template " + Path.Combine(TemplateDir, ProviderEntityTypeTemplateName)
-                            });
-                }
                 AssertLog(expectedLog);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "NoPrincipalPk"))
@@ -336,16 +314,15 @@ CREATE TABLE String (
 );
 ");
 
-                SetupTemplates(TemplateDir);
                 var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
                 {
                     ConnectionString = testStore.Connection.ConnectionString,
-                    CustomTemplatePath = TemplateDir,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApi = UseFluentApi,
                 });
 
-                AssertLog(ExpectedLoggerMessages);
+                AssertLog(new LoggerMessages());
 
                 var files = new FileSet(InMemoryFiles, "testout")
                 {
@@ -384,9 +361,8 @@ CREATE TABLE String (
         };
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere
-        protected abstract string TemplateDir { get; }
-        protected abstract LoggerMessages ExpectedLoggerMessages { get; }
         protected abstract string ExpectedResultsParentDir { get; }
+        protected abstract bool UseFluentApi { get; }
         protected override IDesignTimeMetadataProviderFactory GetFactory() => new SqliteDesignTimeMetadataProviderFactory();
     }
 }

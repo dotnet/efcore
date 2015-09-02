@@ -1,7 +1,7 @@
-@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@inherits Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.RazorReverseEngineeringBase
 @using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 @{
-    var useAttributesOverFluentApi = true;
+    var useFluentApi = Model.ModelConfiguration.CustomConfiguration.UseFluentApi;
     string errorMessageAnnotation = Model.ErrorMessageAnnotation;
 }@if (errorMessageAnnotation != null) {
 @:// @errorMessageAnnotation
@@ -9,7 +9,7 @@
 else {
 @:using System;
 @:using System.Collections.Generic;
-if (useAttributesOverFluentApi) {
+if (!useFluentApi) {
 @:using System.ComponentModel.DataAnnotations;
 @:using System.ComponentModel.DataAnnotations.Schema;
 }@:using Microsoft.Data.Entity;
@@ -17,7 +17,7 @@ if (useAttributesOverFluentApi) {
 @:
 @:namespace @Model.ModelConfiguration.Namespace()
 @:{
-    if (useAttributesOverFluentApi)
+    if (!useFluentApi)
     {
         foreach(var attrConfig in Model.AttributeConfigurations)
         {
@@ -39,7 +39,7 @@ if (useAttributesOverFluentApi) {
     }
     foreach (var property in ModelUtilities.OrderedProperties(Model.EntityType))
     {
-        if (useAttributesOverFluentApi)
+        if (!useFluentApi)
         {
             PropertyConfiguration propertyConfiguration = Model.FindPropertyConfiguration(property);
             if (propertyConfiguration != null)
@@ -63,7 +63,7 @@ if (useAttributesOverFluentApi) {
             }
             else
             {
-                if (useAttributesOverFluentApi)
+                if (!useFluentApi)
                 {
                     foreach (var attrConfig in navProp.AttributeConfigurations)
                     {

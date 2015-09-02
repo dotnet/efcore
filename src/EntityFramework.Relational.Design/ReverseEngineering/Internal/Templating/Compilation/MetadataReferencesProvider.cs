@@ -17,7 +17,7 @@ using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation
 {
     public class MetadataReferencesProvider
     {

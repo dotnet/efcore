@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating
 {
     public abstract class RazorReverseEngineeringBase
     {

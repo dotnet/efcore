@@ -79,7 +79,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             var configuration = new ReverseEngineeringConfiguration
                 {
                     ConnectionString = _connectionString,
-                    CustomTemplatePath = null, // not used for this test
                     ProjectPath = TestProjectDir,
                     ProjectRootNamespace = TestNamespace,
                     RelativeOutputPath = TestSubDir
@@ -123,19 +122,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = _connectionString,
-                CustomTemplatePath = "AllFluentApiTemplatesDir",
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
-                RelativeOutputPath = null // not used for this test
+                RelativeOutputPath = null, // not used for this test
+                UseFluentApi = true,
             };
-
-            // use templates where the flag to use attributes instead of fluent API has been turned off
-            var dbContextTemplate = MetadataModelProvider.DbContextTemplate
-                .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");
-            var entityTypeTemplate = MetadataModelProvider.EntityTypeTemplate
-                .Replace("useAttributesOverFluentApi = true", "useAttributesOverFluentApi = false");
-            InMemoryFiles.OutputFile("AllFluentApiTemplatesDir", ProviderDbContextTemplateName, dbContextTemplate);
-            InMemoryFiles.OutputFile("AllFluentApiTemplatesDir", ProviderEntityTypeTemplateName, entityTypeTemplate);
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
 
@@ -162,80 +153,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                             @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerIdentityStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
                             @"For column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
                             @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
-                        },
-                Info =
-                        {
-                            "Using custom template " + Path.Combine("AllFluentApiTemplatesDir", ProviderDbContextTemplateName),
-                            "Using custom template " + Path.Combine("AllFluentApiTemplatesDir", ProviderEntityTypeTemplateName)
                         }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
-        }
-
-        [Fact]
-        public void Code_generation_will_use_customized_templates_if_present()
-        {
-            var configuration = new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = _connectionString,
-                    CustomTemplatePath = CustomizedTemplateDir,
-                    ProjectPath = TestProjectDir,
-                    ProjectRootNamespace = TestNamespace,
-                    RelativeOutputPath = null // tests outputting to top-level directory
-                };
-            InMemoryFiles.OutputFile(CustomizedTemplateDir, ProviderDbContextTemplateName, "DbContext template");
-            InMemoryFiles.OutputFile(CustomizedTemplateDir, ProviderEntityTypeTemplateName, "EntityType template");
-
-            var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
-
-            AssertLog(new LoggerMessages
-                {
-                    Warn =
-                        {
-                            @"For column [dbo][AllDataTypes][hierarchyidColumn]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
-                            @"For column [dbo][AllDataTypes][sql_variantColumn]. Could not find type mapping for SQL Server type sql_variant. Skipping column.",
-                            @"For column [dbo][AllDataTypes][xmlColumn]. Could not find type mapping for SQL Server type xml. Skipping column.",
-                            @"For column [dbo][AllDataTypes][geographyColumn]. Could not find type mapping for SQL Server type geography. Skipping column.",
-                            @"For column [dbo][AllDataTypes][geometryColumn]. Could not find type mapping for SQL Server type geometry. Skipping column.",
-                            @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerIdentityStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
-                            @"For column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
-                            @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
-                        },
-                    Info =
-                        {
-                            "Using custom template " + Path.Combine(CustomizedTemplateDir, ProviderDbContextTemplateName),
-                            "Using custom template " + Path.Combine(CustomizedTemplateDir, ProviderEntityTypeTemplateName)
-                        }
-                });
-
-            foreach (var fileName in filePaths.Select(Path.GetFileName))
-            {
-                var fileContents = InMemoryFiles.RetrieveFileContents(TestProjectDir, fileName);
-                var contents = "SqlServerReverseEngineerTestE2EContext.cs" == fileName ? "DbContext template" : "EntityType template";
-                Assert.Contains(fileName.Replace(".cs", ".expected"), _expectedFiles);
-                Assert.Equal(contents, fileContents);
-            }
-        }
-
-        [Fact]
-        public virtual void Can_output_templates_to_be_customized()
-        {
-            var filePaths = Generator.Customize(TestProjectDir);
-
-            AssertLog(new LoggerMessages());
-
-            Assert.Collection(filePaths,
-                file1 => Assert.Equal(file1, Path.Combine(TestProjectDir, ProviderDbContextTemplateName)),
-                file2 => Assert.Equal(file2, Path.Combine(TestProjectDir, ProviderEntityTypeTemplateName)));
-
-            var dbContextTemplateContents = InMemoryFiles.RetrieveFileContents(
-                TestProjectDir, ProviderDbContextTemplateName);
-            Assert.Equal(MetadataModelProvider.DbContextTemplate, dbContextTemplateContents);
-
-            var entityTypeTemplateContents = InMemoryFiles.RetrieveFileContents(
-                TestProjectDir, ProviderEntityTypeTemplateName);
-            Assert.Equal(MetadataModelProvider.EntityTypeTemplate, entityTypeTemplateContents);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation
 {
     public interface ICompilationService
     {

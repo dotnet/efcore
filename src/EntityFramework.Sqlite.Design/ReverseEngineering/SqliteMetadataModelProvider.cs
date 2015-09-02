@@ -23,8 +23,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         public SqliteMetadataModelProvider(
             [NotNull] ILogger logger,
             [NotNull] ModelUtilities modelUtilities,
+            [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] SqliteReverseTypeMapper typeMapper)
-            : base(logger, modelUtilities)
+            : base(logger, modelUtilities, cSharpUtilities)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 

@@ -8,8 +8,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.Templating;
-using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -32,30 +30,25 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public const string NavigationNameUniquifyingPattern = "{0}Navigation";
         public const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        public static readonly string DbContextTemplateResourceName =
-            typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
-            + ".ReverseEngineering.Templates.DbContextTemplate.cshtml";
-
-        public static readonly string EntityTypeTemplateResourceName =
-            typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
-            + ".ReverseEngineering.Templates.EntityTypeTemplate.cshtml";
-
         private readonly Dictionary<EntityType, EntityType> _relationalToCodeGenEntityTypeMap =
             new Dictionary<EntityType, EntityType>();
         private readonly Dictionary<Property, Property> _relationalToCodeGenPropertyMap =
             new Dictionary<Property, Property>();
 
         public virtual ILogger Logger { get; private set; }
+        public virtual CSharpUtilities CSharpUtilities { get; private set; }
         private readonly ModelUtilities _modelUtilities;
 
         protected abstract IRelationalMetadataExtensionProvider ExtensionsProvider { get; }
 
-        protected RelationalMetadataModelProvider([NotNull] ILogger logger, [NotNull] ModelUtilities modelUtilities)
+        protected RelationalMetadataModelProvider([NotNull] ILogger logger,
+            [NotNull] ModelUtilities modelUtilities, [NotNull] CSharpUtilities cSharpUtilities)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
 
             Logger = logger;
+            CSharpUtilities = cSharpUtilities;
             _modelUtilities = modelUtilities;
         }
 
@@ -78,20 +71,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 relationalModel,
                 entity => ExtensionsProvider.For(entity).TableName,
                 property => ExtensionsProvider.For(property).ColumnName);
-        }
-
-        public virtual string DbContextTemplate
-            => ReadFromResource(
-                typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
-                DbContextTemplateResourceName);
-
-        public virtual string EntityTypeTemplate
-            => ReadFromResource(
-                typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
-                EntityTypeTemplateResourceName);
-
-        public virtual void AddReferencesForTemplates(MetadataReferencesProvider metadataReferencesProvider)
-        {
         }
 
         /// <summary>
@@ -123,7 +102,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var codeGenEntityType = codeGenModel
                     .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.Relational().TableName = relationalEntityType.Relational().TableName;
+                codeGenEntityType.Relational().TableName =  relationalEntityType.Relational().TableName;
                 codeGenEntityType.Relational().Schema = relationalEntityType.Relational().Schema;
                 var errorMessage = relationalEntityType[AnnotationNameEntityTypeError];
                 if (errorMessage != null)
@@ -214,7 +193,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     var dependentEndNavigationPropertyCandidateName =
                         _modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
                     var dependentEndNavigationPropertyName =
-                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                        CSharpUtilities.GenerateCSharpIdentifier(
                             dependentEndNavigationPropertyCandidateName,
                             dependentEndExistingIdentifiers,
                             NavigationUniquifier);
@@ -234,7 +213,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                 dependentEndNavigationPropertyName)
                             : _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
                     var principalEndNavigationPropertyName =
-                        CSharpUtilities.Instance.GenerateCSharpIdentifier(
+                        CSharpUtilities.GenerateCSharpIdentifier(
                             principalEndNavigationPropertyCandidateName,
                             principalEndExistingIdentifiers,
                             NavigationUniquifier);
@@ -288,20 +267,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             codeGenProperty.IsNullable = relationalProperty.IsNullable;
             codeGenProperty.ValueGenerated = relationalProperty.ValueGenerated;
-        }
-
-        public virtual string ReadFromResource([NotNull] Assembly assembly, [NotNull] string resourceName)
-        {
-            Check.NotNull(assembly, nameof(assembly));
-            Check.NotEmpty(resourceName, nameof(resourceName));
-
-            using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
-            {
-                using (var streamReader = new StreamReader(resourceStream))
-                {
-                    return streamReader.ReadToEnd();
-                }
-            }
         }
     }
 }

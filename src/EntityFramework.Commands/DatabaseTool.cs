@@ -40,6 +40,7 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string projectRootNamespace,
             [NotNull] string projectDir,
             [CanBeNull] string relativeOutputDir,
+            bool useFluentApi,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
@@ -57,31 +58,13 @@ namespace Microsoft.Data.Entity.Commands
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = connectionString,
-                CustomTemplatePath = projectDir,
                 ProjectPath = projectDir,
                 ProjectRootNamespace = projectRootNamespace,
-                RelativeOutputPath = relativeOutputDir
+                RelativeOutputPath = relativeOutputDir,
+                UseFluentApi = useFluentApi
             };
 
             return generator.GenerateAsync(configuration, cancellationToken);
-        }
-
-        public virtual IReadOnlyList<string> CustomizeReverseEngineer(
-            [NotNull] string runtimeProviderAssemblyName,
-            [NotNull] string projectDir)
-        {
-            Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
-            Check.NotEmpty(projectDir, nameof(projectDir));
-
-            var designTimeMetadataProviderFactory =
-                GetDesignTimeMetadataProviderFactory(runtimeProviderAssemblyName);
-            var serviceCollection = SetupInitialServices();
-            designTimeMetadataProviderFactory.AddMetadataProviderServices(serviceCollection);
-
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            var generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
-
-            return generator.Customize(projectDir);
         }
 
         public virtual IDesignTimeMetadataProviderFactory GetDesignTimeMetadataProviderFactory(

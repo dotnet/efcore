@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.Emit;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation
 {
     public class RoslynCompilationService : ICompilationService
     {
@@ -67,8 +67,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Templating.Compilation
                         var formatter = new DiagnosticFormatter();
                         var errorMessages = result.Diagnostics
                             .Where(IsError)
-                            .Select(d => Strings.ErrorMessageWithLineNumber(
-                                d.Location.SourceSpan.Start, formatter.Format(d)));
+                            .Select(d => formatter.Format(d));
 
                         return CompiledAssemblyResult.FromErrorMessages(errorMessages);
                     }
