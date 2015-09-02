@@ -121,7 +121,7 @@
     <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
   </data>
   <data name="ModificationFunctionInvalidEntityState" xml:space="preserve">
-    <value>Can not create a ModificationFunction for an entity in state '{entityState}'.</value>
+    <value>Cannot create a ModificationFunction for an entity in state '{entityState}'.</value>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.</value>
@@ -279,5 +279,8 @@
   </data>
   <data name="NoDiscriminatorValue" xml:space="preserve">
     <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
+  </data>
+  <data name="InvalidKeyValue" xml:space="preserve">
+    <value>Unable to materialize an entity of type '{entityType}' because it has an invalid key value. Ensure that the key properties of the entity type have the correct sentinel value configuration.</value>
   </data>
 </root>

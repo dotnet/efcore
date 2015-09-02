@@ -289,19 +289,27 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var entityKey
                 = entityKeyFactory.Create(keyProperties, valueBuffer);
 
-            return new QueryResultScope<TEntity>(
-                querySource,
-                entityKey != EntityKey.InvalidEntityKey
-                    ? (TEntity)queryContext.QueryBuffer
+            TEntity entity = null;
+
+            if (entityKey == EntityKey.InvalidEntityKey)
+            {
+                if (!entityKeyFactory.IsNullKey(keyProperties, valueBuffer))
+                {
+                    throw new InvalidOperationException(Strings.InvalidKeyValue(entityType.DisplayName()));
+                }
+            }
+            else
+            {
+                entity
+                    = (TEntity)queryContext.QueryBuffer
                         .GetEntity(
                             entityType,
                             entityKey,
-                            new EntityLoadInfo(
-                                valueBuffer,
-                                materializer),
-                            queryStateManager)
-                    : null,
-                parentQueryResultScope);
+                            new EntityLoadInfo(valueBuffer, materializer),
+                            queryStateManager);
+            }
+
+            return new QueryResultScope<TEntity>(querySource, entity, parentQueryResultScope);
         }
     }
 }
