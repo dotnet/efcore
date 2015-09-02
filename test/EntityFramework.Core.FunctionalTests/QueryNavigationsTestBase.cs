@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
@@ -13,10 +14,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
     public abstract class QueryNavigationsTestBase<TFixture> : IClassFixture<TFixture>
         where TFixture : NorthwindQueryFixtureBase, new()
     {
-        // TODO:
-        // - One to ones
-        // - Async
-
         [Fact]
         public virtual void Select_Where_Navigation()
         {
@@ -26,6 +23,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = (from o in context.Set<Order>()
                         where o.Customer.City == "Seattle"
                         select o).ToList();
+
+                Assert.Equal(14, orders.Count);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Select_Where_Navigation_Async()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = await (from o in context.Set<Order>()
+                       where o.Customer.City == "Seattle"
+                       select o).ToListAsync();
 
                 Assert.Equal(14, orders.Count);
             }
@@ -187,6 +198,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         where o.Customer.City == "Seattle"
                         where o.Customer.Phone != "555 555 5555"
                         select new { A = o.Customer, B = o.Customer.City }).ToList();
+
+                Assert.Equal(14, orders.Count);
+                Assert.True(orders.All(o => o.A != null && o.B != null));
+            }
+        }
+
+        [Fact]
+        public virtual async Task Select_Singleton_Navigation_With_Member_Access_Async()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = await (from o in context.Set<Order>()
+                       where o.Customer.City == "Seattle"
+                       where o.Customer.Phone != "555 555 5555"
+                       select new { A = o.Customer, B = o.Customer.City }).ToListAsync();
 
                 Assert.Equal(14, orders.Count);
                 Assert.True(orders.All(o => o.A != null && o.B != null));
@@ -455,6 +482,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     = (from c in context.Set<Customer>()
                         where c.Orders.Sum(o => o.OrderID) > 1000
                         select c).ToList();
+
+                Assert.Equal(89, customers.Count);
+            }
+        }
+
+        [Fact]
+        public virtual async Task Collection_where_nav_prop_sum_async()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = await (from c in context.Set<Customer>()
+                       where c.Orders.Sum(o => o.OrderID) > 1000
+                       select c).ToListAsync();
 
                 Assert.Equal(89, customers.Count);
             }
