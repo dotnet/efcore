@@ -15,5 +15,11 @@ namespace Microsoft.Data.Entity.SqlServer.Extensions
 
         protected override SqlServerOptionsExtension CloneExtension()
             => new SqlServerOptionsExtension(OptionsBuilder.Options.GetExtension<SqlServerOptionsExtension>());
+
+        /// <summary>
+        ///     Use a ROW_NUMBER() in queries instead of OFFSET/FETCH. This method is backwards-compatible to SQL Server 2005.
+        /// </summary>
+        public virtual void UseRowNumberForPaging()
+            => SetOption(e => e.RowNumberPaging = true);
     }
 }

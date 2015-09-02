@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {
-    public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator
+    public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator, ISqlServerExpressionVisitor
     {
         public SqlServerQuerySqlGenerator(
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
@@ -38,6 +38,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected override void GenerateLimitOffset(SelectExpression selectExpression)
         {
+            if (selectExpression.Projection.OfType<RowNumberExpression>().Any())
+            {
+                return;
+            }
+
             if (selectExpression.Offset != null
                 && !selectExpression.OrderBy.Any())
             {
@@ -45,6 +50,27 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
 
             base.GenerateLimitOffset(selectExpression);
+        }
+
+        public virtual Expression VisitRowNumber(RowNumberExpression rowNumberExpression)
+        {
+            Check.NotNull(rowNumberExpression, nameof(rowNumberExpression));
+
+            Sql.Append("ROW_NUMBER() OVER(");
+            GenerateOrderBy(rowNumberExpression.Orderings);
+            Sql.Append(") AS ").Append(DelimitIdentifier(rowNumberExpression.ColumnExpression.Name));
+
+            return rowNumberExpression;
+        }
+
+        public override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+        {
+            if (sqlFunctionExpression.FunctionName.StartsWith("@@"))
+            {
+                Sql.Append(sqlFunctionExpression.FunctionName);
+                return sqlFunctionExpression;
+            }
+            return base.VisitSqlFunction(sqlFunctionExpression);
         }
     }
 }

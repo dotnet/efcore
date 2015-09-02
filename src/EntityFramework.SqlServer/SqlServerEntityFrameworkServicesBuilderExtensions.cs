@@ -47,6 +47,8 @@ namespace Microsoft.Framework.DependencyInjection
                     .AddScoped<SqlServerMigrationsSqlGenerator>()
                     .AddScoped<SqlServerDatabaseCreator>()
                     .AddScoped<SqlServerHistoryRepository>()
+                    .AddScoped<SqlServerQueryModelVisitorFactory>()
+                    .AddScoped<SqlServerCompiledQueryCacheKeyGenerator>()
                     .AddQuery());
 
             return builder;

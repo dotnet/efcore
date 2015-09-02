@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Query
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
-            = typeof(IDatabase).GetTypeInfo().GetDeclaredMethod("CompileQuery");
+            = typeof(IDatabase).GetTypeInfo().GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
         private static readonly INodeTypeProvider _nodeTypeProvider = CreateNodeTypeProvider();
         private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter = new EvaluatableExpressionFilter();

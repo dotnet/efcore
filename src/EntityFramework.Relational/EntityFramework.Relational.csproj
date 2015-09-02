@@ -80,6 +80,7 @@
     <Compile Include="Migrations\Internal\MigrationExtensions.cs" />
     <Compile Include="Migrations\MigrationAttribute.cs" />
     <Compile Include="Migrations\MigrationsAssemblyExtensions.cs" />
+    <Compile Include="Query\Expressions\ColumnExpression.cs" />
     <Compile Include="Query\Expressions\CrossApplyExpression.cs" />
     <Compile Include="Query\Expressions\ISelectExpressionFactory.cs" />
     <Compile Include="Query\Expressions\SelectExpressionFactory.cs" />
@@ -271,7 +272,6 @@
     <Compile Include="Query\ExpressionVisitors\RelationalProjectionExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalEntityQueryableExpressionVisitor.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
-    <Compile Include="Query\Expressions\ColumnExpression.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />
     <Compile Include="Query\RelationalQueryModelVisitor.cs" />
     <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />

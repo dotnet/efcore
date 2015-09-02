@@ -28,13 +28,12 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         private int? _limit;
         private int? _offset;
-        private bool _projectStar;
 
         private int _subqueryDepth = -1;
 
         private bool _isDistinct;
 
-        public virtual Expression Predicate { get;[param: CanBeNull] set; }
+        public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
         public SelectExpression([NotNull] ISqlQueryGeneratorFactory sqlQueryGeneratorFactory)
             : base(null, null)
@@ -69,7 +68,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                         _offset = _offset,
                         _isDistinct = _isDistinct,
                         _subqueryDepth = _subqueryDepth,
-                        _projectStar = _projectStar,
+                        IsProjectStar = IsProjectStar,
                         Predicate = Predicate
                     };
 
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual IReadOnlyList<TableExpressionBase> Tables => _tables;
 
-        public virtual bool IsProjectStar => _projectStar;
+        public virtual bool IsProjectStar { get; set; }
 
         public virtual void AddTable([NotNull] TableExpressionBase tableExpression)
             => _tables.Add(Check.NotNull(tableExpression, nameof(tableExpression)));
@@ -115,7 +114,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 {
                     var columnExpression = expression as ColumnExpression;
 
-                    if (columnExpression != null
+                    if (columnExpression?.Table.QuerySource != null
                         && !_selectExpression.HandlesQuerySource(columnExpression.Table.QuerySource))
                     {
                         _correlated = true;
@@ -181,9 +180,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
             get { return _offset; }
             set
             {
-                Check.NotNull(value, nameof(value));
-
                 if (_limit != null)
+                if (_limit != null && value != null)
                 {
                     var subquery = PushDownSubquery();
 
@@ -256,7 +254,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             subquery._offset = _offset;
             subquery._isDistinct = _isDistinct;
             subquery._subqueryDepth = _subqueryDepth;
-            subquery._projectStar = _projectStar || !subquery._projection.Any();
+            subquery.IsProjectStar = IsProjectStar || !subquery._projection.Any();
 
             _limit = null;
             _offset = null;
@@ -266,8 +264,6 @@ namespace Microsoft.Data.Entity.Query.Expressions
             ClearTables();
             ClearProjection();
             ClearOrderBy();
-
-            _projectStar = true;
 
             AddTable(subquery);
 
@@ -323,7 +319,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             _projection.Add(expression);
 
-            _projectStar = false;
+            IsProjectStar = false;
 
             return _projection.Count - 1;
         }
@@ -380,7 +376,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
                 _projection.Add(new AliasExpression(alias, expression));
 
-                _projectStar = false;
+                IsProjectStar = false;
             }
 
             return projectionIndex;
@@ -397,6 +393,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                             var ce = e.TryGetColumnExpression();
 
                             return ce?.Property == columnExpression.Property
+                                   && ce?.Type == columnExpression.Type
                                    && ce?.TableAlias == columnExpression.TableAlias;
                         });
 
@@ -419,7 +416,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
                 _projection.Add(aliasExpression);
 
-                _projectStar = false;
+                IsProjectStar = false;
             }
 
             return projectionIndex;
@@ -455,7 +452,11 @@ namespace Microsoft.Data.Entity.Query.Expressions
             AddToProjection(expression);
         }
 
-        public virtual void ClearProjection() => _projection.Clear();
+        public virtual void ClearProjection()
+        {
+            _projection.Clear();
+            IsProjectStar = true;
+        }
 
         public virtual void RemoveRangeFromProjection(int index)
         {
@@ -558,7 +559,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual void ExplodeStarProjection()
         {
-            if (_projectStar)
+            if (IsProjectStar)
             {
                 var subquery = (SelectExpression)_tables.Single();
 
@@ -573,7 +574,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                             });
                 }
 
-                _projectStar = false;
+                IsProjectStar = false;
             }
         }
 
@@ -776,20 +777,20 @@ namespace Microsoft.Data.Entity.Query.Expressions
             switch (expression.NodeType)
             {
                 case ExpressionType.Coalesce:
-                    {
-                        var binaryExpression = (BinaryExpression)expression;
-                        var left = UpdateColumnExpression(binaryExpression.Left, tableExpression);
-                        var right = UpdateColumnExpression(binaryExpression.Right, tableExpression);
-                        return binaryExpression.Update(left, binaryExpression.Conversion, right);
-                    }
+                {
+                    var binaryExpression = (BinaryExpression)expression;
+                    var left = UpdateColumnExpression(binaryExpression.Left, tableExpression);
+                    var right = UpdateColumnExpression(binaryExpression.Right, tableExpression);
+                    return binaryExpression.Update(left, binaryExpression.Conversion, right);
+                }
                 case ExpressionType.Conditional:
-                    {
-                        var conditionalExpression = (ConditionalExpression)expression;
-                        var test = UpdateColumnExpression(conditionalExpression.Test, tableExpression);
-                        var ifTrue = UpdateColumnExpression(conditionalExpression.IfTrue, tableExpression);
-                        var ifFalse = UpdateColumnExpression(conditionalExpression.IfFalse, tableExpression);
-                        return conditionalExpression.Update(test, ifTrue, ifFalse);
-                    }
+                {
+                    var conditionalExpression = (ConditionalExpression)expression;
+                    var test = UpdateColumnExpression(conditionalExpression.Test, tableExpression);
+                    var ifTrue = UpdateColumnExpression(conditionalExpression.IfTrue, tableExpression);
+                    var ifFalse = UpdateColumnExpression(conditionalExpression.IfFalse, tableExpression);
+                    return conditionalExpression.Update(test, ifTrue, ifFalse);
+                }
             }
 
             return expression;

@@ -113,16 +113,25 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             GenerateTop(selectExpression);
 
-            if (selectExpression.Projection.Any())
-            {
-                VisitJoin(selectExpression.Projection);
-            }
-            else if (selectExpression.IsProjectStar)
+            var projectionAdded = false;
+            if (selectExpression.IsProjectStar)
             {
                 _sql.Append(DelimitIdentifier(selectExpression.Tables.Single().Alias))
                     .Append(".*");
+                projectionAdded = true;
             }
-            else
+
+            if (selectExpression.Projection.Any())
+            {
+                if (selectExpression.IsProjectStar)
+                {
+                    _sql.Append(", ");
+                }
+                VisitJoin(selectExpression.Projection);
+                projectionAdded = true;
+            }
+
+            if (!projectionAdded)
             {
                 _sql.Append("1");
             }
@@ -184,42 +193,8 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (selectExpression.OrderBy.Any())
             {
-                _sql.AppendLine()
-                    .Append("ORDER BY ");
-
-                VisitJoin(selectExpression.OrderBy, t =>
-                    {
-                        var aliasExpression = t.Expression as AliasExpression;
-
-                        if (aliasExpression != null)
-                        {
-                            if (aliasExpression.Alias != null)
-                            {
-                                var columnExpression = aliasExpression.TryGetColumnExpression();
-
-                                if (columnExpression != null)
-                                {
-                                    _sql.Append(DelimitIdentifier(columnExpression.TableAlias))
-                                        .Append(".");
-                                }
-
-                                _sql.Append(DelimitIdentifier(aliasExpression.Alias));
-                            }
-                            else
-                            {
-                                Visit(aliasExpression.Expression);
-                            }
-                        }
-                        else
-                        {
-                            Visit(t.Expression);
-                        }
-
-                        if (t.OrderingDirection == OrderingDirection.Desc)
-                        {
-                            _sql.Append(" DESC");
-                        }
-                    });
+                _sql.AppendLine();
+                GenerateOrderBy(selectExpression.OrderBy);
             }
 
             GenerateLimitOffset(selectExpression);
@@ -239,6 +214,45 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
 
             return selectExpression;
+        }
+
+        protected virtual void GenerateOrderBy([NotNull] IReadOnlyList<Ordering> orderings)
+        {
+            _sql.Append("ORDER BY ");
+
+            VisitJoin(orderings, t =>
+                {
+                    var aliasExpression = t.Expression as AliasExpression;
+
+                    if (aliasExpression != null)
+                    {
+                        if (aliasExpression.Alias != null)
+                        {
+                            var columnExpression = aliasExpression.TryGetColumnExpression();
+
+                            if (columnExpression != null)
+                            {
+                                _sql.Append(DelimitIdentifier(columnExpression.TableAlias))
+                                    .Append(".");
+                            }
+
+                            _sql.Append(DelimitIdentifier(aliasExpression.Alias));
+                        }
+                        else
+                        {
+                            Visit(aliasExpression.Expression);
+                        }
+                    }
+                    else
+                    {
+                        Visit(t.Expression);
+                    }
+
+                    if (t.OrderingDirection == OrderingDirection.Desc)
+                    {
+                        _sql.Append(" DESC");
+                    }
+                });
         }
 
         private void VisitJoin(

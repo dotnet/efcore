@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public class RelationalQueryModelVisitor : EntityQueryModelVisitor
     {
-        private readonly Dictionary<IQuerySource, SelectExpression> _queriesBySource
+        protected virtual Dictionary<IQuerySource, SelectExpression> QueriesBySource { get; }
             = new Dictionary<IQuerySource, SelectExpression>();
 
         private readonly Dictionary<IQuerySource, RelationalQueryModelVisitor> _subQueryModelVisitorsBySource
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Query
         public new virtual RelationalQueryCompilationContext QueryCompilationContext
             => (RelationalQueryCompilationContext)base.QueryCompilationContext;
 
-        public virtual ICollection<SelectExpression> Queries => _queriesBySource.Values;
+        public virtual ICollection<SelectExpression> Queries => QueriesBySource.Values;
 
         public virtual RelationalQueryModelVisitor ParentQueryModelVisitor { get; }
 
@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(querySource, nameof(querySource));
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            _queriesBySource.Add(querySource, selectExpression);
+            QueriesBySource.Add(querySource, selectExpression);
         }
 
         public virtual SelectExpression TryGetQuery([NotNull] IQuerySource querySource)
@@ -168,9 +168,9 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(querySource, nameof(querySource));
 
             SelectExpression selectExpression;
-            return (_queriesBySource.TryGetValue(querySource, out selectExpression)
+            return (QueriesBySource.TryGetValue(querySource, out selectExpression)
                 ? selectExpression
-                : _queriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource)));
+                : QueriesBySource.Values.SingleOrDefault(se => se.HandlesQuerySource(querySource)));
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Query
             var compositePredicateVisitor
                 = _compositePredicateExpressionVisitorFactory.Create(((RelationalDatabase)_database).UseRelationalNulls);
 
-            foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
+            foreach (var selectExpression in QueriesBySource.Values.Where(se => se.Predicate != null))
             {
                 selectExpression.Predicate
                     = compositePredicateVisitor.Visit(selectExpression.Predicate);
@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.Query
                                 .AddCrossJoin(selectExpression.Tables.First(), selectExpression.Projection);
                         }
 
-                        _queriesBySource.Remove(fromClause);
+                        QueriesBySource.Remove(fromClause);
 
                         Expression
                             = _queryFlatteningExpressionVisitorFactory.Create(
@@ -425,7 +425,7 @@ namespace Microsoft.Data.Entity.Query
 
                     if (predicate != null)
                     {
-                        _queriesBySource.Remove(joinClause);
+                        QueriesBySource.Remove(joinClause);
 
                         previousSelectExpression.RemoveRangeFromProjection(previousSelectProjectionCount);
 

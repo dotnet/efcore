@@ -38,6 +38,7 @@
     <Compile Include="AsyncFromSqlQuerySqlServerTest.cs" />
     <Compile Include="AsyncFromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="CommandConfigurationTest.cs" />
+    <Compile Include="CompiledQueryCacheKeyGeneratorTest.cs" />
     <Compile Include="ComputedColumnTest.cs" />
     <Compile Include="DataAnnotationSqlServerFixture.cs" />
     <Compile Include="DataAnnotationSqlServerTest.cs" />
@@ -46,6 +47,7 @@
     <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />
     <Compile Include="MigrationsSqlServerFixture.cs" />
     <Compile Include="MigrationsSqlServerTest.cs" />
+    <Compile Include="NorthwindRowNumberPagingQuerySqlServerFixture.cs" />
     <Compile Include="NorthwindSprocQuerySqlServerFixture.cs" />
     <Compile Include="FromSqlQuerySqlServerTest.cs" />
     <Compile Include="NavigationTest.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="ComplexNavigationsQuerySqlServerTest.cs" />
     <Compile Include="F1SqlServerFixture.cs" />
     <Compile Include="QueryNavigationsSqlServerTest.cs" />
+    <Compile Include="RowNumberPagingTest.cs" />
     <Compile Include="SqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerFixture.cs" />
     <Compile Include="GearsOfWarQuerySqlServerTest.cs" />

@@ -49,5 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer
         public override IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<SqlServerCompositeExpressionFragmentTranslator>();
         public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<SqlServerQueryCompilationContextFactory>();
         public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqlServerQuerySqlGeneratorFactory>();
+        public override IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory => GetService<SqlServerQueryModelVisitorFactory>();
+        public override ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => GetService<SqlServerCompiledQueryCacheKeyGenerator>();
     }
 }

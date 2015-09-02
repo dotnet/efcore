@@ -19,6 +19,8 @@ namespace Microsoft.Data.Entity.SqlServer
         {
         }
 
+        public virtual bool? RowNumberPaging { get; set; }
+
         public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             => Check.NotNull(builder, nameof(builder)).AddSqlServer();
     }

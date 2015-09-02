@@ -29,13 +29,18 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
+            _options = ConfigureOptions();
+
+            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
+        }
+
+        protected virtual DbContextOptions ConfigureOptions()
+        {
             var optionsBuilder = new DbContextOptionsBuilder();
 
             optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
 
-            _options = optionsBuilder.Options;
-
-            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
+            return optionsBuilder.Options;
         }
 
         public override NorthwindContext CreateContext()

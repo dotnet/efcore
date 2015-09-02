@@ -47,7 +47,12 @@
     <Compile Include="ISqlServerConnection.cs" />
     <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerInternalMetadataBuilderExtensions.cs" />
+    <Compile Include="Query\Expressions\RowNumberExpression.cs" />
+    <Compile Include="Query\SqlServerCompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\SqlServerQueryCompilationContextFactory.cs" />
+    <Compile Include="Query\SqlServerQueryModelVisitor.cs" />
+    <Compile Include="Query\SqlServerQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\Sql\ISqlServerExpressionVisitor.cs" />
     <Compile Include="Query\Sql\SqlServerQuerySqlGeneratorFactory.cs" />
     <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />

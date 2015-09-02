@@ -93,5 +93,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Same(connection, extension.Connection);
             Assert.Null(extension.ConnectionString);
         }
+
+        [Fact]
+        public void Can_add_extension_with_legacy_paging()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+
+            optionsBuilder.UseSqlServer("Database=Kilimanjaro").UseRowNumberForPaging();
+
+            var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+            Assert.True(extension.RowNumberPaging.HasValue);
+            Assert.True(extension.RowNumberPaging.Value);
+        }
     }
 }

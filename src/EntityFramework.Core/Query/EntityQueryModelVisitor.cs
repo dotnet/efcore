@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query
         public static readonly MethodInfo PropertyMethodInfo
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
 
-        private readonly IModel _model;
+        protected virtual IModel Model { get; }
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
         private readonly ISubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
-            _model = model;
+            Model = model;
             _queryOptimizer = queryOptimizer;
             _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
             _subQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
@@ -129,8 +129,6 @@ namespace Microsoft.Data.Entity.Query
         public virtual ILinqOperatorProvider LinqOperatorProvider => QueryCompilationContext.LinqOperatorProvider;
 
         public virtual StreamedSequenceInfo StreamedSequenceInfo => _streamedSequenceInfo;
-
-        protected virtual IModel Model => _model;
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
@@ -362,7 +360,7 @@ namespace Microsoft.Data.Entity.Query
                 foreach (
                     var navigation in
                         from propertyInfo in chainedNavigationProperties
-                        let entityType = _model.FindEntityType(propertyInfo.DeclaringType)
+                        let entityType = Model.FindEntityType(propertyInfo.DeclaringType)
                         select entityType?.FindNavigation(propertyInfo.Name))
                 {
                     if (navigation == null)
@@ -1089,7 +1087,7 @@ namespace Microsoft.Data.Entity.Query
 
             while (memberExpression?.Expression != null)
             {
-                var entityType = _model.FindEntityType(memberExpression.Expression.Type);
+                var entityType = Model.FindEntityType(memberExpression.Expression.Type);
 
                 if (entityType == null)
                 {
@@ -1173,7 +1171,7 @@ namespace Microsoft.Data.Entity.Query
                         || querySource == null
                         || querySource == querySourceReferenceExpression.ReferencedQuerySource)
                     {
-                        var entityType = _model.FindEntityType(methodCallExpression.Arguments[0].Type);
+                        var entityType = Model.FindEntityType(methodCallExpression.Arguments[0].Type);
 
                         if (entityType != null)
                         {
