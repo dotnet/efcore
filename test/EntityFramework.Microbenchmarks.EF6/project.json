@@ -1,18 +1,18 @@
 {
-  "dependencies": {
-    "EntityFramework": "6.1.2",
-    "EntityFramework.Microbenchmarks.Core": "1.0.0",
-    "Microsoft.Framework.Configuration.Json": "1.0.0-*"
-  },
-  "commands": {
-    "test": "xunit.runner.dnx"
-  },
-  "frameworks": {
-    "net46": { },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.dnx": "2.1.0-*"
-      }
+    "dependencies": {
+        "EntityFramework": "6.1.2",
+        "EntityFramework.Microbenchmarks.Core": "1.0.0",
+        "Microsoft.Framework.Configuration.Json": "1.0.0-beta7"
+    },
+    "commands": {
+        "test": "xunit.runner.dnx"
+    },
+    "frameworks": {
+        "net46": {},
+        "dnx451": {
+            "dependencies": {
+                "xunit.runner.dnx": "2.1.0-*"
+            }
+        }
     }
-  }
 }

@@ -1,41 +1,47 @@
 {
-  "dependencies": {
-    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-    "Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-*"
-  },
-  "commands": {
-    "test": "xunit.runner.dnx"
-  },
-  "frameworks": {
-    "net46": {
-      "dependencies": {
-        "xunit.assert": "2.1.0-beta3-build3029",
-        "xunit.extensibility.execution": "2.1.0-beta3-build3029"
-      },
-      "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Reflection": { "version": "4.0.0.0", "type": "build" },
-        "System.Runtime": { "version": "4.0.0.0", "type": "build" }
-      }
+    "dependencies": {
+        "Microsoft.Framework.Configuration.Json": "1.0.0-beta7",
+        "Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-beta7"
     },
-    "dnxcore50": {
-      "dependencies": {
-        "System.Data.SqlClient": "4.0.0-*",
-        "xunit.assert": "2.1.0-*",
-        "xunit.extensibility.execution": "2.1.0-*",
-        "xunit.runner.dnx": "2.1.0-*"
-      }
+    "commands": {
+        "test": "xunit.runner.dnx"
     },
-    "dnx451": {
-      "dependencies": {
-        "xunit.assert": "2.1.0-*",
-        "xunit.extensibility.execution": "2.1.0-*",
-        "xunit.runner.dnx": "2.1.0-*"
-      },
-      "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Reflection": "4.0.0.0"
-      }
+    "frameworks": {
+        "net46": {
+            "dependencies": {
+                "xunit.assert": "2.1.0-beta3-build3029",
+                "xunit.extensibility.execution": "2.1.0-beta3-build3029"
+            },
+            "frameworkAssemblies": {
+                "System.Data": "4.0.0.0",
+                "System.Reflection": {
+                    "version": "4.0.0.0",
+                    "type": "build"
+                },
+                "System.Runtime": {
+                    "version": "4.0.0.0",
+                    "type": "build"
+                }
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Data.SqlClient": "4.0.0-beta-23225",
+                "xunit.assert": "2.1.0-*",
+                "xunit.extensibility.execution": "2.1.0-*",
+                "xunit.runner.dnx": "2.1.0-*"
+            }
+        },
+        "dnx451": {
+            "dependencies": {
+                "xunit.assert": "2.1.0-*",
+                "xunit.extensibility.execution": "2.1.0-*",
+                "xunit.runner.dnx": "2.1.0-*"
+            },
+            "frameworkAssemblies": {
+                "System.Data": "4.0.0.0",
+                "System.Reflection": "4.0.0.0"
+            }
+        }
     }
-  }
 }

@@ -1,34 +1,36 @@
 {
-  "version": "7.0.0-*",
-  "description": "Shared Entity Framework components for relational data stores.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "EntityFramework.Core": "7.0.0-*"
-  },
-  "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "EntityFramework.Relational.Strings": "Properties/Strings.resx"
-  },
-  "resource": ["Properties/EntityFramework.Relational.rd.xml"],
-  "frameworks": {
-    "net45": {
-      "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Transactions": "4.0.0.0"
-      }
+    "version": "7.0.0-beta7",
+    "description": "Shared Entity Framework components for relational data stores.",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/aspnet/entityframework"
     },
-    "dotnet": {
-      "dependencies": {
-        "System.Data.Common": "4.0.1-beta-*",
-        "System.Text.RegularExpressions": "4.0.11-beta-*",
-        "Microsoft.CSharp": "4.0.1-beta-*"
-      }
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework.Core": "7.0.0-beta7"
+    },
+    "compile": "..\\Shared\\*.cs",
+    "namedResource": {
+        "EntityFramework.Relational.Strings": "Properties/Strings.resx"
+    },
+    "resource": [
+        "Properties/EntityFramework.Relational.rd.xml"
+    ],
+    "frameworks": {
+        "net45": {
+            "frameworkAssemblies": {
+                "System.Data": "4.0.0.0",
+                "System.Transactions": "4.0.0.0"
+            }
+        },
+        "dotnet": {
+            "dependencies": {
+                "System.Data.Common": "4.0.1-beta-23225",
+                "System.Text.RegularExpressions": "4.0.11-beta-23225",
+                "Microsoft.CSharp": "4.0.1-beta-23225"
+            }
+        }
     }
-  }
 }

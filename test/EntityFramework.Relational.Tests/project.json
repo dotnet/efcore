@@ -1,22 +1,25 @@
 {
-  "dependencies": {
-    "EntityFramework.Core.Tests": "1.0.0",
-    "EntityFramework.Relational": "7.0.0-*",
-    "EntityFramework.Relational.FunctionalTests": "7.0.0-*"
-  },
-  "commands": {
-    "test": "xunit.runner.dnx"
-  },
-  "frameworks": {
-    "net46": {
-      "frameworkAssemblies": {
-        "System.Text.RegularExpressions": { "version": "4.0.0.0", "type": "build" }
-      }
+    "dependencies": {
+        "EntityFramework.Core.Tests": "1.0.0",
+        "EntityFramework.Relational": "7.0.0-beta7",
+        "EntityFramework.Relational.FunctionalTests": "7.0.0-*"
     },
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.Text.RegularExpressions": "4.0.0.0"
-      }
+    "commands": {
+        "test": "xunit.runner.dnx"
+    },
+    "frameworks": {
+        "net46": {
+            "frameworkAssemblies": {
+                "System.Text.RegularExpressions": {
+                    "version": "4.0.0.0",
+                    "type": "build"
+                }
+            }
+        },
+        "dnx451": {
+            "frameworkAssemblies": {
+                "System.Text.RegularExpressions": "4.0.0.0"
+            }
+        }
     }
-  }
 }
