@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -65,12 +66,38 @@ namespace Microsoft.Data.Entity.Tests
             Assert.StartsWith("7.0.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
 
+        [Fact]
+        public void Applies_conventions()
+        {
+            var contributor = new TestConvention();
+            var contributorSourceMock = new Mock<IModelBuilderConventionSource>();
+            contributorSourceMock.Setup(x => x.GetConventions()).Returns(new[] {contributor});
+            
+            var modelSource = CreateDefaultModelSource(new DbSetFinder());
+            var model = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()),
+                contributorSourceMock.Object);
+
+            Assert.True(model.EntityTypes.Any(x => x.ClrType == typeof(TestEntity)));
+        }
+
         private class Context1 : DbContext
         {
         }
 
         private class Context2 : DbContext
         {
+        }
+
+        private class TestEntity
+        {
+        }
+
+        private class TestConvention : IModelBuilderConvention
+        {
+            public void Apply(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<TestEntity>();
+            }
         }
 
         private IModelSource CreateDefaultModelSource(IDbSetFinder setFinder)

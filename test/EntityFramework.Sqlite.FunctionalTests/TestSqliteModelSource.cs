@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder);
         }
 
-        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator) =>
-            _testModelSource.GetModel(context, conventionSetBuilder, validator);
+        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator, IModelBuilderConventionSource modelBuilderConventionSource) =>
+            _testModelSource.GetModel(context, conventionSetBuilder, validator, modelBuilderConventionSource);
 
         public static Func<IServiceProvider, SqliteModelSource> GetFactory(Action<ModelBuilder> onModelCreating) =>
             p => new TestSqliteModelSource(

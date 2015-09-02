@@ -10,6 +10,6 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public interface IModelSource
     {
-        IModel GetModel([NotNull] DbContext context, [CanBeNull] IConventionSetBuilder conventionSetBuilder, [NotNull] IModelValidator validator);
+        IModel GetModel([NotNull] DbContext context, [CanBeNull] IConventionSetBuilder conventionSetBuilder, [NotNull] IModelValidator validator, [CanBeNull]IModelBuilderConventionSource modelBuilderConventionSource = null);
     }
 }

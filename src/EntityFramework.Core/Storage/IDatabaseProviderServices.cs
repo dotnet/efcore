@@ -20,5 +20,6 @@ namespace Microsoft.Data.Entity.Storage
         IModelValidator ModelValidator { get; }
         IQueryContextFactory QueryContextFactory { get; }
         IValueGeneratorCache ValueGeneratorCache { get; }
+        IModelBuilderConventionSource ModelBuilderConventionSource { get; }
     }
 }

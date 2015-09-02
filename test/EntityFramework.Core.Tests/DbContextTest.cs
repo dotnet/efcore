@@ -1904,7 +1904,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private class FakeModelSource : IModelSource
         {
-            public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null)
+            public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator = null, IModelBuilderConventionSource modelBuilderConventionSource = null)
             {
                 return null;
             }

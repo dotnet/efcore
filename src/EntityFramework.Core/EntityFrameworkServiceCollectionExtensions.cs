@@ -111,6 +111,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(p => GetProviderServices(p).ConventionSetBuilder)
                 .AddScoped(p => GetProviderServices(p).ValueGeneratorCache)
                 .AddScoped(p => GetProviderServices(p).ModelSource)
+                .AddScoped(p => GetProviderServices(p).ModelBuilderConventionSource)
                 .AddScoped(p => GetProviderServices(p).ModelValidator)
                 .AddSingleton<IMemoryCache, MemoryCache>()
                 .AddOptions());

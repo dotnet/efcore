@@ -29,17 +29,19 @@ namespace Microsoft.Data.Entity.Internal
             CoreConventionSetBuilder = coreConventionSetBuilder;
         }
 
-        public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
-            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, conventionSetBuilder, validator));
+        public virtual IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator, IModelBuilderConventionSource modelBuilderConventionSource)
+            => _models.GetOrAdd(context.GetType(), k => CreateModel(context, conventionSetBuilder, validator, modelBuilderConventionSource));
 
         protected virtual IModel CreateModel(
             [NotNull] DbContext context,
             [CanBeNull] IConventionSetBuilder conventionSetBuilder,
-            [NotNull] IModelValidator validator)
+            [NotNull] IModelValidator validator,
+            [CanBeNull] IModelBuilderConventionSource modelBuilderConventionSource
+            )
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(validator, nameof(validator));
-
+            
             var conventionSet = CreateConventionSet(conventionSetBuilder);
             var model = new Model();
 
@@ -48,7 +50,7 @@ namespace Microsoft.Data.Entity.Internal
             var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);
-
+            ApplyConventions(modelBuilder, modelBuilderConventionSource);
             OnModelCreating(context, modelBuilder);
 
             modelBuilder.Validate();
@@ -76,5 +78,14 @@ namespace Microsoft.Data.Entity.Internal
 
         public static void OnModelCreating([NotNull] DbContext context, [NotNull] ModelBuilder modelBuilder)
             => context.OnModelCreating(modelBuilder);
+
+        public static void ApplyConventions(ModelBuilder modelBuilder,
+            [CanBeNull] IModelBuilderConventionSource modelBuilderConventionSource)
+        {
+            if (modelBuilderConventionSource == null) return;
+
+            foreach(var contributor in modelBuilderConventionSource.GetConventions())
+                contributor.Apply(modelBuilder);
+        }
     }
 }
