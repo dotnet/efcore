@@ -221,7 +221,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
                             Expression.Constant(keyFactory),
                             Expression.Constant(entityType.GetPrimaryKey().Properties),
-                            materializer
+                            materializer,
+                            Expression.Constant(false)
                         });
             }
 
@@ -281,7 +282,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             bool queryStateManager,
             EntityKeyFactory entityKeyFactory,
             IReadOnlyList<IProperty> keyProperties,
-            Func<ValueBuffer, object> materializer)
+            Func<ValueBuffer, object> materializer,
+            bool allowNullResult)
             where TEntity : class
         {
             valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
@@ -289,19 +291,27 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var entityKey
                 = entityKeyFactory.Create(keyProperties, valueBuffer);
 
-            return new QueryResultScope<TEntity>(
-                querySource,
-                entityKey != EntityKey.InvalidEntityKey
-                    ? (TEntity)queryContext.QueryBuffer
+            TEntity entity = null;
+
+            if (entityKey == EntityKey.InvalidEntityKey)
+            {
+                if (!allowNullResult)
+                {
+                    throw new InvalidOperationException(Strings.InvalidKeyValue(entityType.DisplayName()));
+                }
+            }
+            else
+            {
+                entity
+                    = (TEntity)queryContext.QueryBuffer
                         .GetEntity(
                             entityType,
                             entityKey,
-                            new EntityLoadInfo(
-                                valueBuffer,
-                                materializer),
-                            queryStateManager)
-                    : null,
-                parentQueryResultScope);
+                            new EntityLoadInfo(valueBuffer, materializer),
+                            queryStateManager);
+            }
+
+            return new QueryResultScope<TEntity>(querySource, entity, parentQueryResultScope);
         }
     }
 }

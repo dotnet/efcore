@@ -11,33 +11,70 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Local
+
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
-        private static void CreateTestStore<TContext>(
-            string databaseName, 
-            IServiceProvider serviceProvider,
-            Func<IServiceProvider, DbContextOptions, TContext> contextCreator,
-            Action<TContext> contextInitializer)
-            where TContext : DbContext, IDisposable
+        [Fact]
+        public void Query_when_sentinel_key_in_database_should_throw()
         {
-            var connectionString = SqlServerTestStore.CreateConnectionString(databaseName);
-            SqlServerTestStore.GetOrCreateShared(databaseName, () =>
+            using (var testStore = SqlServerTestStore.CreateScratch())
+            {
+                testStore.ExecuteNonQuery(
+                    @"CREATE TABLE ZeroKey (Id int);
+                      INSERT ZeroKey VALUES (0)");
+
+                using (var context = new SentinelKeyContext(testStore.Connection.ConnectionString))
                 {
-                    var optionsBuilder = new DbContextOptionsBuilder();
-                    optionsBuilder.UseSqlServer(connectionString);
+                    Assert.Equal(
+                        Relational.Internal.Strings.InvalidKeyValue("ZeroKey"),
+                        Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
+                }
+            }
+        }
 
-                    using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
-                    {
-                        if (context.Database.EnsureCreated())
-                        {
-                            contextInitializer(context);
-                        }
+        [Fact]
+        public void Query_when_null_sentinel_key_in_database_should_throw()
+        {
+            using (var testStore = SqlServerTestStore.CreateScratch())
+            {
+                testStore.ExecuteNonQuery(
+                    @"CREATE TABLE ZeroKey (Id int);
+                      INSERT ZeroKey VALUES (NULL)");
 
-                        TestSqlLoggerFactory.SqlStatements.Clear();
-                    }
-                });
+                using (var context = new SentinelKeyContext(testStore.Connection.ConnectionString))
+                {
+                    Assert.Equal(
+                        Relational.Internal.Strings.InvalidKeyValue("ZeroKey"),
+                        Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
+                }
+            }
+        }
+
+        private class SentinelKeyContext : DbContext
+        {
+            private readonly string _connectionString;
+
+            public SentinelKeyContext(string connectionString)
+            {
+                _connectionString = connectionString;
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(_connectionString);
+
+            public DbSet<ZeroKey> ZeroKeys { get; set; }
+
+            public class ZeroKey
+            {
+                public int Id { get; set; }
+            }
         }
 
         [Fact]
@@ -79,10 +116,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await ctx.SaveChangesAsync();
             }
         }
-             
+
         private class Product
         {
             public int Id { get; set; }
+
             public string Name { get; set; }
         }
 
@@ -96,9 +134,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public DbSet<Product> Products { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
-            }
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro603"));
         }
 
         [Fact]
@@ -180,7 +216,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
                 "Repro925",
                 _fixture.ServiceProvider,
                 (sp, co) => new MyContext925(sp),
-                (context) =>
+                context =>
                     {
                         var order11 = new Order { Name = "Order11" };
                         var order12 = new Order { Name = "Order12" };
@@ -222,9 +258,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
             public DbSet<Order> Orders { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
-            }
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -299,7 +333,7 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName] AND [o
                 "Repro963",
                 _fixture.ServiceProvider,
                 (sp, co) => new MyContext963(sp),
-                (context) =>
+                context =>
                     {
                         var drogon = new Dragon { Name = "Drogon" };
                         var rhaegal = new Dragon { Name = "Rhaegal" };
@@ -356,13 +390,12 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             }
 
             public DbSet<Targaryen> Targaryens { get; set; }
+            // ReSharper disable once MemberHidesStaticFromOuterClass
             public DbSet<Details> Details { get; set; }
             public DbSet<Dragon> Dragons { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            {
-                optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
-            }
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro963"));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
@@ -377,14 +410,12 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
 
         [Fact]
         public void Compiler_generated_local_closure_produces_valid_parameter_name_1742()
-        {
-            Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
-        }
+            => Execute1742(new CustomerDetails_1742 { FirstName = "Foo", LastName = "Bar" });
 
         public void Execute1742(CustomerDetails_1742 details)
         {
             CreateDatabase925();
-            
+
             var loggingFactory = new TestSqlLoggerFactory();
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -397,10 +428,10 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             {
                 var firstName = details.FirstName;
 
-                var query = ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
+                ctx.Customers.Where(c => c.FirstName == firstName && c.LastName == details.LastName).ToList();
 
-                var expectedSql =
-@"@__firstName_0: Foo
+                const string expectedSql
+                    = @"@__firstName_0: Foo
 @__8__locals1_details_LastName_1: Bar
 
 SELECT [c].[FirstName], [c].[LastName]
@@ -417,12 +448,36 @@ WHERE ([c].[FirstName] = @__firstName_0 AND [c].[LastName] = @__8__locals1_detai
             public string LastName { get; set; }
         }
 
-
         private readonly SqlServerFixture _fixture;
 
         public QueryBugsTest(SqlServerFixture fixture)
         {
             _fixture = fixture;
+        }
+
+        private static void CreateTestStore<TContext>(
+            string databaseName,
+            IServiceProvider serviceProvider,
+            Func<IServiceProvider, DbContextOptions, TContext> contextCreator,
+            Action<TContext> contextInitializer)
+            where TContext : DbContext, IDisposable
+        {
+            var connectionString = SqlServerTestStore.CreateConnectionString(databaseName);
+            SqlServerTestStore.GetOrCreateShared(databaseName, () =>
+                {
+                    var optionsBuilder = new DbContextOptionsBuilder();
+                    optionsBuilder.UseSqlServer(connectionString);
+
+                    using (var context = contextCreator(serviceProvider, optionsBuilder.Options))
+                    {
+                        if (context.Database.EnsureCreated())
+                        {
+                            contextInitializer(context);
+                        }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
+                    }
+                });
         }
     }
 }

@@ -69,6 +69,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var4.Region = (string) object prm3.get_Item(10)
                     var4
                 }
+                , 
+                allowNullResult: False
             )
         )
     )
@@ -167,6 +169,8 @@ WHERE [c].[City] = @__city_0",
                         var4.Region = (string) object prm3.get_Item(10)
                         var4
                     }
+                    , 
+                    allowNullResult: False
                 )
             )
             , 

@@ -2178,6 +2178,17 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
         }
 
+        public override void GroupJoin_simple()
+        {
+            base.GroupJoin_simple();
+
+            Assert.Equal(
+     @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+     Sql);
+        }
+
         public override void GroupJoin_simple_subquery()
         {
             base.GroupJoin_simple_subquery();

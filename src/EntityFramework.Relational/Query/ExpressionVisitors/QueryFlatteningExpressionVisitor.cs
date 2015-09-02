@@ -88,6 +88,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         var oldBufferOffset = (int)((ConstantExpression)newArguments[4]).Value;
 
                         newArguments[4] = Expression.Constant(oldBufferOffset + _readerOffset);
+                        newArguments[10] = Expression.Constant(true);
                     }
 
                     newExpression
