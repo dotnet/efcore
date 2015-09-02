@@ -47,6 +47,11 @@
       }
     }
   },
+  "packInclude": {
+    "build/": "build/**",
+    "lib/": "lib/**",
+    "tools/": [ "tools/**", "IHandlers.cs" ]
+  },
   "commands": {
     "ef": "EntityFramework.Commands"
   }
