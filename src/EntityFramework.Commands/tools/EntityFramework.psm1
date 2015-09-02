@@ -499,10 +499,10 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     Write-Verbose "Using start-up project '$startupProjectName'."
 
     if (![Type]::GetType('Microsoft.Data.Entity.Commands.ILogHandler')) {
-        Add-Type @(
-            Join-Path $PSScriptRoot IHandlers.cs
-            Join-Path $PSScriptRoot Handlers.cs
-        )
+        Add-Type -Path (Join-Path $PSScriptRoot Handlers.cs) -CompilerParameters (
+            New-Object CodeDom.Compiler.CompilerParameters -Property @{
+                CompilerOptions = '/d:ENABLE_HANDLERS'
+            })
     }
 
     $logHandler = New-Object Microsoft.Data.Entity.Commands.LogHandler @(

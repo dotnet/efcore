@@ -51,7 +51,7 @@
     <Compile Include="DesignTimeServices.cs" />
     <Compile Include="Executor.cs" />
     <Compile Include="Extensions\CommandLineUtilsExtensions.cs" />
-    <Compile Include="IHandlers.cs" />
+    <Compile Include="Handlers.cs" />
     <Compile Include="MigrationTool.cs" />
     <Compile Include="Migrations\ScaffoldedMigration.cs" />
     <Compile Include="Migrations\CSharpMigrationGenerator.cs" />
@@ -70,7 +70,6 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="Utilities\ServiceProvider.cs" />
-    <None Include="tools\Handlers.cs" />
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
@@ -90,6 +89,8 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
+    <None Include="build\netcore50\EntityFramework.Commands.props" />
+    <None Include="lib\netcore50\_._" />
     <None Include="project.json" />
     <None Include="tools\about_EntityFramework.help.txt" />
     <None Include="tools\EntityFramework.psd1" />

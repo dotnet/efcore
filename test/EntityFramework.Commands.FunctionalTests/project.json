@@ -1,10 +1,13 @@
 {
+  "compilationOptions": {
+    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ]
+  },
   "dependencies": {
     "EntityFramework.Commands": "7.0.0-*",
     "EntityFramework.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework.SqlServer": "7.0.0-*"
   },
-  "compile": "..\\..\\src\\EntityFramework.Commands\\tools\\Handlers.cs",
+  "compile": "..\\..\\src\\EntityFramework.Commands\\Handlers.cs",
   "commands": {
     "test": "xunit.runner.dnx"
   },

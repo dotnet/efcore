@@ -1,12 +1,28 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if !DNXCORE50
-
+#if ENABLE_HANDLERS
 using System;
+#endif
 
 namespace Microsoft.Data.Entity.Commands
 {
+#if !OMIT_HANDLER_INTERFACES
+    public interface IResultHandler
+    {
+        void OnResult(object value);
+        void OnError(string type, string message, string stackTrace);
+    }
+
+    public interface ILogHandler
+    {
+        void WriteWarning(string message);
+        void WriteInformation(string message);
+        void WriteVerbose(string message);
+    }
+#endif
+
+#if ENABLE_HANDLERS
     public class ResultHandler : MarshalByRefObject, IResultHandler
     {
         private bool _hasResult;
@@ -94,6 +110,5 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
     }
-}
-
 #endif
+}

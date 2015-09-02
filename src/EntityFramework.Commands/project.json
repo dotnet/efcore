@@ -9,7 +9,6 @@
     "warningsAsErrors": true
   },
   "compile": "..\\Shared\\*.cs",
-  "exclude": "tools\\Handlers.cs",
   "namedResource": {
     "EntityFramework.Commands.Strings": "Properties/Strings.resx"
   },
@@ -50,7 +49,7 @@
   "packInclude": {
     "build/": "build/**",
     "lib/": "lib/**",
-    "tools/": [ "tools/**", "IHandlers.cs" ]
+    "tools/": [ "tools/**", "Handlers.cs" ]
   },
   "commands": {
     "ef": "EntityFramework.Commands"
