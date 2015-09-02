@@ -23,6 +23,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(propertyAccessor[properties[0]]);
 
+        public override bool IsNullKey(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
+            => valueBuffer[properties[0].Index] == null;
+
         private EntityKey Create(object value)
             => value != null
                 ? new SimpleEntityKey<TKey>(Key, (TKey)value)

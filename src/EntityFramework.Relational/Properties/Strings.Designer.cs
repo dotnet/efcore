@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Internal
         }
 
         /// <summary>
-        /// Can not create a ModificationFunction for an entity in state '{entityState}'.
+        /// Cannot create a ModificationFunction for an entity in state '{entityState}'.
         /// </summary>
         public static string ModificationFunctionInvalidEntityState([CanBeNull] object entityState)
         {
@@ -106,14 +106,6 @@ namespace Microsoft.Data.Entity.Relational.Internal
         public static string TransactionAssociatedWithDifferentConnection
         {
             get { return GetString("TransactionAssociatedWithDifferentConnection"); }
-        }
-
-        /// <summary>
-        /// The parameter '{parameterName}' was already specified with a different value.
-        /// </summary>
-        public static string DuplicateParameterName([CanBeNull] object parameterName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateParameterName", "parameterName"), parameterName);
         }
 
         /// <summary>
@@ -405,6 +397,14 @@ namespace Microsoft.Data.Entity.Relational.Internal
         }
 
         /// <summary>
+        /// The parameter '{parameterName}' was already specified with a different value.
+        /// </summary>
+        public static string DuplicateParameterName([CanBeNull] object parameterName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateParameterName", "parameterName"), parameterName);
+        }
+
+        /// <summary>
         /// Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.
         /// </summary>
         public static string DiscriminatorEntityTypeNotDerived([CanBeNull] object entityType, [CanBeNull] object rootEntityType)
@@ -442,6 +442,14 @@ namespace Microsoft.Data.Entity.Relational.Internal
         public static string NoDiscriminatorValue([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NoDiscriminatorValue", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Unable to materialize an entity of type '{entityType}' because it has an invalid key value. Ensure that the key properties of the entity type have the correct sentinel value configuration.
+        /// </summary>
+        public static string InvalidKeyValue([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidKeyValue", "entityType"), entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

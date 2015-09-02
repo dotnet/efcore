@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -22,6 +23,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override EntityKey Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(properties, p => propertyAccessor[p]);
 
+        public override bool IsNullKey(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
+            => properties.Any(t => valueBuffer[t.Index] == null);
+        
         private EntityKey Create(IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
         {
             var components = new object[properties.Count];
