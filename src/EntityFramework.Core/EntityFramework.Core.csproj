@@ -259,7 +259,6 @@
     <Compile Include="Query\ExpressionVisitors\ExpressionStringBuilder.cs" />
     <Compile Include="Query\ExpressionVisitors\ExpressionVisitorBase.cs" />
     <Compile Include="Query\IQueryCompilationContextFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\FunctionEvaluationDisablingVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\NavigationRewritingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\ParameterExtractingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\QueryAnnotatingExpressionVisitor.cs" />

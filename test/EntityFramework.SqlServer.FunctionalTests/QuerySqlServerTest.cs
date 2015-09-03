@@ -440,17 +440,11 @@ WHERE [c].[City] = @__city_InstanceFieldValue_0",
             base.Where_method_call_closure_via_query_cache();
 
             Assert.Equal(
-                @"@__GetCity_0: London
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[City] = @__GetCity_0
-
-@__GetCity_0: Seattle
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[City] = @__GetCity_0",
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -622,11 +616,8 @@ FROM [Orders] AS [o]",
             base.OrderBy_Count_with_predicate_client_eval_mixed();
 
             Assert.Equal(
-                @"@__ClientEvalPredicateStateless_0: True
-
-SELECT COUNT(*)
-FROM [Orders] AS [o]
-WHERE @__ClientEvalPredicateStateless_0 = 1",
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
                 Sql);
         }
 
@@ -635,11 +626,8 @@ WHERE @__ClientEvalPredicateStateless_0 = 1",
             base.OrderBy_Where_Count_with_predicate_client_eval();
 
             Assert.Equal(
-                @"@__ClientEvalPredicateStateless_1: True
-
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]
-WHERE @__ClientEvalPredicateStateless_1 = 1",
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]",
                 Sql);
         }
 
@@ -651,6 +639,16 @@ WHERE @__ClientEvalPredicateStateless_1 = 1",
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE ([o].[CustomerID] <> 'ALFKI' OR [o].[CustomerID] IS NULL)",
+                Sql);
+        }
+
+        public override void OrderBy_client_Take()
+        {
+            base.OrderBy_client_Take();
+
+            Assert.Equal(
+                @"SELECT TOP(10) [o].[EmployeeID], [o].[City], [o].[Country], [o].[FirstName], [o].[ReportsTo], [o].[Title]
+FROM [Employees] AS [o]",
                 Sql);
         }
 
@@ -2901,11 +2899,8 @@ WHERE [c].[ContactName] LIKE [c].[ContactName] + '%'",
             base.String_StartsWith_MethodCall();
 
             Assert.Equal(
-                @"@__LocalMethod1_0: M
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__LocalMethod1_0 + '%'",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -2948,11 +2943,8 @@ WHERE [c].[ContactName] LIKE '%' + [c].[ContactName]",
             base.String_EndsWith_MethodCall();
 
             Assert.Equal(
-                @"@__LocalMethod2_0: m
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE '%' + @__LocalMethod2_0",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -2995,16 +2987,12 @@ WHERE [c].[ContactName] LIKE ('%' + [c].[ContactName] + '%')",
         public override void String_Contains_MethodCall()
         {
             AssertQuery<Customer>(
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1()) || c.ContactName.Contains(LocalMethod2())), // case-sensitive
-                entryCount: 34);
+                cs => cs.Where(c => c.ContactName.Contains(LocalMethod1())), 
+                entryCount: 19);
 
             Assert.Equal(
-                @"@__LocalMethod1_0: M
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE ('%' + @__LocalMethod1_0 + '%')",
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]",
                 Sql);
         }
 
@@ -3099,11 +3087,9 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> UPPER([c].[CustomerID])
 
-@__ToUpper_0: ALF
-
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] > REPLACE('ALFKI', @__ToUpper_0, [c].[CustomerID])
+WHERE [c].[CustomerID] > REPLACE('ALFKI', UPPER('ALF'), [c].[CustomerID])
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -3113,11 +3099,9 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > UPPER([c].[CustomerID])
 
-@__ToUpper_0: ALF
-
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] < REPLACE('ALFKI', @__ToUpper_0, [c].[CustomerID])",
+WHERE [c].[CustomerID] < REPLACE('ALFKI', UPPER('ALF'), [c].[CustomerID])",
                 Sql);
         }
 
@@ -3159,11 +3143,9 @@ WHERE (ABS([od].[UnitPrice]) > 10)",
             base.Where_math_abs_uncorrelated();
 
             Assert.Equal(
-                @"@__Abs_0: 10
-
-SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
 FROM [Order Details] AS [od]
-WHERE @__Abs_0 < [od].[ProductID]",
+WHERE (ABS(-10) < [od].[ProductID])",
                 Sql);
         }
 

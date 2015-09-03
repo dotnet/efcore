@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -15,15 +14,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class ParameterExtractingExpressionVisitor : ExpressionVisitorBase
     {
         public static Expression ExtractParameters(
-            [NotNull] Expression expressionTree,
+            [NotNull] Expression expression,
             [NotNull] QueryContext queryContext,
             [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
         {
-            var functionEvaluationDisabledExpression = new FunctionEvaluationDisablingVisitor().Visit(expressionTree);
-            var partialEvaluationInfo = EvaluatableTreeFindingExpressionVisitor.Analyze(functionEvaluationDisabledExpression, evaluatableExpressionFilter);
+            var partialEvaluationInfo
+                = EvaluatableTreeFindingExpressionVisitor
+                    .Analyze(expression, evaluatableExpressionFilter);
+
             var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext);
 
-            return visitor.Visit(functionEvaluationDisabledExpression);
+            return visitor.Visit(expression);
         }
 
         private readonly PartialEvaluationInfo _partialEvaluationInfo;
@@ -38,14 +39,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
-            if (methodCallExpression.Method.IsGenericMethod)
+            if (methodCallExpression.Method.IsGenericMethod
+                && ReferenceEquals(
+                    methodCallExpression.Method.GetGenericMethodDefinition(), 
+                    EntityQueryModelVisitor.PropertyMethodInfo))
             {
-                var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
-
-                if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo))
-                {
-                    return methodCallExpression;
-                }
+                return methodCallExpression;
             }
 
             return base.VisitMethodCall(methodCallExpression);
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            if (!typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
+            if (!typeof(IQueryable).IsAssignableFrom(e.Type))
             {
                 var constantExpression = e as ConstantExpression;
 

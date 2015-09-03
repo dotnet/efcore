@@ -10,12 +10,10 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -27,24 +25,11 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryCompiler : IQueryCompiler
     {
-        private class ReadonlyNodeTypeProvider : INodeTypeProvider
-        {
-            private readonly INodeTypeProvider _nodeTypeProvider;
-
-            public ReadonlyNodeTypeProvider(INodeTypeProvider nodeTypeProvider)
-            {
-                _nodeTypeProvider = nodeTypeProvider;
-            }
-
-            public bool IsRegistered(MethodInfo method) => _nodeTypeProvider.IsRegistered(method);
-
-            public Type GetNodeType(MethodInfo method) => _nodeTypeProvider.GetNodeType(method);
-        }
-
-        private static readonly Lazy<ReadonlyNodeTypeProvider> _cachedNodeTypeProvider = new Lazy<ReadonlyNodeTypeProvider>(CreateNodeTypeProvider);
-
         private static MethodInfo CompileQueryMethod { get; }
             = typeof(IDatabase).GetTypeInfo().GetDeclaredMethod("CompileQuery");
+
+        private static readonly INodeTypeProvider _nodeTypeProvider = CreateNodeTypeProvider();
+        private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter = new EvaluatableExpressionFilter();
 
         private readonly IQueryContextFactory _contextFactory;
         private readonly ICompiledQueryCache _cache;
@@ -68,7 +53,7 @@ namespace Microsoft.Data.Entity.Query
             _database = database;
         }
 
-        public virtual TResult Execute<TResult>([NotNull] Expression query)
+        public virtual TResult Execute<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
 
@@ -79,7 +64,7 @@ namespace Microsoft.Data.Entity.Query
             return CompileQuery<TResult>(query)(queryContext);
         }
 
-        public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>([NotNull] Expression query)
+        public virtual IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
 
@@ -90,11 +75,12 @@ namespace Microsoft.Data.Entity.Query
             return CompileAsyncQuery<TResult>(query)(queryContext);
         }
 
-        public virtual Task<TResult> ExecuteAsync<TResult>([NotNull] Expression query, CancellationToken cancellationToken)
+        public virtual Task<TResult> ExecuteAsync<TResult>(Expression query, CancellationToken cancellationToken)
         {
             Check.NotNull(query, nameof(query));
 
             var queryContext = _contextFactory.Create();
+
             queryContext.CancellationToken = cancellationToken;
 
             query = Preprocess(query, queryContext);
@@ -108,11 +94,10 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(query, nameof(query));
             Check.NotNull(queryContext, nameof(queryContext));
 
-            query = new QueryAnnotatingExpressionVisitor()
-                .Visit(query);
+            query = new QueryAnnotatingExpressionVisitor().Visit(query);
 
             return ParameterExtractingExpressionVisitor
-                .ExtractParameters(query, queryContext, new NullEvaluatableExpressionFilter());
+                .ExtractParameters(query, queryContext, _evaluatableExpressionFilter);
         }
 
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
@@ -129,22 +114,21 @@ namespace Microsoft.Data.Entity.Query
                     if (resultItemType == typeof(TResult))
                     {
                         var compiledQuery = _database.CompileQuery<TResult>(queryModel);
+
                         return qc => compiledQuery(qc).First();
                     }
-                    else
-                    {
-                        try
-                        {
-                            return (Func<QueryContext, TResult>)CompileQueryMethod
-                                .MakeGenericMethod(resultItemType)
-                                .Invoke(_database, new object[] { queryModel });
-                        }
-                        catch (TargetInvocationException e)
-                        {
-                            ExceptionDispatchInfo.Capture(e.InnerException).Throw();
 
-                            throw;
-                        }
+                    try
+                    {
+                        return (Func<QueryContext, TResult>)CompileQueryMethod
+                            .MakeGenericMethod(resultItemType)
+                            .Invoke(_database, new object[] { queryModel });
+                    }
+                    catch (TargetInvocationException e)
+                    {
+                        ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+
+                        throw;
                     }
                 });
         }
@@ -164,52 +148,26 @@ namespace Microsoft.Data.Entity.Query
         private static QueryParser CreateQueryParser()
             => new QueryParser(
                 new ExpressionTreeParser(
-                    _cachedNodeTypeProvider.Value,
-                        new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
+                    _nodeTypeProvider,
+                    new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                         {
-                            new PartialEvaluatingExpressionTreeProcessor(new NullEvaluatableExpressionFilter()),
-                            new FunctionEvaluationEnablingProcessor(),
+                            new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
                             new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
                         })));
 
-        private class NullEvaluatableExpressionFilter : EvaluatableExpressionFilterBase
+        private class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
         {
+            private static readonly PropertyInfo _dateTimeNow
+                = typeof(DateTime).GetTypeInfo().GetDeclaredProperty("Now");
+
+            public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression) 
+                => typeof(IQueryable).IsAssignableFrom(methodCallExpression.Type);
+
+            public override bool IsEvaluatableMember(MemberExpression memberExpression) 
+                => memberExpression.Member != _dateTimeNow;
         }
 
-        private class FunctionEvaluationEnablingProcessor : IExpressionTreeProcessor
-        {
-            public Expression Process(Expression expressionTree)
-                => new FunctionEvaluationEnablingVisitor().Visit(expressionTree);
-        }
-
-        private class FunctionEvaluationEnablingVisitor : ExpressionVisitorBase
-        {
-            protected override Expression VisitExtension(Expression expression)
-            {
-                var methodCallWrapper = expression as MethodCallEvaluationPreventingExpression;
-                if (methodCallWrapper != null)
-                {
-                    return Visit(methodCallWrapper.MethodCall);
-                }
-
-                var propertyWrapper = expression as PropertyEvaluationPreventingExpression;
-
-                return propertyWrapper
-                    != null ? Visit(propertyWrapper.MemberExpression)
-                    : base.VisitExtension(expression);
-            }
-
-            protected override Expression VisitSubQuery(SubQueryExpression expression)
-            {
-                var clonedModel = expression.QueryModel.Clone();
-
-                clonedModel.TransformExpressions(Visit);
-
-                return new SubQueryExpression(clonedModel);
-            }
-        }
-
-        private static ReadonlyNodeTypeProvider CreateNodeTypeProvider()
+        private static INodeTypeProvider CreateNodeTypeProvider()
         {
             var methodInfoBasedNodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly();
 
@@ -224,12 +182,12 @@ namespace Microsoft.Data.Entity.Query
 
             var innerProviders
                 = new INodeTypeProvider[]
-                {
-                    methodInfoBasedNodeTypeRegistry,
-                    MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
-                };
+                    {
+                        methodInfoBasedNodeTypeRegistry,
+                        MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
+                    };
 
-            return new ReadonlyNodeTypeProvider(new CompoundNodeTypeProvider(innerProviders));
+            return new CompoundNodeTypeProvider(innerProviders);
         }
     }
 }

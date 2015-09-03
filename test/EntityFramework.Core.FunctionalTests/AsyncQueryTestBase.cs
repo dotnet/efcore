@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable StringStartsWithIsCultureSpecific
+// ReSharper disable AccessToModifiedClosure
+// ReSharper disable StringEndsWithIsCultureSpecific
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -550,7 +554,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await Assert.ThrowsAsync<AggregateException>(async () =>
                     await context.Set<Customer>()
                         .Where(c => c.City == city.Throw().InstanceFieldValue)
                         .ToListAsync());
@@ -959,6 +963,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Where_bool_member_negated_twice()
         {
+            // ReSharper disable once DoubleNegationOperator
             await AssertQuery<Product>(ps => ps.Where(p => !!p.Discontinued), entryCount: 8);
         }
 
@@ -996,6 +1001,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual async Task Where_not_bool_member_compared_to_not_bool_member()
         {
+            // ReSharper disable once EqualExpressionComparison
             await AssertQuery<Product>(ps => ps.Where(p => !p.Discontinued == !p.Discontinued), entryCount: 77);
         }
 

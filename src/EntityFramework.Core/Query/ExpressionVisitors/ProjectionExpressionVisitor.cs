@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             {
                 var subQueryExpressionTypeInfo = subQueryExpression.Type.GetTypeInfo();
 
-                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(subQueryExpressionTypeInfo))
+                if (typeof(IQueryable).IsAssignableFrom(subQueryExpression.Type))
                 {
                     subExpression
                         = Expression.Call(

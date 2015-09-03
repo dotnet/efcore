@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
+// ReSharper disable ReplaceWithSingleCallToCount
 
 // ReSharper disable AccessToModifiedClosure
 
@@ -587,7 +588,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                Assert.Throws<InvalidOperationException>(() =>
+                Assert.Throws<NotImplementedException>(() =>
                     context.Set<Customer>()
                         .Where(c => c.City == city.Throw().InstanceFieldValue)
                         .ToList());
@@ -3002,6 +3003,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void OrderBy_Where_Count_with_predicate_client_eval_mixed()
         {
             AssertQuery<Order>(os => os.OrderBy(o => o.OrderID).Where(o => ClientEvalPredicate(o)).Count(o => o.CustomerID != "ALFKI"));
+        }
+
+        [Fact]
+        public virtual void OrderBy_client_Take()
+        {
+            AssertQuery<Employee>(es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
         }
 
         public static bool ClientEvalPredicateStateless()

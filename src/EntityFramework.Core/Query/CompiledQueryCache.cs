@@ -25,8 +25,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual Func<QueryContext, TResult> GetOrAddQuery<TResult>(
-            [NotNull] object cacheKey,
-            [NotNull] Func<Func<QueryContext, TResult>> compiler)
+            object cacheKey, Func<Func<QueryContext, TResult>> compiler)
         {
             Func<QueryContext, TResult> compiledQuery;
             lock (_compiledQueryLockObject)
@@ -42,8 +41,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> GetOrAddAsyncQuery<TResult>(
-            [NotNull] object cacheKey,
-            [NotNull] Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
+            object cacheKey, Func<Func<QueryContext, IAsyncEnumerable<TResult>>> compiler)
         {
             Func<QueryContext, IAsyncEnumerable<TResult>> compiledQuery;
             lock (_compiledQueryLockObject)
