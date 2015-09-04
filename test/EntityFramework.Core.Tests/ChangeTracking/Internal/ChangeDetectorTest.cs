@@ -1029,11 +1029,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory).EntityState);
 
-            Assert.Equal(EntityState.Detached, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
+            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Detached, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
+            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
         }
 
         [Fact]
@@ -1119,11 +1119,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3).EntityState);
 
-            Assert.Equal(EntityState.Detached, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
+            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
 
             changeDetector.DetectChanges(stateManager);
 
-            Assert.Equal(EntityState.Detached, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
+            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
         }
 
         [Fact]
@@ -1626,7 +1626,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Empty(originalCategory.Products);
 
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory).EntityState);
-            Assert.Equal(EntityState.Detached, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
+            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(newCategory.Tag).EntityState);
         }
 
         [Fact]
@@ -1706,7 +1706,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(new[] { product1, product2, product3 }.OrderBy(e => e.Id), category.Products.OrderBy(e => e.Id).ToArray());
 
             Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3).EntityState);
-            Assert.Equal(EntityState.Detached, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
+            Assert.Equal(EntityState.Added, stateManager.GetOrCreateEntry(product3.Tag).EntityState);
         }
 
         [Fact]

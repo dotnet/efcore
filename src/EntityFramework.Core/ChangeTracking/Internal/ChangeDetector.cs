@@ -12,11 +12,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class ChangeDetector : IChangeDetector
     {
-        private readonly IModel _model;
+        private readonly IEntityGraphAttacher _attacher;
 
-        public ChangeDetector([NotNull] IModel model)
+        public ChangeDetector([NotNull] IEntityGraphAttacher attacher)
         {
-            _model = model;
+            _attacher = attacher;
         }
 
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
@@ -247,7 +247,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 var addedEntry = stateManager.GetOrCreateEntry(addedEntity);
                 if (addedEntry.EntityState == EntityState.Detached)
                 {
-                    addedEntry.SetEntityState(EntityState.Added);
+                    _attacher.AttachGraph(addedEntry, EntityState.Added);
                 }
             }
         }

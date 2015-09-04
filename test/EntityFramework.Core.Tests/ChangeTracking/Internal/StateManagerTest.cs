@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -372,8 +371,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         internal class ChangeDetectorProxy : ChangeDetector
         {
-            public ChangeDetectorProxy([NotNull] IModel model)
-                : base(model)
+            public ChangeDetectorProxy(IEntityGraphAttacher attacher)
+                : base(attacher)
             {
             }
 

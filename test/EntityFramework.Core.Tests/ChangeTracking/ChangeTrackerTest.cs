@@ -936,15 +936,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
-        private static Product CreateSimpleGraph(int id)
-        {
-            return new Product { Id = id, Category = new Category { Id = id } };
-        }
+        private static Product CreateSimpleGraph(int id) 
+            => new Product { Id = id, Category = new Category { Id = id } };
 
         private class ChangeDetectorProxy : ChangeDetector
         {
-            public ChangeDetectorProxy(IModel model)
-                : base(model)
+            public ChangeDetectorProxy(IEntityGraphAttacher attacher)
+                : base(attacher)
             {
             }
 
