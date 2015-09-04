@@ -67,23 +67,23 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             return propertyConfiguration;
         }
 
-        public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiExclusively)
+        public virtual List<IFluentApiConfiguration> GetFluentApiConfigurations(bool useFluentApiOnly)
         {
-            return (useFluentApiExclusively
+            return (useFluentApiOnly
                 ? FluentApiConfigurations
                 : FluentApiConfigurations.Where(flc => !flc.HasAttributeEquivalent))
                 .ToList();
         }
 
-        public virtual List<PropertyConfiguration> GetPropertyConfigurations(bool useFluentApiExclusively)
+        public virtual List<PropertyConfiguration> GetPropertyConfigurations(bool useFluentApiOnly)
         {
             return PropertyConfigurations
-                .Where(pc => pc.GetFluentApiConfigurations(useFluentApiExclusively).Any()).ToList();
+                .Where(pc => pc.GetFluentApiConfigurations(useFluentApiOnly).Any()).ToList();
         }
 
-        public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useFluentApiExclusively)
+        public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useFluentApiOnly)
         {
-            return (useFluentApiExclusively
+            return (useFluentApiOnly
                 ? RelationshipConfigurations
                 : Enumerable.Empty<RelationshipConfiguration>())
                 .ToList();

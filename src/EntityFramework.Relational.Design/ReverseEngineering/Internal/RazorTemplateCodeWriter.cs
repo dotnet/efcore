@@ -35,15 +35,15 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
             TemplateEngine = templateEngine;
         }
 
-        protected Lazy<string> DbContextTemplate = new Lazy<string>(
-            () => ReadFromResource(
-                    typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
-                    DbContextTemplateResourceName));
+        protected string DbContextTemplate =
+            ReadFromResource(
+                typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
+                DbContextTemplateResourceName);
 
-        protected Lazy<string> EntityTypeTemplate = new Lazy<string>(
-            () => ReadFromResource(
-                    typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
-                    EntityTypeTemplateResourceName));
+        protected string EntityTypeTemplate =
+            ReadFromResource(
+                typeof(RelationalMetadataModelProvider).GetTypeInfo().Assembly,
+                EntityTypeTemplateResourceName);
 
         protected virtual RazorTemplating TemplateEngine { get;[param: NotNull] set; }
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
             var resultingFiles = new List<string>();
 
             var templateResult = await TemplateEngine.RunTemplateAsync(
-                DbContextTemplate.Value, modelConfiguration, cancellationToken);
+                DbContextTemplate, modelConfiguration, cancellationToken);
             if (templateResult.ProcessingException != null)
             {
                 throw new InvalidOperationException(
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
             foreach (var entityConfig in modelConfiguration.EntityConfigurations)
             {
                 templateResult = await TemplateEngine.RunTemplateAsync(
-                    EntityTypeTemplate.Value, entityConfig, cancellationToken);
+                    EntityTypeTemplate, entityConfig, cancellationToken);
                 if (templateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(

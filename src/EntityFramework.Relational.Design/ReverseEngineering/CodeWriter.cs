@@ -26,14 +26,23 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual IFileService FileService { get;[param: NotNull] set; }
         public virtual string FileExtension { get;[param: NotNull] set; } = DefaultFileExtension;
 
-        public virtual List<string> ReadOnlyOutputFiles(
+        /// <summary>
+        /// Returns a list of the files which would be output by this class but
+        /// which currently exist and would not be able to be overwritten due to
+        /// being read-only.
+        /// </summary>
+        /// <param name="outputPath"> directory where the files are to be output </param>
+        /// <param name="dbContextClassName"> name of the <see cref="DbContext" /> class </param>
+        /// <param name="entityTypes"> a list of the <see cref="IEntityType" /> classes to be output </param>
+        /// <returns> A list of paths to the output files which currently exist and are read-only </returns>
+        public virtual IList<string> GetReadOnlyFilePaths(
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
-            [NotNull] IModel metadataModel)
+            [NotNull] IEnumerable<IEntityType> entityTypes)
         {
             Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
-            Check.NotNull(metadataModel, nameof(metadataModel));
+            Check.NotNull(entityTypes, nameof(entityTypes));
 
             var readOnlyFiles = new List<string>();
 
@@ -46,7 +55,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             {
                 dbContextClassName + FileExtension
             };
-            filesToTest.AddRange(metadataModel.EntityTypes
+            filesToTest.AddRange(entityTypes
                 .Select(entityType => entityType.DisplayName() + FileExtension));
 
             foreach (var fileName in filesToTest)

@@ -1,7 +1,7 @@
 @inherits Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.RazorReverseEngineeringBase
 @using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 @{
-    var useFluentApi = Model.ModelConfiguration.CustomConfiguration.UseFluentApi;
+    var useFluentApi = Model.ModelConfiguration.CustomConfiguration.UseFluentApiOnly;
     string errorMessageAnnotation = Model.ErrorMessageAnnotation;
 }@if (errorMessageAnnotation != null) {
 @:// @errorMessageAnnotation

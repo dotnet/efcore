@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string projectRootNamespace,
             [NotNull] string projectDir,
             [CanBeNull] string relativeOutputDir,
-            bool useFluentApi,
+            bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Commands
                 ProjectPath = projectDir,
                 ProjectRootNamespace = projectRootNamespace,
                 RelativeOutputPath = relativeOutputDir,
-                UseFluentApi = useFluentApi
+                UseFluentApiOnly = useFluentApiOnly
             };
 
             return generator.GenerateAsync(configuration, cancellationToken);

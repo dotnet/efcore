@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var codeGenEntityType = codeGenModel
                     .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.Relational().TableName =  relationalEntityType.Relational().TableName;
+                codeGenEntityType.Relational().TableName = relationalEntityType.Relational().TableName;
                 codeGenEntityType.Relational().Schema = relationalEntityType.Relational().Schema;
                 var errorMessage = relationalEntityType[AnnotationNameEntityTypeError];
                 if (errorMessage != null)

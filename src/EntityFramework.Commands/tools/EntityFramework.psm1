@@ -323,7 +323,7 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER OutputSubDirectory
     Specifies the sub-directory of the project to use to output the classes. If omitted, the top-level project directory is used.
 
-.PARAMETER UseFluentApi
+.PARAMETER FluentApi
     Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.
 
 .PARAMETER Project
@@ -340,7 +340,7 @@ function Scaffold-DbContext {
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
         [string] $OutputSubDirectory,
-        [switch] $UseFluentApi,
+        [switch] $FluentApi,
         [string] $Project)
 
     $values = ProcessCommonParameters -projectName $Project
@@ -350,7 +350,7 @@ function Scaffold-DbContext {
         connectionString = $Connection
         provider = $Provider
         relativeOutputDir = $OutputSubDirectory
-        useFluentApi = $UseFluentApi
+        useFluentApiOnly = $FluentApi
     }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }

@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
                 RelativeOutputPath = null, // not used for this test
-                UseFluentApi = true,
+                UseFluentApiOnly = true,
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();

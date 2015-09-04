@@ -132,8 +132,8 @@ namespace Microsoft.Data.Entity.Commands
                             var relativeOutputPath = scaffold.Option(
                                 "-o|--output-path <path>",
                                 "Relative path to the sub-directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
-                            var useFluentApi = scaffold.Option(
-                                "-u|--use-fluent-api",
+                            var useFluentApiOnly = scaffold.Option(
+                                "-f|--fluent-api",
                                 "Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.");
                             scaffold.HelpOption("-?|-h|--help");
                             scaffold.OnExecute(
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.Commands
                                         connection.Value,
                                         provider.Value,
                                         relativeOutputPath.Value(),
-                                        useFluentApi.HasValue(),
+                                        useFluentApiOnly.HasValue(),
                                         _applicationShutdown.ShutdownRequested);
 
                                     return 0;
@@ -386,12 +386,12 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string connectionString,
             [NotNull] string providerAssemblyName,
             [CanBeNull] string relativeOutputDirectory,
-            bool useFluentApi,
+            bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseTool.ReverseEngineerAsync(
                 providerAssemblyName, connectionString, _rootNamespace,
-                _projectDir, relativeOutputDirectory, useFluentApi);
+                _projectDir, relativeOutputDirectory, useFluentApiOnly);
 
             _logger.LogInformation("Done");
         }

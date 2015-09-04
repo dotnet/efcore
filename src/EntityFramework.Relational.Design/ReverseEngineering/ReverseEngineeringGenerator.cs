@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(fileService, nameof(fileService));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(metadataModelProvider, nameof(metadataModelProvider));
             Check.NotNull(modelConfigurationFactory, nameof(modelConfigurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));
 
@@ -65,7 +66,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 ConnectionString = configuration.ConnectionString,
                 ContextClassName = configuration.ContextClassName,
                 Namespace = @namespace,
-                UseFluentApi = configuration.UseFluentApi,
+                UseFluentApiOnly = configuration.UseFluentApiOnly,
             };
             var modelConfiguration = _modelConfigurationFactory
                 .CreateModelConfiguration(metadataModel, customConfiguration);
@@ -114,8 +115,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 ? projectPath
                 : Path.Combine(projectPath, relativeOutputPath);
 
-            var readOnlyFiles = CodeWriter.ReadOnlyOutputFiles(
-                outputPath, dbContextClassName, metadataModel);
+            var readOnlyFiles = CodeWriter.GetReadOnlyFilePaths(
+                outputPath, dbContextClassName, metadataModel.EntityTypes);
             if (readOnlyFiles.Count > 0)
             {
                 throw new InvalidOperationException(

@@ -261,10 +261,10 @@ namespace Microsoft.Data.Entity.Commands
                 var connectionString = (string)args["connectionString"];
                 var providerAssemblyName = (string)args["provider"];
                 var relativeOutputDir = (string)(args.Contains("relativeOutputDir") ? args["relativeOutputDir"] : null);
-                var useFluentApi = (bool)args["useFluentApi"];
+                var useFluentApiOnly = (bool)args["useFluentApiOnly"];
 
                 Execute(() => executor
-                    .ReverseEngineerImplAsync(providerAssemblyName, connectionString, relativeOutputDir, useFluentApi)
+                    .ReverseEngineerImplAsync(providerAssemblyName, connectionString, relativeOutputDir, useFluentApiOnly)
                     .GetAwaiter().GetResult());
             }
         }
@@ -273,12 +273,12 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string providerAssemblyName,
             [NotNull] string connectionString,
             [CanBeNull] string relativeOutputDir,
-            bool useFluentApi,
+            bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             return CreateDatabaseTool().ReverseEngineerAsync(
                 providerAssemblyName, connectionString, _rootNamespace,
-                _projectDir, relativeOutputDir, useFluentApi, cancellationToken);
+                _projectDir, relativeOutputDir, useFluentApiOnly, cancellationToken);
         }
 
         public abstract class OperationBase : MarshalByRefObject

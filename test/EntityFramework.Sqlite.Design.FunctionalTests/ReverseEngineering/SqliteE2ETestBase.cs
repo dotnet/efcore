@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
 
                 AssertLog(new LoggerMessages());
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
 
                 AssertLog(new LoggerMessages());
@@ -145,7 +145,7 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
 
                 AssertLog(new LoggerMessages());
@@ -186,7 +186,7 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
 
                 AssertLog(new LoggerMessages());
@@ -220,7 +220,7 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
                 var errorMessage = Strings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
@@ -253,7 +253,7 @@ CREATE TABLE Principal ( Id INT);");
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
 
                 var expectedLog = new LoggerMessages
@@ -319,7 +319,7 @@ CREATE TABLE String (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApi = UseFluentApi,
+                    UseFluentApiOnly = UseFluentApiOnly,
                 });
 
                 AssertLog(new LoggerMessages());
@@ -362,7 +362,7 @@ CREATE TABLE String (
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere
         protected abstract string ExpectedResultsParentDir { get; }
-        protected abstract bool UseFluentApi { get; }
+        protected abstract bool UseFluentApiOnly { get; }
         protected override IDesignTimeMetadataProviderFactory GetFactory() => new SqliteDesignTimeMetadataProviderFactory();
     }
 }
