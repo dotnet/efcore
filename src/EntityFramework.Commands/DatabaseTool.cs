@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Commands
             }
             catch (Exception exception)
             {
-                throw new InvalidOperationException(
+                throw new CommandException(
                     Strings.CannotFindDesignTimeProviderAssembly(designTimeAssemblyName), exception);
             }
 

@@ -450,6 +450,19 @@ namespace Microsoft.Data.Entity.Commands
 
                 invoke();
             }
+            catch (Exception ex)
+            {
+                if (ex is CommandException)
+                {
+                    _logger.LogVerbose(ex.ToString());
+                }
+                else
+                {
+                    _logger.LogInformation(ex.ToString());
+                }
+
+                _logger.LogError(ex.Message);
+            }
             finally
             {
                 Directory.SetCurrentDirectory(returnDirectory);

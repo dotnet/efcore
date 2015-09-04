@@ -612,7 +612,12 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     }
 
     if ($resultHandler.ErrorType) {
-        Write-Verbose $resultHandler.ErrorStackTrace
+        if ($resultHandler.ErrorType -eq 'Microsoft.Data.Entity.Commands.CommandException') {
+            Write-Verbose $resultHandler.ErrorStackTrace
+        }
+        else {
+            Write-Output $resultHandler.ErrorStackTrace
+        }
 
         throw $resultHandler.ErrorMessage
     }

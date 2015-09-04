@@ -74,20 +74,20 @@ namespace Microsoft.Data.Entity.Commands
                 candidates = types.Take(2).ToArray();
                 if (candidates.Length == 0)
                 {
-                    throw new InvalidOperationException(Strings.NoContext);
+                    throw new CommandException(Strings.NoContext);
                 }
                 if (candidates.Length == 1)
                 {
                     return candidates[0];
                 }
 
-                throw new InvalidOperationException(Strings.MultipleContexts);
+                throw new CommandException(Strings.MultipleContexts);
             }
 
             candidates = FilterTypes(types, name, ignoreCase: true).ToArray();
             if (candidates.Length == 0)
             {
-                throw new InvalidOperationException(Strings.NoContextWithName(name));
+                throw new CommandException(Strings.NoContextWithName(name));
             }
             if (candidates.Length == 1)
             {
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Commands
             candidates = FilterTypes(candidates, name).ToArray();
             if (candidates.Length == 0)
             {
-                throw new InvalidOperationException(Strings.MultipleContextsWithName(name));
+                throw new CommandException(Strings.MultipleContextsWithName(name));
             }
             if (candidates.Length == 1)
             {
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Commands
             candidates = candidates.Where(t => t.Namespace == null).ToArray();
             if (candidates.Length == 0)
             {
-                throw new InvalidOperationException(Strings.MultipleContextsWithQualifiedName(name));
+                throw new CommandException(Strings.MultipleContextsWithQualifiedName(name));
             }
 
             Debug.Assert(candidates.Length == 1, "candidates.Length is not 1.");

@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Commands
                 }
                 catch (Exception ex)
                 {
-                    _resultHandler.OnError(ex.GetType().AssemblyQualifiedName, ex.Message, ex.ToString());
+                    _resultHandler.OnError(ex.GetType().FullName, ex.Message, ex.ToString());
                 }
             }
 

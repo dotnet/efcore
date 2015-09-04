@@ -46,6 +46,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="CommandException.cs" />
     <Compile Include="ContextTool.cs" />
     <Compile Include="DatabaseTool.cs" />
     <Compile Include="DesignTimeServices.cs" />
