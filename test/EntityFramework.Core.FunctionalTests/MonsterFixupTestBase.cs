@@ -19,29 +19,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private const string ChangedOnlyDatabaseName = "MonsterChangedOnly";
 
         [Fact]
-        public virtual async Task Can_build_monster_model_and_seed_data_using_FKs()
-        {
-            await Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName);
-        }
+        public virtual void Can_build_monster_model_and_seed_data_using_FKs()
+            => Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName);
 
         [Fact]
-        public virtual async Task Can_build_monster_model_with_full_notification_entities_and_seed_data_using_FKs()
-        {
-            await Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName);
-        }
+        public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_FKs()
+            => Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName);
 
         [Fact]
-        public virtual async Task Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_FKs()
-        {
-            await Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName);
-        }
+        public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_FKs()
+            => Can_build_monster_model_and_seed_data_using_FKs_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName);
 
-        private async Task Can_build_monster_model_and_seed_data_using_FKs_test(
+        private void Can_build_monster_model_and_seed_data_using_FKs_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             SimpleVerification(() => createContext(serviceProvider));
             FkVerification(() => createContext(serviceProvider));
@@ -50,24 +44,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_all_navigations()
-        {
-            const string databaseName = SnapshotDatabaseName + "_AllNavs";
-            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_all_navigations_test(
+                p => CreateSnapshotMonsterContext(p, SnapshotDatabaseName + "_AllNavs"));
 
         [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_all_navigations()
-        {
-            const string databaseName = FullNotifyDatabaseName + "_AllNavs";
-            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_all_navigations_test(
+                p => CreateChangedChangingMonsterContext(p, FullNotifyDatabaseName + "_AllNavs"));
 
         [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_all_navigations()
-        {
-            const string databaseName = ChangedOnlyDatabaseName + "_AllNavs";
-            Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_all_navigations_test(p => CreateChangedOnlyMonsterContext(
+                p, ChangedOnlyDatabaseName + "_AllNavs"));
 
         private void Can_build_monster_model_and_seed_data_using_all_navigations_test(Func<IServiceProvider, MonsterContext> createContext)
         {
@@ -87,24 +75,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_dependent_navigations()
-        {
-            const string databaseName = SnapshotDatabaseName + "_DependentNavs";
-            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
+                p => CreateSnapshotMonsterContext(p, SnapshotDatabaseName + "_DependentNavs"));
 
         [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_dependent_navigations()
-        {
-            const string databaseName = FullNotifyDatabaseName + "_DependentNavs";
-            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
+                p => CreateChangedChangingMonsterContext(p, FullNotifyDatabaseName + "_DependentNavs"));
 
         [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_dependent_navigations()
-        {
-            const string databaseName = ChangedOnlyDatabaseName + "_DependentNavs";
-            Can_build_monster_model_and_seed_data_using_dependent_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_dependent_navigations_test(
+                p => CreateChangedOnlyMonsterContext(p, ChangedOnlyDatabaseName + "_DependentNavs"));
 
         private void Can_build_monster_model_and_seed_data_using_dependent_navigations_test(Func<IServiceProvider, MonsterContext> createContext)
         {
@@ -124,24 +106,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_principal_navigations()
-        {
-            const string databaseName = SnapshotDatabaseName + "_PrincipalNavs";
-            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateSnapshotMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
+                p => CreateSnapshotMonsterContext(p, SnapshotDatabaseName + "_PrincipalNavs"));
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_principal_navigations()
-        {
-            const string databaseName = FullNotifyDatabaseName + "_PrincipalNavs";
-            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedChangingMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
+                p => CreateChangedChangingMonsterContext(p, FullNotifyDatabaseName + "_PrincipalNavs"));
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_principal_navigations()
-        {
-            const string databaseName = ChangedOnlyDatabaseName + "_PrincipalNavs";
-            Can_build_monster_model_and_seed_data_using_principal_navigations_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_principal_navigations_test(
+                p => CreateChangedOnlyMonsterContext(p, ChangedOnlyDatabaseName + "_PrincipalNavs"));
 
         private void Can_build_monster_model_and_seed_data_using_principal_navigations_test(Func<IServiceProvider, MonsterContext> createContext)
         {
@@ -161,24 +137,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [Fact]
         public virtual void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add()
-        {
-            const string databaseName = SnapshotDatabaseName + "_AllNavsDeferred";
-            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateSnapshotMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
+                p => CreateSnapshotMonsterContext(p, SnapshotDatabaseName + "_AllNavsDeferred"));
 
         [Fact]
         public virtual void Can_build_monster_model_with_full_notification_entities_and_seed_data_using_navigations_with_deferred_add()
-        {
-            const string databaseName = FullNotifyDatabaseName + "_AllNavsDeferred";
-            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedChangingMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
+                p => CreateChangedChangingMonsterContext(p, FullNotifyDatabaseName + "_AllNavsDeferred"));
 
         [Fact]
         public virtual void Can_build_monster_model_with_changed_only_notification_entities_and_seed_data_using_navigations_with_deferred_add()
-        {
-            const string databaseName = ChangedOnlyDatabaseName + "_AllNavsDeferred";
-            Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
-        }
+            => Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(
+                p => CreateChangedOnlyMonsterContext(p, ChangedOnlyDatabaseName + "_AllNavsDeferred"));
 
         private void Can_build_monster_model_and_seed_data_using_navigations_with_deferred_add_test(Func<IServiceProvider, MonsterContext> createContext)
         {
@@ -198,24 +168,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails()
-        {
-            const string databaseName = SnapshotDatabaseName + "_Bad";
-            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateSnapshotMonsterContext(p, databaseName));
-        }
+            => await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateSnapshotMonsterContext(p, SnapshotDatabaseName + "_Bad"));
 
         [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails_with_full_notification_entities()
-        {
-            const string databaseName = FullNotifyDatabaseName + "_Bad";
-            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedChangingMonsterContext(p, databaseName));
-        }
+            => await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedChangingMonsterContext(p, FullNotifyDatabaseName + "_Bad"));
 
         [Fact]
         public virtual async Task Store_generated_values_are_discarded_if_saving_changes_fails_with_changed_only_notification_entities()
-        {
-            const string databaseName = ChangedOnlyDatabaseName + "_Bad";
-            await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedOnlyMonsterContext(p, databaseName));
-        }
+            => await Store_generated_values_are_discarded_if_saving_changes_fails_test(p => CreateChangedOnlyMonsterContext(p, ChangedOnlyDatabaseName + "_Bad"));
 
         private async Task Store_generated_values_are_discarded_if_saving_changes_fails_test(Func<IServiceProvider, MonsterContext> createContext)
         {
@@ -242,29 +203,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_FKs_change_for_snapshot_entities()
-        {
-            await One_to_many_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void One_to_many_fixup_happens_when_FKs_change_for_snapshot_entities()
+            => One_to_many_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_FKs_change_for_full_notification_entities()
-        {
-            await One_to_many_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_many_fixup_happens_when_FKs_change_for_full_notification_entities()
+            => One_to_many_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
-        {
-            await One_to_many_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_many_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
+            => One_to_many_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task One_to_many_fixup_happens_when_FKs_change_test(
+        private void One_to_many_fixup_happens_when_FKs_change_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -352,29 +307,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_snapshot_entities()
-        {
-            await One_to_many_fixup_happens_when_reference_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void One_to_many_fixup_happens_when_reference_changes_for_snapshot_entities()
+            => One_to_many_fixup_happens_when_reference_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_full_notification_entities()
-        {
-            await One_to_many_fixup_happens_when_reference_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_many_fixup_happens_when_reference_changes_for_full_notification_entities()
+            => One_to_many_fixup_happens_when_reference_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_reference_changes_for_changed_only_notification_entities()
-        {
-            await One_to_many_fixup_happens_when_reference_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_many_fixup_happens_when_reference_changes_for_changed_only_notification_entities()
+            => One_to_many_fixup_happens_when_reference_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task One_to_many_fixup_happens_when_reference_changes_test(
+        private void One_to_many_fixup_happens_when_reference_changes_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -462,29 +411,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_snapshot_entities()
-        {
-            await One_to_many_fixup_happens_when_collection_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void One_to_many_fixup_happens_when_collection_changes_for_snapshot_entities()
+            => One_to_many_fixup_happens_when_collection_changes_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
-        public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
-        {
-            await One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_many_fixup_happens_when_collection_changes_for_full_notification_entities()
+            => One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
-        public virtual async Task One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
-        {
-            await One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_many_fixup_happens_when_collection_changes_for_changed_only_notification_entities()
+            => One_to_many_fixup_happens_when_collection_changes_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task One_to_many_fixup_happens_when_collection_changes_test(
+        private void One_to_many_fixup_happens_when_collection_changes_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -561,29 +504,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_snapshot_entities()
-        {
-            await One_to_one_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void One_to_one_fixup_happens_when_FKs_change_for_snapshot_entities()
+            => One_to_one_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         [Fact]
-        public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_full_notification_entities()
-        {
-            await One_to_one_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_one_fixup_happens_when_FKs_change_for_full_notification_entities()
+            => One_to_one_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         [Fact]
-        public virtual async Task One_to_one_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
-        {
-            await One_to_one_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_one_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
+            => One_to_one_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task One_to_one_fixup_happens_when_FKs_change_test(
+        private void One_to_one_fixup_happens_when_FKs_change_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -665,29 +602,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task One_to_one_fixup_happens_when_reference_change_for_snapshot_entities()
-        {
-            await One_to_one_fixup_happens_when_reference_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void One_to_one_fixup_happens_when_reference_change_for_snapshot_entities()
+            => One_to_one_fixup_happens_when_reference_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         [Fact]
-        public virtual async Task One_to_one_fixup_happens_when_reference_change_for_full_notification_entities()
-        {
-            await One_to_one_fixup_happens_when_reference_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_one_fixup_happens_when_reference_change_for_full_notification_entities()
+            => One_to_one_fixup_happens_when_reference_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         [Fact]
-        public virtual async Task One_to_one_fixup_happens_when_reference_change_for_changed_only_notification_entities()
-        {
-            await One_to_one_fixup_happens_when_reference_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void One_to_one_fixup_happens_when_reference_change_for_changed_only_notification_entities()
+            => One_to_one_fixup_happens_when_reference_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task One_to_one_fixup_happens_when_reference_change_test(
+        private void One_to_one_fixup_happens_when_reference_change_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -769,29 +700,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Composite_fixup_happens_when_FKs_change_for_snapshot_entities()
-        {
-            await Composite_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void Composite_fixup_happens_when_FKs_change_for_snapshot_entities()
+            => Composite_fixup_happens_when_FKs_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         [Fact]
-        public virtual async Task Composite_fixup_happens_when_FKs_change_for_full_notification_entities()
-        {
-            await Composite_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void Composite_fixup_happens_when_FKs_change_for_full_notification_entities()
+            => Composite_fixup_happens_when_FKs_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         [Fact]
-        public virtual async Task Composite_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
-        {
-            await Composite_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void Composite_fixup_happens_when_FKs_change_for_changed_only_notification_entities()
+            => Composite_fixup_happens_when_FKs_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task Composite_fixup_happens_when_FKs_change_test(
+        private void Composite_fixup_happens_when_FKs_change_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -883,29 +808,23 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_snapshot_entities()
-        {
-            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
-        }
+        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_snapshot_entities()
+            => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateSnapshotMonsterContext(p), SnapshotDatabaseName, useDetectChanges: true);
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
-        public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
-        {
-            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_full_notification_entities()
+            => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedChangingMonsterContext(p), FullNotifyDatabaseName, useDetectChanges: false);
 
         //[Fact] TODO: Support INotifyCollectionChanged (Issue #445) so that collection change detection without DetectChanges works
-        public virtual async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
-        {
-            await Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
-        }
+        public virtual void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_for_changed_only_notification_entities()
+            => Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(p => CreateChangedOnlyMonsterContext(p), ChangedOnlyDatabaseName, useDetectChanges: false);
 
-        private async Task Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
+        private void Fixup_with_binary_keys_happens_when_FKs_or_navigations_change_test(
             Func<IServiceProvider, MonsterContext> createContext, string databaseName, bool useDetectChanges)
         {
             var serviceProvider = CreateServiceProvider();
 
-            await CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
+            CreateAndSeedDatabase(databaseName, () => createContext(serviceProvider));
 
             using (var context = createContext(serviceProvider))
             {
@@ -1679,25 +1598,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected abstract DbContextOptions CreateOptions(string databaseName);
 
-        protected abstract Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
+        protected abstract void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext);
 
         private SnapshotMonsterContext CreateSnapshotMonsterContext(IServiceProvider serviceProvider, string databaseName = SnapshotDatabaseName)
-        {
-            return new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName),
+            => new SnapshotMonsterContext(serviceProvider, CreateOptions(databaseName),
                 OnModelCreating<SnapshotMonsterContext.Message, SnapshotMonsterContext.ProductPhoto, SnapshotMonsterContext.ProductReview>);
-        }
 
         private ChangedChangingMonsterContext CreateChangedChangingMonsterContext(IServiceProvider serviceProvider, string databaseName = FullNotifyDatabaseName)
-        {
-            return new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName),
+            => new ChangedChangingMonsterContext(serviceProvider, CreateOptions(databaseName),
                 OnModelCreating<ChangedChangingMonsterContext.Message, ChangedChangingMonsterContext.ProductPhoto, ChangedChangingMonsterContext.ProductReview>);
-        }
 
         private ChangedOnlyMonsterContext CreateChangedOnlyMonsterContext(IServiceProvider serviceProvider, string databaseName = ChangedOnlyDatabaseName)
-        {
-            return new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName),
+            => new ChangedOnlyMonsterContext(serviceProvider, CreateOptions(databaseName),
                 OnModelCreating<ChangedOnlyMonsterContext.Message, ChangedOnlyMonsterContext.ProductPhoto, ChangedOnlyMonsterContext.ProductReview>);
-        }
 
         public virtual void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
             where TMessage : class, IMessage
@@ -1707,70 +1620,58 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         private static void AssertBadScansConsistent(IBarcode expectedPrincipal, params IIncorrectScan[] expectedDependents)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
                 e => e.BadScans.NullChecked().OrderBy(m => m.Details),
                 e => e.ExpectedBarcode,
                 e => e.Code,
                 e => e.ExpectedCode);
-        }
 
         private static void AssertActualBarcodeConsistent(IBarcode expectedPrincipal, params IIncorrectScan[] expectedDependents)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
                 null,
                 e => e.ActualBarcode,
                 e => e.Code,
                 e => e.ActualCode);
-        }
 
         private static void AssertPhotosConsistent(IProductPhoto expectedPrincipal, params IProductWebFeature[] expectedDependents)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
                 e => e.Features.NullChecked().OrderBy(f => f.Heading),
                 e => e.Photo,
                 e => Tuple.Create(e.PhotoId, e.ProductId),
                 e => e.ProductId == null || e.PhotoId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
-        }
 
         private static void AssertReviewsConsistent(IProductReview expectedPrincipal, params IProductWebFeature[] expectedDependents)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
                 e => e.Features.NullChecked().OrderBy(f => f.Heading),
                 e => e.Review,
                 e => Tuple.Create(e.ReviewId, e.ProductId),
                 e => e.ProductId == null ? null : Tuple.Create(e.ReviewId, e.ProductId));
-        }
 
         private static void AssertReceivedMessagesConsistent(ILogin expectedPrincipal, params IMessage[] expectedDependents)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
                 e => e.ReceivedMessages.NullChecked().OrderBy(m => m.Body),
                 e => e.Recipient,
                 e => e.Username,
                 e => e.ToUsername);
-        }
 
         private static void AssertSentMessagesConsistent(ILogin expectedPrincipal, params IMessage[] expectedDependents)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 expectedPrincipal,
                 expectedDependents,
                 e => e.SentMessages.NullChecked().OrderBy(m => m.Body),
                 e => e.Sender,
                 e => e.Username,
                 e => e.FromUsername);
-        }
 
         private static void AssertConsistent<TPrincipal, TDependent>(
             TPrincipal expectedPrincipal,
@@ -1818,26 +1719,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         private static void AssertSpousesConsistent(ICustomer wife, ICustomer husband)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 husband,
                 wife,
                 e => e.Wife,
                 e => e.Husband,
                 e => e.CustomerId,
                 e => e.HusbandId);
-        }
 
         private static void AssertBarcodeDetailsConsistent(IBarcode principal, IBarcodeDetail dependent)
-        {
-            AssertConsistent(
+            => AssertConsistent(
                 principal,
                 dependent,
                 e => e.Detail,
                 null,
                 e => e.Code,
                 e => e.Code);
-        }
 
         private static void AssertConsistent<TPrincipal, TDependent>(
             TPrincipal expectedPrincipal,

@@ -22,9 +22,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
         [Fact]
-        public async Task Can_run_linq_query_on_entity_set()
+        public void Can_run_linq_query_on_entity_set()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
@@ -48,9 +48,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Can_run_linq_query_on_entity_set_with_value_buffer_reader()
+        public void Can_run_linq_query_on_entity_set_with_value_buffer_reader()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 var serviceCollection = new ServiceCollection();
                 serviceCollection
@@ -86,9 +86,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         [Fact]
-        public async Task Can_enumerate_entity_set()
+        public void Can_enumerate_entity_set()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {
@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         [Fact]
         public async Task Tracking_entities_asynchronously_returns_tracked_entities_back()
         {
-            using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (SqlServerNorthwindContext.GetSharedStore())
             {
                 using (var db = new NorthwindContext(_fixture.ServiceProvider))
                 {

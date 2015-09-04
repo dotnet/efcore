@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             return optionsBuilder.Options;
         }
 
-        protected override Task CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
+        protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
         {
             using (var context = createContext())
             {
@@ -41,8 +40,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.Database.EnsureCreated();
                 context.SeedUsingFKs();
             }
-
-            return Task.FromResult(0);
         }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
@@ -36,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            using (var store = await SqlServerNorthwindContext.GetSharedStoreAsync())
+            using (var store = SqlServerNorthwindContext.GetSharedStore())
             {
                 var openCount = 0;
                 var closeCount = 0;

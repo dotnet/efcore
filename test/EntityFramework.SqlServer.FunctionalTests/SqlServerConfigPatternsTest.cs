@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_implicit_services_and_OnConfiguring()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     using (var context = new NorthwindContext())
                     {
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_implicit_services_and_explicit_config()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var optionsBuilder = new DbContextOptionsBuilder();
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_explicit_services_and_OnConfiguring()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_query_with_explicit_services_and_explicit_config()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
@@ -162,9 +162,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class ExplicitServicesAndNoConfig
         {
             [Fact]
-            public async Task Throws_on_attempt_to_use_SQL_Server_without_providing_connection_string()
+            public void Throws_on_attempt_to_use_SQL_Server_without_providing_connection_string()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
@@ -204,9 +204,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class NoServicesAndNoConfig
         {
             [Fact]
-            public async Task Throws_on_attempt_to_use_context_with_no_store()
+            public void Throws_on_attempt_to_use_context_with_no_store()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     Assert.Equal(
                         CoreStrings.NoProviderConfigured,
@@ -234,9 +234,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class ImplicitConfigButNoServices
         {
             [Fact]
-            public async Task Throws_on_attempt_to_use_store_with_no_store_services()
+            public void Throws_on_attempt_to_use_store_with_no_store_services()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddTransient<MyController>()
                     .BuildServiceProvider();
 
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddInstance(optionsBuilder.Options);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
@@ -419,7 +419,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddInstance(optionsBuilder.Options);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     await serviceProvider.GetRequiredService<MyController>().TestAsync();
                 }
@@ -464,7 +464,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_pass_context_options_to_constructor_and_use_in_builder()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var optionsBuilder = new DbContextOptionsBuilder();
                     optionsBuilder.UseSqlServer(SqlServerNorthwindContext.ConnectionString);
@@ -497,7 +497,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_pass_connection_string_to_constructor_and_use_in_OnConfiguring()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     using (var context = new NorthwindContext(SqlServerNorthwindContext.ConnectionString))
                     {
@@ -534,7 +534,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_use_one_context_nested_inside_another_of_the_same_type()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
@@ -590,7 +590,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     var serviceCollection = new ServiceCollection();
                     serviceCollection
@@ -607,7 +607,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             [Fact]
             public async Task Can_use_one_context_nested_inside_another_of_a_different_type_with_implicit_services()
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     await NestedContextTest(() => new BlogContext(), () => new NorthwindContext());
                 }
@@ -615,7 +615,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             private async Task NestedContextTest(Func<BlogContext> createBlogContext, Func<NorthwindContext> createNorthwindContext)
             {
-                using (await SqlServerNorthwindContext.GetSharedStoreAsync())
+                using (SqlServerNorthwindContext.GetSharedStore())
                 {
                     using (var context0 = createBlogContext())
                     {

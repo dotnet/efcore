@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Infrastructure;
 
@@ -16,16 +15,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels
         public SqlServerNorthwindContext(IServiceProvider serviceProvider, DbContextOptions options)
             : base(serviceProvider, options)
         {
-        }
-
-        /// <summary>
-        ///     A transactional test database, pre-populated with Northwind schema/data
-        /// </summary>
-        public static Task<SqlServerTestStore> GetSharedStoreAsync()
-        {
-            return SqlServerTestStore.GetOrCreateSharedAsync(
-                DatabaseName,
-                () => SqlServerTestStore.CreateDatabaseAsync(DatabaseName, scriptPath: @"Northwind.sql"));
         }
 
         public static SqlServerTestStore GetSharedStore()

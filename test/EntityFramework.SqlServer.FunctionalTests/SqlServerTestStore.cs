@@ -20,31 +20,20 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static int _scratchCount;
 
-        public static Task<SqlServerTestStore> GetOrCreateSharedAsync(string name, Func<Task> initializeDatabase)
-        {
-            return new SqlServerTestStore(name).CreateSharedAsync(initializeDatabase);
-        }
-
-        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
-        {
-            return new SqlServerTestStore(name).CreateShared(initializeDatabase);
-        }
+        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase) 
+            => new SqlServerTestStore(name).CreateShared(initializeDatabase);
 
         /// <summary>
         ///     A non-transactional, transient, isolated test database. Use this in the case
         ///     where transactions are not appropriate.
         /// </summary>
         public static Task<SqlServerTestStore> CreateScratchAsync(bool createDatabase = true)
-        {
-            var name = "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount);
-            return new SqlServerTestStore(name).CreateTransientAsync(createDatabase);
-        }
+            => new SqlServerTestStore("Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount))
+                .CreateTransientAsync(createDatabase);
 
         public static SqlServerTestStore CreateScratch(bool createDatabase = true)
-        {
-            var name = "Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount);
-            return new SqlServerTestStore(name).CreateTransient(createDatabase);
-        }
+            => new SqlServerTestStore("Microsoft.Data.SqlServer.Scratch_" + Interlocked.Increment(ref _scratchCount))
+                .CreateTransient(createDatabase);
 
         private SqlConnection _connection;
         private SqlTransaction _transaction;
@@ -55,19 +44,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private SqlServerTestStore(string name)
         {
             _name = name;
-        }
-
-        private async Task<SqlServerTestStore> CreateSharedAsync(Func<Task> initializeDatabase)
-        {
-            await CreateSharedAsync(typeof(SqlServerTestStore).Name + _name, initializeDatabase);
-
-            _connection = new SqlConnection(CreateConnectionString(_name));
-
-            await _connection.OpenAsync();
-
-            _transaction = _connection.BeginTransaction();
-
-            return this;
         }
 
         private SqlServerTestStore CreateShared(Action initializeDatabase)
