@@ -291,11 +291,16 @@ function Remove-Migration {
     $contextTypeName = $values.ContextTypeName
     $dteStartupProject = $values.StartupProject
 
-    $filesToDelete = InvokeOperation $dteProject RemoveMigration @{
+    $filesToRemove = InvokeOperation $dteProject RemoveMigration @{
         contextTypeName = $contextTypeName
     } -startupProject $dteStartupProject
 
-    $filesToDelete | ?{ Test-Path $_ } | %{ (GetProjectItem $dteProject $_).Delete() }
+    $filesToRemove | %{
+        $projectItem = GetProjectItem $dteProject $_
+        if ($projectItem) {
+            $projectItem.Remove()
+        }
+    }
 }
 
 #
