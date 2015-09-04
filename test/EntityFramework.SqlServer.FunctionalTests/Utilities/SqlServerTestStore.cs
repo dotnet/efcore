@@ -456,7 +456,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         {
                             results = results.Concat(new[] { await dataReader.GetFieldValueAsync<T>(0) });
                         }
-                        catch (NotImplementedException e)
+                        catch (NotImplementedException)
                         {
                             // TODO remove workaround for mono limitation.
                             results = results.Concat(new[] { (T)dataReader.GetValue(0) });
