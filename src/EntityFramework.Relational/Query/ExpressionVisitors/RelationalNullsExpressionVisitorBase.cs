@@ -8,7 +8,7 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public abstract class NullSemanticsExpressionVisitorBase : RelinqExpressionVisitor
+    public abstract class RelationalNullsExpressionVisitorBase : RelinqExpressionVisitor
     {
         protected virtual Expression BuildIsNullExpression([NotNull] Expression expression)
         {

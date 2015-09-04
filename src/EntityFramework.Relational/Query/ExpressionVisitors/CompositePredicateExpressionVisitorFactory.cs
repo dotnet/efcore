@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class CompositePredicateExpressionVisitorFactory : ICompositePredicateExpressionVisitorFactory
     {
-        public virtual ExpressionVisitor Create(bool useRelationalNullSemantics)
-            => new CompositePredicateExpressionVisitor(useRelationalNullSemantics);
+        public virtual ExpressionVisitor Create(bool useRelationalNulls)
+            => new CompositePredicateExpressionVisitor(useRelationalNulls);
     }
 }

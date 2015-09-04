@@ -1016,6 +1016,21 @@ WHERE ([e].[NullableBoolA] <> [e].[NullableBoolB] OR @__prm_0 = 1)",
                 Sql);
         }
 
+        public override void Switching_null_semantics_produces_different_cache_entry()
+        {
+            base.Switching_null_semantics_produces_different_cache_entry();
+
+            Assert.Equal(
+                @"SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE ([e].[NullableBoolA] = [e].[NullableBoolB] OR ([e].[NullableBoolA] IS NULL AND [e].[NullableBoolB] IS NULL))
+
+SELECT [e].[Id]
+FROM [NullSemanticsEntity1] AS [e]
+WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
+                Sql);
+        }
+
         private static string Sql
         {
             get { return TestSqlLoggerFactory.Sql; }

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -28,18 +29,20 @@ namespace Microsoft.Data.Entity.Query
             _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
         }
 
-        public virtual QueryCompilationContext Create(bool async)
+        public virtual QueryCompilationContext Create(IDatabase database, bool async)
             => async
                 ? new RelationalQueryCompilationContext(
                     _loggerFactory,
                     _entityQueryModelVisitorFactory,
                     _requiresMaterializationExpressionVisitorFactory,
+                    database,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider())
                 : new RelationalQueryCompilationContext(
                     _loggerFactory,
                     _entityQueryModelVisitorFactory,
                     _requiresMaterializationExpressionVisitorFactory,
+                    database,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider());
     }

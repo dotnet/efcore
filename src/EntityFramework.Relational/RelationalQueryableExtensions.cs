@@ -23,15 +23,5 @@ namespace Microsoft.Data.Entity
             [NotNull] params object[] parameters)
             where TEntity : class
             => QueryableHelpers.CreateQuery(source, s => s.FromSql(sql, parameters));
-
-        internal static readonly MethodInfo UseRelationalNullSemanticsMethodInfo
-            = typeof(RelationalQueryableExtensions)
-                .GetTypeInfo().GetDeclaredMethod(nameof(UseRelationalNullSemantics));
-
-        [QueryAnnotationMethod]
-        public static IQueryable<TEntity> UseRelationalNullSemantics<TEntity>(
-            [NotNull] this IQueryable<TEntity> source)
-            where TEntity : class
-            => QueryableHelpers.CreateQuery(source, s => s.UseRelationalNullSemantics());
     }
 }

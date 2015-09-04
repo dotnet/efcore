@@ -330,8 +330,9 @@ FROM Customers")
         {
             using (var context = CreateContext())
             {
+                context.Database.UseRelationalNulls(true);
+
                 var actual = await context.Set<Customer>()
-                    .UseRelationalNullSemantics()
                     .FromSql("SELECT * FROM Customers")
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArrayAsync();

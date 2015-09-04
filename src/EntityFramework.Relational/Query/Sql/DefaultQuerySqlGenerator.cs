@@ -154,15 +154,15 @@ namespace Microsoft.Data.Entity.Query.Sql
                     // we have to optimize out comparisons to null-valued parameters before we can expand null semantics 
                     if (_parameterValues.Count > 0)
                     {
-                        var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
-                        var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.Visit(predicate);
+                        var optimizedNullExpansionVisitor = new RelationalNullsOptimizedExpandingVisitor();
+                        var relationalNullsExpandedOptimized = optimizedNullExpansionVisitor.Visit(predicate);
                         if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
                         {
-                            predicate = nullSemanticsExpandedOptimized;
+                            predicate = relationalNullsExpandedOptimized;
                         }
                         else
                         {
-                            predicate = new NullSemanticsExpandingVisitor()
+                            predicate = new RelationalNullsExpandingVisitor()
                                 .Visit(predicate);
                         }
                     }
@@ -394,11 +394,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (inValues.Count != inValuesNotNull.Count)
                 {
-                    var nullSemanticsInExpression = Expression.OrElse(
+                    var relatioalNullsInExpression = Expression.OrElse(
                         new InExpression(inExpression.Operand, inValuesNotNull),
                         new IsNullExpression(inExpression.Operand));
 
-                    return Visit(nullSemanticsInExpression);
+                    return Visit(relatioalNullsInExpression);
                 }
 
                 if (inValuesNotNull.Count > 0)
@@ -437,11 +437,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (inValues.Count != inValuesNotNull.Count)
                 {
-                    var nullSemanticsNotInExpression = Expression.AndAlso(
+                    var relationalNullsNotInExpression = Expression.AndAlso(
                         Expression.Not(new InExpression(inExpression.Operand, inValuesNotNull)),
                         Expression.Not(new IsNullExpression(inExpression.Operand)));
 
-                    return Visit(nullSemanticsNotInExpression);
+                    return Visit(relationalNullsNotInExpression);
                 }
 
                 if (inValues.Count > 0)

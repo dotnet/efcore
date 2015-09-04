@@ -10,11 +10,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class CompositePredicateExpressionVisitor : RelinqExpressionVisitor
     {
-        private readonly bool _useRelationalNullSemantics;
+        private readonly bool _useRelationalNulls;
 
-        public CompositePredicateExpressionVisitor(bool useRelationalNullSemantics)
+        public CompositePredicateExpressionVisitor(bool useRelationalNulls)
         {
-            _useRelationalNullSemantics = useRelationalNullSemantics;
+            _useRelationalNulls = useRelationalNulls;
         }
 
         public override Expression Visit(
@@ -47,22 +47,22 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             parameterDectector.Visit(currentExpression);
 
             if (!parameterDectector.ContainsParameters
-                && !_useRelationalNullSemantics)
+                && !_useRelationalNulls)
             {
-                var optimizedNullExpansionVisitor = new NullSemanticsOptimizedExpandingVisitor();
-                var nullSemanticsExpandedOptimized = optimizedNullExpansionVisitor.Visit(currentExpression);
+                var optimizedNullExpansionVisitor = new RelationalNullsOptimizedExpandingVisitor();
+                var relationalNullsExpandedOptimized = optimizedNullExpansionVisitor.Visit(currentExpression);
                 if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
                 {
-                    currentExpression = nullSemanticsExpandedOptimized;
+                    currentExpression = relationalNullsExpandedOptimized;
                 }
                 else
                 {
-                    currentExpression = new NullSemanticsExpandingVisitor()
+                    currentExpression = new RelationalNullsExpandingVisitor()
                         .Visit(currentExpression);
                 }
             }
 
-            if (_useRelationalNullSemantics)
+            if (_useRelationalNulls)
             {
                 currentExpression = new NotNullableExpression(currentExpression);
             }

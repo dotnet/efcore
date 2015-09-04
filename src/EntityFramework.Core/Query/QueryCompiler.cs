@@ -53,6 +53,8 @@ namespace Microsoft.Data.Entity.Query
             _database = database;
         }
 
+        protected virtual IDatabase Database => _database;
+
         public virtual TResult Execute<TResult>(Expression query)
         {
             Check.NotNull(query, nameof(query));
@@ -99,12 +101,12 @@ namespace Microsoft.Data.Entity.Query
             return ParameterExtractingExpressionVisitor
                 .ExtractParameters(query, queryContext, _evaluatableExpressionFilter);
         }
-
+        
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));
 
-            return _cache.GetOrAddQuery(_cacheKeyGenerator.GenerateCacheKey(query, async: false), () =>
+            return _cache.GetOrAddQuery(_cacheKeyGenerator.GenerateCacheKey(query, _database, async: false), () =>
                 {
                     var queryModel = CreateQueryParser().GetParsedQuery(query);
 
@@ -137,7 +139,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(query, nameof(query));
 
-            return _cache.GetOrAddAsyncQuery(_cacheKeyGenerator.GenerateCacheKey(query, async: true), () =>
+            return _cache.GetOrAddAsyncQuery(_cacheKeyGenerator.GenerateCacheKey(query, _database, async: true), () =>
                 {
                     var queryModel = CreateQueryParser().GetParsedQuery(query);
 

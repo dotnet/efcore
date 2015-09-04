@@ -426,13 +426,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<NullSemanticsEntity1>(
                 es => es.Where(e => e.NullableStringA.Contains(e.NullableStringB) && e.BoolA),
                 es => es.Where(e => 
-                (e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah")) && e.BoolA));
+                (e.NullableStringA != null && e.NullableStringA.Contains(e.NullableStringB ?? "Blah")) && e.BoolA),
+                useRelationalNulls: false);
         }
 
-        protected void AssertQuery<TItem>(Func<IQueryable<TItem>, IQueryable<TItem>> query)
+        protected void AssertQuery<TItem>(
+            Func<IQueryable<TItem>, IQueryable<TItem>> query, 
+            bool useDatabaseNullSemantics = false)
             where TItem : NullSemanticsEntityBase
         {
-            AssertQuery(query, query);
+            AssertQuery(query, query, useDatabaseNullSemantics);
         }
 
         [Fact]
@@ -440,8 +443,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
+                context.Database.UseRelationalNulls(true);
+
                 context.Entities1
-                    .UseRelationalNullSemantics()
                     .Where(e => e.NullableBoolA == e.NullableBoolB)
                     .Select(e => e.Id).ToList();
             }
@@ -452,10 +456,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                bool? prm = null;
+                context.Database.UseRelationalNulls(true);
 
+                bool? prm = null;
                 context.Entities1
-                    .UseRelationalNullSemantics()
                     .Where(e => e.NullableBoolA == prm)
                     .Select(e => e.Id).ToList();
             }
@@ -466,10 +470,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                bool prm = false;
+                context.Database.UseRelationalNulls(true);
 
+                bool prm = false;
                 context.Entities1
-                    .UseRelationalNullSemantics()
                     .Where(e => e.NullableBoolA == e.NullableBoolB || prm)
                     .Select(e => e.Id).ToList();
             }
@@ -480,8 +484,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
+                context.Database.UseRelationalNulls(true);
+
                 context.Entities1
-                    .UseRelationalNullSemantics()
                     .Where(e => e.NullableBoolA != e.NullableBoolB)
                     .Select(e => e.Id).ToList();
             }
@@ -492,10 +497,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                bool? prm = null;
+                context.Database.UseRelationalNulls(true);
 
+                bool? prm = null;
                 context.Entities1
-                    .UseRelationalNullSemantics()
                     .Where(e => e.NullableBoolA != prm)
                     .Select(e => e.Id).ToList();
             }
@@ -506,18 +511,37 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                bool prm = false;
+                context.Database.UseRelationalNulls(true);
 
+                bool prm = false;
                 context.Entities1
-                    .UseRelationalNullSemantics()
                     .Where(e => e.NullableBoolA != e.NullableBoolB || prm)
                     .Select(e => e.Id).ToList();
             }
         }
 
+        [Fact]
+        public virtual void Switching_null_semantics_produces_different_cache_entry()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Entities1
+                    .Where(e => e.NullableBoolA == e.NullableBoolB)
+                    .Select(e => e.Id);
+
+                var results1 = query.ToList();
+
+                context.Database.UseRelationalNulls(true);
+                var results2 = query.ToList();
+
+                Assert.True(results1.Count != results2.Count);
+            }
+        }
+
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<TItem>> l2eQuery,
-            Func<IQueryable<TItem>, IQueryable<TItem>> l2oQuery)
+            Func<IQueryable<TItem>, IQueryable<TItem>> l2oQuery,
+            bool useRelationalNulls)
             where TItem : NullSemanticsEntityBase
         {
             var actualIds = new List<int>();
@@ -527,13 +551,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
+                context.Database.UseRelationalNulls(useRelationalNulls);
                 actualIds.AddRange(l2eQuery(context.Set<TItem>()).Select(e => e.Id).ToList().OrderBy(k => k));
             }
 
-            Assert.Equal(expectedIds.Count, actualIds.Count);
-            for (int i = 0; i < expectedIds.Count; i++)
+            if (!useRelationalNulls)
             {
-                Assert.Equal(expectedIds[i], actualIds[i]);
+                Assert.Equal(expectedIds.Count, actualIds.Count);
+                for (int i = 0; i < expectedIds.Count; i++)
+                {
+                    Assert.Equal(expectedIds[i], actualIds[i]);
+                }
             }
         }
     }

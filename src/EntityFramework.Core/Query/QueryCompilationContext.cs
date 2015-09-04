@@ -24,21 +24,25 @@ namespace Microsoft.Data.Entity.Query
         private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
+        private IDatabase _database;
 
         public QueryCompilationContext(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] IDatabase database,
             [NotNull] ILinqOperatorProvider linqOperatorProvider)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
+            Check.NotNull(database, nameof(database));
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
 
             Logger = loggerFactory.CreateLogger<Database>();
             _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
+            _database = database;
             LinqOperatorProvider = linqOperatorProvider;
         }
 
@@ -66,10 +70,10 @@ namespace Microsoft.Data.Entity.Query
                 .Where(qa => qa.IsCallTo(Check.NotNull(methodInfo, nameof(methodInfo))));
 
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
-            => _entityQueryModelVisitorFactory.Create(this);
+            => _entityQueryModelVisitorFactory.Create(this, _database);
 
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor([CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
-            => _entityQueryModelVisitorFactory.Create(parentEntityQueryModelVisitor.QueryCompilationContext, parentEntityQueryModelVisitor);
+            => _entityQueryModelVisitorFactory.Create(parentEntityQueryModelVisitor.QueryCompilationContext, _database, parentEntityQueryModelVisitor);
 
         public virtual void AddTrackableInclude(
             [NotNull] IQuerySource querySource, [NotNull] IReadOnlyList<INavigation> navigationPath)

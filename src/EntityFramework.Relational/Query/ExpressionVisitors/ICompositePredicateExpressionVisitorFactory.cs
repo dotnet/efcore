@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public interface ICompositePredicateExpressionVisitorFactory
     {
-        ExpressionVisitor Create(bool useRelationalNullSemantics);
+        ExpressionVisitor Create(bool useRelationalNulls);
     }
 }

@@ -115,6 +115,7 @@
     <Compile Include="Query\ExpressionTranslators\StartsWithTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\StringCompareTranslator.cs" />
     <Compile Include="Query\Internal\RelationalExpressionPrinter.cs" />
+    <Compile Include="Query\RelationalCompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\RelationalQueryModelVisitorFactory.cs" />
     <Compile Include="Query\RelationalQueryCompilationContextFactory.cs" />
     <Compile Include="Query\Sql\ISqlQueryGeneratorFactory.cs" />
@@ -240,10 +241,10 @@
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
     <Compile Include="Query\ExpressionVisitors\IsNullExpressionBuildingVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\NullSemanticsExpressionVisitorBase.cs" />
+    <Compile Include="Query\ExpressionVisitors\RelationalNullsExpressionVisitorBase.cs" />
     <Compile Include="Query\ExpressionVisitors\PredicateNegationExpressionOptimizer.cs" />
-    <Compile Include="Query\ExpressionVisitors\NullSemanticsExpandingVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\NullSemanticsOptimizedExpandingVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\RelationalNullsExpandingVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\RelationalNullsOptimizedExpandingVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitor.cs" />
     <Compile Include="Query\AsyncIncludeCollectionIterator.cs" />
     <Compile Include="Query\ExpressionVisitors\IncludeExpressionVisitor.cs" />

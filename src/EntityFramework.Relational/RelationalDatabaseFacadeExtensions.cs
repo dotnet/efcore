@@ -30,6 +30,9 @@ namespace Microsoft.Data.Entity
                         sql,
                         parameters);
 
+        public static void UseRelationalNulls([NotNull] this DatabaseFacade databaseFacade, bool useRelationalNulls)
+            => ((RelationalDatabase)databaseFacade.GetService<IDatabase>()).UseRelationalNulls = useRelationalNulls;
+
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).DbConnection;
 

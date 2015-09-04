@@ -5,10 +5,10 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
-using System.Reflection;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {

@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class NullSemanticsOptimizedExpandingVisitor : NullSemanticsExpressionVisitorBase
+    public class RelationalNullsOptimizedExpandingVisitor : RelationalNullsExpressionVisitorBase
     {
         public virtual bool OptimizedExpansionPossible { get; set; }
 
-        public NullSemanticsOptimizedExpandingVisitor()
+        public RelationalNullsOptimizedExpandingVisitor()
         {
             OptimizedExpansionPossible = true;
         }

@@ -31,13 +31,13 @@ namespace Microsoft.Data.Entity.Storage
             CancellationToken cancellationToken = default(CancellationToken));
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
-            => _compilationContextFactory.Create(async: false)
+            => _compilationContextFactory.Create(this, async: false)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
-            => _compilationContextFactory.Create(async: true)
+            => _compilationContextFactory.Create(this, async: true)
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));

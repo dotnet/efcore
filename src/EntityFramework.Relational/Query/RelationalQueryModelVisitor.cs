@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -34,6 +35,7 @@ namespace Microsoft.Data.Entity.Query
         private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
         private readonly IQueryFlatteningExpressionVisitorFactory _queryFlatteningExpressionVisitorFactory;
         private readonly IShapedQueryFindingExpressionVisitorFactory _shapedQueryFindingExpressionVisitorFactory;
+        private readonly IDatabase _database;
 
         private bool _bindParentQueries;
 
@@ -67,6 +69,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
+            [NotNull] IDatabase database,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
             : base(
                   Check.NotNull(model, nameof(model)),
@@ -92,6 +95,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory));
             Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(shapedQueryFindingExpressionVisitorFactory));
+            Check.NotNull(database, nameof(database));
 
             _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
             _includeExpressionVisitorFactory = includeExpressionVisitorFactory;
@@ -99,6 +103,7 @@ namespace Microsoft.Data.Entity.Query
             _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             _queryFlatteningExpressionVisitorFactory = queryFlatteningExpressionVisitorFactory;
             _shapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
+            _database = database;
             ParentQueryModelVisitor = parentQueryModelVisitor;
         }
 
@@ -175,10 +180,7 @@ namespace Microsoft.Data.Entity.Query
             base.VisitQueryModel(queryModel);
 
             var compositePredicateVisitor
-                = _compositePredicateExpressionVisitorFactory.Create(
-                    QueryCompilationContext
-                        .GetCustomQueryAnnotations(RelationalQueryableExtensions.UseRelationalNullSemanticsMethodInfo)
-                        .Any());
+                = _compositePredicateExpressionVisitorFactory.Create(((RelationalDatabase)_database).UseRelationalNulls);
 
             foreach (var selectExpression in _queriesBySource.Values.Where(se => se.Predicate != null))
             {

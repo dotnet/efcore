@@ -89,6 +89,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<RelationalEntityQueryableExpressionVisitorFactory>()
                 .AddScoped<RelationalQueryModelVisitorFactory>()
                 .AddScoped<RelationalProjectionExpressionVisitorFactory>()
+                .AddScoped<RelationalCompiledQueryCacheKeyGenerator>()
                 .AddScoped(p => GetProviderServices(p).SqlQueryGeneratorFactory);
         }
 

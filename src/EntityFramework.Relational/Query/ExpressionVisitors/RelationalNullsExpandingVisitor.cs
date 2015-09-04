@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
-    public class NullSemanticsExpandingVisitor : NullSemanticsExpressionVisitorBase
+    public class RelationalNullsExpandingVisitor : RelationalNullsExpressionVisitorBase
     {
         protected override Expression VisitBinary(BinaryExpression expression)
         {
