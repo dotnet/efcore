@@ -8,6 +8,12 @@ namespace Microsoft.Data.Entity.Commands.Tests
     public class HandlerTest
     {
         [Fact]
+        public void Result_Version_is_zero()
+        {
+            Assert.Equal(0, new ResultHandler().Version);
+        }
+
+        [Fact]
         public void HasResult_defaults_to_false()
         {
             Assert.False(new ResultHandler().HasResult);
@@ -47,13 +53,33 @@ namespace Microsoft.Data.Entity.Commands.Tests
         }
 
         [Fact]
+        public void Log_Version_is_zero()
+        {
+            Assert.Equal(0, new LogHandler().Version);
+        }
+
+        [Fact]
         public void Write_methods_are_noops_when_null()
         {
             var handler = new LogHandler();
 
+            handler.WriteError("Princess Celestia does not exist.");
             handler.WriteWarning("Princess Celestia is in danger.");
             handler.WriteInformation("Princess Celestia is on her way.");
             handler.WriteVerbose("Princess Celestia is an alicorn.");
+            handler.WriteDebug("Princess Celestia is a princess.");
+        }
+
+        [Fact]
+        public void WriteError_works()
+        {
+            string result = null;
+            var handler = new LogHandler(writeError: m => result = m);
+            var message = "Princess Celestia does not exist.";
+
+            handler.WriteError(message);
+
+            Assert.Equal(message, result);
         }
 
         [Fact]
@@ -88,6 +114,18 @@ namespace Microsoft.Data.Entity.Commands.Tests
             var message = "Princess Celestia is an alicorn.";
 
             handler.WriteVerbose(message);
+
+            Assert.Equal(message, result);
+        }
+
+        [Fact]
+        public void WriteDebug_works()
+        {
+            string result = null;
+            var handler = new LogHandler(writeDebug: m => result = m);
+            var message = "Princess Celestia is a princess.";
+
+            handler.WriteDebug(message);
 
             Assert.Equal(message, result);
         }

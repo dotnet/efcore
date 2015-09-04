@@ -98,7 +98,7 @@ function Add-Migration {
     $DTE.ItemOperations.OpenFile($artifacts[0]) | Out-Null
     ShowConsole
 
-    Write-Host 'To undo this action, use Remove-Migration.'
+    Write-Output 'To undo this action, use Remove-Migration.'
 }
 
 #
@@ -511,9 +511,11 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     }
 
     $logHandler = New-Object Microsoft.Data.Entity.Commands.LogHandler @(
+        { param ($message) Write-Error $message }
         { param ($message) Write-Warning $message }
-        { param ($message) Write-Host $message }
+        { param ($message) Write-Output $message }
         { param ($message) Write-Verbose $message }
+        { param ($message) Write-Debug $message }
     )
 
     $outputPath = GetProperty $project.ConfigurationManager.ActiveConfiguration.Properties OutputPath

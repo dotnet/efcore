@@ -10,15 +10,19 @@ namespace Microsoft.Data.Entity.Commands
 #if !OMIT_HANDLER_INTERFACES
     public interface IResultHandler
     {
+        int Version { get; }
         void OnResult(object value);
         void OnError(string type, string message, string stackTrace);
     }
 
     public interface ILogHandler
     {
+        int Version { get; }
+        void WriteError(string message);
         void WriteWarning(string message);
         void WriteInformation(string message);
         void WriteVerbose(string message);
+        void WriteDebug(string message);
     }
 #endif
 
@@ -30,6 +34,11 @@ namespace Microsoft.Data.Entity.Commands
         private string _errorType;
         private string _errorMessage;
         private string _errorStackTrace;
+
+        public virtual int Version
+        {
+            get { return 0; }
+        }
 
         public virtual bool HasResult
         {
@@ -72,18 +81,37 @@ namespace Microsoft.Data.Entity.Commands
 
     public class LogHandler : MarshalByRefObject, ILogHandler
     {
+        private readonly Action<string> _writeError;
         private readonly Action<string> _writeWarning;
         private readonly Action<string> _writeInformation;
         private readonly Action<string> _writeVerbose;
+        private readonly Action<string> _writeDebug;
+
+        public virtual int Version
+        {
+            get { return 0; }
+        }
 
         public LogHandler(
+            Action<string> writeError = null,
             Action<string> writeWarning = null,
             Action<string> writeInformation = null,
-            Action<string> writeVerbose = null)
+            Action<string> writeVerbose = null,
+            Action<string> writeDebug = null)
         {
+            _writeError = writeError;
             _writeWarning = writeWarning;
             _writeInformation = writeInformation;
             _writeVerbose = writeVerbose;
+            _writeDebug = writeDebug;
+        }
+
+        public virtual void WriteError(string message)
+        {
+            if (_writeError != null)
+            {
+                _writeError(message);
+            }
         }
 
         public virtual void WriteWarning(string message)
@@ -107,6 +135,14 @@ namespace Microsoft.Data.Entity.Commands
             if (_writeVerbose != null)
             {
                 _writeVerbose(message);
+            }
+        }
+
+        public virtual void WriteDebug(string message)
+        {
+            if (_writeDebug != null)
+            {
+                _writeDebug(message);
             }
         }
     }

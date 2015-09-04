@@ -19,7 +19,18 @@ namespace Microsoft.Data.Entity.Commands.Utilities
         }
 
         public override bool IsEnabled(LogLevel logLevel) =>
-            base.IsEnabled(logLevel) && (logLevel != LogLevel.Verbose || _verbose);
+            base.IsEnabled(logLevel) && (logLevel > LogLevel.Verbose || _verbose);
+
+        protected override void WriteError(string message)
+        {
+            lock (_sync)
+            {
+                using (new ColorScope(ConsoleColor.Red))
+                {
+                    Console.WriteLine(message);
+                }
+            }
+        }
 
         protected override void WriteWarning(string message)
         {
@@ -53,5 +64,7 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 }
             }
         }
+
+        protected override void WriteDebug(string message) => WriteVerbose(message);
     }
 }

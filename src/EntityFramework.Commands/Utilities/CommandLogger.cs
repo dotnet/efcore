@@ -74,6 +74,9 @@ namespace Microsoft.Data.Entity.Commands.Utilities
 
             switch (logLevel)
             {
+                case LogLevel.Error:
+                    WriteError(message.ToString());
+                    break;
                 case LogLevel.Warning:
                     WriteWarning(message.ToString());
                     break;
@@ -83,16 +86,22 @@ namespace Microsoft.Data.Entity.Commands.Utilities
                 case LogLevel.Verbose:
                     WriteVerbose(message.ToString());
                     break;
+                case LogLevel.Debug:
+                    WriteDebug(message.ToString());
+                    break;
                 default:
-                    Debug.Fail("Unexpected event type.");
+                    Debug.Fail("Unexpected event type: " + logLevel);
+                    WriteVerbose(message.ToString());
                     break;
             }
         }
 
         public virtual IDisposable BeginScopeImpl(object state) => null;
 
+        protected abstract void WriteError([NotNull] string message);
         protected abstract void WriteWarning([NotNull] string message);
         protected abstract void WriteInformation([NotNull] string message);
         protected abstract void WriteVerbose([NotNull] string message);
+        protected abstract void WriteDebug([NotNull] string message);
     }
 }

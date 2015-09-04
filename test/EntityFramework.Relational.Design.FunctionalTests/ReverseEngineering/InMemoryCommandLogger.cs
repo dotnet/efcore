@@ -18,6 +18,11 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
         public override bool IsEnabled(LogLevel logLevel) => true;
 
+        protected override void WriteError(string message)
+        {
+            Messages.Error.Add(message);
+        }
+
         protected override void WriteWarning(string message)
         {
             Messages.Warn.Add(message);
@@ -32,12 +37,19 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         {
             Messages.Verbose.Add(message);
         }
+
+        protected override void WriteDebug(string message)
+        {
+            Messages.Debug.Add(message);
+        }
     }
 
     public class LoggerMessages
     {
+        public List<string> Error = new List<string>();
         public List<string> Warn = new List<string>();
         public List<string> Info = new List<string>();
         public List<string> Verbose = new List<string>();
+        public List<string> Debug = new List<string>();
     }
 }
