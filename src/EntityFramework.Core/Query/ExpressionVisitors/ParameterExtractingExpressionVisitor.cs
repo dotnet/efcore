@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
+using System.Reflection;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
@@ -82,7 +83,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
             }
 
-            if (!typeof(IQueryable).IsAssignableFrom(e.Type))
+            if (!typeof(IQueryable).GetTypeInfo().IsAssignableFrom(e.Type.GetTypeInfo()))
             {
                 var constantExpression = e as ConstantExpression;
 
