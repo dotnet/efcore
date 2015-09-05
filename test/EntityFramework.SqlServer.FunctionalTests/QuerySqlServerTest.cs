@@ -1461,6 +1461,19 @@ WHERE (GETDATE() <> @__myDatetime_0)",
                 Sql);
         }
 
+        public override void Where_datetime_utcnow()
+        {
+            base.Where_datetime_utcnow();
+
+            Assert.Equal(
+                @"@__myDatetime_0: 04/10/2015 00:00:00
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE (GETUTCDATE() <> @__myDatetime_0)",
+                Sql);
+        }
+
         public override void Where_is_null()
         {
             base.Where_is_null();

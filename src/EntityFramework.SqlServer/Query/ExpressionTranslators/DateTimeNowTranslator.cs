@@ -20,6 +20,10 @@ namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
             {
                 return new SqlFunctionExpression("GETDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
             }
+            else if (memberExpression.Member.Name == nameof(DateTime.UtcNow))
+            {
+                return new SqlFunctionExpression("GETUTCDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+            }
 
             return null;
         }
