@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Internal
@@ -20,8 +19,6 @@ namespace Microsoft.Data.Entity.Internal
             [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
             : base(loggerFactory)
         {
-            Check.NotNull(relationalExtensions, nameof(relationalExtensions));
-
             _relationalExtensions = relationalExtensions;
         }
 

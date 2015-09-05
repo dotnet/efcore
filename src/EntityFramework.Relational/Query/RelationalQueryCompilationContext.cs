@@ -67,10 +67,10 @@ namespace Microsoft.Data.Entity.Query
 
             return
                 (from v in _relationalQueryModelVisitors
-                 let selectExpression = v.TryGetQuery(querySource)
-                 where selectExpression != null
-                 select selectExpression)
-                       .First();
+                    let selectExpression = v.TryGetQuery(querySource)
+                    where selectExpression != null
+                    select selectExpression)
+                    .First();
         }
     }
 }

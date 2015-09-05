@@ -4,7 +4,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
@@ -12,9 +11,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
     {
         public override InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder, ColumnAttribute attribute, PropertyInfo clrProperty)
         {
-            Check.NotNull(propertyBuilder, nameof(propertyBuilder));
-            Check.NotNull(attribute, nameof(attribute));
-
             if (!string.IsNullOrWhiteSpace(attribute.Name))
             {
                 propertyBuilder.Relational(ConfigurationSource.DataAnnotation).ColumnName(attribute.Name);

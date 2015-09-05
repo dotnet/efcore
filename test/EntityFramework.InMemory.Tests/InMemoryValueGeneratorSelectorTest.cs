@@ -5,6 +5,7 @@ using System;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 using CoreStrings = Microsoft.Data.Entity.Internal.Strings;

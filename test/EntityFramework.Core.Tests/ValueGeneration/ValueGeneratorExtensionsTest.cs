@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ValueGeneration

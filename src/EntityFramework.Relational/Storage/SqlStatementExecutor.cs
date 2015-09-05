@@ -33,13 +33,13 @@ namespace Microsoft.Data.Entity.Storage
         protected virtual ILogger Logger => _logger.Value;
 
         public virtual void ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalCommand relationalCommand)
+            IRelationalConnection connection,
+            RelationalCommand relationalCommand)
             => ExecuteNonQuery(connection, new[] { relationalCommand });
 
         public virtual void ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IEnumerable<RelationalCommand> relationalCommands)
+            IRelationalConnection connection,
+            IEnumerable<RelationalCommand> relationalCommands)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(relationalCommands, nameof(relationalCommands));
@@ -63,14 +63,14 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual Task ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalCommand relationalCommand,
+            IRelationalConnection connection,
+            RelationalCommand relationalCommand,
             CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteNonQueryAsync(connection, new[] { relationalCommand }, cancellationToken);
 
         public virtual async Task ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IEnumerable<RelationalCommand> relationalCommands,
+            IRelationalConnection connection,
+            IEnumerable<RelationalCommand> relationalCommands,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -96,8 +96,8 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual object ExecuteScalar(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] string sql)
+            IRelationalConnection connection,
+            string sql)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotEmpty(sql, nameof(sql));
@@ -109,8 +109,8 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual Task<object> ExecuteScalarAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] string sql,
+            IRelationalConnection connection,
+            string sql,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -124,8 +124,8 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual DbDataReader ExecuteReader(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] string sql)
+            IRelationalConnection connection,
+            string sql)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotEmpty(sql, nameof(sql));
@@ -137,8 +137,8 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual Task<DbDataReader> ExecuteReaderAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] string sql,
+            IRelationalConnection connection,
+            string sql,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));

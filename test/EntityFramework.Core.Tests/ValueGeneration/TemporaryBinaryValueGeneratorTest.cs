@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ValueGeneration

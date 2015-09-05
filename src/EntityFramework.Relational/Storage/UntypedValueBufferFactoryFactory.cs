@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Storage.Internal;
 
 namespace Microsoft.Data.Entity.Storage
 {
