@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public class SelfRef
+    {
+        public long Id { get; set; }
+        public long? SelfForeignKey { get; set; }
+
+        [ForeignKey("SelfForeignKey")]
+        [InverseProperty("InverseSelfForeignKeyNavigation")]
+        public virtual SelfRef SelfForeignKeyNavigation { get; set; }
+        [InverseProperty("SelfForeignKeyNavigation")]
+        public virtual ICollection<SelfRef> InverseSelfForeignKeyNavigation { get; set; }
+    }
+}

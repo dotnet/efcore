@@ -1,0 +1,211 @@
+@inherits Microsoft.Data.Entity.Relational.Design.Templating.RazorReverseEngineeringBase
+@using System.Collections.Generic
+@using System.Linq
+@using System.Text
+@using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
+@using Microsoft.Data.Entity.Metadata
+@functions
+{
+    List<string> LayoutPropertyConfigurationLines(PropertyConfiguration pc,
+        string propertyLambdaIdentifier, string indent, bool useAttributesOverFluentApi)
+    {
+        var lines = new List<string>();
+        foreach (var keyValuePair in pc.GetFluentApiConfigurations(useAttributesOverFluentApi))
+        {
+            var forMethod = keyValuePair.Key;
+            var fluentApiConfigurationList = keyValuePair.Value;
+            if (fluentApiConfigurationList.Count == 0)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrEmpty(forMethod))
+            {
+                foreach (var fluentApiConfiguration in fluentApiConfigurationList)
+                {
+                    lines.Add("." + fluentApiConfiguration.MethodBody);
+                }
+            }
+            else
+            {
+                if (fluentApiConfigurationList.Count == 1)
+                {
+                    lines.Add("." + forMethod + "()." + fluentApiConfigurationList.First().MethodBody);
+                }
+                else
+                {
+                    lines.Add("." + forMethod + "(" + propertyLambdaIdentifier + " =>");
+                    lines.Add("{");
+                    foreach (var fluentApiConfiguration in fluentApiConfigurationList)
+                    {
+                        lines.Add(indent + propertyLambdaIdentifier + "." + fluentApiConfiguration.MethodBody + ";");
+                    }
+                    lines.Add("})");
+                }
+            }
+        }
+
+        return lines;
+    }
+
+    string LayoutRelationshipConfigurationLine(RelationshipConfiguration rc,
+        string dependentEndLambdaIdentifier, string principalEndLambdaIdentifier)
+    {
+        var sb = new StringBuilder();
+        sb.Append("Reference(");
+        sb.Append(dependentEndLambdaIdentifier);
+        sb.Append(" => ");
+        sb.Append(dependentEndLambdaIdentifier);
+        sb.Append(".");
+        sb.Append(rc.DependentEndNavigationPropertyName);
+        sb.Append(")");
+
+        if (rc.ForeignKey.IsUnique)
+        {
+            sb.Append(".InverseReference(");
+        }
+        else
+        {
+            sb.Append(".InverseCollection(");
+        }
+        if (!string.IsNullOrEmpty(rc.PrincipalEndNavigationPropertyName))
+        {
+            sb.Append(principalEndLambdaIdentifier);
+            sb.Append(" => ");
+            sb.Append(principalEndLambdaIdentifier);
+            sb.Append(".");
+            sb.Append(rc.PrincipalEndNavigationPropertyName);
+        }
+        sb.Append(")");
+
+        sb.Append(".ForeignKey");
+        if (rc.ForeignKey.IsUnique)
+        {
+            // If the relationship is 1:1 need to define to which end
+            // the ForeignKey properties belong.
+            sb.Append("<");
+            sb.Append(rc.EntityConfiguration.EntityType.DisplayName());
+            sb.Append(">");
+        }
+
+        sb.Append("(");
+        sb.Append(dependentEndLambdaIdentifier);
+        sb.Append(" => ");
+        sb.Append(ModelUtilities.GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
+        sb.Append(")");
+
+        return sb.ToString();
+    }
+}
+@{
+    var useAttributesOverFluentApi = true;
+}using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace @Model.Namespace()
+{
+    public partial class @Model.ClassName() : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+@foreach (var optionsBuilderConfig in Model.OnConfiguringConfigurations)
+{
+@:            options.@optionsBuilderConfig.FluentApi;
+}
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+@{
+var firstEntity = true;
+}@foreach (EntityConfiguration entityConfig in Model.OrderedEntityConfigurations())
+{
+    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(useAttributesOverFluentApi);
+    var propertyConfigurations = entityConfig.GetPropertyConfigurations(useAttributesOverFluentApi);
+    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(useAttributesOverFluentApi);
+    if (fluentApiConfigurations.Count == 0
+        && propertyConfigurations.Count == 0
+        && relationshipConfigurations.Count == 0)
+    {
+        continue;
+    }
+
+    if (!firstEntity)
+    {
+@:
+    }
+    firstEntity = false;
+@:            modelBuilder.Entity<@entityConfig.EntityType.DisplayName()>(entity =>
+@:            {
+    var firstEntityFluentApi = true;
+    if (fluentApiConfigurations.Count > 0)
+    {
+        foreach (var entityFluentApi in fluentApiConfigurations)
+        {
+            if (!firstEntityFluentApi)
+            {
+@:
+            }
+            firstEntityFluentApi = false;
+@:                entity.@(entityFluentApi.FluentApi);
+        }
+    }
+    var firstProperty = true;
+    foreach (var propertyConfig in propertyConfigurations)
+    {
+        var propertyConfigurationLines = LayoutPropertyConfigurationLines(
+            propertyConfig, "property", "    ", useAttributesOverFluentApi);
+        @* dnxcore50 requires line below be cast to explicit data type, not var. Similarly
+            for other explicit casts farther down this template. *@
+        int propertyConfigurationLineCount = propertyConfigurationLines.Count;
+        if (propertyConfigurationLineCount == 0)
+        {
+            continue;
+        }
+        if (!firstEntityFluentApi || !firstProperty)
+        {
+@:
+        }
+        firstProperty = false;
+        if (propertyConfigurationLineCount == 1)
+        {
+            foreach (var line in propertyConfigurationLines)
+            {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))@(line);
+            }
+        }
+        else
+        {
+@:                entity.Property(e => e.@(propertyConfig.Property.Name))
+            var lineCount = 0;
+            foreach (string line in propertyConfigurationLines)
+            {
+                var outputLine = line;
+                if (++lineCount == propertyConfigurationLineCount)
+                {
+                    outputLine = line + ";";
+                }
+@:                    @(outputLine)
+            }
+        }
+    }
+    var firstRelationship = true;
+    foreach (var relationshipConfig in relationshipConfigurations)
+    {
+        if (!firstEntityFluentApi || !firstProperty || !firstRelationship)
+        {
+@:
+        }
+        firstRelationship = false;
+@:                entity.@LayoutRelationshipConfigurationLine(relationshipConfig, "d", "p");
+    }
+@:            });
+}
+        }@* End of OnModelCreating() *@
+
+@foreach (var entityConfig in Model.OrderedEntityConfigurations())
+{
+@:        public virtual DbSet<@entityConfig.EntityType.Name> @entityConfig.EntityType.Name { get; set; }
+}
+    }
+}

@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class ReferredToByTableWithUnmappablePrimaryKeyColumn
+    {
+        public int ReferredToByTableWithUnmappablePrimaryKeyColumnID { get; set; }
+        [Required]
+        public string AColumn { get; set; }
+        public int ValueGeneratedOnAddColumn { get; set; }
+
+        // Unable to add a Navigation Property referencing type TableWithUnmappablePrimaryKeyColumn because of errors generating that EntityType.
+    }
+}

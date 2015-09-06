@@ -1,0 +1,25 @@
+﻿using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public partial class ModelContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite(@"Data Source=SelfRefAttributes.db;Cache=Private");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SelfRef>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnType("INTEGER");
+
+                entity.Property(e => e.SelfForeignKey).HasColumnType("INTEGER");
+            });
+        }
+
+        public virtual DbSet<SelfRef> SelfRef { get; set; }
+    }
+}

@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public class OneToManyPrincipal
+    {
+        public OneToManyPrincipal()
+        {
+            OneToManyDependent = new HashSet<OneToManyDependent>();
+        }
+
+        public long OneToManyPrincipalID1 { get; set; }
+        public long OneToManyPrincipalID2 { get; set; }
+        [Required]
+        public string Other { get; set; }
+
+        [InverseProperty("OneToManyDependentFK")]
+        public virtual ICollection<OneToManyDependent> OneToManyDependent { get; set; }
+    }
+}

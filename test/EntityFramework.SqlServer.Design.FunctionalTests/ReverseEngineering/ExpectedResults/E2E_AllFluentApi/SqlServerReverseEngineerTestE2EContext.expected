@@ -1,0 +1,159 @@
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public partial class SqlServerReverseEngineerTestE2EContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AllDataTypes>(entity =>
+            {
+                entity.Property(e => e.datetime2Column).HasColumnType("datetime2(7)");
+
+                entity.Property(e => e.decimalColumn).HasColumnType("decimal(18, 0)");
+
+                entity.Property(e => e.numericColumn).HasColumnType("numeric(18, 0)");
+
+                entity.Property(e => e.timestampColumn).ValueGeneratedOnAddOrUpdate();
+            });
+
+            modelBuilder.Entity<OneToManyDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+
+                entity.Property(e => e.SomeDependentEndColumn).Required();
+
+                entity.Reference(d => d.OneToManyDependentFK).InverseCollection(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
+            });
+
+            modelBuilder.Entity<OneToManyPrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+
+                entity.Property(e => e.Other).Required();
+            });
+
+            modelBuilder.Entity<OneToOneDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
+
+                entity.Property(e => e.SomeDependentEndColumn).Required();
+
+                entity.Reference(d => d.OneToOneDependentNavigation).InverseReference(p => p.OneToOneDependent).ForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 });
+            });
+
+            modelBuilder.Entity<OneToOnePrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
+
+                entity.Property(e => e.SomeOneToOnePrincipalColumn).Required();
+            });
+
+            modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
+            {
+                entity.Key(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
+
+                entity.Property(e => e.SomeDependentEndColumn).Required();
+
+                entity.Reference(d => d.OneToOneSeparateFKDependentFK).InverseReference(p => p.OneToOneSeparateFKDependent).ForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
+            });
+
+            modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
+            {
+                entity.Key(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
+
+                entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn).Required();
+            });
+
+            modelBuilder.Entity<PropertyConfiguration>(entity =>
+            {
+                entity.Property(e => e.PropertyConfigurationID).ValueGeneratedNever();
+
+                entity.Property(e => e.RowversionColumn)
+                    .Required()
+                    .ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.WithDateDefaultExpression)
+                    .HasColumnType("datetime2(7)")
+                    .HasDefaultValueSql("getdate()");
+
+                entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
+
+                entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");
+
+                entity.Property(e => e.WithMoneyDefaultValue).HasDefaultValue(0.00m);
+            });
+
+            modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>
+            {
+                entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
+
+                entity.Property(e => e.AColumn).Required();
+
+                entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
+            });
+
+            modelBuilder.Entity<SelfReferencing>(entity =>
+            {
+                entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
+
+                entity.Property(e => e.Description).Required();
+
+                entity.Property(e => e.Name).Required();
+
+                entity.Reference(d => d.SelfReferenceFKNavigation).InverseCollection(p => p.InverseSelfReferenceFKNavigation).ForeignKey(d => d.SelfReferenceFK);
+            });
+
+            modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>
+            {
+                entity.ToTable("Test Spaces Keywords Table");
+
+                entity.Property(e => e.Test_Spaces_Keywords_TableID)
+                    .HasColumnName("Test Spaces Keywords TableID")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.@Multiple_At_Symbols_In_Column).HasColumnName("@Multiple@At@Symbols@In@Column");
+
+                entity.Property(e => e._abstract).HasColumnName("abstract");
+
+                entity.Property(e => e._Backslashes_In_Column).HasColumnName("\\Backslashes\\In\\Column");
+
+                entity.Property(e => e._class).HasColumnName("class");
+
+                entity.Property(e => e._Dollar_Sign_Column).HasColumnName("$Dollar$Sign$Column");
+
+                entity.Property(e => e._Double_Quotes_Column).HasColumnName("\"Double\"Quotes\"Column");
+
+                entity.Property(e => e._Exclamation_Mark_Column).HasColumnName("!Exclamation!Mark!Column");
+
+                entity.Property(e => e._volatile).HasColumnName("volatile");
+
+                entity.Property(e => e.Commas_In_Column).HasColumnName("Commas,In,Column");
+
+                entity.Property(e => e.Spaces_In_Column).HasColumnName("Spaces In Column");
+
+                entity.Property(e => e.Tabs_In_Column).HasColumnName("Tabs\tIn\tColumn");
+            });
+        }
+
+        public virtual DbSet<AllDataTypes> AllDataTypes { get; set; }
+        public virtual DbSet<OneToManyDependent> OneToManyDependent { get; set; }
+        public virtual DbSet<OneToManyPrincipal> OneToManyPrincipal { get; set; }
+        public virtual DbSet<OneToOneDependent> OneToOneDependent { get; set; }
+        public virtual DbSet<OneToOnePrincipal> OneToOnePrincipal { get; set; }
+        public virtual DbSet<OneToOneSeparateFKDependent> OneToOneSeparateFKDependent { get; set; }
+        public virtual DbSet<OneToOneSeparateFKPrincipal> OneToOneSeparateFKPrincipal { get; set; }
+        public virtual DbSet<PropertyConfiguration> PropertyConfiguration { get; set; }
+        public virtual DbSet<ReferredToByTableWithUnmappablePrimaryKeyColumn> ReferredToByTableWithUnmappablePrimaryKeyColumn { get; set; }
+        public virtual DbSet<SelfReferencing> SelfReferencing { get; set; }
+        public virtual DbSet<Test_Spaces_Keywords_Table> Test_Spaces_Keywords_Table { get; set; }
+    }
+}

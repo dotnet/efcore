@@ -1,0 +1,22 @@
+{
+  "version": "7.0.0-*",
+  "description": "In memory data store for Entity Framework (to be used for testing purposes).",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Core": "7.0.0-*"
+  },
+  "compile": "..\\Shared\\*.cs",
+  "namedResource": {
+    "EntityFramework.InMemory.Strings": "Properties/Strings.resx"
+  },
+  "frameworks": {
+    "net45": { },
+    "dotnet": { }
+  }
+}

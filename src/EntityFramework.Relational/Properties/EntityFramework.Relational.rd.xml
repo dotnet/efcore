@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Library>
+    <!-- TODO optimize this for types that actually need reflection -->
+    <Assembly Name="EntityFramework.Relational" Activate="All" />
+    <Type Name="Microsoft.Data.Entity.Migrations.Operations.MigrationOperation" Dynamic="Required All" />
+    <Type Name="Microsoft.Data.Entity.Update.UpdateSqlGenerator">
+      <Method Name="GenerateLiteral" Signature="System.Object" Dynamic="Required" />
+    </Type>
+  </Library>
+</Directives>

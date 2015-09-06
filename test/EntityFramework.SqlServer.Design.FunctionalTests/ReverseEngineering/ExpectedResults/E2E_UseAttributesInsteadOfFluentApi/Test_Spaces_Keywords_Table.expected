@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    [Table("Test Spaces Keywords Table")]
+    public class Test_Spaces_Keywords_Table
+    {
+        [Column("Test Spaces Keywords TableID")]
+        public int Test_Spaces_Keywords_TableID { get; set; }
+        public int? @AtSymbolAtStartOfColumn { get; set; }
+        [Column("@Multiple@At@Symbols@In@Column")]
+        public int @Multiple_At_Symbols_In_Column { get; set; }
+        [Column("abstract")]
+        public int _abstract { get; set; }
+        [Column("\\Backslashes\\In\\Column")]
+        public int? _Backslashes_In_Column { get; set; }
+        [Column("class")]
+        public int? _class { get; set; }
+        [Column("$Dollar$Sign$Column")]
+        public int _Dollar_Sign_Column { get; set; }
+        [Column("\"Double\"Quotes\"Column")]
+        public int? _Double_Quotes_Column { get; set; }
+        [Column("!Exclamation!Mark!Column")]
+        public int? _Exclamation_Mark_Column { get; set; }
+        [Column("volatile")]
+        public int _volatile { get; set; }
+        [Column("Commas,In,Column")]
+        public int? Commas_In_Column { get; set; }
+        [Column("Spaces In Column")]
+        public int? Spaces_In_Column { get; set; }
+        [Column("Tabs\tIn\tColumn")]
+        public int Tabs_In_Column { get; set; }
+    }
+}

@@ -1,0 +1,20 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class PropertyConfiguration
+    {
+        public byte PropertyConfigurationID { get; set; }
+        public int A { get; set; }
+        public int B { get; set; }
+        public byte[] RowversionColumn { get; set; }
+        public int? SumOfAAndB { get; set; }
+        public DateTime WithDateDefaultExpression { get; set; }
+        public int WithDefaultValue { get; set; }
+        public Guid WithGuidDefaultExpression { get; set; }
+        public decimal WithMoneyDefaultValue { get; set; }
+    }
+}

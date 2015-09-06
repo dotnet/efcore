@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public class Groups
+    {
+        public Groups()
+        {
+            Users_Groups = new HashSet<Users_Groups>();
+        }
+
+        public string Id { get; set; }
+
+        public virtual ICollection<Users_Groups> Users_Groups { get; set; }
+    }
+}

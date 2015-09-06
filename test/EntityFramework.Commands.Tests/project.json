@@ -1,0 +1,21 @@
+{
+  "compilationOptions": {
+    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ]
+  },
+  "dependencies": {
+    "EntityFramework.Commands": "7.0.0-*",
+    "EntityFramework.Relational.Tests": "1.0.0"
+  },
+  "compile": "..\\..\\src\\EntityFramework.Commands\\Handlers.cs",
+  "commands": {
+    "test": "xunit.runner.dnx"
+  },
+  "frameworks": {
+    "net46": { },
+    "dnx451": {
+      "dependencies": {
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*"
+      }
+    }
+  }
+}

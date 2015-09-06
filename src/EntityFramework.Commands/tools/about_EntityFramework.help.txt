@@ -1,0 +1,36 @@
+﻿TOPIC
+    about_EntityFramework
+
+SHORT DESCRIPTION
+    Provides information about Entity Framework commands.
+
+LONG DESCRIPTION
+    This topic describes the Entity Framework commands. Entity Framework is Microsoft's recommended data access technology for new
+    applications.
+
+    The following Entity Framework cmdlets are included.
+
+        Cmdlet                      Description
+        --------------------------  ---------------------------------------------------
+        Add-Migration		        Adds a new migration.
+
+        Remove-Migration	        Removes the last migration.
+
+        Scaffold-DbContext	        Scaffolds a DbContext and entity type classes for a specified database.
+
+        Scaffold-DbContextTemplate  Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
+
+        Script-Migration	        Generates a SQL script from migrations.
+
+        Update-Database		        Updates the database to a specified migration.
+
+        Use-DbContext               Sets the default DbContext to use.
+
+SEE ALSO
+    Add-Migration
+    Remove-Migration
+    Scaffold-DbContext
+    Scaffold-DbContextTemplate
+    Script-Migration
+    Update-Database
+    Use-DbContext

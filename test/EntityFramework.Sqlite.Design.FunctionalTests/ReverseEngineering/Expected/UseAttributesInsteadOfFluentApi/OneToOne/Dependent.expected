@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public class Dependent
+    {
+        public long Id { get; set; }
+        public long PrincipalId { get; set; }
+
+        [ForeignKey("PrincipalId")]
+        [InverseProperty("Dependent")]
+        public virtual Principal Principal { get; set; }
+    }
+}

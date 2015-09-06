@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{7028A7E3-0AD8-4606-A922-8189C8A704E0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.Relational.Design</RootNamespace>
+    <AssemblyName>EntityFramework.Relational.Design</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>LoggingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
+    </Compile>
+    <Compile Include="Properties\Strings.Designer.cs">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="..\Shared\CodeAnnotations.cs" />
+    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
+    <Compile Include="ReverseEngineering\Configuration\AttributeConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\CustomConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\EntityConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\FluentApiConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\IAttributeConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\IFluentApiConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\KeyFluentApiConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\ModelConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyInitializerConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\OptionsBuilderConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
+    <Compile Include="ReverseEngineering\DesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
+    <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\IDesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="ReverseEngineering\IFileService.cs" />
+    <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
+    <Compile Include="ReverseEngineering\ModelConfigurationFactory.cs" />
+    <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
+    <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
+    <Compile Include="ReverseEngineering\RelationalMetadataModelProvider.cs" />
+    <Compile Include="Templating\Compilation\CompiledAssemblyResult.cs" />
+    <Compile Include="Templating\Compilation\CompilationResult.cs" />
+    <Compile Include="Templating\Compilation\ICompilationService.cs" />
+    <Compile Include="Templating\Compilation\MetadataReferencesProvider.cs" />
+    <Compile Include="Templating\Compilation\RoslynCompilationService.cs" />
+    <Compile Include="Templating\CSharpUtilities.cs" />
+    <Compile Include="Templating\ITemplating.cs" />
+    <Compile Include="Templating\RazorReverseEngineeringBase.cs" />
+    <Compile Include="Templating\RazorTemplating.cs" />
+    <Compile Include="Templating\RazorTemplatingHost.cs" />
+    <Compile Include="Templating\TemplateProcessingException.cs" />
+    <Compile Include="Templating\TemplateResult.cs" />
+    <Compile Include="Utilities\ModelUtilities.cs" />
+    <Compile Include="Utilities\PlatformHelper.cs" />
+    <EmbeddedResource Include="Properties\Strings.resx">
+      <LogicalName>EntityFramework.Relational.Design.Strings.resources</LogicalName>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+    </Content>
+    <None Include="project.json" />
+    <EmbeddedResource Include="ReverseEngineering\Templates\DbContextTemplate.cshtml">
+      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.DbContextTemplate.cshtml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ReverseEngineering\Templates\EntityTypeTemplate.cshtml">
+      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.EntityTypeTemplate.cshtml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

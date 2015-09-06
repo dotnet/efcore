@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToOneSeparateFKDependent
+    {
+        public int OneToOneSeparateFKDependentID1 { get; set; }
+        public int OneToOneSeparateFKDependentID2 { get; set; }
+        public int? OneToOneSeparateFKDependentFK1 { get; set; }
+        public int? OneToOneSeparateFKDependentFK2 { get; set; }
+        [Required]
+        public string SomeDependentEndColumn { get; set; }
+
+        [ForeignKey("OneToOneSeparateFKDependentFK1,OneToOneSeparateFKDependentFK2")]
+        [InverseProperty("OneToOneSeparateFKDependent")]
+        public virtual OneToOneSeparateFKPrincipal OneToOneSeparateFKDependentFK { get; set; }
+    }
+}

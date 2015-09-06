@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public class OneToManyDependent
+    {
+        public long OneToManyDependentID1 { get; set; }
+        public long OneToManyDependentID2 { get; set; }
+        public long? OneToManyDependentFK1 { get; set; }
+        public long? OneToManyDependentFK2 { get; set; }
+        [Required]
+        public string SomeDependentEndColumn { get; set; }
+
+        [ForeignKey("OneToManyDependentFK1,OneToManyDependentFK2")]
+        [InverseProperty("OneToManyDependent")]
+        public virtual OneToManyPrincipal OneToManyDependentFK { get; set; }
+    }
+}
