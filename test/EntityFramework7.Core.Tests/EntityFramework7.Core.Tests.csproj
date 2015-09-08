@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EF361118-7D0D-453E-ADA4-2F24FBEE196C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
+    <AssemblyName>EntityFramework7.Core.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="ApiConsistencyTestBase.cs" />
+    <Compile Include="ChangeTracking\Internal\ChangeDetectorTest.cs" />
+    <Compile Include="ChangeTracking\Internal\KeyPropagatorTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InternalClrEntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\CompositeEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\CompositeEntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\Internal\EntityKeyFactorySourceTest.cs" />
+    <Compile Include="ChangeTracking\Internal\EntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
+    <Compile Include="ChangeTracking\Internal\OriginalValuesTest.cs" />
+    <Compile Include="ChangeTracking\Internal\RelationshipsSnapshotTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\SidecarTest.cs" />
+    <Compile Include="ChangeTracking\Internal\SimpleEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\SimpleEntityKeyTest.cs" />
+    <Compile Include="ChangeTracking\Internal\SimpleNullableEntityKeyFactoryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\StateDataTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InteranlEntryEntryFactoryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InternalEntryEntrySubscriberTest.cs" />
+    <Compile Include="ChangeTracking\Internal\InternalEntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
+    <Compile Include="ChangeTracking\Internal\StoreGeneratedValuesTest.cs" />
+    <Compile Include="ContextConfigurationTest.cs" />
+    <Compile Include="DatabaseFacadeTest.cs" />
+    <Compile Include="DbContextTest.cs" />
+    <Compile Include="DbSetInitializerTest.cs" />
+    <Compile Include="DbSetTest.cs" />
+    <Compile Include="DbSetySourceTest.cs" />
+    <Compile Include="DbContextOptionsTest.cs" />
+    <Compile Include="EFTest.cs" />
+    <Compile Include="EntitySetFinderTest.cs" />
+    <Compile Include="Extensions\EntityFrameworkServiceCollectionExtensionsTest.cs" />
+    <Compile Include="Extensions\PropertyExtensionsTest.cs" />
+    <Compile Include="Extensions\ServiceProviderExtensionsTest.cs" />
+    <Compile Include="Infrastructure\ModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
+    <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
+    <Compile Include="Metadata\CollectionTyoeFactoryTest.cs" />
+    <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
+    <Compile Include="Metadata\IndexTest.cs" />
+    <Compile Include="Metadata\Internal\ConfigurationSourceExtensionsTest.cs" />
+    <Compile Include="Metadata\Internal\InternalEntityBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalIndexBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalMetadataBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalModelBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalPropertyBuilderTest.cs" />
+    <Compile Include="Metadata\Internal\InternalRelationshipBuilderTest.cs" />
+    <Compile Include="Metadata\MetadataBuilderTest.cs" />
+    <Compile Include="Metadata\ModelConventions\ConventionDispatcherTest.cs" />
+    <Compile Include="Metadata\ModelConventions\ForeignKeyPropertyDiscoveryConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\EntityTypeAttributeConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertyAttributeConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConventionTest.cs" />
+    <Compile Include="Metadata\NavigationExtensionsTest.cs" />
+    <Compile Include="Extensions\QueryableExtensionsTest.cs" />
+    <Compile Include="Metadata\TypedAnnotationTest.cs" />
+    <Compile Include="ModelBuilderTest\ManyToOneTestBase.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipTypeTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderGenericRelationshipStringTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderNonGenericStringTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderNonGenericTest.cs" />
+    <Compile Include="ModelBuilderTest\ModelBuilderTestBase.cs" />
+    <Compile Include="ModelBuilderTest\NonRelationshipTestBase.cs" />
+    <Compile Include="ModelBuilderTest\OneToManyTestBase.cs" />
+    <Compile Include="ModelBuilderTest\OneToOneTestBase.cs" />
+    <Compile Include="ModelBuilderTest\TestModel.cs" />
+    <Compile Include="ModelSourceTest.cs" />
+    <Compile Include="ServiceProviderCacheTest.cs" />
+    <Compile Include="ChangeTracking\ChangeTrackerTest.cs" />
+    <Compile Include="ChangeTracking\EntityEntryTest.cs" />
+    <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
+    <Compile Include="Metadata\AnnotationTest.cs" />
+    <Compile Include="Metadata\ClrCollectionAccessorSourceTest.cs" />
+    <Compile Include="Metadata\ClrPropertyGetterSourceTest.cs" />
+    <Compile Include="Metadata\ClrPropertySetterSourceTest.cs" />
+    <Compile Include="Metadata\EntityMaterializerSourceTest.cs" />
+    <Compile Include="Metadata\EntityTypeTest.cs" />
+    <Compile Include="Metadata\FieldMatcherTest.cs" />
+    <Compile Include="Metadata\ForeignKeyTest.cs" />
+    <Compile Include="Metadata\KeyTest.cs" />
+    <Compile Include="Metadata\MemberMapperTest.cs" />
+    <Compile Include="Infrastructure\AnnotatableTest.cs" />
+    <Compile Include="Metadata\ModelTest.cs" />
+    <Compile Include="Metadata\NavigationTest.cs" />
+    <Compile Include="Metadata\PropertyTest.cs" />
+    <Compile Include="Metadata\ModelConventions\KeyDiscoveryConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertyDiscoveryConventionTest.cs" />
+    <Compile Include="Query\TaskResultAsyncEnumerableTest.cs" />
+    <Compile Include="Storage\DatabaseProviderSelectorTest.cs" />
+    <Compile Include="TestUtilities\ListLogger.cs" />
+    <Compile Include="TestUtilities\ListLoggerFactory.cs" />
+    <Compile Include="Utilities\CheckTest.cs" />
+    <Compile Include="Utilities\EnumerableExtensionsTest.cs" />
+    <Compile Include="Utilities\ExpressionExtensionsTest.cs" />
+    <Compile Include="Utilities\IndentedStringBuilderTest.cs" />
+    <Compile Include="Utilities\LazyRefTest.cs" />
+    <Compile Include="Utilities\MultigraphTest.cs" />
+    <Compile Include="Utilities\PropertyInfoExtensionsTest.cs" />
+    <Compile Include="Utilities\ThreadSafeDictionaryCacheTest.cs" />
+    <Compile Include="Utilities\ThreadSafeLazyRefTest.cs" />
+    <Compile Include="Utilities\TypeExtensionsTest.cs" />
+    <Compile Include="Utilities\TypeNameHelperTest.cs" />
+    <Compile Include="ValueGeneration\GuidValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\SequentialGuidValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryDateTimeOffsetValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryDateTimeValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorCacheTest.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorExtensionsTest.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorFactoryTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryBinaryValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryNumberValueGeneratorFactoryTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryNumberValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\TemporaryStringValueGeneratorTest.cs" />
+    <Compile Include="ValueGeneration\ValueGeneratorSelectorTest.cs" />
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework7.Core\EntityFramework7.Core.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>EntityFramework7.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework7.InMemory\EntityFramework7.InMemory.csproj">
+      <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
+      <Name>EntityFramework7.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework7.Core.FunctionalTests\EntityFramework7.Core.FunctionalTests.csproj">
+      <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
+      <Name>EntityFramework7.Core.FunctionalTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

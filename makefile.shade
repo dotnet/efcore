@@ -1,3 +1,5 @@
+use assembly='WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'
+use namespace='System.IO.Packaging'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
@@ -6,32 +8,38 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 use-standard-lifecycle
 k-standard-goals
 
-#compile-tests target='compile'
-    @{
-        var BASE_DIR = Directory.GetCurrentDirectory();
-        var TARGET_DIR = Path.Combine(BASE_DIR, "artifacts");
-        var BUILD_DIR = Path.Combine(TARGET_DIR, "build");
-        var Configuration = E("Configuration") ?? "Debug";
+#compile-tests target='test-compile'
+  @{
+    var BASE_DIR = Directory.GetCurrentDirectory();
+    var TARGET_DIR = Path.Combine(BASE_DIR, "artifacts");
+    var BUILD_DIR = Path.Combine(TARGET_DIR, "build");
+    var Configuration = E("Configuration") ?? "Debug";
 
-        var projectFiles = Files.Include("test/EntityFramework.Relational.FunctionalTests/project.json")
-            .Include("test/EntityFramework.Core.FunctionalTests/project.json")
-            .Include("test/EntityFramework.Relational.Design.FunctionalTests/project.json");
+    var projectFiles = Files.Include("test/EntityFramework7.Relational.FunctionalTests/project.json")
+        .Include("test/EntityFramework7.Core.FunctionalTests/project.json");
+    if (ShouldRunInParallel)
+    {
+        Parallel.ForEach(projectFiles, projectFile => DnuPack(projectFile, BUILD_DIR, Configuration));
+    }
+    else
+    {
         foreach (var projectFile in projectFiles)
         {
             DnuPack(projectFile, BUILD_DIR, Configuration);
         }
-
-        foreach (var nupkg in Files.Include(Path.Combine(BUILD_DIR, "*.FunctionalTests/*.nupkg")))
-        {
-            File.Copy(nupkg, Path.Combine(BUILD_DIR, Path.GetFileName(nupkg)), true);
-        }
     }
 
+    foreach (var nupkg in Files.Include(Path.Combine(BUILD_DIR, "*.FunctionalTests/*.nupkg")))
+    {
+      File.Copy(nupkg, Path.Combine(BUILD_DIR, Path.GetFileName(nupkg)), true);
+    }
+  }
+
 #write-package-references target='initialize' if='!IsMono && !IsTeamCity'
-    var programFilesX86='${Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}'
-    var buildProgram='${Path.Combine(programFilesX86, "MSBuild", "14.0", "Bin", "MSBuild.exe")}'
-    for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
-        exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences /v:m /nologo /p:Configuration=${E("Configuration")}'
+  var programFilesX86='${Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}'
+  var buildProgram='${Path.Combine(programFilesX86, "MSBuild", "14.0", "Bin", "MSBuild.exe")}'
+  for each='var projectFile in Files.Include("src/**/*.csproj").Include("test/**/*.csproj")'
+    exec program='${buildProgram}' commandline='${projectFile} /t:WritePackageReferences /v:m /nologo /p:Configuration=${E("Configuration")}'
 
 @{
     var packagesDir = Environment.GetEnvironmentVariable("DNX_PACKAGES")
@@ -41,9 +49,76 @@ k-standard-goals
             "packages");
 }
 
-var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configuration")}'
+var sqliteTestDir='test/EntityFramework7.Sqlite.FunctionalTests/bin/${E("Configuration")}'
 #copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/x86/sqlite3.dll")'
     var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win/native"}'
     copy outputDir='${sqliteTestDir}'
-    copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}'
-    copy outputDir='test/EntityFramework.Sqlite.Design.FunctionalTests/bin/${E("Configuration")}'
+    copy outputDir='test/EntityFramework7.CrossStore.FunctionalTests/bin/${E("Configuration")}'
+
+#nupkg-patch target='compile'
+    @{
+        var packagePaths = Files.Include("artifacts/build/**/EntityFramework7.Commands.*.nupkg")
+            .Exclude("**/*.symbols.nupkg");
+        foreach (var packagePath in packagePaths)
+        {
+            using (var package = Package.Open(packagePath, FileMode.Open, FileAccess.ReadWrite))
+            {
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/build/netcore50/EntityFramework7.Commands.targets",
+                    @"build/netcore50/EntityFramework7.Commands.targets");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/lib/netcore50/_._",
+                    @"lib/netcore50/_._");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/tools/about_EntityFramework.help.txt",
+                    @"tools/about_EntityFramework.help.txt");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/tools/EntityFramework.psd1",
+                    @"tools/EntityFramework.psd1");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/tools/EntityFramework.psm1",
+                    @"tools/EntityFramework.psm1");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/tools/Handlers.cs",
+                    @"tools/Handlers.cs");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/IHandlers.cs",
+                    @"tools/IHandlers.cs");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/tools/init.ps1",
+                    @"tools/init.ps1");
+                CreatePartFromFile(
+                    package,
+                    @"src/EntityFramework7.Commands/tools/install.ps1",
+                    @"tools/install.ps1");
+            }
+        }
+    }
+
+functions
+    @{
+        PackagePart CreatePartFromFile(
+            Package destination,
+            string sourceFileName,
+            string partUriString)
+        {
+            var partUri = PackUriHelper.CreatePartUri(new Uri(partUriString, UriKind.Relative));
+            var packagePart = destination.CreatePart(partUri, "application/octet", CompressionOption.Maximum);
+
+            using (var sourceStream = File.OpenRead(sourceFileName))
+            using (var stream = packagePart.GetStream())
+            {
+                sourceStream.CopyTo(stream);
+            }
+
+            return packagePart;
+        }
+    }
