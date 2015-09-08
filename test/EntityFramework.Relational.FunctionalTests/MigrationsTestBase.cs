@@ -96,6 +96,74 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public async Task Can_apply_all_migrations_async()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                db.Database.EnsureDeleted();
+
+                await db.Database.MigrateAsync();
+
+                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                Assert.Collection(
+                    history.GetAppliedMigrations(),
+                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+                    x => Assert.Equal("00000000000002_Migration2", x.MigrationId));
+            }
+        }
+
+        [Fact]
+        public async Task Can_apply_one_migration_async()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                db.Database.EnsureDeleted();
+
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                await migrator.MigrateAsync("Migration1");
+
+                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                Assert.Collection(
+                    history.GetAppliedMigrations(),
+                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+            }
+        }
+
+        [Fact]
+        public async Task Can_revert_all_migrations_async()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                db.Database.EnsureDeleted();
+                await db.Database.MigrateAsync();
+
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                await migrator.MigrateAsync(Migration.InitialDatabase);
+
+                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                Assert.Empty(history.GetAppliedMigrations());
+            }
+        }
+
+        [Fact]
+        public async Task Can_revert_one_migrations_async()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                db.Database.EnsureDeleted();
+                await db.Database.MigrateAsync();
+
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                await migrator.MigrateAsync("Migration1");
+
+                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                Assert.Collection(
+                    history.GetAppliedMigrations(),
+                    x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+            }
+        }
+
+        [Fact]
         public virtual void Can_generate_up_scripts()
         {
             using (var db = _fixture.CreateContext())
