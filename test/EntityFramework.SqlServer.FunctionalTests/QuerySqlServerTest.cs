@@ -652,6 +652,17 @@ FROM [Employees] AS [o]",
                 Sql);
         }
 
+        public override void OrderBy_arithmetic()
+        {
+            base.OrderBy_arithmetic();
+
+            Assert.Equal(
+                @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+ORDER BY [e].[EmployeeID] - [e].[EmployeeID]",
+                Sql);
+        }
+
         public override void Sum_with_no_arg()
         {
             base.Sum_with_no_arg();

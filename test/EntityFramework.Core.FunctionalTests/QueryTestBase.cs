@@ -3011,25 +3011,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Employee>(es => es.OrderBy(o => ClientEvalSelectorStateless()).Take(10), entryCount: 9);
         }
 
-        public static bool ClientEvalPredicateStateless()
+        [Fact]
+        public virtual void OrderBy_arithmetic()
         {
-            return true;
+            AssertQuery<Employee>(
+                es => es.OrderBy(e => e.EmployeeID - e.EmployeeID),
+                entryCount: 9);
         }
 
-        protected static bool ClientEvalPredicate(Order order)
-        {
-            return order.OrderID > 10000;
-        }
+        public static bool ClientEvalPredicateStateless() => true;
 
-        private static int ClientEvalSelectorStateless()
-        {
-            return 42;
-        }
+        protected static bool ClientEvalPredicate(Order order) => order.OrderID > 10000;
 
-        protected internal int ClientEvalSelector(Order order)
-        {
-            return order.EmployeeID.HasValue ? order.EmployeeID.Value % 10 : 0;
-        }
+        private static int ClientEvalSelectorStateless() => 42;
+
+        protected internal int ClientEvalSelector(Order order) => order.EmployeeID % 10 ?? 0;
 
         [Fact]
         public virtual void Distinct()
