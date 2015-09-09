@@ -694,7 +694,8 @@ namespace Microsoft.Data.Entity.Query.Sql
                 var needParentheses
                     = !binaryExpression.Left.IsSimpleExpression()
                       || !binaryExpression.Right.IsSimpleExpression()
-                      || binaryExpression.IsLogicalOperation();
+                      || binaryExpression.IsLogicalOperation()
+                      || RequiresParentheses(binaryExpression);
 
                 if (needParentheses)
                 {
@@ -1009,6 +1010,9 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual string DelimitIdentifier([NotNull] string identifier)
             => "\"" + Check.NotEmpty(identifier, nameof(identifier)) + "\"";
+
+        protected virtual bool RequiresParentheses([NotNull] BinaryExpression expression)
+            => false;
 
         private class NullComparisonTransformingVisitor : RelinqExpressionVisitor
         {
