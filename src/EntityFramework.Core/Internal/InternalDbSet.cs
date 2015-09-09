@@ -43,89 +43,41 @@ namespace Microsoft.Data.Entity.Internal
             _entityQueryable = new LazyRef<EntityQueryable<TEntity>>(() => (EntityQueryable<TEntity>)source);
         }
 
-        public override EntityEntry<TEntity> Add(TEntity entity, bool includeDependents = true)
-        {
-            Check.NotNull(entity, nameof(entity));
+        public override EntityEntry<TEntity> Add(TEntity entity, GraphBehavior behavior = GraphBehavior.IncludeDependents) 
+            => _context.Add(Check.NotNull(entity, nameof(entity)), behavior);
 
-            return _context.Add(entity, includeDependents);
-        }
+        public override EntityEntry<TEntity> Attach(TEntity entity, GraphBehavior behavior = GraphBehavior.IncludeDependents) 
+            => _context.Attach(Check.NotNull(entity, nameof(entity)), behavior);
 
-        public override EntityEntry<TEntity> Attach(TEntity entity, bool includeDependents = true)
-        {
-            Check.NotNull(entity, nameof(entity));
+        public override EntityEntry<TEntity> Remove(TEntity entity) 
+            => _context.Remove(Check.NotNull(entity, nameof(entity)));
 
-            return _context.Attach(entity, includeDependents);
-        }
+        public override EntityEntry<TEntity> Update(TEntity entity, GraphBehavior behavior = GraphBehavior.IncludeDependents) 
+            => _context.Update(Check.NotNull(entity, nameof(entity)), behavior);
 
-        public override EntityEntry<TEntity> Remove(TEntity entity)
-        {
-            Check.NotNull(entity, nameof(entity));
+        public override void AddRange(params TEntity[] entities) 
+            => _context.AddRange(Check.NotNull(entities, nameof(entities)));
 
-            return _context.Remove(entity);
-        }
+        public override void AttachRange(params TEntity[] entities) 
+            => _context.AttachRange(Check.NotNull(entities, nameof(entities)));
 
-        public override EntityEntry<TEntity> Update(TEntity entity, bool includeDependents = true)
-        {
-            Check.NotNull(entity, nameof(entity));
+        public override void RemoveRange(params TEntity[] entities) 
+            => _context.RemoveRange(Check.NotNull(entities, nameof(entities)));
 
-            return _context.Update(entity, includeDependents);
-        }
+        public override void UpdateRange(params TEntity[] entities) 
+            => _context.UpdateRange(Check.NotNull(entities, nameof(entities)));
 
-        public override void AddRange(params TEntity[] entities)
-        {
-            Check.NotNull(entities, nameof(entities));
+        public override void AddRange(IEnumerable<TEntity> entities, GraphBehavior behavior = GraphBehavior.IncludeDependents) 
+            => _context.AddRange(Check.NotNull(entities, nameof(entities)), behavior);
 
-            _context.AddRange(entities);
-        }
+        public override void AttachRange(IEnumerable<TEntity> entities, GraphBehavior behavior = GraphBehavior.IncludeDependents) 
+            => _context.AttachRange(Check.NotNull(entities, nameof(entities)), behavior);
 
-        public override void AttachRange(params TEntity[] entities)
-        {
-            Check.NotNull(entities, nameof(entities));
+        public override void RemoveRange(IEnumerable<TEntity> entities) 
+            => _context.RemoveRange(Check.NotNull(entities, nameof(entities)));
 
-            _context.AttachRange(entities);
-        }
-
-        public override void RemoveRange(params TEntity[] entities)
-        {
-            Check.NotNull(entities, nameof(entities));
-
-            _context.RemoveRange(entities);
-        }
-
-        public override void UpdateRange(params TEntity[] entities)
-        {
-            Check.NotNull(entities, nameof(entities));
-
-            _context.UpdateRange(entities);
-        }
-
-        public override void AddRange(IEnumerable<TEntity> entities, bool includeDependents = true)
-        {
-            Check.NotNull(entities, nameof(entities));
-
-            _context.AddRange(entities, includeDependents);
-        }
-
-        public override void AttachRange(IEnumerable<TEntity> entities, bool includeDependents = true)
-        {
-            Check.NotNull(entities, nameof(entities));
-
-            _context.AttachRange(entities, includeDependents);
-        }
-
-        public override void RemoveRange(IEnumerable<TEntity> entities)
-        {
-            Check.NotNull(entities, nameof(entities));
-
-            _context.RemoveRange(entities);
-        }
-
-        public override void UpdateRange(IEnumerable<TEntity> entities, bool includeDependents = true)
-        {
-            Check.NotNull(entities, nameof(entities));
-
-            _context.UpdateRange(entities, includeDependents);
-        }
+        public override void UpdateRange(IEnumerable<TEntity> entities, GraphBehavior behavior = GraphBehavior.IncludeDependents) 
+            => _context.UpdateRange(Check.NotNull(entities, nameof(entities)), behavior);
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator() => _entityQueryable.Value.GetEnumerator();
 

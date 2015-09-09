@@ -326,19 +326,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context()
         {
-            TrackEntitiesTest((c, e) => c.Add(e, includeDependents: false), (c, e) => c.Add(e, includeDependents: false), EntityState.Added);
+            TrackEntitiesTest((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached()
         {
-            TrackEntitiesTest((c, e) => c.Attach(e, includeDependents: false), (c, e) => c.Attach(e, includeDependents: false), EntityState.Unchanged);
+            TrackEntitiesTest((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated()
         {
-            TrackEntitiesTest((c, e) => c.Update(e, includeDependents: false), (c, e) => c.Update(e, includeDependents: false), EntityState.Modified);
+            TrackEntitiesTest((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Modified);
         }
 
         [Fact]
@@ -350,19 +350,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_with_graph_method()
         {
-            TrackEntitiesTest((c, e) => c.Add(e, includeDependents: false), (c, e) => c.Add(e), EntityState.Added);
+            TrackEntitiesTest((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached_with_graph_method()
         {
-            TrackEntitiesTest((c, e) => c.Attach(e, includeDependents: false), (c, e) => c.Attach(e), EntityState.Unchanged);
+            TrackEntitiesTest((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated_with_graph_method()
         {
-            TrackEntitiesTest((c, e) => c.Update(e, includeDependents: false), (c, e) => c.Update(e), EntityState.Modified);
+            TrackEntitiesTest((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Update(e), EntityState.Modified);
         }
 
         private static void TrackEntitiesTest(
@@ -495,19 +495,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_non_generic()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Add(e, includeDependents: false), (c, e) => c.Add(e, includeDependents: false), EntityState.Added);
+            TrackEntitiesTestNonGeneric((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached_non_generic()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Attach(e, includeDependents: false), (c, e) => c.Attach(e, includeDependents: false), EntityState.Unchanged);
+            TrackEntitiesTestNonGeneric((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated_non_generic()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Update(e, includeDependents: false), (c, e) => c.Update(e, includeDependents: false), EntityState.Modified);
+            TrackEntitiesTestNonGeneric((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Modified);
         }
 
         [Fact]
@@ -519,19 +519,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_non_generic_graph()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Add(e, includeDependents: false), (c, e) => c.Add(e), EntityState.Added);
+            TrackEntitiesTestNonGeneric((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Add(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_attached_non_generic_graph()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Attach(e, includeDependents: false), (c, e) => c.Attach(e), EntityState.Unchanged);
+            TrackEntitiesTestNonGeneric((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Attach(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_existing_entities_to_context_to_be_updated_non_generic_graph()
         {
-            TrackEntitiesTestNonGeneric((c, e) => c.Update(e, includeDependents: false), (c, e) => c.Update(e), EntityState.Modified);
+            TrackEntitiesTestNonGeneric((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), (c, e) => c.Update(e), EntityState.Modified);
         }
 
         private static void TrackEntitiesTestNonGeneric(
@@ -575,19 +575,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_multiple_new_entities_to_context_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e, includeDependents: false), (c, e) => c.AddRange(e, includeDependents: false), EntityState.Added);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AddRange(e, behavior: GraphBehavior.SingleObject), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e, includeDependents: false), (c, e) => c.AttachRange(e, includeDependents: false), EntityState.Unchanged);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AttachRange(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_context_to_be_updated_Enumerable()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e, includeDependents: false), (c, e) => c.UpdateRange(e, includeDependents: false), EntityState.Modified);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.UpdateRange(e, behavior: GraphBehavior.SingleObject), EntityState.Modified);
         }
 
         [Fact]
@@ -599,19 +599,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_multiple_new_entities_to_context_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e, includeDependents: false), (c, e) => c.AddRange(e), EntityState.Added);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.AddRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AddRange(e), EntityState.Added);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_context_to_be_attached_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e, includeDependents: false), (c, e) => c.AttachRange(e), EntityState.Unchanged);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.AttachRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AttachRange(e), EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_add_multiple_existing_entities_to_context_to_be_updated_Enumerable_graph()
         {
-            TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e, includeDependents: false), (c, e) => c.UpdateRange(e), EntityState.Modified);
+            TrackMultipleEntitiesTestEnumerable((c, e) => c.UpdateRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.UpdateRange(e), EntityState.Modified);
         }
 
         private static void TrackMultipleEntitiesTestEnumerable(
@@ -648,19 +648,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_no_new_entities_to_context_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e, includeDependents: false), (c, e) => c.AddRange(e, includeDependents: false));
+            TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AddRange(e, behavior: GraphBehavior.SingleObject));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_context_to_be_attached_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.AttachRange(e, includeDependents: false), (c, e) => c.AttachRange(e, includeDependents: false));
+            TrackNoEntitiesTestEnumerable((c, e) => c.AttachRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AttachRange(e, behavior: GraphBehavior.SingleObject));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_context_to_be_updated_Enumerable()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.UpdateRange(e, includeDependents: false), (c, e) => c.UpdateRange(e, includeDependents: false));
+            TrackNoEntitiesTestEnumerable((c, e) => c.UpdateRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.UpdateRange(e, behavior: GraphBehavior.SingleObject));
         }
 
         [Fact]
@@ -672,19 +672,19 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_no_new_entities_to_context_Enumerable_graph()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e, includeDependents: false), (c, e) => c.AddRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.AddRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AddRange(e));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_context_to_be_attached_Enumerable_graph()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.AttachRange(e, includeDependents: false), (c, e) => c.AttachRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.AttachRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.AttachRange(e));
         }
 
         [Fact]
         public void Can_add_no_existing_entities_to_context_to_be_updated_Enumerable_graph()
         {
-            TrackNoEntitiesTestEnumerable((c, e) => c.UpdateRange(e, includeDependents: false), (c, e) => c.UpdateRange(e));
+            TrackNoEntitiesTestEnumerable((c, e) => c.UpdateRange(e, behavior: GraphBehavior.SingleObject), (c, e) => c.UpdateRange(e));
         }
 
         private static void TrackNoEntitiesTestEnumerable(
@@ -702,7 +702,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_add_new_entities_to_context_with_key_generation()
         {
-            TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e, includeDependents: false).Entity);
+            TrackEntitiesWithKeyGenerationTest((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject).Entity);
         }
 
         [Fact]
@@ -737,31 +737,31 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_use_Add_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Add(e, includeDependents: false), EntityState.Detached, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e, includeDependents: false), EntityState.Unchanged, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e, includeDependents: false), EntityState.Deleted, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e, includeDependents: false), EntityState.Modified, EntityState.Added);
-            ChangeStateWithMethod((c, e) => c.Add(e, includeDependents: false), EntityState.Added, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Detached, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Deleted, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Modified, EntityState.Added);
+            ChangeStateWithMethod((c, e) => c.Add(e, behavior: GraphBehavior.SingleObject), EntityState.Added, EntityState.Added);
         }
 
         [Fact]
         public void Can_use_Attach_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Attach(e, includeDependents: false), EntityState.Detached, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e, includeDependents: false), EntityState.Unchanged, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e, includeDependents: false), EntityState.Deleted, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e, includeDependents: false), EntityState.Modified, EntityState.Unchanged);
-            ChangeStateWithMethod((c, e) => c.Attach(e, includeDependents: false), EntityState.Added, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Detached, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Deleted, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Modified, EntityState.Unchanged);
+            ChangeStateWithMethod((c, e) => c.Attach(e, behavior: GraphBehavior.SingleObject), EntityState.Added, EntityState.Unchanged);
         }
 
         [Fact]
         public void Can_use_Update_to_change_entity_state()
         {
-            ChangeStateWithMethod((c, e) => c.Update(e, includeDependents: false), EntityState.Detached, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e, includeDependents: false), EntityState.Unchanged, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e, includeDependents: false), EntityState.Deleted, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e, includeDependents: false), EntityState.Modified, EntityState.Modified);
-            ChangeStateWithMethod((c, e) => c.Update(e, includeDependents: false), EntityState.Added, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Detached, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Unchanged, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Deleted, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Modified, EntityState.Modified);
+            ChangeStateWithMethod((c, e) => c.Update(e, behavior: GraphBehavior.SingleObject), EntityState.Added, EntityState.Modified);
         }
 
         [Fact]
@@ -828,7 +828,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -836,7 +836,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -857,7 +857,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -865,7 +865,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -884,7 +884,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -892,7 +892,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -911,7 +911,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -919,7 +919,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -938,7 +938,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -946,7 +946,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -965,7 +965,7 @@ namespace Microsoft.Data.Entity.Tests
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -973,7 +973,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1152,13 +1152,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1167,7 +1167,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1184,13 +1184,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product> { product };
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1199,7 +1199,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1215,13 +1215,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -1230,7 +1230,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -1246,13 +1246,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
                 category.Products = new List<Product>();
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -1261,7 +1261,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Empty(category.Products);
@@ -1277,13 +1277,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1292,7 +1292,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Unchanged, context.Entry(category).State);
                 Assert.Equal(EntityState.Detached, context.Entry(product).State);
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1308,13 +1308,13 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
                 category.Products = new List<Product> { product };
 
-                context.Attach(product, includeDependents: false);
+                context.Attach(product, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1323,7 +1323,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(EntityState.Detached, context.Entry(category).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(product).State);
 
-                context.Attach(category, includeDependents: false);
+                context.Attach(category, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(7, product.CategoryId);
                 Assert.Same(product, category.Products.Single());
@@ -1339,7 +1339,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
@@ -1370,7 +1370,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
@@ -1401,7 +1401,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
@@ -1432,7 +1432,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite", Category = category };
@@ -1463,7 +1463,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
@@ -1494,7 +1494,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, includeDependents: false).Entity;
+                var category7 = context.Attach(new Category { Id = 7, Products = new List<Product>() }, behavior: GraphBehavior.SingleObject).Entity;
 
                 var category = new Category { Id = 1, Name = "Beverages" };
                 var product = new Product { Id = 1, CategoryId = 7, Name = "Marmite" };
@@ -2299,7 +2299,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
 
-                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, includeDependents: false).Entity;
+                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject).Entity;
 
                 product.Name = "Cracked Cookies";
 
@@ -2331,7 +2331,7 @@ namespace Microsoft.Data.Entity.Tests
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
                 Assert.False(context.ChangeTracker.AutoDetectChangesEnabled);
 
-                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, includeDependents: false).Entity;
+                var product = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject).Entity;
 
                 product.Name = "Cracked Cookies";
 
@@ -2373,7 +2373,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new ButTheHedgehogContext(TestHelpers.Instance.CreateServiceProvider()))
             {
-                var entry = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, includeDependents: false);
+                var entry = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
 
                 entry.Entity.Name = "Cracked Cookies";
 
@@ -2401,7 +2401,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                var entry = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, includeDependents: false);
+                var entry = context.Attach(new Product { Id = 1, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
 
                 entry.Entity.Name = "Cracked Cookies";
 
@@ -2456,18 +2456,18 @@ namespace Microsoft.Data.Entity.Tests
                 context.RemoveRange(new Product { Id = id++, Name = "Little Hedgehogs" });
                 context.RemoveRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } });
                 context.RemoveRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } });
-                context.Add(new Product { Id = id++, Name = "Little Hedgehogs" }, includeDependents: false);
-                context.Add((object)new Product { Id = id++, Name = "Little Hedgehogs" }, includeDependents: false);
-                context.AddRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } }, includeDependents: false);
-                context.AddRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } }, includeDependents: false);
-                context.Attach(new Product { Id = id++, Name = "Little Hedgehogs" }, includeDependents: false);
-                context.Attach((object)new Product { Id = id++, Name = "Little Hedgehogs" }, includeDependents: false);
-                context.AttachRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } }, includeDependents: false);
-                context.AttachRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } }, includeDependents: false);
-                context.Update(new Product { Id = id++, Name = "Little Hedgehogs" }, includeDependents: false);
-                context.Update((object)new Product { Id = id++, Name = "Little Hedgehogs" }, includeDependents: false);
-                context.UpdateRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } }, includeDependents: false);
-                context.UpdateRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } }, includeDependents: false);
+                context.Add(new Product { Id = id++, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
+                context.Add((object)new Product { Id = id++, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
+                context.AddRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } }, behavior: GraphBehavior.SingleObject);
+                context.AddRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } }, behavior: GraphBehavior.SingleObject);
+                context.Attach(new Product { Id = id++, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
+                context.Attach((object)new Product { Id = id++, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
+                context.AttachRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } }, behavior: GraphBehavior.SingleObject);
+                context.AttachRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } }, behavior: GraphBehavior.SingleObject);
+                context.Update(new Product { Id = id++, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
+                context.Update((object)new Product { Id = id++, Name = "Little Hedgehogs" }, behavior: GraphBehavior.SingleObject);
+                context.UpdateRange(new List<Product> { new Product { Id = id++, Name = "Little Hedgehogs" } }, behavior: GraphBehavior.SingleObject);
+                context.UpdateRange(new List<object> { new Product { Id = id++, Name = "Little Hedgehogs" } }, behavior: GraphBehavior.SingleObject);
 
                 Assert.False(changeDetector.DetectChangesCalled);
 

@@ -69,6 +69,7 @@
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
+    <Compile Include="GraphBehavior.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />
@@ -192,6 +193,7 @@
     <Compile Include="Metadata\Conventions\Internal\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RequiredPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
+    <Compile Include="Metadata\DeleteBehavior.cs" />
     <Compile Include="Metadata\Internal\InternalMetadataBuilder`.cs" />
     <Compile Include="Metadata\Internal\MetadataHelper.cs" />
     <Compile Include="Metadata\ValueGenerated.cs" />

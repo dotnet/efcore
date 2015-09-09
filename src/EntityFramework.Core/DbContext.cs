@@ -441,9 +441,9 @@ namespace Microsoft.Data.Entity
         private EntityEntry EntryWithoutDetectChanges(object entity)
             => new EntityEntry(this, GetStateManager().GetOrCreateEntry(entity));
 
-        private void SetEntityState(InternalEntityEntry entry, EntityState entityState, bool includeDependents)
+        private void SetEntityState(InternalEntityEntry entry, EntityState entityState, GraphBehavior behavior)
         {
-            if (includeDependents
+            if (behavior == GraphBehavior.IncludeDependents
                 && entry.EntityState == EntityState.Detached)
             {
                 ServiceProvider.GetRequiredService<IEntityGraphAttacher>().AttachGraph(entry, entityState);
@@ -460,17 +460,18 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to add. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
-        ///     the same rules. If false, then only the given entity will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Add<TEntity>([NotNull] TEntity entity, bool includeDependents = true) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, includeDependents);
+        public virtual EntityEntry<TEntity> Add<TEntity>(
+            [NotNull] TEntity entity, 
+            GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
@@ -478,17 +479,18 @@ namespace Microsoft.Data.Entity
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to attach. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
-        ///     the same rules. If false, then only the given entity will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Attach<TEntity>([NotNull] TEntity entity, bool includeDependents = true) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, includeDependents);
+        public virtual EntityEntry<TEntity> Attach<TEntity>(
+            [NotNull] TEntity entity,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     <para>
@@ -497,24 +499,25 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach{TEntity}(TEntity, bool)" /> to begin tracking the entity in the
+        ///         <see cref="Attach{TEntity}(TEntity, GraphBehavior)" /> to begin tracking the entity in the
         ///         <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry{TEntity}" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to update. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
-        ///     the same rules. If false, then only the given entity will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry<TEntity> Update<TEntity>([NotNull] TEntity entity, bool includeDependents = true) where TEntity : class
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, includeDependents);
+        public virtual EntityEntry<TEntity> Update<TEntity>(
+            [NotNull] TEntity entity, 
+            GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -551,11 +554,11 @@ namespace Microsoft.Data.Entity
         private EntityEntry<TEntity> SetEntityState<TEntity>(
             TEntity entity,
             EntityState entityState,
-            bool includeDependents) where TEntity : class
+            GraphBehavior behavior) where TEntity : class
         {
             var entry = EntryWithoutDetectChanges(entity);
 
-            SetEntityState(entry.GetService(), entityState, includeDependents);
+            SetEntityState(entry.GetService(), entityState, behavior);
 
             return entry;
         }
@@ -565,34 +568,36 @@ namespace Microsoft.Data.Entity
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to add. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
-        ///     the same rules. If false, then only the given entity will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry Add([NotNull] object entity, bool includeDependents = true)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, includeDependents);
+        public virtual EntityEntry Add(
+            [NotNull] object entity,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entity"> The entity to attach. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
-        ///     the same rules. If false, then only the given entity will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry Attach([NotNull] object entity, bool includeDependents = true)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, includeDependents);
+        public virtual EntityEntry Attach(
+            [NotNull] object entity,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     <para>
@@ -601,22 +606,23 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object, bool)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(object, GraphBehavior)" /> to begin tracking the entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entity"> The entity to update. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entity using
-        ///     the same rules. If false, then only the given entity will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
         ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
         ///     information the context is tracking for the entity and the ability to perform
         ///     actions on the entity.
         /// </returns>
-        public virtual EntityEntry Update([NotNull] object entity, bool includeDependents = true)
-            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, includeDependents);
+        public virtual EntityEntry Update(
+            [NotNull] object entity,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+            => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     Begins tracking the given entity in the <see cref="EntityState.Deleted" /> state such that it will
@@ -649,11 +655,11 @@ namespace Microsoft.Data.Entity
             return entry;
         }
 
-        private EntityEntry SetEntityState(object entity, EntityState entityState, bool includeDependents)
+        private EntityEntry SetEntityState(object entity, EntityState entityState, GraphBehavior behavior)
         {
             var entry = EntryWithoutDetectChanges(entity);
 
-            SetEntityState(entry.GetService(), entityState, includeDependents);
+            SetEntityState(entry.GetService(), entityState, behavior);
 
             return entry;
         }
@@ -681,7 +687,7 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object, bool)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(object, GraphBehavior)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
@@ -702,16 +708,13 @@ namespace Microsoft.Data.Entity
         public virtual void RemoveRange([NotNull] params object[] entities)
             => RemoveRange((IEnumerable<object>)entities);
 
-        private void SetEntityStates(
-            IEnumerable<object> entities,
-            EntityState entityState,
-            bool includeDependents)
+        private void SetEntityStates(IEnumerable<object> entities, EntityState entityState, GraphBehavior behavior)
         {
             var stateManager = GetStateManager();
 
             foreach (var entity in entities)
             {
-                SetEntityState(stateManager.GetOrCreateEntry(entity), entityState, includeDependents);
+                SetEntityState(stateManager.GetOrCreateEntry(entity), entityState, behavior);
             }
         }
 
@@ -720,24 +723,26 @@ namespace Microsoft.Data.Entity
         ///     be inserted into the database when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to add. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entities using
-        ///     the same rules. If false, then only the given entities will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entities or also other related entities.
         /// </param>
-        public virtual void AddRange([NotNull] IEnumerable<object> entities, bool includeDependents = true)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, includeDependents);
+        public virtual void AddRange(
+            [NotNull] IEnumerable<object> entities,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Unchanged" /> state such that no
         ///     operation will be performed when <see cref="SaveChanges()" /> is called.
         /// </summary>
         /// <param name="entities"> The entities to attach. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entities using
-        ///     the same rules. If false, then only the given entities will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entities or also other related entities.
         /// </param>
-        public virtual void AttachRange([NotNull] IEnumerable<object> entities, bool includeDependents = true)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, includeDependents);
+        public virtual void AttachRange(
+            [NotNull] IEnumerable<object> entities,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Unchanged, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     <para>
@@ -746,17 +751,18 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         All properties of the entities will be marked as modified. To mark only some properties as modified, use
-        ///         <see cref="Attach(object, bool)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
+        ///         <see cref="Attach(object, GraphBehavior)" /> to begin tracking each entity in the <see cref="EntityState.Unchanged" />
         ///         state and then use the returned <see cref="EntityEntry" /> to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <param name="entities"> The entities to update. </param>
-        /// <param name="includeDependents">
-        ///     If true, then the context will also start tracking all dependent entities reachable from the given entities using
-        ///     the same rules. If false, then only the given entities will be tracked.
+        /// <param name="behavior">
+        ///     Determines whether the context will bring in only the given entities or also other related entities.
         /// </param>
-        public virtual void UpdateRange([NotNull] IEnumerable<object> entities, bool includeDependents = true)
-            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, includeDependents);
+        public virtual void UpdateRange(
+            [NotNull] IEnumerable<object> entities,
+            GraphBehavior behavior = GraphBehavior.IncludeDependents)
+            => SetEntityStates(Check.NotNull(entities, nameof(entities)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
 
         /// <summary>
         ///     Begins tracking the given entities in the <see cref="EntityState.Deleted" /> state such that they will

@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.ChangeTracker.DetectChanges();
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
 
-                context.Attach(customer, includeDependents: false);
+                context.Attach(customer, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.ChangeTracker.DetectChanges();
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
 
-                context.Customers.Attach(customer, includeDependents: false);
+                context.Customers.Attach(customer, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(customer.CustomerID, firstTrackedEntity.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(EntityState.Modified, trackedEntity0.State);
                 Assert.Equal(EntityState.Modified, trackedEntity1.State);
 
-                context.AttachRange(customers, includeDependents: false);
+                context.AttachRange(customers, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(customer0.CustomerID, trackedEntity0.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(customer1.CustomerID, trackedEntity1.Property(c => c.CustomerID).CurrentValue);
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(EntityState.Modified, trackedEntity0.State);
                 Assert.Equal(EntityState.Modified, trackedEntity1.State);
 
-                context.Customers.AttachRange(customers, includeDependents: false);
+                context.Customers.AttachRange(customers, behavior: GraphBehavior.SingleObject);
 
                 Assert.Equal(customer0.CustomerID, trackedEntity0.Property(c => c.CustomerID).CurrentValue);
                 Assert.Equal(customer1.CustomerID, trackedEntity1.Property(c => c.CustomerID).CurrentValue);

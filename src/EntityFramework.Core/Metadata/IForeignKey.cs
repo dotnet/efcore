@@ -18,10 +18,4 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsRequired { get; }
         DeleteBehavior DeleteBehavior { get; }
     }
-
-    public enum DeleteBehavior
-    {
-        None,
-        Cascade,
-    }
 }
