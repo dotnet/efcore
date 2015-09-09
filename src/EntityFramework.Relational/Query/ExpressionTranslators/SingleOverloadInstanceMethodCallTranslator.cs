@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             if (methodInfo == methodCallExpression.Method)
             {
                 var sqlArguments = new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments);
-                return new SqlFunctionExpression(_sqlFunctionName, sqlArguments, methodCallExpression.Type);
+                return new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, sqlArguments);
             }
 
             return null;

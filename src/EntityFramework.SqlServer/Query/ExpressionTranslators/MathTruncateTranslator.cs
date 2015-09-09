@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
             if (_methodInfos.Contains(methodCallExpression.Method))
             {
                 var arguments = new[] { methodCallExpression.Arguments[0], Expression.Constant(0), Expression.Constant(1) };
-                return new SqlFunctionExpression("ROUND", arguments, methodCallExpression.Type);
+                return new SqlFunctionExpression("ROUND", methodCallExpression.Type, arguments);
             }
 
             return null;
