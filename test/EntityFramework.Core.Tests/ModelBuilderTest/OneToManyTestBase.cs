@@ -1642,6 +1642,25 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.False(entityType.GetProperty("NobId1").IsNullable);
                 Assert.True(entityType.GetForeignKeys().Single().IsRequired);
             }
+            
+            [Fact]
+            public virtual void Can_turn_cascade_delete_on_and_off()
+            {
+                var modelBuilder = HobNobBuilder();
+                var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
+
+                modelBuilder
+                    .Entity<Hob>().Collection(e => e.Nobs).InverseReference(e => e.Hob)
+                    .WillCascadeOnDelete();
+
+                Assert.Equal(DeleteBehavior.Cascade, dependentType.GetForeignKeys().Single().DeleteBehavior);
+
+                modelBuilder
+                    .Entity<Hob>().Collection(e => e.Nobs).InverseReference(e => e.Hob)
+                    .WillCascadeOnDelete(false);
+
+                Assert.Equal(DeleteBehavior.None, dependentType.GetForeignKeys().Single().DeleteBehavior);
+            }
         }
     }
 }

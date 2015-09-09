@@ -1054,6 +1054,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             ConfigurationSource configurationSource,
             bool? isUnique = null,
             bool? isRequired = null,
+            DeleteBehavior? deleteBehavior = null,
             bool strictPrincipal = true,
             [CanBeNull] Func<InternalRelationshipBuilder, InternalRelationshipBuilder> onRelationshipAdding = null)
         {
@@ -1072,6 +1073,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     configurationSource,
                     isUnique,
                     isRequired,
+                    deleteBehavior,
                     strictPrincipal,
                     onRelationshipAdding);
             }
@@ -1162,6 +1164,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     principalProperties,
                     isUnique,
                     isRequired,
+                    deleteBehavior,
                     configurationSource);
 
                 if (foreignKey == null)
@@ -1249,6 +1252,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     builder = builder.Required(foreignKey.IsRequired, configurationSource);
                 }
+                if (deleteBehavior.HasValue)
+                {
+                    builder = builder.DeleteBehavior(foreignKey.DeleteBehavior, configurationSource);
+                }
                 if (foreignKeyProperties != null)
                 {
                     builder = builder.ForeignKey(foreignKey.Properties, configurationSource);
@@ -1275,6 +1282,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
+            DeleteBehavior? deleteBehavior,
             ConfigurationSource configurationSource)
         {
             var principalType = principalEntityTypeBuilder.Metadata;
@@ -1360,6 +1368,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var newForeignKey = dependentType.AddForeignKey(foreignKeyProperties, principalKey, principalType);
             newForeignKey.IsUnique = isUnique;
+            newForeignKey.DeleteBehavior = deleteBehavior;
 
             foreach (var foreignKeyProperty in foreignKeyProperties)
             {

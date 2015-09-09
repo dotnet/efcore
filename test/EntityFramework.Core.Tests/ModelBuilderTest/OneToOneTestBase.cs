@@ -2690,6 +2690,25 @@ namespace Microsoft.Data.Entity.Tests
                 var principalEntityType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Nob));
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }
+
+            [Fact]
+            public virtual void Can_turn_cascade_delete_on_and_off()
+            {
+                var modelBuilder = HobNobBuilder();
+                var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
+
+                modelBuilder
+                    .Entity<Hob>().Reference(e => e.Nob).InverseReference(e => e.Hob)
+                    .WillCascadeOnDelete();
+
+                Assert.Equal(DeleteBehavior.Cascade, dependentType.GetForeignKeys().Single().DeleteBehavior);
+
+                modelBuilder
+                    .Entity<Hob>().Reference(e => e.Nob).InverseReference(e => e.Hob)
+                    .WillCascadeOnDelete(false);
+
+                Assert.Equal(DeleteBehavior.None, dependentType.GetForeignKeys().Single().DeleteBehavior);
+            }
         }
     }
 }

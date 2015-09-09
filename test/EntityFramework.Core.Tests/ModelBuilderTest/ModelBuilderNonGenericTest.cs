@@ -226,6 +226,9 @@ namespace Microsoft.Data.Entity.Tests
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
                 => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.Required(isRequired));
+
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
+                => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.WillCascadeOnDelete(cascade));
         }
 
         protected class NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
@@ -261,6 +264,9 @@ namespace Microsoft.Data.Entity.Tests
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
                 => Wrap(ReferenceReferenceBuilder.Required(isRequired));
+
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
+                => Wrap(ReferenceReferenceBuilder.WillCascadeOnDelete(cascade));
         }
     }
 }

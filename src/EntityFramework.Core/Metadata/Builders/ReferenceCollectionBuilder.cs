@@ -124,5 +124,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual ReferenceCollectionBuilder Required(bool required = true)
             => new ReferenceCollectionBuilder(Builder.Required(required, ConfigurationSource.Explicit));
+
+        public virtual ReferenceCollectionBuilder WillCascadeOnDelete(bool cascade = true)
+            => new ReferenceCollectionBuilder(
+                Builder.DeleteBehavior(cascade ? DeleteBehavior.Cascade : DeleteBehavior.None, ConfigurationSource.Explicit));
     }
 }

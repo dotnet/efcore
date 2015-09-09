@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Metadata
     {
         private Navigation _dependentToPrincipal;
         private Navigation _principalToDependent;
+        private DeleteBehavior? _deleteBehavior;
 
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
@@ -152,6 +153,21 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual bool DefaultIsRequired => !((IForeignKey)this).Properties.Any(p => p.IsNullable);
 
+        public virtual DeleteBehavior? DeleteBehavior
+        {
+            get { return _deleteBehavior; }
+            set
+            {
+                if (value != null)
+                {
+                    Check.IsDefined(value.Value, nameof(value));
+                }
+                _deleteBehavior = value;
+            }
+        }
+
+        protected virtual DeleteBehavior DefaultDeleteBehavior => Metadata.DeleteBehavior.None;
+
         IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
 
         IEntityType IForeignKey.DeclaringEntityType => DeclaringEntityType;
@@ -167,6 +183,8 @@ namespace Microsoft.Data.Entity.Metadata
         bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
 
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
+
+        DeleteBehavior IForeignKey.DeleteBehavior => DeleteBehavior ?? DefaultDeleteBehavior;
 
         public override string ToString()
             => $"'{DeclaringEntityType.DisplayName()}' {Property.Format(Properties)} -> '{PrincipalEntityType.DisplayName()}' {Property.Format(PrincipalKey.Properties)}";

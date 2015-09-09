@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _principalKeyConfigurationSource;
         private ConfigurationSource? _isUniqueConfigurationSource;
         private ConfigurationSource? _isRequiredConfigurationSource;
+        private ConfigurationSource? _deletebehaviorConfigurationSource;
         private ConfigurationSource? _principalEndConfigurationSource;
 
         public InternalRelationshipBuilder(
@@ -29,6 +30,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _principalKeyConfigurationSource = initialConfigurationSource;
             _isUniqueConfigurationSource = initialConfigurationSource;
             _isRequiredConfigurationSource = initialConfigurationSource;
+            _deletebehaviorConfigurationSource = initialConfigurationSource;
             _principalEndConfigurationSource = initialConfigurationSource;
         }
 
@@ -143,6 +145,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ReplaceForeignKey(configurationSource, isRequired: isRequired);
         }
 
+        public virtual InternalRelationshipBuilder DeleteBehavior(DeleteBehavior? deleteBehavior, ConfigurationSource configurationSource)
+        {
+            if (((IForeignKey)Metadata).DeleteBehavior == deleteBehavior)
+            {
+                Metadata.DeleteBehavior = deleteBehavior;
+                _deletebehaviorConfigurationSource = configurationSource.Max(_deletebehaviorConfigurationSource);
+                return this;
+            }
+
+            if (_deletebehaviorConfigurationSource != null
+                && !configurationSource.Overrides(_deletebehaviorConfigurationSource.Value))
+            {
+                return null;
+            }
+
+            _deletebehaviorConfigurationSource = configurationSource.Max(_deletebehaviorConfigurationSource);
+            return ReplaceForeignKey(configurationSource, deleteBehavior: deleteBehavior);
+        }
+
         public virtual InternalRelationshipBuilder Unique(bool? isUnique, ConfigurationSource configurationSource)
         {
             if (((IForeignKey)Metadata).IsUnique == isUnique)
@@ -200,6 +221,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 null,
                 ((IForeignKey)Metadata).IsUnique,
                 _isRequiredConfigurationSource.HasValue ? ((IForeignKey)Metadata).IsRequired : (bool?)null,
+                _deletebehaviorConfigurationSource.HasValue ? ((IForeignKey)Metadata).DeleteBehavior : (DeleteBehavior?)null,
                 shouldUpgradeSource: true,
                 configurationSource: configurationSource);
         }
@@ -439,7 +461,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             IReadOnlyList<Property> dependentProperties = null,
             IReadOnlyList<Property> principalProperties = null,
             bool? isUnique = null,
-            bool? isRequired = null)
+            bool? isRequired = null,
+            DeleteBehavior? deleteBehavior = null)
         {
             var shouldUpgradeSource = dependentProperties != null;
             dependentProperties = dependentProperties ??
@@ -473,6 +496,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                              ? ((IForeignKey)Metadata).IsRequired
                              : (bool?)null);
 
+            deleteBehavior = deleteBehavior ??
+                         (_deletebehaviorConfigurationSource.HasValue
+                          && _deletebehaviorConfigurationSource.Value.Overrides(configurationSource)
+                             ? ((IForeignKey)Metadata).DeleteBehavior
+                             : (DeleteBehavior?)null);
+
             if (dependentProperties != null
                 && isRequired.HasValue
                 && !CanSetRequired(dependentProperties, isRequired.Value, configurationSource))
@@ -489,6 +518,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 principalProperties,
                 isUnique,
                 isRequired,
+                deleteBehavior,
                 shouldUpgradeSource,
                 configurationSource);
         }
@@ -502,6 +532,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [CanBeNull] IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
+            DeleteBehavior? deleteBehavior,
             bool shouldUpgradeSource,
             ConfigurationSource configurationSource)
         {
@@ -520,6 +551,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     principalProperties,
                     isUnique,
                     isRequired,
+                    deleteBehavior,
                     shouldUpgradeSource ? configurationSource.Max(replacedConfigurationSource.Value) : replacedConfigurationSource.Value);
         }
 
@@ -532,6 +564,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             IReadOnlyList<Property> principalProperties,
             bool? isUnique,
             bool? isRequired,
+            DeleteBehavior? deleteBehavior,
             ConfigurationSource configurationSource)
         {
             var principalEntityTypeBuilder = ModelBuilder.Entity(principalType.Name, configurationSource);
@@ -547,6 +580,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource,
                 isUnique,
                 isRequired,
+                deleteBehavior,
                 strictPrincipal: true,
                 onRelationshipAdding:
                 b => b.MergeConfigurationSourceWith(this));
@@ -595,6 +629,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 principalProperties != null && _principalKeyConfigurationSource.HasValue ? principalProperties : null,
                 _isUniqueConfigurationSource.HasValue ? Metadata.IsUnique : null,
                 _isRequiredConfigurationSource.HasValue ? Metadata.IsRequired : null,
+                _deletebehaviorConfigurationSource.HasValue ? Metadata.DeleteBehavior : null,
                 configurationSource);
         }
 
@@ -624,6 +659,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             _isUniqueConfigurationSource = oldBuilder._isUniqueConfigurationSource?.Max(_isUniqueConfigurationSource) ?? _isUniqueConfigurationSource;
             _isRequiredConfigurationSource = oldBuilder._isRequiredConfigurationSource?.Max(_isRequiredConfigurationSource) ?? _isRequiredConfigurationSource;
+            _deletebehaviorConfigurationSource = oldBuilder._deletebehaviorConfigurationSource?.Max(_deletebehaviorConfigurationSource) ?? _deletebehaviorConfigurationSource;
 
             return this;
         }

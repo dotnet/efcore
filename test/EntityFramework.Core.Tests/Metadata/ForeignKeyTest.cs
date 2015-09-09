@@ -752,6 +752,38 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
+        public void Can_change_cascade_delete_flag()
+        {
+            var entityType = new Model().AddEntityType("E");
+            var keyProp = entityType.AddProperty("Id", typeof(int));
+            var dependentProp = entityType.AddProperty("P", typeof(int));
+            var principalProp = entityType.AddProperty("U", typeof(int));
+            entityType.GetOrSetPrimaryKey(keyProp);
+            var principalKey = entityType.AddKey(principalProp);
+
+            var foreignKey
+                = new ForeignKey(new[] { dependentProp }, principalKey, entityType, entityType);
+
+            Assert.Null(foreignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.None, ((IForeignKey)foreignKey).DeleteBehavior);
+
+            foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
+
+            Assert.Equal(DeleteBehavior.Cascade, foreignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Cascade, ((IForeignKey)foreignKey).DeleteBehavior);
+
+            foreignKey.DeleteBehavior = DeleteBehavior.None;
+
+            Assert.Equal(DeleteBehavior.None, foreignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.None, ((IForeignKey)foreignKey).DeleteBehavior);
+
+            foreignKey.DeleteBehavior = null;
+
+            Assert.Null(foreignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.None, ((IForeignKey)foreignKey).DeleteBehavior);
+        }
+
+        [Fact]
         public void Can_find_targets_for_non_hierarchical_foreign_keys()
         {
             var fk = CreateOneToManyFK();

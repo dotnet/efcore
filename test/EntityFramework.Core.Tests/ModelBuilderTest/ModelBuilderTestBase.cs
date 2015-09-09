@@ -257,6 +257,8 @@ namespace Microsoft.Data.Entity.Tests
                 string annotation, object value);
 
             public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true);
+
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true);
         }
 
         public abstract class TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
@@ -281,6 +283,8 @@ namespace Microsoft.Data.Entity.Tests
                 Type principalEntityType, params string[] keyPropertyNames);
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true);
+
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true);
         }
     }
 }

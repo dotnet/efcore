@@ -198,6 +198,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public virtual ReferenceReferenceBuilder Required(bool required = true)
             => new ReferenceReferenceBuilder(Builder.Required(required, ConfigurationSource.Explicit));
 
+        public virtual ReferenceReferenceBuilder WillCascadeOnDelete(bool cascade = true)
+            => new ReferenceReferenceBuilder(
+                Builder.DeleteBehavior(cascade ? DeleteBehavior.Cascade : DeleteBehavior.None, ConfigurationSource.Explicit));
+
         private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }
 }
