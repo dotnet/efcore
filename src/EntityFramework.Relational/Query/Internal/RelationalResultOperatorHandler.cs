@@ -359,21 +359,35 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (concreteEntityTypes.Length != 1
                 || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
-                var extensions = handlerContext.RelationalMetadataExtensionProvider;
+                var relationalMetadataExtensionProvider 
+                    = handlerContext.RelationalMetadataExtensionProvider;
 
-                var discriminatorProperty = extensions.For(concreteEntityTypes[0]).DiscriminatorProperty;
+                var discriminatorProperty 
+                    = relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
+
+                var projectionIndex
+                    = handlerContext.SelectExpression
+                        .GetProjectionIndex(discriminatorProperty, handlerContext.QueryModel.MainFromClause);
+
+                if (projectionIndex < 0)
+                {
+                    projectionIndex
+                        = handlerContext.SelectExpression
+                            .AddToProjection(
+                                relationalMetadataExtensionProvider.For(discriminatorProperty).ColumnName,
+                                discriminatorProperty,
+                                handlerContext.QueryModel.MainFromClause);
+                }
 
                 var discriminatorColumn
-                    = handlerContext.SelectExpression.Projection
-                        .OfType<AliasExpression>()
-                        .Single(c => c.TryGetColumnExpression()?.Property == discriminatorProperty);
+                    = handlerContext.SelectExpression.Projection[projectionIndex];
 
                 var discriminatorPredicate
                     = concreteEntityTypes
                         .Select(concreteEntityType =>
                             Expression.Equal(
                                 discriminatorColumn,
-                                Expression.Constant(extensions.For(concreteEntityType).DiscriminatorValue)))
+                                Expression.Constant(relationalMetadataExtensionProvider.For(concreteEntityType).DiscriminatorValue)))
                         .Aggregate((current, next) => Expression.OrElse(next, current));
 
                 handlerContext.SelectExpression.Predicate

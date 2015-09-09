@@ -543,7 +543,7 @@ namespace Microsoft.Data.Entity.Query
                     && shaperMethod.MethodIsClosedFormOf(RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo))
                 {
                     shaperMethod = RelationalEntityQueryableExpressionVisitor.CreateValueBufferMethodInfo;
-                    shaperMethodArgs.RemoveRange(5, 5);
+                    shaperMethodArgs.RemoveRange(5, shaperMethodArgs.Count - 5);
                 }
                 else
                 {
@@ -569,7 +569,17 @@ namespace Microsoft.Data.Entity.Query
                 {
                     if (subQueryExpression.QueryModel != null)
                     {
-                        queryModel.SelectClause.Selector = subQueryExpression.QueryModel.SelectClause.Selector;
+                        var newSelectorExpression = subQueryExpression.QueryModel.SelectClause.Selector;
+
+                        if (newSelectorExpression.Type != queryModel.SelectClause.Selector.Type)
+                        {
+                            newSelectorExpression
+                                = Expression.Convert(
+                                    subQueryExpression.QueryModel.SelectClause.Selector,
+                                    queryModel.SelectClause.Selector.Type);
+                        }
+
+                        queryModel.SelectClause.Selector = newSelectorExpression;
 
                         QueryCompilationContext.QuerySourceMapping
                             .ReplaceMapping(

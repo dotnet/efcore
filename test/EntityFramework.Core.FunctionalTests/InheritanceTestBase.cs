@@ -4,6 +4,8 @@
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance;
 using Xunit;
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable StringEndsWithIsCultureSpecific
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -35,6 +37,40 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.IsType<Kiwi>(animals[0]);
                 Assert.IsType<Eagle>(animals[1]);
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_bird_predicate()
+        {
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .Where(a => a.CountryId == 1)
+                        .OfType<Bird>()
+                        .OrderBy(a => a.Species)
+                        .ToList();
+
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_bird_with_projection()
+        {
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .OfType<Bird>()
+                        .Select(b => new { b.EagleId })
+                        .ToList();
+
+                Assert.Equal(2, animals.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -183,6 +219,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 Assert.NotNull(eagle);
                 Assert.Equal(1, eagle.Prey.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_kiwi_where_south_on_derived_property()
+        {
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .OfType<Kiwi>()
+                        .Where(x => x.FoundOn == Island.South)
+                        .ToList();
+
+                Assert.Equal(1, animals.Count);
+                Assert.IsType<Kiwi>(animals[0]);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_use_of_type_kiwi_where_north_on_derived_property()
+        {
+            using (var context = CreateContext())
+            {
+                var animals
+                    = context.Set<Animal>()
+                        .OfType<Kiwi>()
+                        .Where(x => x.FoundOn == Island.North)
+                        .ToList();
+
+                Assert.Equal(0, animals.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
 

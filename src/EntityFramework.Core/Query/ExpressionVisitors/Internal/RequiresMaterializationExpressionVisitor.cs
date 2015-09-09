@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
@@ -159,7 +160,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             _parentSelector,
                             querySourceReferenceExpression.ReferencedQuerySource);
 
-                if (resultQuerySource == null)
+                if (resultQuerySource == null
+                    && !(subQueryExpression.QueryModel.ResultOperators.LastOrDefault() is OfTypeResultOperator))
                 {
                     _querySources[querySourceReferenceExpression.ReferencedQuerySource]--;
                 }

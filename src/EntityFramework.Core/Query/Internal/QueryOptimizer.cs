@@ -92,14 +92,16 @@ namespace Microsoft.Data.Entity.Query.Internal
             VisitQueryModel(subQueryModel);
 
             if ((subQueryModel.ResultOperators
-                .All(ro => (ro is OfTypeResultOperator || ro is CastResultOperator))
+                .All(ro => ro is CastResultOperator)
                  && !subQueryModel.BodyClauses.Any(bc => bc is OrderByClause))
                 || (queryModel.IsIdentityQuery()
                     && !queryModel.ResultOperators.Any()))
             {
                 string itemName;
+
                 var innerMainFromClause = subQueryExpression.QueryModel.MainFromClause;
                 var isGeneratedNameOuter = fromClause.HasGeneratedItemName();
+
                 if (innerMainFromClause.HasGeneratedItemName()
                     && !isGeneratedNameOuter)
                 {
@@ -110,10 +112,10 @@ namespace Microsoft.Data.Entity.Query.Internal
                     itemName = innerMainFromClause.ItemName;
                 }
 
-                var fromClauseData = new FromClauseData(
-                    itemName,
-                    innerMainFromClause.ItemType,
-                    innerMainFromClause.FromExpression);
+                var fromClauseData
+                    = new FromClauseData(
+                        itemName, innerMainFromClause.ItemType, innerMainFromClause.FromExpression);
+
                 fromClause.CopyFromSource(fromClauseData);
 
                 var innerSelectorMapping = new QuerySourceMapping();
