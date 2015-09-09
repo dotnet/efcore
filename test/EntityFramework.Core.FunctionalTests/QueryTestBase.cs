@@ -884,6 +884,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_datetime_utcnow()
+        {
+            var myDatetime = new DateTime(2015, 4, 10);
+            AssertQuery<Customer>(
+                cs => cs.Where(c => DateTime.UtcNow != myDatetime),
+                entryCount: 91);
+        }
+
+        [Fact]
         public virtual void Where_simple_reversed()
         {
             AssertQuery<Customer>(
