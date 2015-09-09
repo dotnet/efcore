@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
             {
                 if (memberExpression.Member.Name == nameof(DateTime.Now))
                 {
-                    return new SqlFunctionExpression("GETDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                    return new SqlFunctionExpression("GETDATE", memberExpression.Type);
                 }
                 else if (memberExpression.Member.Name == nameof(DateTime.UtcNow))
                 {
-                    return new SqlFunctionExpression("GETUTCDATE", Enumerable.Empty<Expression>(), memberExpression.Type);
+                    return new SqlFunctionExpression("GETUTCDATE", memberExpression.Type);
                 }
             }
 

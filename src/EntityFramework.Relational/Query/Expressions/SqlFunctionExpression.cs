@@ -20,12 +20,19 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public SqlFunctionExpression(
             [NotNull] string functionName,
-            [NotNull] IEnumerable<Expression> arguments,
             [NotNull] Type returnType)
+            : this(functionName, returnType, Enumerable.Empty<Expression>())
+        {
+        }
+
+        public SqlFunctionExpression(
+            [NotNull] string functionName,
+            [NotNull] Type returnType,
+            [NotNull] IEnumerable<Expression> arguments)
         {
             FunctionName = functionName;
-            _arguments = new ReadOnlyCollection<Expression>(arguments.ToList());
             Type = returnType;
+            _arguments = new ReadOnlyCollection<Expression>(arguments.ToList());
         }
 
         public virtual string FunctionName { get; [param: NotNull] set; }
@@ -52,7 +59,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var newArguments = visitor.VisitAndConvert(_arguments, "VisitChildren");
 
             return newArguments != _arguments
-                ? new SqlFunctionExpression(FunctionName, newArguments, Type)
+                ? new SqlFunctionExpression(FunctionName, Type, newArguments)
                 : this;
         }
     }
