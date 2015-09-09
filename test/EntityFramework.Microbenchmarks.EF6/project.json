@@ -5,7 +5,7 @@
     "Microsoft.Framework.Configuration.Json": "1.0.0-*"
   },
   "commands": {
-    "test": "xunit.runner.dnx"
+    "test": "xunit.runner.aspnet"
   },
   "frameworkAssemblies": {
     "System.ComponentModel.DataAnnotations": "4.0.0.0"
@@ -14,7 +14,7 @@
     "net46": { },
     "dnx451": {
       "dependencies": {
-        "xunit.runner.dnx": "2.1.0-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     }
   }

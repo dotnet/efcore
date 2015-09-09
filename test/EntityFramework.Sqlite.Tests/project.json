@@ -5,7 +5,7 @@
     "EntityFramework.Sqlite.FunctionalTests": "1.0.0"
   },
   "commands": {
-    "test": "xunit.runner.dnx"
+    "test": "xunit.runner.aspnet"
   },
   "frameworks": {
     "net46": { },
