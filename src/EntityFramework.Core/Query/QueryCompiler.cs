@@ -163,13 +163,16 @@ namespace Microsoft.Data.Entity.Query
         private class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
         {
             private static readonly PropertyInfo _dateTimeNow
-                = typeof(DateTime).GetTypeInfo().GetDeclaredProperty("Now");
+                = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.Now));
 
-            public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression) 
+            private static readonly PropertyInfo _dateTimeUtcNow
+                = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
+
+            public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
                 => typeof(IQueryable).IsAssignableFrom(methodCallExpression.Type);
 
-            public override bool IsEvaluatableMember(MemberExpression memberExpression) 
-                => memberExpression.Member != _dateTimeNow;
+            public override bool IsEvaluatableMember(MemberExpression memberExpression)
+                => memberExpression.Member != _dateTimeNow && memberExpression.Member != _dateTimeUtcNow;
         }
 
         private static INodeTypeProvider CreateNodeTypeProvider()
