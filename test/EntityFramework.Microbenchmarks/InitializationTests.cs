@@ -127,10 +127,10 @@ namespace EntityFramework.Microbenchmarks
                     {
                         using (var context = AdventureWorksFixture.CreateContext())
                         {
-                            context.Department.Add(new Department
+                            context.Currency.Add(new Currency
                             {
-                                Name = "Benchmarking",
-                                GroupName = "Engineering"
+                                CurrencyCode = "TMP",
+                                Name = "Temporary"
                             });
 
                             using (context.Database.BeginTransaction())
