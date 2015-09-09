@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
                 && memberExpression.Expression.Type == typeof(string)
                 && memberExpression.Member.Name == nameof(string.Length))
             {
-                return new SqlFunctionExpression("LEN", new[] { memberExpression.Expression }, memberExpression.Type);
+                return new SqlFunctionExpression("LEN", memberExpression.Type, new[] { memberExpression.Expression });
             }
 
             return null;

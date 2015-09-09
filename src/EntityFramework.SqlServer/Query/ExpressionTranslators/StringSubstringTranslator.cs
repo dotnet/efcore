@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
             if (methodCallExpression.Method == _methodInfo)
             {
                 var sqlArguments = new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments);
-                return new SqlFunctionExpression("SUBSTRING", sqlArguments, methodCallExpression.Type);
+                return new SqlFunctionExpression("SUBSTRING", methodCallExpression.Type, sqlArguments);
             }
 
             return null;

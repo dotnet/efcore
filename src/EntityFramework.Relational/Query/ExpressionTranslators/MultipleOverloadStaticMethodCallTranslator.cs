@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             var methodInfos = _declaringType.GetTypeInfo().GetDeclaredMethods(_clrMethodName);
             if (methodInfos.Contains(methodCallExpression.Method))
             {
-                return new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Arguments, methodCallExpression.Type);
+                return new SqlFunctionExpression(_sqlFunctionName, methodCallExpression.Type, methodCallExpression.Arguments);
             }
 
             return null;
