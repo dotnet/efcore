@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -60,7 +59,7 @@ namespace Microsoft.Data.Entity.Query
         // TODO: Can these be non-blocking?
         private bool _blockTaskExpressions = true;
 
-        public EntityQueryModelVisitor(
+        protected EntityQueryModelVisitor(
             [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -130,6 +129,8 @@ namespace Microsoft.Data.Entity.Query
         public virtual ILinqOperatorProvider LinqOperatorProvider => QueryCompilationContext.LinqOperatorProvider;
 
         public virtual StreamedSequenceInfo StreamedSequenceInfo => _streamedSequenceInfo;
+
+        protected virtual IModel Model => _model;
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {

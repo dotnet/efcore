@@ -292,10 +292,10 @@ WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
             base.Select_Singleton_Navigation_With_Member_Access();
 
             Assert.Equal(
-                @"SELECT [o.Gear].[Nickname], [o.Gear].[SquadId], [o.Gear].[AssignedCityName], [o.Gear].[CityOrBirthName], [o.Gear].[FullName], [o.Gear].[LeaderNickname], [o.Gear].[LeaderSquadId], [o.Gear].[Rank]
-FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])
-WHERE ([o.Gear].[Nickname] = 'Marcus' AND [o.Gear].[CityOrBirthName] <> 'Ephyra')",
+                @"SELECT [ct.Gear].[Nickname], [ct.Gear].[SquadId], [ct.Gear].[AssignedCityName], [ct.Gear].[CityOrBirthName], [ct.Gear].[FullName], [ct.Gear].[LeaderNickname], [ct.Gear].[LeaderSquadId], [ct.Gear].[Rank]
+FROM [CogTag] AS [ct]
+INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname] AND [ct].[GearSquadId] = [ct.Gear].[SquadId])
+WHERE ([ct.Gear].[Nickname] = 'Marcus' AND [ct.Gear].[CityOrBirthName] <> 'Ephyra')",
                 Sql);
         }
 
@@ -388,10 +388,22 @@ WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
             base.Singleton_Navigation_With_Member_Access();
 
             Assert.Equal(
-                @"SELECT [o.Gear].[CityOrBirthName]
-FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])
-WHERE ([o.Gear].[Nickname] = 'Marcus' AND [o.Gear].[CityOrBirthName] <> 'Ephyra')",
+                @"SELECT [ct.Gear].[CityOrBirthName]
+FROM [CogTag] AS [ct]
+INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname] AND [ct].[GearSquadId] = [ct.Gear].[SquadId])
+WHERE ([ct.Gear].[Nickname] = 'Marcus' AND [ct.Gear].[CityOrBirthName] <> 'Ephyra')",
+                Sql);
+        }
+
+        public override void GroupJoin_Composite_Key()
+        {
+            base.GroupJoin_Composite_Key();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [CogTag] AS [ct]
+LEFT JOIN [Gear] AS [g] ON ([ct].[GearNickName] = [g].[Nickname] AND [ct].[GearSquadId] = [g].[SquadId])
+ORDER BY [ct].[GearNickName], [ct].[GearSquadId]",
                 Sql);
         }
 

@@ -3759,6 +3759,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void GroupJoin_simple_ordering()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs.OrderBy(c => c.City)
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select o);
+        }
+
+        [Fact]
         public virtual void GroupJoin_simple_subquery()
         {
             AssertQuery<Customer, Order>((cs, os) =>

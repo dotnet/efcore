@@ -841,7 +841,7 @@ FROM (
                 Sql);
         }
 
-        public void Skip_when_no_order_by()
+        public void Skip_when_no_OrderBy()
         {
             Assert.Throws<Exception>(() => AssertQuery<Customer>(cs => cs.Skip(5).Take(10)));
         }
@@ -2174,7 +2174,8 @@ ORDER BY [e].[City], [c].[CustomerID] DESC",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -2185,7 +2186,8 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
             Assert.Equal(
                 @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Employees] AS [e]
-LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]",
+LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]
+ORDER BY [e].[EmployeeID]",
                 Sql);
         }
 
@@ -2196,7 +2198,8 @@ LEFT JOIN [Orders] AS [o] ON [e].[EmployeeID] = [o].[EmployeeID]",
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -2207,7 +2210,20 @@ LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
             Assert.Equal(
      @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
+     Sql);
+        }
+
+        public override void GroupJoin_simple_ordering()
+        {
+            base.GroupJoin_simple_ordering();
+
+            Assert.Equal(
+     @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[City], [c].[CustomerID]",
      Sql);
         }
 
@@ -2222,7 +2238,8 @@ LEFT JOIN (
     SELECT TOP(4) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]",
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
@@ -2233,7 +2250,8 @@ LEFT JOIN (
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
-LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]",
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [c].[CustomerID]",
                 Sql);
         }
 

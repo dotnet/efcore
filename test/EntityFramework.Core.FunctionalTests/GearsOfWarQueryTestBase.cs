@@ -409,9 +409,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var cogTags
-                    = (from o in context.Set<CogTag>().Include(o => o.Gear)
-                        where o.Gear.Nickname == "Marcus"
-                        select o).ToList();
+                    = (from ct in context.Set<CogTag>().Include(o => o.Gear)
+                        where ct.Gear.Nickname == "Marcus"
+                        select ct).ToList();
 
                 Assert.Equal(1, cogTags.Count);
                 Assert.True(cogTags.All(o => o.Gear != null));
@@ -424,10 +424,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var cogTags
-                    = (from o in context.Set<CogTag>()
-                        where o.Gear.Nickname == "Marcus"
-                        where o.Gear.CityOrBirthName != "Ephyra"
-                        select new { B = o.Gear.CityOrBirthName }).ToList();
+                    = (from ct in context.Set<CogTag>()
+                        where ct.Gear.Nickname == "Marcus"
+                        where ct.Gear.CityOrBirthName != "Ephyra"
+                        select new { B = ct.Gear.CityOrBirthName }).ToList();
 
                 Assert.Equal(1, cogTags.Count);
                 Assert.True(cogTags.All(o => o.B != null));
@@ -440,13 +440,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var cogTags
-                    = (from o in context.Set<CogTag>()
-                        where o.Gear.Nickname == "Marcus"
-                        where o.Gear.CityOrBirthName != "Ephyra"
-                        select new { A = o.Gear, B = o.Gear.CityOrBirthName }).ToList();
+                    = (from ct in context.Set<CogTag>()
+                        where ct.Gear.Nickname == "Marcus"
+                        where ct.Gear.CityOrBirthName != "Ephyra"
+                        select new { A = ct.Gear, B = ct.Gear.CityOrBirthName }).ToList();
 
                 Assert.Equal(1, cogTags.Count);
                 Assert.True(cogTags.All(o => o.A != null && o.B != null));
+            }
+        }
+
+        [Fact]
+        public virtual void GroupJoin_Composite_Key()
+        {
+            using (var context = CreateContext())
+            {
+                var gears
+                    = (from ct in context.Set<CogTag>()
+                        join g in context.Set<Gear>()
+                            on new { N = ct.GearNickName, S = ct.GearSquadId }
+                            equals new { N = g.Nickname, S = (int?)g.SquadId } into gs
+                        from g in gs
+                        select g).ToList();
+
+                Assert.Equal(5, gears.Count);
             }
         }
 

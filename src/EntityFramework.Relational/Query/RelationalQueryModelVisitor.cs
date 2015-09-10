@@ -444,6 +444,19 @@ namespace Microsoft.Data.Entity.Query
 
                         joinExpression.Predicate = predicate;
 
+                        if (outerJoin)
+                        {
+                            var outerJoinOrderingExtractor = new OuterJoinOrderingExtractor();
+
+                            outerJoinOrderingExtractor.Visit(predicate);
+
+                            foreach (var expression in outerJoinOrderingExtractor.Expressions)
+                            {
+                                previousSelectExpression
+                                    .AddToOrderBy(new Ordering(expression, OrderingDirection.Asc));
+                            }
+                        }
+
                         Expression
                             = _queryFlatteningExpressionVisitorFactory.Create(
                                 previousQuerySource,
@@ -455,12 +468,33 @@ namespace Microsoft.Data.Entity.Query
 
                         RequiresClientJoin = false;
                     }
-                    else
+                }
+            }
+        }
+
+        private class OuterJoinOrderingExtractor : ExpressionVisitor
+        {
+            private readonly List<Expression> _expressions = new List<Expression>();
+
+            public IEnumerable<Expression> Expressions => _expressions;
+
+            public override Expression Visit(Expression expression)
+            {
+                var binaryExpression = expression as BinaryExpression;
+
+                if (binaryExpression != null)
+                {
+                    switch (binaryExpression.NodeType)
                     {
-                        previousSelectExpression
-                            .RemoveRangeFromProjection(previousSelectProjectionCount);
+                        case ExpressionType.Equal:
+                            _expressions.Add(binaryExpression.Left);
+                            return expression;
+                        case ExpressionType.AndAlso:
+                            return VisitBinary(binaryExpression);
                     }
                 }
+
+                return expression;
             }
         }
 
@@ -567,28 +601,25 @@ namespace Microsoft.Data.Entity.Query
                 if (querySourceReferenceExpression != null
                     && querySourceReferenceExpression.ReferencedQuerySource == querySource)
                 {
-                    if (subQueryExpression.QueryModel != null)
+                    var newSelectorExpression = subQueryExpression.QueryModel.SelectClause.Selector;
+
+                    if (newSelectorExpression.Type != queryModel.SelectClause.Selector.Type)
                     {
-                        var newSelectorExpression = subQueryExpression.QueryModel.SelectClause.Selector;
-
-                        if (newSelectorExpression.Type != queryModel.SelectClause.Selector.Type)
-                        {
-                            newSelectorExpression
-                                = Expression.Convert(
-                                    subQueryExpression.QueryModel.SelectClause.Selector,
-                                    queryModel.SelectClause.Selector.Type);
-                        }
-
-                        queryModel.SelectClause.Selector = newSelectorExpression;
-
-                        QueryCompilationContext.QuerySourceMapping
-                            .ReplaceMapping(
-                                subQueryExpression.QueryModel.MainFromClause,
-                                QueryResultScope.GetResult(
-                                    QueryResultScopeParameter,
-                                    querySource,
-                                    shaperMethod.ReturnType.GenericTypeArguments[0]));
+                        newSelectorExpression
+                            = Expression.Convert(
+                                subQueryExpression.QueryModel.SelectClause.Selector,
+                                queryModel.SelectClause.Selector.Type);
                     }
+
+                    queryModel.SelectClause.Selector = newSelectorExpression;
+
+                    QueryCompilationContext.QuerySourceMapping
+                        .ReplaceMapping(
+                            subQueryExpression.QueryModel.MainFromClause,
+                            QueryResultScope.GetResult(
+                                QueryResultScopeParameter,
+                                querySource,
+                                shaperMethod.ReturnType.GenericTypeArguments[0]));
                 }
 
                 return Expression.Call(
