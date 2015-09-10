@@ -1,10 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Data.Entity;
-using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.EF6.Models.Orders;
+using System.Data.Entity;
+using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.EF6.Query
@@ -18,15 +18,19 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
             _fixture = fixture;
         }
 
-        [Benchmark]
-        [BenchmarkVariation("Tracking On", true)]
-        [BenchmarkVariation("Tracking Off", false)]
-        public void LoadAll(MetricCollector collector, bool tracking)
+        [Benchmark(Iterations = 1, WarmupIterations = 0)]
+        [BenchmarkVariation("Tracking On", true, true)]
+        [BenchmarkVariation("Tracking Off", false, true)]
+        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
+        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
+        public void LoadAll(MetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
-                var query = context.Products.ApplyTracking(tracking);
-
+                var query = context.Products
+                    .ApplyCaching(caching)
+                    .ApplyTracking(tracking);
+                
                 collector.StartCollection();
                 var result = query.ToList();
                 collector.StopCollection();
@@ -35,13 +39,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true)]
-        [BenchmarkVariation("Tracking Off", false)]
-        public void Where(MetricCollector collector, bool tracking)
+        [BenchmarkVariation("Tracking On", true, true)]
+        [BenchmarkVariation("Tracking Off", false, true)]
+        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
+        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
+        public void Where(MetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
+                    .ApplyCaching(caching)
                     .ApplyTracking(tracking)
                     .Where(p => p.Retail < 15);
 
@@ -53,13 +60,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true)]
-        [BenchmarkVariation("Tracking Off", false)]
-        public void OrderBy(MetricCollector collector, bool tracking)
+        [BenchmarkVariation("Tracking On", true, true)]
+        [BenchmarkVariation("Tracking Off", false, true)]
+        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
+        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
+        public void OrderBy(MetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
+                    .ApplyCaching(caching)
                     .ApplyTracking(tracking)
                     .OrderBy(p => p.Retail);
 
@@ -71,11 +81,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        public void Count(MetricCollector collector)
+        [BenchmarkVariation("Default", true)]
+        [BenchmarkVariation("No Query Cache", false)]
+        public void Count(MetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
-                var query = context.Products;
+                var query = context.Products
+                    .ApplyCaching(caching);
 
                 collector.StartCollection();
                 var result = query.Count();
@@ -85,13 +98,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true)]
-        [BenchmarkVariation("Tracking Off", false)]
-        public void SkipTake(MetricCollector collector, bool tracking)
+        [BenchmarkVariation("Tracking On", true, true)]
+        [BenchmarkVariation("Tracking Off", false, true)]
+        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
+        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
+        public void SkipTake(MetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
+                    .ApplyCaching(caching)
                     .ApplyTracking(tracking)
                     .OrderBy(p => p.ProductId)
                     .Skip(500).Take(500);
@@ -104,11 +120,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        public void GroupBy(MetricCollector collector)
+        [BenchmarkVariation("Default", true)]
+        [BenchmarkVariation("No Query Cache", false)]
+        public void GroupBy(MetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
+                    .ApplyCaching(caching)
                     .GroupBy(p => p.Retail)
                     .Select(g => new
                     {
@@ -125,13 +144,16 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true)]
-        [BenchmarkVariation("Tracking Off", false)]
-        public void Include(MetricCollector collector, bool tracking)
+        [BenchmarkVariation("Tracking On", true, true)]
+        [BenchmarkVariation("Tracking Off", false, true)]
+        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
+        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
+        public void Include(MetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Customers
+                    .ApplyCaching(caching)
                     .ApplyTracking(tracking)
                     .Include(c => c.Orders);
 
@@ -144,11 +166,14 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        public void Projection(MetricCollector collector)
+        [BenchmarkVariation("Default", true)]
+        [BenchmarkVariation("No Query Cache", false)]
+        public void Projection(MetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
+                    .ApplyCaching(caching)
                     .Select(p => new { p.Name, p.Retail });
 
                 collector.StartCollection();
@@ -159,16 +184,20 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
         }
 
         [Benchmark]
-        public void ProjectionAcrossNavigation(MetricCollector collector)
+        [BenchmarkVariation("Default", true)]
+        [BenchmarkVariation("No Query Cache", false)]
+        public void ProjectionAcrossNavigation(MetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext())
             {
                 // TODO Use navigation for projection when supported (#325)
-                var query = context.Orders.Join(
-                    context.Customers,
-                    o => o.CustomerId,
-                    c => c.CustomerId,
-                    (o, c) => new { CustomerName = c.Name, OrderDate = o.Date });
+                var query = context.Orders
+                    .ApplyCaching(caching)
+                    .Join(
+                        context.Customers,
+                        o => o.CustomerId,
+                        c => c.CustomerId,
+                        (o, c) => new { CustomerName = c.Name, OrderDate = o.Date });
 
                 collector.StartCollection();
                 var result = query.ToList();

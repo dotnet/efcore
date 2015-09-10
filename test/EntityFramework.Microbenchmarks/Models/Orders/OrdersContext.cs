@@ -3,6 +3,7 @@
 
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity;
+using System;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {
@@ -12,6 +13,13 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         private readonly bool _disableBatching;
 
         public OrdersContext(string connectionString, bool disableBatching = false)
+        {
+            _connectionString = connectionString;
+            _disableBatching = disableBatching;
+        }
+
+        public OrdersContext(IServiceProvider serviceProvider, string connectionString, bool disableBatching = false)
+            :base(serviceProvider)
         {
             _connectionString = connectionString;
             _disableBatching = disableBatching;

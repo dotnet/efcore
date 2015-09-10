@@ -16,6 +16,8 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
             new OrdersSeedData().EnsureCreated(_connectionString, productCount, customerCount, ordersPerCustomer, linesPerOrder);
         }
 
+        public string ConnectionString => _connectionString;
+
         public OrdersContext CreateContext(bool disableBatching = false)
         {
             return new OrdersContext(_connectionString, disableBatching);
