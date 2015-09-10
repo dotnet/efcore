@@ -29,7 +29,7 @@ namespace EntityFramework.Microbenchmarks
             }
         }
 
-#if !DNXCORE50
+#if !DNXCORE50 && !DNX451
         [Benchmark]
         public void ColdStartSandbox_100ms(MetricCollector collector)
         {

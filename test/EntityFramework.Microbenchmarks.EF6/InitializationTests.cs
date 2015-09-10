@@ -16,7 +16,9 @@ namespace EntityFramework.Microbenchmarks.EF6
     public class InitializationTests : IClassFixture<AdventureWorksFixture>
     {
         [Benchmark]
+#if !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
         public void CreateAndDisposeUnusedContext(MetricCollector collector, bool cold, int count)
         {
@@ -24,7 +26,9 @@ namespace EntityFramework.Microbenchmarks.EF6
         }
 
         [AdventureWorksDatabaseBenchmark]
+#if !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
         [BenchmarkVariation("Warm (10 instances)", false, 10)]
         public void InitializeAndQuery_AdventureWorks(MetricCollector collector, bool cold, int count)
         {
@@ -32,7 +36,9 @@ namespace EntityFramework.Microbenchmarks.EF6
         }
 
         [AdventureWorksDatabaseBenchmark]
+#if !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
+#endif
         [BenchmarkVariation("Warm (10 instances)", false, 10)]
         public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, bool cold, int count)
         {
