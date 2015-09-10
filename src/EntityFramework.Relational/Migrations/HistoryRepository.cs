@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -92,6 +93,9 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual bool Exists()
             => _databaseCreator.Exists() && InterpretExistsResult(_executor.ExecuteScalar(_connection, ExistsSql));
 
+        public async Task<bool> ExistsAsync()
+            => await _databaseCreator.ExistsAsync() && InterpretExistsResult(await _executor.ExecuteScalarAsync(_connection, ExistsSql));
+
         /// <returns>true if the table exists; otherwise, false.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
 
@@ -129,6 +133,32 @@ namespace Microsoft.Data.Entity.Migrations
                     using (var reader = _executor.ExecuteReader(_connection, GetAppliedMigrationsSql))
                     {
                         while (reader.Read())
+                        {
+                            rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
+                        }
+                    }
+                }
+                finally
+                {
+                    _connection.Close();
+                }
+            }
+
+            return rows;
+        }
+
+        public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync()
+        {
+            var rows = new List<HistoryRow>();
+
+            if (await ExistsAsync())
+            {
+                await _connection.OpenAsync();
+                try
+                {
+                    using (var reader = await _executor.ExecuteReaderAsync(_connection, GetAppliedMigrationsSql))
+                    {
+                        while (await reader.ReadAsync())
                         {
                             rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
                         }

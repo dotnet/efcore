@@ -3,13 +3,16 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.Migrations
 {
     public interface IHistoryRepository
     {
         bool Exists();
+        Task<bool> ExistsAsync();
         IReadOnlyList<HistoryRow> GetAppliedMigrations();
+        Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync();
         string GetCreateScript();
         string GetCreateIfNotExistsScript();
         string GetInsertScript([NotNull] HistoryRow row);

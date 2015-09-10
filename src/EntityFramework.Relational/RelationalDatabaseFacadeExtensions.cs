@@ -20,6 +20,9 @@ namespace Microsoft.Data.Entity
         public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
+        public static Task MigrateAsync([NotNull] this DatabaseFacade databaseFacade)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().MigrateAsync();
+
         public static void ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,
             [NotNull] string sql,
