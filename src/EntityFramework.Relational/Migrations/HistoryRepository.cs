@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -93,8 +94,9 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual bool Exists()
             => _databaseCreator.Exists() && InterpretExistsResult(_executor.ExecuteScalar(_connection, ExistsSql));
 
-        public async Task<bool> ExistsAsync()
-            => await _databaseCreator.ExistsAsync() && InterpretExistsResult(await _executor.ExecuteScalarAsync(_connection, ExistsSql));
+        public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => await _databaseCreator.ExistsAsync(cancellationToken)
+                && InterpretExistsResult(await _executor.ExecuteScalarAsync(_connection, ExistsSql, cancellationToken));
 
         /// <returns>true if the table exists; otherwise, false.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
@@ -147,18 +149,19 @@ namespace Microsoft.Data.Entity.Migrations
             return rows;
         }
 
-        public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync()
+        public virtual async Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             var rows = new List<HistoryRow>();
 
-            if (await ExistsAsync())
+            if (await ExistsAsync(cancellationToken))
             {
-                await _connection.OpenAsync();
+                await _connection.OpenAsync(cancellationToken);
                 try
                 {
-                    using (var reader = await _executor.ExecuteReaderAsync(_connection, GetAppliedMigrationsSql))
+                    using (var reader = await _executor.ExecuteReaderAsync(_connection, GetAppliedMigrationsSql, cancellationToken))
                     {
-                        while (await reader.ReadAsync())
+                        while (await reader.ReadAsync(cancellationToken))
                         {
                             rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
                         }

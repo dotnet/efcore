@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
@@ -59,35 +60,128 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         public virtual void Migrate(string targetMigration = null)
         {
-            var appliedMigrationEntries = _historyRepository.GetAppliedMigrations();
+            var connection = _connection.DbConnection;
+            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
 
-            var executableMigrationsBatch = ExtractBatchesToExecute(targetMigration, appliedMigrationEntries);
-
-            foreach (var upMigration in executableMigrationsBatch.UpBatches)
+            if (!_historyRepository.Exists())
             {
-                Execute(upMigration.Commands, upMigration.IsFirst);
+                if (!_databaseCreator.Exists())
+                {
+                    _databaseCreator.Create();
+                }
+
+                Execute(new[] { new RelationalCommand(_historyRepository.GetCreateScript()) });
             }
 
-            foreach (var downMigration in executableMigrationsBatch.DownBatches)
+            var commands = GetMigrationCommands(_historyRepository.GetAppliedMigrations(), targetMigration);
+            foreach (var command in commands)
             {
-                Execute(downMigration);
+                Execute(command());
             }
         }
 
-        public async Task MigrateAsync(string targetMigration = null)
+        public virtual async Task MigrateAsync(
+            string targetMigration = null,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            var appliedMigrationEntries = await _historyRepository.GetAppliedMigrationsAsync();
+            var connection = _connection.DbConnection;
+            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
 
-            var executableMigrationsBatch = ExtractBatchesToExecute(targetMigration, appliedMigrationEntries);
-
-            foreach (var upMigration in executableMigrationsBatch.UpBatches)
+            if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
-               await ExecuteAsync(upMigration.Commands, upMigration.IsFirst);
+                if (!await _databaseCreator.ExistsAsync(cancellationToken))
+                {
+                    await _databaseCreator.CreateAsync(cancellationToken);
+                }
+
+                await ExecuteAsync(
+                    new[] { new RelationalCommand(_historyRepository.GetCreateScript()) },
+                    cancellationToken);
             }
 
-            foreach (var downMigration in executableMigrationsBatch.DownBatches)
+            var commands = GetMigrationCommands(
+                await _historyRepository.GetAppliedMigrationsAsync(cancellationToken),
+                targetMigration);
+            foreach (var command in commands)
             {
-               await ExecuteAsync(downMigration);
+                await ExecuteAsync(command(), cancellationToken);
+            }
+        }
+
+        private IEnumerable<Func<IReadOnlyList<RelationalCommand>>> GetMigrationCommands(
+            IReadOnlyList<HistoryRow> appliedMigrationEntries,
+            string targetMigration = null)
+        {
+            var appliedMigrations = new Dictionary<string, TypeInfo>();
+            var unappliedMigrations = new Dictionary<string, TypeInfo>();
+            foreach (var migration in _migrationsAssembly.Migrations)
+            {
+                if (appliedMigrationEntries.Any(
+                    e => string.Equals(e.MigrationId, migration.Key, StringComparison.OrdinalIgnoreCase)))
+                {
+                    appliedMigrations.Add(migration.Key, migration.Value);
+                }
+                else
+                {
+                    unappliedMigrations.Add(migration.Key, migration.Value);
+                }
+            }
+
+            IReadOnlyList<Migration> migrationsToApply;
+            IReadOnlyList<Migration> migrationsToRevert;
+            if (string.IsNullOrEmpty(targetMigration))
+            {
+                migrationsToApply = unappliedMigrations
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .ToList();
+                migrationsToRevert = new Migration[0];
+            }
+            else if (targetMigration == Migration.InitialDatabase)
+            {
+                migrationsToApply = new Migration[0];
+                migrationsToRevert = appliedMigrations
+                    .OrderByDescending(m => m.Key)
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .ToList();
+            }
+            else
+            {
+                targetMigration = _migrationsAssembly.GetMigrationId(targetMigration);
+                migrationsToApply = unappliedMigrations
+                    .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0)
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .ToList();
+                migrationsToRevert = appliedMigrations
+                    .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
+                    .OrderByDescending(m => m.Key)
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .ToList();
+            }
+
+            for (var i = 0; i < migrationsToRevert.Count; i++)
+            {
+                var migration = migrationsToRevert[i];
+
+                yield return () =>
+                {
+                    _logger.Value.LogInformation(Strings.RevertingMigration(migration.GetId()));
+
+                    return GenerateDownSql(
+                        migration,
+                        i != migrationsToRevert.Count - 1
+                            ? migrationsToRevert[i + 1]
+                            : null);
+                };
+            }
+
+            foreach (var migration in migrationsToApply)
+            {
+                yield return () =>
+                {
+                    _logger.Value.LogInformation(Strings.ApplyingMigration(migration.GetId()));
+
+                    return GenerateUpSql(migration);
+                };
             }
         }
 
@@ -203,105 +297,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return builder.ToString();
         }
 
-        protected ExecutableMigrationsBatch ExtractBatchesToExecute(string targetMigration, IReadOnlyList<HistoryRow> appliedMigrationEntries)
-        {
-            var connection = _connection.DbConnection;
-            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
-
-            var migrations = _migrationsAssembly.Migrations;
-
-            var appliedMigrations = new Dictionary<string, TypeInfo>();
-            var unappliedMigrations = new Dictionary<string, TypeInfo>();
-            foreach (var migration in migrations)
-            {
-                if (appliedMigrationEntries.Any(
-                    e => string.Equals(e.MigrationId, migration.Key, StringComparison.OrdinalIgnoreCase)))
-                {
-                    appliedMigrations.Add(migration.Key, migration.Value);
-                }
-                else
-                {
-                    unappliedMigrations.Add(migration.Key, migration.Value);
-                }
-            }
-
-            IReadOnlyList<Migration> migrationsToApply;
-            IReadOnlyList<Migration> migrationsToRevert;
-            if (string.IsNullOrEmpty(targetMigration))
-            {
-                migrationsToApply = unappliedMigrations
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
-                    .ToList();
-                migrationsToRevert = new Migration[0];
-            }
-            else if (targetMigration == Migration.InitialDatabase)
-            {
-                migrationsToApply = new Migration[0];
-                migrationsToRevert = appliedMigrations
-                    .OrderByDescending(m => m.Key)
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
-                    .ToList();
-            }
-            else
-            {
-                targetMigration = _migrationsAssembly.GetMigrationId(targetMigration);
-                migrationsToApply = unappliedMigrations
-                    .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0)
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
-                    .ToList();
-                migrationsToRevert = appliedMigrations
-                    .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
-                    .OrderByDescending(m => m.Key)
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
-                    .ToList();
-            }
-
-            bool first;
-            var checkFirst = true;
-            var result = new ExecutableMigrationsBatch
-            {
-                UpBatches = new List<MigrationCommandWithCheck>(),
-                DownBatches = new List<IEnumerable<RelationalCommand>>()
-            };
-
-            foreach (var migration in migrationsToApply)
-            {
-                var batches = new List<RelationalCommand>(GenerateUpSql(migration));
-
-                first = false;
-                if (checkFirst)
-                {
-                    first = migration.GetId() == migrations.Keys.First();
-                    if (first && !_historyRepository.Exists())
-                    {
-                        batches.Insert(0, new RelationalCommand(_historyRepository.GetCreateScript()));
-                    }
-
-                    checkFirst = false;
-                }
-
-                _logger.Value.LogInformation(Strings.ApplyingMigration(migration.GetId()));
-
-                result.UpBatches.Add(new MigrationCommandWithCheck { Commands = batches, IsFirst = first });
-            }
-
-            for (var i = 0; i < migrationsToRevert.Count; i++)
-            {
-                var migration = migrationsToRevert[i];
-
-                _logger.Value.LogInformation(Strings.RevertingMigration(migration.GetId()));
-
-                result.DownBatches.Add(GenerateDownSql(
-                    migration,
-                    i != migrationsToRevert.Count - 1
-                        ? migrationsToRevert[i + 1]
-                        : null));
-            }
-
-            return result;
-        }
-
-
         protected virtual IReadOnlyList<RelationalCommand> GenerateUpSql([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
@@ -328,15 +323,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return commands;
         }
 
-        private void Execute([NotNull] IEnumerable<RelationalCommand> relationalCommands, bool ensureDatabase = false)
+        private void Execute(IEnumerable<RelationalCommand> relationalCommands)
         {
-            Check.NotNull(relationalCommands, nameof(relationalCommands));
-
-            if (ensureDatabase && !_databaseCreator.Exists())
-            {
-                _databaseCreator.Create();
-            }
-
             using (var transaction = _connection.BeginTransaction())
             {
                 _executor.ExecuteNonQuery(_connection, relationalCommands);
@@ -344,34 +332,16 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        private async Task ExecuteAsync([NotNull] IEnumerable<RelationalCommand> relationalCommands, bool ensureDatabase = false)
+        private async Task ExecuteAsync(
+            IEnumerable<RelationalCommand> relationalCommands,
+            CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(relationalCommands, nameof(relationalCommands));
 
-            if (ensureDatabase && !await _databaseCreator.ExistsAsync())
+            using (var transaction = await _connection.BeginTransactionAsync(cancellationToken))
             {
-                _databaseCreator.Create();
-            }
-
-            using (var transaction = await _connection.BeginTransactionAsync())
-            {
-                await _executor.ExecuteNonQueryAsync(_connection, relationalCommands);
+                await _executor.ExecuteNonQueryAsync(_connection, relationalCommands, cancellationToken);
                 transaction.Commit();
             }
-        }
-
-        protected class ExecutableMigrationsBatch
-        {
-            public IList<MigrationCommandWithCheck> UpBatches { get; set; }
-
-            public IList<IEnumerable<RelationalCommand>> DownBatches { get; set; }
-        }
-
-        protected class MigrationCommandWithCheck
-        {
-            public IEnumerable<RelationalCommand> Commands { get; set; }
-
-            public bool IsFirst { get; set; }
         }
     }
 }

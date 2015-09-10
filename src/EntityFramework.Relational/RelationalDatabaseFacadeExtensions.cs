@@ -20,8 +20,11 @@ namespace Microsoft.Data.Entity
         public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
-        public static Task MigrateAsync([NotNull] this DatabaseFacade databaseFacade)
-            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().MigrateAsync();
+        public static Task MigrateAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            CancellationToken cancellationToken = default(CancellationToken))
+            => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>()
+                .MigrateAsync(cancellationToken: cancellationToken);
 
         public static void ExecuteSqlCommand(
             [NotNull] this DatabaseFacade databaseFacade,

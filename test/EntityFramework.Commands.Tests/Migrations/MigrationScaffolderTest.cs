@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -76,7 +78,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public string GetCreateIfNotExistsScript() => null;
             public string GetEndIfScript() => null;
             public bool Exists() => false;
+            public Task<bool> ExistsAsync(CancellationToken cancellationToken) => Task.FromResult(false);
             public IReadOnlyList<HistoryRow> GetAppliedMigrations() => null;
+            public Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(CancellationToken cancellationToken)
+                => Task.FromResult<IReadOnlyList<HistoryRow>>(null);
             public string GetDeleteScript(string migrationId) => null;
             public string GetInsertScript(HistoryRow row) => null;
         }
