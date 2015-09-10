@@ -13,11 +13,11 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_sets_connection_string()
         {
-            var connectionSring = "Data Source=test.db";
+            var connectionString = "Data Source=test.db";
 
-            var connection = new SqliteConnection(connectionSring);
+            var connection = new SqliteConnection(connectionString);
 
-            Assert.Equal(connectionSring, connection.ConnectionString);
+            Assert.Equal(connectionString, connection.ConnectionString);
         }
 
         [Fact]
@@ -37,11 +37,11 @@ namespace Microsoft.Data.Sqlite
         public void ConnectionString_gets_and_sets_value()
         {
             var connection = new SqliteConnection();
-            var connectionSring = "Data Source=test.db";
+            var connectionString = "Data Source=test.db";
 
-            connection.ConnectionString = connectionSring;
+            connection.ConnectionString = connectionString;
 
-            Assert.Equal(connectionSring, connection.ConnectionString);
+            Assert.Equal(connectionString, connection.ConnectionString);
         }
 
         [Fact]
