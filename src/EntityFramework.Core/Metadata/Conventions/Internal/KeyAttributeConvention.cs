@@ -22,8 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var entityType = propertyBuilder.Metadata.DeclaringEntityType;
             if (entityType.BaseType != null)
             {
-                // TODO: Log warning
-                return propertyBuilder;
+                throw new InvalidOperationException(Strings.KeyAttributeOnDerivedEntity(entityType.DisplayName(), propertyBuilder.Metadata.Name));
             }
 
             var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.DataAnnotation);

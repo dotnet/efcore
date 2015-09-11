@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
@@ -45,51 +47,58 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Post>();
 
-                Assert.Null(model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorCode", model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+                Assert.Null(model.GetEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
+                Assert.Equal("PostDetailsId", model.GetEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
 
-                Assert.Null(model.GetEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
-                Assert.Equal("PostNumber", model.GetEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+                Assert.Null(model.GetEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
+                Assert.Equal("PostId", model.GetEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
             }
 
             [Fact]
-            public virtual void ForeignKeyAttribute_does_not_set_foreign_key_properties_when_applied_on_navigations_and_names_do_not_match()
+            public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigations_on_both_side_and_values_do_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Post>();
 
-                Assert.Equal("PostId", model.GetEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+                Assert.Null(model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
+                Assert.Equal("AuthorId", model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+
+                Assert.Null(model.GetEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
+                Assert.Equal("PostId", model.GetEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
             }
 
             [Fact]
-            public virtual void ForeignKeyAttribute_does_not_set_foreign_key_properties_when_names_on_property_and_navigation_do_not_match()
+            public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_side_and_values_do_not_match()
             {
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Author>();
 
-                Assert.Equal("AuthorId", model.GetEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+                Assert.Null(model.GetEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
+                Assert.Equal("AuthorId", model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+
+                Assert.Null(model.GetEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.PrincipalToDependent);
+                Assert.Equal("AuthorDetailsId", model.GetEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.Properties.First().Name);
+            }
+
+
+            [Fact]
+            public virtual void ForeignKeyAttribute_throws_if_applied_on_property_on_both_side_but_navigations_are_connected_by_inverse_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                Assert.Equal(Strings.InvalidRelationshipUsingDataAnnotations("B", typeof(A).FullName, "A", typeof(B).FullName),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
             }
 
             [Fact]
-            public virtual void ForeignKeyAttribute_does_not_set_foreign_key_properties_when_applied_on_properties_for_composite_foreign_key()
+            public virtual void ForeignKeyAttribute_throws_if_applied_on_both_navigations_connected_by_inverse_property_but_values_do_not_match()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
-                modelBuilder.Entity<PostDetails>();
+                var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal("AuthorId", model.GetEntityType(typeof(PostDetails)).FindNavigation("Author").ForeignKey.Properties.First().Name);
-            }
-
-            [Fact]
-            public virtual void ForeignKeyAttribute_does_not_set_foreign_key_properties_when_name_is_incorrect_on_navigation()
-            {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
-                modelBuilder.Entity<PostDetails>();
-
-                Assert.Equal("PostDetailsId", model.GetEntityType(typeof(AuthorDetails)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
+                Assert.Equal(Strings.InvalidRelationshipUsingDataAnnotations("C", typeof(D).FullName, "D", typeof(C).FullName),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
             }
         }
     }

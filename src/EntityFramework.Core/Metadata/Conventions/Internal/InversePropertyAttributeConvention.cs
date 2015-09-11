@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 || inverseNavigationPropertyInfo.FindCandidateNavigationPropertyType() != entityTypeBuilder.Metadata.ClrType)
             {
                 throw new InvalidOperationException(
-                    Strings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityTypeBuilder.Metadata.ClrType, attribute.Property, targetType));
+                    Strings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityTypeBuilder.Metadata.Name, attribute.Property, targetType.FullName));
             }
 
             if (inverseNavigationPropertyInfo == navigationPropertyInfo)
@@ -51,9 +51,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 throw new InvalidOperationException(
                     Strings.SelfReferencingNavigationWithInverseProperty(
                         navigationPropertyInfo.Name,
-                        entityTypeBuilder.Metadata.ClrType,
+                        entityTypeBuilder.Metadata.Name,
                         navigationPropertyInfo.Name,
-                        entityTypeBuilder.Metadata.ClrType));
+                        entityTypeBuilder.Metadata.Name));
             }
 
             // Check for InversePropertyAttribute on the inverseNavigation to verify that it matches.
@@ -61,13 +61,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (inverseAttribute != null
                 && inverseAttribute.Property != navigationPropertyInfo.Name)
             {
-                // TODO: Log error that InversePropertyAttributes are not pointing at each other
-                var inverseNavigation = targetEntityTypeBuilder.Metadata.FindNavigation(inverseNavigationPropertyInfo.Name);
-                if (inverseNavigation != null)
-                {
-                    targetEntityTypeBuilder.RemoveRelationship(inverseNavigation.ForeignKey, ConfigurationSource.DataAnnotation);
-                }
-                return entityTypeBuilder;
+                throw new InvalidOperationException(
+                    Strings.InversePropertyMismatch(
+                        navigationPropertyInfo.Name,
+                        entityTypeBuilder.Metadata.Name,
+                        inverseNavigationPropertyInfo.Name,
+                        targetEntityTypeBuilder.Metadata.Name));
             }
 
             targetEntityTypeBuilder.Relationship(entityTypeBuilder, navigationPropertyInfo, inverseNavigationPropertyInfo, ConfigurationSource.DataAnnotation);

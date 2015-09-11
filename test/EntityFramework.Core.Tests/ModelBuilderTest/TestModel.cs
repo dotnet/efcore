@@ -204,53 +204,34 @@ namespace Microsoft.Data.Entity.Tests
         {
             public int Id { get; set; }
 
-            [ForeignKey("Author")]
-            public int AuthorCode { get; set; }
+            [ForeignKey("PostDetails")]
+            public int PostDetailsId { get; set; }
 
-            public Author Author { get; set; }
-
-            [ForeignKey("PostWrongFk")]
             public PostDetails PostDetails { get; set; }
 
+            [ForeignKey("AuthorId")]
+            public Author Author { get; set; }
         }
 
         private class PostDetails
         {
             public int Id { get; set; }
 
+            [ForeignKey("Post")]
             public int PostId { get; set; }
 
-            public int PostWrongFk { get; set; }
-
-            public int PostFk { get; set; }
-
-            public int AuthorId { get; set; }
-
-            [ForeignKey("Author")]
-            public int AuthorAuthorId { get; set; }
-
-            [ForeignKey("Author")]
-            public int AuthorPostId { get; set; }
-
-            [ForeignKey("PostFk")]
             public Post Post { get; set; }
-
-            public Author Author { get; set; }
-
-            public AuthorDetails AuthorDetails { get; set; }
         }
+
 
         private class Author
         {
             public int Id { get; set; }
 
-            [ForeignKey("Post")]
-            public int PostNumber { get; set; }
-
+            [ForeignKey("PostId")]
             public Post Post { get; set; }
 
-            public PostDetails PostDetails { get; set; }
-
+            [ForeignKey("AuthorDetailsId")]
             public AuthorDetails AuthorDetails { get; set; }
         }
 
@@ -258,22 +239,50 @@ namespace Microsoft.Data.Entity.Tests
         {
             public int Id { get; set; }
 
+            [ForeignKey("Author")]
             public int AuthorId { get; set; }
 
-            public int PostDetailsId { get; set; }
-
-            public int PostDetailsFk { get; set; }
-
-            [ForeignKey("Author")]
-            public int AuthorFkProp { get; set; }
-
-            public int AuthorFkNav { get; set; }
-
-            [ForeignKey("AuthorFkNav")]
             public Author Author { get; set; }
-
-            [ForeignKey("PostDetailsFk,")]
-            public PostDetails PostDetails { get; set; }
         }
+
+
+        private class A
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("B")]
+            public int BId { get; set; }
+
+            public B B { get; set; }
+        }
+
+        private class B
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("A")]
+            public int AId { get; set; }
+
+            [InverseProperty("B")]
+            public A A { get; set; }
+        }
+
+        private class C
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("DId")]
+            [InverseProperty("C")]
+            public D D { get; set; }
+        }
+
+        private class D
+        {
+            public int Id { get; set; }
+
+            [ForeignKey("CId")]
+            public C C { get; set; }
+        }
+
     }
 }

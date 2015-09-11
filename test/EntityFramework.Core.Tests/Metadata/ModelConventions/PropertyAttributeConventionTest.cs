@@ -130,18 +130,35 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void KeyAttribute_sets_primary_key_for_single_property()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            var entityTypeBuilder = modelBuilder.Entity<A>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
 
-            Assert.Equal(1, entityTypeBuilder.Metadata.GetPrimaryKey().Properties.Count);
-            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
+            var propertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+
+            Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
+
+            new KeyAttributeConvention().Apply(propertyBuilder);
+
+            Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
+            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
         }
 
         [Fact]
         public void KeyAttribute_throws_when_setting_composite_primary_key()
         {
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            var entityTypeBuilder = modelBuilder.Entity<B>();
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<B>();
+            var keyAttributeConvention = new KeyAttributeConvention();
+
+            Assert.Null(entityTypeBuilder.Metadata.FindDeclaredPrimaryKey());
+
+            var idPropertyBuilder = entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Explicit);
+            var myPrimaryKeyPropertyBuilder = entityTypeBuilder.Property("MyPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+
+            keyAttributeConvention.Apply(idPropertyBuilder);
+
+            Assert.Equal(1, entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties.Count);
+            Assert.Equal("Id", entityTypeBuilder.Metadata.FindDeclaredPrimaryKey().Properties[0].Name);
+
+            keyAttributeConvention.Apply(myPrimaryKeyPropertyBuilder);
 
             Assert.Equal(2, entityTypeBuilder.Metadata.GetPrimaryKey().Properties.Count);
             Assert.Equal("Id", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
@@ -149,7 +166,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             Assert.Equal(
                 Strings.CompositePKWithDataAnnotation(entityTypeBuilder.Metadata.DisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Validate()).Message);
+                Assert.Throws<InvalidOperationException>(() => keyAttributeConvention.Apply(entityTypeBuilder.ModelBuilder)).Message);
         }
 
         [Fact]
@@ -160,6 +177,20 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.Equal(2, model.GetEntityType(typeof(B)).GetPrimaryKey().Properties.Count);
             Assert.Equal("MyPrimaryKey", model.GetEntityType(typeof(B)).GetPrimaryKey().Properties[0].Name);
             Assert.Equal("Id", model.GetEntityType(typeof(B)).GetPrimaryKey().Properties[1].Name);
+        }
+
+        [Fact]
+        public void KeyAttribute_throws_when_setting_key_in_derived_type()
+        {
+            var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity>();
+            var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit).Metadata;
+            derivedEntityTypeBuilder.BaseType(baseEntityType, ConfigurationSource.Explicit);
+
+            var propertyBuilder = derivedEntityTypeBuilder.Property("Number", typeof(int), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                Strings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
+                Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(propertyBuilder)).Message);
         }
 
         #endregion
@@ -368,17 +399,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.True(entityTypeBuilder.Property(e => e.Timestamp).Metadata.IsConcurrencyToken);
         }
 
-        [Fact]
-        public void TimestampAttribute_throws_if_used_on_non_binary_property()
-        {
-            var entityTypeBuilder = CreateInternalEntityTypeBuilder<C>();
-
-            var propertyBuilder = entityTypeBuilder.Property("Timestamp", typeof(string), ConfigurationSource.Explicit);
-
-            Assert.Equal(Strings.TimestampAttributeOnNonBinary("Timestamp"),
-                Assert.Throws<InvalidOperationException>(() => new TimestampAttributeConvention().Apply(propertyBuilder)).Message);
-        }
-
         #endregion
 
         [Fact]
@@ -430,7 +450,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             private int? PrivateProperty { get; set; }
         }
 
-        public class B
+        private class B
         {
             [Key]
             public int Id { get; set; }
@@ -439,18 +459,19 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             public int MyPrimaryKey { get; set; }
         }
 
-        public class C
+        private class BaseEntity
         {
-            [Key]
             public int Id { get; set; }
-
-            public string Data { get; set; }
-
-            [Timestamp]
-            public string Timestamp { get; set; }
         }
 
-        public class MyContext : DbContext
+        private class DerivedEntity : BaseEntity
+        {
+            [Key]
+            public int Number { get; set; }
+        }
+
+
+        private class MyContext : DbContext
         {
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {

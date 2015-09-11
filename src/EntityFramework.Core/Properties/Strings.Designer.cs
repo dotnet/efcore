@@ -1061,14 +1061,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.
-        /// </summary>
-        public static string TimestampAttributeOnNonBinary([CanBeNull] object property)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TimestampAttributeOnNonBinary", "property"), property);
-        }
-
-        /// <summary>
         /// The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.
         /// </summary>
         public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey)
@@ -1138,6 +1130,54 @@ namespace Microsoft.Data.Entity.Internal
         public static string DataBindingWithIListSource
         {
             get { return GetString("DataBindingWithIListSource"); }
+        }
+
+        /// <summary>
+        /// The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.
+        /// </summary>
+        public static string KeyAttributeOnDerivedEntity([CanBeNull] object derivedType, [CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("KeyAttributeOnDerivedEntity", "derivedType", "property"), derivedType, property);
+        }
+
+        /// <summary>
+        /// InversePropertyAttributes on navigation '{navigation}' in entity type '{entityType}' and on navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are not pointing to each other.
+        /// </summary>
+        public static string InversePropertyMismatch([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InversePropertyMismatch", "navigation", "entityType", "referencedNavigation", "referencedEntityType"), navigation, entityType, referencedNavigation, referencedEntityType);
+        }
+
+        /// <summary>
+        /// There are multiple properties pointing to navigation '{navigation}' in entity type '{entityType}'. To define composite foreign key using data annotations, use ForeignKeyAttribute on navigation.
+        /// </summary>
+        public static string CompositeFkOnProperty([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CompositeFkOnProperty", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The ForeignKeyAttributes on property '{property}' and navigation '{navigation}' in entity type '{entityType}' do not point at each other. The value of ForeignKeyAttribute on property should be navigation name and the value of ForeignKeyAttribute on navigation should be the foreign key property name.
+        /// </summary>
+        public static string FkAttributeOnPropertyNavigationMismatch([CanBeNull] object property, [CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("FkAttributeOnPropertyNavigationMismatch", "property", "navigation", "entityType"), property, navigation, entityType);
+        }
+
+        /// <summary>
+        /// The property list specified using ForeignKeyAttribute on navigation '{navigation}' in entity type '{entityType}' is incorrect. The attribute value should be comma-separated list of property names.
+        /// </summary>
+        public static string InvalidPropertyListOnNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidPropertyListOnNavigation", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.
+        /// </summary>
+        public static string InvalidRelationshipUsingDataAnnotations([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object referencedNavigation, [CanBeNull] object referencedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidRelationshipUsingDataAnnotations", "navigation", "entityType", "referencedNavigation", "referencedEntityType"), navigation, entityType, referencedNavigation, referencedEntityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

@@ -510,9 +510,6 @@
   <data name="HiLoBadPoolSize" xml:space="preserve">
     <value>The pool size used for Hi-Lo value generators must be positive.</value>
   </data>
-  <data name="TimestampAttributeOnNonBinary" xml:space="preserve">
-    <value>The property '{property}' is not a Byte array. TimestampAttribute can only be applied for Byte array properties.</value>
-  </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
     <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
   </data>
@@ -539,5 +536,23 @@
   </data>
   <data name="DataBindingWithIListSource" xml:space="preserve">
     <value>Data binding directly to a store query is not supported. Instead materialize the results into a collection, by calling a method such as ToList() or ToArray(), and bind to the collection. This should be done to avoid sending a query to the database each time the databound control iterates the data.</value>
+  </data>
+  <data name="KeyAttributeOnDerivedEntity" xml:space="preserve">
+    <value>The derived type '{derivedType}' cannot have KeyAttribute on property '{property}' since primary key can only be declared on the root type.</value>
+  </data>
+  <data name="InversePropertyMismatch" xml:space="preserve">
+    <value>InversePropertyAttributes on navigation '{navigation}' in entity type '{entityType}' and on navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are not pointing to each other.</value>
+  </data>
+  <data name="CompositeFkOnProperty" xml:space="preserve">
+    <value>There are multiple properties pointing to navigation '{navigation}' in entity type '{entityType}'. To define composite foreign key using data annotations, use ForeignKeyAttribute on navigation.</value>
+  </data>
+  <data name="FkAttributeOnPropertyNavigationMismatch" xml:space="preserve">
+    <value>The ForeignKeyAttributes on property '{property}' and navigation '{navigation}' in entity type '{entityType}' do not point at each other. The value of ForeignKeyAttribute on property should be navigation name and the value of ForeignKeyAttribute on navigation should be the foreign key property name.</value>
+  </data>
+  <data name="InvalidPropertyListOnNavigation" xml:space="preserve">
+    <value>The property list specified using ForeignKeyAttribute on navigation '{navigation}' in entity type '{entityType}' is incorrect. The attribute value should be comma-separated list of property names.</value>
+  </data>
+  <data name="InvalidRelationshipUsingDataAnnotations" xml:space="preserve">
+    <value>Invalid relationship has been specified using InverseProperty and ForeignKey. The navigation '{navigation}' in entity type '{entityType}' and the navigation '{referencedNavigation}' in entity type '{referencedEntityType}' are related by InversePropertyAttribute but the ForeignKeyAttribute specified for both navigations have different values.</value>
   </data>
 </root>
