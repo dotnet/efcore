@@ -32,10 +32,11 @@ if ! type dnvm > /dev/null 2>&1; then
 fi
 
 if [[ -z "${SKIP_DNX_INSTALL}" ]]; then
-
     dnvm upgrade
     dnvm install latest -r coreclr
 fi
+
+dnvm use default
 
 mono packages/Sake/tools/Sake.exe -I packages/KoreBuild/build -f makefile.shade "$@"
 

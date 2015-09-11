@@ -1,10 +1,18 @@
 language: csharp
+sudo: false
 mono:
   - alpha
 os:
   - linux
 
-install: ./install_dependencies.sh
+addons:
+  apt:
+    sources:
+    - debian-sid
+    packages:
+    - libunwind8
+    - sqlite3
+
 before_script:
   - sqlite3 -version
 script:
