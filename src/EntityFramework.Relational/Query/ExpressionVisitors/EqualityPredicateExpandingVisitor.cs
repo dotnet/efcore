@@ -2,15 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class EqualityPredicateExpandingVisitor : RelinqExpressionVisitor
     {
-        protected override Expression VisitBinary(
-            [NotNull] BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
             var left = Visit(expression.Left);
             var right = Visit(expression.Right);
@@ -55,10 +53,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
 
             return Expression.MakeBinary(
-                expression.NodeType, 
-                left, 
-                right, 
-                expression.IsLiftedToNull, 
+                expression.NodeType,
+                left,
+                right,
+                expression.IsLiftedToNull,
                 expression.Method);
         }
     }

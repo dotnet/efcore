@@ -77,7 +77,7 @@ INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custo
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND ([o.Customer].[Phone] <> '555 555 5555' OR [o.Customer].[Phone] IS NULL))",
+WHERE (([o.Customer].[City] = 'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> '555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -89,7 +89,7 @@ WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND ([o.Customer].[Phone] <> '555 555 5555' OR [o.Customer].[Phone] IS NULL))",
+WHERE (([o.Customer].[City] = 'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> '555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -101,7 +101,7 @@ WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND
                 @"SELECT [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND ([o.Customer].[Phone] <> '555 555 5555' OR [o.Customer].[Phone] IS NULL))",
+WHERE (([o.Customer].[City] = 'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> '555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -124,7 +124,7 @@ INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[Custo
                 @"SELECT [o.Customer].[CustomerID], [o.Customer].[Address], [o.Customer].[City], [o.Customer].[CompanyName], [o.Customer].[ContactName], [o.Customer].[ContactTitle], [o.Customer].[Country], [o.Customer].[Fax], [o.Customer].[Phone], [o.Customer].[PostalCode], [o.Customer].[Region]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND ([o.Customer].[Phone] <> '555 555 5555' OR [o.Customer].[Phone] IS NULL))",
+WHERE (([o.Customer].[City] = 'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> '555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -136,7 +136,7 @@ WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND
                 @"SELECT [o.Customer].[City]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
-WHERE (([o.Customer].[City] = 'Seattle' AND [o.Customer].[City] IS NOT NULL) AND ([o.Customer].[Phone] <> '555 555 5555' OR [o.Customer].[Phone] IS NULL))",
+WHERE (([o.Customer].[City] = 'Seattle') AND [o.Customer].[City] IS NOT NULL) AND (([o.Customer].[Phone] <> '555 555 5555') OR [o.Customer].[Phone] IS NULL)",
                 Sql);
         }
 
@@ -150,7 +150,7 @@ FROM [Orders] AS [o1]
 INNER JOIN [Customers] AS [o1.Customer] ON [o1].[CustomerID] = [o1.Customer].[CustomerID]
 CROSS JOIN [Orders] AS [o2]
 INNER JOIN [Customers] AS [o2.Customer] ON [o2].[CustomerID] = [o2.Customer].[CustomerID]
-WHERE ([o1.Customer].[City] = [o2.Customer].[City] OR ([o1.Customer].[City] IS NULL AND [o2.Customer].[City] IS NULL))",
+WHERE ([o1.Customer].[City] = [o2.Customer].[City]) OR ([o1.Customer].[City] IS NULL AND [o2.Customer].[City] IS NULL)",
                 Sql);
         }
 
@@ -164,7 +164,7 @@ FROM [Orders] AS [o1]
 INNER JOIN [Customers] AS [o1.Customer] ON [o1].[CustomerID] = [o1.Customer].[CustomerID]
 CROSS JOIN [Orders] AS [o2]
 INNER JOIN [Customers] AS [o2.Customer] ON [o2].[CustomerID] = [o2.Customer].[CustomerID]
-WHERE ([o1.Customer].[City] = [o2.Customer].[City] OR ([o1.Customer].[City] IS NULL AND [o2.Customer].[City] IS NULL))",
+WHERE ([o1.Customer].[City] = [o2.Customer].[City]) OR ([o1.Customer].[City] IS NULL AND [o2.Customer].[City] IS NULL)",
                 Sql);
         }
 
@@ -176,7 +176,7 @@ WHERE ([o1.Customer].[City] = [o2.Customer].[City] OR ([o1.Customer].[City] IS N
                 @"SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate]
 FROM [Orders] AS [o1]
 CROSS JOIN [Orders] AS [o2]
-WHERE ([o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))",
+WHERE ([o1].[CustomerID] = [o2].[CustomerID]) OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)",
                 Sql);
         }
 
@@ -221,12 +221,10 @@ WHERE [e].[ReportsTo] IS NULL",
             Assert.Equal(
                 @"SELECT (
     SELECT CASE
-        WHEN
-            (EXISTS (
-                SELECT 1
-                FROM [Orders] AS [o]
-                WHERE [c].[CustomerID] = [o].[CustomerID])
-            )
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [c].[CustomerID] = [o].[CustomerID])
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -243,12 +241,10 @@ FROM [Customers] AS [c]",
 FROM [Customers] AS [c]
 WHERE (
     SELECT CASE
-        WHEN
-            (EXISTS (
-                SELECT 1
-                FROM [Orders] AS [o]
-                WHERE [c].[CustomerID] = [o].[CustomerID])
-            )
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE [c].[CustomerID] = [o].[CustomerID])
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ) = 1",
@@ -264,12 +260,10 @@ WHERE (
 FROM [Customers] AS [c]
 WHERE (
     SELECT CASE
-        WHEN
-            (EXISTS (
-                SELECT 1
-                FROM [Orders] AS [o]
-                WHERE ([o].[OrderID] > 0 AND [c].[CustomerID] = [o].[CustomerID]))
-            )
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ([o].[OrderID] > 0) AND ([c].[CustomerID] = [o].[CustomerID]))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ) = 1",
@@ -283,12 +277,10 @@ WHERE (
             Assert.Equal(
                 @"SELECT (
     SELECT CASE
-        WHEN
-            (NOT (EXISTS (
-                SELECT 1
-                FROM [Orders] AS [o]
-                WHERE ([c].[CustomerID] = [o].[CustomerID] AND NOT ([o].[CustomerID] = 'ALFKI')))
-            ))
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ([c].[CustomerID] = [o].[CustomerID]) AND NOT ([o].[CustomerID] = 'ALFKI')))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 )
@@ -318,12 +310,10 @@ FROM [Orders] AS [o]",
 FROM [Customers] AS [c]
 WHERE (
     SELECT CASE
-        WHEN
-            (NOT (EXISTS (
-                SELECT 1
-                FROM [Orders] AS [o]
-                WHERE ([c].[CustomerID] = [o].[CustomerID] AND NOT ([o].[CustomerID] = 'ALFKI')))
-            ))
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM [Orders] AS [o]
+            WHERE ([c].[CustomerID] = [o].[CustomerID]) AND NOT ([o].[CustomerID] = 'ALFKI')))
         THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
     END
 ) = 1",
@@ -364,11 +354,11 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((
+WHERE (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-) > 5)",
+) > 5",
                 Sql);
         }
 
@@ -379,11 +369,11 @@ WHERE ((
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (5 < (
+WHERE 5 < (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-))",
+)",
                 Sql);
         }
 
@@ -437,11 +427,11 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ((
+WHERE (
     SELECT SUM([o].[OrderID])
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
-) > 1000)",
+) > 1000",
                 Sql);
         }
 

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [CogTag] AS [t]
-LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[FullName]
 
 SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
@@ -24,7 +24,7 @@ FROM [Weapon] AS [w]
 INNER JOIN (
     SELECT DISTINCT [g].[FullName]
     FROM [CogTag] AS [t]
-    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
 ) AS [g] ON [w].[OwnerFullName] = [g].[FullName]
 ORDER BY [g].[FullName]",
                 Sql);
@@ -37,7 +37,7 @@ ORDER BY [g].[FullName]",
             Assert.Equal(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [CogTag] AS [t]
-LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
 ORDER BY [g].[Nickname], [g].[SquadId]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
@@ -45,8 +45,8 @@ FROM [Gear] AS [g]
 INNER JOIN (
     SELECT DISTINCT [g].[Nickname], [g].[SquadId]
     FROM [CogTag] AS [t]
-    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
-) AS [g0] ON ([g].[LeaderNickname] = [g0].[Nickname] AND [g].[LeaderSquadId] = [g0].[SquadId])
+    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
+) AS [g0] ON ([g].[LeaderNickname] = [g0].[Nickname]) AND ([g].[LeaderSquadId] = [g0].[SquadId])
 ORDER BY [g0].[Nickname], [g0].[SquadId]",
                 Sql);
         }
@@ -58,7 +58,7 @@ ORDER BY [g0].[Nickname], [g0].[SquadId]",
             Assert.Equal(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [CogTag] AS [t]
-LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
 LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
 ORDER BY [s].[Id]
 
@@ -67,7 +67,7 @@ FROM [Gear] AS [g]
 INNER JOIN (
     SELECT DISTINCT [s].[Id]
     FROM [CogTag] AS [t]
-    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+    LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
     LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]
 ) AS [s] ON [g].[SquadId] = [s].[Id]
 ORDER BY [s].[Id]", Sql);
@@ -80,7 +80,7 @@ ORDER BY [s].[Id]", Sql);
             Assert.Equal(
                 @"SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [s].[Id], [s].[InternalNumber], [s].[Name]
 FROM [CogTag] AS [t]
-LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname] AND [t].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([t].[GearNickName] = [g].[Nickname]) AND ([t].[GearSquadId] = [g].[SquadId])
 LEFT JOIN [Squad] AS [s] ON [g].[SquadId] = [s].[Id]", Sql);
         }
 
@@ -172,7 +172,7 @@ INNER JOIN (
     INNER JOIN [City] AS [c1] ON [g].[CityOrBirthName] = [c1].[Name]
     INNER JOIN [City] AS [c2] ON [g].[CityOrBirthName] = [c2].[Name]
 ) AS [c2] ON [g].[AssignedCityName] = [c2].[Name2]
-LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
 ORDER BY [c2].[Nickname], [c2].[Name], [c2].[Name0], [c2].[Name1], [c2].[Name2]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
@@ -184,7 +184,7 @@ INNER JOIN (
     LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
     INNER JOIN [City] AS [c1] ON [g].[CityOrBirthName] = [c1].[Name]
 ) AS [c1] ON [g].[CityOrBirthName] = [c1].[Name1]
-LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
 ORDER BY [c1].[Nickname], [c1].[Name], [c1].[Name0], [c1].[Name1]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Id], [c].[GearNickName], [c].[GearSquadId], [c].[Note]
@@ -195,7 +195,7 @@ INNER JOIN (
     LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
     LEFT JOIN [City] AS [c0] ON [g].[AssignedCityName] = [c0].[Name]
 ) AS [c0] ON [g].[AssignedCityName] = [c0].[Name0]
-LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname] AND [c].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [CogTag] AS [c] ON ([c].[GearNickName] = [g].[Nickname]) AND ([c].[GearSquadId] = [g].[SquadId])
 ORDER BY [c0].[Nickname], [c0].[Name], [c0].[Name0]
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c0].[Id], [c0].[GearNickName], [c0].[GearSquadId], [c0].[Note]
@@ -205,7 +205,7 @@ INNER JOIN (
     FROM [Gear] AS [g]
     LEFT JOIN [City] AS [c] ON [g].[AssignedCityName] = [c].[Name]
 ) AS [c] ON [g].[CityOrBirthName] = [c].[Name]
-LEFT JOIN [CogTag] AS [c0] ON ([c0].[GearNickName] = [g].[Nickname] AND [c0].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [CogTag] AS [c0] ON ([c0].[GearNickName] = [g].[Nickname]) AND ([c0].[GearSquadId] = [g].[SquadId])
 ORDER BY [c].[Nickname], [c].[Name]",
                 Sql);
         }
@@ -280,9 +280,9 @@ WHERE [w].[AmmunitionType] IS NULL",
             Assert.Equal(
                 @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
 FROM [CogTag] AS [ct1]
-INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname] AND [ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
 CROSS JOIN [CogTag] AS [ct2]
-INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname] AND [ct2].[GearSquadId] = [ct2.Gear].[SquadId])
+INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname]) AND ([ct2].[GearSquadId] = [ct2.Gear].[SquadId])
 WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
                 Sql);
         }
@@ -294,8 +294,8 @@ WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
             Assert.Equal(
                 @"SELECT [ct.Gear].[Nickname], [ct.Gear].[SquadId], [ct.Gear].[AssignedCityName], [ct.Gear].[CityOrBirthName], [ct.Gear].[FullName], [ct.Gear].[LeaderNickname], [ct.Gear].[LeaderSquadId], [ct.Gear].[Rank]
 FROM [CogTag] AS [ct]
-INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname] AND [ct].[GearSquadId] = [ct.Gear].[SquadId])
-WHERE ([ct.Gear].[Nickname] = 'Marcus' AND [ct.Gear].[CityOrBirthName] <> 'Ephyra')",
+INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
+WHERE ([ct.Gear].[Nickname] = 'Marcus') AND ([ct.Gear].[CityOrBirthName] <> 'Ephyra')",
                 Sql);
         }
 
@@ -306,7 +306,7 @@ WHERE ([ct.Gear].[Nickname] = 'Marcus' AND [ct.Gear].[CityOrBirthName] <> 'Ephyr
             Assert.Equal(
                 @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
 FROM [CogTag] AS [ct]
-INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname] AND [ct].[GearSquadId] = [ct.Gear].[SquadId])
+INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
 WHERE [ct.Gear].[Nickname] = 'Marcus'",
                 Sql);
         }
@@ -318,7 +318,7 @@ WHERE [ct.Gear].[Nickname] = 'Marcus'",
             Assert.Equal(
                 @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [o.Gear].[Nickname], [o.Gear].[SquadId], [o.Gear].[AssignedCityName], [o.Gear].[CityOrBirthName], [o.Gear].[FullName], [o.Gear].[LeaderNickname], [o.Gear].[LeaderSquadId], [o.Gear].[Rank]
 FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])",
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])",
                 Sql);
         }
 
@@ -330,7 +330,7 @@ INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [
                 @"SELECT [ct1].[Id], [ct1].[GearNickName], [ct1].[GearSquadId], [ct1].[Note], [ct2].[Id], [ct2].[GearNickName], [ct2].[GearSquadId], [ct2].[Note]
 FROM [CogTag] AS [ct1]
 CROSS JOIN [CogTag] AS [ct2]
-WHERE (([ct1].[GearNickName] = [ct2].[GearNickName] OR ([ct1].[GearNickName] IS NULL AND [ct2].[GearNickName] IS NULL)) AND ([ct1].[GearSquadId] = [ct2].[GearSquadId] OR ([ct1].[GearSquadId] IS NULL AND [ct2].[GearSquadId] IS NULL)))",
+WHERE (([ct1].[GearNickName] = [ct2].[GearNickName]) OR ([ct1].[GearNickName] IS NULL AND [ct2].[GearNickName] IS NULL)) AND (([ct1].[GearSquadId] = [ct2].[GearSquadId]) OR ([ct1].[GearSquadId] IS NULL AND [ct2].[GearSquadId] IS NULL))",
                 Sql);
         }
 
@@ -341,8 +341,8 @@ WHERE (([ct1].[GearNickName] = [ct2].[GearNickName] OR ([ct1].[GearNickName] IS 
             Assert.Equal(
                 @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname] AND [o].[GearSquadId] = [o.Gear].[SquadId])
-LEFT JOIN [Gear] AS [g] ON ([o].[GearNickName] = [g].[Nickname] AND [o].[GearSquadId] = [g].[SquadId])
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([o].[GearNickName] = [g].[Nickname]) AND ([o].[GearSquadId] = [g].[SquadId])
 WHERE [o.Gear].[Nickname] = 'Marcus'",
                 Sql);
         }
@@ -354,7 +354,7 @@ WHERE [o.Gear].[Nickname] = 'Marcus'",
             Assert.Equal(
                 @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
 FROM [CogTag] AS [ct]
-WHERE ([ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL)",
+WHERE [ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL",
                 Sql);
         }
 
@@ -365,7 +365,7 @@ WHERE ([ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL)",
             Assert.Equal(
                 @"SELECT [ct].[Id], [ct].[GearNickName], [ct].[GearSquadId], [ct].[Note]
 FROM [CogTag] AS [ct]
-WHERE ([ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL)",
+WHERE [ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL",
                 Sql);
         }
 
@@ -376,9 +376,9 @@ WHERE ([ct].[GearNickName] IS NULL AND [ct].[GearSquadId] IS NULL)",
             Assert.Equal(
                 @"SELECT [ct1].[Id], [ct2].[Id]
 FROM [CogTag] AS [ct1]
-INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname] AND [ct1].[GearSquadId] = [ct1.Gear].[SquadId])
+INNER JOIN [Gear] AS [ct1.Gear] ON ([ct1].[GearNickName] = [ct1.Gear].[Nickname]) AND ([ct1].[GearSquadId] = [ct1.Gear].[SquadId])
 CROSS JOIN [CogTag] AS [ct2]
-INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname] AND [ct2].[GearSquadId] = [ct2.Gear].[SquadId])
+INNER JOIN [Gear] AS [ct2.Gear] ON ([ct2].[GearNickName] = [ct2.Gear].[Nickname]) AND ([ct2].[GearSquadId] = [ct2.Gear].[SquadId])
 WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
                 Sql);
         }
@@ -390,8 +390,8 @@ WHERE [ct1.Gear].[Nickname] = [ct2.Gear].[Nickname]",
             Assert.Equal(
                 @"SELECT [ct.Gear].[CityOrBirthName]
 FROM [CogTag] AS [ct]
-INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname] AND [ct].[GearSquadId] = [ct.Gear].[SquadId])
-WHERE ([ct.Gear].[Nickname] = 'Marcus' AND [ct.Gear].[CityOrBirthName] <> 'Ephyra')",
+INNER JOIN [Gear] AS [ct.Gear] ON ([ct].[GearNickName] = [ct.Gear].[Nickname]) AND ([ct].[GearSquadId] = [ct.Gear].[SquadId])
+WHERE ([ct.Gear].[Nickname] = 'Marcus') AND ([ct.Gear].[CityOrBirthName] <> 'Ephyra')",
                 Sql);
         }
 
@@ -402,7 +402,7 @@ WHERE ([ct.Gear].[Nickname] = 'Marcus' AND [ct.Gear].[CityOrBirthName] <> 'Ephyr
             Assert.Equal(
                 @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [CogTag] AS [ct]
-LEFT JOIN [Gear] AS [g] ON ([ct].[GearNickName] = [g].[Nickname] AND [ct].[GearSquadId] = [g].[SquadId])
+LEFT JOIN [Gear] AS [g] ON ([ct].[GearNickName] = [g].[Nickname]) AND ([ct].[GearSquadId] = [g].[SquadId])
 ORDER BY [ct].[GearNickName], [ct].[GearSquadId]",
                 Sql);
         }

@@ -267,55 +267,62 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
-        public virtual void Projection_when_arithmetic_expressions()
+        public virtual void Projection_when_arithmetic_expression_precendence()
         {
             AssertQuery<Order>(
-                os => os.Select(o => new
-                {
-                    o.OrderID,
-                    Double = o.OrderID * 2,
-                    Add = o.OrderID + 23,
-                    Sub = 100000 - o.OrderID,
-                    Divide = o.OrderID / (o.OrderID / 2),
-                    Literal = 42,
-                    o
-                }),
-                entryCount: 830);
+                os => os.Select(o => new { A = o.OrderID / (o.OrderID / 2), B = (o.OrderID / o.OrderID) / 2 }));
         }
 
-        [Fact]
-        public virtual void Projection_when_arithmetic_mixed()
-        {
-            AssertQuery<Order, Employee>((os, es) =>
-                from o in os
-                from e in es
-                select new
-                {
-                    Add = e.EmployeeID + o.OrderID,
-                    o.OrderID,
-                    o,
-                    Literal = 42,
-                    e.EmployeeID,
-                    e
-                });
-        }
-
-        [Fact]
-        public virtual void Projection_when_arithmetic_mixed_subqueries()
-        {
-            AssertQuery<Order, Employee>((os, es) =>
-                from o in os.Select(o2 => new { o2, Mod = o2.OrderID % 2 })
-                from e in es.Select(e2 => new { e2, Square = e2.EmployeeID ^ 2 })
-                select new
-                {
-                    Add = e.e2.EmployeeID + o.o2.OrderID,
-                    e.Square,
-                    e.e2,
-                    Literal = 42,
-                    o.o2,
-                    o.Mod
-                });
-        }
+        //        [Fact]
+        //        public virtual void Projection_when_arithmetic_expressions()
+        //        {
+        //            AssertQuery<Order>(
+        //                os => os.Select(o => new
+        //                {
+        //                    o.OrderID,
+        //                    Double = o.OrderID * 2,
+        //                    Add = o.OrderID + 23,
+        //                    Sub = 100000 - o.OrderID,
+        //                    Divide = o.OrderID / (o.OrderID / 2),
+        //                    Literal = 42,
+        //                    o
+        //                }),
+        //                entryCount: 830);
+        //        }
+        //
+        //        [Fact]
+        //        public virtual void Projection_when_arithmetic_mixed()
+        //        {
+        //            AssertQuery<Order, Employee>((os, es) =>
+        //                from o in os
+        //                from e in es
+        //                select new
+        //                {
+        //                    Add = e.EmployeeID + o.OrderID,
+        //                    o.OrderID,
+        //                    o,
+        //                    Literal = 42,
+        //                    e.EmployeeID,
+        //                    e
+        //                });
+        //        }
+        //
+        //        [Fact]
+        //        public virtual void Projection_when_arithmetic_mixed_subqueries()
+        //        {
+        //            AssertQuery<Order, Employee>((os, es) =>
+        //                from o in os.Select(o2 => new { o2, Mod = o2.OrderID % 2 })
+        //                from e in es.Select(e2 => new { e2, Square = e2.EmployeeID ^ 2 })
+        //                select new
+        //                {
+        //                    Add = e.e2.EmployeeID + o.o2.OrderID,
+        //                    e.Square,
+        //                    e.e2,
+        //                    Literal = 42,
+        //                    o.o2,
+        //                    o.Mod
+        //                });
+        //        }
 
         [Fact]
         public virtual void Projection_when_null_value()

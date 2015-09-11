@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 FROM (
     SELECT * FROM Customers
 ) AS [c]
-WHERE [c].[ContactName] LIKE ('%' + 'z' + '%')",
+WHERE [c].[ContactName] LIKE ('%' + 'z') + '%'",
                 Sql);
         }
 
@@ -267,7 +267,7 @@ FROM [Customers] AS [c]",
 FROM (
     SELECT * FROM Customers
 ) AS [c]
-WHERE ([c].[ContactName] = [c].[CompanyName] OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL))",
+WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL)",
                 Sql);
         }
 

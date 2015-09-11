@@ -47,7 +47,7 @@ ORDER BY [t0].[Species]",
 FROM (
     SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
     FROM [Animal] AS [a]
-    WHERE ([a].[Discriminator] IN ('Kiwi', 'Eagle') AND [a].[CountryId] = 1)
+    WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle') AND ([a].[CountryId] = 1)
 ) AS [t0]
 ORDER BY [t0].[Species]",
                 Sql);
@@ -135,7 +135,7 @@ ORDER BY [a].[Species]",
             Assert.Equal(
                 @"SELECT [a].[Species], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animal] AS [a]
-WHERE ([a].[Discriminator] IN ('Kiwi', 'Eagle') AND [a].[Name] = 'Great spotted kiwi')
+WHERE [a].[Discriminator] IN ('Kiwi', 'Eagle') AND ([a].[Name] = 'Great spotted kiwi')
 ORDER BY [a].[Species]",
                 Sql);
         }
@@ -192,7 +192,7 @@ INNER JOIN (
     FROM [Animal] AS [e]
     WHERE [e].[Discriminator] = 'Eagle'
 ) AS [e] ON [a].[EagleId] = [e].[Species]
-WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
+WHERE ([a].[Discriminator] = 'Kiwi') OR ([a].[Discriminator] = 'Eagle')
 ORDER BY [e].[Species]",
                 Sql);
         }
@@ -212,7 +212,7 @@ INNER JOIN (
     SELECT DISTINCT [c].[Name], [c].[Id]
     FROM [Country] AS [c]
 ) AS [c] ON [a].[CountryId] = [c].[Id]
-WHERE ([a].[Discriminator] = 'Kiwi' OR [a].[Discriminator] = 'Eagle')
+WHERE ([a].[Discriminator] = 'Kiwi') OR ([a].[Discriminator] = 'Eagle')
 ORDER BY [c].[Name], [c].[Id]",
                 Sql);
         }
@@ -241,7 +241,7 @@ SELECT @@ROWCOUNT;
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = 'Kiwi' AND [k].[Species] LIKE '%' + 'owenii')
+WHERE ([k].[Discriminator] = 'Kiwi') AND [k].[Species] LIKE '%' + 'owenii'
 
 @p0: Apteryx owenii
 @p1: Aquila chrysaetos canadensis
@@ -253,7 +253,7 @@ SELECT @@ROWCOUNT;
 
 SELECT TOP(2) [k].[Species], [k].[CountryId], [k].[Discriminator], [k].[Name], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn]
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = 'Kiwi' AND [k].[Species] LIKE '%' + 'owenii')
+WHERE ([k].[Discriminator] = 'Kiwi') AND [k].[Species] LIKE '%' + 'owenii'
 
 @p0: Apteryx owenii
 
@@ -264,7 +264,7 @@ SELECT @@ROWCOUNT;
 
 SELECT COUNT(*)
 FROM [Animal] AS [k]
-WHERE ([k].[Discriminator] = 'Kiwi' AND [k].[Species] LIKE '%' + 'owenii')",
+WHERE ([k].[Discriminator] = 'Kiwi') AND [k].[Species] LIKE '%' + 'owenii'",
                 Sql);
         }
 
