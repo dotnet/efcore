@@ -9,11 +9,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public class RelationalCompositeExpressionFragmentTranslator : IExpressionFragmentTranslator
     {
-        private readonly List<IExpressionFragmentTranslator> _translators 
+        private readonly List<IExpressionFragmentTranslator> _translators
             = new List<IExpressionFragmentTranslator>
-            {
-                new StringCompareTranslator()
-            };
+                {
+                    new StringCompareTranslator()
+                };
 
         public virtual Expression Translate(Expression expression)
         {
@@ -30,8 +30,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
         }
 
         protected virtual void AddTranslators([NotNull] IEnumerable<IExpressionFragmentTranslator> translators)
-        {
-            _translators.AddRange(translators);
-        }
+            => _translators.AddRange(translators);
     }
 }

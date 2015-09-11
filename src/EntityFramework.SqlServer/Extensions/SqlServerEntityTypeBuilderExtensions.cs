@@ -5,8 +5,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.SqlServer.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
+
+// ReSharper disable once CheckNamespace
 
 namespace Microsoft.Data.Entity
 {
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
-            
+
             var relationalEntityTypeBuilder = ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
                 .SqlServer(ConfigurationSource.Explicit);
             relationalEntityTypeBuilder.TableName = name;

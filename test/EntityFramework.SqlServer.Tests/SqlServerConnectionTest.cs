@@ -3,6 +3,7 @@
 
 using System.Data.SqlClient;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 using Xunit;
 

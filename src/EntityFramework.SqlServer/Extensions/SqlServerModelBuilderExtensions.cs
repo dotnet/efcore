@@ -4,8 +4,9 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
+
+// ReSharper disable once CheckNamespace
 
 namespace Microsoft.Data.Entity
 {

@@ -72,6 +72,7 @@
     <Compile Include="GraphBehavior.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
+    <Compile Include="Infrastructure\ModelSource.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />
@@ -216,7 +217,6 @@
     <Compile Include="Internal\IDbSetSource.cs" />
     <Compile Include="Internal\IModelValidator.cs" />
     <Compile Include="Internal\LoggingModelValidator.cs" />
-    <Compile Include="Internal\ModelSource.cs" />
     <Compile Include="Internal\ModelValidator.cs" />
     <Compile Include="Internal\ServiceProviderSource.cs" />
     <Compile Include="Metadata\Internal\IClrAccessorSource.cs" />

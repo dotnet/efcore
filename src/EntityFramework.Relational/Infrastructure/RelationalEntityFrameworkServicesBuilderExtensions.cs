@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -73,8 +74,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-        {
-            return serviceCollection
+            => serviceCollection
                 .AddScoped<IMaterializerFactory, MaterializerFactory>()
                 .AddScoped<ICommandBuilderFactory, CommandBuilderFactory>()
                 .AddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
@@ -91,8 +91,8 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<RelationalQueryModelVisitorFactory>()
                 .AddScoped<RelationalProjectionExpressionVisitorFactory>()
                 .AddScoped<RelationalCompiledQueryCacheKeyGenerator>()
+                .AddScoped<RelationalCompositeExpressionFragmentTranslator>()
                 .AddScoped(p => GetProviderServices(p).SqlQueryGeneratorFactory);
-        }
 
         private static IRelationalDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
         {

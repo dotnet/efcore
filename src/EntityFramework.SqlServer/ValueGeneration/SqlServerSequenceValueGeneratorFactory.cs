@@ -8,9 +8,8 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
@@ -79,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
                 return new SqlServerSequenceValueGenerator<sbyte>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
+            throw new ArgumentException(Entity.Internal.Strings.InvalidValueGeneratorFactoryProperty(
                 nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }

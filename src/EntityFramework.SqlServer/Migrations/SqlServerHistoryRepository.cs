@@ -6,8 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.SqlServer;
-using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
@@ -22,18 +21,18 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] ISqlServerConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] SqlServerMigrationsSqlGenerator sqlGenerator,
-            [NotNull] SqlServerMetadataExtensionProvider annotations,
+            [NotNull] IMigrationsSqlGenerator sqlGenerator,
+            [NotNull] IRelationalMetadataExtensionProvider annotations,
             [NotNull] ISqlServerUpdateSqlGenerator sql)
             : base(
-                  databaseCreator,
-                  executor,
-                  connection,
-                  options,
-                  modelDiffer,
-                  sqlGenerator,
-                  annotations,
-                  sql)
+                databaseCreator,
+                executor,
+                connection,
+                options,
+                modelDiffer,
+                sqlGenerator,
+                annotations,
+                sql)
         {
         }
 

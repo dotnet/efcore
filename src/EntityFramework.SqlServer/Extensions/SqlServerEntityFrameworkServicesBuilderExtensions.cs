@@ -3,17 +3,17 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.SqlServer;
-using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.SqlServer.Update;
-using Microsoft.Data.Entity.SqlServer.ValueGeneration;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
@@ -32,34 +32,31 @@ namespace Microsoft.Framework.DependencyInjection
                 .Singleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>());
 
             service.TryAdd(new ServiceCollection()
-                    .AddSingleton<SqlServerConventionSetBuilder>()
-                    .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
-                    .AddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
-                    .AddSingleton<SqlServerTypeMapper>()
-                    .AddSingleton<SqlServerModelSource>()
-                    .AddSingleton<SqlServerMetadataExtensionProvider>()
-                    .AddSingleton<SqlServerMigrationsAnnotationProvider>()
-                    .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
-                    .AddScoped<SqlServerModificationCommandBatchFactory>()
-                    .AddScoped<SqlServerValueGeneratorSelector>()
-                    .AddScoped<SqlServerDatabaseProviderServices>()
-                    .AddScoped<ISqlServerConnection, SqlServerConnection>()
-                    .AddScoped<SqlServerMigrationsSqlGenerator>()
-                    .AddScoped<SqlServerDatabaseCreator>()
-                    .AddScoped<SqlServerHistoryRepository>()
-                    .AddQuery());
+                .AddSingleton<SqlServerConventionSetBuilder>()
+                .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
+                .AddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
+                .AddSingleton<SqlServerTypeMapper>()
+                .AddSingleton<SqlServerModelSource>()
+                .AddSingleton<SqlServerMetadataExtensionProvider>()
+                .AddSingleton<SqlServerMigrationsAnnotationProvider>()
+                .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
+                .AddScoped<SqlServerModificationCommandBatchFactory>()
+                .AddScoped<SqlServerValueGeneratorSelector>()
+                .AddScoped<SqlServerDatabaseProviderServices>()
+                .AddScoped<ISqlServerConnection, SqlServerConnection>()
+                .AddScoped<SqlServerMigrationsSqlGenerator>()
+                .AddScoped<SqlServerDatabaseCreator>()
+                .AddScoped<SqlServerHistoryRepository>()
+                .AddQuery());
 
             return builder;
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-        {
-            return serviceCollection
+            => serviceCollection
                 .AddScoped<SqlServerQueryCompilationContextFactory>()
-                .AddScoped<SqlServerCompositeExpressionFragmentTranslator>()
                 .AddScoped<SqlServerCompositeMemberTranslator>()
                 .AddScoped<SqlServerCompositeMethodCallTranslator>()
                 .AddScoped<SqlServerQuerySqlGeneratorFactory>();
-        }
     }
 }

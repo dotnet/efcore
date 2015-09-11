@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators;
@@ -38,7 +37,6 @@ namespace Microsoft.Data.Entity
             VerifyScoped<SqliteHistoryRepository>();
             VerifyScoped<SqliteCompositeMethodCallTranslator>();
             VerifyScoped<SqliteCompositeMemberTranslator>();
-            VerifyScoped<SqliteCompositeExpressionFragmentTranslator>();
         }
 
         public SqliteEntityFrameworkServicesBuilderExtensionsTest()

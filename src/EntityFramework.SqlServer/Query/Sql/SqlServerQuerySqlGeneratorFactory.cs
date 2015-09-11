@@ -20,15 +20,15 @@ namespace Microsoft.Data.Entity.Query.Sql
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
-        public virtual ISqlQueryGenerator CreateGenerator([NotNull] SelectExpression selectExpression)
+        public virtual ISqlQueryGenerator CreateGenerator(SelectExpression selectExpression)
             => new SqlServerQuerySqlGenerator(
                 _parameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)));
 
         public virtual ISqlQueryGenerator CreateRawCommandGenerator(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] string sql,
-            [NotNull] object[] parameters)
+            SelectExpression selectExpression,
+            string sql,
+            object[] parameters)
             => new RawSqlQueryGenerator(
                 _parameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)),

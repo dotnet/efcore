@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 
 namespace Microsoft.Data.Entity.Migrations
 {
