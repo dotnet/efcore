@@ -5,6 +5,7 @@ using System;
 using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -13,6 +14,7 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalTransaction : IRelationalTransaction
     {
+        private readonly DbTransaction _transaction;
         private readonly bool _transactionOwned;
         private bool _disposed;
 
@@ -32,14 +34,12 @@ namespace Microsoft.Data.Entity.Storage
             }
 
             Connection = connection;
-            DbTransaction = dbTransaction;
+            _transaction = dbTransaction;
             _transactionOwned = transactionOwned;
             Logger = logger;
         }
 
         protected virtual ILogger Logger { get; }
-
-        public virtual DbTransaction DbTransaction { get; }
 
         public virtual IRelationalConnection Connection { get; }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Logger.CommittingTransaction();
 
-            DbTransaction.Commit();
+            _transaction.Commit();
             ClearTransaction();
         }
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Logger.RollingbackTransaction();
 
-            DbTransaction.Rollback();
+            _transaction.Rollback();
             ClearTransaction();
         }
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Storage
                 _disposed = true;
                 if (_transactionOwned)
                 {
-                    DbTransaction.Dispose();
+                    _transaction.Dispose();
                 }
                 ClearTransaction();
             }
@@ -78,5 +78,7 @@ namespace Microsoft.Data.Entity.Storage
 
             Connection.UseTransaction(null);
         }
+
+        DbTransaction IAccessor<DbTransaction>.Service => _transaction;
     }
 }

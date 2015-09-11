@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -34,11 +33,6 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,
-            RelationalCommand relationalCommand)
-            => ExecuteNonQuery(connection, new[] { relationalCommand });
-
-        public virtual void ExecuteNonQuery(
-            IRelationalConnection connection,
             IEnumerable<RelationalCommand> relationalCommands)
         {
             Check.NotNull(connection, nameof(connection));
@@ -61,12 +55,6 @@ namespace Microsoft.Data.Entity.Storage
                 connection.Close();
             }
         }
-
-        public virtual Task ExecuteNonQueryAsync(
-            IRelationalConnection connection,
-            RelationalCommand relationalCommand,
-            CancellationToken cancellationToken = default(CancellationToken))
-            => ExecuteNonQueryAsync(connection, new[] { relationalCommand }, cancellationToken);
 
         public virtual async Task ExecuteNonQueryAsync(
             IRelationalConnection connection,

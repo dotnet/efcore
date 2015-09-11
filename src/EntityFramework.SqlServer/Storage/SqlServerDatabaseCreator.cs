@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage.Commands;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -53,10 +52,10 @@ namespace Microsoft.Data.Entity.Storage
             await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
         }
 
-        public override bool HasTables()
+        protected override bool HasTables()
             => (int)SqlStatementExecutor.ExecuteScalar(_connection, CreateHasTablesCommand()) != 0;
 
-        public override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => (int)(await SqlStatementExecutor
                 .ExecuteScalarAsync(_connection, CreateHasTablesCommand(), cancellationToken)) != 0;
 

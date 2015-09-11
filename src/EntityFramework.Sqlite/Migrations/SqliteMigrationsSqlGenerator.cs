@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
-using Microsoft.Data.Entity.Storage.Commands;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Migrations
             return operations.AsReadOnly();
         }
 
-        protected override void Generate(DropIndexOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append(Sql.DelimitIdentifier(operation.Name));
         }
 
-        protected override void Generate(RenameTableOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
         }
 
-        protected override void Generate(CreateTableOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(CreateTableOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Migrations
             string computedColumnSql,
             IAnnotatable annotatable,
             IModel model,
-            SqlBatchBuilder builder)
+            RelationalCommandListBuilder builder)
         {
             base.ColumnDefinition(
                 schema, table, name, clrType, type, nullable,
@@ -144,52 +144,52 @@ namespace Microsoft.Data.Entity.Migrations
         #region Invalid migration operations
 
         // These operations can be accomplished instead with a table-rebuild
-        protected override void Generate(AddForeignKeyOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(AddForeignKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(AddPrimaryKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(AddUniqueConstraintOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(AddUniqueConstraintOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropColumnOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropForeignKeyOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropForeignKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropPrimaryKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(DropUniqueConstraintOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropUniqueConstraintOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(RenameColumnOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(RenameColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(RenameIndexOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
 
-        protected override void Generate(AlterColumnOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.InvalidMigrationOperation);
         }
@@ -198,12 +198,12 @@ namespace Microsoft.Data.Entity.Migrations
 
         #region Invalid schema operations
 
-        protected override void Generate(EnsureSchemaOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(EnsureSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SchemasNotSupported);
         }
 
-        protected override void Generate(DropSchemaOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SchemasNotSupported);
         }
@@ -213,27 +213,27 @@ namespace Microsoft.Data.Entity.Migrations
         #region Sequences not supported
 
         // SQLite does not have sequences
-        protected override void Generate(RestartSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(RestartSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SequencesNotSupported);
         }
 
-        protected override void Generate(CreateSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(CreateSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SequencesNotSupported);
         }
 
-        protected override void Generate(RenameSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(RenameSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SequencesNotSupported);
         }
 
-        protected override void Generate(AlterSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(AlterSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SequencesNotSupported);
         }
 
-        protected override void Generate(DropSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+        protected override void Generate(DropSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
             throw new NotSupportedException(Strings.SequencesNotSupported);
         }

@@ -3,13 +3,13 @@
 
 using System;
 using System.Data.Common;
+using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public interface IRelationalTransaction : IDisposable
+    public interface IRelationalTransaction : IDisposable, IAccessor<DbTransaction>
     {
         IRelationalConnection Connection { get; }
-        DbTransaction DbTransaction { get; }
         void Commit();
         void Rollback();
     }

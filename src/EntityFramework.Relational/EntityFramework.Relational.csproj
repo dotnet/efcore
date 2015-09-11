@@ -52,11 +52,12 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Extensions\LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\RelationalEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="Infrastructure\RelationalLoggingEventIds.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
-    <Compile Include="Infrastructure\SqlBatchBuilder.cs" />
+    <Compile Include="Infrastructure\RelationalCommandListBuilder.cs" />
     <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder`.cs" />
@@ -201,8 +202,6 @@
     <Compile Include="Migrations\Internal\MigrationsModelDiffer.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
     <Compile Include="Query\ExpressionVisitors\ShapedQueryFindingExpressionVisitor.cs" />
-    <Compile Include="Storage\Commands\RelationalCommandBuilder.cs" />
-    <Compile Include="Storage\Commands\RelationalParameterList.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
@@ -215,21 +214,22 @@
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\ISqlStatementExecutor.cs" />
-    <Compile Include="Storage\ProviderDesignTimeServicesAttribute.cs" />
-    <Compile Include="Storage\Commands\RelationalCommand.cs" />
+    <Compile Include="Storage\RelationalCommand.cs" />
+    <Compile Include="Storage\RelationalCommandBuilder.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
-    <Compile Include="Storage\Commands\RelationalParameter.cs" />
+    <Compile Include="Storage\RelationalParameter.cs" />
+    <Compile Include="Storage\RelationalParameterList.cs" />
     <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />
     <Compile Include="Storage\RelationalTypeMapper.cs" />
     <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />
     <Compile Include="Storage\RelationalTypeMapping.cs" />
     <Compile Include="Storage\SqlStatementExecutor.cs" />
-    <Compile Include="Storage\TypedValueBufferFactoryFactory.cs" />
-    <Compile Include="Storage\UntypedValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\TypedRelationalValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\UntypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
     <Compile Include="Query\ExpressionVisitors\CompositePredicateExpressionVisitor.cs" />

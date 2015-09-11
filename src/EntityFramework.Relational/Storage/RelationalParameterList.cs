@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
-namespace Microsoft.Data.Entity.Storage.Commands
+namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalParameterList
     {

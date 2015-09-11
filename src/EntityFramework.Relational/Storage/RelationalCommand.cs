@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
-using System.Data;
 
-namespace Microsoft.Data.Entity.Storage.Commands
+namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalCommand
     {
@@ -39,7 +40,7 @@ namespace Microsoft.Data.Entity.Storage.Commands
 
             if (connection.Transaction != null)
             {
-                command.Transaction = connection.Transaction.DbTransaction;
+                command.Transaction = connection.Transaction.GetService();
             }
 
             if (connection.CommandTimeout != null)
@@ -47,7 +48,7 @@ namespace Microsoft.Data.Entity.Storage.Commands
                 command.CommandTimeout = (int)connection.CommandTimeout;
             }
 
-            foreach(var parameter in Parameters)
+            foreach (var parameter in Parameters)
             {
                 command.Parameters.Add(
                     parameter.CreateDbParameter(command, typeMapper));

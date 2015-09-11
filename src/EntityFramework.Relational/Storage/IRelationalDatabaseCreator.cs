@@ -23,9 +23,5 @@ namespace Microsoft.Data.Entity.Storage
         void CreateTables();
 
         Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken));
-
-        bool HasTables();
-
-        Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

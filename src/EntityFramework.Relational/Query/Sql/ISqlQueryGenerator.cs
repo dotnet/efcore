@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Data.Common;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Commands;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {
