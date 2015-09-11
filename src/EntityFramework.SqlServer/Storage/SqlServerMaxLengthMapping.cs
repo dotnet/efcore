@@ -4,9 +4,8 @@
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.Storage
 {
     public class SqlServerMaxLengthMapping : RelationalTypeMapping
     {

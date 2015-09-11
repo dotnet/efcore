@@ -4,11 +4,10 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
     {

@@ -4,27 +4,22 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
 
-namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public class StringSubstringTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo().GetDeclaredMethods(nameof(string.Substring))
-            .Where(m => m.GetParameters().Count() == 2)
-            .Single();
+        private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo()
+            .GetDeclaredMethods(nameof(string.Substring))
+            .Single(m => m.GetParameters().Count() == 2);
 
-        public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.Method == _methodInfo)
-            {
-                var sqlArguments = new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments);
-                return new SqlFunctionExpression("SUBSTRING", methodCallExpression.Type, sqlArguments);
-            }
-
-            return null;
-        }
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
+            => methodCallExpression.Method == _methodInfo
+                ? new SqlFunctionExpression(
+                    "SUBSTRING",
+                    methodCallExpression.Type,
+                    new[] { methodCallExpression.Object }.Concat(methodCallExpression.Arguments))
+                : null;
     }
 }

@@ -5,11 +5,10 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.Storage
 {
     public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     {
@@ -23,8 +22,6 @@ namespace Microsoft.Data.Entity.SqlServer
             _loggerFactory = loggerFactory;
         }
 
-        // TODO: Consider using DbProviderFactory to create connection instance
-        // Issue #774
         protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
 
         public virtual ISqlServerConnection CreateMasterConnection()

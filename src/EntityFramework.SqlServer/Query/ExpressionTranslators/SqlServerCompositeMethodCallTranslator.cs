@@ -3,10 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public class SqlServerCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {

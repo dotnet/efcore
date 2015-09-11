@@ -3,14 +3,13 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-
-namespace Microsoft.Data.Entity.Internal
+namespace Microsoft.Data.Entity.Infrastructure
 {
     public abstract class ModelSource : IModelSource
     {

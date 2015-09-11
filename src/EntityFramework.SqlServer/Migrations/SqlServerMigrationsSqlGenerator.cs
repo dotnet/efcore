@@ -7,8 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.SqlServer;
-using Microsoft.Data.Entity.SqlServer.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
@@ -20,8 +19,8 @@ namespace Microsoft.Data.Entity.Migrations
 
         public SqlServerMigrationsSqlGenerator(
             [NotNull] ISqlServerUpdateSqlGenerator sql,
-            [NotNull] SqlServerTypeMapper typeMapper,
-            [NotNull] SqlServerMetadataExtensionProvider annotations)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IRelationalMetadataExtensionProvider annotations)
             : base(sql, typeMapper, annotations)
         {
         }
@@ -61,22 +60,24 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append("ALTER TABLE ")
                 .Append(Sql.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ALTER COLUMN ");
-            ColumnDefinition(
-                    operation.Schema,
-                    operation.Table,
-                    operation.Name,
-                    operation.ClrType,
-                    operation.ColumnType,
-                    operation.IsNullable,
-                    /*defaultValue:*/ null,
-                    /*defaultValueSql:*/ null,
-                    operation.ComputedColumnSql,
-                    /*identity:*/ false,
-                    operation,
-                    model,
-                    builder);
 
-            if (operation.DefaultValue != null || operation.DefaultValueSql != null)
+            ColumnDefinition(
+                operation.Schema,
+                operation.Table,
+                operation.Name,
+                operation.ClrType,
+                operation.ColumnType,
+                operation.IsNullable,
+                /*defaultValue:*/ null,
+                /*defaultValueSql:*/ null,
+                operation.ComputedColumnSql,
+                /*identity:*/ false,
+                operation,
+                model,
+                builder);
+
+            if (operation.DefaultValue != null
+                || operation.DefaultValueSql != null)
             {
                 builder
                     .AppendLine(";")
@@ -191,7 +192,8 @@ namespace Microsoft.Data.Entity.Migrations
             base.Generate(operation, model, builder);
 
             var clustered = operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] as bool?;
-            if (operation.IsUnique && clustered != true)
+            if (operation.IsUnique
+                && clustered != true)
             {
                 builder.Append(" WHERE ");
                 for (var i = 0; i < operation.Columns.Length; i++)
@@ -202,7 +204,7 @@ namespace Microsoft.Data.Entity.Migrations
                     }
 
                     builder
-                        .Append(base.Sql.DelimitIdentifier(operation.Columns[i]))
+                        .Append(Sql.DelimitIdentifier(operation.Columns[i]))
                         .Append(" IS NOT NULL");
                 }
             }

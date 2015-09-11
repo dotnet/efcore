@@ -6,10 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Update;
 using RelationalStrings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
-namespace Microsoft.Data.Entity.SqlServer.Update
+namespace Microsoft.Data.Entity.Update
 {
     public class SqlServerModificationCommandBatch : AffectedCountModificationCommandBatch
     {

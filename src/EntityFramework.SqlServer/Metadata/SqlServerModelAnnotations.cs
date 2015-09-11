@@ -3,10 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.SqlServer.Metadata
+namespace Microsoft.Data.Entity.Metadata
 {
     public class SqlServerModelAnnotations : RelationalModelAnnotations, ISqlServerModelAnnotations
     {

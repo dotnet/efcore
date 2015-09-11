@@ -3,6 +3,7 @@
 
 using System.Data.SqlClient;
 using System.Linq;
+using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests

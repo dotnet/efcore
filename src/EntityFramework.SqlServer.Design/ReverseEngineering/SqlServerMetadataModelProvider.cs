@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 

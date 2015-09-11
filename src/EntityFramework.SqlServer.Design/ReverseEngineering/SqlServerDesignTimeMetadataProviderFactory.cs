@@ -8,7 +8,6 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
-using Microsoft.Data.Entity.SqlServer.Metadata;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering

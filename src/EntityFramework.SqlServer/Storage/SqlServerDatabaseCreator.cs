@@ -9,10 +9,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Commands;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.Storage
 {
     public class SqlServerDatabaseCreator : RelationalDatabaseCreator
     {

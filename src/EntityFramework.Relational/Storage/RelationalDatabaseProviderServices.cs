@@ -44,10 +44,10 @@ namespace Microsoft.Data.Entity.Storage
         public virtual ISqlStatementExecutor SqlStatementExecutor => GetService<SqlStatementExecutor>();
         public virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory => GetService<ParameterNameGeneratorFactory>();
         public virtual IMigrationsSqlGenerator MigrationsSqlGenerator => GetService<MigrationsSqlGenerator>();
+        public virtual IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<RelationalCompositeExpressionFragmentTranslator>();
 
         public abstract IMethodCallTranslator CompositeMethodCallTranslator { get; }
         public abstract IMemberTranslator CompositeMemberTranslator { get; }
-        public abstract IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
         public abstract IHistoryRepository HistoryRepository { get; }
         public abstract IRelationalConnection RelationalConnection { get; }
         public abstract IUpdateSqlGenerator UpdateSqlGenerator { get; }

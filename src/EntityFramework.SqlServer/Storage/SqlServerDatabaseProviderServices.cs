@@ -11,15 +11,10 @@ using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.SqlServer.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.SqlServer.Update;
-using Microsoft.Data.Entity.SqlServer.ValueGeneration;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.SqlServer
+namespace Microsoft.Data.Entity.Storage
 {
     public class SqlServerDatabaseProviderServices : RelationalDatabaseProviderServices
     {
@@ -46,7 +41,6 @@ namespace Microsoft.Data.Entity.SqlServer
         public override IRelationalMetadataExtensionProvider MetadataExtensionProvider => GetService<SqlServerMetadataExtensionProvider>();
         public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<SqlServerCompositeMethodCallTranslator>();
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqlServerCompositeMemberTranslator>();
-        public override IExpressionFragmentTranslator CompositeExpressionFragmentTranslator => GetService<SqlServerCompositeExpressionFragmentTranslator>();
         public override IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<SqlServerQueryCompilationContextFactory>();
         public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqlServerQuerySqlGeneratorFactory>();
         public override IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory => GetService<SqlServerQueryModelVisitorFactory>();

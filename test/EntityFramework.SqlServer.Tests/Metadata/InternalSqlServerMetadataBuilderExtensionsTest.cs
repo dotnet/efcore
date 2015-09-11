@@ -6,8 +6,6 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.SqlServer.Metadata;
-using Microsoft.Data.Entity.SqlServer.Metadata.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata

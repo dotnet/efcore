@@ -3,9 +3,9 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.SqlServer.ValueGeneration
+namespace Microsoft.Data.Entity.ValueGeneration
 {
     public interface ISqlServerSequenceValueGeneratorFactory
     {

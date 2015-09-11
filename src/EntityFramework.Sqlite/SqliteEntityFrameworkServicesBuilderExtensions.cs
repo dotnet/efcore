@@ -31,31 +31,28 @@ namespace Microsoft.Framework.DependencyInjection
                 .Singleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>());
 
             service.TryAdd(new ServiceCollection()
-                    .AddSingleton<SqliteValueGeneratorCache>()
-                    .AddSingleton<SqliteUpdateSqlGenerator>()
-                    .AddSingleton<SqliteMetadataExtensionProvider>()
-                    .AddSingleton<SqliteTypeMapper>()
-                    .AddSingleton<SqliteModelSource>()
-                    .AddSingleton<SqliteMigrationsAnnotationProvider>()
-                    .AddSingleton<SqliteConventionSetBuilder>()
-                    .AddScoped<SqliteModificationCommandBatchFactory>()
-                    .AddScoped<SqliteDatabaseProviderServices>()
-                    .AddScoped<SqliteDatabaseConnection>()
-                    .AddScoped<SqliteMigrationsSqlGenerator>()
-                    .AddScoped<SqliteDatabaseCreator>()
-                    .AddScoped<SqliteHistoryRepository>()
-                    .AddQuery());
+                .AddSingleton<SqliteValueGeneratorCache>()
+                .AddSingleton<SqliteUpdateSqlGenerator>()
+                .AddSingleton<SqliteMetadataExtensionProvider>()
+                .AddSingleton<SqliteTypeMapper>()
+                .AddSingleton<SqliteModelSource>()
+                .AddSingleton<SqliteMigrationsAnnotationProvider>()
+                .AddSingleton<SqliteConventionSetBuilder>()
+                .AddScoped<SqliteModificationCommandBatchFactory>()
+                .AddScoped<SqliteDatabaseProviderServices>()
+                .AddScoped<SqliteDatabaseConnection>()
+                .AddScoped<SqliteMigrationsSqlGenerator>()
+                .AddScoped<SqliteDatabaseCreator>()
+                .AddScoped<SqliteHistoryRepository>()
+                .AddQuery());
 
             return services;
         }
 
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
-        {
-            return serviceCollection
-                .AddScoped<SqliteCompositeExpressionFragmentTranslator>()
+            => serviceCollection
                 .AddScoped<SqliteCompositeMemberTranslator>()
                 .AddScoped<SqliteCompositeMethodCallTranslator>()
                 .AddScoped<SqliteQuerySqlGeneratorFactory>();
-        }
     }
 }
