@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Storage.Commands
+namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalParameter
     {
@@ -36,13 +36,13 @@ namespace Microsoft.Data.Entity.Storage.Commands
             Check.NotNull(command, nameof(command));
 
             return _property == null
-                ? typeMapper.GetDefaultMapping(Value)
+                ? typeMapper.GetMapping(Value)
                     .CreateParameter(
                         command,
                         Name,
                         Value ?? DBNull.Value,
                         Value.GetType().IsNullableType())
-                : typeMapper.MapPropertyType(_property)
+                : typeMapper.GetMapping(_property)
                     .CreateParameter(
                         command,
                         Name,

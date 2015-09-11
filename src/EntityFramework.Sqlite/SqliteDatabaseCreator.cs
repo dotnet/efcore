@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Sqlite
 
         public override bool Exists() => true;
 
-        public override bool HasTables()
+        protected override bool HasTables()
         {
             var count = (long)SqlStatementExecutor.ExecuteScalar(
                 Connection,

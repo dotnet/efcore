@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Storage.Commands;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Migrations
 {

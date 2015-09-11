@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.DeclaringEntityType.SetPrimaryKey(property);
             property.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper().MapPropertyType(property);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
             Assert.Null(typeMapping.StoreType);
             Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
-            var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
             Assert.Null(typeMapping.StoreType);
             Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
             Assert.Null(typeMapping.StoreType);
             Assert.Equal("nvarchar(450)", typeMapping.DefaultTypeName);
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.DeclaringEntityType.SetPrimaryKey(property);
             property.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper().MapPropertyType(property);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.StoreType);
             Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var pk = property.DeclaringEntityType.SetPrimaryKey(property);
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
-            var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
             Assert.Equal(DbType.Binary, typeMapping.StoreType);
             Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
             fkProperty.IsNullable = false;
 
-            var typeMapping = new SqlServerTypeMapper().MapPropertyType(fkProperty);
+            var typeMapping = new SqlServerTypeMapper().GetMapping(fkProperty);
 
             Assert.Equal(DbType.Binary, typeMapping.StoreType);
             Assert.Equal("varbinary(900)", typeMapping.DefaultTypeName);
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.IsConcurrencyToken = true;
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
-            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().MapPropertyType(property);
+            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.StoreType);
             Assert.Equal("rowversion", typeMapping.DefaultTypeName);
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             property.IsNullable = false;
 
-            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().MapPropertyType(property);
+            var typeMapping = (RelationalSizedTypeMapping)new SqlServerTypeMapper().GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.StoreType);
             Assert.Equal("rowversion", typeMapping.DefaultTypeName);
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property = CreateEntityType().AddProperty("MyProp", typeof(byte[]));
             property.IsConcurrencyToken = true;
 
-            var typeMapping = (SqlServerMaxLengthMapping)new SqlServerTypeMapper().MapPropertyType(property);
+            var typeMapping = (SqlServerMaxLengthMapping)new SqlServerTypeMapper().GetMapping(property);
 
             Assert.Equal(DbType.Binary, typeMapping.StoreType);
             Assert.Equal("varbinary(max)", typeMapping.DefaultTypeName);
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 property.SetMaxLength(maxLength);
             }
 
-            return new SqlServerTypeMapper().MapPropertyType(property);
+            return new SqlServerTypeMapper().GetMapping(property);
         }
 
         private static EntityType CreateEntityType() => new Model().AddEntityType("MyType");
@@ -411,33 +411,33 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_default_mappings_for_sequence_types()
         {
-            Assert.Equal("int", new SqlServerTypeMapper().GetDefaultMapping(typeof(int)).DefaultTypeName);
-            Assert.Equal("smallint", new SqlServerTypeMapper().GetDefaultMapping(typeof(short)).DefaultTypeName);
-            Assert.Equal("bigint", new SqlServerTypeMapper().GetDefaultMapping(typeof(long)).DefaultTypeName);
-            Assert.Equal("tinyint", new SqlServerTypeMapper().GetDefaultMapping(typeof(byte)).DefaultTypeName);
+            Assert.Equal("int", new SqlServerTypeMapper().GetMapping(typeof(int)).DefaultTypeName);
+            Assert.Equal("smallint", new SqlServerTypeMapper().GetMapping(typeof(short)).DefaultTypeName);
+            Assert.Equal("bigint", new SqlServerTypeMapper().GetMapping(typeof(long)).DefaultTypeName);
+            Assert.Equal("tinyint", new SqlServerTypeMapper().GetMapping(typeof(byte)).DefaultTypeName);
         }
 
         [Fact]
         public void Does_default_mappings_for_strings_and_byte_arrays()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetDefaultMapping(typeof(string)).DefaultTypeName);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetDefaultMapping(typeof(byte[])).DefaultTypeName);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMapping(typeof(string)).DefaultTypeName);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMapping(typeof(byte[])).DefaultTypeName);
         }
 
         [Fact]
         public void Does_default_mappings_for_values()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetDefaultMapping("Cheese").DefaultTypeName);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetDefaultMapping(new byte[1]).DefaultTypeName);
-            Assert.Equal("datetime2", new SqlServerTypeMapper().GetDefaultMapping(new DateTime()).DefaultTypeName);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMapping("Cheese").DefaultTypeName);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMapping(new byte[1]).DefaultTypeName);
+            Assert.Equal("datetime2", new SqlServerTypeMapper().GetMapping(new DateTime()).DefaultTypeName);
         }
 
         [Fact]
         public void Does_default_mappings_for_null_values()
         {
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetDefaultMapping((object)null).DefaultTypeName);
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetDefaultMapping(DBNull.Value).DefaultTypeName);
-            Assert.Equal("NULL", RelationalTypeMapperExtensions.GetDefaultMapping(null, "Itz").DefaultTypeName);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMapping((object)null).DefaultTypeName);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMapping(DBNull.Value).DefaultTypeName);
+            Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMapping(null, "Itz").DefaultTypeName);
         }
 
         private enum LongEnum : long

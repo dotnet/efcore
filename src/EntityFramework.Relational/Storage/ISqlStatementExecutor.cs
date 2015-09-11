@@ -6,7 +6,6 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage.Commands;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -14,16 +13,7 @@ namespace Microsoft.Data.Entity.Storage
     {
         void ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalCommand relationalCommand);
-
-        void ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
             [NotNull] IEnumerable<RelationalCommand> relationalCommands);
-
-        Task ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalCommand relationalCommand,
-            CancellationToken cancellationToken = default(CancellationToken));
 
         Task ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,

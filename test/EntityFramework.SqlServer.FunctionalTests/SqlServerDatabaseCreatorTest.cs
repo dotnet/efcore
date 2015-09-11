@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -79,8 +81,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var creator = GetDatabaseCreator(testDatabase);
 
                 var errorNumber = async
-                    ? (await Assert.ThrowsAsync<SqlException>(() => creator.HasTablesAsync())).Number
-                    : Assert.Throws<SqlException>(() => creator.HasTables()).Number;
+                    ? (await Assert.ThrowsAsync<SqlException>(() => ((TestDatabaseCreator)creator).HasTablesAsync())).Number
+                    : Assert.Throws<SqlException>(() => ((TestDatabaseCreator)creator).HasTables()).Number;
 
                 if (errorNumber != 233) // skip if no-process transient failure
                 {
@@ -109,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
-                Assert.False(async ? await creator.HasTablesAsync() : creator.HasTables());
+                Assert.False(async ? await ((TestDatabaseCreator)creator).HasTablesAsync() : ((TestDatabaseCreator)creator).HasTables());
             }
         }
 
@@ -133,7 +135,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var creator = GetDatabaseCreator(testDatabase);
 
-                Assert.True(async ? await creator.HasTablesAsync() : creator.HasTables());
+                Assert.True(async ? await ((TestDatabaseCreator)creator).HasTablesAsync() : ((TestDatabaseCreator)creator).HasTables());
             }
         }
 
@@ -369,6 +371,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer();
 
+            serviceCollection.AddScoped<SqlServerDatabaseCreator, TestDatabaseCreator>();
+
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
@@ -379,9 +383,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)
-        {
-            return CreateContextServices(testStore).GetRequiredService<IRelationalDatabaseCreator>();
-        }
+            => CreateContextServices(testStore).GetRequiredService<IRelationalDatabaseCreator>();
 
         private class BloggingContext : DbContext
         {
@@ -397,6 +399,24 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 public int Id { get; set; }
                 public string Name { get; set; }
             }
+        }
+
+        public class TestDatabaseCreator : SqlServerDatabaseCreator
+        {
+            public TestDatabaseCreator(
+                ISqlServerConnection connection,
+                IMigrationsModelDiffer modelDiffer,
+                IMigrationsSqlGenerator sqlGenerator,
+                ISqlStatementExecutor statementExecutor,
+                IModel model)
+                : base(connection, modelDiffer, sqlGenerator, statementExecutor, model)
+            {
+            }
+
+            public new bool HasTables() => base.HasTables();
+
+            public new Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+                => base.HasTablesAsync(cancellationToken);
         }
     }
 }

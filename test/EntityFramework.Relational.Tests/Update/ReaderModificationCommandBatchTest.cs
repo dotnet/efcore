@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -373,7 +372,6 @@ namespace Microsoft.Data.Entity.Tests.Update
             var transaction = CreateMockDbTransaction();
 
             var transactionMock = new Mock<IRelationalTransaction>();
-            transactionMock.Setup(m => m.DbTransaction).Returns(transaction);
 
             var connectionMock = new Mock<IRelationalConnection>();
             connectionMock.Setup(m => m.Transaction).Returns(transactionMock.Object);
@@ -383,7 +381,6 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             Assert.Equal(CommandType.Text, command.CommandType);
             Assert.Equal("foo", command.CommandText);
-            Assert.Same(transaction, command.Transaction);
             Assert.Equal(2, batch.PopulateParameterCalls);
         }
 

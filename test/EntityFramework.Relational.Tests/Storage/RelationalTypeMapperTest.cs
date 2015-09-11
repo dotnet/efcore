@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Model
                 property.SetMaxLength(maxLength);
             }
 
-            return new ConcreteTypeMapper().MapPropertyType(property);
+            return new ConcreteTypeMapper().GetMapping(property);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.Model
             var property = CreateEntityType().AddProperty("MyProp", propertyType);
             property.Relational().ColumnType = typeName;
 
-            return new ConcreteTypeMapper().MapPropertyType(property);
+            return new ConcreteTypeMapper().GetMapping(property);
         }
 
         private static EntityType CreateEntityType() => new Entity.Metadata.Model().AddEntityType("MyType");
@@ -165,12 +165,12 @@ namespace Microsoft.Data.Entity.Tests.Model
                 var clrType = property.ClrType.UnwrapEnumType();
 
                 return clrType == typeof(string)
-                    ? MapString(
+                    ? GetByteArrayMapping(
                         property, 2000,
                         l => new RelationalSizedTypeMapping("just_string(" + l + ")", l),
                         _unboundedStrng, _string, _stringKey)
                     : clrType == typeof(byte[])
-                        ? MapByteArray(
+                        ? GetByteArrayMapping(
                             property, 2000,
                             l => new RelationalSizedTypeMapping("just_binary(" + l + ")", l),
                             _unboundedBinary, _binary, _binaryKey, _rowversion)

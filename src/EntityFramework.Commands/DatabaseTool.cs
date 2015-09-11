@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -100,13 +101,13 @@ namespace Microsoft.Data.Entity.Commands
                     Strings.CannotFindRuntimeProviderAssembly(runtimeProviderAssemblyName), exception);
             }
 
-            var designTimeServicesTypeAttribute = (ProviderDesignTimeServicesAttribute)runtimeProviderAssembly
-                .GetCustomAttribute(typeof(ProviderDesignTimeServicesAttribute));
+            var designTimeServicesTypeAttribute = (DesignTimeProviderServicesAttribute)runtimeProviderAssembly
+                .GetCustomAttribute(typeof(DesignTimeProviderServicesAttribute));
             if (designTimeServicesTypeAttribute == null)
             {
                 throw new InvalidOperationException(
                     Strings.CannotFindDesignTimeProviderAssemblyAttribute(
-                        nameof(ProviderDesignTimeServicesAttribute), runtimeProviderAssemblyName));
+                        nameof(DesignTimeProviderServicesAttribute), runtimeProviderAssemblyName));
             }
 
             var designTimeTypeName = designTimeServicesTypeAttribute.TypeName;

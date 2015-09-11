@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Sql

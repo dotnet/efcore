@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
@@ -19,8 +18,8 @@ namespace Microsoft.Data.Entity.Migrations
 {
     public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     {
-        private static readonly IReadOnlyDictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel, SqlBatchBuilder>> _generateActions =
-            new Dictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel, SqlBatchBuilder>>
+        private static readonly IReadOnlyDictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel, RelationalCommandListBuilder>> _generateActions =
+            new Dictionary<Type, Action<MigrationsSqlGenerator, MigrationOperation, IModel, RelationalCommandListBuilder>>
             {
                 { typeof(AddColumnOperation), (g, o, m, b) => g.Generate((AddColumnOperation)o, m, b) },
                 { typeof(AddForeignKeyOperation), (g, o, m, b) => g.Generate((AddForeignKeyOperation)o, m, b) },
@@ -73,28 +72,28 @@ namespace Microsoft.Data.Entity.Migrations
         {
             Check.NotNull(operations, nameof(operations));
 
-            var builder = new SqlBatchBuilder();
+            var builder = new RelationalCommandListBuilder();
             foreach (var operation in operations)
             {
                 Generate(operation, model, builder);
                 builder
                     .AppendLine(Sql.BatchCommandSeparator)
-                    .EndBatch();
+                    .EndCommand();
             }
 
-            return builder.RelationalCommands;
+            return builder.GetCommands();
         }
 
         protected virtual void Generate(
             [NotNull] MigrationOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
             var operationType = operation.GetType();
-            Action<MigrationsSqlGenerator, MigrationOperation, IModel, SqlBatchBuilder> generateAction;
+            Action<MigrationsSqlGenerator, MigrationOperation, IModel, RelationalCommandListBuilder> generateAction;
             if (!_generateActions.TryGetValue(operationType, out generateAction))
             {
                 throw new InvalidOperationException(Strings.UnknownOperation(GetType().Name, operationType));
@@ -106,7 +105,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -121,7 +120,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] AddForeignKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -136,7 +135,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] AddPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -151,7 +150,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] AddUniqueConstraintOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -166,7 +165,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] AlterColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -174,7 +173,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] RenameIndexOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -182,7 +181,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -197,7 +196,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] RenameTableOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -205,7 +204,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] CreateIndexOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -232,7 +231,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] EnsureSchemaOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -240,7 +239,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] CreateSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -253,7 +252,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append(" AS ")
-                    .Append(_typeMapper.GetDefaultMapping(operation.ClrType).DefaultTypeName);
+                    .Append(_typeMapper.GetMapping(operation.ClrType).DefaultTypeName);
             }
 
             builder
@@ -265,7 +264,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] CreateTableOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -315,7 +314,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -330,7 +329,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropForeignKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -345,7 +344,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropIndexOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -353,7 +352,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -368,7 +367,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropSchemaOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -381,7 +380,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -394,7 +393,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropTableOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -407,7 +406,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] DropUniqueConstraintOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -422,7 +421,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] RenameColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -430,7 +429,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] RenameSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             throw new NotImplementedException();
         }
@@ -438,7 +437,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] RestartSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -453,7 +452,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void Generate(
             [NotNull] SqlOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -464,7 +463,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void SequenceOptions(
             [NotNull] AlterSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder) =>
+            [NotNull] RelationalCommandListBuilder builder) =>
                 SequenceOptions(
                     operation.Schema,
                     operation.Name,
@@ -478,7 +477,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void SequenceOptions(
             [NotNull] CreateSequenceOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder) =>
+            [NotNull] RelationalCommandListBuilder builder) =>
                 SequenceOptions(
                     operation.Schema,
                     operation.Name,
@@ -497,7 +496,7 @@ namespace Microsoft.Data.Entity.Migrations
             long? maximumValue,
             [NotNull] bool cycle,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(increment, nameof(increment));
@@ -536,7 +535,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void ColumnDefinition(
             [NotNull] AddColumnOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder) =>
+            [NotNull] RelationalCommandListBuilder builder) =>
                 ColumnDefinition(
                     operation.Schema,
                     operation.Table,
@@ -563,7 +562,7 @@ namespace Microsoft.Data.Entity.Migrations
             [CanBeNull] string computedColumnSql,
             [NotNull] IAnnotatable annotatable,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(clrType, nameof(clrType));
@@ -574,8 +573,8 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 var property = FindProperty(model, schema, table, name);
                 type = property != null
-                    ? _typeMapper.MapPropertyType(property).DefaultTypeName
-                    : _typeMapper.GetDefaultMapping(clrType).DefaultTypeName;
+                    ? _typeMapper.GetMapping(property).DefaultTypeName
+                    : _typeMapper.GetMapping(clrType).DefaultTypeName;
             }
 
             builder
@@ -594,7 +593,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void DefaultValue(
             [CanBeNull] object defaultValue,
             [CanBeNull] string defaultValueSql,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
@@ -616,7 +615,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void ForeignKeyConstraint(
             [NotNull] AddForeignKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -654,7 +653,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void PrimaryKeyConstraint(
             [NotNull] AddPrimaryKeyOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -680,7 +679,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void UniqueConstraint(
             [NotNull] AddUniqueConstraintOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
@@ -706,13 +705,13 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void IndexTraits(
             [NotNull] MigrationOperation operation,
             [CanBeNull] IModel model,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
         }
 
         protected virtual void ForeignKeyAction(
             ReferentialAction referentialAction,
-            [NotNull] SqlBatchBuilder builder)
+            [NotNull] RelationalCommandListBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));
 
