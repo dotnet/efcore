@@ -308,31 +308,31 @@ namespace Microsoft.Data.Entity.Migrations
             {
             }
 
-            protected override void Generate(RenameTableOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(DropIndexOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(DropIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(RenameSequenceOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(RenameSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(RenameColumnOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(RenameColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(EnsureSchemaOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(EnsureSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(RenameIndexOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
 
-            protected override void Generate(AlterColumnOperation operation, IModel model, SqlBatchBuilder builder)
+            protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
             {
             }
         }

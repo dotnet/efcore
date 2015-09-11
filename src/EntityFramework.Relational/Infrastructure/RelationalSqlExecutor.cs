@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -53,7 +52,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             builder.AppendLines(string.Format(sql, substitutions));
 
-            _statementExecutor.ExecuteNonQuery(_connection, builder.RelationalCommand);
+            _statementExecutor.ExecuteNonQuery(_connection, new[] { builder.RelationalCommand } );
         }
     }
 }

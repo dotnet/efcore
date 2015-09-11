@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     Assert.Equal(EntityState.Deleted, firstEntry.State);
                     Assert.Equal(EntityState.Added, lastEntry.State);
-                    Assert.NotNull(transaction.DbTransaction.Connection);
+                    Assert.NotNull(transaction.GetService().Connection);
                 }
             }
         }
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     Assert.Equal(EntityState.Deleted, firstEntry.State);
                     Assert.Equal(EntityState.Added, lastEntry.State);
-                    Assert.NotNull(transaction.DbTransaction.Connection);
+                    Assert.NotNull(transaction.GetService().Connection);
                 }
             }
         }
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     using (var innerContext = CreateContext(context.Database.GetDbConnection()))
                     {
-                        innerContext.Database.UseTransaction(transaction.DbTransaction);
+                        innerContext.Database.UseTransaction(transaction.GetService());
                         Assert.Equal(Fixture.Customers.Count - 1, innerContext.Set<TransactionCustomer>().Count());
                     }
                 }
@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                     using (var innerContext = CreateContext(context.Database.GetDbConnection()))
                     {
-                        innerContext.Database.UseTransaction(transaction.DbTransaction);
+                        innerContext.Database.UseTransaction(transaction.GetService());
                         Assert.Equal(Fixture.Customers.Count - 1, await innerContext.Set<TransactionCustomer>().CountAsync());
                     }
                 }

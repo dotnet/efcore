@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Storage.Commands
+namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalCommandBuilder
     {

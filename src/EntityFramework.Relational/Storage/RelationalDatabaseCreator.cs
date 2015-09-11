@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
@@ -86,9 +85,9 @@ namespace Microsoft.Data.Entity.Storage
         protected virtual IEnumerable<RelationalCommand> GetCreateTablesCommands()
             => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
 
-        public abstract bool HasTables();
+        protected abstract bool HasTables();
 
-        public virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+        protected virtual Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

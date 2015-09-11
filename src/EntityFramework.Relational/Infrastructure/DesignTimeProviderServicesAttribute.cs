@@ -5,12 +5,12 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Infrastructure
 {
     [AttributeUsage(AttributeTargets.Assembly)]
-    public sealed class ProviderDesignTimeServicesAttribute : Attribute
+    public sealed class DesignTimeProviderServicesAttribute : Attribute
     {
-        public ProviderDesignTimeServicesAttribute(
+        public DesignTimeProviderServicesAttribute(
             [NotNull] string typeName, [NotNull] string assemblyName)
         {
             Check.NotEmpty(typeName, nameof(typeName));

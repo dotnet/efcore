@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Storage
             }
         }
 
-        public virtual DbTransaction DbTransaction => Transaction?.DbTransaction;
+        public virtual DbTransaction DbTransaction => Transaction?.GetService();
 
         [NotNull]
         public virtual IRelationalTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);

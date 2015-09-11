@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Storage
         // Not useing IRelationalMetadataExtensionProvider here because type mappers are Singletons
         protected abstract string GetColumnType([NotNull] IProperty property);
 
-        public virtual RelationalTypeMapping MapPropertyType(IProperty property)
+        public virtual RelationalTypeMapping GetMapping(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Storage
                        : GetCustomMapping(property));
         }
 
-        public virtual RelationalTypeMapping GetDefaultMapping(Type clrType)
+        public virtual RelationalTypeMapping GetMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Storage
             throw new NotSupportedException(Strings.UnsupportedType(property.ClrType.Name));
         }
 
-        protected virtual RelationalTypeMapping MapString(
+        protected virtual RelationalTypeMapping GetStringMapping(
             [NotNull] IProperty property,
             int maxBoundedLength,
             [NotNull] Func<int, RelationalTypeMapping> boundedMapping,
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Storage
                     : defaultMapping);
         }
 
-        protected virtual RelationalTypeMapping MapByteArray(
+        protected virtual RelationalTypeMapping GetByteArrayMapping(
             [NotNull] IProperty property,
             int maxBoundedLength,
             [NotNull] Func<int, RelationalTypeMapping> boundedMapping,

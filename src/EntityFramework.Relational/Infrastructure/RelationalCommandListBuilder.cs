@@ -4,19 +4,19 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage.Commands;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class SqlBatchBuilder
+    public class RelationalCommandListBuilder
     {
         private readonly List<RelationalCommand> _commands = new List<RelationalCommand>();
         private readonly RelationalCommandBuilder _commandBuilder = new RelationalCommandBuilder();
 
-        public virtual IReadOnlyList<RelationalCommand> RelationalCommands => _commands;
+        public virtual IReadOnlyList<RelationalCommand> GetCommands() => _commands;
 
-        public virtual SqlBatchBuilder EndBatch()
+        public virtual RelationalCommandListBuilder EndCommand()
         {
             if (_commandBuilder.Length != 0)
             {
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             return this;
         }
 
-        public virtual SqlBatchBuilder Append([NotNull] object o)
+        public virtual RelationalCommandListBuilder Append([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -36,14 +36,14 @@ namespace Microsoft.Data.Entity.Infrastructure
             return this;
         }
 
-        public virtual SqlBatchBuilder AppendLine()
+        public virtual RelationalCommandListBuilder AppendLine()
         {
             _commandBuilder.AppendLine();
 
             return this;
         }
 
-        public virtual SqlBatchBuilder AppendLine([NotNull] object o)
+        public virtual RelationalCommandListBuilder AppendLine([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             return this;
         }
 
-        public virtual SqlBatchBuilder AppendLines([NotNull] object o)
+        public virtual RelationalCommandListBuilder AppendLines([NotNull] object o)
         {
             Check.NotNull(o, nameof(o));
 
@@ -63,14 +63,14 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual IDisposable Indent() => _commandBuilder.Indent();
 
-        public virtual SqlBatchBuilder IncrementIndent()
+        public virtual RelationalCommandListBuilder IncrementIndent()
         {
             _commandBuilder.IncrementIndent();
 
             return this;
         }
 
-        public virtual SqlBatchBuilder DecrementIndent()
+        public virtual RelationalCommandListBuilder DecrementIndent()
         {
             _commandBuilder.DecrementIndent();
 
