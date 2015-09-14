@@ -18,8 +18,6 @@ LONG DESCRIPTION
 
         Scaffold-DbContext	        Scaffolds a DbContext and entity type classes for a specified database.
 
-        Scaffold-DbContextTemplate  Scaffolds customizable DbContext and entity type templates to use during Scaffold-DbContext.
-
         Script-Migration	        Generates a SQL script from migrations.
 
         Update-Database		        Updates the database to a specified migration.
@@ -30,7 +28,6 @@ SEE ALSO
     Add-Migration
     Remove-Migration
     Scaffold-DbContext
-    Scaffold-DbContextTemplate
     Script-Migration
     Update-Database
     Use-DbContext

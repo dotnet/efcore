@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -16,6 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual string ProjectPath { get;[param: NotNull] set; }
         public virtual string ProjectRootNamespace { get;[param: NotNull] set; }
         public virtual string RelativeOutputPath { get;[param: CanBeNull] set; }
+        public virtual bool UseFluentApiOnly { get; set; }
 
         public virtual void CheckValidity()
         {

@@ -21,14 +21,6 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
-        /// At line {lineNumber}. Message: {message}
-        /// </summary>
-        public static string ErrorMessageWithLineNumber([CanBeNull] object lineNumber, [CanBeNull] object message)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorMessageWithLineNumber", "lineNumber", "message"), lineNumber, message);
-        }
-
-        /// <summary>
         /// There was an error running the DbContext template. Message: {errorMessage}
         /// </summary>
         public static string ErrorRunningDbContextTemplate([CanBeNull] object errorMessage)
@@ -122,14 +114,6 @@ namespace Microsoft.Data.Entity.Relational.Design
         public static string UnableToGenerateEntityType([CanBeNull] object entityTypeName, [CanBeNull] object errorMessage)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToGenerateEntityType", "entityTypeName", "errorMessage"), entityTypeName, errorMessage);
-        }
-
-        /// <summary>
-        /// Using custom template {customTemplateFilePath}
-        /// </summary>
-        public static string UsingCustomTemplate([CanBeNull] object customTemplateFilePath)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UsingCustomTemplate", "customTemplateFilePath"), customTemplateFilePath);
         }
 
         private static string GetString(string name, params string[] formatterNames)

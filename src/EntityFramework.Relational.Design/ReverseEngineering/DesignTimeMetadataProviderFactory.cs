@@ -3,8 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
-using Microsoft.Data.Entity.Relational.Design.Templating;
-using Microsoft.Data.Entity.Relational.Design.Templating.Compilation;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
@@ -17,9 +15,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
             serviceCollection.AddScoped<ModelUtilities, ModelUtilities>()
-                .AddScoped<ICompilationService, RoslynCompilationService>()
-                .AddScoped<MetadataReferencesProvider>()
-                .AddScoped<ITemplating, RazorTemplating>()
                 .AddScoped<ReverseEngineeringGenerator>()
                 .AddScoped<CSharpUtilities>();
         }

@@ -132,6 +132,9 @@ namespace Microsoft.Data.Entity.Commands
                             var relativeOutputPath = scaffold.Option(
                                 "-o|--output-path <path>",
                                 "Relative path to the sub-directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
+                            var useFluentApiOnly = scaffold.Option(
+                                "-f|--fluent-api",
+                                "Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.");
                             scaffold.HelpOption("-?|-h|--help");
                             scaffold.OnExecute(
                                 async () =>
@@ -155,33 +158,8 @@ namespace Microsoft.Data.Entity.Commands
                                         connection.Value,
                                         provider.Value,
                                         relativeOutputPath.Value(),
+                                        useFluentApiOnly.HasValue(),
                                         _applicationShutdown.ShutdownRequested);
-
-                                    return 0;
-                                });
-                        });
-                    dbcontext.Command(
-                        "scaffold-templates",
-                        scaffoldTemplates =>
-                        {
-                            scaffoldTemplates.Description = "Scaffolds customizable DbContext and entity type templates to use during 'ef dbcontext scaffold'";
-                            var provider = scaffoldTemplates.Argument(
-                                "[provider]",
-                                "The provider to use. For example, EntityFramework.SqlServer");
-                            scaffoldTemplates.HelpOption("-?|-h|--help");
-                            scaffoldTemplates.OnExecute(
-                                () =>
-                                {
-                                    if (string.IsNullOrEmpty(provider.Value))
-                                    {
-                                        _logger.LogError("Missing required argument '{0}'", provider.Name);
-
-                                        scaffoldTemplates.ShowHelp();
-
-                                        return 1;
-                                    }
-
-                                    CustomizeReverseEngineer(provider.Value);
 
                                     return 0;
                                 });
@@ -408,20 +386,12 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string connectionString,
             [NotNull] string providerAssemblyName,
             [CanBeNull] string relativeOutputDirectory,
+            bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseTool.ReverseEngineerAsync(
                 providerAssemblyName, connectionString, _rootNamespace,
-                _projectDir, relativeOutputDirectory);
-
-            _logger.LogInformation("Done");
-        }
-
-        public virtual void CustomizeReverseEngineer([NotNull] string providerAssemblyName)
-        {
-            _logger.LogVerbose("Writing Reverse Engineering templates to '{0}'", _projectDir);
-
-            _databaseTool.CustomizeReverseEngineer(providerAssemblyName, _projectDir);
+                _projectDir, relativeOutputDirectory, useFluentApiOnly);
 
             _logger.LogInformation("Done");
         }

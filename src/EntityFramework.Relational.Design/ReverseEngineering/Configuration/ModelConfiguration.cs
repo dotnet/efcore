@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Relational.Design.Templating;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
@@ -54,7 +53,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public abstract string UseMethodName { get; } // "UseSqlServer" for SqlServer, "UseSqlite" for Sqlite etc
         public virtual string DefaultSchemaName { get; } // e.g. "dbo for SqlServer. Leave null if there is no concept of a default schema.
         public virtual string ClassName() => DefaultDbContextName;
-
         public virtual string Namespace() => CustomConfiguration.Namespace;
 
         public virtual List<OptionsBuilderConfiguration> OnConfiguringConfigurations
@@ -179,9 +177,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 && ExtensionsProvider.For(entityType).Schema != DefaultSchemaName)
             {
                 var delimitedTableName =
-                    CSharpUtilities.Instance.DelimitString(ExtensionsProvider.For(entityType).TableName);
+                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
                 var delimitedSchemaName =
-                    CSharpUtilities.Instance.DelimitString(ExtensionsProvider.For(entityType).Schema);
+                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).Schema);
                 entityConfiguration.FluentApiConfigurations.Add(
                     new FluentApiConfiguration(
                         nameof(RelationalEntityTypeBuilderExtensions.ToTable),
@@ -200,7 +198,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                      && ExtensionsProvider.For(entityType).TableName != entityType.DisplayName())
             {
                 var delimitedTableName =
-                    CSharpUtilities.Instance.DelimitString(ExtensionsProvider.For(entityType).TableName);
+                    CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
                 entityConfiguration.FluentApiConfigurations.Add(
                     new FluentApiConfiguration(
                         nameof(RelationalEntityTypeBuilderExtensions.ToTable),
@@ -259,7 +257,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             if (((Property)propertyConfiguration.Property).GetMaxLength().HasValue)
             {
                 var maxLengthLiteral =
-                    CSharpUtilities.Instance.GenerateLiteral(
+                    CSharpUtilities.GenerateLiteral(
                         ((Property)propertyConfiguration.Property).GetMaxLength().Value);
                 propertyConfiguration.FluentApiConfigurations.Add(
                     new FluentApiConfiguration(nameof(PropertyBuilder.MaxLength), maxLengthLiteral)
@@ -308,13 +306,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             var delimitedColumnName = 
                 ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != null
                 && ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != propertyConfiguration.Property.Name
-                ? CSharpUtilities.Instance.DelimitString(
+                ? CSharpUtilities.DelimitString(
                     ExtensionsProvider.For(propertyConfiguration.Property).ColumnName)
                 : null;
 
             var delimitedColumnTypeName = 
                 ExtensionsProvider.For(propertyConfiguration.Property).ColumnType != null
-                ? CSharpUtilities.Instance.DelimitString(
+                ? CSharpUtilities.DelimitString(
                         ExtensionsProvider.For(propertyConfiguration.Property).ColumnType)
                 : null;
 
@@ -370,7 +368,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 propertyConfiguration.FluentApiConfigurations.Add(
                     new FluentApiConfiguration(
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValue),
-                        CSharpUtilities.Instance.GenerateLiteral(
+                        CSharpUtilities.GenerateLiteral(
                             (dynamic)ExtensionsProvider.For(propertyConfiguration.Property).DefaultValue)));
             }
         }
@@ -385,7 +383,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 propertyConfiguration.FluentApiConfigurations.Add(
                     new FluentApiConfiguration(
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
-                        CSharpUtilities.Instance.DelimitString(
+                        CSharpUtilities.DelimitString(
                             ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql)));
             }
         }

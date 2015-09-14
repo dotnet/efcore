@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Relational.Design.Templating
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating
 {
     public class TemplateProcessingException : Exception
     {

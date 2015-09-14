@@ -5,6 +5,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
 using Microsoft.Framework.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
@@ -15,10 +18,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         {
             base.AddMetadataProviderServices(serviceCollection);
             serviceCollection
+                .AddScoped<MetadataReferencesProvider>()
+                .AddScoped<ICompilationService, RoslynCompilationService>()
+                .AddScoped<RazorTemplating>()
                 .AddScoped<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
                 .AddScoped<SqliteReverseTypeMapper>()
                 .AddScoped<IRelationalMetadataExtensionProvider, SqliteMetadataExtensionProvider>()
-                .AddScoped<ModelConfigurationFactory, SqliteModelConfigurationFactory>();
+                .AddScoped<ModelConfigurationFactory, SqliteModelConfigurationFactory>()
+                .AddScoped<CodeWriter, RazorTemplateCodeWriter>();
         }
     }
 }
