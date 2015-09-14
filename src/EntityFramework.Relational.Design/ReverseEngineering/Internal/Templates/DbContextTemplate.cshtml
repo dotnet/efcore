@@ -120,9 +120,9 @@ namespace @Model.Namespace()
 var firstEntity = true;
 }@foreach (EntityConfiguration entityConfig in Model.OrderedEntityConfigurations())
 {
-    var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(useFluentApi);
-    var propertyConfigurations = entityConfig.GetPropertyConfigurations(useFluentApi);
-    var relationshipConfigurations = entityConfig.GetRelationshipConfigurations(useFluentApi);
+    List<IFluentApiConfiguration> fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(useFluentApi);
+    List<PropertyConfiguration> propertyConfigurations = entityConfig.GetPropertyConfigurations(useFluentApi);
+    List<RelationshipConfiguration> relationshipConfigurations = entityConfig.GetRelationshipConfigurations(useFluentApi);
     if (fluentApiConfigurations.Count == 0
         && propertyConfigurations.Count == 0
         && relationshipConfigurations.Count == 0)
