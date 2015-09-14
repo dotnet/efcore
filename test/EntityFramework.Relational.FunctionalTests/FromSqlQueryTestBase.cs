@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE ContactName LIKE '%z%'")
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'")
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT Region, PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address FROM Customers")
+                    .FromSql(@"SELECT ""Region"", ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
                     .ToArray();
 
                 Assert.Equal(91, actual.Length);
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT Region, PostalCode, PostalCode AS Foo, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address FROM Customers")
+                    .FromSql(@"SELECT ""Region"", ""PostalCode"", ""PostalCode"" AS ""Foo"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
                     .ToArray();
 
                 Assert.Equal(91, actual.Length);
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Customer>()
-                                .FromSql("SELECT PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address FROM Customers")
+                                .FromSql(@"SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
                                 .ToArray()
                         ).Message);
             }
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .Where(c => c.ContactName.Contains("z"))
                     .ToArray();
 
@@ -90,8 +90,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSql("SELECT * FROM Customers")
-                        from o in context.Set<Order>().FromSql("SELECT * FROM Orders")
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
+                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders""")
                         where c.CustomerID == o.CustomerID
                         select new { c, o })
                         .ToArray();
@@ -109,8 +109,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSql("SELECT * FROM Customers")
-                        from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
+                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                             startDate,
                             endDate)
                         where c.CustomerID == o.CustomerID
@@ -131,9 +131,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var actual
-                    = (from c in context.Set<Customer>().FromSql("SELECT * FROM Customers WHERE City = {0}",
+                    = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                         city)
-                        from o in context.Set<Order>().FromSql("SELECT * FROM Orders WHERE OrderDate BETWEEN {0} AND {1}",
+                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
                             startDate,
                             endDate)
                         where c.CustomerID == o.CustomerID
@@ -151,8 +151,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var actual = context.Set<Customer>()
                     .FromSql(@"SELECT *
-FROM Customers
-WHERE City = 'London'")
+FROM ""Customers""
+WHERE ""City"" = 'London'")
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
@@ -167,7 +167,7 @@ WHERE City = 'London'")
             {
                 var actual = context.Set<Customer>()
                     .FromSql(@"SELECT *
-FROM Customers")
+FROM ""Customers""")
                     .Where(c => c.City == "London")
                     .ToArray();
 
@@ -185,7 +185,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}",
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}",
                         city,
                         contactTitle)
                     .ToArray();
@@ -205,7 +205,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE City = {0}",
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                         city)
                     .Where(c => c.ContactTitle == contactTitle)
                     .ToArray();
@@ -222,14 +222,14 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE City = 'London'")
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = 'London'")
                     .ToArray();
 
                 Assert.Equal(6, actual.Length);
                 Assert.True(actual.All(c => c.City == "London"));
 
                 actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers WHERE City = 'Seattle'")
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = 'Seattle'")
                     .ToArray();
 
                 Assert.Equal(1, actual.Length);
@@ -242,7 +242,7 @@ FROM Customers")
         {
             var city = "London";
             var contactTitle = "Sales Representative";
-            var sql = @"SELECT * FROM Customers WHERE City = {0} AND ContactTitle = {1}";
+            var sql = @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}";
 
             using (var context = CreateContext())
             {
@@ -273,7 +273,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .AsNoTracking()
                     .ToArray();
 
@@ -288,7 +288,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .Select(c => new { c.CustomerID, c.City })
                     .AsNoTracking()
                     .ToArray();
@@ -304,7 +304,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .Include(c => c.Orders)
                     .ToArray();
 
@@ -318,7 +318,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .Where(c => c.City == "London")
                     .Include(c => c.Orders)
                     .ToArray();
@@ -333,7 +333,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Customers
-                    .FromSql("SELECT * FROM Customers WHERE ContactName LIKE '%z%'")
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'")
                     .ToArray();
 
                 Assert.Equal(14, actual.Length);
@@ -351,7 +351,7 @@ FROM Customers")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArray();
 
@@ -367,7 +367,7 @@ FROM Customers")
                 context.Database.UseRelationalNulls(true);
 
                 var actual = context.Set<Customer>()
-                    .FromSql("SELECT * FROM Customers")
+                    .FromSql(@"SELECT * FROM ""Customers""")
                     .Where(c => c.ContactName == c.CompanyName)
                     .ToArray();
 

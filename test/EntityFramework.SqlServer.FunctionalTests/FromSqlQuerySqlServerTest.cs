@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.From_sql_queryable_simple();
 
             Assert.Equal(
-                @"SELECT * FROM Customers WHERE ContactName LIKE '%z%'",
+                @"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'",
                 Sql);
         }
 
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.From_sql_queryable_simple_columns_out_of_order();
 
             Assert.Equal(
-                @"SELECT Region, PostalCode, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address FROM Customers",
+                @"SELECT ""Region"", ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""",
                 Sql);
         }
 
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             base.From_sql_queryable_simple_columns_out_of_order_and_extra_columns();
 
             Assert.Equal(
-                @"SELECT Region, PostalCode, PostalCode AS Foo, Phone, Fax, CustomerID, Country, ContactTitle, ContactName, CompanyName, City, Address FROM Customers",
+                @"SELECT ""Region"", ""PostalCode"", ""PostalCode"" AS ""Foo"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""",
                 Sql);
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers
+    SELECT * FROM ""Customers""
 ) AS [c]
 WHERE [c].[ContactName] LIKE ('%' + 'z') + '%'",
                 Sql);
@@ -55,10 +55,10 @@ WHERE [c].[ContactName] LIKE ('%' + 'z') + '%'",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
-    SELECT * FROM Customers
+    SELECT * FROM ""Customers""
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM Orders
+    SELECT * FROM ""Orders""
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
@@ -74,10 +74,10 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
-    SELECT * FROM Customers
+    SELECT * FROM ""Customers""
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM Orders WHERE OrderDate BETWEEN @p0 AND @p1
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p0 AND @p1
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
@@ -94,10 +94,10 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
-    SELECT * FROM Customers WHERE City = @p0
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 CROSS JOIN (
-    SELECT * FROM Orders WHERE OrderDate BETWEEN @p1 AND @p2
+    SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN @p1 AND @p2
 ) AS [o]
 WHERE [c].[CustomerID] = [o].[CustomerID]",
                 Sql);
@@ -109,8 +109,8 @@ WHERE [c].[CustomerID] = [o].[CustomerID]",
 
             Assert.Equal(
                 @"SELECT *
-FROM Customers
-WHERE City = 'London'",
+FROM ""Customers""
+WHERE ""City"" = 'London'",
                 Sql);
         }
 
@@ -122,7 +122,7 @@ WHERE City = 'London'",
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT *
-    FROM Customers
+    FROM ""Customers""
 ) AS [c]
 WHERE [c].[City] = 'London'",
                 Sql);
@@ -136,7 +136,7 @@ WHERE [c].[City] = 'London'",
                 @"@p0: London
 @p1: Sales Representative
 
-SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
         }
 
@@ -150,7 +150,7 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers WHERE City = @p0
+    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
 WHERE [c].[ContactTitle] = @__contactTitle_0",
                 Sql);
@@ -161,9 +161,9 @@ WHERE [c].[ContactTitle] = @__contactTitle_0",
             base.From_sql_queryable_simple_cache_key_includes_query_string();
 
             Assert.Equal(
-                @"SELECT * FROM Customers WHERE City = 'London'
+                @"SELECT * FROM ""Customers"" WHERE ""City"" = 'London'
 
-SELECT * FROM Customers WHERE City = 'Seattle'",
+SELECT * FROM ""Customers"" WHERE ""City"" = 'Seattle'",
                 Sql);
         }
 
@@ -175,12 +175,12 @@ SELECT * FROM Customers WHERE City = 'Seattle'",
                 @"@p0: London
 @p1: Sales Representative
 
-SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1
 
 @p0: Madrid
 @p1: Accounting Manager
 
-SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
+SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
         }
 
@@ -189,7 +189,7 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
             base.From_sql_queryable_simple_as_no_tracking_not_composed();
 
             Assert.Equal(
-                @"SELECT * FROM Customers",
+                @"SELECT * FROM ""Customers""",
                 Sql);
         }
 
@@ -198,7 +198,7 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
             base.From_sql_queryable_simple_projection_not_composed();
 
             Assert.Equal(
-                @"SELECT * FROM Customers",
+                @"SELECT * FROM ""Customers""",
                 Sql);
         }
 
@@ -207,14 +207,14 @@ SELECT * FROM Customers WHERE City = @p0 AND ContactTitle = @p1",
             base.From_sql_queryable_simple_include();
 
             Assert.Equal(
-                @"SELECT * FROM Customers
+                @"SELECT * FROM ""Customers""
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[CustomerID]
     FROM (
-        SELECT * FROM Customers
+        SELECT * FROM ""Customers""
     ) AS [c]
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 ORDER BY [c].[CustomerID]",
@@ -228,7 +228,7 @@ ORDER BY [c].[CustomerID]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers
+    SELECT * FROM ""Customers""
 ) AS [c]
 WHERE [c].[City] = 'London'
 ORDER BY [c].[CustomerID]
@@ -238,7 +238,7 @@ FROM [Orders] AS [o]
 INNER JOIN (
     SELECT DISTINCT [c].[CustomerID]
     FROM (
-        SELECT * FROM Customers
+        SELECT * FROM ""Customers""
     ) AS [c]
     WHERE [c].[City] = 'London'
 ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -251,7 +251,7 @@ ORDER BY [c].[CustomerID]",
             base.From_sql_annotations_do_not_affect_successive_calls();
 
             Assert.Equal(
-                @"SELECT * FROM Customers WHERE ContactName LIKE '%z%'
+                @"SELECT * FROM ""Customers"" WHERE ""ContactName"" LIKE '%z%'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]",
@@ -265,7 +265,7 @@ FROM [Customers] AS [c]",
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers
+    SELECT * FROM ""Customers""
 ) AS [c]
 WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND [c].[CompanyName] IS NULL)",
                 Sql);
@@ -278,7 +278,7 @@ WHERE ([c].[ContactName] = [c].[CompanyName]) OR ([c].[ContactName] IS NULL AND 
             Assert.Equal(
                 @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
-    SELECT * FROM Customers
+    SELECT * FROM ""Customers""
 ) AS [c]
 WHERE [c].[ContactName] = [c].[CompanyName]",
                 Sql);
