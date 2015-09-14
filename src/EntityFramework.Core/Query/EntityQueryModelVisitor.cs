@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
-                QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger.LogDebug(queryModel, Strings.LogCompilingQueryModel);
 
                 _blockTaskExpressions = false;
 
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
-                QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger.LogDebug(queryModel, Strings.LogCompilingQueryModel);
 
                 _blockTaskExpressions = false;
 
@@ -219,7 +219,7 @@ namespace Microsoft.Data.Entity.Query
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
-            QueryCompilationContext.Logger.LogInformation(queryModel, Strings.LogOptimizedQueryModel);
+            QueryCompilationContext.Logger.LogDebug(queryModel, Strings.LogOptimizedQueryModel);
         }
 
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Query
                                 Expression.Parameter(queryModel.SelectClause.Selector.Type));
 
                     QueryCompilationContext.Logger
-                        .LogInformation(
+                        .LogDebug(
                             includeSpecification.NavigationPath.Join("."),
                             Strings.LogIncludingNavigation);
 
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Query
             if (entityTrackingInfos.Any())
             {
                 QueryCompilationContext.Logger
-                    .LogInformation(
+                    .LogDebug(
                         entityTrackingInfos,
                         etis => Strings.LogTrackingQuerySources(
                             etis.Select(eti => eti.QuerySource.ItemName).Join()));
@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.Query
                     .Lambda<Func<QueryContext, QueryResultScope, TResults>>(
                         _expression, QueryContextParameter, QueryResultScopeParameter);
 
-            QueryCompilationContext.Logger.LogInformation(() =>
+            QueryCompilationContext.Logger.LogDebug(() =>
                 {
                     var queryPlan = _expressionPrinter.Print(queryExecutorExpression);
 
