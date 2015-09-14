@@ -9,14 +9,8 @@ namespace Microsoft.Framework.Logging
 {
     internal static class LoggingExtensions
     {
-        public static void LogInformation(this ILogger logger, Func<string> formatter)
-            => logger.LogInformation(0, default(object), _ => formatter());
-
         public static void LogInformation<TState>(this ILogger logger, TState state, Func<TState, string> formatter)
             => logger.LogInformation(0, state, formatter);
-
-        public static void LogInformation(this ILogger logger, int eventId, Func<string> formatter)
-            => logger.LogInformation(eventId, default(object), _ => formatter());
 
         public static void LogInformation<TState>(
             this ILogger logger, int eventId, TState state, Func<TState, string> formatter)
@@ -63,6 +57,24 @@ namespace Microsoft.Framework.Logging
             if (logger.IsEnabled(LogLevel.Verbose))
             {
                 logger.Log(LogLevel.Verbose, eventId, state, null, (s, _) => formatter((TState)s));
+            }
+        }
+
+        public static void LogDebug(this ILogger logger, Func<string> formatter)
+            => logger.LogDebug(0, default(object), _ => formatter());
+
+        public static void LogDebug<TState>(this ILogger logger, TState state, Func<TState, string> formatter)
+            => logger.LogDebug(0, state, formatter);
+
+        public static void LogDebug(this ILogger logger, int eventId, Func<string> formatter)
+            => logger.LogDebug(eventId, default(object), _ => formatter());
+
+        public static void LogDebug<TState>(
+            this ILogger logger, int eventId, TState state, Func<TState, string> formatter)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+            {
+                logger.Log(LogLevel.Debug, eventId, state, null, (s, _) => formatter((TState)s));
             }
         }
     }
