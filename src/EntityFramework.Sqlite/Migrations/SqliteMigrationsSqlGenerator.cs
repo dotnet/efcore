@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -9,6 +10,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Storage.Commands;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
@@ -22,6 +24,34 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] SqliteMetadataExtensionProvider annotations)
             : base(sql, typeMapper, annotations)
         {
+        }
+
+        public override IReadOnlyList<RelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
+            => base.Generate(LiftForeignKeyOperations(operations), model);
+
+        private IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)
+        {
+            var operations = new List<MigrationOperation>();
+            foreach (var operation in migrationOperations)
+            {
+                var foreignKeyOperation = operation as AddForeignKeyOperation;
+                if (foreignKeyOperation != null)
+                {
+                    var table = migrationOperations
+                        .OfType<CreateTableOperation>()
+                        .FirstOrDefault(o => o.Name == foreignKeyOperation.Table);
+
+                    if (table != null)
+                    {
+                        table.ForeignKeys.Add(foreignKeyOperation);
+                        //do not add to fk operation migration
+                        continue;
+                    }
+                }
+
+                operations.Add(operation);
+            }
+            return operations.AsReadOnly();
         }
 
         protected override void Generate(DropIndexOperation operation, IModel model, SqlBatchBuilder builder)
