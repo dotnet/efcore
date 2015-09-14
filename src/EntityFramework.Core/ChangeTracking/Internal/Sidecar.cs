@@ -34,17 +34,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool HasValue([NotNull] IPropertyBase property) => CanStoreValue(property) && ReadValue(property) != null;
 
-        public virtual object this[IPropertyBase property]
+        public virtual object this[IPropertyBase propertyBase]
         {
             get
             {
-                var value = ReadValue(property);
+                var value = ReadValue(propertyBase);
 
                 return value != null
                     ? (ReferenceEquals(value, NullSentinel.Value) ? null : value)
-                    : _entry[property];
+                    : _entry[propertyBase];
             }
-            set { WriteValue(property, value ?? NullSentinel.Value); }
+            set { WriteValue(propertyBase, value ?? NullSentinel.Value); }
         }
 
         public virtual void Commit()

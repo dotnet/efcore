@@ -557,6 +557,22 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.
+        /// </summary>
+        public static string RelationshipConceptualNull([CanBeNull] object firstType, [CanBeNull] object secondType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationshipConceptualNull", "firstType", "secondType"), firstType, secondType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.
+        /// </summary>
+        public static string PropertyConceptualNull([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyConceptualNull", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
         /// The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.
         /// </summary>
         public static string DuplicateForeignKey([CanBeNull] object foreignKey, [CanBeNull] object entityType)

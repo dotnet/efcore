@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly Dictionary<object, WeakReference<InternalEntityEntry>> _detachedEntityReferenceMap
             = new Dictionary<object, WeakReference<InternalEntityEntry>>(ReferenceEqualityComparer.Instance);
 
-        private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap 
+        private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap
             = new Dictionary<EntityKey, InternalEntityEntry>();
 
         private readonly Dictionary<IForeignKey, Dictionary<EntityKey, HashSet<InternalEntityEntry>>> _dependentsMap
@@ -201,7 +201,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var mapKey = entry.Entity ?? entry;
             var existingEntry = TryGetEntry(mapKey);
 
-            if (existingEntry == null || existingEntry == entry)
+            if (existingEntry == null
+                || existingEntry == entry)
             {
                 _entityReferenceMap[mapKey] = entry;
                 _detachedEntityReferenceMap.Remove(mapKey);
@@ -339,7 +340,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     && fkMap.TryGetValue(oldKey, out dependents))
                 {
                     dependents.Remove(entry);
-                
+
                     if (dependents.Count == 0)
                     {
                         fkMap.Remove(oldKey);
@@ -395,13 +396,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            var entriesToSave = Entries
-                .Where(e => e.EntityState == EntityState.Added
-                            || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
-                .Select(e => e.PrepareToSave())
-                .ToList();
-
+            var entriesToSave = GetEntriesToSave();
             if (!entriesToSave.Any())
             {
                 return 0;
@@ -428,15 +423,19 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            var entriesToSave = Entries
+        private List<InternalEntityEntry> GetEntriesToSave()
+            => Entries
                 .Where(e => e.EntityState == EntityState.Added
                             || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
-                .Select(e => e.PrepareToSave())
+                            || e.EntityState == EntityState.Deleted
+                            || e.HasConceptualNull)
+                .ToList()
+                .Where(e => e.PrepareToSave())
                 .ToList();
 
+        public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var entriesToSave = GetEntriesToSave();
             if (!entriesToSave.Any())
             {
                 return 0;
@@ -464,11 +463,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected virtual int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) => _database.SaveChanges(entriesToSave);
+            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) 
+            => _database.SaveChanges(entriesToSave);
 
         protected virtual Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default(CancellationToken)) 
             => _database.SaveChangesAsync(entriesToSave, cancellationToken);
 
         public virtual void AcceptAllChanges()

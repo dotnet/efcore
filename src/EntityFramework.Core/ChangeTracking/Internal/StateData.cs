@@ -7,12 +7,19 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public abstract partial class InternalEntityEntry
     {
+        internal enum PropertyFlag
+        {
+            TemporaryOrModified = 0,
+            Null = 1
+        }
+
         internal struct StateData
         {
             private const int BitsPerInt = 32;
             private const int BitsForEntityState = 3;
-            private const int BitsForFlags = 1;
-            private const int BitsForAdditionalState = BitsForEntityState + BitsForFlags;
+            private const int BitsForEntityFlags = 1;
+            private const int BitsForPropertyFlags = 2;
+            private const int BitsForAdditionalState = BitsForEntityState + BitsForEntityFlags;
             private const int EntityStateMask = 0x07;
             private const int TransparentSidecarMask = 0x08;
             private const int AdditionalStateMask = EntityStateMask | TransparentSidecarMask;
@@ -21,20 +28,20 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             public StateData(int propertyCount)
             {
-                _bits = new int[(propertyCount + BitsForAdditionalState - 1) / BitsPerInt + 1];
+                _bits = new int[(propertyCount * BitsForPropertyFlags + BitsForAdditionalState - 1) / BitsPerInt + 1];
             }
 
-            public void FlagAllProperties(int propertyCount, bool isFlagged)
+            public void FlagAllProperties(int propertyCount, PropertyFlag propertyFlag, bool flagged)
             {
                 for (var i = 0; i < _bits.Length; i++)
                 {
-                    if (isFlagged)
+                    if (flagged)
                     {
-                        _bits[i] |= CreateMaskForWrite(i, propertyCount);
+                        _bits[i] |= CreateMaskForWrite(i, propertyCount, propertyFlag);
                     }
                     else
                     {
-                        _bits[i] &= ~CreateMaskForWrite(i, propertyCount);
+                        _bits[i] &= ~CreateMaskForWrite(i, propertyCount, propertyFlag);
                     }
                 }
             }
@@ -51,16 +58,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 set { _bits[0] = (_bits[0] & ~TransparentSidecarMask) | (value ? TransparentSidecarMask : 0); }
             }
 
-            public bool IsPropertyFlagged(int propertyIndex)
+            public bool IsPropertyFlagged(int propertyIndex, PropertyFlag propertyFlag)
             {
-                propertyIndex += BitsForAdditionalState;
+                propertyIndex = propertyIndex * BitsForPropertyFlags + (int)propertyFlag + BitsForAdditionalState;
 
                 return (_bits[propertyIndex / BitsPerInt] & (1 << propertyIndex % BitsPerInt)) != 0;
             }
 
-            public void FlagProperty(int propertyIndex, bool isFlagged)
+            public void FlagProperty(int propertyIndex, PropertyFlag propertyFlag, bool isFlagged)
             {
-                propertyIndex += BitsForAdditionalState;
+                propertyIndex = propertyIndex * BitsForPropertyFlags + (int)propertyFlag + BitsForAdditionalState;
 
                 if (isFlagged)
                 {
@@ -72,11 +79,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            public bool AnyPropertiesFlagged() => _bits.Where((t, i) => (t & CreateMaskForRead(i)) != 0).Any();
+            public bool AnyPropertiesFlagged(PropertyFlag propertyFlag) => _bits.Where((t, i) => (t & CreateMaskForRead(i, propertyFlag)) != 0).Any();
 
-            private static int CreateMaskForRead(int i)
+            private static int CreateMaskForRead(int i, PropertyFlag propertyFlag)
             {
-                var mask = unchecked(((int)0xFFFFFFFF));
+                var mask = 0x55555555 << (int)propertyFlag;
                 if (i == 0)
                 {
                     mask &= ~AdditionalStateMask;
@@ -85,14 +92,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return mask;
             }
 
-            private int CreateMaskForWrite(int i, int propertyCount)
+            private int CreateMaskForWrite(int i, int propertyCount, PropertyFlag propertyFlag)
             {
-                var mask = CreateMaskForRead(i);
+                var mask = CreateMaskForRead(i, propertyFlag);
 
                 if (i == _bits.Length - 1)
                 {
-                    var overlay = unchecked(((int)0xFFFFFFFF));
-                    var shift = (propertyCount + BitsForAdditionalState) % BitsPerInt;
+                    var overlay = 0x55555555 << (int)propertyFlag;
+                    var shift = (propertyCount * BitsForPropertyFlags + BitsForAdditionalState) % BitsPerInt;
                     overlay = shift != 0 ? overlay << shift : 0;
                     mask &= ~overlay;
                 }

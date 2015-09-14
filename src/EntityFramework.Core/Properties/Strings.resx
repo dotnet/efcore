@@ -321,6 +321,12 @@
   <data name="KeyPropertyMustBeReadOnly" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' must be marked as read-only after it has been saved because it is part of a key. Key properties are always read-only once an entity has been saved for the first time.</value>
   </data>
+  <data name="RelationshipConceptualNull" xml:space="preserve">
+    <value>The association between entity types '{firstType}' and '{secondType}' has been severed but the foreign key for this relationship cannot be set to null. If the dependent entity should be deleted, then setup the relationship to use cascade deletes.</value>
+  </data>
+  <data name="PropertyConceptualNull" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' is marked as null, but this cannot be saved because the property is marked as required.</value>
+  </data>
   <data name="DuplicateForeignKey" xml:space="preserve">
     <value>The foreign key {foreignKey} cannot be added to the entity type '{entityType}' because a foreign key on the same properties already exists.</value>
   </data>

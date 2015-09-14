@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface IPropertyAccessor
     {
-        object this[[param: NotNull] IPropertyBase property] { get; [param: CanBeNull] set; }
+        object this[[param: NotNull] IPropertyBase propertyBase] { get; [param: CanBeNull] set; }
 
         InternalEntityEntry InternalEntityEntry { get; }
     }

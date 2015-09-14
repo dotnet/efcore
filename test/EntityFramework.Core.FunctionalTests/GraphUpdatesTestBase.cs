@@ -263,8 +263,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         [InlineData((int)ChangeMechanism.Dependent)]
+        [InlineData((int)ChangeMechanism.FK)]
         public virtual void Save_removed_required_many_to_one_dependents(ChangeMechanism changeMechanism)
         {
+            int removed1Id;
+            int removed2Id;
+            List<int> removed1ChildrenIds;
+
             using (var context = CreateContext())
             {
                 var root = LoadFullGraph(context);
@@ -272,6 +277,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var childCollection = root.RequiredChildren.First().Children;
                 var removed2 = childCollection.First();
                 var removed1 = root.RequiredChildren.Skip(1).First();
+
+                removed1Id = removed1.Id;
+                removed2Id = removed2.Id;
+                removed1ChildrenIds = removed1.Children.Select(e => e.Id).ToList();
 
                 switch (changeMechanism)
                 {
@@ -283,12 +292,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         childCollection.Remove(removed2);
                         root.RequiredChildren.Remove(removed1);
                         break;
+                    case ChangeMechanism.FK:
+                        context.Entry(removed2).GetService()[context.Entry(removed2).Property(e => e.ParentId).Metadata] = null;
+                        context.Entry(removed1).GetService()[context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                AssertNavigations(root);
+
+                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.DoesNotContain(removed1Id, root.RequiredChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Required1s.Where(e => e.Id == removed1Id));
+                Assert.Empty(context.Required2s.Where(e => e.Id == removed2Id));
+                Assert.Empty(context.Required2s.Where(e => removed1ChildrenIds.Contains(e.Id)));
             }
         }
 
@@ -379,91 +405,81 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [ConditionalTheory]
-        [InlineData((int)ChangeMechanism.Dependent, false)]
-        [InlineData((int)ChangeMechanism.Dependent, true)]
-        [InlineData((int)ChangeMechanism.Principal, false)]
-        [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
-        public virtual void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
+        [InlineData((int)ChangeMechanism.Dependent)]
+        [InlineData((int)ChangeMechanism.Principal)]
+        [InlineData((int)ChangeMechanism.FK)]
+        public virtual void Save_required_one_to_one_changed_by_reference(ChangeMechanism changeMechanism)
         {
-            var new2 = new RequiredSingle2 { Id = Fixture.IntSentinel };
-            var new1 = new RequiredSingle1 { Id = Fixture.IntSentinel, Single = new2 };
-            var newRoot = new Root { Id = Fixture.IntSentinel, RequiredSingle = new1 };
+            // This test is a bit strange because the relationships are PK<->PK, which means
+            // that an existing entity has to be deleted and then a new entity created that has
+            // the same key as the existing entry. In other words it is a new incarnation of the same
+            // entity. EF7 can't track two different instances of the same entity, so this has to be
+            // done in two steps.
 
-            if (useExistingEntities)
-            {
-                using (var context = CreateContext())
-                {
-                    context.AddRange(newRoot, new1, new2);
-                    context.SaveChanges();
-                }
-            }
-
-            Root root;
+            Root oldRoot;
             RequiredSingle1 old1;
             RequiredSingle2 old2;
             using (var context = CreateContext())
             {
-                root = LoadFullGraph(context, e => e.Id != newRoot.Id);
+                oldRoot = LoadFullGraph(context);
 
-                old1 = root.RequiredSingle;
-                old2 = root.RequiredSingle.Single;
+                old1 = oldRoot.RequiredSingle;
+                old2 = oldRoot.RequiredSingle.Single;
+            }
 
-                if (useExistingEntities)
-                {
-                    new1 = context.RequiredSingle1s.Single(e => e.Id == new1.Id);
-                    new2 = context.RequiredSingle2s.Single(e => e.Id == new2.Id);
-                }
-                else
-                {
-                    context.AddRange(new1, new2);
-                }
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                root.RequiredSingle = null;
+
+                context.SaveChanges();
+            }
+
+            var new2 = new RequiredSingle2 { Id = Fixture.IntSentinel };
+            var new1 = new RequiredSingle1 { Id = Fixture.IntSentinel, Single = new2 };
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
 
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
+                        context.Add(new1);
                         new1.Root = root;
                         break;
                     case ChangeMechanism.Principal:
                         root.RequiredSingle = new1;
                         break;
                     case ChangeMechanism.FK:
+                        context.Add(new1);
                         new1.Id = root.Id;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
 
-                //Assert.Equal(root.Id, new1.Id);
-                //Assert.Equal(new1.Id, new2.Id);
-                //Assert.Same(root, new1.Root);
-                //Assert.Same(new1, new2.Back);
+                Assert.Equal(root.Id, new1.Id);
+                Assert.Equal(new1.Id, new2.Id);
+                Assert.Same(root, new1.Root);
+                Assert.Same(new1, new2.Back);
 
-                //Assert.Null(old1.Root);
-                //Assert.Same(old1, old2.Back);
-                //Assert.Null(old1.Id);
-                //Assert.Equal(old1.Id, old2.Id);
+                Assert.Same(oldRoot, old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(oldRoot.Id, old1.Id);
+                Assert.Equal(old1.Id, old2.Id);
             }
 
-            //using (var context = CreateContext())
-            //{
-            //    var loadedRoot = LoadFullGraph(context);
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context);
 
-            //    AssertKeys(root, loadedRoot);
-            //    AssertNavigations(loadedRoot);
-
-            //    var loaded1 = context.RequiredSingle1s.Single(e => e.Id == old1.Id);
-            //    var loaded2 = context.RequiredSingle2s.Single(e => e.Id == old2.Id);
-
-            //    Assert.Null(loaded1.Root);
-            //    Assert.Same(loaded1, loaded2.Back);
-            //    Assert.Null(loaded1.Id);
-            //    Assert.Equal(loaded1.Id, loaded2.Id);
-            //}
+                AssertKeys(oldRoot, loadedRoot);
+                AssertNavigations(loadedRoot);
+            }
         }
 
         [ConditionalTheory]
@@ -471,8 +487,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        // TODO: Not working yet
+        //[InlineData((int)ChangeMechanism.FK, false)]
+        //[InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
             var new2 = new RequiredNonPkSingle2 { Id = Fixture.IntSentinel, BackId = Fixture.IntSentinel };
@@ -505,7 +522,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRange(newRoot, new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -517,41 +534,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         root.RequiredNonPkSingle = new1;
                         break;
                     case ChangeMechanism.FK:
-                        new1.Id = root.Id;
+                        new1.RootId = root.Id;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
 
-                //Assert.Equal(root.Id, new1.RootId);
-                //Assert.Equal(new1.Id, new2.BackId);
-                //Assert.Same(root, new1.Root);
-                //Assert.Same(new1, new2.Back);
+                Assert.Equal(root.Id, new1.RootId);
+                Assert.Equal(new1.Id, new2.BackId);
+                Assert.Same(root, new1.Root);
+                Assert.Same(new1, new2.Back);
 
-                //Assert.Null(old1.Root);
-                //Assert.Same(old1, old2.Back);
-                //Assert.Null(old1.RootId);
-                //Assert.Equal(old1.Id, old2.BackId);
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.Id, old2.BackId);
             }
 
-            //using (var context = CreateContext())
-            //{
-            //    var loadedRoot = LoadFullGraph(context);
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context, e => e.Id == root.Id);
 
-            //    AssertKeys(root, loadedRoot);
-            //    AssertNavigations(loadedRoot);
+                AssertKeys(root, loadedRoot);
+                AssertNavigations(loadedRoot);
 
-            //    var loaded1 = context.RequiredNonPkSingle1s.Single(e => e.Id == old1.Id);
-            //    var loaded2 = context.RequiredNonPkSingle2s.Single(e => e.Id == old2.Id);
-
-            //    Assert.Null(loaded1.Root);
-            //    Assert.Same(loaded1, loaded2.Back);
-            //    Assert.Null(loaded1.RootId);
-            //    Assert.Equal(loaded1.Id, loaded2.BackId);
-            //}
+                Assert.False(context.RequiredNonPkSingle1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredNonPkSingle2s.Any(e => e.Id == old2.Id));
+            }
         }
 
         [ConditionalTheory]
@@ -615,14 +625,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_one_to_one(ChangeMechanism changeMechanism)
         {
+            Root root;
+            RequiredSingle1 old1;
+            RequiredSingle2 old2;
             using (var context = CreateContext())
             {
-                var root = LoadFullGraph(context);
+                root = LoadFullGraph(context);
+
+                old1 = root.RequiredSingle;
+                old2 = root.RequiredSingle.Single;
 
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
-                        root.RequiredSingle.Root = null;
+                        old1.Root = null;
                         break;
                     case ChangeMechanism.Principal:
                         root.RequiredSingle = null;
@@ -631,8 +647,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
+
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.Id, old2.Id);
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context);
+
+                AssertKeys(root, loadedRoot);
+                AssertPossiblyNullNavigations(loadedRoot);
+
+                Assert.False(context.RequiredSingle1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredSingle2s.Any(e => e.Id == old2.Id));
             }
         }
 
@@ -641,14 +671,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_non_PK_one_to_one(ChangeMechanism changeMechanism)
         {
+            Root root;
+            RequiredNonPkSingle1 old1;
+            RequiredNonPkSingle2 old2;
             using (var context = CreateContext())
             {
-                var root = LoadFullGraph(context);
+                root = LoadFullGraph(context);
+
+                old1 = root.RequiredNonPkSingle;
+                old2 = root.RequiredNonPkSingle.Single;
 
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
-                        root.RequiredNonPkSingle.Root = null;
+                        old1.Root = null;
                         break;
                     case ChangeMechanism.Principal:
                         root.RequiredNonPkSingle = null;
@@ -657,8 +693,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
+
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.Id, old2.BackId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context);
+
+                AssertKeys(root, loadedRoot);
+                AssertPossiblyNullNavigations(loadedRoot);
+
+                Assert.False(context.RequiredNonPkSingle1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredNonPkSingle2s.Any(e => e.Id == old2.Id));
             }
         }
 
@@ -1102,13 +1152,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Dependent)]
         public virtual void Save_removed_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism)
         {
+            Root root;
+            RequiredAk2 removed2;
+            RequiredAk1 removed1;
+
             using (var context = CreateContext())
             {
-                var root = LoadFullGraph(context);
+                root = LoadFullGraph(context);
 
                 var childCollection = root.RequiredChildrenAk.First().Children;
-                var removed2 = childCollection.First();
-                var removed1 = root.RequiredChildrenAk.Skip(1).First();
+                removed2 = childCollection.First();
+                removed1 = root.RequiredChildrenAk.Skip(1).First();
 
                 switch (changeMechanism)
                 {
@@ -1124,8 +1178,30 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
+
+                Assert.DoesNotContain(removed1, root.RequiredChildrenAk);
+                Assert.DoesNotContain(removed2, childCollection);
+
+                Assert.Null(removed1.Parent);
+                Assert.Null(removed2.Parent);
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context);
+
+                AssertKeys(root, loadedRoot);
+                AssertNavigations(loadedRoot);
+
+                Assert.False(context.RequiredAk1s.Any(e => e.Id == removed1.Id));
+                Assert.False(context.RequiredAk2s.Any(e => e.Id == removed2.Id));
+
+                Assert.Equal(1, loadedRoot.RequiredChildrenAk.Count);
+                Assert.Equal(1, loadedRoot.RequiredChildrenAk.First().Children.Count);
+
+                Assert.Equal(2, loadedRoot.OptionalChildrenAk.Count);
+                Assert.Equal(2, loadedRoot.OptionalChildrenAk.First().Children.Count);
             }
         }
 
@@ -1220,8 +1296,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_required_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
@@ -1255,7 +1329,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
                 else
                 {
-                    context.AddRange(new1, new2);
+                    context.AddRange(newRoot, new1, new2);
                 }
 
                 switch (changeMechanism)
@@ -1266,42 +1340,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     case ChangeMechanism.Principal:
                         root.RequiredSingleAk = new1;
                         break;
-                    case ChangeMechanism.FK:
-                        new1.AlternateId = root.AlternateId;
-                        break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
 
-                //Assert.Equal(root.AlternateId, new1.AlternateId);
-                //Assert.Equal(new1.AlternateId, new2.AlternateId);
-                //Assert.Same(root, new1.Root);
-                //Assert.Same(new1, new2.Back);
+                Assert.Equal(root.AlternateId, new1.RootId);
+                Assert.Equal(new1.AlternateId, new2.BackId);
+                Assert.Same(root, new1.Root);
+                Assert.Same(new1, new2.Back);
 
-                //Assert.Null(old1.Root);
-                //Assert.Same(old1, old2.Back);
-                //Assert.Null(old1.AlternateId);
-                //Assert.Equal(old1.AlternateId, old2.AlternateId);
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.AlternateId, old2.BackId);
             }
 
-            //using (var context = CreateContext())
-            //{
-            //    var loadedRoot = LoadFullGraph(context);
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-            //    AssertKeys(root, loadedRoot);
-            //    AssertNavigations(loadedRoot);
+                AssertKeys(root, loadedRoot);
+                AssertNavigations(loadedRoot);
 
-            //    var loaded1 = context.RequiredSingleAk1s.Single(e => e.Id == old1.Id);
-            //    var loaded2 = context.RequiredSingleAk2s.Single(e => e.Id == old2.Id);
-
-            //    Assert.Null(loaded1.Root);
-            //    Assert.Same(loaded1, loaded2.Back);
-            //    Assert.Null(loaded1.AlternateId);
-            //    Assert.Equal(loaded1.AlternateId, loaded2.AlternateId);
-            //}
+                Assert.False(context.RequiredSingleAk1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredSingleAk2s.Any(e => e.Id == old2.Id));
+            }
         }
 
         [ConditionalTheory]
@@ -1309,8 +1373,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Dependent, true)]
         [InlineData((int)ChangeMechanism.Principal, false)]
         [InlineData((int)ChangeMechanism.Principal, true)]
-        [InlineData((int)ChangeMechanism.FK, false)]
-        [InlineData((int)ChangeMechanism.FK, true)]
+        // TODO: Not working yet
+        //[InlineData((int)ChangeMechanism.FK, false)]
+        //[InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
@@ -1356,41 +1421,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         root.RequiredNonPkSingleAk = new1;
                         break;
                     case ChangeMechanism.FK:
-                        new1.AlternateId = root.AlternateId;
+                        new1.RootId = root.AlternateId;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
 
-                //Assert.Equal(root.AlternateId, new1.RootId);
-                //Assert.Equal(new1.AlternateId, new2.BackId);
-                //Assert.Same(root, new1.Root);
-                //Assert.Same(new1, new2.Back);
+                Assert.Equal(root.AlternateId, new1.RootId);
+                Assert.Equal(new1.AlternateId, new2.BackId);
+                Assert.Same(root, new1.Root);
+                Assert.Same(new1, new2.Back);
 
-                //Assert.Null(old1.Root);
-                //Assert.Same(old1, old2.Back);
-                //Assert.Null(old1.RootId);
-                //Assert.Equal(old1.AlternateId, old2.BackId);
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.AlternateId, old2.BackId);
             }
 
-            //using (var context = CreateContext())
-            //{
-            //    var loadedRoot = LoadFullGraph(context);
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
-            //    AssertKeys(root, loadedRoot);
-            //    AssertNavigations(loadedRoot);
+                AssertKeys(root, loadedRoot);
+                AssertNavigations(loadedRoot);
 
-            //    var loaded1 = context.RequiredNonPkSingleAk1s.Single(e => e.Id == old1.Id);
-            //    var loaded2 = context.RequiredNonPkSingleAk2s.Single(e => e.Id == old2.Id);
-
-            //    Assert.Null(loaded1.Root);
-            //    Assert.Same(loaded1, loaded2.Back);
-            //    Assert.Null(loaded1.RootId);
-            //    Assert.Equal(loaded1.AlternateId, loaded2.BackId);
-            //}
+                Assert.False(context.RequiredNonPkSingleAk1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredNonPkSingleAk2s.Any(e => e.Id == old2.Id));
+            }
         }
 
         [ConditionalTheory]
@@ -1454,14 +1512,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
         {
+            Root root;
+            RequiredSingleAk1 old1;
+            RequiredSingleAk2 old2;
             using (var context = CreateContext())
             {
-                var root = LoadFullGraph(context);
+                root = LoadFullGraph(context);
+
+                old1 = root.RequiredSingleAk;
+                old2 = root.RequiredSingleAk.Single;
 
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
-                        root.RequiredSingleAk.Root = null;
+                        old1.Root = null;
                         break;
                     case ChangeMechanism.Principal:
                         root.RequiredSingleAk = null;
@@ -1470,8 +1534,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
+
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.AlternateId, old2.BackId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context);
+
+                AssertKeys(root, loadedRoot);
+                AssertPossiblyNullNavigations(loadedRoot);
+
+                Assert.False(context.RequiredSingleAk1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredSingleAk2s.Any(e => e.Id == old2.Id));
             }
         }
 
@@ -1480,14 +1558,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.Principal)]
         public virtual void Sever_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
         {
+            Root root;
+            RequiredNonPkSingleAk1 old1;
+            RequiredNonPkSingleAk2 old2;
             using (var context = CreateContext())
             {
-                var root = LoadFullGraph(context);
+                root = LoadFullGraph(context);
+
+                old1 = root.RequiredNonPkSingleAk;
+                old2 = root.RequiredNonPkSingleAk.Single;
 
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
-                        root.RequiredNonPkSingleAk.Root = null;
+                        old1.Root = null;
                         break;
                     case ChangeMechanism.Principal:
                         root.RequiredNonPkSingleAk = null;
@@ -1496,8 +1580,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                // TODO: Conceptual nulls (Issue #323)
-                //context.SaveChanges();
+                context.SaveChanges();
+
+                Assert.Null(old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(old1.AlternateId, old2.BackId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context);
+
+                AssertKeys(root, loadedRoot);
+                AssertPossiblyNullNavigations(loadedRoot);
+
+                Assert.False(context.RequiredNonPkSingleAk1s.Any(e => e.Id == old1.Id));
+                Assert.False(context.RequiredNonPkSingleAk2s.Any(e => e.Id == old2.Id));
             }
         }
 
@@ -1585,7 +1683,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel };
+            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
 
             if (useExistingRoot)
             {
@@ -1596,32 +1694,58 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
             }
 
+            Root root;
+            RequiredSingleAk1 old1;
+            RequiredSingleAk2 old2;
             using (var context = CreateContext())
             {
-                var root = LoadFullGraph(context, e => e.Id != newRoot.Id);
+                root = LoadFullGraph(context, e => e.Id != newRoot.Id);
 
                 context.Entry(newRoot).State = useExistingRoot ? EntityState.Unchanged : EntityState.Added;
+
+                old1 = root.RequiredSingleAk;
+                old2 = root.RequiredSingleAk.Single;
 
                 switch (changeMechanism)
                 {
                     case ChangeMechanism.Dependent:
-                        root.RequiredSingleAk.Root = newRoot;
+                        old1.Root = newRoot;
                         break;
                     case ChangeMechanism.Principal:
-                        newRoot.RequiredSingleAk = root.RequiredSingleAk;
+                        newRoot.RequiredSingleAk = old1;
                         break;
                     case ChangeMechanism.FK:
-                        root.RequiredSingleAk.AlternateId = newRoot.AlternateId;
+                        old1.RootId = newRoot.AlternateId;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                newRoot.RequiredSingleAk = root.RequiredSingleAk;
+                context.SaveChanges();
 
-                Assert.Equal(
-                    Strings.KeyReadOnly("AlternateId", typeof(RequiredSingleAk1).Name),
-                    Assert.Throws<NotSupportedException>(() => context.SaveChanges()).Message);
+                Assert.Null(root.RequiredSingleAk);
+
+                Assert.Same(newRoot, old1.Root);
+                Assert.Same(old1, old2.Back);
+                Assert.Equal(newRoot.AlternateId, old1.RootId);
+                Assert.Equal(old1.AlternateId, old2.BackId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var loadedRoot = LoadFullGraph(context, e => e.Id == root.Id);
+
+                AssertKeys(root, loadedRoot);
+                AssertPossiblyNullNavigations(loadedRoot);
+
+                newRoot = context.Roots.Single(e => e.Id == newRoot.Id);
+                var loaded1 = context.RequiredSingleAk1s.Single(e => e.Id == old1.Id);
+                var loaded2 = context.RequiredSingleAk2s.Single(e => e.Id == old2.Id);
+
+                Assert.Same(newRoot, loaded1.Root);
+                Assert.Same(loaded1, loaded2.Back);
+                Assert.Equal(newRoot.AlternateId, loaded1.RootId);
+                Assert.Equal(loaded1.AlternateId, loaded2.BackId);
             }
         }
 
@@ -2134,7 +2258,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public int Id { get; set; }
             public Guid AlternateId { get; set; }
 
+            public Guid RootId { get; set; }
             public Root Root { get; set; }
+
             public RequiredSingleAk2 Single { get; set; }
         }
 
@@ -2143,6 +2269,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public int Id { get; set; }
             public Guid AlternateId { get; set; }
 
+            public Guid BackId { get; set; }
             public RequiredSingleAk1 Back { get; set; }
         }
 
@@ -2280,7 +2407,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Reference(e => e.RequiredSingleAk)
                             .InverseReference(e => e.Root)
                             .PrincipalKey<Root>(e => e.AlternateId)
-                            .ForeignKey<RequiredSingleAk1>(e => e.AlternateId)
+                            .ForeignKey<RequiredSingleAk1>(e => e.RootId)
                             .WillCascadeOnDelete();
 
                         b.Reference(e => e.OptionalSingleAk)
@@ -2299,7 +2426,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Collection(e => e.Children)
                     .InverseReference(e => e.Parent)
                     .ForeignKey(e => e.ParentId)
-                            .WillCascadeOnDelete();
+                    .WillCascadeOnDelete();
 
                 modelBuilder.Entity<Optional1>()
                     .Collection(e => e.Children)
@@ -2310,7 +2437,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Reference(e => e.Single)
                     .InverseReference(e => e.Back)
                     .ForeignKey<RequiredSingle2>(e => e.Id)
-                            .WillCascadeOnDelete();
+                    .WillCascadeOnDelete();
 
                 modelBuilder.Entity<OptionalSingle1>()
                     .Reference(e => e.Single)
@@ -2321,7 +2448,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .Reference(e => e.Single)
                     .InverseReference(e => e.Back)
                     .ForeignKey<RequiredNonPkSingle2>(e => e.BackId)
-                            .WillCascadeOnDelete();
+                    .WillCascadeOnDelete();
 
                 modelBuilder.Entity<RequiredAk1>(b =>
                     {
@@ -2353,7 +2480,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         b.Reference(e => e.Single)
                             .InverseReference(e => e.Back)
-                            .ForeignKey<RequiredSingleAk2>(e => e.AlternateId)
+                            .ForeignKey<RequiredSingleAk2>(e => e.BackId)
                             .PrincipalKey<RequiredSingleAk1>(e => e.AlternateId)
                             .WillCascadeOnDelete();
                     });
@@ -2407,134 +2534,134 @@ namespace Microsoft.Data.Entity.FunctionalTests
             protected virtual object CreateFullGraph()
             {
                 return new Root
+                {
+                    Id = IntSentinel,
+                    AlternateId = Guid.NewGuid(),
+                    RequiredChildren = new List<Required1>
+                    {
+                        new Required1
+                        {
+                            Id = IntSentinel,
+                            ParentId = IntSentinel,
+                            Children = new List<Required2>
+                            {
+                                new Required2 { ParentId = IntSentinel, Id = IntSentinel },
+                                new Required2 { ParentId = IntSentinel, Id = IntSentinel }
+                            }
+                        },
+                        new Required1
+                        {
+                            Id = IntSentinel,
+                            ParentId = IntSentinel,
+                            Children = new List<Required2>
+                            {
+                                new Required2 { ParentId = IntSentinel, Id = IntSentinel },
+                                new Required2 { ParentId = IntSentinel, Id = IntSentinel }
+                            }
+                        }
+                    },
+                    OptionalChildren = new List<Optional1>
+                    {
+                        new Optional1
+                        {
+                            Id = IntSentinel,
+                            Children = new List<Optional2>
+                            {
+                                new Optional2 { Id = IntSentinel },
+                                new Optional2 { Id = IntSentinel }
+                            }
+                        },
+                        new Optional1
+                        {
+                            Id = IntSentinel,
+                            Children = new List<Optional2>
+                            {
+                                new Optional2 { Id = IntSentinel },
+                                new Optional2 { Id = IntSentinel }
+                            }
+                        }
+                    },
+                    RequiredSingle = new RequiredSingle1
+                    {
+                        Id = IntSentinel,
+                        Single = new RequiredSingle2 { Id = IntSentinel }
+                    },
+                    OptionalSingle = new OptionalSingle1
+                    {
+                        Id = IntSentinel,
+                        Single = new OptionalSingle2 { Id = IntSentinel }
+                    },
+                    RequiredNonPkSingle = new RequiredNonPkSingle1
+                    {
+                        Id = IntSentinel,
+                        RootId = IntSentinel,
+                        Single = new RequiredNonPkSingle2 { BackId = IntSentinel, Id = IntSentinel }
+                    },
+                    RequiredChildrenAk = new List<RequiredAk1>
+                    {
+                        new RequiredAk1
+                        {
+                            Id = IntSentinel,
+                            AlternateId = Guid.NewGuid(),
+                            Children = new List<RequiredAk2>
+                            {
+                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
+                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                            }
+                        },
+                        new RequiredAk1
+                        {
+                            Id = IntSentinel,
+                            AlternateId = Guid.NewGuid(),
+                            Children = new List<RequiredAk2>
+                            {
+                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
+                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                            }
+                        }
+                    },
+                    OptionalChildrenAk = new List<OptionalAk1>
+                    {
+                        new OptionalAk1
+                        {
+                            Id = IntSentinel,
+                            AlternateId = Guid.NewGuid(),
+                            Children = new List<OptionalAk2>
+                            {
+                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
+                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                            }
+                        },
+                        new OptionalAk1
+                        {
+                            Id = IntSentinel,
+                            AlternateId = Guid.NewGuid(),
+                            Children = new List<OptionalAk2>
+                            {
+                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
+                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                            }
+                        }
+                    },
+                    RequiredSingleAk = new RequiredSingleAk1
                     {
                         Id = IntSentinel,
                         AlternateId = Guid.NewGuid(),
-                        RequiredChildren = new List<Required1>
-                            {
-                                new Required1
-                                    {
-                                        Id = IntSentinel,
-                                        ParentId = IntSentinel,
-                                        Children = new List<Required2>
-                                            {
-                                                new Required2 { ParentId = IntSentinel, Id = IntSentinel },
-                                                new Required2 { ParentId = IntSentinel, Id = IntSentinel }
-                                            }
-                                    },
-                                new Required1
-                                    {
-                                        Id = IntSentinel,
-                                        ParentId = IntSentinel,
-                                        Children = new List<Required2>
-                                            {
-                                                new Required2 { ParentId = IntSentinel, Id = IntSentinel },
-                                                new Required2 { ParentId = IntSentinel, Id = IntSentinel }
-                                            }
-                                    }
-                            },
-                        OptionalChildren = new List<Optional1>
-                            {
-                                new Optional1
-                                    {
-                                        Id = IntSentinel,
-                                        Children = new List<Optional2>
-                                            {
-                                                new Optional2 { Id = IntSentinel },
-                                                new Optional2 { Id = IntSentinel }
-                                            }
-                                    },
-                                new Optional1
-                                    {
-                                        Id = IntSentinel,
-                                        Children = new List<Optional2>
-                                            {
-                                                new Optional2 { Id = IntSentinel },
-                                                new Optional2 { Id = IntSentinel }
-                                            }
-                                    }
-                            },
-                        RequiredSingle = new RequiredSingle1
-                            {
-                                Id = IntSentinel,
-                                Single = new RequiredSingle2 { Id = IntSentinel }
-                            },
-                        OptionalSingle = new OptionalSingle1
-                            {
-                                Id = IntSentinel,
-                                Single = new OptionalSingle2 { Id = IntSentinel }
-                            },
-                        RequiredNonPkSingle = new RequiredNonPkSingle1
-                            {
-                                Id = IntSentinel,
-                                RootId = IntSentinel,
-                                Single = new RequiredNonPkSingle2 { BackId = IntSentinel, Id = IntSentinel }
-                            },
-                        RequiredChildrenAk = new List<RequiredAk1>
-                            {
-                                new RequiredAk1
-                                    {
-                                        Id = IntSentinel,
-                                        AlternateId = Guid.NewGuid(),
-                                        Children = new List<RequiredAk2>
-                                            {
-                                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                                            }
-                                    },
-                                new RequiredAk1
-                                    {
-                                        Id = IntSentinel,
-                                        AlternateId = Guid.NewGuid(),
-                                        Children = new List<RequiredAk2>
-                                            {
-                                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                                            }
-                                    }
-                            },
-                        OptionalChildrenAk = new List<OptionalAk1>
-                            {
-                                new OptionalAk1
-                                    {
-                                        Id = IntSentinel,
-                                        AlternateId = Guid.NewGuid(),
-                                        Children = new List<OptionalAk2>
-                                            {
-                                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                                            }
-                                    },
-                                new OptionalAk1
-                                    {
-                                        Id = IntSentinel,
-                                        AlternateId = Guid.NewGuid(),
-                                        Children = new List<OptionalAk2>
-                                            {
-                                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                                            }
-                                    }
-                            },
-                        RequiredSingleAk = new RequiredSingleAk1
-                            {
-                                Id = IntSentinel,
-                                AlternateId = Guid.NewGuid(),
-                                Single = new RequiredSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                            },
-                        OptionalSingleAk = new OptionalSingleAk1
-                            {
-                                Id = IntSentinel,
-                                AlternateId = Guid.NewGuid(),
-                                Single = new OptionalSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                            },
-                        RequiredNonPkSingleAk = new RequiredNonPkSingleAk1
-                            {
-                                Id = IntSentinel,
-                                AlternateId = Guid.NewGuid(),
-                                Single = new RequiredNonPkSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
-                            }
-                    };
+                        Single = new RequiredSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                    },
+                    OptionalSingleAk = new OptionalSingleAk1
+                    {
+                        Id = IntSentinel,
+                        AlternateId = Guid.NewGuid(),
+                        Single = new OptionalSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                    },
+                    RequiredNonPkSingleAk = new RequiredNonPkSingleAk1
+                    {
+                        Id = IntSentinel,
+                        AlternateId = Guid.NewGuid(),
+                        Single = new RequiredNonPkSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                    }
+                };
             }
 
             protected static void SetSentinelValues(ModelBuilder modelBuilder, int intSentinel)

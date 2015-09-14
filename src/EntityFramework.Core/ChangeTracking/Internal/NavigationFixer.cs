@@ -77,8 +77,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var dependentProperties = foreignKey.Properties;
             var principalProperties = foreignKey.PrincipalKey.Properties;
 
-            // TODO: What if the other entry is not yet being tracked?
-            // Issue #323
             if (navigation.PointsToPrincipal())
             {
                 if (newValue != null)
@@ -133,8 +131,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var dependentProperties = navigation.ForeignKey.Properties;
             var principalValues = principalProperties.Select(p => entry[p]).ToList();
 
-            // TODO: What if the entity is not yet being tracked?
-            // Issue #323
             foreach (var entity in removed)
             {
                 ConditionallySetNullForeignKey(entry.StateManager.GetOrCreateEntry(entity), dependentProperties, principalValues);
@@ -450,8 +446,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var dependentProperty in dependentProperties)
             {
-                // TODO: Conceptual nulls
-                // Issue #323
                 dependentEntry[dependentProperty] = null;
                 dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
             }
