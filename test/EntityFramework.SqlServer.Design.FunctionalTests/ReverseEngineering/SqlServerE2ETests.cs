@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                         "EntityFramework.Core",
                         "EntityFramework.Relational",
                         "EntityFramework.SqlServer",
-#if DNXCORE50 || NETCORE50
+#if DNXCORE50
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",

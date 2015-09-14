@@ -90,8 +90,8 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
-    <None Include="build\netcore50\EntityFramework.Commands.props" />
-    <None Include="lib\netcore50\_._" />
+    <None Include="build\uap10.0\EntityFramework.Commands.props" />
+    <None Include="lib\uap10.0\_._" />
     <None Include="project.json" />
     <None Include="tools\about_EntityFramework.help.txt" />
     <None Include="tools\EntityFramework.psd1" />

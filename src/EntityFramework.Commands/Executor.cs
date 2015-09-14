@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Commands
 
         // Load MigrationTool and DatabaseTool lazily to avoid loading their dependencies
         // when the other one is being run (this prevents problems loading Microsoft.AspNet.Razor
-        // which is not available on netcore50).
+        // which is not available on uap10.0).
         public virtual MigrationTool CreateMigrationTool()
         {
             return new MigrationTool(_loggerProvider, _migrationTargetAssembly);

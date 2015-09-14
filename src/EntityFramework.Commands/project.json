@@ -40,9 +40,9 @@
         "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*"
       }
     },
-    "netcore50": {
+    "uap10.0": {
       "bin": {
-        "assembly": "lib\\netcore50\\_._"
+        "assembly": "lib\\uap10.0\\_._"
       }
     }
   },

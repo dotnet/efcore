@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
         {
             _isInitialized = true;
 
-#if DNXCORE50 || NETCORE50
+#if DNXCORE50
             AddReferenceFromName("System.Collections");
             AddReferenceFromName("System.Dynamic.Runtime");
             AddReferenceFromName("System.Linq");
