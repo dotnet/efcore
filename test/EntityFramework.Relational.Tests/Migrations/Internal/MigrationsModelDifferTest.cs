@@ -938,6 +938,48 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal("dbo", operation.PrincipalSchema);
                     Assert.Equal("Amoeba", operation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
+                });
+        }
+
+        [Fact]
+        public void Add_foreign_key_with_cascade_delete()
+        {
+            Execute(
+                source => source.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId");
+                    }),
+                target => target.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId");
+                        x.Reference("Amoeba").InverseCollection().ForeignKey("ParentId").WillCascadeOnDelete();
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Amoeba", operation.Table);
+                    Assert.Equal("FK_Amoeba_Amoeba_ParentId", operation.Name);
+                    Assert.Equal(new[] { "ParentId" }, operation.Columns);
+                    Assert.Equal("dbo", operation.PrincipalSchema);
+                    Assert.Equal("Amoeba", operation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
                 });
         }
 
@@ -1062,6 +1104,54 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal("dbo", addOperation.PrincipalSchema);
                     Assert.Equal("Mushroom", addOperation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, addOperation.PrincipalColumns);
+                });
+        }
+
+        [Fact]
+        public void Alter_foreign_key_cascade_delete()
+        {
+            Execute(
+                source => source.Entity(
+                    "Mushroom",
+                    x =>
+                    {
+                        x.ToTable("Mushroom", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId1");
+                        x.Reference("Mushroom").InverseCollection().ForeignKey("ParentId1");
+                        x.Property<int>("ParentId2");
+                    }),
+                target => target.Entity(
+                    "Mushroom",
+                    x =>
+                    {
+                        x.ToTable("Mushroom", "dbo");
+                        x.Property<int>("Id");
+                        x.Key("Id");
+                        x.Property<int>("ParentId1");
+                        x.Reference("Mushroom").InverseCollection().ForeignKey("ParentId1").WillCascadeOnDelete();
+                        x.Property<int>("ParentId2");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(2, operations.Count);
+
+                    var dropOperation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", dropOperation.Schema);
+                    Assert.Equal("Mushroom", dropOperation.Table);
+                    Assert.Equal("FK_Mushroom_Mushroom_ParentId1", dropOperation.Name);
+
+                    var addOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                    Assert.Equal("dbo", addOperation.Schema);
+                    Assert.Equal("Mushroom", addOperation.Table);
+                    Assert.Equal("FK_Mushroom_Mushroom_ParentId1", addOperation.Name);
+                    Assert.Equal(new[] { "ParentId1" }, addOperation.Columns);
+                    Assert.Equal("dbo", addOperation.PrincipalSchema);
+                    Assert.Equal("Mushroom", addOperation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, addOperation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Cascade, addOperation.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, addOperation.OnUpdate);
                 });
         }
 

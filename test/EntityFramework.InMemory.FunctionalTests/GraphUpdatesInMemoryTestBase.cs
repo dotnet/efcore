@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
+using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
@@ -13,6 +14,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         protected GraphUpdatesInMemoryTestBase(TFixture fixture)
             : base(fixture)
         {
+        }
+
+        [Fact]
+        public override void Required_many_to_one_dependents_are_cascade_deleted()
+        {
+            // Cascade delete not supported by in-memory database
         }
 
         public abstract class GraphUpdatesInMemoryFixtureBase : GraphUpdatesFixtureBase

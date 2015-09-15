@@ -1699,6 +1699,47 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Required_many_to_one_dependents_are_cascade_deleted()
+        {
+            int removed1;
+            List<int> removed2s;
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots
+                    .Include(q => q.RequiredChildren)
+                    .ThenInclude(q => q.Children)
+                    .Single();
+
+                Assert.Equal(2, root.RequiredChildren.Count);
+
+                var toRemove = root.RequiredChildren.First();
+
+                removed1 = toRemove.Id;
+                removed2s = toRemove.Children.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, removed2s.Count);
+
+                context.Remove(toRemove);
+
+                context.SaveChanges();
+
+                // TODO: Test delete also happened in state manager
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(q => q.RequiredChildren).Single();
+
+                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.DoesNotContain(removed1, root.RequiredChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Required1s.Where(e => e.Id == removed1));
+                Assert.Empty(context.Required2s.Where(e => removed2s.Contains(e.Id)));
+            }
+        }
+
         public enum ChangeMechanism
         {
             Dependent,
@@ -2203,7 +2244,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         b.Collection(e => e.RequiredChildren)
                             .InverseReference(e => e.Parent)
-                            .ForeignKey(e => e.ParentId);
+                            .ForeignKey(e => e.ParentId)
+                            .WillCascadeOnDelete();
 
                         b.Collection(e => e.OptionalChildren)
                             .InverseReference(e => e.Parent)
@@ -2211,7 +2253,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         b.Reference(e => e.RequiredSingle)
                             .InverseReference(e => e.Root)
-                            .ForeignKey<RequiredSingle1>(e => e.Id);
+                            .ForeignKey<RequiredSingle1>(e => e.Id)
+                            .WillCascadeOnDelete();
 
                         b.Reference(e => e.OptionalSingle)
                             .InverseReference(e => e.Root)
@@ -2219,12 +2262,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         b.Reference(e => e.RequiredNonPkSingle)
                             .InverseReference(e => e.Root)
-                            .ForeignKey<RequiredNonPkSingle1>(e => e.RootId);
+                            .ForeignKey<RequiredNonPkSingle1>(e => e.RootId)
+                            .WillCascadeOnDelete();
 
                         b.Collection(e => e.RequiredChildrenAk)
                             .InverseReference(e => e.Parent)
                             .PrincipalKey(e => e.AlternateId)
-                            .ForeignKey(e => e.ParentId);
+                            .ForeignKey(e => e.ParentId)
+                            .WillCascadeOnDelete();
 
                         b.Collection(e => e.OptionalChildrenAk)
                             .InverseReference(e => e.Parent)
@@ -2234,7 +2279,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Reference(e => e.RequiredSingleAk)
                             .InverseReference(e => e.Root)
                             .PrincipalKey<Root>(e => e.AlternateId)
-                            .ForeignKey<RequiredSingleAk1>(e => e.AlternateId);
+                            .ForeignKey<RequiredSingleAk1>(e => e.AlternateId)
+                            .WillCascadeOnDelete();
 
                         b.Reference(e => e.OptionalSingleAk)
                             .InverseReference(e => e.Root)
@@ -2244,13 +2290,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Reference(e => e.RequiredNonPkSingleAk)
                             .InverseReference(e => e.Root)
                             .PrincipalKey<Root>(e => e.AlternateId)
-                            .ForeignKey<RequiredNonPkSingleAk1>(e => e.RootId);
+                            .ForeignKey<RequiredNonPkSingleAk1>(e => e.RootId)
+                            .WillCascadeOnDelete();
                     });
 
                 modelBuilder.Entity<Required1>()
                     .Collection(e => e.Children)
                     .InverseReference(e => e.Parent)
-                    .ForeignKey(e => e.ParentId);
+                    .ForeignKey(e => e.ParentId)
+                            .WillCascadeOnDelete();
 
                 modelBuilder.Entity<Optional1>()
                     .Collection(e => e.Children)
@@ -2260,7 +2308,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 modelBuilder.Entity<RequiredSingle1>()
                     .Reference(e => e.Single)
                     .InverseReference(e => e.Back)
-                    .ForeignKey<RequiredSingle2>(e => e.Id);
+                    .ForeignKey<RequiredSingle2>(e => e.Id)
+                            .WillCascadeOnDelete();
 
                 modelBuilder.Entity<OptionalSingle1>()
                     .Reference(e => e.Single)
@@ -2270,7 +2319,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 modelBuilder.Entity<RequiredNonPkSingle1>()
                     .Reference(e => e.Single)
                     .InverseReference(e => e.Back)
-                    .ForeignKey<RequiredNonPkSingle2>(e => e.BackId);
+                    .ForeignKey<RequiredNonPkSingle2>(e => e.BackId)
+                            .WillCascadeOnDelete();
 
                 modelBuilder.Entity<RequiredAk1>(b =>
                     {
@@ -2280,7 +2330,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Collection(e => e.Children)
                             .InverseReference(e => e.Parent)
                             .PrincipalKey(e => e.AlternateId)
-                            .ForeignKey(e => e.ParentId);
+                            .ForeignKey(e => e.ParentId)
+                            .WillCascadeOnDelete();
                     });
 
                 modelBuilder.Entity<OptionalAk1>(b =>
@@ -2302,7 +2353,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Reference(e => e.Single)
                             .InverseReference(e => e.Back)
                             .ForeignKey<RequiredSingleAk2>(e => e.AlternateId)
-                            .PrincipalKey<RequiredSingleAk1>(e => e.AlternateId);
+                            .PrincipalKey<RequiredSingleAk1>(e => e.AlternateId)
+                            .WillCascadeOnDelete();
                     });
 
                 modelBuilder.Entity<OptionalSingleAk1>(b =>
@@ -2324,7 +2376,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Reference(e => e.Single)
                             .InverseReference(e => e.Back)
                             .ForeignKey<RequiredNonPkSingleAk2>(e => e.BackId)
-                            .PrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId);
+                            .PrincipalKey<RequiredNonPkSingleAk1>(e => e.AlternateId)
+                            .WillCascadeOnDelete();
                     });
 
                 modelBuilder.Entity<RequiredAk2>()

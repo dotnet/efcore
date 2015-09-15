@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                     var principalCreateTableOperation = createTableOperations.FirstOrDefault(
                         o => o.Name == addForeignKeyOperation.PrincipalTable
-                            && o.Schema == addForeignKeyOperation.PrincipalSchema);
+                             && o.Schema == addForeignKeyOperation.PrincipalSchema);
                     if (principalCreateTableOperation != null)
                     {
                         createTableGraph.AddEdge(principalCreateTableOperation, createTableOperation, addForeignKeyOperation);
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 }
             }
             createTableOperations = createTableGraph.TopologicalSort(
-                    (principalCreateTableOperation, createTableOperation, addForeignKeyOperations) =>
+                (principalCreateTableOperation, createTableOperation, addForeignKeyOperations) =>
                     {
                         foreach (var addForeignKeyOperation in addForeignKeyOperations)
                         {
@@ -196,11 +196,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var newDiffContext = new DiffContext();
             dropTableOperations = dropTableGraph.TopologicalSort(
                 (dropTableOperation, principalDropTableOperation, foreignKeys) =>
-                {
-                    dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
+                    {
+                        dropForeignKeyOperations.AddRange(foreignKeys.SelectMany(c => Remove(c, newDiffContext)));
 
-                    return true;
-                }).ToList();
+                        return true;
+                    }).ToList();
 
             return dropForeignKeyOperations
                 .Concat(dropOperations)
@@ -383,11 +383,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 source,
                 target,
                 (s, t) =>
-                {
-                    diffContext.AddMapping(s, t);
+                    {
+                        diffContext.AddMapping(s, t);
 
-                    return Diff(s, t);
-                },
+                        return Diff(s, t);
+                    },
                 t => Add(t),
                 Remove,
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase),
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var isTargetColumnNullable = target.IsColumnNullable();
             var isNullableChanged = isSourceColumnNullable != isTargetColumnNullable;
             var columnTypeChanged = source.ClrType.UnwrapNullableType().UnwrapEnumType() != targetClrType
-                || sourceAnnotations.ColumnType != targetAnnotations.ColumnType;
+                                    || sourceAnnotations.ColumnType != targetAnnotations.ColumnType;
             if (isNullableChanged
                 || columnTypeChanged
                 || sourceAnnotations.GeneratedValueSql != targetAnnotations.GeneratedValueSql
@@ -429,7 +429,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
-                                          // TODO: Detect type narrowing
+                    // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
@@ -465,11 +465,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 ColumnType = targetAnnotations.ColumnType,
                 IsNullable = target.IsColumnNullable(),
                 DefaultValue = targetAnnotations.DefaultValue
-                    ?? (inline || target.IsColumnNullable()
-                        ? null
-                        : GetDefaultValue(target.ClrType)),
+                               ?? (inline || target.IsColumnNullable()
+                                   ? null
+                                   : GetDefaultValue(target.ClrType)),
                 DefaultValueSql = target.ValueGenerated == ValueGenerated.OnAdd ? targetAnnotations.GeneratedValueSql : null,
-                ComputedColumnSql = target.ValueGenerated == ValueGenerated.OnAddOrUpdate ? targetAnnotations.GeneratedValueSql : null,
+                ComputedColumnSql = target.ValueGenerated == ValueGenerated.OnAddOrUpdate ? targetAnnotations.GeneratedValueSql : null
             };
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
 
@@ -578,13 +578,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
-                (s, t) =>
-                    {
-                        return Annotations.For(s).Name == Annotations.For(t).Name
-                               && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                               && diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType()
-                               && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties);
-                    });
+                (s, t) => Annotations.For(s).Name == Annotations.For(t).Name
+                          && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
+                          && diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType()
+                          && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
+                          && s.DeleteBehavior == t.DeleteBehavior);
 
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
@@ -606,7 +604,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 Columns = GetColumns(target.Properties),
                 PrincipalSchema = targetPrincipalEntityTypeAnnotations.Schema,
                 PrincipalTable = targetPrincipalEntityTypeAnnotations.TableName,
-                PrincipalColumns = GetColumns(target.PrincipalKey.Properties)
+                PrincipalColumns = GetColumns(target.PrincipalKey.Properties),
+                OnDelete = target.DeleteBehavior == DeleteBehavior.Cascade
+                    ? ReferentialAction.Cascade
+                    : ReferentialAction.NoAction
             };
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
 
@@ -901,17 +902,22 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         {
             private readonly IDictionary<IEntityType, IEntityType> _entityTypeMap = new Dictionary<IEntityType, IEntityType>();
             private readonly IDictionary<IProperty, IProperty> _propertyMap = new Dictionary<IProperty, IProperty>();
+
             private readonly IDictionary<IEntityType, CreateTableOperation> _createTableOperations
                 = new Dictionary<IEntityType, CreateTableOperation>();
+
             private readonly IDictionary<IEntityType, DropTableOperation> _dropTableOperations
                 = new Dictionary<IEntityType, DropTableOperation>();
+
             private readonly IDictionary<DropTableOperation, IEntityType> _removedEntityTypes
                 = new Dictionary<DropTableOperation, IEntityType>();
 
             public virtual void AddMapping([NotNull] IEntityType source, [NotNull] IEntityType target)
                 => _entityTypeMap.Add(source, target);
+
             public virtual void AddMapping([NotNull] IProperty source, [NotNull] IProperty target)
                 => _propertyMap.Add(source, target);
+
             public virtual void AddCreate([NotNull] IEntityType target, [NotNull] CreateTableOperation operation)
                 => _createTableOperations.Add(target, operation);
 
