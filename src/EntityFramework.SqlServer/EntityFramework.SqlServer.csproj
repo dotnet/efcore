@@ -148,6 +148,7 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.Data.Entity.SqlServer</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
   </ItemGroup>

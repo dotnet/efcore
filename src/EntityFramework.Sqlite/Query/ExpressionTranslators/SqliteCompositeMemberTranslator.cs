@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.SqlServer.Query.Methods;
 
-namespace Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public class SqliteCompositeMemberTranslator : RelationalCompositeMemberTranslator
     {
@@ -13,7 +11,7 @@ namespace Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators
         {
             var sqliteTranslators = new List<IMemberTranslator>
             {
-                new StringLengthTranslator()
+                new SqliteStringLengthTranslator()
             };
 
             AddTranslators(sqliteTranslators);

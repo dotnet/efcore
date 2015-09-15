@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Metadata.Builders

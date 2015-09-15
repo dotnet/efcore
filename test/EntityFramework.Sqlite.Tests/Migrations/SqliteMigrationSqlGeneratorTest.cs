@@ -3,8 +3,9 @@
 
 using System;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Sqlite;
+using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Xunit;
 
@@ -22,9 +23,9 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual void It_lifts_foreign_key_additions()
         {
             Generate(new CreateTableOperation
-                {
-                    Name = "Pie",
-                    Columns =
+            {
+                Name = "Pie",
+                Columns =
                         {
                             new AddColumnOperation
                                 {
@@ -33,13 +34,13 @@ namespace Microsoft.Data.Entity.Migrations
                                     ColumnType = "INT"
                                 }
                         }
-                }, new AddForeignKeyOperation
-                    {
-                        Table = "Pie",
-                        PrincipalTable = "Flavor",
-                        Columns = new[] { "FlavorId" },
-                        PrincipalColumns = new[] { "Id" }
-                    });
+            }, new AddForeignKeyOperation
+            {
+                Table = "Pie",
+                PrincipalTable = "Flavor",
+                Columns = new[] { "FlavorId" },
+                PrincipalColumns = new[] { "Id" }
+            });
 
             Assert.Equal(@"CREATE TABLE ""Pie"" (
     ""FlavorId"" INT NOT NULL,

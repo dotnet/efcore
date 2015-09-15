@@ -3,10 +3,9 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
     public class SqliteCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {
@@ -15,9 +14,9 @@ namespace Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators
         {
             var sqliteTranslators = new List<IMethodCallTranslator>
             {
-                new MathAbsTranslator(),
-                new StringToLowerTranslator(),
-                new StringToUpperTranslator(),
+                new SqliteMathAbsTranslator(),
+                new SqliteStringToLowerTranslator(),
+                new SqliteStringToUpperTranslator(),
             };
 
             AddTranslators(sqliteTranslators);

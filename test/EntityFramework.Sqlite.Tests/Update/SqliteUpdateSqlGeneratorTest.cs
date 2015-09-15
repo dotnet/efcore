@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Update;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite
+namespace Microsoft.Data.Entity.Update
 {
-    public class SqliteSqlGeneratorTest : SqlGeneratorTestBase
+    public class SqliteUpdateSqlGeneratorTest : SqlGeneratorTestBase
     {
         protected override IUpdateSqlGenerator CreateSqlGenerator() => new SqliteUpdateSqlGenerator();
         protected override string RowsAffected => "changes()";

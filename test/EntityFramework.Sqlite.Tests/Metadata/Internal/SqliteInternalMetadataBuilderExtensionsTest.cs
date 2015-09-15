@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Metadata
 {
-    public class InternalSqliteMetadataBuilderExtensionsTest
+    public class SqliteInternalMetadataBuilderExtensionsTest
     {
         private InternalModelBuilder CreateBuilder()
             => new InternalModelBuilder(new Model(), new ConventionSet());

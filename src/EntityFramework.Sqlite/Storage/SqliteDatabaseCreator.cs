@@ -5,9 +5,8 @@ using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.Sqlite
+namespace Microsoft.Data.Entity.Storage
 {
     public class SqliteDatabaseCreator : RelationalDatabaseCreator
     {

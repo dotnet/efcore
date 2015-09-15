@@ -78,7 +78,7 @@ namespace {0}
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class {2}
     {{

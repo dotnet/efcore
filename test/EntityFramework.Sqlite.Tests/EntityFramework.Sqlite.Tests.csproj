@@ -8,7 +8,7 @@
     <ProjectGuid>{4E8D7833-A710-41A9-BD77-DF985D41857C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Sqlite</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>EntityFramework.Sqlite.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -36,15 +36,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="Extensions\SqliteDbContextOptionsBuilderExtensionsTest.cs" />
+    <Compile Include="SqliteDbContextOptionsBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\Builders\SqliteBuilderExtensionsTest.cs" />
-    <Compile Include="Metadata\InternalSqliteMetadataBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\Internal\SqliteInternalMetadataBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqliteMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqliteMigrationAnnotationProviderTest.cs" />
     <Compile Include="Migrations\SqliteMigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\SqliteHistoryRepositoryTest.cs" />
-    <Compile Include="SqliteEntityFrameworkServicesBuilderExtensionsTest.cs" />
-    <Compile Include="SqliteSqlGeneratorTest.cs" />
+    <Compile Include="Infrastructure\SqliteEntityFrameworkServicesBuilderExtensionsTest.cs" />
+    <Compile Include="Update\SqliteUpdateSqlGeneratorTest.cs" />
     <Compile Include="Storage\SqliteTypeMappingTest.cs" />
     <None Include="project.json" />
   </ItemGroup>

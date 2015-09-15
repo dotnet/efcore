@@ -3,7 +3,7 @@
 
 using System;
 using System.Text;
-using Microsoft.Data.Entity.Sqlite;
+using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update

@@ -1,13 +1,11 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-
-namespace Microsoft.Data.Entity.Sqlite.Query.ExpressionTranslators
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
-    public class StringToLowerTranslator : ParameterlessInstanceMethodCallTranslator
+    public class SqliteStringToLowerTranslator : ParameterlessInstanceMethodCallTranslator
     {
-        public StringToLowerTranslator()
+        public SqliteStringToLowerTranslator()
             : base(declaringType: typeof(string), clrMethodName: "ToLower", sqlFunctionName: "lower")
         {
         }

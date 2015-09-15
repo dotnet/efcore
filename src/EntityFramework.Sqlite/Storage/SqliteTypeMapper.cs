@@ -4,9 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 
-namespace Microsoft.Data.Entity.Sqlite
+namespace Microsoft.Data.Entity.Storage
 {
     public class SqliteTypeMapper : RelationalTypeMapper
     {

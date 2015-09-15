@@ -4,7 +4,6 @@
 using System.Reflection;
 using System.Resources;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]

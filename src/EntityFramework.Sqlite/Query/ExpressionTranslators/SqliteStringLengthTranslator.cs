@@ -4,11 +4,10 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
 
-namespace Microsoft.Data.Entity.SqlServer.Query.Methods
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
-    public class StringLengthTranslator : IMemberTranslator
+    public class SqliteStringLengthTranslator : IMemberTranslator
     {
         public virtual Expression Translate([NotNull] MemberExpression memberExpression)
         {

@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Sqlite;
+using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
