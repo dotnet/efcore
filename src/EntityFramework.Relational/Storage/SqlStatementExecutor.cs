@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(relationalCommands, nameof(relationalCommands));
 
-            await connection.OpenAsync();
+            await connection.OpenAsync(cancellationToken);
 
             try
             {
