@@ -23,14 +23,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var services = ((IAccessor<IServiceProvider>)context1).Service.GetService<IDbContextServices>().DatabaseProviderServices;
                 query = context1.Set<Poco1>().Skip(4).Take(10).Expression;
                 var generator = services.CompiledQueryCacheKeyGenerator;
-                key1 = generator.GenerateCacheKey(query, services.Database, false);
+                key1 = generator.GenerateCacheKey(query, false);
             }
 
             using (var context2 = new QueryKeyCacheContext(rowNumberPaging: false))
             {
                 var services = ((IAccessor<IServiceProvider>)context2).Service.GetService<IDbContextServices>().DatabaseProviderServices;
                 var generator = services.CompiledQueryCacheKeyGenerator;
-                key2 = generator.GenerateCacheKey(query, services.Database, false);
+                key2 = generator.GenerateCacheKey(query, false);
             }
 
             Assert.NotEqual(key1, key2);
@@ -38,17 +38,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public class QueryKeyCacheContext : DbContext
         {
-            private bool _rowNumberPaging;
+            private readonly bool _rowNumberPaging;
 
             public QueryKeyCacheContext(bool rowNumberPaging)
             {
                 _rowNumberPaging = rowNumberPaging;
             }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Poco1>();
-            }
+            protected override void OnModelCreating(ModelBuilder modelBuilder) => modelBuilder.Entity<Poco1>();
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -60,6 +57,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Poco1
         {
             public int Id { get; set; }

@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -21,19 +20,22 @@ namespace Microsoft.Data.Entity.Query
             _model = model;
         }
 
-        public virtual object GenerateCacheKey([NotNull] Expression query, IDatabase database, bool async)
+        public virtual object GenerateCacheKey(Expression query, bool async)
+            => GenerateCacheKeyCore(query, async);
+
+        protected CompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new CompiledQueryCacheKey(
                 new ExpressionStringBuilder().Build(Check.NotNull(query, nameof(query))),
                 _model,
                 async);
 
-        private struct CompiledQueryCacheKey
+        protected struct CompiledQueryCacheKey
         {
             private readonly string _query;
             private readonly IModel _model;
             private readonly bool _async;
 
-            public CompiledQueryCacheKey(string query, IModel model, bool async)
+            public CompiledQueryCacheKey([NotNull] string query, [NotNull] IModel model, bool async)
             {
                 _query = query;
                 _model = model;

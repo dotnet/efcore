@@ -3,12 +3,11 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query
 {
     public interface ICompiledQueryCacheKeyGenerator
     {
-        object GenerateCacheKey([NotNull] Expression query, [NotNull] IDatabase database, bool async);
+        object GenerateCacheKey([NotNull] Expression query, bool async);
     }
 }

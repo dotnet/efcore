@@ -4,62 +4,57 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
-    public class RelationalCompiledQueryCacheKeyGenerator : ICompiledQueryCacheKeyGenerator
+    public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
     {
-        private readonly IModel _model;
+        private readonly RelationalDatabase _relationalDatabase;
 
-        public RelationalCompiledQueryCacheKeyGenerator([NotNull] IModel model)
+        public RelationalCompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] RelationalDatabase relationalDatabase)
+            : base(model)
         {
-            _model = model;
+            Check.NotNull(relationalDatabase, nameof(relationalDatabase));
+
+            _relationalDatabase = relationalDatabase;
         }
 
-        public virtual object GenerateCacheKey([NotNull] Expression query, IDatabase database, bool async)
-            => new CompiledQueryCacheKey(
-                new ExpressionStringBuilder().Build(query),
-                _model,
-                async,
-                ((RelationalDatabase)database).UseRelationalNulls);
+        public override object GenerateCacheKey(Expression query, bool async)
+            => GenerateCacheKeyCore(query, async);
 
-        private struct CompiledQueryCacheKey
+        protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
+            => new RelationalCompiledQueryCacheKey(
+                base.GenerateCacheKeyCore(query, async),
+                _relationalDatabase.UseRelationalNulls);
+
+        protected struct RelationalCompiledQueryCacheKey
         {
-            private readonly string _query;
-            private readonly IModel _model;
-            private readonly bool _async;
+            private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
             private readonly bool _useRelationalNulls;
 
-            public CompiledQueryCacheKey(string query, IModel model, bool async, bool useRelationalNulls)
+            public RelationalCompiledQueryCacheKey(
+                CompiledQueryCacheKey compiledQueryCacheKey, bool useRelationalNulls)
             {
-                _query = query;
-                _model = model;
-                _async = async;
+                _compiledQueryCacheKey = compiledQueryCacheKey;
                 _useRelationalNulls = useRelationalNulls;
             }
 
             public override bool Equals(object obj)
                 => !ReferenceEquals(null, obj)
-                   && (obj is CompiledQueryCacheKey && Equals((CompiledQueryCacheKey)obj));
+                   && (obj is RelationalCompiledQueryCacheKey
+                       && Equals((RelationalCompiledQueryCacheKey)obj));
 
-            private bool Equals(CompiledQueryCacheKey other)
-                => string.Equals(_query, other._query)
-                   && _model.Equals(other._model)
-                   && _async == other._async
+            private bool Equals(RelationalCompiledQueryCacheKey other)
+                => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
                    && _useRelationalNulls == other._useRelationalNulls;
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    var hashCode = _query.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _model.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _async.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _useRelationalNulls.GetHashCode();
-
-                    return hashCode;
+                    return (_compiledQueryCacheKey.GetHashCode() * 397) ^ _useRelationalNulls.GetHashCode();
                 }
             }
         }

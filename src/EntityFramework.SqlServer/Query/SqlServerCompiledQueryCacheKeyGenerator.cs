@@ -5,75 +5,58 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class SqlServerCompiledQueryCacheKeyGenerator : ICompiledQueryCacheKeyGenerator
+    public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCacheKeyGenerator
     {
-        private readonly IDbContextOptions _dbOptions;
-        private readonly IModel _model;
+        private readonly IDbContextOptions _dbContextOptions;
 
-        public SqlServerCompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] IDbContextOptions dbOptions)
+        public SqlServerCompiledQueryCacheKeyGenerator(
+            [NotNull] IModel model,
+            [NotNull] RelationalDatabase relationalDatabase,
+            [NotNull] IDbContextOptions dbContextOptions)
+            : base(model, relationalDatabase)
         {
-            Check.NotNull(model, nameof(_model));
-            Check.NotNull(dbOptions, nameof(dbOptions));
+            Check.NotNull(dbContextOptions, nameof(dbContextOptions));
 
-            _model = model;
-            _dbOptions = dbOptions;
+            _dbContextOptions = dbContextOptions;
         }
 
-        public virtual object GenerateCacheKey([NotNull] Expression query, IDatabase database, bool async)
-            => new CompiledQueryCacheKey(
-                new ExpressionStringBuilder().Build(Check.NotNull(query, nameof(query))),
-                _model,
-                async,
-                ((RelationalDatabase)database).UseRelationalNulls,
-                _dbOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false
-                );
+        public override object GenerateCacheKey(Expression query, bool async)
+            => new SqlServerCompiledQueryCacheKey(
+                GenerateCacheKeyCore(query, async),
+                _dbContextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
 
-        private struct CompiledQueryCacheKey
+        private struct SqlServerCompiledQueryCacheKey
         {
-            private readonly string _query;
-            private readonly IModel _model;
-            private readonly bool _async;
-            private readonly bool _useRelationalNulls;
+            private readonly RelationalCompiledQueryCacheKey _relationalCompiledQueryCacheKey;
             private readonly bool _useRowNumberOffset;
 
-            public CompiledQueryCacheKey(string query, IModel model, bool async, bool useRelationalNulls, bool useRowNumberOffset)
+            public SqlServerCompiledQueryCacheKey(
+                RelationalCompiledQueryCacheKey relationalCompiledQueryCacheKey, bool useRowNumberOffset)
             {
-                _query = query;
-                _model = model;
-                _async = async;
-                _useRelationalNulls = useRelationalNulls;
+                _relationalCompiledQueryCacheKey = relationalCompiledQueryCacheKey;
                 _useRowNumberOffset = useRowNumberOffset;
             }
 
             public override bool Equals(object obj)
                 => !ReferenceEquals(null, obj)
-                   && (obj is CompiledQueryCacheKey && Equals((CompiledQueryCacheKey)obj));
+                   && (obj is SqlServerCompiledQueryCacheKey && Equals((SqlServerCompiledQueryCacheKey)obj));
 
-            private bool Equals(CompiledQueryCacheKey other)
-                => string.Equals(_query, other._query)
-                   && _model.Equals(other._model)
-                   && _async == other._async
-                   && _useRelationalNulls == other._useRelationalNulls
+            private bool Equals(SqlServerCompiledQueryCacheKey other)
+                => _relationalCompiledQueryCacheKey.Equals(other._relationalCompiledQueryCacheKey)
                    && _useRowNumberOffset == other._useRowNumberOffset;
 
             public override int GetHashCode()
             {
                 unchecked
                 {
-                    var hashCode = _query.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _model.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _async.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _useRelationalNulls.GetHashCode();
-                    hashCode = (hashCode * 397) ^ _useRowNumberOffset.GetHashCode();
-
-                    return hashCode;
+                    return (_relationalCompiledQueryCacheKey.GetHashCode() * 397) ^ _useRowNumberOffset.GetHashCode();
                 }
             }
         }

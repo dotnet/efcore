@@ -39,6 +39,7 @@ namespace Microsoft.Data.Entity
                          && !method.Name.StartsWith("add_")
                          && !method.Name.StartsWith("remove_")
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                         && method.Name != "GenerateCacheKeyCore"
                    select type.FullName + "." + method.Name)
                     .ToList();
 
