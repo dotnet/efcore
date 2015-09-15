@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,7 +11,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
@@ -25,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public ReverseEngineeringGenerator(
             [NotNull] ILogger logger,
             [NotNull] IFileService fileService,
-            [NotNull] ModelUtilities modelUtilities, 
+            [NotNull] ModelUtilities modelUtilities,
             [NotNull] IDatabaseMetadataModelProvider metadataModelProvider,
             [NotNull] ModelConfigurationFactory modelConfigurationFactory,
             [NotNull] CodeWriter codeWriter)
@@ -47,7 +45,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual CodeWriter CodeWriter { get; }
 
-        public virtual async Task<IReadOnlyList<string>> GenerateAsync(
+        public virtual Task<ReverseEngineerFiles> GenerateAsync(
             [NotNull] ReverseEngineeringConfiguration configuration,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -80,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 ? configuration.ProjectPath
                 : Path.Combine(configuration.ProjectPath, configuration.RelativeOutputPath);
 
-            return await CodeWriter.WriteCodeAsync(
+            return CodeWriter.WriteCodeAsync(
                 modelConfiguration, outputPath, dbContextClassName, cancellationToken);
         }
 

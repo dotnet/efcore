@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             return readOnlyFiles;
         }
 
-        public abstract Task<List<string>> WriteCodeAsync(
+        public abstract Task<ReverseEngineerFiles> WriteCodeAsync(
             [NotNull] ModelConfiguration modelConfiguration,
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,

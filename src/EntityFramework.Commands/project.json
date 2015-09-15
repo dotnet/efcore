@@ -49,7 +49,7 @@
   "packInclude": {
     "build/": "build/**",
     "lib/": "lib/**",
-    "tools/": [ "tools/**", "Handlers.cs" ]
+    "tools/": [ "tools/**", "Design\\OperationHandlers.cs" ]
   },
   "commands": {
     "ef": "EntityFramework.Commands"

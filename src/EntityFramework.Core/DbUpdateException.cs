@@ -11,16 +11,6 @@ namespace Microsoft.Data.Entity
 {
     public class DbUpdateException : Exception
     {
-        public DbUpdateException()
-        {
-            Entries = new List<InternalEntityEntry>();
-        }
-
-        public DbUpdateException([NotNull] string message)
-            : this(message, (Exception)null)
-        {
-        }
-
         public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {

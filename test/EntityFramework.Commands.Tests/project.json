@@ -6,7 +6,7 @@
     "EntityFramework.Commands": "7.0.0-*",
     "EntityFramework.Relational.Tests": "1.0.0"
   },
-  "compile": "..\\..\\src\\EntityFramework.Commands\\Handlers.cs",
+  "compile": "..\\..\\src\\EntityFramework.Commands\\Design\\OperationHandlers.cs",
   "commands": {
     "test": "xunit.runner.aspnet"
   },

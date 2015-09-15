@@ -90,6 +90,7 @@
     <Compile Include="ReverseEngineering\Internal\Templating\TemplateResult.cs" />
     <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
     <Compile Include="ReverseEngineering\ModelConfigurationFactory.cs" />
+    <Compile Include="ReverseEngineering\ReverseEngineerFiles.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
     <Compile Include="ReverseEngineering\RelationalMetadataModelProvider.cs" />

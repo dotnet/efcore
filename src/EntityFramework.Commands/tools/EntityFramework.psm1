@@ -90,8 +90,8 @@ function Add-Migration {
     $dteStartupProject = $values.StartupProject
 
     $artifacts = InvokeOperation $dteProject AddMigration @{
-        migrationName = $Name
-        contextTypeName = $contextTypeName
+        name = $Name
+        contextType = $contextTypeName
     } -startupProject $dteStartupProject
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
@@ -150,9 +150,9 @@ function Update-Database {
         throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.Migrate() at runtime.'
     }
 
-    InvokeOperation $dteProject ApplyMigration @{
-        migrationName = $Migration
-        contextTypeName = $contextTypeName
+    InvokeOperation $dteProject UpdateDatabase @{
+        targetMigration = $Migration
+        contextType = $contextTypeName
     } -startupProject $dteStartupProject
 }
 
@@ -225,10 +225,10 @@ function Script-Migration {
     $dteStartupProject = $values.StartupProject
 
     $script = InvokeOperation $dteProject ScriptMigration @{
-        fromMigrationName = $From
-        toMigrationName = $To
+        fromMigration = $From
+        toMigration = $To
         idempotent = [bool]$Idempotent
-        contextTypeName = $contextTypeName
+        contextType = $contextTypeName
     } -startupProject $dteStartupProject
 
     try {
@@ -292,7 +292,7 @@ function Remove-Migration {
     $dteStartupProject = $values.StartupProject
 
     $filesToRemove = InvokeOperation $dteProject RemoveMigration @{
-        contextTypeName = $contextTypeName
+        contextType = $contextTypeName
     } -startupProject $dteStartupProject
 
     $filesToRemove | %{
@@ -465,14 +465,14 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
 
     Write-Verbose "Using start-up project '$startupProjectName'."
 
-    if (![Type]::GetType('Microsoft.Data.Entity.Commands.ILogHandler')) {
-        Add-Type -Path (Join-Path $PSScriptRoot Handlers.cs) -CompilerParameters (
+    if (![Type]::GetType('Microsoft.Data.Entity.Design.OperationResultHandler')) {
+        Add-Type -Path (Join-Path $PSScriptRoot OperationHandlers.cs) -CompilerParameters (
             New-Object CodeDom.Compiler.CompilerParameters -Property @{
                 CompilerOptions = '/d:ENABLE_HANDLERS'
             })
     }
 
-    $logHandler = New-Object Microsoft.Data.Entity.Commands.LogHandler @(
+    $logHandler = New-Object Microsoft.Data.Entity.Design.OperationLogHandler @(
         { param ($message) Write-Error $message }
         { param ($message) Write-Warning $message }
         { param ($message) Write-Output $message }
@@ -522,7 +522,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     $domain.SetData('DataDirectory', $dataDirectory)
     try {
         $assemblyName = 'EntityFramework.Commands'
-        $typeName = 'Microsoft.Data.Entity.Commands.Executor'
+        $typeName = 'Microsoft.Data.Entity.Design.OperationExecutor'
         $targetFileName = GetProperty $properties OutputFileName
         $targetPath = Join-Path $targetDir $targetFileName
         $startupTargetFileName = GetProperty $startupProperties OutputFileName
@@ -548,7 +548,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
             $null,
             $null)
 
-        $resultHandler = New-Object Microsoft.Data.Entity.Commands.ResultHandler
+        $resultHandler = New-Object Microsoft.Data.Entity.Design.OperationResultHandler
         $currentDirectory = [IO.Directory]::GetCurrentDirectory()
 
         Write-Verbose "Using current directory '$startupTargetDir'."
@@ -574,7 +574,7 @@ function InvokeOperation($project, $operation, $arguments = @{}, $startupProject
     }
 
     if ($resultHandler.ErrorType) {
-        if ($resultHandler.ErrorType -eq 'Microsoft.Data.Entity.Commands.CommandException') {
+        if ($resultHandler.ErrorType -eq 'Microsoft.Data.Entity.Design.OperationException') {
             Write-Verbose $resultHandler.ErrorStackTrace
         }
         else {

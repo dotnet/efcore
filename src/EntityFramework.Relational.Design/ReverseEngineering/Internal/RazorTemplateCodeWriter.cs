@@ -6,7 +6,6 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
@@ -15,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
 {
-    public class RazorTemplateCodeWriter: CodeWriter
+    public class RazorTemplateCodeWriter : CodeWriter
     {
         public static readonly string DbContextTemplateResourceName =
             typeof(RazorTemplateCodeWriter).GetTypeInfo().Assembly.GetName().Name
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
 
         protected virtual RazorTemplating TemplateEngine { get;[param: NotNull] set; }
 
-        public async override Task<List<string>> WriteCodeAsync(
+        public async override Task<ReverseEngineerFiles> WriteCodeAsync(
             [NotNull] ModelConfiguration modelConfiguration,
             [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var resultingFiles = new List<string>();
+            var resultingFiles = new ReverseEngineerFiles();
 
             var templateResult = await TemplateEngine.RunTemplateAsync(
                 DbContextTemplate, modelConfiguration, cancellationToken);
@@ -73,7 +72,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
             var dbContextFileName = dbContextClassName + FileExtension;
             var dbContextFileFullPath = FileService.OutputFile(
                 outputPath, dbContextFileName, templateResult.GeneratedText);
-            resultingFiles.Add(dbContextFileFullPath);
+            resultingFiles.ContextFile = dbContextFileFullPath;
 
             foreach (var entityConfig in modelConfiguration.EntityConfigurations)
             {
@@ -89,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
                 var entityTypeFileName = entityConfig.EntityType.DisplayName() + FileExtension;
                 var entityTypeFileFullPath = FileService.OutputFile(
                     outputPath, entityTypeFileName, templateResult.GeneratedText);
-                resultingFiles.Add(entityTypeFileFullPath);
+                resultingFiles.EntityTypeFiles.Add(entityTypeFileFullPath);
             }
 
             return resultingFiles;

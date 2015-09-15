@@ -5,10 +5,10 @@ using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Design;
 using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
@@ -21,12 +21,12 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public void Migrations_compile()
         {
             var codeHelper = new CSharpHelper();
-            var generator = new CSharpMigrationGenerator(
+            var generator = new CSharpMigrationsGenerator(
                 codeHelper,
                 new CSharpMigrationOperationGenerator(codeHelper),
-                new CSharpModelGenerator(codeHelper));
+                new CSharpSnapshotGenerator(codeHelper));
 
-            var migrationCode = generator.Generate(
+            var migrationCode = generator.GenerateMigration(
                 "MyNamespace",
                 "MyMigration",
                 new[] {
@@ -130,10 +130,10 @@ namespace MyNamespace
         public void Snapshots_compile()
         {
             var codeHelper = new CSharpHelper();
-            var generator = new CSharpMigrationGenerator(
+            var generator = new CSharpMigrationsGenerator(
                 codeHelper,
                 new CSharpMigrationOperationGenerator(codeHelper),
-                new CSharpModelGenerator(codeHelper));
+                new CSharpSnapshotGenerator(codeHelper));
 
             var modelSnapshotCode = generator.GenerateSnapshot(
                 "MyNamespace",

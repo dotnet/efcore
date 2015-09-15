@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Design;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Xunit;
 

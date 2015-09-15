@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Commands.Utilities;
+using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering

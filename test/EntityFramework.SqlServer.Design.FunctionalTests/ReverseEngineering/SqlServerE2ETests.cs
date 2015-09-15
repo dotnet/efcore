@@ -29,20 +29,20 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         }
 
         protected override E2ECompiler GetCompiler() => new E2ECompiler
-            {
-                NamedReferences =
+        {
+            NamedReferences =
                     {
                         "EntityFramework.Core",
                         "EntityFramework.Relational",
                         "EntityFramework.SqlServer",
-#if DNXCORE50
+#if DNXCORE50 || NETCORE50
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",
                         "System.ComponentModel.Annotations",
 #else
                     },
-                References =
+            References =
                     {
                         MetadataReference.CreateFromFile(
                             Assembly.Load(new AssemblyName(
@@ -77,30 +77,30 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         public void E2ETest_UseAttributesInsteadOfFluentApi()
         {
             var configuration = new ReverseEngineeringConfiguration
-                {
-                    ConnectionString = _connectionString,
-                    ProjectPath = TestProjectDir,
-                    ProjectRootNamespace = TestNamespace,
-                    RelativeOutputPath = TestSubDir
-                };
+            {
+                ConnectionString = _connectionString,
+                ProjectPath = TestProjectDir,
+                ProjectRootNamespace = TestNamespace,
+                RelativeOutputPath = TestSubDir
+            };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
 
             var actualFileSet = new FileSet(InMemoryFiles, Path.Combine(TestProjectDir, TestSubDir))
-                {
-                    Files = filePaths.Select(Path.GetFileName).ToList()
-                };
+            {
+                Files = Enumerable.Repeat(filePaths.ContextFile, 1).Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
+            };
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
                 Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_UseAttributesInsteadOfFluentApi"),
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir))
-                {
-                    Files = _expectedFiles
-                };
+            {
+                Files = _expectedFiles
+            };
 
             AssertLog(new LoggerMessages
-                {
-                    Warn =
+            {
+                Warn =
                         {
                             @"For column [dbo][AllDataTypes][hierarchyidColumn]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
                             @"For column [dbo][AllDataTypes][sql_variantColumn]. Could not find type mapping for SQL Server type sql_variant. Skipping column.",
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                             @"For column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
                             @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
                         }
-                });
+            });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
             AssertCompile(actualFileSet);
         }
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
 
             var actualFileSet = new FileSet(InMemoryFiles, TestProjectDir)
             {
-                Files = filePaths.Select(Path.GetFileName).ToList()
+                Files = Enumerable.Repeat(filePaths.ContextFile, 1).Concat(filePaths.EntityTypeFiles).Select(Path.GetFileName).ToList()
             };
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),

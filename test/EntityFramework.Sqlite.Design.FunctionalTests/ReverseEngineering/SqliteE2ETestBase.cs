@@ -28,7 +28,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests.ReverseEngineering
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToOne" + DbSuffix).AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
-CREATE TABLE IF NOT EXISTS Principal ( 
+CREATE TABLE IF NOT EXISTS Principal (
     Id INTEGER PRIMARY KEY AUTOINCREMENT
 );
 CREATE TABLE IF NOT EXISTS Dependent (
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
-                    Files = results.Select(Path.GetFileName).ToList()
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -74,11 +74,11 @@ CREATE TABLE IF NOT EXISTS Dependent (
             using (var testStore = SqliteTestStore.GetOrCreateShared("OneToMany" + DbSuffix).AsTransient())
             {
                 testStore.ExecuteNonQuery(@"
-CREATE TABLE IF NOT EXISTS OneToManyPrincipal ( 
+CREATE TABLE IF NOT EXISTS OneToManyPrincipal (
     OneToManyPrincipalID1 INT,
     OneToManyPrincipalID2 INT,
     Other TEXT NOT NULL,
-    PRIMARY KEY (OneToManyPrincipalID1, OneToManyPrincipalID2) 
+    PRIMARY KEY (OneToManyPrincipalID1, OneToManyPrincipalID2)
 );
 CREATE TABLE IF NOT EXISTS OneToManyDependent (
     OneToManyDependentID1 INT NOT NULL,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
     OneToManyDependentFK1 INT,
     OneToManyDependentFK2 INT,
     PRIMARY KEY (OneToManyDependentID1, OneToManyDependentID2),
-    FOREIGN KEY ( OneToManyDependentFK1, OneToManyDependentFK2) 
+    FOREIGN KEY ( OneToManyDependentFK1, OneToManyDependentFK2)
         REFERENCES OneToManyPrincipal ( OneToManyPrincipalID1, OneToManyPrincipalID2  )
 );
 ");
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
-                    Files = results.Select(Path.GetFileName).ToList()
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -131,10 +131,10 @@ CREATE TABLE Users ( Id PRIMARY KEY);
 CREATE TABLE Groups (Id PRIMARY KEY);
 CREATE TABLE Users_Groups (
     Id PRIMARY KEY,
-    UserId, 
-    GroupId, 
-    UNIQUE (UserId, GroupId), 
-    FOREIGN KEY (UserId) REFERENCES Users (Id), 
+    UserId,
+    GroupId,
+    UNIQUE (UserId, GroupId),
+    FOREIGN KEY (UserId) REFERENCES Users (Id),
     FOREIGN KEY (GroupId) REFERENCES Groups (Id)
 );
 ");
@@ -162,7 +162,7 @@ CREATE TABLE Users_Groups (
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
-                    Files = results.Select(Path.GetFileName).ToList()
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -201,7 +201,7 @@ CREATE TABLE Users_Groups (
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
-                    Files = results.Select(Path.GetFileName).ToList()
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -240,7 +240,7 @@ CREATE TABLE Users_Groups (
         {
             using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipal" + DbSuffix).AsTransient())
             {
-                testStore.ExecuteNonQuery(@"CREATE TABLE Dependent ( 
+                testStore.ExecuteNonQuery(@"CREATE TABLE Dependent (
     Id PRIMARY KEY,
     PrincipalId INT,
     FOREIGN KEY (PrincipalId) REFERENCES Principal(Id)
@@ -277,7 +277,7 @@ CREATE TABLE Principal ( Id INT);");
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
-                    Files = results.Select(Path.GetFileName).ToList()
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
                 AssertEqualFileContents(expectedFileSet, actualFileSet);
                 AssertCompile(actualFileSet);
@@ -326,7 +326,7 @@ CREATE TABLE String (
 
                 var files = new FileSet(InMemoryFiles, "testout")
                 {
-                    Files = results.Select(Path.GetFileName).ToList()
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
                 };
                 AssertCompile(files);
             }

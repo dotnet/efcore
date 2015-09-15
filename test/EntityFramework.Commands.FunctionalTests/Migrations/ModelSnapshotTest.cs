@@ -5,9 +5,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Commands.TestUtilities;
-using Microsoft.Data.Entity.Commands.Utilities;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Migrations.Design;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
 
@@ -697,7 +697,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             buildModel(modelBuilder);
             var model = modelBuilder.Model;
 
-            var generator = new CSharpModelGenerator(new CSharpHelper());
+            var generator = new CSharpSnapshotGenerator(new CSharpHelper());
 
             var builder = new IndentedStringBuilder();
             generator.Generate("builder", model, builder);

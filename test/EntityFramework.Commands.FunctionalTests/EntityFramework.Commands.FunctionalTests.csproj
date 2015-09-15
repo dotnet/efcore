@@ -34,8 +34,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\src\EntityFramework.Commands\Handlers.cs">
-      <Link>Handlers.cs</Link>
+    <Compile Include="..\..\src\EntityFramework.Commands\Design\OperationHandlers.cs">
+      <Link>OperationHandlers.cs</Link>
     </Compile>
     <Compile Include="ExecutorTest.cs" />
     <Compile Include="Migrations\CodeCompilationTest.cs" />
@@ -44,8 +44,8 @@
     <Compile Include="TestUtilities\BuildReference.cs" />
     <Compile Include="TestUtilities\BuildFileResult.cs" />
     <Compile Include="TestUtilities\BuildSource.cs" />
-    <Compile Include="TestUtilities\CommandException.cs" />
-    <Compile Include="TestUtilities\ExecutorWrapper.cs" />
+    <Compile Include="TestUtilities\WrappedOperationException.cs" />
+    <Compile Include="TestUtilities\OperationExecutorWrapper.cs" />
     <Compile Include="TestUtilities\TempDirectory.cs" />
     <None Include="project.json" />
   </ItemGroup>

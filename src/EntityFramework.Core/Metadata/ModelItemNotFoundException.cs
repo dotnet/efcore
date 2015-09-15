@@ -8,17 +8,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public class ModelItemNotFoundException : Exception
     {
-        public ModelItemNotFoundException()
-        {
-        }
-
         public ModelItemNotFoundException([NotNull] string message)
             : base(message)
-        {
-        }
-
-        public ModelItemNotFoundException([NotNull] string message, [CanBeNull] Exception innerException)
-            : base(message, innerException)
         {
         }
     }
