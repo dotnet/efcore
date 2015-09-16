@@ -70,7 +70,8 @@ namespace Microsoft.Data.Entity.Design
 #if DNX451 || DNXCORE50
         private DbContext TryCreateContextFromStartup(Type type)
         {
-            var hostBuilder = new WebHostBuilder(_dnxServices);
+            var hostBuilder = new WebHostBuilder(_dnxServices)
+                .UseEnvironment(EnvironmentName.Development);
             if (_startupAssemblyName != null)
             {
                 hostBuilder.UseStartup(_startupAssemblyName);
