@@ -11,10 +11,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TTestStore : TestStore
         where TFixture : DataAnnotationFixtureBase<TTestStore>, new()
     {
-        protected DataAnnotationContext CreateContext()
-        {
-            return Fixture.CreateContext(TestStore);
-        }
+        protected DataAnnotationContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected DataAnnotationTestBase(TFixture fixture)
         {
@@ -27,10 +24,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected TTestStore TestStore { get; }
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() => TestStore.Dispose();
 
         [Fact]
         public virtual void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()

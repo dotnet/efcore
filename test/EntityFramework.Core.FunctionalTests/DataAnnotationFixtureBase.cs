@@ -63,6 +63,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
     public class Two
     {
+        [Key]
         public int Id { get; set; }
 
         [StringLength(16)]

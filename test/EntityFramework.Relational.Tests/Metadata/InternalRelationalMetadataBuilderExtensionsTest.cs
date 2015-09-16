@@ -240,7 +240,8 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.Equal(1, typeBuilder.Metadata.GetDeclaredProperties().Count());
             Assert.Equal(0, derivedTypeBuilder.Metadata.GetDeclaredProperties().Count());
 
-            var discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).Discriminator(Splot.SplowedProperty);
+            var discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention)
+                .Discriminator(Splot.SplowedProperty.Name, Splot.SplowedProperty.PropertyType);
             Assert.NotNull(discriminatorBuilder.HasValue("Splot", 1));
             Assert.NotNull(discriminatorBuilder.HasValue("Splow", 2));
             Assert.NotNull(discriminatorBuilder.HasValue("Splod", 3));
@@ -275,7 +276,7 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.DataAnnotation).Discriminator((Type)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Equal(Splot.SplowedProperty.Name, typeBuilder.Metadata.Properties.Single().Name);
+            Assert.Empty(typeBuilder.Metadata.Properties);
         }
 
         [Fact]

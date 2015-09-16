@@ -18,24 +18,55 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
         private ConfigurationSource? _valueGeneratedConfigurationSource;
 
-        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder)
+        public InternalPropertyBuilder([NotNull] Property property, [NotNull] InternalModelBuilder modelBuilder, bool existing)
             : base(property, modelBuilder)
         {
+            if (existing)
+            {
+                if (Metadata.IsNullable != null)
+                {
+                    _isRequiredConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.GetMaxLength() != null)
+                {
+                    _maxLengthConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.IsConcurrencyToken != null)
+                {
+                    _isConcurrencyTokenConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.IsReadOnlyAfterSave != null)
+                {
+                    _isReadOnlyAfterSaveConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.IsReadOnlyBeforeSave != null)
+                {
+                    _isReadOnlyBeforeSaveConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.IsShadowProperty != null)
+                {
+                    _isShadowPropertyConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.ClrType != null)
+                {
+                    _clrTypeConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.RequiresValueGenerator != null)
+                {
+                    _requiresValueGeneratorConfigurationSource = ConfigurationSource.Explicit;
+                }
+                if (Metadata.ValueGenerated != null)
+                {
+                    _valueGeneratedConfigurationSource = ConfigurationSource.Explicit;
+                }
+            }
         }
 
         public virtual bool Required(bool? isRequired, ConfigurationSource configurationSource)
         {
             if (CanSetRequired(isRequired, configurationSource))
             {
-                if (_isRequiredConfigurationSource == null
-                    && Metadata.IsNullable != null)
-                {
-                    _isRequiredConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
-                }
+                _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
 
                 Metadata.IsNullable = !isRequired;
                 return true;
@@ -53,15 +84,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.GetMaxLength().HasValue)
                 || Metadata.GetMaxLength().Value == maxLength)
             {
-                if (_maxLengthConfigurationSource == null
-                    && Metadata.GetMaxLength() != null)
-                {
-                    _maxLengthConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _maxLengthConfigurationSource = configurationSource.Max(_maxLengthConfigurationSource);
-                }
+                _maxLengthConfigurationSource = configurationSource.Max(_maxLengthConfigurationSource);
 
                 Metadata.SetMaxLength(maxLength);
                 return true;
@@ -75,15 +98,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_isConcurrencyTokenConfigurationSource, Metadata.IsConcurrencyToken.HasValue)
                 || Metadata.IsConcurrencyToken.Value == isConcurrencyToken)
             {
-                if (_isConcurrencyTokenConfigurationSource == null
-                    && Metadata.IsConcurrencyToken != null)
-                {
-                    _isConcurrencyTokenConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isConcurrencyTokenConfigurationSource = configurationSource.Max(_isConcurrencyTokenConfigurationSource);
-                }
+                _isConcurrencyTokenConfigurationSource = configurationSource.Max(_isConcurrencyTokenConfigurationSource);
 
                 Metadata.IsConcurrencyToken = isConcurrencyToken;
                 return true;
@@ -97,15 +112,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_isReadOnlyAfterSaveConfigurationSource, Metadata.IsReadOnlyAfterSave.HasValue)
                 || Metadata.IsReadOnlyAfterSave == isReadOnlyAfterSave)
             {
-                if (_isReadOnlyAfterSaveConfigurationSource == null
-                    && Metadata.IsReadOnlyAfterSave != null)
-                {
-                    _isReadOnlyAfterSaveConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isReadOnlyAfterSaveConfigurationSource = configurationSource.Max(_isReadOnlyAfterSaveConfigurationSource);
-                }
+                _isReadOnlyAfterSaveConfigurationSource = configurationSource.Max(_isReadOnlyAfterSaveConfigurationSource);
 
                 Metadata.IsReadOnlyAfterSave = isReadOnlyAfterSave;
                 return true;
@@ -119,15 +126,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_isReadOnlyBeforeSaveConfigurationSource, Metadata.IsReadOnlyBeforeSave.HasValue)
                 || Metadata.IsReadOnlyBeforeSave == isReadOnlyBeforeSave)
             {
-                if (_isReadOnlyBeforeSaveConfigurationSource == null
-                    && Metadata.IsReadOnlyBeforeSave != null)
-                {
-                    _isReadOnlyBeforeSaveConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isReadOnlyBeforeSaveConfigurationSource = configurationSource.Max(_isReadOnlyBeforeSaveConfigurationSource);
-                }
+                _isReadOnlyBeforeSaveConfigurationSource = configurationSource.Max(_isReadOnlyBeforeSaveConfigurationSource);
 
                 Metadata.IsReadOnlyBeforeSave = isReadOnlyBeforeSave;
                 return true;
@@ -141,15 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_isShadowPropertyConfigurationSource, Metadata.IsShadowProperty.HasValue)
                 || Metadata.IsShadowProperty == isShadowProperty)
             {
-                if (_isShadowPropertyConfigurationSource == null
-                    && Metadata.IsShadowProperty != null)
-                {
-                    _isShadowPropertyConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isShadowPropertyConfigurationSource = configurationSource.Max(_isShadowPropertyConfigurationSource);
-                }
+                _isShadowPropertyConfigurationSource = configurationSource.Max(_isShadowPropertyConfigurationSource);
 
                 Metadata.IsShadowProperty = isShadowProperty;
                 return true;
@@ -163,15 +154,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_clrTypeConfigurationSource, Metadata.ClrType != null)
                 || Metadata.ClrType == propertyType)
             {
-                if (_clrTypeConfigurationSource == null
-                    && Metadata.ClrType != null)
-                {
-                    _clrTypeConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _clrTypeConfigurationSource = configurationSource.Max(_clrTypeConfigurationSource);
-                }
+                _clrTypeConfigurationSource = configurationSource.Max(_clrTypeConfigurationSource);
 
                 Metadata.ClrType = propertyType;
                 return true;
@@ -185,15 +168,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_requiresValueGeneratorConfigurationSource, Metadata.RequiresValueGenerator.HasValue)
                 || Metadata.RequiresValueGenerator.Value == generateValue)
             {
-                if (_requiresValueGeneratorConfigurationSource == null
-                    && Metadata.RequiresValueGenerator != null)
-                {
-                    _requiresValueGeneratorConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _requiresValueGeneratorConfigurationSource = configurationSource.Max(_requiresValueGeneratorConfigurationSource);
-                }
+                _requiresValueGeneratorConfigurationSource = configurationSource.Max(_requiresValueGeneratorConfigurationSource);
 
                 Metadata.RequiresValueGenerator = generateValue;
                 return true;
@@ -207,15 +182,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (configurationSource.CanSet(_valueGeneratedConfigurationSource, Metadata.ValueGenerated.HasValue)
                 || Metadata.ValueGenerated == valueGenerated)
             {
-                if (_valueGeneratedConfigurationSource == null
-                    && Metadata.ValueGenerated != null)
-                {
-                    _valueGeneratedConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
-                }
+                _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
 
                 Metadata.ValueGenerated = valueGenerated;
                 return true;

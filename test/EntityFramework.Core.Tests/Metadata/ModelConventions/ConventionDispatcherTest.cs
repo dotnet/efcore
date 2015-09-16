@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
@@ -104,7 +105,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             convention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder);
+                    Assert.Equal("OrderId", b.Metadata.Name);
+                    Assert.Equal(typeof(int), b.Metadata.ClrType);
+                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder, true);
                     return propertyBuilder;
                 });
             conventions.PropertyAddedConventions.Add(convention.Object);
@@ -129,6 +132,49 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var explicitKeyBuilder = entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention);
+
+            Assert.Null(explicitKeyBuilder);
+            Assert.NotNull(propertyBuilder);
+        }
+
+        [Fact]
+        public void OnPropertyAdded_calls_apply_on_conventions_in_order_for_non_shadow_property()
+        {
+            var conventions = new ConventionSet();
+
+            InternalPropertyBuilder propertyBuilder = null;
+            var convention = new Mock<IPropertyConvention>();
+            convention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
+                {
+                    Assert.NotNull(b);
+                    Assert.Equal("OrderId", b.Metadata.Name);
+                    Assert.Equal(typeof(int), b.Metadata.ClrType);
+                    Assert.False(b.Metadata.IsShadowProperty);
+                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder, true);
+                    return propertyBuilder;
+                });
+            conventions.PropertyAddedConventions.Add(convention.Object);
+
+            var nullConvention = new Mock<IPropertyConvention>();
+            nullConvention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
+                {
+                    Assert.Same(propertyBuilder, b);
+                    return null;
+                });
+            conventions.PropertyAddedConventions.Add(nullConvention.Object);
+
+            var extraConvention = new Mock<IPropertyConvention>();
+            extraConvention.Setup(c => c.Apply(It.IsAny<InternalPropertyBuilder>())).Returns<InternalPropertyBuilder>(b =>
+                {
+                    Assert.False(true);
+                    return null;
+                });
+            conventions.PropertyAddedConventions.Add(extraConvention.Object);
+
+            var builder = new InternalModelBuilder(new Model(), conventions);
+
+            var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+            var explicitKeyBuilder = entityBuilder.Property(Order.OrderIdProperty, ConfigurationSource.Convention);
 
             Assert.Null(explicitKeyBuilder);
             Assert.NotNull(propertyBuilder);
@@ -419,6 +465,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
         private class Order
         {
+            public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty("OrderId");
+
             public int OrderId { get; set; }
 
             public virtual OrderDetails OrderDetails { get; set; }

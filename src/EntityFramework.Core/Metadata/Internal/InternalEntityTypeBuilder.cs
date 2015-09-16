@@ -148,16 +148,39 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalPropertyBuilder Property(
             [NotNull] string propertyName, [NotNull] Type propertyType, ConfigurationSource configurationSource)
-            => InternalProperty(propertyName, propertyType, /*shadowProperty:*/ null, configurationSource);
+            => InternalProperty(propertyName, propertyType, configurationSource);
 
-        public virtual InternalPropertyBuilder Property(
-            [NotNull] string propertyName, ConfigurationSource configurationSource)
-            => InternalProperty(propertyName, null, /*shadowProperty:*/ null, configurationSource);
+        public virtual InternalPropertyBuilder Property([NotNull] string propertyName, ConfigurationSource configurationSource)
+            => InternalProperty(propertyName, null, configurationSource);
 
         public virtual InternalPropertyBuilder Property([NotNull] PropertyInfo clrProperty, ConfigurationSource configurationSource)
-            => InternalProperty(clrProperty.Name, clrProperty.PropertyType, /*shadowProperty:*/ false, configurationSource);
+            => InternalProperty(clrProperty, configurationSource);
 
-        private InternalPropertyBuilder InternalProperty(string propertyName, Type propertyType, bool? shadowProperty, ConfigurationSource configurationSource)
+        private InternalPropertyBuilder InternalProperty(PropertyInfo clrProperty, ConfigurationSource configurationSource)
+        {
+            var propertyName = clrProperty.Name;
+            if (CanAdd(propertyName, isNavigation: false, configurationSource: configurationSource))
+            {
+                if (_ignoredProperties.HasValue)
+                {
+                    _ignoredProperties.Value.Remove(propertyName);
+                }
+
+                var existingProperty = Metadata.FindDeclaredProperty(propertyName);
+                var builder = _propertyBuilders.GetOrAdd(
+                    () => existingProperty,
+                    () => Metadata.AddProperty(clrProperty),
+                    property => new InternalPropertyBuilder(property, ModelBuilder, existing: existingProperty != null),
+                    ModelBuilder.ConventionDispatcher.OnPropertyAdded,
+                    configurationSource);
+
+                return ConfigureProperty(builder, clrProperty.PropertyType, false, configurationSource);
+            }
+
+            return null;
+        }
+
+        private InternalPropertyBuilder InternalProperty(string propertyName, Type propertyType, ConfigurationSource configurationSource)
         {
             if (CanAdd(propertyName, isNavigation: false, configurationSource: configurationSource))
             {
@@ -166,34 +189,48 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     _ignoredProperties.Value.Remove(propertyName);
                 }
 
+                var existingProperty = Metadata.FindDeclaredProperty(propertyName);
                 var builder = _propertyBuilders.GetOrAdd(
-                    () => Metadata.FindDeclaredProperty(propertyName),
-                    () => Metadata.AddProperty(propertyName),
-                    property => new InternalPropertyBuilder(property, ModelBuilder),
+                    () => existingProperty,
+                    () =>
+                        {
+                            var property = Metadata.AddProperty(propertyName);
+                            if (propertyType != null)
+                            {
+                                property.ClrType = propertyType;
+                            }
+                            return property;
+                        },
+                    property => new InternalPropertyBuilder(property, ModelBuilder, existing: existingProperty != null),
                     ModelBuilder.ConventionDispatcher.OnPropertyAdded,
                     configurationSource);
 
-                if (builder == null)
-                {
-                    return null;
-                }
-
-                if (propertyType != null
-                    && !builder.ClrType(propertyType, configurationSource))
-                {
-                    return null;
-                }
-
-                if (shadowProperty.HasValue
-                    && !builder.Shadow(shadowProperty.Value, configurationSource))
-                {
-                    return null;
-                }
-
-                return builder;
+                return ConfigureProperty(builder, propertyType, /*shadowProperty*/ null, configurationSource);
             }
 
             return null;
+        }
+
+        private InternalPropertyBuilder ConfigureProperty(InternalPropertyBuilder builder, Type propertyType, bool? shadowProperty, ConfigurationSource configurationSource)
+        {
+            if (builder == null)
+            {
+                return null;
+            }
+
+            if (propertyType != null
+                && !builder.ClrType(propertyType, configurationSource))
+            {
+                return null;
+            }
+
+            if (shadowProperty.HasValue
+                && !builder.Shadow(shadowProperty.Value, configurationSource))
+            {
+                return null;
+            }
+
+            return builder;
         }
 
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
