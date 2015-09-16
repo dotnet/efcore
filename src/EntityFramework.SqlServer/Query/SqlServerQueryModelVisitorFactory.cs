@@ -108,13 +108,9 @@ namespace Microsoft.Data.Entity.Query
             _shapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
         }
 
-        public virtual EntityQueryModelVisitor Create([NotNull] QueryCompilationContext queryCompilationContext, [NotNull] IDatabase database)
-            => Create(queryCompilationContext, database, null);
-
         public virtual EntityQueryModelVisitor Create(
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IDatabase database,
-            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            QueryCompilationContext queryCompilationContext, 
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
             =>
                 new SqlServerQueryModelVisitor(
                     _options,
@@ -140,7 +136,6 @@ namespace Microsoft.Data.Entity.Query
                     _queryFlatteningExpressionVisitorFactory,
                     _shapedQueryFindingExpressionVisitorFactory,
                     (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
-                    database,
                     (SqlServerQueryModelVisitor)parentEntityQueryModelVisitor);
     }
 }

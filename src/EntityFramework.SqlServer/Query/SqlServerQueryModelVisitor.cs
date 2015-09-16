@@ -11,8 +11,6 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.SqlServer;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -49,7 +47,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
-            [NotNull] IDatabase database,
+            // ReSharper disable once SuggestBaseTypeForParameter
             [CanBeNull] SqlServerQueryModelVisitor parentQueryModelVisitor)
             : base(model,
                 queryOptimizer,
@@ -73,14 +71,15 @@ namespace Microsoft.Data.Entity.Query
                 queryFlatteningExpressionVisitorFactory,
                 shapedQueryFindingExpressionVisitorFactory,
                 queryCompilationContext,
-                database,
                 parentQueryModelVisitor)
         {
             Check.NotNull(options, nameof(options));
 
             var extension = options.FindExtension<SqlServerOptionsExtension>();
-            _useRowNumberPaging = extension?.RowNumberPaging != null
-                                  && extension.RowNumberPaging.Value;
+
+            _useRowNumberPaging
+                = extension?.RowNumberPaging != null
+                  && extension.RowNumberPaging.Value;
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
@@ -90,6 +89,7 @@ namespace Microsoft.Data.Entity.Query
             if (_useRowNumberPaging)
             {
                 var visitor = new RowNumberPagingExpressionVisitor();
+
                 SelectExpression mainSelectExpression;
                 if (QueriesBySource.TryGetValue(queryModel.MainFromClause, out mainSelectExpression))
                 {
@@ -112,14 +112,11 @@ namespace Microsoft.Data.Entity.Query
             public override Expression Visit(Expression node)
             {
                 var expression = node as SelectExpression;
-                if (expression != null)
-                {
-                    return VisitSelectExpression(expression);
-                }
-                return base.Visit(node);
+
+                return expression != null ? VisitSelectExpression(expression) : base.Visit(node);
             }
 
-            private bool RequiresRowNumberPaging(SelectExpression selectExpression)
+            private static bool RequiresRowNumberPaging(SelectExpression selectExpression)
                 => selectExpression.Offset.HasValue
                    && selectExpression.Offset != 0
                    && !selectExpression.Projection.Any(p => p is RowNumberExpression);
@@ -142,6 +139,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     var alias = projection as AliasExpression;
                     var column = projection as ColumnExpression;
+
                     if (column != null)
                     {
                         column = new ColumnExpression(column.Name, column.Property, subQuery);
@@ -165,13 +163,14 @@ namespace Microsoft.Data.Entity.Query
 
                 if (subQuery.OrderBy.Count == 0)
                 {
-                    subQuery.AddToOrderBy(new Ordering(new SqlFunctionExpression("@@RowCount", typeof(int)), OrderingDirection.Asc));
+                    subQuery.AddToOrderBy(
+                        new Ordering(new SqlFunctionExpression("@@RowCount", typeof(int)), OrderingDirection.Asc));
                 }
 
                 var columnExpression = new ColumnExpression(RowNumberColumnName, typeof(int), subQuery);
                 var rowNumber = new RowNumberExpression(columnExpression, subQuery.OrderBy);
-                subQuery.ClearOrderBy();
 
+                subQuery.ClearOrderBy();
                 subQuery.ClearProjection();
                 subQuery.AddToProjection(rowNumber);
                 subQuery.IsProjectStar = true;
@@ -179,10 +178,12 @@ namespace Microsoft.Data.Entity.Query
                 Expression predicate = null;
 
                 var offset = subQuery.Offset ?? 0;
+
                 if (subQuery.Offset.HasValue)
                 {
                     predicate = Expression.GreaterThan(columnExpression, Expression.Constant(offset));
                 }
+
                 if (subQuery.Limit.HasValue)
                 {
                     var exp = Expression.LessThanOrEqual(columnExpression, Expression.Constant(offset + subQuery.Limit.Value));
@@ -194,6 +195,7 @@ namespace Microsoft.Data.Entity.Query
                 }
 
                 selectExpression.Predicate = predicate;
+
                 return selectExpression;
             }
         }

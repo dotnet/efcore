@@ -5,9 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
@@ -84,13 +82,9 @@ namespace Microsoft.Data.Entity.Query
             _materializerFactory = materializerFactory;
         }
 
-        public virtual EntityQueryModelVisitor Create([NotNull] QueryCompilationContext queryCompilationContext, [NotNull] IDatabase database)
-            => Create(queryCompilationContext, database, null);
-
         public virtual EntityQueryModelVisitor Create(
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IDatabase database,
-            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            QueryCompilationContext queryCompilationContext,
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(
                 _model,
                 _queryOptimizer,

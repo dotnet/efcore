@@ -34,24 +34,24 @@ namespace Microsoft.Data.Entity.Storage
 
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<RelationalConnection>);
 
-            var config = RelationalOptionsExtension.Extract(options);
+            var relationalOptions = RelationalOptionsExtension.Extract(options);
 
-            _commandTimeout = config.CommandTimeout;
+            _commandTimeout = relationalOptions.CommandTimeout;
 
-            if (config.Connection != null)
+            if (relationalOptions.Connection != null)
             {
-                if (!string.IsNullOrWhiteSpace(config.ConnectionString))
+                if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
                 {
                     throw new InvalidOperationException(Strings.ConnectionAndConnectionString);
                 }
 
-                _connection = new LazyRef<DbConnection>(() => config.Connection);
+                _connection = new LazyRef<DbConnection>(() => relationalOptions.Connection);
                 _connectionOwned = false;
-                _openedCount = config.Connection.State == ConnectionState.Open ? 1 : 0;
+                _openedCount = relationalOptions.Connection.State == ConnectionState.Open ? 1 : 0;
             }
-            else if (!string.IsNullOrWhiteSpace(config.ConnectionString))
+            else if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
             {
-                _connectionString = config.ConnectionString;
+                _connectionString = relationalOptions.ConnectionString;
                 _connection = new LazyRef<DbConnection>(CreateDbConnection);
                 _connectionOwned = true;
             }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Storage
             }
 
 #if NET45
-            _throwOnAmbientTransaction = config.ThrowOnAmbientTransaction ?? true;
+            _throwOnAmbientTransaction = relationalOptions.ThrowOnAmbientTransaction ?? true;
 #endif
         }
 

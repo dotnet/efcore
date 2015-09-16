@@ -17,8 +17,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _useRelationalNulls = useRelationalNulls;
         }
 
-        public override Expression Visit(
-            [NotNull] Expression expression)
+        public override Expression Visit([NotNull] Expression expression)
         {
             var currentExpression = expression;
             var inExpressionOptimized =
@@ -78,7 +77,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private class ParameterExpressionDetectingVisitor : RelinqExpressionVisitor
         {
-            public bool ContainsParameters { get; set; }
+            public bool ContainsParameters { get; private set; }
 
             protected override Expression VisitParameter(ParameterExpression expression)
             {

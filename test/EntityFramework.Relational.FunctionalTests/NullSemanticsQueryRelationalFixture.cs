@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public abstract TTestStore CreateTestStore();
 
-        public abstract NullSemanticsContext CreateContext(TTestStore testStore);
+        public abstract NullSemanticsContext CreateContext(TTestStore testStore, bool useRelationalNulls);
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {

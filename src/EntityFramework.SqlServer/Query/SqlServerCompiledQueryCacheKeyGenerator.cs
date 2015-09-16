@@ -6,8 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.SqlServer;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
@@ -18,9 +16,8 @@ namespace Microsoft.Data.Entity.Query
 
         public SqlServerCompiledQueryCacheKeyGenerator(
             [NotNull] IModel model,
-            [NotNull] RelationalDatabase relationalDatabase,
             [NotNull] IDbContextOptions dbContextOptions)
-            : base(model, relationalDatabase)
+            : base(model, dbContextOptions)
         {
             Check.NotNull(dbContextOptions, nameof(dbContextOptions));
 

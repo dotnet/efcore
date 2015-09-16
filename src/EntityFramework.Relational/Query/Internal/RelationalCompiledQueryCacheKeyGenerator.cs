@@ -3,22 +3,23 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
     public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGenerator
     {
-        private readonly RelationalDatabase _relationalDatabase;
+        private readonly IDbContextOptions _contextOptions;
 
-        public RelationalCompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] RelationalDatabase relationalDatabase)
+        public RelationalCompiledQueryCacheKeyGenerator(
+            [NotNull] IModel model, [NotNull] IDbContextOptions contextOptions)
             : base(model)
         {
-            Check.NotNull(relationalDatabase, nameof(relationalDatabase));
+            Check.NotNull(contextOptions, nameof(contextOptions));
 
-            _relationalDatabase = relationalDatabase;
+            _contextOptions = contextOptions;
         }
 
         public override object GenerateCacheKey(Expression query, bool async)
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore([NotNull] Expression query, bool async)
             => new RelationalCompiledQueryCacheKey(
                 base.GenerateCacheKeyCore(query, async),
-                _relationalDatabase.UseRelationalNulls);
+                RelationalOptionsExtension.Extract(_contextOptions).UseRelationalNulls);
 
         protected struct RelationalCompiledQueryCacheKey
         {

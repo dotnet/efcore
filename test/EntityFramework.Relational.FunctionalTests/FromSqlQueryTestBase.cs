@@ -10,7 +10,7 @@ using Xunit;
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
-        where TFixture : NorthwindQueryFixtureBase, new()
+        where TFixture : NorthwindQueryRelationalFixture, new()
     {
         [Fact]
         public virtual void From_sql_queryable_simple()
@@ -363,10 +363,8 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
         [Fact]
         public virtual void From_sql_composed_with_relational_null_comparison()
         {
-            using (var context = CreateContext())
+            using (var context = CreateContext(useRelationalNulls: true))
             {
-                context.Database.UseRelationalNulls(true);
-
                 var actual = context.Set<Customer>()
                     .FromSql(@"SELECT * FROM ""Customers""")
                     .Where(c => c.ContactName == c.CompanyName)
@@ -376,10 +374,8 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             }
         }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext(bool useRelationalNulls = false) 
+            => Fixture.CreateContext(useRelationalNulls);
 
         protected FromSqlQueryTestBase(TFixture fixture)
         {

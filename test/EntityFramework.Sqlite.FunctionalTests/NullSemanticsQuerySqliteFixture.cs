@@ -50,10 +50,15 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 });
         }
 
-        public override NullSemanticsContext CreateContext(SqliteTestStore testStore)
+        public override NullSemanticsContext CreateContext(SqliteTestStore testStore, bool useRelationalNulls)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
+            var sqliteOptions = optionsBuilder.UseSqlite(testStore.Connection);
+
+            if (useRelationalNulls)
+            {
+                sqliteOptions.UseRelationalNulls();
+            }
 
             var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);

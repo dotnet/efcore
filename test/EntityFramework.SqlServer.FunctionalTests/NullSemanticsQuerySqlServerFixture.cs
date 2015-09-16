@@ -50,13 +50,21 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             });
         }
 
-        public override NullSemanticsContext CreateContext(SqlServerTestStore testStore)
+        public override NullSemanticsContext CreateContext(SqlServerTestStore testStore, bool useRelationalNulls)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+
+            var sqlServerOptions = optionsBuilder.UseSqlServer(testStore.Connection);
+
+            if (useRelationalNulls)
+            {
+                sqlServerOptions.UseRelationalNulls();
+            }
 
             var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
+
             context.Database.UseTransaction(testStore.Transaction);
+
             return context;
         }
     }

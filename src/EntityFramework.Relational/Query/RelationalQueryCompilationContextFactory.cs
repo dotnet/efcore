@@ -29,20 +29,18 @@ namespace Microsoft.Data.Entity.Query
             _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
         }
 
-        public virtual QueryCompilationContext Create(IDatabase database, bool async)
+        public virtual QueryCompilationContext Create(bool async)
             => async
                 ? new RelationalQueryCompilationContext(
                     _loggerFactory,
                     _entityQueryModelVisitorFactory,
                     _requiresMaterializationExpressionVisitorFactory,
-                    database,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider())
                 : new RelationalQueryCompilationContext(
                     _loggerFactory,
                     _entityQueryModelVisitorFactory,
                     _requiresMaterializationExpressionVisitorFactory,
-                    database,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider());
     }

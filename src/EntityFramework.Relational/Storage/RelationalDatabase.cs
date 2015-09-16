@@ -39,8 +39,6 @@ namespace Microsoft.Data.Entity.Storage
             _options = options;
         }
 
-        public virtual bool UseRelationalNulls { get; set; }
-
         public override int SaveChanges(
             IReadOnlyList<InternalEntityEntry> entries)
             => _batchExecutor.Execute(

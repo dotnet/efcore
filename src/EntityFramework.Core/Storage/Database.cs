@@ -15,13 +15,13 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class Database : IDatabase
     {
-        private readonly IQueryCompilationContextFactory _compilationContextFactory;
+        private readonly IQueryCompilationContextFactory _queryCompilationContextFactory;
 
-        protected Database([NotNull] IQueryCompilationContextFactory compilationContextFactory)
+        protected Database([NotNull] IQueryCompilationContextFactory queryCompilationContextFactory)
         {
-            Check.NotNull(compilationContextFactory, nameof(compilationContextFactory));
+            Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
 
-            _compilationContextFactory = compilationContextFactory;
+            _queryCompilationContextFactory = queryCompilationContextFactory;
         }
 
         public abstract int SaveChanges(IReadOnlyList<InternalEntityEntry> entries);
@@ -31,13 +31,13 @@ namespace Microsoft.Data.Entity.Storage
             CancellationToken cancellationToken = default(CancellationToken));
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>(QueryModel queryModel)
-            => _compilationContextFactory.Create(this, async: false)
+            => _queryCompilationContextFactory.Create(async: false)
                 .CreateQueryModelVisitor()
                 .CreateQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));
 
         public virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
-            => _compilationContextFactory.Create(this, async: true)
+            => _queryCompilationContextFactory.Create(async: true)
                 .CreateQueryModelVisitor()
                 .CreateAsyncQueryExecutor<TResult>(
                     Check.NotNull(queryModel, nameof(queryModel)));

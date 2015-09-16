@@ -46,9 +46,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return context;
         }
 
-        public void Dispose()
-        {
-            _testStore.Dispose();
-        }
+        public void Dispose() => _testStore.Dispose();
     }
 }

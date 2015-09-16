@@ -43,8 +43,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             return optionsBuilder.Options;
         }
 
-        public override NorthwindContext CreateContext()
+        public override NorthwindContext CreateContext() => CreateContext(useRelationalNulls: false);
+
+        public override NorthwindContext CreateContext(bool useRelationalNulls)
         {
+            RelationalOptionsExtension.Extract(_options).UseRelationalNulls = useRelationalNulls;
+
             var context = new SqlServerNorthwindContext(_serviceProvider, _options);
 
             context.ChangeTracker.AutoDetectChangesEnabled = false;

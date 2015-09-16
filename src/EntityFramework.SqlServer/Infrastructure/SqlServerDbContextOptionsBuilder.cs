@@ -5,7 +5,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class SqlServerDbContextOptionsBuilder : RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
+    public class SqlServerDbContextOptionsBuilder 
+        : RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
     {
         public SqlServerDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)
             : base(optionsBuilder)
@@ -18,7 +19,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Use a ROW_NUMBER() in queries instead of OFFSET/FETCH. This method is backwards-compatible to SQL Server 2005.
         /// </summary>
-        public virtual void UseRowNumberForPaging()
-            => SetOption(e => e.RowNumberPaging = true);
+        public virtual void UseRowNumberForPaging() => SetOption(e => e.RowNumberPaging = true);
     }
 }

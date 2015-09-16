@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
@@ -103,15 +102,10 @@ namespace Microsoft.Data.Entity.Query
             _shapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
         }
 
-        public virtual EntityQueryModelVisitor Create([NotNull] QueryCompilationContext queryCompilationContext, IDatabase database)
-            => Create(queryCompilationContext, database, null);
-
         public virtual EntityQueryModelVisitor Create(
-            [NotNull] QueryCompilationContext queryCompilationContext,
-            [NotNull] IDatabase database,
-            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
-            =>
-            new RelationalQueryModelVisitor(
+            QueryCompilationContext queryCompilationContext,
+            EntityQueryModelVisitor parentEntityQueryModelVisitor)
+            => new RelationalQueryModelVisitor(
                 _model,
                 _queryOptimizer,
                 _navigationRewritingExpressionVisitorFactory,
@@ -134,7 +128,6 @@ namespace Microsoft.Data.Entity.Query
                 _queryFlatteningExpressionVisitorFactory,
                 _shapedQueryFindingExpressionVisitorFactory,
                 (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
-                database,
                 (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);
     }
 }

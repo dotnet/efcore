@@ -88,6 +88,8 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
         }
 
+        public virtual bool UseRelationalNulls { get; set; }
+
         public virtual bool? ThrowOnAmbientTransaction { get; set; }
 
         public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }

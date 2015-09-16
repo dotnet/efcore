@@ -37,10 +37,16 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .MinimumLevel = LogLevel.Debug;
         }
 
-        public override NorthwindContext CreateContext()
+        public override NorthwindContext CreateContext() => CreateContext(useRelationalNulls: false);
+
+        public override NorthwindContext CreateContext(bool useRelationalNulls)
         {
+            RelationalOptionsExtension.Extract(_options).UseRelationalNulls = useRelationalNulls;
+
             var context = new SqliteNorthwindContext(_serviceProvider, _options);
+
             context.ChangeTracker.AutoDetectChangesEnabled = false;
+
             return context;
         }
 

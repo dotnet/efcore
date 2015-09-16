@@ -343,26 +343,7 @@ FROM ""Customers""")
             }
         }
 
-        [Fact]
-        public virtual async Task From_sql_composed_with_relational_null_comparison()
-        {
-            using (var context = CreateContext())
-            {
-                context.Database.UseRelationalNulls(true);
-
-                var actual = await context.Set<Customer>()
-                    .FromSql(@"SELECT * FROM ""Customers""")
-                    .Where(c => c.ContactName == c.CompanyName)
-                    .ToArrayAsync();
-
-                Assert.Equal(0, actual.Length);
-            }
-        }
-
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected AsyncFromSqlQueryTestBase(TFixture fixture)
         {

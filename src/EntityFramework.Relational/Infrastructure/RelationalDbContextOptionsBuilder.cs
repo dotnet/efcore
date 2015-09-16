@@ -46,6 +46,9 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public virtual TBuilder SuppressAmbientTransactionWarning()
             => SetOption(e => e.ThrowOnAmbientTransaction = false);
+        
+        public virtual TBuilder UseRelationalNulls()
+            => SetOption(e => e.UseRelationalNulls = true);
 
         protected virtual TBuilder SetOption([NotNull] Action<TExtension> setAction)
         {
