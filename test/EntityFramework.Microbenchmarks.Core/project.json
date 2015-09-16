@@ -31,7 +31,7 @@
             "frameworkAssemblies": {
                 "System.Data": "4.0.0.0",
                 "System.Reflection": "4.0.0.0",
-                "System.Threading.Tasks": "4.0.0"
+                "System.Threading.Tasks": "4.0.0.0"
             }
         }
     }
