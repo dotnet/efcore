@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         private readonly IRelationalConnection _connection;
         private readonly IUpdateSqlGenerator _sql;
         private readonly LazyRef<ILogger> _logger;
+        private readonly string _activeProvider;
 
         public Migrator(
             [NotNull] IMigrationsAssembly migrationsAssembly,
@@ -36,7 +37,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
             [NotNull] IUpdateSqlGenerator sql,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IDatabaseProviderServices providerServices)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
@@ -46,6 +48,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(providerServices, nameof(providerServices));
 
             _migrationsAssembly = migrationsAssembly;
             _historyRepository = historyRepository;
@@ -55,6 +58,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             _connection = connection;
             _sql = sql;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Migrator>);
+            _activeProvider = providerServices.InvariantName;
         }
 
         public virtual void Migrate(string targetMigration = null)
@@ -131,7 +135,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             if (string.IsNullOrEmpty(targetMigration))
             {
                 migrationsToApply = unappliedMigrations
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
                 migrationsToRevert = new Migration[0];
             }
@@ -140,7 +144,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 migrationsToApply = new Migration[0];
                 migrationsToRevert = appliedMigrations
                     .OrderByDescending(m => m.Key)
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
             }
             else
@@ -148,12 +152,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 targetMigration = _migrationsAssembly.GetMigrationId(targetMigration);
                 migrationsToApply = unappliedMigrations
                     .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) <= 0)
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
                 migrationsToRevert = appliedMigrations
                     .Where(m => string.Compare(m.Key, targetMigration, StringComparison.OrdinalIgnoreCase) > 0)
                     .OrderByDescending(m => m.Key)
-                    .Select(p => _migrationsAssembly.CreateMigration(p.Value))
+                    .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                     .ToList();
             }
 
@@ -217,7 +221,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 var migrationsToApply = migrations.Where(
                     m => string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) > 0
                         && string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) <= 0)
-                    .Select(m => _migrationsAssembly.CreateMigration(m.Value));
+                    .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider));
                 var checkFirst = true;
                 foreach (var migration in migrationsToApply)
                 {
@@ -261,7 +265,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             m => string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) > 0
                                 && string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) <= 0)
                         .OrderByDescending(m => m.Key)
-                        .Select(m => _migrationsAssembly.CreateMigration(m.Value))
+                        .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider))
                         .ToList();
                 for (var i = 0; i < migrationsToRevert.Count; i++)
                 {

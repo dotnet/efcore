@@ -64,7 +64,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         : id => string.Equals(_idGenerator.GetName(id), nameOrId, StringComparison.OrdinalIgnoreCase))
                 .FirstOrDefault();
 
-        public virtual Migration CreateMigration(TypeInfo migrationClass)
-            => (Migration)Activator.CreateInstance(migrationClass.AsType());
+        public virtual Migration CreateMigration(TypeInfo migrationClass, string activeProvider)
+        {
+            Check.NotNull(activeProvider, nameof(activeProvider));
+
+            var migration = (Migration)Activator.CreateInstance(migrationClass.AsType());
+            migration.ActiveProvider = activeProvider;
+
+            return migration;
+        }
     }
 }

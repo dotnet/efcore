@@ -9,6 +9,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class MigrationsFixtureBase
     {
+        public static string ActiveProvider { get; set; }
+
         public abstract MigrationsContext CreateContext();
 
         public class MigrationsContext : DbContext
@@ -25,13 +27,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             protected override void Up(MigrationBuilder migrationBuilder)
             {
+                MigrationsFixtureBase.ActiveProvider = migrationBuilder.ActiveProvider;
+
                 migrationBuilder
                     .CreateTable(
                         name: "Table1",
                         columns: x => new
-                            {
-                                Id = x.Column<int>()
-                            })
+                        {
+                            Id = x.Column<int>()
+                        })
                     .PrimaryKey(
                         name: "PK_Table1",
                         columns: x => x.Id);

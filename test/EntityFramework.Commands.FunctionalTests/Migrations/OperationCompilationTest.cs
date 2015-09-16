@@ -1758,7 +1758,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             var assembly = build.BuildInMemory();
             var factoryType = assembly.GetType("OperationsFactory");
             var createMethod = factoryType.GetTypeInfo().GetDeclaredMethod("Create");
-            var mb = new MigrationBuilder();
+            var mb = new MigrationBuilder(activeProvider: null);
             createMethod.Invoke(null, new[] { mb });
             var result = mb.Operations.Cast<T>().Single();
 

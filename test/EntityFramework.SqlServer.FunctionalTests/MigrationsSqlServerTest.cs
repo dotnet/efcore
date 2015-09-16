@@ -172,6 +172,13 @@ GO
                 Sql);
         }
 
+        public override void Can_get_active_provider()
+        {
+            base.Can_get_active_provider();
+
+            Assert.Equal("EntityFramework.SqlServer", ActiveProvider);
+        }
+
         protected override async Task AssertFirstMigrationAsync(DbConnection connection)
         {
             var sql = await GetDatabaseSchemaAsync(connection);

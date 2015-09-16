@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Strings = Microsoft.Data.Entity.Design.Internal.Strings;
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         private readonly MigrationsCodeGenerator _migrationCodeGenerator;
         private readonly IHistoryRepository _historyRepository;
         private readonly LazyRef<ILogger> _logger;
+        private readonly string _activeProvider;
 
         public MigrationsScaffolder(
             [NotNull] DbContext context,
@@ -35,7 +37,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
             [NotNull] IMigrationsIdGenerator idGenerator,
             [NotNull] MigrationsCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IDatabaseProviderServices providerServices)
         {
             Check.NotNull(context, nameof(context));
             Check.NotNull(model, nameof(model));
@@ -45,6 +48,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(migrationCodeGenerator, nameof(migrationCodeGenerator));
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(providerServices, nameof(providerServices));
 
             _contextType = context.GetType();
             _model = model;
@@ -54,6 +58,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             _migrationCodeGenerator = migrationCodeGenerator;
             _historyRepository = historyRepository;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<MigrationsScaffolder>);
+            _activeProvider = providerServices.InvariantName;
         }
 
         public virtual ScaffoldedMigration ScaffoldMigration(
@@ -150,7 +155,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             IModel model = null;
             var migrations = _migrationsAssembly.Migrations
-                .Select(m => _migrationsAssembly.CreateMigration(m.Value))
+                .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider))
                 .ToList();
             if (migrations.Count != 0)
             {

@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations.Internal;
+using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -46,7 +53,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 idGenerator,
                 new CSharpMigrationsGenerator(code, new CSharpMigrationOperationGenerator(code), new CSharpSnapshotGenerator(code)),
                 new MockHistoryRepository(),
-                new LoggerFactory());
+                new LoggerFactory(),
+                new MockProviderServices());
         }
 
         private class ContextWithSnapshot : DbContext
@@ -82,6 +90,26 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 => Task.FromResult<IReadOnlyList<HistoryRow>>(null);
             public string GetDeleteScript(string migrationId) => null;
             public string GetInsertScript(HistoryRow row) => null;
+        }
+
+        private class MockProviderServices : IDatabaseProviderServices
+        {
+            public string InvariantName => "Mock.Provider";
+            public IDatabase Database => null;
+            public IDatabaseCreator Creator => null;
+            public IValueGeneratorSelector ValueGeneratorSelector => null;
+            public IConventionSetBuilder ConventionSetBuilder => null;
+            public IModelSource ModelSource => null;
+            public IModelValidator ModelValidator => null;
+            public IValueGeneratorCache ValueGeneratorCache => null;
+            public IQueryContextFactory QueryContextFactory => null;
+            public IQueryCompilationContextFactory QueryCompilationContextFactory => null;
+            public IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory => null;
+            public ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => null;
+            public IExpressionPrinter ExpressionPrinter => null;
+            public IResultOperatorHandler ResultOperatorHandler => null;
+            public IEntityQueryableExpressionVisitorFactory EntityQueryableExpressionVisitorFactory => null;
+            public IProjectionExpressionVisitorFactory ProjectionExpressionVisitorFactory => null;
         }
     }
 }

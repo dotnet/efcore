@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         private readonly TFixture _fixture;
         private string _sql;
+        private string _activeProvider;
 
         public MigrationsTestBase(TFixture fixture)
         {
@@ -26,6 +27,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         protected string Sql => _sql;
+        protected string ActiveProvider => _activeProvider;
 
         [Fact]
         public void Can_apply_all_migrations()
@@ -163,6 +165,21 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Can_get_active_provider()
+        {
+            using (var db = _fixture.CreateContext())
+            {
+                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                MigrationsFixtureBase.ActiveProvider = null;
+
+                migrator.GenerateScript(toMigration: "Migration1");
+
+                _activeProvider = MigrationsFixtureBase.ActiveProvider;
+            }
+
+        }
+
         /// <remarks>
         ///     Creating databases and executing DDL is slow. This oddly-structured test allows us to get the most ammount of
         ///     coverage using the least ammount of database operations.
@@ -192,8 +209,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
             var connection = services.GetRequiredService<IRelationalConnection>();
             var executor = services.GetRequiredService<ISqlStatementExecutor>();
+            var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
 
-            var migrationBuilder = new MigrationBuilder();
+            var migrationBuilder = new MigrationBuilder(providerServices.InvariantName);
             buildMigration(migrationBuilder);
             var operations = migrationBuilder.Operations.ToList();
 

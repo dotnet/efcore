@@ -14,6 +14,12 @@ namespace Microsoft.Data.Entity.Migrations
 {
     public class MigrationBuilder
     {
+        public MigrationBuilder([CanBeNull] string activeProvider)
+        {
+            ActiveProvider = activeProvider;
+        }
+
+        public virtual string ActiveProvider { get; }
         public virtual List<MigrationOperation> Operations { get; } = new List<MigrationOperation>();
 
         public virtual OperationBuilder<AddColumnOperation> AddColumn<T>(
