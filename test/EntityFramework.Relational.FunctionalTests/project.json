@@ -1,17 +1,25 @@
 {
-  "version": "7.0.0-*",
-  "description": "Reusable EntityFramework.Relational functional tests for provider writers.",
-  "dependencies": {
-    "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-    "EntityFramework.Relational": "7.0.0-*"
-  },
-  "frameworks": {
-    "net46": { },
-    "dnx451": { },
-    "dnxcore50": {
-      "dependencies": {
-        "System.Threading": "4.0.11-beta-*"
-      }
+    "version": "7.0.0-*",
+    "description": "Reusable EntityFramework.Relational functional tests for provider writers.",
+    "dependencies": {
+        "EntityFramework.Core.FunctionalTests": "7.0.0-*",
+        "EntityFramework.Relational": "7.0.0-*"
+    },
+    "frameworks": {
+        "net46": {
+            "frameworkAssemblies": {
+                "System.Threading.Tasks": { "version": "4.0.0.0", "type": "build" }
+            }
+        },
+        "dnx451": {
+            "frameworkAssemblies": {
+                "System.Threading.Tasks": "4.0.0"
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Threading.Tasks": "4.0.11-beta-*"
+            }
+        }
     }
-  }
 }
