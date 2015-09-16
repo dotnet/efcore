@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     composable = false;
                 }
 
-                if (!fromSqlAnnotation.QueryModel.BodyClauses.Any()
+                if (fromSqlAnnotation.QueryModel.IsIdentityQuery()
                     && !fromSqlAnnotation.QueryModel.ResultOperators.Any())
                 {
                     composable = false;

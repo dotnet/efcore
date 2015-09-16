@@ -283,18 +283,19 @@ FROM ""Customers""")
         }
 
         [Fact]
-        public virtual void From_sql_queryable_simple_projection_not_composed()
+        public virtual void From_sql_queryable_simple_projection_composed()
         {
             using (var context = CreateContext())
             {
-                var actual = context.Set<Customer>()
-                    .FromSql(@"SELECT * FROM ""Customers""")
-                    .Select(c => new { c.CustomerID, c.City })
-                    .AsNoTracking()
+                var actual = context.Set<Product>()
+                    .FromSql(@"SELECT *
+FROM Products
+WHERE Discontinued <> 1
+AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
+                    .Select(p => p.ProductName)
                     .ToArray();
 
-                Assert.Equal(91, actual.Length);
-                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+                Assert.Equal(2, actual.Length);
             }
         }
 

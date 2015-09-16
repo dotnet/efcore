@@ -193,12 +193,18 @@ SELECT * FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1",
                 Sql);
         }
 
-        public override void From_sql_queryable_simple_projection_not_composed()
+        public override void From_sql_queryable_simple_projection_composed()
         {
-            base.From_sql_queryable_simple_projection_not_composed();
+            base.From_sql_queryable_simple_projection_composed();
 
             Assert.Equal(
-                @"SELECT * FROM ""Customers""",
+                @"SELECT [p].[ProductName]
+FROM (
+    SELECT *
+    FROM Products
+    WHERE Discontinued <> 1
+    AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)
+) AS [p]",
                 Sql);
         }
 
