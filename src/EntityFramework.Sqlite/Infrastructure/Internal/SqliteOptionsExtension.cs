@@ -5,11 +5,11 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Infrastructure
+namespace Microsoft.Data.Entity.Infrastructure.Internal
 {
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
-        public virtual bool ForeignKeys { get; set; } = true;
+        public virtual bool EnforceForeignKeys { get; set; } = true;
 
         public SqliteOptionsExtension()
         {
@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         public SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
-            ForeignKeys = copyFrom.ForeignKeys;
+            EnforceForeignKeys = copyFrom.EnforceForeignKeys;
         }
 
         public override void ApplyServices(EntityFrameworkServicesBuilder builder)

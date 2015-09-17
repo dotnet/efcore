@@ -7,18 +7,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Infrastructure.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Storage.Internal
 {
-    public class SqliteDatabaseConnection : RelationalConnection
+    public class SqliteRelationalConnection : RelationalConnection
     {
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly bool _enforceForeignKeys = true;
 
-        public SqliteDatabaseConnection(
+        public SqliteRelationalConnection(
             [NotNull] IDbContextOptions options,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper)
@@ -31,7 +32,7 @@ namespace Microsoft.Data.Entity.Storage
             var optionsExtension = options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
             {
-                _enforceForeignKeys = optionsExtension.ForeignKeys;
+                _enforceForeignKeys = optionsExtension.EnforceForeignKeys;
             }
         }
 

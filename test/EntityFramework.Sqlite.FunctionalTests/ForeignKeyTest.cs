@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             var sqliteBuilder = builder.UseSqlite(_testStore.Connection.ConnectionString);
             if (suppress)
             {
-                sqliteBuilder.SuppressForeignKeysEnforcement();
+                sqliteBuilder.SuppressForeignKeyEnforcement();
             }
 
             var options = builder.Options;

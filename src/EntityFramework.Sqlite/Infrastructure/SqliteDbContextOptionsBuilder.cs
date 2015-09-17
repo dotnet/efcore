@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure.Internal;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         protected override SqliteOptionsExtension CloneExtension()
             => new SqliteOptionsExtension(OptionsBuilder.Options.GetExtension<SqliteOptionsExtension>());
 
-        public virtual SqliteDbContextOptionsBuilder SuppressForeignKeysEnforcement()
-            => SetOption(e => ((SqliteOptionsExtension)e).ForeignKeys = false);
+        public virtual SqliteDbContextOptionsBuilder SuppressForeignKeyEnforcement()
+            => SetOption(e => e.EnforceForeignKeys = false);
     }
 }

@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.Update.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Update

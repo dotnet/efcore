@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite.Internal;
-using Microsoft.Data.Entity.Sqlite.Metadata;
-using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Storage.Internal;
+using Microsoft.Data.Entity.Update.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Migrations
             => new SqliteMigrationsSqlGenerator(
                 new SqliteUpdateSqlGenerator(),
                 new SqliteTypeMapper(),
-                new SqliteMetadataExtensionProvider());
+                new SqliteAnnotationProvider());
 
         [Fact]
         public virtual void It_lifts_foreign_key_additions()

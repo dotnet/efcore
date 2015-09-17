@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Infrastructure.Internal;
 using Microsoft.Data.Sqlite;
 using Xunit;
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity
 
             Assert.Equal("Database=Crunchie", extension.ConnectionString);
             Assert.Null(extension.Connection);
-            Assert.True(extension.ForeignKeys);
+            Assert.True(extension.EnforceForeignKeys);
         }
 
         [Fact]
@@ -102,11 +102,11 @@ namespace Microsoft.Data.Entity
             var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
 
             optionsBuilder.UseSqlite("some string")
-                .SuppressForeignKeysEnforcement();
+                .SuppressForeignKeyEnforcement();
 
             var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
-            Assert.False(extension.ForeignKeys);
+            Assert.False(extension.EnforceForeignKeys);
         }
     }
 }

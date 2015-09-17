@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Update
+namespace Microsoft.Data.Entity.Update.Internal
 {
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {

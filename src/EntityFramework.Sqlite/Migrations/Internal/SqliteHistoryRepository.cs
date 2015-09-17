@@ -4,12 +4,12 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Sqlite.Internal;
-using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Update.Internal;
 
-namespace Microsoft.Data.Entity.Migrations
+namespace Microsoft.Data.Entity.Migrations.Internal
 {
     public class SqliteHistoryRepository : HistoryRepository
     {
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] SqliteMigrationsSqlGenerator sqlGenerator,
-            [NotNull] SqliteMetadataExtensionProvider annotations,
+            [NotNull] SqliteAnnotationProvider annotations,
             [NotNull] SqliteUpdateSqlGenerator sql)
             : base(
                   databaseCreator,
@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.Migrations
 
         protected override string ExistsSql
             => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = '" +
-                Sql.EscapeLiteral(TableName) +
-                "' AND \"type\" = 'table';";
+               Sql.EscapeLiteral(TableName) +
+               "' AND \"type\" = 'table';";
 
         protected override bool InterpretExistsResult(object value) => (long)value != 0L;
 

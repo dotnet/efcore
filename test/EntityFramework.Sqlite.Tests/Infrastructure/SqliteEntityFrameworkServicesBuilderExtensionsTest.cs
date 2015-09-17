@@ -1,16 +1,18 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Infrastructure.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
-using Microsoft.Data.Entity.Sqlite.Metadata;
+using Microsoft.Data.Entity.Migrations.Internal;
+using Microsoft.Data.Entity.Query.ExpressionTranslators.Internal;
 using Microsoft.Data.Entity.Sqlite.Tests;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.Update.Internal;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity
 {
@@ -23,7 +25,7 @@ namespace Microsoft.Data.Entity
             // SQLite dingletones
             VerifySingleton<SqliteValueGeneratorCache>();
             VerifySingleton<SqliteUpdateSqlGenerator>();
-            VerifySingleton<SqliteMetadataExtensionProvider>();
+            VerifySingleton<SqliteAnnotationProvider>();
             VerifySingleton<SqliteTypeMapper>();
             VerifySingleton<SqliteModelSource>();
             VerifySingleton<SqliteMigrationsAnnotationProvider>();
@@ -32,7 +34,7 @@ namespace Microsoft.Data.Entity
             // SQLite scoped
             VerifyScoped<SqliteModificationCommandBatchFactory>();
             VerifyScoped<SqliteDatabaseProviderServices>();
-            VerifyScoped<SqliteDatabaseConnection>();
+            VerifyScoped<SqliteRelationalConnection>();
             VerifyScoped<SqliteMigrationsSqlGenerator>();
             VerifyScoped<SqliteDatabaseCreator>();
             VerifyScoped<SqliteHistoryRepository>();

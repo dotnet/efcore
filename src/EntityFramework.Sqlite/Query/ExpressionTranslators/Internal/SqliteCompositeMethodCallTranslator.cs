@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Query.ExpressionTranslators
+namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
 {
     public class SqliteCompositeMethodCallTranslator : RelationalCompositeMethodCallTranslator
     {
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             {
                 new SqliteMathAbsTranslator(),
                 new SqliteStringToLowerTranslator(),
-                new SqliteStringToUpperTranslator(),
+                new SqliteStringToUpperTranslator()
             };
 
             AddTranslators(sqliteTranslators);

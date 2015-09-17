@@ -35,8 +35,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             await AssertQuery<Customer>(
                 cs => cs.Where(c => c.ContactName.Contains("M")), // case-insensitive
-                cs => cs.Where(c => c.ContactName.Contains("M") 
-                                     || c.ContactName.Contains("m")), // case-sensitive
+                cs => cs.Where(c => c.ContactName.Contains("M")
+                                    || c.ContactName.Contains("m")), // case-sensitive
                 entryCount: 34);
         }
 

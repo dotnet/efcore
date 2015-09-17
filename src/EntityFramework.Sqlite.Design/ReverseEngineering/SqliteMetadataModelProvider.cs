@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Sqlite.Metadata;
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             _typeMapper = typeMapper;
         }
 
-        protected override IRelationalMetadataExtensionProvider ExtensionsProvider => new SqliteMetadataExtensionProvider();
+        protected override IRelationalMetadataExtensionProvider ExtensionsProvider => new SqliteAnnotationProvider();
 
         public override IModel ConstructRelationalModel([NotNull] string connectionString)
         {

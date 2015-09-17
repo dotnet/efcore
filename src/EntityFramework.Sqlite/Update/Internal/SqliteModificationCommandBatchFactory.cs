@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.Update
+namespace Microsoft.Data.Entity.Update.Internal
 {
     public class SqliteModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
