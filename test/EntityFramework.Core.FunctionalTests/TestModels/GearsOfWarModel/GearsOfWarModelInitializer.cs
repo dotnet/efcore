@@ -188,7 +188,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         AssignedCity = ephyra,
                         CityOrBirthName = ephyra.Name,
                         Tag = domsTag,
-                        Reports = new List<Gear>(),
                         Weapons = new List<Weapon> { domsHammerburst, domsGnasher }
                     };
 
@@ -201,7 +200,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         CityOrBirthName = hanover.Name,
                         AssignedCity = jacinto,
                         Tag = colesTag,
-                        Reports = new List<Gear>(),
                         Weapons = new List<Weapon> { colesGnasher, colesMulcher }
                     };
 
@@ -213,7 +211,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         Rank = MilitaryRank.Private,
                         CityOrBirthName = unknown.Name,
                         Tag = paduksTag,
-                        Reports = new List<Gear>(),
                         Weapons = new List<Weapon> { paduksMarkza }
                     };
 
@@ -226,11 +223,10 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
                         CityOrBirthName = unknown.Name,
                         AssignedCity = jacinto,
                         Tag = bairdsTag,
-                        Reports = new List<Gear> { paduk },
                         Weapons = new List<Weapon> { bairdsLancer, bairdsGnasher }
                     };
 
-                var marcus = new Gear
+                var marcus = new Officer
                     {
                         Nickname = "Marcus",
                         FullName = "Marcus Fenix",

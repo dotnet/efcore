@@ -210,6 +210,28 @@ ORDER BY [c].[Nickname], [c].[Name]",
                 Sql);
         }
 
+        public override void Include_navigation_on_derived_type()
+        {
+            base.Include_navigation_on_derived_type();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+WHERE [g].[Discriminator] = 'Officer'
+ORDER BY [g].[Nickname], [g].[SquadId]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [g].[Nickname], [g].[SquadId]
+    FROM [Gear] AS [g]
+    WHERE [g].[Discriminator] = 'Officer'
+) AS [g0] ON ([g].[LeaderNickname] = [g0].[Nickname]) AND ([g].[LeaderSquadId] = [g0].[SquadId])
+WHERE ([g].[Discriminator] = 'Officer') OR ([g].[Discriminator] = 'Gear')
+ORDER BY [g0].[Nickname], [g0].[SquadId]",
+                Sql);
+        }
+
         public override void Where_enum()
         {
             base.Where_enum();

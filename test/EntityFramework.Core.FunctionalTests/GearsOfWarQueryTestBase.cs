@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                var query = context.Tags.Include(t => t.Gear.Reports);
+                var query = context.Tags.Include(t => t.Gear.Weapons);
                 var result = query.ToList();
 
                 Assert.Equal(6, result.Count);
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var gears = result.Select(t => t.Gear).Where(g => g != null).ToList();
                 Assert.Equal(5, gears.Count);
 
-                Assert.True(gears.All(g => g.Reports != null));
+                Assert.True(gears.All(g => g.Weapons != null));
             }
         }
 
@@ -219,6 +219,24 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         }
                     }
                 }
+            }
+        }
+
+        [Fact]
+        public virtual void Include_navigation_on_derived_type()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Gears.OfType<Officer>().Include(o => o.Reports);
+                var result = query.ToList();
+
+                Assert.Equal(1, result.Count);
+
+                var reports = result.Single().Reports.ToList();
+                Assert.Equal(3, reports.Count);
+                Assert.Contains("Baird", reports.Select(g => g.Nickname));
+                Assert.Contains("Cole Train", reports.Select(g => g.Nickname));
+                Assert.Contains("Dom", reports.Select(g => g.Nickname));
             }
         }
 
