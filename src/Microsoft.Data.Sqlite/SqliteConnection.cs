@@ -40,7 +40,7 @@ namespace Microsoft.Data.Sqlite
             get { return _connectionString; }
             set
             {
-                if (_state != ConnectionState.Closed)
+                if (State != ConnectionState.Closed)
                 {
                     throw new InvalidOperationException(Strings.ConnectionStringRequiresClosedConnection);
                 }
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Sqlite
         public override string Database => MainDatabaseName;
 
         public override string DataSource =>
-            _state == ConnectionState.Open
+            State == ConnectionState.Open
                 ? NativeMethods.sqlite3_db_filename(_db, MainDatabaseName)
                 : ConnectionStringBuilder.DataSource;
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Sqlite
         public override ConnectionState State => _state;
         protected internal SqliteTransaction Transaction { get; set; }
 
-        protected virtual void SetState(ConnectionState value)
+        private void SetState(ConnectionState value)
         {
             var originalState = _state;
             if (originalState != value)
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Sqlite
 
         public override void Open()
         {
-            if (_state == ConnectionState.Open)
+            if (State == ConnectionState.Open)
             {
                 return;
             }
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var flags = Constants.SQLITE_OPEN_READWRITE | Constants.SQLITE_OPEN_CREATE;
-            flags |= (ConnectionStringBuilder.CacheMode == CacheMode.Shared) ? Constants.SQLITE_OPEN_SHAREDCACHE : Constants.SQLITE_OPEN_PRIVATECACHE;
+            flags |= (ConnectionStringBuilder.Cache == SqliteConnectionCacheMode.Shared) ? Constants.SQLITE_OPEN_SHAREDCACHE : Constants.SQLITE_OPEN_PRIVATECACHE;
 
             var rc = NativeMethods.sqlite3_open_v2(ConnectionStringBuilder.DataSource, out _db, flags, vfs: null);
             MarshalEx.ThrowExceptionForRC(rc, _db);
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Sqlite
 
         public new virtual SqliteTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            if (_state != ConnectionState.Open)
+            if (State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("BeginTransaction"));
             }

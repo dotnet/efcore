@@ -6,7 +6,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     /// Represents the connection-caching modes that can be used when creating a new <see cref="SqliteConnection"/>. <seealso href="https://www.sqlite.org/sharedcache.html">See SQLite.org for complete documentation on the differences between caching modes.</seealso>
     /// </summary>
-    public enum CacheMode
+    public enum SqliteConnectionCacheMode
     {
         // TODO consider adding a 'default' or 'unspecified' mode
         /// <summary>
