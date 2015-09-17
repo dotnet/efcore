@@ -39,28 +39,28 @@ namespace Microsoft.Data.Entity.Sqlite.Design
         private static readonly Type _default = typeof(string);
 
         private readonly Func<string, bool, Type>[] _typeRules =
-            {
-                (name, nullable) =>
+        {
+            (name, nullable) =>
+                {
+                    if (Contains(name, "INT"))
                     {
-                        if (Contains(name, "INT"))
-                        {
-                            return nullable ? typeof(long?) : typeof(long);
-                        }
-                        return null;
-                    },
-                (name, nullable) => Contains(name, "CHAR") || Contains(name, "CLOB") || Contains(name, "TEXT") ? typeof(string) : null,
-                (name, nullable) => Contains(name, "BLOB") ? typeof(byte[]) : null,
-                (name, nullable) =>
-                    {
-                        if (Contains(name, "REAL")
-                            || Contains(name, "FLOA")
-                            || Contains(name, "DOUB"))
-                        {
-                            return nullable ? typeof(double?) : typeof(double);
-                        }
-                        return null;
+                        return nullable ? typeof(long?) : typeof(long);
                     }
-            };
+                    return null;
+                },
+            (name, nullable) => Contains(name, "CHAR") || Contains(name, "CLOB") || Contains(name, "TEXT") ? typeof(string) : null,
+            (name, nullable) => Contains(name, "BLOB") ? typeof(byte[]) : null,
+            (name, nullable) =>
+                {
+                    if (Contains(name, "REAL")
+                        || Contains(name, "FLOA")
+                        || Contains(name, "DOUB"))
+                    {
+                        return nullable ? typeof(double?) : typeof(double);
+                    }
+                    return null;
+                }
+        };
 
         private static bool Contains(string haystack, string needle)
             => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;

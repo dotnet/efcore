@@ -98,7 +98,7 @@ CreatedTable
         {
             base.BuildSecondMigration(migrationBuilder);
 
-            for (int i = migrationBuilder.Operations.Count - 1; i >= 0; i--)
+            for (var i = migrationBuilder.Operations.Count - 1; i >= 0; i--)
             {
                 var operation = migrationBuilder.Operations[i];
                 if (operation is AlterColumnOperation

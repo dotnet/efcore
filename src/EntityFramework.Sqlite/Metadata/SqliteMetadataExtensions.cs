@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqliteMetadataExtensions
     {
-        public static IRelationalEntityTypeAnnotations Sqlite([NotNull] this IEntityType entityType) 
+        public static IRelationalEntityTypeAnnotations Sqlite([NotNull] this IEntityType entityType)
             => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqliteAnnotationNames.Prefix);
 
         public static RelationalEntityTypeAnnotations Sqlite([NotNull] this EntityType entityType)
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity
         public static RelationalIndexAnnotations Sqlite([NotNull] this Index index)
             => (RelationalIndexAnnotations)Sqlite((IIndex)index);
 
-        public static IRelationalKeyAnnotations Sqlite([NotNull] this IKey key) 
+        public static IRelationalKeyAnnotations Sqlite([NotNull] this IKey key)
             => new RelationalKeyAnnotations(Check.NotNull(key, nameof(key)), SqliteAnnotationNames.Prefix);
 
         public static RelationalKeyAnnotations Sqlite([NotNull] this Key key)
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity
         public static IRelationalModelAnnotations Sqlite([NotNull] this IModel model)
             => new RelationalModelAnnotations(Check.NotNull(model, nameof(model)), SqliteAnnotationNames.Prefix);
 
-        public static IRelationalPropertyAnnotations Sqlite([NotNull] this IProperty property) 
+        public static IRelationalPropertyAnnotations Sqlite([NotNull] this IProperty property)
             => new RelationalPropertyAnnotations(Check.NotNull(property, nameof(property)), SqliteAnnotationNames.Prefix);
 
         public static RelationalPropertyAnnotations Sqlite([NotNull] this Property property)

@@ -45,13 +45,13 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             public virtual void CreateDatabase()
             {
                 _store = SqliteTestStore.GetOrCreateShared(DatabaseName, () =>
-                {
-                    using (var context = new ChipsContext(ServiceProvider))
                     {
-                        context.Database.EnsureDeleted();
-                        context.Database.EnsureCreated();
-                    }
-                });
+                        using (var context = new ChipsContext(ServiceProvider))
+                        {
+                            context.Database.EnsureDeleted();
+                            context.Database.EnsureCreated();
+                        }
+                    });
             }
 
             public void Dispose()

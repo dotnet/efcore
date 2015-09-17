@@ -172,10 +172,10 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.NotEmpty(children.GetForeignKeys());
 
             var propList = new List<Property>
-                {
-                    (Property)children.FindProperty("ParentId_A"),
-                    (Property)children.FindProperty("ParentId_B")
-                };
+            {
+                (Property)children.FindProperty("ParentId_A"),
+                (Property)children.FindProperty("ParentId_B")
+            };
             var principalKey = children.GetForeignKey(propList.AsReadOnly()).PrincipalKey;
             Assert.Equal("Parent", principalKey.EntityType.Name);
             Assert.Equal("Id_A", principalKey.Properties[0].Name);

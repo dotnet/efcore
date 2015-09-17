@@ -140,10 +140,10 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 modelBuilder.Entity<Pegasus>().Key(e => new { e.Id1, e.Id2 });
 
                 modelBuilder.Entity<EarthPony>(b =>
-                {
-                    b.Key(e => new { e.Id1, e.Id2});
-                    b.Property(e => e.Id1);
-                });
+                    {
+                        b.Key(e => new { e.Id1, e.Id2 });
+                        b.Property(e => e.Id1);
+                    });
             }
         }
 
@@ -153,7 +153,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             public long Id2 { get; set; }
             public string Name { get; set; }
         }
-
 
         private class EarthPony
         {

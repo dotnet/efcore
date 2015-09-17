@@ -5,20 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Sqlite.Metadata;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
     internal static class SqliteDmlParser
     {
         private static readonly ISet<string> _constraintKeyWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "CONSTRAINT",
-                "PRIMARY",
-                "UNIQUE",
-                "CHECK",
-                "FOREIGN"
-            };
+        {
+            "CONSTRAINT",
+            "PRIMARY",
+            "UNIQUE",
+            "CHECK",
+            "FOREIGN"
+        };
 
         public static void ParseTableDefinition(ModelBuilder modelBuilder, string tableName, string sql)
         {
@@ -50,16 +49,22 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             {
                 if (c == '"')
                 {
-                    while (sql[start++] != '"') ;
+                    while (sql[start++] != '"')
+                    {
+                        ;
+                    }
                 }
                 if (c == '\'')
                 {
-                    while (sql[start++] != '\'') ;
+                    while (sql[start++] != '\'')
+                    {
+                        ;
+                    }
                 }
             }
             var statementsChunk = sql.Substring(start, sql.LastIndexOf(')') - start);
 
-            return SafeSplit(statementsChunk, ',').Select(s=>s.Trim());
+            return SafeSplit(statementsChunk, ',').Select(s => s.Trim());
         }
 
         public static void ParseColumnDefinition(EntityTypeBuilder entityBuilder, string statement)
@@ -173,21 +178,37 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                                 nestedLevel++;
                                 break;
                             case '"':
-                                while (++idx < str.Length && str[idx] != '"') ;
+                                while (++idx < str.Length
+                                       && str[idx] != '"')
+                                {
+                                    ;
+                                }
                                 break;
                             case '\'':
-                                while (++idx < str.Length && str[idx] != '\'') ;
+                                while (++idx < str.Length
+                                       && str[idx] != '\'')
+                                {
+                                    ;
+                                }
                                 break;
                         }
                     }
                 }
                 else if (c == '"')
                 {
-                    while (++idx < str.Length && str[idx] != '"') ;
+                    while (++idx < str.Length
+                           && str[idx] != '"')
+                    {
+                        ;
+                    }
                 }
                 else if (c == '\'')
                 {
-                    while (++idx < str.Length && str[idx] != '\'') ;
+                    while (++idx < str.Length
+                           && str[idx] != '\'')
+                    {
+                        ;
+                    }
                 }
             }
             if (idx > lastStart)

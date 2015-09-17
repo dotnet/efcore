@@ -45,9 +45,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         private static string CreateConnectionString(string name)
             => new SqliteConnectionStringBuilder
-                {
-                    DataSource = name + ".db"
-                }.ConnectionString;
+            {
+                DataSource = name + ".db"
+            }.ConnectionString;
 
         protected override void CreateAndSeedDatabase(string databaseName, Func<MonsterContext> createContext)
         {

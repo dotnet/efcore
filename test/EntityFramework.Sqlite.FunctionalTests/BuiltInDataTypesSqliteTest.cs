@@ -22,15 +22,15 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedDataTypes>().Add(
                     new MappedDataTypes
-                        {
-                            Id = 66,
-                            Int = 77,
-                            Integer = 78L,
-                            Real = 84.4,
-                            SomeString = "don't",
-                            Text = "G",
-                            Blob = new byte[] { 86 }
-                        });
+                    {
+                        Id = 66,
+                        Int = 77,
+                        Integer = 78L,
+                        Real = 84.4,
+                        SomeString = "don't",
+                        Text = "G",
+                        Blob = new byte[] { 86 }
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -55,15 +55,15 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedNullableDataTypes>().Add(
                     new MappedNullableDataTypes
-                        {
-                            Id = 69,
-                            Int = 77,
-                            Integer = 78L,
-                            Real = 84.4,
-                            SomeString = "don't",
-                            Text = "G",
-                            Blob = new byte[] { 86 }
-                        });
+                    {
+                        Id = 69,
+                        Int = 77,
+                        Integer = 78L,
+                        Real = 84.4,
+                        SomeString = "don't",
+                        Text = "G",
+                        Blob = new byte[] { 86 }
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -88,9 +88,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedNullableDataTypes>().Add(
                     new MappedNullableDataTypes
-                        {
-                            Id = 78
-                        });
+                    {
+                        Id = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -117,11 +117,11 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedSizedDataTypes>().Add(
                     new MappedSizedDataTypes
-                        {
-                            Id = 77,
-                            Nvarchar = "Into",
-                            Binary = new byte[] { 10, 11, 12, 13 }
-                        });
+                    {
+                        Id = 77,
+                        Nvarchar = "Into",
+                        Binary = new byte[] { 10, 11, 12, 13 }
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -142,9 +142,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedSizedDataTypes>().Add(
                     new MappedSizedDataTypes
-                        {
-                            Id = 78
-                        });
+                    {
+                        Id = 78
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -167,13 +167,13 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedScaledDataTypes>().Add(
                     new MappedScaledDataTypes
-                        {
-                            Id = 77,
-                            Float = 83.3f,
-                            Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
-                            Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
-                            Decimal = 101.1m
-                        });
+                    {
+                        Id = 77,
+                        Float = 83.3f,
+                        Datetimeoffset = new DateTimeOffset(new DateTime(2016, 1, 2, 11, 11, 12), TimeSpan.Zero),
+                        Datetime2 = new DateTime(2017, 1, 2, 12, 11, 12),
+                        Decimal = 101.1m
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }
@@ -198,10 +198,10 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             {
                 context.Set<MappedPrecisionAndScaledDataTypes>().Add(
                     new MappedPrecisionAndScaledDataTypes
-                        {
-                            Id = 77,
-                            Decimal = 101.1m
-                        });
+                    {
+                        Id = 77,
+                        Decimal = 101.1m
+                    });
 
                 Assert.Equal(1, context.SaveChanges());
             }

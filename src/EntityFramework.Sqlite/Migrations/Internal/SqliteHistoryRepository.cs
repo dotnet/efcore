@@ -23,14 +23,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [NotNull] SqliteAnnotationProvider annotations,
             [NotNull] SqliteUpdateSqlGenerator sql)
             : base(
-                  databaseCreator,
-                  executor,
-                  connection,
-                  options,
-                  modelDiffer,
-                  sqlGenerator,
-                  annotations,
-                  sql)
+                databaseCreator,
+                executor,
+                connection,
+                options,
+                modelDiffer,
+                sqlGenerator,
+                annotations,
+                sql)
         {
         }
 

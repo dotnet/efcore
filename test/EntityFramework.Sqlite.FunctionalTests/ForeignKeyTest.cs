@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 else
                 {
                     var ex = Assert.Throws<DbUpdateException>(() => { context.SaveChanges(); });
-                    Assert.Contains("FOREIGN KEY constraint failed",ex.InnerException.Message);
+                    Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message);
                 }
             }
         }

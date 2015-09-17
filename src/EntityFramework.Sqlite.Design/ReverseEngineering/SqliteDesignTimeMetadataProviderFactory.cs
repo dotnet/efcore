@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;

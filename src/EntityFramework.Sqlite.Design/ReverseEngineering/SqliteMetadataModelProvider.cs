@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
-using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.Logging;
@@ -65,11 +64,11 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         else if (type == "index")
                         {
                             indexes.Add(new SqliteIndexInfo
-                                {
-                                    Name = name,
-                                    TableName = tableName,
-                                    Sql = sql
-                                });
+                            {
+                                Name = name,
+                                TableName = tableName,
+                                Sql = sql
+                            });
                         }
                     }
                 }

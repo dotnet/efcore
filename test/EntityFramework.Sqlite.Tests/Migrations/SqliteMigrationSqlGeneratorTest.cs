@@ -26,14 +26,14 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 Name = "Pie",
                 Columns =
-                        {
-                            new AddColumnOperation
-                                {
-                                    ClrType = typeof(int),
-                                    Name = "FlavorId",
-                                    ColumnType = "INT"
-                                }
-                        }
+                {
+                    new AddColumnOperation
+                    {
+                        ClrType = typeof(int),
+                        Name = "FlavorId",
+                        ColumnType = "INT"
+                    }
+                }
             }, new AddForeignKeyOperation
             {
                 Table = "Pie",
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Migrations
                 Name = "Id",
                 ClrType = typeof(long),
                 ColumnType = "INTEGER",
-                IsNullable = false,
+                IsNullable = false
             };
             if (autoincrement)
             {
@@ -89,11 +89,11 @@ namespace Microsoft.Data.Entity.Migrations
             }
 
             Generate(
-                 new CreateTableOperation
-                 {
-                     Name = "People",
-                     Columns =
-                     {
+                new CreateTableOperation
+                {
+                    Name = "People",
+                    Columns =
+                    {
                         addIdColumn,
                         new AddColumnOperation
                         {
@@ -102,36 +102,36 @@ namespace Microsoft.Data.Entity.Migrations
                             ColumnType = "int",
                             IsNullable = true
                         },
-                         new AddColumnOperation
+                        new AddColumnOperation
                         {
                             Name = "SSN",
                             ClrType = typeof(string),
                             ColumnType = "char(11)",
                             IsNullable = true
                         }
-                     },
-                     PrimaryKey = new AddPrimaryKeyOperation
-                     {
-                         Name = pkName,
-                         Columns = new[] { "Id" }
-                     },
-                     UniqueConstraints =
-                     {
+                    },
+                    PrimaryKey = new AddPrimaryKeyOperation
+                    {
+                        Name = pkName,
+                        Columns = new[] { "Id" }
+                    },
+                    UniqueConstraints =
+                    {
                         new AddUniqueConstraintOperation
                         {
                             Columns = new[] { "SSN" }
                         }
-                     },
-                     ForeignKeys =
-                     {
+                    },
+                    ForeignKeys =
+                    {
                         new AddForeignKeyOperation
                         {
                             Columns = new[] { "EmployerId" },
                             PrincipalTable = "Companies",
                             PrincipalColumns = new[] { "Id" }
                         }
-                     }
-                 });
+                    }
+                });
 
             Assert.Equal(
                 "CREATE TABLE \"People\" (" + EOL +

@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             _connection.Open();
 
-            return this.AsTransient();
+            return AsTransient();
         }
 
         public SqliteTestStore AsTransient()

@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
 
                 AssertLog(new LoggerMessages());
@@ -53,11 +53,11 @@ CREATE TABLE IF NOT EXISTS Dependent (
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToOne"))
                 {
                     Files =
-                            {
-                                "ModelContext.expected",
-                                "Dependent.expected",
-                                "Principal.expected"
-                            }
+                    {
+                        "ModelContext.expected",
+                        "Dependent.expected",
+                        "Principal.expected"
+                    }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
 
                 AssertLog(new LoggerMessages());
@@ -106,11 +106,11 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "OneToMany"))
                 {
                     Files =
-                            {
-                                "ModelContext.expected",
-                                "OneToManyDependent.expected",
-                                "OneToManyPrincipal.expected"
-                            }
+                    {
+                        "ModelContext.expected",
+                        "OneToManyDependent.expected",
+                        "OneToManyPrincipal.expected"
+                    }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
@@ -145,7 +145,7 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
 
                 AssertLog(new LoggerMessages());
@@ -153,12 +153,12 @@ CREATE TABLE Users_Groups (
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "ManyToMany"))
                 {
                     Files =
-                            {
-                                "ModelContext.expected",
-                                "Groups.expected",
-                                "Users.expected",
-                                "Users_Groups.expected"
-                            }
+                    {
+                        "ModelContext.expected",
+                        "Groups.expected",
+                        "Users.expected",
+                        "Users_Groups.expected"
+                    }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
@@ -186,7 +186,7 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
 
                 AssertLog(new LoggerMessages());
@@ -194,10 +194,10 @@ CREATE TABLE Users_Groups (
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "SelfRef"))
                 {
                     Files =
-                            {
-                                "ModelContext.expected",
-                                "SelfRef.expected"
-                            }
+                    {
+                        "ModelContext.expected",
+                        "SelfRef.expected"
+                    }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
@@ -220,15 +220,15 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
                 var errorMessage = Strings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
-                            {
-                                errorMessage
-                            }
+                    {
+                        errorMessage
+                    }
                 };
                 AssertLog(expectedLog);
                 Assert.Contains(errorMessage, InMemoryFiles.RetrieveFileContents("testout", "Alicia.cs"));
@@ -253,27 +253,27 @@ CREATE TABLE Principal ( Id INT);");
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
 
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
-                            {
-                                Strings.MissingPrimaryKey("Principal"),
-                                Strings.ForeignKeyScaffoldError("Dependent","PrincipalId"),
-                            }
+                    {
+                        Strings.MissingPrimaryKey("Principal"),
+                        Strings.ForeignKeyScaffoldError("Dependent", "PrincipalId")
+                    }
                 };
                 AssertLog(expectedLog);
 
                 var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "NoPrincipalPk"))
                 {
                     Files =
-                            {
-                                "ModelContext.expected",
-                                "Dependent.expected",
-                                "Principal.expected",
-                            }
+                    {
+                        "ModelContext.expected",
+                        "Dependent.expected",
+                        "Principal.expected"
+                    }
                 };
                 var actualFileSet = new FileSet(InMemoryFiles, "testout")
                 {
@@ -319,7 +319,7 @@ CREATE TABLE String (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly,
+                    UseFluentApiOnly = UseFluentApiOnly
                 });
 
                 AssertLog(new LoggerMessages());
@@ -335,29 +335,29 @@ CREATE TABLE String (
         protected override E2ECompiler GetCompiler() => new E2ECompiler
         {
             NamedReferences =
-                    {
-                        "EntityFramework.Core",
-                        "EntityFramework.Relational",
-                        "EntityFramework.Sqlite",
-                        // ReSharper disable once RedundantCommaInInitializer
-                        "Microsoft.Data.Sqlite",
+            {
+                "EntityFramework.Core",
+                "EntityFramework.Relational",
+                "EntityFramework.Sqlite",
+                // ReSharper disable once RedundantCommaInInitializer
+                "Microsoft.Data.Sqlite",
 #if DNXCORE50
                         "System.Data.Common",
                         "System.Linq.Expressions",
                         "System.Reflection",
                         "System.ComponentModel.Annotations",
 #else
-                    },
+            },
             References =
-                    {
-                        MetadataReference.CreateFromFile(
-                            Assembly.Load(new AssemblyName(
-                                "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
-                        MetadataReference.CreateFromFile(
-                            Assembly.Load(new AssemblyName(
-                                "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location),
+            {
+                MetadataReference.CreateFromFile(
+                    Assembly.Load(new AssemblyName(
+                        "System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")).Location),
+                MetadataReference.CreateFromFile(
+                    Assembly.Load(new AssemblyName(
+                        "System.ComponentModel.DataAnnotations, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")).Location)
 #endif
-                    }
+            }
         };
 
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere

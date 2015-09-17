@@ -15,7 +15,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         [InlineData("Blob", typeof(byte[]))]
         [InlineData("real", typeof(double))]
         [InlineData("numeric", typeof(string))]
-
         [InlineData("real", typeof(double))]
         [InlineData("doub", typeof(double))]
         [InlineData("int", typeof(long))]
@@ -26,7 +25,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         [InlineData("datetime", typeof(string))]
         [InlineData("decimal(10,4)", typeof(string))]
         [InlineData("boolean", typeof(string))]
-
         [InlineData("unknown_type", typeof(string))]
         [InlineData(null, typeof(string))]
         public void It_maps_not_null_types(string typeName, Type clrType)
@@ -40,7 +38,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         [InlineData("Blob", typeof(byte[]))]
         [InlineData("real", typeof(double?))]
         [InlineData("numeric", typeof(string))]
-
         [InlineData(null, typeof(string))]
         public void It_maps_nullable_types(string typeName, Type clrType)
         {
