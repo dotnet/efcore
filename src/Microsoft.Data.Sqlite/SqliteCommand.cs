@@ -88,19 +88,22 @@ namespace Microsoft.Data.Sqlite
 
         public new virtual SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
-            if (behavior != CommandBehavior.Default)
+            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess)) != 0)
             {
                 throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
             }
+            
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
             }
+            
             if (string.IsNullOrEmpty(CommandText))
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
             }
+            
             if (Transaction != Connection.Transaction)
             {
                 throw new InvalidOperationException(
@@ -116,6 +119,7 @@ namespace Microsoft.Data.Sqlite
             var changes = 0;
             var stmts = new Queue<Tuple<Sqlite3StmtHandle, bool>>();
             var tail = CommandText;
+            
             do
             {
                 Sqlite3StmtHandle stmt;

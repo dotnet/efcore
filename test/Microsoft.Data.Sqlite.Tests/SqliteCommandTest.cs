@@ -455,5 +455,41 @@ namespace Microsoft.Data.Sqlite
         {
             Assert.Throws<NotSupportedException>(() => new SqliteCommand().Cancel());
         }
+        
+        [Fact]
+        public void ExecuteReader_supports_SequentialAccess()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT 0;";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader(CommandBehavior.SequentialAccess))
+                {
+                    var hasResult = reader.NextResult();
+                    Assert.False(hasResult);
+                }
+            }
+        }
+        
+        [Theory]
+        [InlineData(CommandBehavior.KeyInfo)]
+        [InlineData(CommandBehavior.CloseConnection)]
+        [InlineData(CommandBehavior.SchemaOnly)]
+        [InlineData(CommandBehavior.SingleResult)]
+        [InlineData(CommandBehavior.SingleRow)]
+        public void ExecuteReader_throws_for_unsupported_(CommandBehavior behavior)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT 0;";
+                connection.Open();
+                
+                var ex = Assert.Throws<ArgumentException>(() => command.ExecuteReader(behavior));
+                Assert.Equal(Strings.FormatInvalidCommandBehavior(behavior), ex.Message);
+            }
+        }
     }
 }
