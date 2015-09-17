@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Query
             => new QueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
-                    /*queryIndex:*/ null)
+                    null)
                     .Select(shaper);
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;

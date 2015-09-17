@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Query
                 new AsyncQueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
-                    /*queryIndex:*/ null)
+                    null)
                     .Select(shaper);
         }
 
