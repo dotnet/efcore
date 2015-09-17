@@ -21,11 +21,11 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         private readonly SqliteReverseTypeMapper _typeMapper;
 
         public SqliteMetadataModelProvider(
-            [NotNull] ILogger logger,
+            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] SqliteReverseTypeMapper typeMapper)
-            : base(logger, modelUtilities, cSharpUtilities)
+            : base(loggerFactory, modelUtilities, cSharpUtilities)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 

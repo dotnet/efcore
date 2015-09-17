@@ -43,18 +43,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="..\Shared\SharedTypeExtensions.cs">
-      <Link>Utilities\SharedTypeExtensions.cs</Link>
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>Extensions\LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="Design\Internal\AggregateServiceProvider.cs" />
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Extensions\SharedTypeExtensions.cs</Link>
+    </Compile>
     <Compile Include="Design\MigrationInfo.cs" />
     <Compile Include="Design\OperationException.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
     <Compile Include="Design\DatabaseOperations.cs" />
-    <Compile Include="Design\Internal\DesignTimeServices.cs" />
+    <Compile Include="Design\Internal\DesignTimeServicesBuilder.cs" />
     <Compile Include="Design\OperationExecutor.cs" />
     <Compile Include="Design\Internal\ForwardingProxy.cs" />
-    <Compile Include="Utilities\CommandLineUtilsExtensions.cs" />
+    <Compile Include="Extensions\CommandLineUtilsExtensions.cs" />
     <Compile Include="Design\OperationHandlers.cs" />
     <Compile Include="Design\MigrationsOperations.cs" />
     <Compile Include="Migrations\Design\ScaffoldedMigration.cs" />

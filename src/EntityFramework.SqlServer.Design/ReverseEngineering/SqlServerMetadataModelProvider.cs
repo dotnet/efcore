@@ -40,12 +40,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private readonly Dictionary<string, Property> _columnIdToProperty = new Dictionary<string, Property>();
 
         public SqlServerMetadataModelProvider(
-            [NotNull] ILogger logger,
+            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities)
-            : base(logger, modelUtilities, cSharpUtilities)
+            : base(loggerFactory, modelUtilities, cSharpUtilities)
         {
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(sqlServerLiteralUtilities, nameof(sqlServerLiteralUtilities));

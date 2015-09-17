@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         public static readonly Regex _defaultValueIsExpression =
             new Regex(@"^[@\$\w]+\(.*\)$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(1000.0));
 
-        public SqlServerLiteralUtilities([NotNull] ILogger logger)
+        public SqlServerLiteralUtilities([NotNull] ILoggerFactory loggerFactory)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
 
-            Logger = logger;
+            Logger = loggerFactory.CreateCommandsLogger();
         }
 
         public virtual ILogger Logger { get; }
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
 
     public class DefaultExpressionOrValue
     {
-        public virtual string DefaultExpression { get; [param: NotNull] set; }
-        public virtual object DefaultValue { get; [param: NotNull] set; }
+        public virtual string DefaultExpression { get;[param: NotNull] set; }
+        public virtual object DefaultValue { get;[param: NotNull] set; }
     }
 }

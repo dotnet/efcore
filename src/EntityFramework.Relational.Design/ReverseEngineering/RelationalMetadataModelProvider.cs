@@ -39,13 +39,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         protected abstract IRelationalAnnotationProvider ExtensionsProvider { get; }
 
-        protected RelationalMetadataModelProvider([NotNull] ILogger logger,
+        protected RelationalMetadataModelProvider([NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities, [NotNull] CSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
 
-            Logger = logger;
+            Logger = loggerFactory.CreateCommandsLogger();
             CSharpUtilities = cSharpUtilities;
             ModelUtilities = modelUtilities;
         }
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var errorMessage = relationalEntityType[AnnotationNameEntityTypeError];
                 if (errorMessage != null)
                 {
-                    codeGenEntityType.AddAnnotation(AnnotationNameEntityTypeError, 
+                    codeGenEntityType.AddAnnotation(AnnotationNameEntityTypeError,
                         Strings.UnableToGenerateEntityType(codeGenEntityType.Name, errorMessage));
                 }
 
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             Check.NotNull(relationalProperty, nameof(relationalProperty));
             Check.NotNull(codeGenProperty, nameof(codeGenProperty));
 
-            foreach(var annotation in 
+            foreach (var annotation in
                 relationalProperty.Annotations.Where(a => !IgnoredAnnotations.Contains(a.Name)))
             {
                 codeGenProperty.AddAnnotation(annotation.Name, annotation.Value);

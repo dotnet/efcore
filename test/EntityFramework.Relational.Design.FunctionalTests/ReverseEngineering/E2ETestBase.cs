@@ -28,11 +28,14 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
             _output = output;
 
             var serviceCollection = new ServiceCollection()
-                .AddScoped(typeof(ILogger), sp => _logger = new InMemoryCommandLogger("E2ETest"))
-                .AddScoped(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
-
+                .AddLogging();
             GetFactory().AddMetadataProviderServices(serviceCollection);
+            serviceCollection.AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
+
             var serviceProvider = serviceCollection.BuildServiceProvider();
+
+            _logger = new InMemoryCommandLogger("E2ETest");
+            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             MetadataModelProvider = serviceProvider.GetRequiredService<IDatabaseMetadataModelProvider>();
@@ -94,6 +97,22 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
                 }
                 _output.WriteLine("================================================");
                 Assert.True(false, "Failed to compile: see Compilation Errors in Output.");
+            }
+        }
+
+        private class TestLoggerProvider : ILoggerProvider
+        {
+            private readonly ILogger _logger;
+
+            public TestLoggerProvider(ILogger logger)
+            {
+                _logger = logger;
+            }
+
+            public ILogger CreateLogger(string name) => _logger;
+
+            public void Dispose()
+            {
             }
         }
     }

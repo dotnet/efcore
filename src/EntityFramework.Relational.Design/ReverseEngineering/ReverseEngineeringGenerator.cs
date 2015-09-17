@@ -21,21 +21,21 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private readonly IDatabaseMetadataModelProvider _provider;
 
         public ReverseEngineeringGenerator(
-            [NotNull] ILogger logger,
+            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IFileService fileService,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] IDatabaseMetadataModelProvider metadataModelProvider,
             [NotNull] ModelConfigurationFactory modelConfigurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(fileService, nameof(fileService));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
             Check.NotNull(metadataModelProvider, nameof(metadataModelProvider));
             Check.NotNull(modelConfigurationFactory, nameof(modelConfigurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));
 
-            Logger = logger;
+            Logger = loggerFactory.CreateCommandsLogger();
             _provider = metadataModelProvider;
             _modelConfigurationFactory = modelConfigurationFactory;
             CodeWriter = codeWriter;

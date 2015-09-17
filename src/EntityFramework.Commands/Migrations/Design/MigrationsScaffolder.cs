@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             _idGenerator = idGenerator;
             _migrationCodeGenerator = migrationCodeGenerator;
             _historyRepository = historyRepository;
-            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<MigrationsScaffolder>);
+            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
             _activeProvider = providerServices.InvariantName;
         }
 

@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Design
             _assembly = assembly;
             _startupAssemblyName = startupAssemblyName;
             _dnxServices = dnxServices;
-            _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateLogger(typeof(DbContextOperations).FullName));
+            _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
         }
 
         public virtual DbContext CreateContext([CanBeNull] string contextType)

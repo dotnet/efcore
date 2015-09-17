@@ -6,28 +6,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Migrations.Design;
 using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-#if DNX451 || DNXCORE50
-using Microsoft.Data.Entity.Commands;
-#endif
-
 namespace Microsoft.Data.Entity.Design.Internal
 {
+    // TODO: Consider replacing with something besides Logging
     public abstract class CommandLogger : ILogger
     {
         private static readonly string[] _includedNames =
         {
-#if DNX451 || DNXCORE50
-            typeof(Program).FullName,
-#endif
-            typeof(DatabaseOperations).FullName,
-            typeof(DbContextOperations).FullName,
-            typeof(MigrationsOperations).FullName,
-            typeof(MigrationsScaffolder).FullName,
+            LoggingExtensions.CommandsLoggerName,
             typeof(Migrator).FullName
         };
 

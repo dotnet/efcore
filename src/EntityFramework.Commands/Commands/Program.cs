@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Commands
             _useConsoleColors = runtimeEnv.OperatingSystem == "Windows";
 
             var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
-            _logger = new LazyRef<ILogger>(() => loggerProvider.CreateLogger(typeof(Program).FullName));
+            _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
 
             var projectDir = appEnv.ApplicationBasePath;
             var rootNamespace = appEnv.ApplicationName;

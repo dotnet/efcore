@@ -201,7 +201,7 @@
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
     <value>Unable to find expected assembly attribute named {attributeName} in provider assembly {runtimeProviderAssemblyName}. This attribute is required to identify the class which acts as the design-time service provider factory.</value>
   </data>
-  <data name="DesignTimeAssemblyProviderDoesNotContainSpecifiedType" xml:space="preserve">
-    <value>Design-time provider assembly {assemblyName} does not contain the specified type {typeName}.</value>
+  <data name="NonRelationalProvider" xml:space="preserve">
+    <value>{provider} is not a Relational provider and therefore cannot be use with Migrations.</value>
   </data>
 </root>

@@ -30,19 +30,23 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddLogging();
             new SqliteDesignTimeMetadataProviderFactory().AddMetadataProviderServices(serviceCollection);
-            serviceCollection.AddScoped(typeof(ILogger), sp => { return _logger = new TestLogger(); });
-            serviceCollection.AddScoped<IFileService, FileSystemFileService>();
+            serviceCollection.AddSingleton<IFileService, FileSystemFileService>();
 
-            _metadataModelProvider = serviceCollection
-                .BuildServiceProvider()
+            var serviceProvider = serviceCollection
+                .BuildServiceProvider();
+
+            _logger = new TestLogger();
+            serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
+
+            _metadataModelProvider = serviceProvider
                 .GetService<IDatabaseMetadataModelProvider>() as SqliteMetadataModelProvider;
         }
 
         [Fact]
         public void It_loads_column_types()
         {
-            var entityType = GetModel(@"CREATE TABLE ""Column Types"" ( 
-                                        col1 text, 
+            var entityType = GetModel(@"CREATE TABLE ""Column Types"" (
+                                        col1 text,
                                         col2 unsigned big int );")
                 .GetEntityType("Column Types");
 
@@ -59,8 +63,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_loads_default_values()
         {
-            var entityType = GetModel(@"CREATE TABLE Jobs ( 
-                                            occupation text default ""dev"", 
+            var entityType = GetModel(@"CREATE TABLE Jobs (
+                                            occupation text default ""dev"",
                                             pay int default 2,
                                             hiredate datetime default current_timestamp,
                                             iq float default (100 + 19.4),
@@ -134,7 +138,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_loads_simple_references()
         {
-            var sql = @"CREATE TABLE Parent ( Id INT PRIMARY KEY ); 
+            var sql = @"CREATE TABLE Parent ( Id INT PRIMARY KEY );
                         CREATE TABLE Children (
                             Id INT PRIMARY KEY,
                             ParentId INT,
@@ -156,7 +160,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_loads_multiple_key_references()
         {
-            var sql = @"CREATE TABLE Parent ( Id_A INT, Id_B INT, PRIMARY KEY (ID_A, id_b) ); 
+            var sql = @"CREATE TABLE Parent ( Id_A INT, Id_B INT, PRIMARY KEY (ID_A, id_b) );
                         CREATE TABLE Children (
                             Id INT PRIMARY KEY,
                             ParentId_A INT,
@@ -206,7 +210,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         public void It_logs_warning_for_bad_foreign_key()
         {
             // will fail because Id is not found
-            var sql = @"CREATE TABLE Parent ( Name ); 
+            var sql = @"CREATE TABLE Parent ( Name );
                         CREATE TABLE Children (
                             Id INT PRIMARY KEY,
                             ParentId INT,
@@ -221,9 +225,9 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_assigns_uniqueness_to_foreign_key()
         {
-            var sql = @"CREATE TABLE Friends ( 
-    Id PRIMARY KEY, 
-    BuddyId UNIQUE, 
+            var sql = @"CREATE TABLE Friends (
+    Id PRIMARY KEY,
+    BuddyId UNIQUE,
     FOREIGN KEY (BuddyId) REFERENCES Friends(Id)
 );";
             var table = GetModel(sql).GetEntityType("Friends");
@@ -238,8 +242,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         {
             var sql = @"
 CREATE TABLE Family (Id PRIMARY KEY);
-CREATE TABLE Friends ( 
-    Id PRIMARY KEY, 
+CREATE TABLE Friends (
+    Id PRIMARY KEY,
     FOREIGN KEY (Id) REFERENCES Family(Id)
 );";
             var table = GetModel(sql).GetEntityType("Friends");
@@ -252,9 +256,9 @@ CREATE TABLE Friends (
         [Fact]
         public void It_does_not_assigns_uniqueness_to_foreign_key()
         {
-            var sql = @"CREATE TABLE Friends ( 
-    Id PRIMARY KEY, 
-    BuddyId, 
+            var sql = @"CREATE TABLE Friends (
+    Id PRIMARY KEY,
+    BuddyId,
     FOREIGN KEY (BuddyId) REFERENCES Friends(Id)
 );";
             var table = GetModel(sql).GetEntityType("Friends");
@@ -268,7 +272,7 @@ CREATE TABLE Friends (
         public void It_assigns_uniqueness_to_composite_foreign_key()
         {
             var sql = @"CREATE TABLE DoubleMint ( A , B, PRIMARY KEY (A,B));
-CREATE TABLE Gum ( A, B, 
+CREATE TABLE Gum ( A, B,
     UNIQUE (A,B),
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";
@@ -282,7 +286,7 @@ CREATE TABLE Gum ( A, B,
         public void It_does_not_assign_uniqueness_to_composite_foreign_key()
         {
             var sql = @"CREATE TABLE DoubleMint ( A , B, UNIQUE (A,B));
-CREATE TABLE Gum ( A, B, 
+CREATE TABLE Gum ( A, B,
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";
             var dependent = GetModel(sql).GetEntityType("Gum");
@@ -295,6 +299,22 @@ CREATE TABLE Gum ( A, B,
         {
             _testStore.ExecuteNonQuery(createSql);
             return _metadataModelProvider.ConstructRelationalModel(_testStore.Connection.ConnectionString);
+        }
+    }
+
+    public class TestLoggerProvider : ILoggerProvider
+    {
+        private readonly ILogger _logger;
+
+        public TestLoggerProvider(ILogger logger)
+        {
+            _logger = logger;
+        }
+
+        public ILogger CreateLogger(string name) => _logger;
+
+        public void Dispose()
+        {
         }
     }
 

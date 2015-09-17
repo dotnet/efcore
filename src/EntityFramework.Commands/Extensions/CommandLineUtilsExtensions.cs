@@ -5,6 +5,8 @@
 
 using System;
 
+// ReSharper disable once CheckNamespace
+
 namespace Microsoft.Dnx.Runtime.Common.CommandLine
 {
     internal static class CommandLineUtilsExtensions

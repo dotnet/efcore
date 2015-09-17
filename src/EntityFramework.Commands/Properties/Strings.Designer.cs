@@ -237,11 +237,11 @@ namespace Microsoft.Data.Entity.Design.Internal
         }
 
         /// <summary>
-        /// Design-time provider assembly {assemblyName} does not contain the specified type {typeName}.
+        /// {provider} is not a Relational provider and therefore cannot be use with Migrations.
         /// </summary>
-        public static string DesignTimeAssemblyProviderDoesNotContainSpecifiedType([CanBeNull] object assemblyName, [CanBeNull] object typeName)
+        public static string NonRelationalProvider([CanBeNull] object provider)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DesignTimeAssemblyProviderDoesNotContainSpecifiedType", "assemblyName", "typeName"), assemblyName, typeName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("NonRelationalProvider", "provider"), provider);
         }
 
         private static string GetString(string name, params string[] formatterNames)

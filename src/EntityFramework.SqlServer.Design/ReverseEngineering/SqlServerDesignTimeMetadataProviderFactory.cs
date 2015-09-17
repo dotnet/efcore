@@ -18,14 +18,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             base.AddMetadataProviderServices(serviceCollection);
             serviceCollection
-                .AddScoped<MetadataReferencesProvider>()
-                .AddScoped<ICompilationService, RoslynCompilationService>()
-                .AddScoped<RazorTemplating>()
-                .AddScoped<IDatabaseMetadataModelProvider, SqlServerMetadataModelProvider>()
-                .AddScoped<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
-                .AddScoped<SqlServerLiteralUtilities>()
-                .AddScoped<ModelConfigurationFactory, SqlServerModelConfigurationFactory>()
-                .AddScoped<CodeWriter, RazorTemplateCodeWriter>();
+                .AddSingleton<MetadataReferencesProvider>()
+                .AddSingleton<ICompilationService, RoslynCompilationService>()
+                .AddSingleton<RazorTemplating>()
+                .AddSingleton<IDatabaseMetadataModelProvider, SqlServerMetadataModelProvider>()
+                .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
+                .AddSingleton<SqlServerLiteralUtilities>()
+                .AddSingleton<ModelConfigurationFactory, SqlServerModelConfigurationFactory>()
+                .AddSingleton<CodeWriter, RazorTemplateCodeWriter>();
         }
     }
 }

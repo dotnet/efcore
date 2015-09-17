@@ -9,6 +9,14 @@ namespace Microsoft.Framework.Logging
 {
     internal static class LoggingExtensions
     {
+        public const string CommandsLoggerName = "EntityFramework.Commands";
+
+        public static ILogger CreateCommandsLogger(this ILoggerFactory loggerFactory)
+            => loggerFactory.CreateLogger(CommandsLoggerName);
+
+        public static ILogger CreateCommandsLogger(this ILoggerProvider loggerProvider)
+            => loggerProvider.CreateLogger(CommandsLoggerName);
+
         public static void LogInformation<TState>(this ILogger logger, TState state, Func<TState, string> formatter)
             => logger.LogInformation(0, state, formatter);
 

@@ -14,9 +14,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(serviceCollection, nameof(serviceCollection));
 
-            serviceCollection.AddScoped<ModelUtilities, ModelUtilities>()
-                .AddScoped<ReverseEngineeringGenerator>()
-                .AddScoped<CSharpUtilities>();
+            serviceCollection
+                .AddSingleton<IFileService, FileSystemFileService>()
+                .AddSingleton<ModelUtilities>()
+                .AddSingleton<ReverseEngineeringGenerator>()
+                .AddSingleton<CSharpUtilities>();
         }
     }
 }

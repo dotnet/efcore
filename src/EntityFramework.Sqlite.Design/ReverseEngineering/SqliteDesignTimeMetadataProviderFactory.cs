@@ -18,14 +18,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         {
             base.AddMetadataProviderServices(serviceCollection);
             serviceCollection
-                .AddScoped<MetadataReferencesProvider>()
-                .AddScoped<ICompilationService, RoslynCompilationService>()
-                .AddScoped<RazorTemplating>()
-                .AddScoped<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
-                .AddScoped<SqliteReverseTypeMapper>()
-                .AddScoped<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
-                .AddScoped<ModelConfigurationFactory, SqliteModelConfigurationFactory>()
-                .AddScoped<CodeWriter, RazorTemplateCodeWriter>();
+                .AddSingleton<MetadataReferencesProvider>()
+                .AddSingleton<ICompilationService, RoslynCompilationService>()
+                .AddSingleton<RazorTemplating>()
+                .AddSingleton<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
+                .AddSingleton<SqliteReverseTypeMapper>()
+                .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
+                .AddSingleton<ModelConfigurationFactory, SqliteModelConfigurationFactory>()
+                .AddSingleton<CodeWriter, RazorTemplateCodeWriter>();
         }
     }
 }

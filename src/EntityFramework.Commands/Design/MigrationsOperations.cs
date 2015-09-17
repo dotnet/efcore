@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Design;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.Design
         private readonly string _startupAssemblyName;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
-        private readonly IServiceProvider _services;
+        private readonly DesignTimeServicesBuilder _servicesBuilder;
         private readonly DbContextOperations _contextOperations;
 
         public MigrationsOperations(
@@ -45,12 +46,12 @@ namespace Microsoft.Data.Entity.Design
             loggerFactory.AddProvider(loggerProvider);
 
             _loggerProvider = loggerProvider;
-            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateLogger<MigrationsOperations>());
+            _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
             _assembly = assembly;
             _startupAssemblyName = startupAssemblyName;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
-            _services = dnxServices;
+            _servicesBuilder = new DesignTimeServicesBuilder(dnxServices);
             _contextOperations = new DbContextOperations(
                 loggerProvider,
                 assembly,
@@ -66,9 +67,10 @@ namespace Microsoft.Data.Entity.Design
 
             using (var context = _contextOperations.CreateContext(contextType))
             {
-                var services = DesignTimeServices.Build(context);
+                var services = _servicesBuilder.Build(context);
+                EnsureServices(services);
 
-                var scaffolder = CreateScaffolder(services);
+                var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
                 var migration = scaffolder.ScaffoldMigration(name, _rootNamespace);
                 var files = scaffolder.Save(_projectDir, migration);
 
@@ -81,7 +83,9 @@ namespace Microsoft.Data.Entity.Design
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
-                var services = DesignTimeServices.Build(context);
+                var services = _servicesBuilder.Build(context);
+                EnsureServices(services);
+
                 var migrationsAssembly = services.GetRequiredService<IMigrationsAssembly>();
                 var idGenerator = services.GetRequiredService<IMigrationsIdGenerator>();
 
@@ -98,7 +102,9 @@ namespace Microsoft.Data.Entity.Design
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
-                var services = DesignTimeServices.Build(context);
+                var services = _servicesBuilder.Build(context);
+                EnsureServices(services);
+
                 var migrator = services.GetRequiredService<IMigrator>();
 
                 return migrator.GenerateScript(fromMigration, toMigration, idempotent);
@@ -111,7 +117,9 @@ namespace Microsoft.Data.Entity.Design
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
-                var services = DesignTimeServices.Build(context);
+                var services = _servicesBuilder.Build(context);
+                EnsureServices(services);
+
                 var migrator = services.GetRequiredService<IMigrator>();
 
                 migrator.Migrate(targetMigration);
@@ -125,8 +133,10 @@ namespace Microsoft.Data.Entity.Design
         {
             using (var context = _contextOperations.CreateContext(contextType))
             {
-                var services = DesignTimeServices.Build(context);
-                var scaffolder = CreateScaffolder(services);
+                var services = _servicesBuilder.Build(context);
+                EnsureServices(services);
+
+                var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
 
                 var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace);
 
@@ -136,10 +146,13 @@ namespace Microsoft.Data.Entity.Design
             }
         }
 
-        private MigrationsScaffolder CreateScaffolder(IServiceProvider services)
+        private static void EnsureServices(IServiceProvider services)
         {
-            // TODO: Can this be hidden in AggregateServiceProvider?
-            return ActivatorUtilities.CreateInstance<MigrationsScaffolder>(services);
+            var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
+            if (!(providerServices is IRelationalDatabaseProviderServices))
+            {
+                throw new OperationException(Strings.NonRelationalProvider(providerServices.InvariantName));
+            }
         }
     }
 }
