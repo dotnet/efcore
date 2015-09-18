@@ -3,9 +3,7 @@
 
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
@@ -35,9 +33,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private readonly Dictionary<Property, Property> _relationalToCodeGenPropertyMap =
             new Dictionary<Property, Property>();
 
-        public virtual ILogger Logger { get; private set; }
-        public virtual CSharpUtilities CSharpUtilities { get; private set; }
-        private readonly ModelUtilities _modelUtilities;
+        public virtual ILogger Logger { get; }
+        public virtual CSharpUtilities CSharpUtilities { get; }
+        public virtual ModelUtilities ModelUtilities { get; }
 
         protected abstract IRelationalMetadataExtensionProvider ExtensionsProvider { get; }
 
@@ -49,7 +47,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             Logger = logger;
             CSharpUtilities = cSharpUtilities;
-            _modelUtilities = modelUtilities;
+            ModelUtilities = modelUtilities;
         }
 
         public virtual IModel GenerateMetadataModel([NotNull] string connectionString)
@@ -102,8 +100,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var codeGenEntityType = codeGenModel
                     .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
                 _relationalToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.Relational().TableName = relationalEntityType.Relational().TableName;
-                codeGenEntityType.Relational().Schema = relationalEntityType.Relational().Schema;
+                codeGenEntityType.Relational().TableName = ExtensionsProvider.For(relationalEntityType).TableName;
+                codeGenEntityType.Relational().Schema = ExtensionsProvider.For(relationalEntityType).Schema;
                 var errorMessage = relationalEntityType[AnnotationNameEntityTypeError];
                 if (errorMessage != null)
                 {
@@ -181,7 +179,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
                 existingIdentifiers.Add(entityType.Name);
                 existingIdentifiers.AddRange(
-                    _modelUtilities.OrderedProperties(entityType).Select(p => p.Name));
+                    ModelUtilities.OrderedProperties(entityType).Select(p => p.Name));
             }
 
             foreach (var entityType in codeGenModel.EntityTypes)
@@ -191,7 +189,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 {
                     // set up the name of the navigation property on the dependent end of the foreign key
                     var dependentEndNavigationPropertyCandidateName =
-                        _modelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
+                        ModelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
                     var dependentEndNavigationPropertyName =
                         CSharpUtilities.GenerateCSharpIdentifier(
                             dependentEndNavigationPropertyCandidateName,
@@ -211,7 +209,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                 CultureInfo.CurrentCulture,
                                 SelfReferencingPrincipalEndNavigationNamePattern,
                                 dependentEndNavigationPropertyName)
-                            : _modelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
+                            : ModelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
                     var principalEndNavigationPropertyName =
                         CSharpUtilities.GenerateCSharpIdentifier(
                             principalEndNavigationPropertyCandidateName,

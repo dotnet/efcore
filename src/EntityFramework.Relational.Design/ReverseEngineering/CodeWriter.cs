@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             FileService = fileService;
         }
 
-        public virtual IFileService FileService { get;[param: NotNull] set; }
+        public virtual IFileService FileService { get; }
         public virtual string FileExtension { get;[param: NotNull] set; } = DefaultFileExtension;
 
         /// <summary>
