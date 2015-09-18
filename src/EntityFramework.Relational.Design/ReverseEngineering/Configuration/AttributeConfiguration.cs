@@ -20,9 +20,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 : StripAttribute(attributeName) + "(" + string.Join(", ", attributeArguments) + ")";
         }
 
-        public virtual string AttributeBody { get;[param: NotNull] private set; }
+        public virtual string AttributeBody { get; }
 
-        private static string StripAttribute(string attributeName)
+        protected static string StripAttribute([NotNull] string attributeName)
         {
             return attributeName.EndsWith("Attribute", StringComparison.Ordinal)
                 ? attributeName.Substring(0, attributeName.Length - 9)

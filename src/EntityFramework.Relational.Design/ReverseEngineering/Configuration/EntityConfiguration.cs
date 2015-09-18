@@ -22,8 +22,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             EntityType = entityType;
         }
 
-        public virtual ModelConfiguration ModelConfiguration { get;[param: NotNull] private set; }
-        public virtual IEntityType EntityType { get; [param: NotNull] private set; }
+        public virtual ModelConfiguration ModelConfiguration { get; }
+        public virtual IEntityType EntityType { get; }
         public virtual List<IAttributeConfiguration> AttributeConfigurations { get; } = new List<IAttributeConfiguration>();
         public virtual List<IFluentApiConfiguration> FluentApiConfigurations { get; } = new List<IFluentApiConfiguration>();
         public virtual List<PropertyConfiguration> PropertyConfigurations { get; } = new List<PropertyConfiguration>();
@@ -35,14 +35,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
         public virtual string ErrorMessageAnnotation
             => (string)EntityType[RelationalMetadataModelProvider.AnnotationNameEntityTypeError];
-
-        public virtual List<IFluentApiConfiguration> NonAttributeFluentApiConfigurations
-        {
-            get
-            {
-                return FluentApiConfigurations.Where(fc => !fc.HasAttributeEquivalent).ToList();
-            }
-        }
 
         public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] Property property)
         {

@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         }
 
         public virtual string ErrorAnnotation { get; [param: NotNull] private set; }
-        public virtual string Type { get; [param: NotNull] private set; }
-        public virtual string Name { get; [param: NotNull] private set; }
+        public virtual string Type { get; }
+        public virtual string Name { get; }
         public virtual List<IAttributeConfiguration> AttributeConfigurations { get; } = new List<IAttributeConfiguration>();
     }
 }

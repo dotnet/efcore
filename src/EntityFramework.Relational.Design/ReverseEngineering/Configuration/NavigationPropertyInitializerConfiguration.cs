@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             PrincipalEntityTypeName = principalEntityTypeName;
         }
 
-        public virtual string NavigationPropertyName { get; [param: NotNull] private set; }
-        public virtual string PrincipalEntityTypeName { get; [param: NotNull] private set; }
+        public virtual string NavigationPropertyName { get; }
+        public virtual string PrincipalEntityTypeName { get; }
     }
 }

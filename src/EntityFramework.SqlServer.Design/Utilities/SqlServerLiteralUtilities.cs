@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
         /// <param name="sqlServerStringLiteral"> the string to convert </param>
         /// <returns>
         ///     false if the string can be interpreted as 0, true if it can be
-        ///     intrepreted as 1, otherwise null
+        ///     interpreted as 1, otherwise null
         /// </returns>
         public virtual bool? ConvertSqlServerBitLiteral([NotNull] string sqlServerStringLiteral)
         {
@@ -118,9 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 };
             }
 
-            propertyType = propertyType.IsNullableType()
-                ? propertyType.UnwrapNullableType()
-                : propertyType;
+            propertyType = propertyType.UnwrapNullableType();
 
             if (typeof(string) == propertyType)
             {

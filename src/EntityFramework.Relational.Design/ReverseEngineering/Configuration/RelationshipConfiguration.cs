@@ -24,9 +24,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             PrincipalEndNavigationPropertyName = principalEndNavigationPropertyName;
         }
 
-        public virtual EntityConfiguration EntityConfiguration { get; [param: NotNull] private set; }
-        public virtual IForeignKey ForeignKey { get; [param: NotNull] private set; }
-        public virtual string DependentEndNavigationPropertyName { get; [param: NotNull] private set; }
-        public virtual string PrincipalEndNavigationPropertyName { get; [param: NotNull] private set; }
+        public virtual EntityConfiguration EntityConfiguration { get; }
+        public virtual IForeignKey ForeignKey { get; }
+        public virtual string DependentEndNavigationPropertyName { get; }
+        public virtual string PrincipalEndNavigationPropertyName { get; }
     }
 }
