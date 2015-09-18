@@ -18,7 +18,8 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void Create_returns_new_instances()
         {
             var factory = new TestModificationCommandBatchFactory(
-                Mock.Of<IUpdateSqlGenerator>());
+                Mock.Of<IUpdateSqlGenerator>(),
+                Mock.Of<IRelationalCommandBuilderFactory>());
 
             var options = new Mock<IDbContextOptions>().Object;
             var metadataExtensionProvider = Mock.Of<IRelationalMetadataExtensionProvider>();
@@ -35,7 +36,9 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void AddCommand_delegates()
         {
             var sqlGenerator = new Mock<IUpdateSqlGenerator>().Object;
-            var factory = new TestModificationCommandBatchFactory(sqlGenerator);
+            var factory = new TestModificationCommandBatchFactory(
+                sqlGenerator,
+                Mock.Of<IRelationalCommandBuilderFactory>());
 
             var modificationCommandBatchMock = new Mock<ModificationCommandBatch>(sqlGenerator);
             var mockModificationCommand = new Mock<ModificationCommand>(
@@ -53,8 +56,9 @@ namespace Microsoft.Data.Entity.Tests.Update
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
             public TestModificationCommandBatchFactory(
-                IUpdateSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+                IUpdateSqlGenerator sqlGenerator,
+                IRelationalCommandBuilderFactory commandBuilderFactory)
+                : base(sqlGenerator, commandBuilderFactory)
             {
             }
 
@@ -62,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 IDbContextOptions options,
                 IRelationalMetadataExtensionProvider metadataExtensionProvider)
             {
-                return new SingularModificationCommandBatch(UpdateSqlGenerator);
+                return new SingularModificationCommandBatch(UpdateSqlGenerator, RelationalCommandBuilderFactory);
             }
         }
     }

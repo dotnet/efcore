@@ -21,9 +21,9 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] ISqlServerConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator sqlGenerator,
-            [NotNull] ISqlStatementExecutor statementExecutor,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IModel model)
-            : base(model, connection, modelDiffer, sqlGenerator, statementExecutor)
+            : base(model, connection, modelDiffer, sqlGenerator, commandBuilderFactory)
         {
             _connection = connection;
             _sqlGenerator = sqlGenerator;
@@ -33,7 +33,11 @@ namespace Microsoft.Data.Entity.Storage
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                SqlStatementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
+                foreach(var command in CreateCreateOperations())
+                {
+                    command.ExecuteNonQuery(masterConnection);
+                }
+
                 ClearPool();
             }
 
@@ -44,25 +48,24 @@ namespace Microsoft.Data.Entity.Storage
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await SqlStatementExecutor
-                    .ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
+                foreach(var command in CreateCreateOperations())
+                {
+                    await command.ExecuteNonQueryAsync(masterConnection, cancellationToken);
+                }
+
                 ClearPool();
             }
 
             await ExistsAsync(retryOnNotExists: true, cancellationToken: cancellationToken);
         }
 
-        protected override bool HasTables()
-            => (int)SqlStatementExecutor.ExecuteScalar(_connection, CreateHasTablesCommand()) != 0;
+        protected override bool EvaluateHasTablesResult(object result)
+            => (int)result != 0;
 
-        protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => (int)(await SqlStatementExecutor
-                .ExecuteScalarAsync(_connection, CreateHasTablesCommand(), cancellationToken)) != 0;
-
-        private string CreateHasTablesCommand()
+        protected override string GetHasTablesSql()
             => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0";
 
-        private IEnumerable<RelationalCommand> CreateCreateOperations()
+        private IEnumerable<IRelationalCommand> CreateCreateOperations()
             => _sqlGenerator.Generate(new[] { new CreateDatabaseOperation { Name = _connection.DbConnection.Database } });
 
         public override bool Exists()
@@ -161,8 +164,10 @@ namespace Microsoft.Data.Entity.Storage
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                SqlStatementExecutor
-                    .ExecuteNonQuery(masterConnection, CreateDropCommands());
+                foreach(var command in CreateDropCommands())
+                {
+                    command.ExecuteNonQuery(masterConnection);
+                }
             }
         }
 
@@ -172,11 +177,14 @@ namespace Microsoft.Data.Entity.Storage
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await SqlStatementExecutor.ExecuteNonQueryAsync(masterConnection, CreateDropCommands(), cancellationToken);
+                foreach (var command in CreateDropCommands())
+                {
+                    await command.ExecuteNonQueryAsync(masterConnection, cancellationToken);
+                }
             }
         }
 
-        private IEnumerable<RelationalCommand> CreateDropCommands()
+        private IEnumerable<IRelationalCommand> CreateDropCommands()
         {
             var operations = new MigrationOperation[]
             {

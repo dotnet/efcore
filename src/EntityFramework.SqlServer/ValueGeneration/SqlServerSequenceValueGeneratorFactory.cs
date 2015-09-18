@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
@@ -13,18 +12,18 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
-        private readonly ISqlStatementExecutor _executor;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
 
         public SqlServerSequenceValueGeneratorFactory(
-            [NotNull] ISqlStatementExecutor executor,
-            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
+            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
-            Check.NotNull(executor, nameof(executor));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 
-            _executor = executor;
             _sqlGenerator = sqlGenerator;
+            _commandBuilderFactory = commandBuilderFactory;
         }
 
         public virtual ValueGenerator Create(IProperty property, SqlServerSequenceValueGeneratorState generatorState, ISqlServerConnection connection)
@@ -35,47 +34,47 @@ namespace Microsoft.Data.Entity.ValueGeneration
 
             if (property.ClrType.UnwrapNullableType() == typeof(long))
             {
-                return new SqlServerSequenceValueGenerator<long>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<long>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(int))
             {
-                return new SqlServerSequenceValueGenerator<int>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<int>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(short))
             {
-                return new SqlServerSequenceValueGenerator<short>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<short>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(byte))
             {
-                return new SqlServerSequenceValueGenerator<byte>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<byte>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(char))
             {
-                return new SqlServerSequenceValueGenerator<char>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<char>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(ulong))
             {
-                return new SqlServerSequenceValueGenerator<ulong>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<ulong>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(uint))
             {
-                return new SqlServerSequenceValueGenerator<uint>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<uint>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(ushort))
             {
-                return new SqlServerSequenceValueGenerator<ushort>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<ushort>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             if (property.ClrType.UnwrapNullableType() == typeof(sbyte))
             {
-                return new SqlServerSequenceValueGenerator<sbyte>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceValueGenerator<sbyte>(_commandBuilderFactory, _sqlGenerator, generatorState, connection);
             }
 
             throw new ArgumentException(Entity.Internal.Strings.InvalidValueGeneratorFactoryProperty(

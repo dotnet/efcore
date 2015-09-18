@@ -206,5 +206,30 @@ namespace Microsoft.Data.Entity.Tests
 
             transactionMock.Verify(m => m.Rollback(), Times.Once);
         }
+
+        [Fact]
+        public void Can_set_command_timeout()
+        {
+            var connectionMock = new Mock<IRelationalConnection>();
+
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(connectionMock.Object));
+
+            context.Database.SetCommandTimeout(99);
+
+            connectionMock.VerifySet(c => c.CommandTimeout = 99, Times.Once);
+        }
+
+        [Fact]
+        public void Can_get_command_timeout()
+        {
+            var connectionMock = new Mock<IRelationalConnection>();
+            connectionMock.Setup(c => c.CommandTimeout).Returns(88);
+
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(connectionMock.Object));
+
+            Assert.Equal(88, context.Database.GetCommandTimeout());
+        }
     }
 }

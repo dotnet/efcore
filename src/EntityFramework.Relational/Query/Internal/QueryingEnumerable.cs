@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
@@ -18,18 +17,15 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
         private readonly int? _queryIndex;
-        private readonly ILogger _logger;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
-            int? queryIndex,
-            [NotNull] ILogger logger)
+            int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
             _queryIndex = queryIndex;
-            _logger = logger;
         }
 
         public virtual IEnumerator<ValueBuffer> GetEnumerator() => new Enumerator(this);
@@ -58,20 +54,15 @@ namespace Microsoft.Data.Entity.Query.Internal
                     {
                         _queryingEnumerable._relationalQueryContext.Connection.Open();
 
-                        using (var command
-                            = _queryingEnumerable._commandBuilder
-                                .Build(
-                                    _queryingEnumerable._relationalQueryContext.Connection,
-                                    _queryingEnumerable._relationalQueryContext.ParameterValues))
-                        {
-                            _queryingEnumerable._logger.LogCommand(command);
+                        _queryingEnumerable._relationalQueryContext
+                            .RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
 
-                            _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
+                        _dataReader = _queryingEnumerable._commandBuilder
+                            .Build(_queryingEnumerable._relationalQueryContext.ParameterValues)
+                            .ExecuteReader(_queryingEnumerable._relationalQueryContext.Connection);
 
-                            _dataReader = command.ExecuteReader();
+                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
 
-                            _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
-                        }
                     }
 
                     var hasNext = _dataReader.Read();

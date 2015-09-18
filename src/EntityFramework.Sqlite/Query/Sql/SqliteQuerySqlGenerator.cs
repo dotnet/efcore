@@ -14,8 +14,12 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public SqliteQuerySqlGenerator(
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] SelectExpression selectExpression)
-            : base(parameterNameGeneratorFactory, selectExpression)
+            : base(
+                  parameterNameGeneratorFactory,
+                  commandBuilderFactory,
+                  selectExpression)
         {
         }
 

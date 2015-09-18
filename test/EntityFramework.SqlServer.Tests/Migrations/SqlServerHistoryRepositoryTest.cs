@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -104,10 +105,15 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var annotationsProvider = new SqlServerMetadataExtensionProvider();
             var updateSqlGenerator = new SqlServerUpdateSqlGenerator();
+            var typeMapper = new SqlServerTypeMapper();
+
+            var commandBuilderFactory = new RelationalCommandBuilderFactory(
+                new LoggerFactory(),
+                typeMapper);
 
             return new SqlServerHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<ISqlStatementExecutor>(),
+                commandBuilderFactory,
                 Mock.Of<ISqlServerConnection>(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
@@ -119,7 +125,8 @@ namespace Microsoft.Data.Entity.Migrations
                     new SqlServerMigrationsAnnotationProvider()),
                 new SqlServerMigrationsSqlGenerator(
                     updateSqlGenerator,
-                    new SqlServerTypeMapper(),
+                    commandBuilderFactory,
+                    typeMapper,
                     annotationsProvider),
                 annotationsProvider,
                 updateSqlGenerator);

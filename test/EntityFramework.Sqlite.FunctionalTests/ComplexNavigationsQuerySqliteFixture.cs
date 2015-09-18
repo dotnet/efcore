@@ -52,7 +52,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public override ComplexNavigationsContext CreateContext(SqliteTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
+            optionsBuilder.UseSqlite(testStore.Connection)
+                .SuppressForeignKeysEnforcement();
 
             var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);

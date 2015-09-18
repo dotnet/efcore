@@ -11,17 +11,27 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public class RelationalCommandListBuilder
     {
-        private readonly List<RelationalCommand> _commands = new List<RelationalCommand>();
-        private readonly RelationalCommandBuilder _commandBuilder = new RelationalCommandBuilder();
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+        private readonly List<IRelationalCommand> _commands = new List<IRelationalCommand>();
 
-        public virtual IReadOnlyList<RelationalCommand> GetCommands() => _commands;
+        private IRelationalCommandBuilder _commandBuilder;
+
+        public RelationalCommandListBuilder([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+        {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+
+            _commandBuilderFactory = commandBuilderFactory;
+            _commandBuilder = commandBuilderFactory.Create();
+        }
+
+        public virtual IReadOnlyList<IRelationalCommand> GetCommands() => _commands;
 
         public virtual RelationalCommandListBuilder EndCommand()
         {
             if (_commandBuilder.Length != 0)
             {
-                _commands.Add(_commandBuilder.RelationalCommand);
-                _commandBuilder.Clear();
+                _commands.Add(_commandBuilder.BuildRelationalCommand());
+                _commandBuilder = _commandBuilderFactory.Create();
             }
 
             return this;

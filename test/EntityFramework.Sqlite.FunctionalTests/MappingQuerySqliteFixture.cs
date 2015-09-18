@@ -28,7 +28,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             _testDatabase = SqliteNorthwindContext.GetSharedStore();
 
             var optionsBuilder = new DbContextOptionsBuilder().UseModel(CreateModel());
-            optionsBuilder.UseSqlite(_testDatabase.Connection.ConnectionString);
+            optionsBuilder.UseSqlite(_testDatabase.Connection.ConnectionString)
+                .SuppressForeignKeysEnforcement();
             _options = optionsBuilder.Options;
         }
 

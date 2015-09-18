@@ -49,6 +49,7 @@
     <Compile Include="Migrations\Internal\MigrationsAssemblyTest.cs" />
     <Compile Include="Migrations\MigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\MigrationSqlGeneratorTestBase.cs" />
+    <Compile Include="Storage\RelationalCommandTest.cs" />
     <Compile Include="Storage\RelationalTypeMappingTest.cs" />
     <Compile Include="Metadata\RelationalBuilderExtensionsTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />
@@ -63,6 +64,22 @@
     <Compile Include="Storage\RelationalTypeMapperTest.cs" />
     <Compile Include="TestMetadataExtensionProvider.cs" />
     <Compile Include="TestRelationalMetadataExtensions.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeCommandExecutor.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeDbCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TestUtilities\FakeProvider\FakeDbConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TestUtilities\FakeProvider\FakeDbContextOptionsBuilder.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeDbDataReader.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeDbParameter.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeDbParameterCollection.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeDbTransaction.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeProviderTestHelpers.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeRelationalConnection.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeRelationalOptionsExtension.cs" />
+    <Compile Include="TestUtilities\FakeProvider\FakeRelationalTypeMapper.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
@@ -99,6 +116,7 @@
       <Name>EntityFramework.Relational.FunctionalTests</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

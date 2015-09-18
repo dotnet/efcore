@@ -51,7 +51,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public override DataAnnotationContext CreateContext(SqliteTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
+            optionsBuilder.UseSqlite(testStore.Connection)
+                .SuppressForeignKeysEnforcement();
 
             var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);

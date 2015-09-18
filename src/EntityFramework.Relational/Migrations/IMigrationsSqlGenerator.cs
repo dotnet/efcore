@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Migrations
 {
     public interface IMigrationsSqlGenerator
     {
-        IReadOnlyList<RelationalCommand> Generate(
+        IReadOnlyList<IRelationalCommand> Generate(
             [NotNull] IReadOnlyList<MigrationOperation> operations,
             [CanBeNull] IModel model = null);
     }

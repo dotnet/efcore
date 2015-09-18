@@ -12,20 +12,24 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Update
 {
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
         protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
         protected int LastCachedCommandIndex;
 
         protected ReaderModificationCommandBatch(
-            [NotNull] IUpdateSqlGenerator sqlGenerator)
+            [NotNull] IUpdateSqlGenerator sqlGenerator,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
             : base(sqlGenerator)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+
+            _commandBuilderFactory = commandBuilderFactory;
         }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
@@ -97,13 +101,9 @@ namespace Microsoft.Data.Entity.Update
             LastCachedCommandIndex = commandPosition;
         }
 
-        protected virtual DbCommand CreateStoreCommand(
-            [NotNull] string commandText,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            int? commandTimeout)
+        protected virtual IRelationalCommand CreateStoreCommand([NotNull] string commandText)
         {
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = _commandBuilderFactory.Create();
 
             commandBuilder.Append(commandText);
 
@@ -112,14 +112,7 @@ namespace Microsoft.Data.Entity.Update
                 PopulateParameters(commandBuilder.RelationalParameterList, columnModification);
             }
 
-            var command = commandBuilder.RelationalCommand.CreateDbCommand(connection, typeMapper);
-
-            if (commandTimeout != null)
-            {
-                command.CommandTimeout = (int)commandTimeout;
-            }
-
-            return command;
+            return commandBuilder.BuildRelationalCommand();
         }
 
         protected virtual void PopulateParameters(
@@ -143,88 +136,59 @@ namespace Microsoft.Data.Entity.Update
             }
         }
 
-        public override void Execute(
-            IRelationalTransaction transaction,
-            IRelationalTypeMapper typeMapper,
-            DbContext context,
-            ILogger logger)
+        public override void Execute([NotNull] IRelationalConnection connection)
         {
-            Check.NotNull(transaction, nameof(transaction));
-            Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(connection, nameof(connection));
 
-            var commandText = GetCommandText();
+            var command = CreateStoreCommand(GetCommandText());
 
-            using (var storeCommand = CreateStoreCommand(commandText, transaction.Connection, typeMapper, transaction.Connection?.CommandTimeout))
+            try
             {
-                if (logger.IsEnabled(LogLevel.Verbose))
+                using (var reader = command.ExecuteReader(connection))
                 {
-                    logger.LogCommand(storeCommand);
+                    Consume(reader);
                 }
-
-                try
-                {
-                    using (var reader = storeCommand.ExecuteReader())
-                    {
-                        Consume(reader, context);
-                    }
-                }
-                catch (DbUpdateException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbUpdateException(Strings.UpdateStoreException, ex);
-                }
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DbUpdateException(Strings.UpdateStoreException, ex);
             }
         }
 
         public override async Task ExecuteAsync(
-            IRelationalTransaction transaction,
-            IRelationalTypeMapper typeMapper,
-            DbContext context,
-            ILogger logger,
+            [NotNull] IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Check.NotNull(transaction, nameof(transaction));
-            Check.NotNull(typeMapper, nameof(typeMapper));
-            Check.NotNull(context, nameof(context));
-            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(connection, nameof(connection));
 
-            var commandText = GetCommandText();
+            var command = CreateStoreCommand(GetCommandText());
 
-            using (var storeCommand = CreateStoreCommand(commandText, transaction.Connection, typeMapper, transaction.Connection?.CommandTimeout))
+            try
             {
-                if (logger.IsEnabled(LogLevel.Verbose))
+                using (var reader = await command.ExecuteReaderAsync(connection, cancellationToken))
                 {
-                    logger.LogCommand(storeCommand);
-                }
-
-                try
-                {
-                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken))
-                    {
-                        await ConsumeAsync(reader, context, cancellationToken);
-                    }
-                }
-                catch (DbUpdateException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbUpdateException(Strings.UpdateStoreException, ex);
+                    await ConsumeAsync(reader, cancellationToken);
                 }
             }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DbUpdateException(Strings.UpdateStoreException, ex);
+            }
+
         }
 
-        protected abstract void Consume([NotNull] DbDataReader reader, [NotNull] DbContext context);
+        protected abstract void Consume([NotNull] DbDataReader reader);
 
         protected abstract Task ConsumeAsync(
             [NotNull] DbDataReader reader,
-            [NotNull] DbContext context,
             CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -47,32 +47,36 @@ namespace Microsoft.Data.Entity.Migrations
                 { typeof(SqlOperation), (g, o, m, b) => g.Generate((SqlOperation)o, m, b) }
             };
 
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly IRelationalMetadataExtensionProvider _annotations;
 
         public MigrationsSqlGenerator(
             [NotNull] IUpdateSqlGenerator sql,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalMetadataExtensionProvider annotations)
         {
             Check.NotNull(sql, nameof(sql));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(annotations, nameof(annotations));
 
             Sql = sql;
+            _commandBuilderFactory = commandBuilderFactory;
             _typeMapper = typeMapper;
             _annotations = annotations;
         }
 
         protected virtual IUpdateSqlGenerator Sql { get; }
 
-        public virtual IReadOnlyList<RelationalCommand> Generate(
+        public virtual IReadOnlyList<IRelationalCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
             IModel model = null)
         {
             Check.NotNull(operations, nameof(operations));
 
-            var builder = new RelationalCommandListBuilder();
+            var builder = new RelationalCommandListBuilder(_commandBuilderFactory);
             foreach (var operation in operations)
             {
                 Generate(operation, model, builder);

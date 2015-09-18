@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using RelationalStrings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Update
@@ -23,8 +24,9 @@ namespace Microsoft.Data.Entity.Update
 
         public SqlServerModificationCommandBatch(
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [CanBeNull] int? maxBatchSize)
-            : base(sqlGenerator)
+            : base(sqlGenerator, commandBuilderFactory)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

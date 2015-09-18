@@ -60,9 +60,6 @@ FROM ""Orders"" AS ""o""",
             return _fixture.CreateContext();
         }
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql =>TestSqlLoggerFactory.Sql;
     }
 }

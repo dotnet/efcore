@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.Common;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Internal;
-using Moq;
+using Microsoft.Data.Entity.TestUtilities.FakeProvider;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
@@ -17,11 +15,11 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_set_Connection()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.Connection);
 
-            var connection = Mock.Of<DbConnection>();
+            var connection = new FakeDbConnection(ConnectionString);
             optionsExtension.Connection = connection;
 
             Assert.Same(connection, optionsExtension.Connection);
@@ -30,13 +28,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Throws_when_setting_Connection_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension().Connection = null; });
+            Assert.Throws<ArgumentNullException>(() => { new FakeRelationalOptionsExtension().Connection = null; });
         }
 
         [Fact]
         public void Can_set_ConnectionString()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.ConnectionString);
 
@@ -48,13 +46,13 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Throws_when_setting_ConnectionString_to_null()
         {
-            Assert.Throws<ArgumentNullException>(() => { new TestRelationalOptionsExtension().ConnectionString = null; });
+            Assert.Throws<ArgumentNullException>(() => { new FakeRelationalOptionsExtension().ConnectionString = null; });
         }
 
         [Fact]
         public void Can_set_CommandTimeout()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.CommandTimeout);
 
@@ -69,13 +67,13 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.InvalidCommandTimeout,
                 Assert.Throws<InvalidOperationException>(
-                    () => { new TestRelationalOptionsExtension().CommandTimeout = -1; }).Message);
+                    () => { new FakeRelationalOptionsExtension().CommandTimeout = -1; }).Message);
         }
 
         [Fact]
         public void Can_set_MaxBatchSize()
         {
-            var optionsExtension = new TestRelationalOptionsExtension();
+            var optionsExtension = new FakeRelationalOptionsExtension();
 
             Assert.Null(optionsExtension.MaxBatchSize);
 
@@ -90,15 +88,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal(
                 Strings.InvalidMaxBatchSize,
                 Assert.Throws<InvalidOperationException>(
-                    () => { new TestRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
-        }
-
-        private class TestRelationalOptionsExtension : RelationalOptionsExtension
-        {
-            public override void ApplyServices(EntityFrameworkServicesBuilder builder)
-            {
-                throw new NotImplementedException();
-            }
+                    () => { new FakeRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
         }
     }
 }

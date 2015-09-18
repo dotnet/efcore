@@ -19,22 +19,26 @@ namespace Microsoft.Data.Entity.Query.Sql
     {
         private readonly List<CommandParameter> _commandParameters = new List<CommandParameter>();
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly SelectExpression _selectExpression;
         private readonly string _sql;
         private readonly object[] _inputParameters;
 
         public RawSqlQueryGenerator(
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] object[] parameters)
         {
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            _commandBuilderFactory = commandBuilderFactory;
             _selectExpression = selectExpression;
             _sql = sql;
             _inputParameters = parameters;
@@ -43,11 +47,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory
             => _parameterNameGeneratorFactory;
 
-        public virtual RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = _commandBuilderFactory.Create();
 
             var parameterNameGenerator = ParameterNameGeneratorFactory.Create();
 
@@ -64,7 +68,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             commandBuilder.AppendLines(string.Format(_sql, substitutions));
 
-            return commandBuilder.RelationalCommand;
+            return commandBuilder.BuildRelationalCommand();
         }
 
 

@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
 
             var generator = new SqlServerSequenceValueGenerator<TValue>(
-                new FakeSqlStatementExecutor(blockSize),
+                new FakeCommandBuilderFactory(blockSize),
                 new SqlServerUpdateSqlGenerator(),
                 state,
                 CreateConnection());
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 },
                 poolSize);
 
-            var executor = new FakeSqlStatementExecutor(blockSize);
+            var executor = new FakeCommandBuilderFactory(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator();
 
             var tests = new Action[threadCount];
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 }, 3);
 
             var generator = new SqlServerSequenceValueGenerator<int>(
-                new FakeSqlStatementExecutor(4),
+                new FakeCommandBuilderFactory(4),
                 new SqlServerUpdateSqlGenerator(),
                 state,
                 CreateConnection());
@@ -210,27 +210,113 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider).GetRequiredService<ISqlServerConnection>();
         }
 
-        private class FakeSqlStatementExecutor : SqlStatementExecutor
+        private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
+        {
+            public ILoggerFactory LoggerFactory { get; }
+            public IRelationalTypeMapper TypeMapper { get; }
+
+            public FakeRelationalCommandBuilderFactory(ILoggerFactory loggerFactory, IRelationalTypeMapper typeMapper)
+            {
+                LoggerFactory = loggerFactory;
+                TypeMapper = typeMapper;
+            }
+
+            public IRelationalCommandBuilder Create()
+            {
+                return new FakeRelationalCommandBuilder(this);
+            }
+        }
+
+        private class FakeRelationalCommandBuilder : RelationalCommandBuilder
+        {
+            private FakeRelationalCommandBuilderFactory _factory;
+
+            public FakeRelationalCommandBuilder(FakeRelationalCommandBuilderFactory factory)
+                : base(factory.LoggerFactory, factory.TypeMapper)
+            {
+                _factory = factory;
+            }
+
+            public override IRelationalCommand BuildRelationalCommand()
+            {
+                return new FakeRelationalCommand(_factory);
+            }
+        }
+
+        private class FakeRelationalCommand : RelationalCommand
+        {
+            private FakeRelationalCommandBuilderFactory _factory;
+
+            public FakeRelationalCommand(FakeRelationalCommandBuilderFactory factory)
+                : base(
+                      factory.LoggerFactory,
+                      factory.TypeMapper,
+                      "CommandText",
+                      new RelationalParameter[] { })
+            {
+                _factory = factory;
+            }
+
+            public override void ExecuteNonQuery(IRelationalConnection connection)
+            {
+            }
+
+            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return base.ExecuteNonQueryAsync(connection, cancellationToken);
+            }
+        }
+
+
+        private class FakeCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
             private readonly int _blockSize;
             private long _current;
 
-            public FakeSqlStatementExecutor(int blockSize)
-                : base(new LoggerFactory(), new SqlServerTypeMapper())
+            public FakeCommandBuilderFactory(int blockSize)
             {
                 _blockSize = blockSize;
                 _current = -blockSize + 1;
             }
 
-            public override object ExecuteScalar(IRelationalConnection connection, string sql)
-            {
-                return Interlocked.Add(ref _current, _blockSize);
-            }
+            public IRelationalCommandBuilder Create()
+                => new FakeCommandBuilder(this);
 
-            public override Task<object> ExecuteScalarAsync(
-                IRelationalConnection connection, string sql, CancellationToken cancellationToken = new CancellationToken())
+            private class FakeCommandBuilder : RelationalCommandBuilder
             {
-                return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
+                private readonly FakeCommandBuilderFactory _factory;
+
+                public FakeCommandBuilder(FakeCommandBuilderFactory factory)
+                    : base(new LoggerFactory(), new SqlServerTypeMapper())
+                {
+                    _factory = factory;
+                }
+
+                public override IRelationalCommand BuildRelationalCommand()
+                {
+                    return new FakeRelationalCommand(_factory);
+                }
+
+                private class FakeRelationalCommand : RelationalCommand
+                {
+                    private readonly FakeCommandBuilderFactory _factory;
+
+                    public FakeRelationalCommand(FakeCommandBuilderFactory factory)
+                        : base(new LoggerFactory(), new SqlServerTypeMapper(), "CommandText", new RelationalParameter[0])
+                    {
+                        _factory = factory;
+                    }
+
+                    public override object ExecuteScalar(IRelationalConnection connection)
+                    {
+                        return Interlocked.Add(ref _factory._current, _factory._blockSize);
+                    }
+
+                    public override Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+                    {
+                        return Task.FromResult<object>(Interlocked.Add(ref _factory._current, _factory._blockSize));
+                    }
+                }
             }
         }
     }

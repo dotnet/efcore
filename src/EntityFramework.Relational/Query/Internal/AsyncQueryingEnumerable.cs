@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
@@ -18,18 +17,15 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
         private readonly int? _queryIndex;
-        private readonly ILogger _logger;
 
         public AsyncQueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
-            int? queryIndex,
-            [NotNull] ILogger logger)
+            int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
             _queryIndex = queryIndex;
-            _logger = logger;
         }
 
         public virtual IAsyncEnumerator<ValueBuffer> GetEnumerator() => new AsyncEnumerator(this);
@@ -61,21 +57,17 @@ namespace Microsoft.Data.Entity.Query.Internal
                         await _queryingEnumerable._relationalQueryContext.Connection
                             .OpenAsync(cancellationToken);
 
-                        using (var command
-                            = _queryingEnumerable._commandBuilder
-                                .Build(
-                                    _queryingEnumerable._relationalQueryContext.Connection,
-                                    _queryingEnumerable._relationalQueryContext.ParameterValues))
-                        {
-                            _queryingEnumerable._logger.LogCommand(command);
+                        await _queryingEnumerable._relationalQueryContext
+                            .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
 
-                            await _queryingEnumerable._relationalQueryContext
-                                .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
+                        _dataReader = await _queryingEnumerable._commandBuilder
+                            .Build(
+                                _queryingEnumerable._relationalQueryContext.ParameterValues)
+                            .ExecuteReaderAsync(
+                                _queryingEnumerable._relationalQueryContext.Connection,
+                                cancellationToken);
 
-                            _dataReader = await command.ExecuteReaderAsync(cancellationToken);
-
-                            _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
-                        }
+                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
                     }
 
                     var hasNext = await _dataReader.ReadAsync(cancellationToken);

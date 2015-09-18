@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Sqlite.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Framework.Logging;
 using Moq;
 using Xunit;
 
@@ -96,12 +97,16 @@ namespace Microsoft.Data.Entity.Migrations
 
         private static IHistoryRepository CreateHistoryRepository()
         {
+            var typeMapper = new SqliteTypeMapper();
             var annotationsProvider = new SqliteMetadataExtensionProvider();
             var updateSqlGenerator = new SqliteUpdateSqlGenerator();
+            var commandBuilderFactory = new RelationalCommandBuilderFactory(
+                new LoggerFactory(),
+                typeMapper);
 
             return new SqliteHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<ISqlStatementExecutor>(),
+                commandBuilderFactory,
                 Mock.Of<IRelationalConnection>(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
@@ -113,7 +118,8 @@ namespace Microsoft.Data.Entity.Migrations
                     new SqliteMigrationsAnnotationProvider()),
                 new SqliteMigrationsSqlGenerator(
                     updateSqlGenerator,
-                    new SqliteTypeMapper(),
+                    commandBuilderFactory,
+                    typeMapper,
                     annotationsProvider),
                 annotationsProvider,
                 updateSqlGenerator);

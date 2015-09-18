@@ -3,20 +3,31 @@
 
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationsSqlGenerator SqlGenerator =>
-            new SqlServerMigrationsSqlGenerator(
-                new SqlServerUpdateSqlGenerator(),
-                new SqlServerTypeMapper(),
-                new SqlServerMetadataExtensionProvider());
+        protected override IMigrationsSqlGenerator SqlGenerator
+        {
+            get
+            {
+                var typeMapper = new SqlServerTypeMapper();
+
+                return new SqlServerMigrationsSqlGenerator(
+                    new SqlServerUpdateSqlGenerator(),
+                    new RelationalCommandBuilderFactory(
+                        new LoggerFactory(),
+                        typeMapper),
+                    new SqlServerTypeMapper(),
+                    new SqlServerMetadataExtensionProvider());
+            }
+        }
+            
 
         [Fact]
         public virtual void AddColumnOperation_with_computedSql()

@@ -3,9 +3,10 @@
 
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.Entity.Storage;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Test
 {
     public abstract class RelationalTypeMappingTest
     {

@@ -150,8 +150,7 @@ namespace Microsoft.Data.Entity.Query
                 new AsyncQueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
-                    /*queryIndex*/ null,
-                    queryContext.Logger)
+                    null)
                     .Select(shaper);
         }
 
@@ -171,8 +170,7 @@ namespace Microsoft.Data.Entity.Query
                 new AsyncQueryingEnumerable(
                     ((RelationalQueryContext)queryContext),
                     commandBuilder,
-                    queryIndex,
-                    queryContext.Logger);
+                    queryIndex);
         }
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;

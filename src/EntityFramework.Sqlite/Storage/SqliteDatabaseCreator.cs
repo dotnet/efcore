@@ -11,12 +11,12 @@ namespace Microsoft.Data.Entity.Storage
     public class SqliteDatabaseCreator : RelationalDatabaseCreator
     {
         public SqliteDatabaseCreator(
+            [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] ISqlStatementExecutor sqlStatementExecutor,
-            [NotNull] IModel model)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator, sqlStatementExecutor)
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
+            : base(model, connection, modelDiffer, migrationsSqlGenerator, commandBuilderFactory)
         {
         }
 
@@ -28,14 +28,11 @@ namespace Microsoft.Data.Entity.Storage
 
         public override bool Exists() => true;
 
-        protected override bool HasTables()
-        {
-            var count = (long)SqlStatementExecutor.ExecuteScalar(
-                Connection,
-                "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;");
+        protected override bool EvaluateHasTablesResult(object result)
+            => (long)result != 0;
 
-            return count != 0;
-        }
+        protected override string GetHasTablesSql()
+            => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;";
 
         public override void Delete()
         {

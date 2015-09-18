@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Framework.Logging;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -17,10 +18,20 @@ namespace Microsoft.Data.Entity.Migrations
     public class MigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
         protected override IMigrationsSqlGenerator SqlGenerator
-            => new ConcreteMigrationSqlGenerator(
-                new ConcreteUpdateSqlGenerator(),
-                new ConcreteRelationalTypeMapper(),
-                new TestMetadataExtensionProvider());
+        {
+            get
+            {
+                var typeMapper = new ConcreteRelationalTypeMapper();
+
+                return new ConcreteMigrationSqlGenerator(
+                    new ConcreteUpdateSqlGenerator(),
+                    new RelationalCommandBuilderFactory(
+                        new LoggerFactory(),
+                        typeMapper),
+                    typeMapper,
+                    new TestMetadataExtensionProvider());
+            }
+        }
 
         public override void AddColumnOperation_with_defaultValue()
         {
@@ -302,9 +313,10 @@ namespace Microsoft.Data.Entity.Migrations
         {
             public ConcreteMigrationSqlGenerator(
                 IUpdateSqlGenerator sqlGenerator,
+                IRelationalCommandBuilderFactory commandBuilderFactory,
                 IRelationalTypeMapper typeMapper,
                 IRelationalMetadataExtensionProvider annotations)
-                : base(sqlGenerator, typeMapper, annotations)
+                : base(sqlGenerator, commandBuilderFactory, typeMapper, annotations)
             {
             }
 
