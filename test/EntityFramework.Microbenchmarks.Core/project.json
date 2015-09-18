@@ -1,35 +1,38 @@
 {
-  "dependencies": {
-    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-    "Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-*",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
-  },
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
-  "frameworks": {
-    "net46": {
-      "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Reflection": { "version": "4.0.0.0", "type": "build" },
-        "System.Runtime": { "version": "4.0.0.0", "type": "build" }
-      }
+    "dependencies": {
+        "Microsoft.Framework.Configuration.Json": "1.0.0-*",
+        "Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-*",
+        "xunit.assert": "2.1.0-*",
+        "xunit.extensibility.execution": "2.1.0-*"
     },
-    "dnxcore50": {
-      "dependencies": {
-        "System.Data.SqlClient": "4.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
+    "commands": {
+        "test": "xunit.runner.aspnet"
     },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      },
-      "frameworkAssemblies": {
-        "System.Data": "4.0.0.0",
-        "System.Reflection": "4.0.0.0"
-      }
+    "frameworks": {
+        "net46": {
+            "frameworkAssemblies": {
+                "System.Data": "4.0.0.0",
+                "System.Reflection": { "version": "4.0.0.0", "type": "build" },
+                "System.Runtime": { "version": "4.0.0.0", "type": "build" },
+                "System.Threading.Tasks": { "version": "4.0.0.0", "type": "build" }
+            }
+        },
+        "dnxcore50": {
+            "dependencies": {
+                "System.Data.SqlClient": "4.0.0-*",
+                "System.Threading.Tasks": "4.0.11-beta-*",
+                "xunit.runner.aspnet": "2.0.0-aspnet-*"
+            }
+        },
+        "dnx451": {
+            "dependencies": {
+                "xunit.runner.aspnet": "2.0.0-aspnet-*"
+            },
+            "frameworkAssemblies": {
+                "System.Data": "4.0.0.0",
+                "System.Reflection": "4.0.0.0",
+                "System.Threading.Tasks": "4.0.0.0"
+            }
+        }
     }
-  }
 }
