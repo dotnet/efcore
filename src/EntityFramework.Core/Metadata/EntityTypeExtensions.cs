@@ -20,9 +20,6 @@ namespace Microsoft.Data.Entity.Metadata
             return GetDerivedTypes(entityType.Model, entityType);
         }
 
-        public static IEnumerable<EntityType> GetDerivedTypes([NotNull] this EntityType entityType)
-            => ((IEntityType)entityType).GetDerivedTypes().Cast<EntityType>();
-
         public static IEnumerable<IEntityType> GetConcreteTypesInHierarchy([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -53,11 +50,6 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(entityType, nameof(entityType));
 
             return GetDirectlyDerivedTypes(entityType.Model, entityType);
-        }
-
-        public static IEnumerable<EntityType> GetDirectlyDerivedTypes([NotNull] this EntityType entityType)
-        {
-            return ((IEntityType)entityType).GetDirectlyDerivedTypes().Cast<EntityType>();
         }
 
         private static IEnumerable<IEntityType> GetDirectlyDerivedTypes(IModel model, IEntityType entityType)

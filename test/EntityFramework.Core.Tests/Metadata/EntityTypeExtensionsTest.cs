@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             c.BaseType = b;
             d.BaseType = a;
 
-            Assert.Equal(new[] { b, c, d }, a.GetDerivedTypes().ToArray());
+            Assert.Equal(new[] { b, d, c }, a.GetDerivedTypes().ToArray());
             Assert.Equal(new[] { c }, b.GetDerivedTypes().ToArray());
             Assert.Equal(new[] { b, d }, a.GetDirectlyDerivedTypes().ToArray());
         }

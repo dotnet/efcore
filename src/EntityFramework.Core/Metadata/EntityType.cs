@@ -87,6 +87,7 @@ namespace Microsoft.Data.Entity.Metadata
                     return;
                 }
 
+                _baseType?._directlyDerivedTypes.Remove(this);
                 _baseType = null;
                 if (value != null)
                 {
@@ -142,10 +143,30 @@ namespace Microsoft.Data.Entity.Metadata
                     }
 
                     _baseType = value;
+                    _baseType._directlyDerivedTypes.Add(this);
                 }
 
                 PropertyMetadataChanged(null);
             }
+        }
+
+        private List<EntityType> _directlyDerivedTypes = new List<EntityType>();
+        public virtual IReadOnlyList<EntityType> GetDirectlyDerivedTypes() => _directlyDerivedTypes;
+            
+        public virtual IEnumerable<EntityType> GetDerivedTypes()
+        {
+            var derivedTypes = new List<EntityType>();
+            var type = this;
+            var currentTypeIndex = 0;
+            while (type != null)
+            {
+                derivedTypes.AddRange(type.GetDirectlyDerivedTypes());
+                type = derivedTypes.Count > currentTypeIndex
+                    ? derivedTypes[currentTypeIndex]
+                    : null;
+                currentTypeIndex++;
+            }
+            return derivedTypes;
         }
 
         private bool InheritsFrom(EntityType entityType)
@@ -920,7 +941,7 @@ namespace Microsoft.Data.Entity.Metadata
                     RequiresOriginalValue(indexedProperty) ? originalValueIndex++ : -1);
             }
 
-            foreach (var derivedType in this.GetDirectlyDerivedTypes())
+            foreach (var derivedType in GetDirectlyDerivedTypes())
             {
                 derivedType.PropertyMetadataChanged(property);
             }

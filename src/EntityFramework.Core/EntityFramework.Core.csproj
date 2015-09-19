@@ -79,7 +79,6 @@
     <Compile Include="Internal\IDatabaseProviderSelector.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\LazyRef.cs" />
-    <Compile Include="Internal\ModelForeignKeyUndirectedGraphAdapter.cs" />
     <Compile Include="Internal\ModelNavigationsGraphAdapter.cs" />
     <Compile Include="Internal\Multigraph.cs" />
     <Compile Include="Internal\ProductInfo.cs" />
@@ -159,6 +158,7 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\ModelCleanupConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IBaseTypeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />

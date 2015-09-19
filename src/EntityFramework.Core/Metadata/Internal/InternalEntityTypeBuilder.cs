@@ -432,7 +432,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 RemoveForeignKeyIfUnused(navigation.ForeignKey, configurationSource);
-                ModelBuilder.RemoveEntityTypesUnreachableByNavigations(configurationSource);
             }
 
             // Ignoring a navigation or property might have fixed an ambiguity that prevented a convention from proceeding

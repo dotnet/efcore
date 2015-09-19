@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Xunit;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal.Test
 {
@@ -189,6 +190,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
+            modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
             Assert.Empty(modelBuilder.Metadata.EntityTypes);
         }
 
@@ -204,11 +206,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
-            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
+                .DependentToPrincipal("Product", ConfigurationSource.Convention);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
+            modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
@@ -225,11 +228,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
-            orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
-            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
+                .PrincipalToDependent("Order", ConfigurationSource.Convention);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
+            modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
             Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
@@ -264,6 +268,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
         {
             public static readonly PropertyInfo IdProperty = typeof(Product).GetProperty("Id");
             public int Id { get; set; }
+            public Order Order { get; set; }
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);
 
+            conventionSet.ModelBuiltConventions.Add(new ModelCleanupConvention());
             conventionSet.ModelBuiltConventions.Add(keyAttributeConvention);
 
             conventionSet.NavigationAddedConventions.Add(new RequiredNavigationAttributeConvention());

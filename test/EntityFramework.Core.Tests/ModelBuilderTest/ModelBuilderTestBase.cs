@@ -127,6 +127,11 @@ namespace Microsoft.Data.Entity.Tests
 
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
+
+            public virtual TestModelBuilder Validate()
+            {                
+                return ModelBuilder.Validate() == null ? null : this;
+            }
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>

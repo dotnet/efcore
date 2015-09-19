@@ -97,10 +97,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 }
             }
 
-            // While running conventions on entityType, its source will be DataAnnotation or higher
-            // Which means that entity won't be removed while being configured even if it is unreachable
-            // This takes care of removing such unreachable entities (being run after we are done building relationships using this entity)
-            entityTypeBuilder.ModelBuilder.RemoveEntityTypesUnreachableByNavigations(ConfigurationSource.DataAnnotation);
             return entityTypeBuilder;
         }
     }

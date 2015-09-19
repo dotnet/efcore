@@ -365,6 +365,8 @@ namespace Microsoft.Data.Entity.Tests
                         b.Ignore(c => c.Orders);
                     });
 
+                modelBuilder.Validate();
+
                 Assert.Equal(1, model.EntityTypes.Count);
             }
 
@@ -380,9 +382,11 @@ namespace Microsoft.Data.Entity.Tests
                     });
                 modelBuilder.Entity<CustomerDetails>(b => { b.Ignore(c => c.Customer); });
 
-                Assert.Equal(2, model.EntityTypes.Count);
+                modelBuilder.Validate();
+
                 Assert.Equal(0, model.EntityTypes[0].GetForeignKeys().Count());
                 Assert.Equal(0, model.EntityTypes[1].GetForeignKeys().Count());
+                Assert.Equal(2, model.EntityTypes.Count);
             }
 
             [Fact]

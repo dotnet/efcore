@@ -149,6 +149,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = CreateInternalEntityBuilder<ManyToManyFirst>(ConfigureKeys);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+            new ModelCleanupConvention().Apply(entityBuilder.ModelBuilder);
 
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
@@ -162,11 +163,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+            new ModelCleanupConvention().Apply(entityBuilder.ModelBuilder);
 
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
-            // TODO: remove discovered entity types if no relationship discovered
-            Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
+            Assert.Equal(1, entityBuilder.Metadata.Model.EntityTypes.Count);
         }
 
         [Fact]
@@ -176,11 +177,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 ConfigureKeys, MultipleNavigationsSecond.IgnoreCollectionNavigation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
+            new ModelCleanupConvention().Apply(entityBuilder.ModelBuilder);
 
             Assert.Empty(entityBuilder.Metadata.GetForeignKeys());
             Assert.Empty(entityBuilder.Metadata.Navigations);
-            // TODO: remove discovered entity types if no relationship discovered
-            Assert.Equal(2, entityBuilder.Metadata.Model.EntityTypes.Count);
+            Assert.Equal(1, entityBuilder.Metadata.Model.EntityTypes.Count);
         }
 
         [Fact]
