@@ -1700,7 +1700,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        [ConditionalFact]
         public virtual void Required_many_to_one_dependents_are_cascade_deleted()
         {
             int removed1;
