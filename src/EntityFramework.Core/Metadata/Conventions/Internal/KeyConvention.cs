@@ -96,7 +96,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (entityType.FindPrimaryKey(properties) != null)
             {
                 var property = FindValueGeneratedOnAddProperty(properties);
-                if (!property.IsForeignKey(entityType))
+                if (property != null
+                    && !property.IsForeignKey(entityType))
                 {
                     return property;
                 }
