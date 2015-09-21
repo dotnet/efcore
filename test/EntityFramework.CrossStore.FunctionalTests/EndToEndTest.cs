@@ -20,14 +20,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void Can_save_changes_and_query()
         {
+            var secondId = -1;
             using (var context = CreateContext())
             {
-                var first = context.SimpleEntities.Add(new SimpleEntity { Id = 420, StringProperty = "Entity 1" }).Entity;
+                var first = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 1" }).Entity;
                 SetPartitionId(first, context);
 
                 Assert.Equal(1, context.SaveChanges());
 
-                var second = context.SimpleEntities.Add(new SimpleEntity { Id = 42, StringProperty = "Entity 2" }).Entity;
+                var second = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 2" }).Entity;
                 // TODO: Replace with
                 // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
                 var property = context.Model.GetEntityType(typeof(SimpleEntity)).GetProperty(SimpleEntity.ShadowPropertyName);
@@ -35,6 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 SetPartitionId(second, context);
 
                 Assert.Equal(1, context.SaveChanges());
+                secondId = second.Id;
             }
 
             using (var context = CreateContext())
@@ -43,7 +45,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var firstEntity = context.SimpleEntities.Single(e => e.StringProperty == "Entity 1");
 
-                var secondEntity = context.SimpleEntities.Single(e => e.Id == 42);
+                var secondEntity = context.SimpleEntities.Single(e => e.Id == secondId);
                 Assert.Equal("Entity 2", secondEntity.StringProperty);
 
                 var thirdEntity = context.SimpleEntities.Single(e => EF.Property<string>(e, SimpleEntity.ShadowPropertyName) == "shadow");
