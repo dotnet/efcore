@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public abstract class ModelConfiguration
     {
-        protected const string DefaultDbContextName = "ModelContext";
+        protected const string DbContextSuffix = "Context";
+        protected const string DefaultDbContextName = "Model" + DbContextSuffix;
         protected static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
         protected static readonly KeyConvention _keyConvention = new KeyConvention();
 

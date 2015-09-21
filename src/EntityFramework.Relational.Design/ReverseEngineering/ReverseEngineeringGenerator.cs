@@ -69,7 +69,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var modelConfiguration = _modelConfigurationFactory
                 .CreateModelConfiguration(metadataModel, customConfiguration);
 
-            var dbContextClassName = modelConfiguration.ClassName();
+            var dbContextClassName =
+                customConfiguration.ContextClassName ?? modelConfiguration.ClassName();
 
             CheckOutputFiles(configuration.ProjectPath,
                 configuration.RelativeOutputPath, dbContextClassName, metadataModel);
