@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                 {
                     Files =
                     {
-                        "ModelContext.expected",
+                        "OneToOne" + DbSuffix + "Context.expected",
                         "Dependent.expected",
                         "Principal.expected"
                     }
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                 {
                     Files =
                     {
-                        "ModelContext.expected",
+                        "OneToMany" + DbSuffix + "Context.expected",
                         "OneToManyDependent.expected",
                         "OneToManyPrincipal.expected"
                     }
@@ -154,7 +154,7 @@ CREATE TABLE Users_Groups (
                 {
                     Files =
                     {
-                        "ModelContext.expected",
+                        "ManyToMany" + DbSuffix + "Context.expected",
                         "Groups.expected",
                         "Users.expected",
                         "Users_Groups.expected"
@@ -195,7 +195,7 @@ CREATE TABLE Users_Groups (
                 {
                     Files =
                     {
-                        "ModelContext.expected",
+                        "SelfRef" + DbSuffix + "Context.expected",
                         "SelfRef.expected"
                     }
                 };
@@ -238,7 +238,7 @@ CREATE TABLE Users_Groups (
         [Fact]
         public async void Principal_missing_primary_key()
         {
-            using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipal" + DbSuffix).AsTransient())
+            using (var testStore = SqliteTestStore.GetOrCreateShared("NoPrincipalPk" + DbSuffix).AsTransient())
             {
                 testStore.ExecuteNonQuery(@"CREATE TABLE Dependent (
     Id PRIMARY KEY,
@@ -270,7 +270,7 @@ CREATE TABLE Principal ( Id INT);");
                 {
                     Files =
                     {
-                        "ModelContext.expected",
+                        "NoPrincipalPk" + DbSuffix + "Context.expected",
                         "Dependent.expected",
                         "Principal.expected"
                     }

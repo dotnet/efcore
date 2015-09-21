@@ -3,7 +3,7 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace E2E.Sqlite
 {
-    public partial class ModelContext : DbContext
+    public partial class SelfRefFluentApiContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {

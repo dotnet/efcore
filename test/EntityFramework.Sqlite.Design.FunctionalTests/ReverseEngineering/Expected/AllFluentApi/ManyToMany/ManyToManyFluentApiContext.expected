@@ -3,15 +3,21 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace E2E.Sqlite
 {
-    public partial class ModelContext : DbContext
+    public partial class ManyToManyFluentApiContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite(@"Data Source=ManyToManyAttributes.db;Cache=Private");
+            options.UseSqlite(@"Data Source=ManyToManyFluentApi.db;Cache=Private");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Users_Groups>(entity =>
+            {
+                entity.Reference(d => d.Group).InverseCollection(p => p.Users_Groups).ForeignKey(d => d.GroupId);
+
+                entity.Reference(d => d.User).InverseCollection(p => p.Users_Groups).ForeignKey(d => d.UserId);
+            });
         }
 
         public virtual DbSet<Groups> Groups { get; set; }

@@ -3,11 +3,11 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace E2E.Sqlite
 {
-    public partial class ModelContext : DbContext
+    public partial class NoPrincipalPkFluentApiContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlite(@"Data Source=NoPrincipalFluentApi.db;Cache=Private");
+            options.UseSqlite(@"Data Source=NoPrincipalPkFluentApi.db;Cache=Private");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

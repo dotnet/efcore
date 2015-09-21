@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
 {
     public class SqlServerModelConfiguration : ModelConfiguration
     {
-        private const string _dbContextSuffix = "Context";
-
         public SqlServerModelConfiguration(
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
@@ -31,16 +29,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
 
         public override string ClassName()
         {
-            if (CustomConfiguration.ContextClassName != null)
-            {
-                return CustomConfiguration.ContextClassName;
-            }
-
             var builder = new SqlConnectionStringBuilder(CustomConfiguration.ConnectionString);
             if (builder.InitialCatalog != null)
             {
                 return CSharpUtilities.GenerateCSharpIdentifier(
-                    builder.InitialCatalog + _dbContextSuffix, null);
+                    builder.InitialCatalog + DbContextSuffix, null);
             }
 
             return base.ClassName();
