@@ -355,7 +355,7 @@ function Scaffold-DbContext {
         connectionString = $Connection
         provider = $Provider
         relativeOutputDir = $OutputSubDirectory
-        useFluentApiOnly = $FluentApi
+        useFluentApiOnly = [bool]$FluentApi
     }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
