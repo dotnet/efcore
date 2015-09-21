@@ -16,7 +16,9 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             entityA.Relational().TableName = "Table";
             entityB.Relational().TableName = "Table";
 
@@ -28,7 +30,9 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             entityA.Relational().TableName = "Table";
             entityA.Relational().Schema = "Schema";
             entityB.Relational().TableName = "Table";
@@ -42,7 +46,9 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             entityA.Relational().TableName = "Table";
             entityA.Relational().Schema = "SchemaA";
             entityB.Relational().TableName = "Table";
@@ -56,6 +62,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
             entityC.BaseType = entityA;
 
@@ -71,7 +78,8 @@ namespace Microsoft.Data.Entity.Tests
         public virtual void Passes_for_non_hierarchical_model()
         {
             var model = new Entity.Metadata.Model();
-            model.AddEntityType(typeof(A));
+            var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
 
             CreateModelValidator().Validate(model);
         }
@@ -81,6 +89,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityAbstract = model.AddEntityType(typeof(Abstract));
+            SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<>));
             entityGeneric.BaseType = entityAbstract;
 
@@ -92,6 +101,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
             entityC.BaseType = entityA;
 
@@ -103,6 +113,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             entityAbstract.BaseType = entityA;
 
@@ -118,6 +129,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             var model = new Entity.Metadata.Model();
             var entityAbstract = model.AddEntityType(typeof(Abstract));
+            SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<string>));
             entityGeneric.BaseType = entityAbstract;
 

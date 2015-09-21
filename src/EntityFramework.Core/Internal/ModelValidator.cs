@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Internal
 {
@@ -16,9 +17,11 @@ namespace Microsoft.Data.Entity.Internal
         {
             EnsureNoShadowEntities(model);
             EnsureNoShadowKeys(model);
+            EnsureNonNullPrimaryKeys(model);
             EnsureClrPropertyTypesMatch(model);
             EnsureValidForeignKeyChains(model);
         }
+
 
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
         {
@@ -59,6 +62,17 @@ namespace Microsoft.Data.Entity.Internal
                         ShowWarning(message);
                     }
                 }
+            }
+        }
+
+        protected virtual void EnsureNonNullPrimaryKeys([NotNull] IModel model)
+        {
+            Check.NotNull(model, nameof(model));
+
+            var entityTypeWithNullPk = model.EntityTypes.FirstOrDefault(et => et.FindPrimaryKey() == null);
+            if (entityTypeWithNullPk != null)
+            {
+                ShowError(Strings.EntityRequiresKey(entityTypeWithNullPk.Name));
             }
         }
 

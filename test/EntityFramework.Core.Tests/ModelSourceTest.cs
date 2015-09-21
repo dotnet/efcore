@@ -22,15 +22,15 @@ namespace Microsoft.Data.Entity.Tests
             setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
                     {
-                        new DbSetProperty(typeof(JustAClass), "One", typeof(Random), hasSetter: true),
-                        new DbSetProperty(typeof(JustAClass), "Two", typeof(object), hasSetter: true),
-                        new DbSetProperty(typeof(JustAClass), "Three", typeof(Random), hasSetter: true)
+                        new DbSetProperty(typeof(JustAClass), "One", typeof(SetA), hasSetter: true),
+                        new DbSetProperty(typeof(JustAClass), "Two", typeof(SetB), hasSetter: true),
+                        new DbSetProperty(typeof(JustAClass), "Three", typeof(SetA), hasSetter: true)
                     });
 
             var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, null, new LoggingModelValidator(new LoggerFactory()));
 
             Assert.Equal(
-                new[] { typeof(Random).DisplayName(), typeof(object).DisplayName() },
+                new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
                 model.EntityTypes.Select(e => e.Name).ToArray());
         }
 
@@ -40,6 +40,16 @@ namespace Microsoft.Data.Entity.Tests
             protected DbSet<object> Two { get; set; }
             private DbSet<string> Three { get; set; }
             private DbSet<string> Four { get; set; }
+        }
+
+        private class SetA
+        {
+            public int Id { get; set; }
+        }
+
+        private class SetB
+        {
+            public int Id { get; set; }
         }
 
         [Fact]

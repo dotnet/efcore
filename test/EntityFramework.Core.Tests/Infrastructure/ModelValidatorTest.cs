@@ -23,10 +23,21 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));
-            var keyProperty = entityType.AddProperty("Id", typeof(int));
+            SetPrimaryKey(entityType);
+            var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(Strings.ShadowKey("{'Id'}", typeof(A).FullName, "{'Id'}"), model);
+            VerifyWarning(Strings.ShadowKey("{'Key'}", typeof(A).FullName, "{'Key'}"), model);
+        }
+
+        [Fact]
+        public virtual void Detects_a_null_primary_key()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(A));
+            var property = entityType.AddProperty("Id", typeof(int));
+
+            VerifyError(Strings.EntityRequiresKey(typeof(A).FullName), model);
         }
 
         [Fact]
@@ -34,10 +45,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityType = model.AddEntityType(typeof(A));
-            var property = entityType.AddProperty("Id", typeof(int));
+            var property = entityType.AddProperty("Id1", typeof(int));
             property.IsShadowProperty = false;
+            entityType.SetPrimaryKey(property);
 
-            VerifyError(Strings.NoClrProperty("Id", typeof(A).FullName), model);
+            VerifyError(Strings.NoClrProperty("Id1", typeof(A).FullName), model);
         }
 
         [Fact]
@@ -47,6 +59,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             var entityType = model.AddEntityType(typeof(A));
             var property = entityType.AddProperty("P0", typeof(string));
             property.IsShadowProperty = false;
+            entityType.SetPrimaryKey(property);
 
             VerifyError(Strings.PropertyWrongClrType("P0", typeof(A).FullName), model);
         }
@@ -56,6 +69,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
 
             CreateForeignKey(keyA, keyA);
@@ -68,8 +82,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB = CreateKey(entityB);
 
             CreateForeignKey(keyA, keyB);
@@ -83,9 +99,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
             var keyA2 = CreateKey(entityA, startingPropertyIndex: 0, propertyCount: 2);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB1 = CreateKey(entityB);
             var keyB2 = CreateKey(entityB, startingPropertyIndex: 1, propertyCount: 2);
 
@@ -101,9 +119,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
             var keyA2 = CreateKey(entityA, startingPropertyIndex: 1, propertyCount: 2);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB1 = CreateKey(entityB);
             var keyB2 = CreateKey(entityB, startingPropertyIndex: 0, propertyCount: 2);
 
@@ -119,8 +139,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB = CreateKey(entityB);
 
             CreateForeignKey(keyA, keyB);
@@ -136,8 +158,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB = CreateKey(entityB);
 
             CreateForeignKey(keyA, keyB);
@@ -154,8 +178,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB = CreateKey(entityB);
 
             CreateForeignKey(keyA, keyB);
@@ -170,9 +196,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
             var keyA2 = CreateKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB = CreateKey(entityB);
 
             CreateForeignKey(keyA1, keyB);
@@ -188,8 +216,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA = CreateKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB = CreateKey(entityB);
 
             CreateForeignKey(keyA, keyB);
@@ -204,9 +234,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
             var keyA2 = CreateKey(entityA, startingPropertyIndex: 0, propertyCount: 2);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB1 = CreateKey(entityB);
             var keyB2 = CreateKey(entityB, startingPropertyIndex: 1, propertyCount: 2);
 
@@ -221,9 +253,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
             var keyA2 = CreateKey(entityA, startingPropertyIndex: 0, propertyCount: 2);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB1 = CreateKey(entityB);
             var keyB2 = CreateKey(entityB, startingPropertyIndex: 0, propertyCount: 2);
 
@@ -238,11 +272,13 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var model = new Model();
             var entityA = model.AddEntityType(typeof(A));
+            SetPrimaryKey(entityA);
             var keyA1 = CreateKey(entityA);
             var keyA2 = CreateKey(entityA, startingPropertyIndex: 0, propertyCount: 2);
             var keyA3 = CreateKey(entityA);
             var keyA4 = CreateKey(entityA, startingPropertyIndex: 2, propertyCount: 2);
             var entityB = model.AddEntityType(typeof(B));
+            SetPrimaryKey(entityB);
             var keyB1 = CreateKey(entityB);
             var keyB2 = CreateKey(entityB, startingPropertyIndex: 1, propertyCount: 2);
 
@@ -259,7 +295,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             if (startingPropertyIndex == -1)
             {
-                startingPropertyIndex = entityType.PropertyCount;
+                startingPropertyIndex = entityType.PropertyCount - 1;
             }
             var keyProperties = new Property[propertyCount];
             for (var i = 0; i < propertyCount; i++)
@@ -271,6 +307,13 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
                 keyProperties[i].RequiresValueGenerator = true;
             }
             return entityType.AddKey(keyProperties);
+        }
+
+        public void SetPrimaryKey(EntityType entityType)
+        {
+            var property = entityType.AddProperty("Id", typeof(int));
+            property.IsShadowProperty = false;
+            entityType.SetPrimaryKey(property);
         }
 
         private ForeignKey CreateForeignKey(Key dependentKey, Key principalKey)
@@ -288,6 +331,8 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
         protected class A
         {
+            public int Id { get; set; }
+
             public int? P0 { get; set; }
             public int? P1 { get; set; }
             public int? P2 { get; set; }
@@ -296,6 +341,8 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
         protected class B
         {
+            public int Id { get; set; }
+
             public int? P0 { get; set; }
             public int? P1 { get; set; }
             public int? P2 { get; set; }
