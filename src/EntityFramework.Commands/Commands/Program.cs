@@ -143,7 +143,10 @@ namespace Microsoft.Data.Entity.Commands
                             var provider = scaffold.Argument(
                                 "[provider]",
                                 "The provider to use. For example, EntityFramework.SqlServer");
-                            var relativeOutputPath = scaffold.Option(
+                            var dbContextClassName = scaffold.Option(
+                                "-c|--context-class-name <name>",
+                                "Name of the generated DbContext class.");
+                            var outputPath = scaffold.Option(
                                 "-o|--output-path <path>",
                                 "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
                             var useFluentApiOnly = scaffold.Option(
@@ -173,7 +176,8 @@ namespace Microsoft.Data.Entity.Commands
                                     await ReverseEngineerAsync(
                                         connection.Value,
                                         provider.Value,
-                                        relativeOutputPath.Value(),
+                                        outputPath.Value(),
+                                        dbContextClassName.Value(),
                                         useFluentApiOnly.HasValue(),
                                         _applicationShutdown.ShutdownRequested);
 
@@ -369,12 +373,13 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string connectionString,
             [NotNull] string providerAssemblyName,
             [CanBeNull] string outputDirectory,
+            [CanBeNull] string dbContextClassName,
             bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseOperations.Value.ReverseEngineerAsync(
-                providerAssemblyName, connectionString,
-                outputDirectory, useFluentApiOnly);
+                providerAssemblyName, connectionString, outputDirectory,
+                dbContextClassName, useFluentApiOnly);
 
             _logger.Value.LogInformation("Done");
         }

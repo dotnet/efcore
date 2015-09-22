@@ -32,6 +32,22 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
+            configuration.ContextClassName = @"Invalid!CSharp*Class&Name";
+            Assert.Equal(Strings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
+                Assert.Throws<ArgumentException>(
+                    () => configuration.CheckValidity()).Message);
+
+            configuration.ContextClassName = "1CSharpClassNameCannotStartWithNumber";
+            Assert.Equal(Strings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
+                Assert.Throws<ArgumentException>(
+                    () => configuration.CheckValidity()).Message);
+
+            configuration.ContextClassName = "volatile";  // cannot be C# keyword
+            Assert.Equal(Strings.ContextClassNotValidCSharpIdentifier("volatile"),
+                Assert.Throws<ArgumentException>(
+                    () => configuration.CheckValidity()).Message);
+
+            configuration.ContextClassName = "GoodClassName";
             configuration.OutputPath = @"\AnAbsolutePath";
             Assert.Equal(Strings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(

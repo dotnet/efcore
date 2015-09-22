@@ -207,6 +207,11 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
 
+        public virtual bool IsCSharpKeyword([NotNull] string identifier)
+        {
+            return _cSharpKeywords.Contains(identifier);
+        }
+
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {
@@ -236,7 +241,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             {
                 proposedIdentifier = "_" + proposedIdentifier;
             }
-            else if (_cSharpKeywords.Contains(proposedIdentifier))
+            else if (IsCSharpKeyword(proposedIdentifier))
             {
                 proposedIdentifier = "_" + proposedIdentifier;
             }

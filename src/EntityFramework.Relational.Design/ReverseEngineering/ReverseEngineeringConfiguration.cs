@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
 using JetBrains.Annotations;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
@@ -27,6 +28,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (string.IsNullOrEmpty(ProjectPath))
             {
                 throw new ArgumentException(Strings.ProjectPathRequired);
+            }
+
+            if (!string.IsNullOrWhiteSpace(ContextClassName)
+                && (!SyntaxFacts.IsValidIdentifier(ContextClassName)
+                    || CSharpUtilities.Instance.IsCSharpKeyword(ContextClassName)))
+            {
+                throw new ArgumentException(
+                    Strings.ContextClassNotValidCSharpIdentifier(ContextClassName));
             }
 
             if (string.IsNullOrEmpty(ProjectRootNamespace))

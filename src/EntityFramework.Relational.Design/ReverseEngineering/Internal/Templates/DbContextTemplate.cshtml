@@ -99,12 +99,13 @@
 }
 @{
     var useFluentApi = this.Model.CustomConfiguration.UseFluentApiOnly;
+    var className = this.Model.CustomConfiguration.ContextClassName ?? Model.ClassName();
 }using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
 namespace @Model.Namespace()
 {
-    public partial class @Model.ClassName() : DbContext
+    public partial class @className : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
