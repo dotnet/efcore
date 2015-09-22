@@ -2,10 +2,10 @@
     "dependencies": {
         "Microsoft.Data.Sqlite": "1.0.0-*",
         "xunit": "2.1.0-*",
-        "xunit.runner.dnx": "2.1.0-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-*"
     },
     "commands": {
-        "test": "xunit.runner.dnx"
+        "test": "xunit.runner.aspnet"
     },
     "frameworks": {
         "dnx451": { },
