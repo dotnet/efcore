@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             var metadataModel = GetMetadataModel(configuration);
             var @namespace = ConstructNamespace(configuration.ProjectRootNamespace,
-                    configuration.ProjectPath, configuration.RelativeOutputPath);
+                    configuration.ProjectPath, configuration.OutputPath);
 
             var customConfiguration = new CustomConfiguration()
             {
@@ -73,11 +73,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 customConfiguration.ContextClassName ?? modelConfiguration.ClassName();
 
             CheckOutputFiles(configuration.ProjectPath,
-                configuration.RelativeOutputPath, dbContextClassName, metadataModel);
+                configuration.OutputPath, dbContextClassName, metadataModel);
 
-            var outputPath = configuration.RelativeOutputPath == null
+            var outputPath = configuration.OutputPath == null
                 ? configuration.ProjectPath
-                : Path.Combine(configuration.ProjectPath, configuration.RelativeOutputPath);
+                : (Path.IsPathRooted(configuration.OutputPath)
+                    ? configuration.OutputPath
+                    : Path.Combine(configuration.ProjectPath, configuration.OutputPath));
 
             return CodeWriter.WriteCodeAsync(
                 modelConfiguration, outputPath, dbContextClassName, cancellationToken);

@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "The provider to use. For example, EntityFramework.SqlServer");
                             var relativeOutputPath = scaffold.Option(
                                 "-o|--output-path <path>",
-                                "Relative path to the sub-directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
+                                "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
                             var useFluentApiOnly = scaffold.Option(
                                 "-u|--fluent-api",
                                 "Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.");
@@ -368,13 +368,13 @@ namespace Microsoft.Data.Entity.Commands
         public virtual async Task ReverseEngineerAsync(
             [NotNull] string connectionString,
             [NotNull] string providerAssemblyName,
-            [CanBeNull] string relativeOutputDirectory,
+            [CanBeNull] string outputDirectory,
             bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseOperations.Value.ReverseEngineerAsync(
                 providerAssemblyName, connectionString,
-                relativeOutputDirectory, useFluentApiOnly);
+                outputDirectory, useFluentApiOnly);
 
             _logger.Value.LogInformation("Done");
         }

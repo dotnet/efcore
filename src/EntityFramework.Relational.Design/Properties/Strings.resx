@@ -126,9 +126,6 @@
   <data name="ErrorRunningEntityTypeTemplate" xml:space="preserve">
     <value>There was an error running the EntityType template. Message: {errorMessage}</value>
   </data>
-  <data name="NotRelativePath" xml:space="preserve">
-    <value>Unable to use the output path, {outputPath}. It must be a relative path which is a sub-directory of the project directory {projectPath}.</value>
-  </data>
   <data name="ProjectPathRequired" xml:space="preserve">
     <value>ProjectPath is required to generate code.</value>
   </data>

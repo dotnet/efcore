@@ -275,10 +275,10 @@ namespace Microsoft.Data.Entity.Design
 
                 var connectionString = (string)args["connectionString"];
                 var provider = (string)args["provider"];
-                var relativeOutputDir = (string)args["relativeOutputDir"];
+                var outputDir = (string)args["outputDir"];
                 var useFluentApiOnly = (bool)args["useFluentApiOnly"];
 
-                Execute(() => executor.ReverseEngineerImpl(provider, connectionString, relativeOutputDir, useFluentApiOnly));
+                Execute(() => executor.ReverseEngineerImpl(provider, connectionString, outputDir, useFluentApiOnly));
             }
         }
 

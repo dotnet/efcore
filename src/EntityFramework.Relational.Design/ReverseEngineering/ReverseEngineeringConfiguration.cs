@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual string CustomTemplatePath { get; [param: NotNull] set; }
         public virtual string ProjectPath { get;[param: NotNull] set; }
         public virtual string ProjectRootNamespace { get;[param: NotNull] set; }
-        public virtual string RelativeOutputPath { get;[param: CanBeNull] set; }
+        public virtual string OutputPath { get;[param: CanBeNull] set; }
         public virtual bool UseFluentApiOnly { get; set; }
 
         public virtual void CheckValidity()
@@ -27,15 +27,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (string.IsNullOrEmpty(ProjectPath))
             {
                 throw new ArgumentException(Strings.ProjectPathRequired);
-            }
-
-            if (RelativeOutputPath != null
-                && (Path.IsPathRooted(RelativeOutputPath)
-                    || !Path.GetFullPath(
-                            Path.Combine(ProjectPath, RelativeOutputPath))
-                        .StartsWith(Path.GetFullPath(ProjectPath))))
-            {
-                throw new ArgumentException(Strings.NotRelativePath(RelativeOutputPath, ProjectPath));
             }
 
             if (string.IsNullOrEmpty(ProjectRootNamespace))
