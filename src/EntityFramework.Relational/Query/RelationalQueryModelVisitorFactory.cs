@@ -10,30 +10,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class RelationalQueryModelVisitorFactory : IEntityQueryModelVisitorFactory
+    public class RelationalQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {
-        private readonly IModel _model;
-        private readonly IQueryOptimizer _queryOptimizer;
-        private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
-        private readonly ISubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
-        private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
-        private readonly IEntityResultFindingExpressionVisitorFactory _entityResultFindingExpressionVisitorFactory;
-        private readonly ITaskBlockingExpressionVisitor _taskBlockingExpressionVisitor;
-        private readonly IMemberAccessBindingExpressionVisitorFactory _memberAccessBindingExpressionVisitorFactory;
-        private readonly IOrderingExpressionVisitorFactory _orderingExpressionVisitorFactory;
-        private readonly IProjectionExpressionVisitorFactory _projectionExpressionVisitorFactory;
-        private readonly IEntityQueryableExpressionVisitorFactory _entityQueryableExpressionVisitorFactory;
-        private readonly IQueryAnnotationExtractor _queryAnnotationExtractor;
-        private readonly IResultOperatorHandler _resultOperatorHandler;
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly IExpressionPrinter _expressionPrinter;
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
-        private readonly IIncludeExpressionVisitorFactory _includeExpressionVisitorFactory;
-        private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
-        private readonly ICompositePredicateExpressionVisitorFactory _compositePredicateExpressionVisitorFactory;
-        private readonly IQueryFlatteningExpressionVisitorFactory _queryFlatteningExpressionVisitorFactory;
-        private readonly IShapedQueryFindingExpressionVisitorFactory _shapedQueryFindingExpressionVisitorFactory;
-
         public RelationalQueryModelVisitorFactory(
             [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
@@ -56,22 +34,23 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory)
+            : base(
+                model,
+                queryOptimizer,
+                navigationRewritingExpressionVisitorFactory,
+                subQueryMemberPushDownExpressionVisitor,
+                querySourceTracingExpressionVisitorFactory,
+                entityResultFindingExpressionVisitorFactory,
+                taskBlockingExpressionVisitor,
+                memberAccessBindingExpressionVisitorFactory,
+                orderingExpressionVisitorFactory,
+                projectionExpressionVisitorFactory,
+                entityQueryableExpressionVisitorFactory,
+                queryAnnotationExtractor,
+                resultOperatorHandler,
+                entityMaterializerSource,
+                expressionPrinter)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(queryOptimizer, nameof(queryOptimizer));
-            Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
-            Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
-            Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
-            Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
-            Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor));
-            Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory));
-            Check.NotNull(orderingExpressionVisitorFactory, nameof(orderingExpressionVisitorFactory));
-            Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory));
-            Check.NotNull(entityQueryableExpressionVisitorFactory, nameof(entityQueryableExpressionVisitorFactory));
-            Check.NotNull(queryAnnotationExtractor, nameof(queryAnnotationExtractor));
-            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
             Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
             Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory));
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
@@ -79,54 +58,46 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory));
             Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(shapedQueryFindingExpressionVisitorFactory));
 
-            _model = model;
-            _queryOptimizer = queryOptimizer;
-            _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
-            _subQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
-            _querySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
-            _entityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
-            _taskBlockingExpressionVisitor = taskBlockingExpressionVisitor;
-            _memberAccessBindingExpressionVisitorFactory = memberAccessBindingExpressionVisitorFactory;
-            _orderingExpressionVisitorFactory = orderingExpressionVisitorFactory;
-            _projectionExpressionVisitorFactory = projectionExpressionVisitorFactory;
-            _entityQueryableExpressionVisitorFactory = entityQueryableExpressionVisitorFactory;
-            _queryAnnotationExtractor = queryAnnotationExtractor;
-            _resultOperatorHandler = resultOperatorHandler;
-            _entityMaterializerSource = entityMaterializerSource;
-            _expressionPrinter = expressionPrinter;
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
-            _includeExpressionVisitorFactory = includeExpressionVisitorFactory;
-            _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
-            _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
-            _queryFlatteningExpressionVisitorFactory = queryFlatteningExpressionVisitorFactory;
-            _shapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
+            RelationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            IncludeExpressionVisitorFactory = includeExpressionVisitorFactory;
+            SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
+            CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
+            QueryFlatteningExpressionVisitorFactory = queryFlatteningExpressionVisitorFactory;
+            ShapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
         }
 
-        public virtual EntityQueryModelVisitor Create(
+        protected virtual IRelationalMetadataExtensionProvider RelationalMetadataExtensionProvider { get; }
+        protected virtual IIncludeExpressionVisitorFactory IncludeExpressionVisitorFactory { get; }
+        protected virtual ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
+        protected virtual ICompositePredicateExpressionVisitorFactory CompositePredicateExpressionVisitorFactory { get; }
+        protected virtual IQueryFlatteningExpressionVisitorFactory QueryFlatteningExpressionVisitorFactory { get; }
+        protected virtual IShapedQueryFindingExpressionVisitorFactory ShapedQueryFindingExpressionVisitorFactory { get; }
+
+        public override EntityQueryModelVisitor Create(
             QueryCompilationContext queryCompilationContext,
             EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new RelationalQueryModelVisitor(
-                _model,
-                _queryOptimizer,
-                _navigationRewritingExpressionVisitorFactory,
-                _subQueryMemberPushDownExpressionVisitor,
-                _querySourceTracingExpressionVisitorFactory,
-                _entityResultFindingExpressionVisitorFactory,
-                _taskBlockingExpressionVisitor,
-                _memberAccessBindingExpressionVisitorFactory,
-                _orderingExpressionVisitorFactory,
-                _projectionExpressionVisitorFactory,
-                _entityQueryableExpressionVisitorFactory,
-                _queryAnnotationExtractor,
-                _resultOperatorHandler,
-                _entityMaterializerSource,
-                _expressionPrinter,
-                _relationalMetadataExtensionProvider,
-                _includeExpressionVisitorFactory,
-                _sqlTranslatingExpressionVisitorFactory,
-                _compositePredicateExpressionVisitorFactory,
-                _queryFlatteningExpressionVisitorFactory,
-                _shapedQueryFindingExpressionVisitorFactory,
+                Model,
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter,
+                RelationalMetadataExtensionProvider,
+                IncludeExpressionVisitorFactory,
+                SqlTranslatingExpressionVisitorFactory,
+                CompositePredicateExpressionVisitorFactory,
+                QueryFlatteningExpressionVisitorFactory,
+                ShapedQueryFindingExpressionVisitorFactory,
                 (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);
     }

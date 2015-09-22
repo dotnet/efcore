@@ -231,6 +231,7 @@
     <Compile Include="Query\Annotations\IncludeQueryAnnotation.cs" />
     <Compile Include="EF.cs" />
     <Compile Include="Query\CompiledQueryCacheKeyGenerator.cs" />
+    <Compile Include="Query\EntityQueryModelVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IEntityResultFindingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\EntityResultFindingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\EntityResultFindingExpressionVisitorFactory.cs" />

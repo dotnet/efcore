@@ -10,25 +10,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class InMemoryQueryModelVisitorFactory : IEntityQueryModelVisitorFactory
+    public class InMemoryQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {
-        private readonly IModel _model;
-        private readonly IQueryOptimizer _queryOptimizer;
-        private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
-        private readonly ISubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
-        private readonly IQuerySourceTracingExpressionVisitorFactory _querySourceTracingExpressionVisitorFactory;
-        private readonly IEntityResultFindingExpressionVisitorFactory _entityResultFindingExpressionVisitorFactory;
-        private readonly ITaskBlockingExpressionVisitor _taskBlockingExpressionVisitor;
-        private readonly IMemberAccessBindingExpressionVisitorFactory _memberAccessBindingExpressionVisitorFactory;
-        private readonly IOrderingExpressionVisitorFactory _orderingExpressionVisitorFactory;
-        private readonly IProjectionExpressionVisitorFactory _projectionExpressionVisitorFactory;
-        private readonly IEntityQueryableExpressionVisitorFactory _entityQueryableExpressionVisitorFactory;
-        private readonly IQueryAnnotationExtractor _queryAnnotationExtractor;
-        private readonly IResultOperatorHandler _resultOperatorHandler;
-        private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly IExpressionPrinter _expressionPrinter;
-        private readonly IMaterializerFactory _materializerFactory;
-
         public InMemoryQueryModelVisitorFactory(
             [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
@@ -44,64 +27,51 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQueryAnnotationExtractor queryAnnotationExtractor,
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] IExpressionPrinter expressionPrinter)
+            [NotNull] IExpressionPrinter expressionPrinter,
+            [NotNull] IMaterializerFactory materializerFactory)
+            : base(
+                model,
+                queryOptimizer,
+                navigationRewritingExpressionVisitorFactory,
+                subQueryMemberPushDownExpressionVisitor,
+                querySourceTracingExpressionVisitorFactory,
+                entityResultFindingExpressionVisitorFactory,
+                taskBlockingExpressionVisitor,
+                memberAccessBindingExpressionVisitorFactory,
+                orderingExpressionVisitorFactory,
+                projectionExpressionVisitorFactory,
+                entityQueryableExpressionVisitorFactory,
+                queryAnnotationExtractor,
+                resultOperatorHandler,
+                entityMaterializerSource,
+                expressionPrinter)
         {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(queryOptimizer, nameof(queryOptimizer));
-            Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
-            Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
-            Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory));
-            Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory));
-            Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor));
-            Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory));
-            Check.NotNull(orderingExpressionVisitorFactory, nameof(orderingExpressionVisitorFactory));
-            Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory));
-            Check.NotNull(entityQueryableExpressionVisitorFactory, nameof(entityQueryableExpressionVisitorFactory));
-            Check.NotNull(queryAnnotationExtractor, nameof(queryAnnotationExtractor));
-            Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler));
-            Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(expressionPrinter, nameof(expressionPrinter));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
 
-            _model = model;
-            _queryOptimizer = queryOptimizer;
-            _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
-            _subQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
-            _querySourceTracingExpressionVisitorFactory = querySourceTracingExpressionVisitorFactory;
-            _entityResultFindingExpressionVisitorFactory = entityResultFindingExpressionVisitorFactory;
-            _taskBlockingExpressionVisitor = taskBlockingExpressionVisitor;
-            _memberAccessBindingExpressionVisitorFactory = memberAccessBindingExpressionVisitorFactory;
-            _orderingExpressionVisitorFactory = orderingExpressionVisitorFactory;
-            _projectionExpressionVisitorFactory = projectionExpressionVisitorFactory;
-            _entityQueryableExpressionVisitorFactory = entityQueryableExpressionVisitorFactory;
-            _queryAnnotationExtractor = queryAnnotationExtractor;
-            _resultOperatorHandler = resultOperatorHandler;
-            _entityMaterializerSource = entityMaterializerSource;
-            _expressionPrinter = expressionPrinter;
-            _materializerFactory = materializerFactory;
+            MaterializerFactory = materializerFactory;
         }
 
-        public virtual EntityQueryModelVisitor Create(
-            QueryCompilationContext queryCompilationContext,
-            EntityQueryModelVisitor parentEntityQueryModelVisitor)
+        protected virtual IMaterializerFactory MaterializerFactory { get; }
+
+        public override EntityQueryModelVisitor Create(
+            QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor _)
             => new InMemoryQueryModelVisitor(
-                _model,
-                _queryOptimizer,
-                _navigationRewritingExpressionVisitorFactory,
-                _subQueryMemberPushDownExpressionVisitor,
-                _querySourceTracingExpressionVisitorFactory,
-                _entityResultFindingExpressionVisitorFactory,
-                _taskBlockingExpressionVisitor,
-                _memberAccessBindingExpressionVisitorFactory,
-                _orderingExpressionVisitorFactory,
-                _projectionExpressionVisitorFactory,
-                _entityQueryableExpressionVisitorFactory,
-                _queryAnnotationExtractor,
-                _resultOperatorHandler,
-                _entityMaterializerSource,
-                _expressionPrinter,
-                _materializerFactory,
+                Model,
+                QueryOptimizer,
+                NavigationRewritingExpressionVisitorFactory,
+                SubQueryMemberPushDownExpressionVisitor,
+                QuerySourceTracingExpressionVisitorFactory,
+                EntityResultFindingExpressionVisitorFactory,
+                TaskBlockingExpressionVisitor,
+                MemberAccessBindingExpressionVisitorFactory,
+                OrderingExpressionVisitorFactory,
+                ProjectionExpressionVisitorFactory,
+                EntityQueryableExpressionVisitorFactory,
+                QueryAnnotationExtractor,
+                ResultOperatorHandler,
+                EntityMaterializerSource,
+                ExpressionPrinter,
+                MaterializerFactory,
                 Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)));
     }
 }

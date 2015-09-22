@@ -68,7 +68,8 @@ namespace Microsoft.Data.Entity.Query
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
             => CreateQueryModelVisitor(parentEntityQueryModelVisitor: null);
 
-        public virtual EntityQueryModelVisitor CreateQueryModelVisitor([CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
+        public virtual EntityQueryModelVisitor CreateQueryModelVisitor(
+            [CanBeNull] EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => _entityQueryModelVisitorFactory.Create(this, parentEntityQueryModelVisitor);
 
         public virtual void AddTrackableInclude(

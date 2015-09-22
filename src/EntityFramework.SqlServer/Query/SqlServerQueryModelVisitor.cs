@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity.Query
         private readonly bool _useRowNumberPaging;
 
         public SqlServerQueryModelVisitor(
-            [NotNull] IDbContextOptions options,
             [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
@@ -46,6 +45,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
+            [NotNull] IDbContextOptions options,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             // ReSharper disable once SuggestBaseTypeForParameter
             [CanBeNull] SqlServerQueryModelVisitor parentQueryModelVisitor)
