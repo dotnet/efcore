@@ -47,6 +47,7 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] string provider,
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
+            [CanBeNull] string dbContextClassName,
             bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -62,6 +63,7 @@ namespace Microsoft.Data.Entity.Design
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = connectionString,
+                ContextClassName = dbContextClassName,
                 ProjectPath = _projectDir,
                 ProjectRootNamespace = _rootNamespace,
                 OutputPath = outputDir,

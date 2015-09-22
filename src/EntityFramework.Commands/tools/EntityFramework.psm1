@@ -328,6 +328,9 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER OutputDirectory
     Specifies the directory to use to output the classes. If omitted, the top-level project directory is used.
 
+.PARAMETER ContextClassName
+    Specifies the name of the generated DbContext class.
+
 .PARAMETER FluentApi
     Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.
 
@@ -345,6 +348,7 @@ function Scaffold-DbContext {
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
         [string] $OutputDirectory,
+        [string] $ContextClassName,
         [switch] $FluentApi,
         [string] $Project)
 
@@ -355,6 +359,7 @@ function Scaffold-DbContext {
         connectionString = $Connection
         provider = $Provider
         outputDir = $OutputDirectory
+        dbContextClassName = $ContextClassName
         useFluentApiOnly = [bool]$FluentApi
     }
 

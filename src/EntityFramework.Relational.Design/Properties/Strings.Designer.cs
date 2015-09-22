@@ -21,6 +21,14 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
 
         /// <summary>
+        /// The context class name passed in, {contextClassName}, is not a valid C# identifier.
+        /// </summary>
+        public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ContextClassNotValidCSharpIdentifier", "contextClassName"), contextClassName);
+        }
+
+        /// <summary>
         /// There was an error running the DbContext template. Message: {errorMessage}
         /// </summary>
         public static string ErrorRunningDbContextTemplate([CanBeNull] object errorMessage)
