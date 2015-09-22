@@ -4,7 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
-using Xunit;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
         }
 
-        [Fact]
+        [ConditionalFact]
         public override void Required_many_to_one_dependents_are_cascade_deleted()
         {
             // Cascade delete not supported by in-memory database
@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public abstract class GraphUpdatesInMemoryFixtureBase : GraphUpdatesFixtureBase
         {
             private readonly IServiceProvider _serviceProvider;
+            private DbContextOptionsBuilder _optionsBuilder;
 
             protected GraphUpdatesInMemoryFixtureBase()
             {
@@ -34,41 +35,16 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .ServiceCollection()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
                     .BuildServiceProvider();
+
+                _optionsBuilder = new DbContextOptionsBuilder();
+                _optionsBuilder.UseInMemoryDatabase(persist: true);
             }
 
             public override InMemoryTestStore CreateTestStore()
-            {
-                var store = new InMemoryGraphUpdatesTestStore(_serviceProvider);
-                Seed(store.Context);
-                return store;
-            }
+                => new InMemoryTestStore();
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
-            {
-                return ((InMemoryGraphUpdatesTestStore)testStore).Context;
-            }
-        }
-
-        public class InMemoryGraphUpdatesTestStore : InMemoryTestStore
-        {
-            public InMemoryGraphUpdatesTestStore(IServiceProvider serviceProvider)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseInMemoryDatabase(persist: true);
-
-                Context = new GraphUpdatesContext(serviceProvider, optionsBuilder.Options);
-
-                Context.Database.EnsureCreated();
-            }
-
-            public DbContext Context { get; }
-
-            public override void Dispose()
-            {
-                Context.Database.EnsureDeleted();
-
-                base.Dispose();
-            }
+                => new GraphUpdatesContext(_serviceProvider, _optionsBuilder.Options);
         }
     }
 }
