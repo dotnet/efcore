@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ConnectionString = _connectionString,
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
-                RelativeOutputPath = TestSubDir
+                OutputPath = TestSubDir
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ConnectionString = _connectionString,
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
-                RelativeOutputPath = null, // not used for this test
+                OutputPath = null, // not used for this test
                 UseFluentApiOnly = true,
             };
 

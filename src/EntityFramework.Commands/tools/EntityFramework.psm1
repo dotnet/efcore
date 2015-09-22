@@ -325,8 +325,8 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER Provider
     Specifies the provider to use. For example, EntityFramework.SqlServer.
 
-.PARAMETER OutputSubDirectory
-    Specifies the sub-directory of the project to use to output the classes. If omitted, the top-level project directory is used.
+.PARAMETER OutputDirectory
+    Specifies the directory to use to output the classes. If omitted, the top-level project directory is used.
 
 .PARAMETER FluentApi
     Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.
@@ -344,7 +344,7 @@ function Scaffold-DbContext {
         [string] $Connection,
         [Parameter(Position = 1, Mandatory = $true)]
         [string] $Provider,
-        [string] $OutputSubDirectory,
+        [string] $OutputDirectory,
         [switch] $FluentApi,
         [string] $Project)
 
@@ -354,7 +354,7 @@ function Scaffold-DbContext {
     $artifacts = InvokeOperation $dteProject ReverseEngineer @{
         connectionString = $Connection
         provider = $Provider
-        relativeOutputDir = $OutputSubDirectory
+        outputDir = $OutputDirectory
         useFluentApiOnly = [bool]$FluentApi
     }
 

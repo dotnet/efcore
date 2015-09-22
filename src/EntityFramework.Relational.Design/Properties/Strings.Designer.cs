@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Relational.Design
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -34,14 +34,6 @@ namespace Microsoft.Data.Entity.Relational.Design
         public static string ErrorRunningEntityTypeTemplate([CanBeNull] object errorMessage)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ErrorRunningEntityTypeTemplate", "errorMessage"), errorMessage);
-        }
-
-        /// <summary>
-        /// Unable to use the output path, {outputPath}. It must be a relative path which is a sub-directory of the project directory {projectPath}.
-        /// </summary>
-        public static string NotRelativePath([CanBeNull] object outputPath, [CanBeNull] object projectPath)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NotRelativePath", "outputPath", "projectPath"), outputPath, projectPath);
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Design
                 ConnectionString = connectionString,
                 ProjectPath = _projectDir,
                 ProjectRootNamespace = _rootNamespace,
-                RelativeOutputPath = outputDir,
+                OutputPath = outputDir,
                 UseFluentApiOnly = useFluentApiOnly
             };
 
