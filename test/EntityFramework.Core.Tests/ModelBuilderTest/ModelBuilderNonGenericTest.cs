@@ -90,17 +90,17 @@ namespace Microsoft.Data.Entity.Tests
             public override TestEntityTypeBuilder<TEntity> BaseEntity(string baseEntityTypeName)
                 => Wrap(EntityTypeBuilder.BaseType(baseEntityTypeName));
 
-            public override TestKeyBuilder Key(Expression<Func<TEntity, object>> keyExpression)
-                => new TestKeyBuilder(EntityTypeBuilder.Key(keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+            public override TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression)
+                => new TestKeyBuilder(EntityTypeBuilder.HasKey(keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
-            public override TestKeyBuilder Key(params string[] propertyNames)
-                => new TestKeyBuilder(EntityTypeBuilder.Key(propertyNames));
+            public override TestKeyBuilder HasKey(params string[] propertyNames)
+                => new TestKeyBuilder(EntityTypeBuilder.HasKey(propertyNames));
 
-            public override TestKeyBuilder AlternateKey(Expression<Func<TEntity, object>> keyExpression)
-                => new TestKeyBuilder(EntityTypeBuilder.AlternateKey(keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
+            public override TestKeyBuilder HasAlternateKey(Expression<Func<TEntity, object>> keyExpression)
+                => new TestKeyBuilder(EntityTypeBuilder.HasAlternateKey(keyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
 
-            public override TestKeyBuilder AlternateKey(params string[] propertyNames)
-                => new TestKeyBuilder(EntityTypeBuilder.AlternateKey(propertyNames));
+            public override TestKeyBuilder HasAlternateKey(params string[] propertyNames)
+                => new TestKeyBuilder(EntityTypeBuilder.HasAlternateKey(propertyNames));
 
             public override TestPropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             {
@@ -123,11 +123,11 @@ namespace Microsoft.Data.Entity.Tests
             public override TestIndexBuilder Index(params string[] propertyNames)
                 => new TestIndexBuilder(EntityTypeBuilder.Index(propertyNames));
 
-            public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> Reference<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> reference = null)
-                => new NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.Reference(typeof(TRelatedEntity), reference?.GetPropertyAccess().Name));
+            public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> reference = null)
+                => new NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(typeof(TRelatedEntity), reference?.GetPropertyAccess().Name));
 
-            public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> Collection<TRelatedEntity>(Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
-                => new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.Collection(typeof(TRelatedEntity), collection?.GetPropertyAccess().Name));
+            public override TestCollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
+                => new NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(typeof(TRelatedEntity), collection?.GetPropertyAccess().Name));
         }
 
         protected class NonGenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>
@@ -144,14 +144,14 @@ namespace Microsoft.Data.Entity.Tests
             public override TestPropertyBuilder<TProperty> Annotation(string annotation, object value)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.Annotation(annotation, value));
 
-            public override TestPropertyBuilder<TProperty> Required(bool isRequired = true)
-                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.Required(isRequired));
+            public override TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsRequired(isRequired));
 
-            public override TestPropertyBuilder<TProperty> MaxLength(int maxLength)
-                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.MaxLength(maxLength));
+            public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasMaxLength(maxLength));
 
-            public override TestPropertyBuilder<TProperty> ConcurrencyToken(bool isConcurrencyToken = true)
-                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.ConcurrencyToken(isConcurrencyToken));
+            public override TestPropertyBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true)
+                => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsConcurrencyToken(isConcurrencyToken));
 
             public override TestPropertyBuilder<TProperty> ValueGeneratedNever()
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.ValueGeneratedNever());
@@ -174,11 +174,11 @@ namespace Microsoft.Data.Entity.Tests
 
             protected ReferenceNavigationBuilder ReferenceNavigationBuilder { get; }
 
-            public override TestReferenceCollectionBuilder<TRelatedEntity, TEntity> InverseCollection(Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
-                => new NonGenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(ReferenceNavigationBuilder.InverseCollection(collection?.GetPropertyAccess().Name));
+            public override TestReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> collection = null)
+                => new NonGenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(ReferenceNavigationBuilder.WithMany(collection?.GetPropertyAccess().Name));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> InverseReference(Expression<Func<TRelatedEntity, TEntity>> reference = null)
-                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.InverseReference(reference?.GetPropertyAccess().Name));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> reference = null)
+                => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder.WithOne(reference?.GetPropertyAccess().Name));
         }
 
         protected class NonGenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity> : TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
@@ -192,8 +192,8 @@ namespace Microsoft.Data.Entity.Tests
 
             private CollectionNavigationBuilder CollectionNavigationBuilder { get; }
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> InverseReference(Expression<Func<TRelatedEntity, TEntity>> reference = null)
-                => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder.InverseReference(reference?.GetPropertyAccess().Name));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> reference = null)
+                => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder.WithOne(reference?.GetPropertyAccess().Name));
         }
 
         protected class NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>

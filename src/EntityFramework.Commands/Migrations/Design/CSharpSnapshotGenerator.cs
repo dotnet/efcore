@@ -208,14 +208,14 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".ConcurrencyToken()");
+                        .Append(".IsConcurrencyToken()");
                 }
 
                 if (property.IsNullable != (property.ClrType.IsNullableType() && !property.IsPrimaryKey()))
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".Required()");
+                        .Append(".IsRequired()");
                 }
 
                 if (property.ValueGenerated != ValueGenerated.Never)
@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             stringBuilder
                 .AppendLine()
                 .AppendLine()
-                .Append(primary ? "b.Key(" : "b.AlternateKey(")
+                .Append(primary ? "b.HasKey(" : "b.HasAlternateKey(")
                 .Append(string.Join(", ", key.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");
 
@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .Append("b.Reference(")
+                .Append("b.HasOne(")
                 .Append(_code.Literal(foreignKey.PrincipalEntityType.Name))
                 .Append(")")
                 .AppendLine();
@@ -391,7 +391,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 if (foreignKey.IsUnique)
                 {
                     stringBuilder
-                        .AppendLine(".InverseReference()")
+                        .AppendLine(".WithOne()")
                         .Append(".ForeignKey(")
                         .Append(_code.Literal(foreignKey.DeclaringEntityType.Name))
                         .Append(", ")
@@ -414,7 +414,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 else
                 {
                     stringBuilder
-                        .AppendLine(".InverseCollection()")
+                        .AppendLine(".WithMany()")
                         .Append(".ForeignKey(")
                         .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
                         .Append(")");

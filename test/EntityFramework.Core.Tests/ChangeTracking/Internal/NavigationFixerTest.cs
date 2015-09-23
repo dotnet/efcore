@@ -911,28 +911,28 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<Product>(b =>
                 {
-                    b.Reference(e => e.AlternateProduct).InverseReference(e => e.OriginalProduct)
+                    b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
                         .ForeignKey<Product>(e => e.AlternateProductId);
 
-                    b.Reference(e => e.Detail).InverseReference(e => e.Product)
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product)
                         .ForeignKey<ProductDetail>(e => e.Id);
                 });
 
-            builder.Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
+            builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
             builder.Entity<ProductDetail>();
 
             builder.Entity<ProductPhoto>(b =>
                 {
-                    b.Key(e => new { e.ProductId, e.PhotoId });
-                    b.Collection(e => e.ProductTags).InverseReference(e => e.Photo)
+                    b.HasKey(e => new { e.ProductId, e.PhotoId });
+                    b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
                         .ForeignKey(e => new { e.ProductId, e.PhotoId });
                 });
 
             builder.Entity<ProductReview>(b =>
                 {
-                    b.Key(e => new { e.ProductId, e.ReviewId });
-                    b.Collection(e => e.ProductTags).InverseReference(e => e.Review)
+                    b.HasKey(e => new { e.ProductId, e.ReviewId });
+                    b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
                         .ForeignKey(e => new { e.ProductId, e.ReviewId });
                 });
 

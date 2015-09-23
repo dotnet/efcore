@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Blog>().Key(b => b.Url);
+                modelBuilder.Entity<Blog>().HasKey(b => b.Url);
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

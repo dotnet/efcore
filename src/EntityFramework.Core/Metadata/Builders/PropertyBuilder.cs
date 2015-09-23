@@ -76,9 +76,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether the property is required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder Required(bool required = true)
+        public virtual PropertyBuilder IsRequired(bool required = true)
         {
-            Builder.Required(required, ConfigurationSource.Explicit);
+            Builder.IsRequired(required, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -89,9 +89,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="maxLength"> The maximum length of data allowed in the property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder MaxLength(int maxLength)
+        public virtual PropertyBuilder HasMaxLength(int maxLength)
         {
-            Builder.MaxLength(maxLength, ConfigurationSource.Explicit);
+            Builder.HasMaxLength(maxLength, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -105,9 +105,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="concurrencyToken"> A value indicating whether this property is a concurrency token. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual PropertyBuilder ConcurrencyToken(bool concurrencyToken = true)
+        public virtual PropertyBuilder IsConcurrencyToken(bool concurrencyToken = true)
         {
-            Builder.ConcurrencyToken(concurrencyToken, ConfigurationSource.Explicit);
+            Builder.IsConcurrencyToken(concurrencyToken, ConfigurationSource.Explicit);
 
             return this;
         }

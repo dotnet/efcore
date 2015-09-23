@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(clrProperty, nameof(clrProperty));
 
             propertyBuilder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.DataAnnotation);
-            propertyBuilder.ConcurrencyToken(true, ConfigurationSource.DataAnnotation);
+            propertyBuilder.IsConcurrencyToken(true, ConfigurationSource.DataAnnotation);
 
             return propertyBuilder;
         }

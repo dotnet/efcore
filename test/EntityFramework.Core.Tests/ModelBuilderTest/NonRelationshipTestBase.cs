@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
 
-                modelBuilder.Entity<Customer>().Key(b => b.Id);
+                modelBuilder.Entity<Customer>().HasKey(b => b.Id);
 
                 var entity = model.GetEntityType(typeof(Customer));
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<int>(Customer.IdProperty.Name + 1);
                         b.Ignore(p => p.Details);
                         b.Ignore(p => p.Orders);
-                        b.Key(Customer.IdProperty.Name + 1);
+                        b.HasKey(Customer.IdProperty.Name + 1);
                     });
 
                 var entity = model.GetEntityType(typeof(Customer));
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Ignore(Customer.IdProperty.Name);
-                        b.Key(e => e.Id);
+                        b.HasKey(e => e.Id);
                     });
 
                 var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder
                     .Entity<Customer>()
-                    .Key(e => new { e.Id, e.Name });
+                    .HasKey(e => new { e.Id, e.Name });
 
                 var entity = model.GetEntityType(typeof(Customer));
 
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Property<string>(Customer.NameProperty.Name + "Shadow");
-                        b.Key(Customer.IdProperty.Name, Customer.NameProperty.Name + "Shadow");
+                        b.HasKey(Customer.IdProperty.Name, Customer.NameProperty.Name + "Shadow");
                     });
 
                 var entity = model.GetEntityType(typeof(Customer));
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var keyBuilder = modelBuilder
                     .Entity<Customer>()
-                    .Key(e => new { e.Id, e.Name });
+                    .HasKey(e => new { e.Id, e.Name });
 
                 keyBuilder.Annotation("A1", "V1")
                     .Annotation("A2", "V2");
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Tests
                 var entity = model.GetEntityType(typeof(Customer));
                 var key = entity.AddKey(entity.GetOrAddProperty(Customer.NameProperty));
 
-                modelBuilder.Entity<Customer>().Key(b => b.Name);
+                modelBuilder.Entity<Customer>().HasKey(b => b.Name);
 
                 Assert.Same(key, entity.GetKeys().Single());
                 Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Single().Name);
@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests
                 var model = new Model();
                 var modelBuilder = CreateModelBuilder(model);
 
-                modelBuilder.Entity<Customer>().AlternateKey(b => b.AlternateKey);
+                modelBuilder.Entity<Customer>().HasAlternateKey(b => b.AlternateKey);
 
                 var entity = model.GetEntityType(typeof(Customer));
 
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Property<int>(Customer.AlternateKeyProperty.Name + 1);
-                        b.AlternateKey(Customer.AlternateKeyProperty.Name + 1);
+                        b.HasAlternateKey(Customer.AlternateKeyProperty.Name + 1);
                     });
 
                 var entity = model.GetEntityType(typeof(Customer));
@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Customer>(b =>
                     {
                         b.Ignore(Customer.AlternateKeyProperty.Name);
-                        b.AlternateKey(e => e.AlternateKey);
+                        b.HasAlternateKey(e => e.AlternateKey);
                     });
 
                 var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
@@ -313,7 +313,7 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
-                entityBuilder.Key(e => e.Id);
+                entityBuilder.HasKey(e => e.Id);
                 entityBuilder.Ignore(e => e.Id);
 
                 Assert.Null(entityBuilder.Metadata.FindProperty(Customer.IdProperty.Name));
@@ -389,12 +389,12 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property(e => e.Up).Required();
-                        b.Property(e => e.Down).Required();
-                        b.Property<int>("Charm").Required();
-                        b.Property<string>("Strange").Required();
-                        b.Property<int>("Top").Required();
-                        b.Property<string>("Bottom").Required();
+                        b.Property(e => e.Up).IsRequired();
+                        b.Property(e => e.Down).IsRequired();
+                        b.Property<int>("Charm").IsRequired();
+                        b.Property<string>("Strange").IsRequired();
+                        b.Property<int>("Top").IsRequired();
+                        b.Property<string>("Bottom").IsRequired();
                     });
 
                 var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -415,9 +415,9 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property(e => e.Down).Required(false);
-                        b.Property<string>("Strange").Required(false);
-                        b.Property<string>("Bottom").Required(false);
+                        b.Property(e => e.Down).IsRequired(false);
+                        b.Property<string>("Strange").IsRequired(false);
+                        b.Property<string>("Bottom").IsRequired(false);
                     });
 
                 var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -437,15 +437,15 @@ namespace Microsoft.Data.Entity.Tests
                     {
                         Assert.Equal(
                             Strings.CannotBeNullable("Up", "Quarks", "Int32"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Required(false)).Message);
+                            Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).IsRequired(false)).Message);
 
                         Assert.Equal(
                             Strings.CannotBeNullable("Charm", "Quarks", "Int32"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").Required(false)).Message);
+                            Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").IsRequired(false)).Message);
 
                         Assert.Equal(
                             Strings.CannotBeNullable("Top", "Quarks", "Int32"),
-                            Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").Required(false)).Message);
+                            Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 
                 var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -492,12 +492,12 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property(e => e.Up).ConcurrencyToken();
-                        b.Property(e => e.Down).ConcurrencyToken(false);
-                        b.Property<int>("Charm").ConcurrencyToken(true);
-                        b.Property<string>("Strange").ConcurrencyToken(false);
-                        b.Property<int>("Top").ConcurrencyToken();
-                        b.Property<string>("Bottom").ConcurrencyToken(false);
+                        b.Property(e => e.Up).IsConcurrencyToken();
+                        b.Property(e => e.Down).IsConcurrencyToken(false);
+                        b.Property<int>("Charm").IsConcurrencyToken(true);
+                        b.Property<string>("Strange").IsConcurrencyToken(false);
+                        b.Property<int>("Top").IsConcurrencyToken();
+                        b.Property<string>("Bottom").IsConcurrencyToken(false);
                     });
 
                 var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Key(e => e.Id);
+                        b.HasKey(e => e.Id);
                         b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
                         b.Property(e => e.Down).ValueGeneratedNever();
                         b.Property<int>("Charm").ValueGeneratedOnAdd();
@@ -583,12 +583,12 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Quarks>(b =>
                     {
-                        b.Property(e => e.Up).MaxLength(0);
-                        b.Property(e => e.Down).MaxLength(100);
-                        b.Property<int>("Charm").MaxLength(0);
-                        b.Property<string>("Strange").MaxLength(100);
-                        b.Property<int>("Top").MaxLength(0);
-                        b.Property<string>("Bottom").MaxLength(100);
+                        b.Property(e => e.Up).HasMaxLength(0);
+                        b.Property(e => e.Down).HasMaxLength(100);
+                        b.Property<int>("Charm").HasMaxLength(0);
+                        b.Property<string>("Strange").HasMaxLength(100);
+                        b.Property<int>("Top").HasMaxLength(0);
+                        b.Property<string>("Bottom").HasMaxLength(100);
                     });
 
                 var entityType = model.GetEntityType(typeof(Quarks));
@@ -608,14 +608,14 @@ namespace Microsoft.Data.Entity.Tests
                 CreateModelBuilder()
                     .Entity<Quarks>()
                     .Property(e => e.Up)
-                    .Required()
+                    .IsRequired()
                     .Annotation("A", "V")
-                    .ConcurrencyToken()
+                    .IsConcurrencyToken()
                     .ValueGeneratedNever()
                     .ValueGeneratedOnAdd()
                     .ValueGeneratedOnAddOrUpdate()
-                    .MaxLength(100)
-                    .Required();
+                    .HasMaxLength(100)
+                    .IsRequired();
             }
 
             [Fact]

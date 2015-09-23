@@ -137,16 +137,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.Property(e => e.NullableSentinelInt).Metadata.SentinelValue = -1;
                     b.Property(e => e.SentinelString).Metadata.SentinelValue = "Excellent!";
 
-                    b.AlternateKey(e => e.NullableInt);
-                    b.AlternateKey(e => e.NullableSentinelInt);
-                    b.AlternateKey(e => e.Guid1);
-                    b.AlternateKey(e => e.Guid2);
-                    b.AlternateKey(e => e.NullableGuid1);
-                    b.AlternateKey(e => e.NullableGuid2);
-                    b.AlternateKey(e => e.String);
-                    b.AlternateKey(e => e.SentinelString);
-                    b.AlternateKey(e => e.ByteArray);
-                    b.AlternateKey(e => new { e.Id, e.String });
+                    b.HasAlternateKey(e => e.NullableInt);
+                    b.HasAlternateKey(e => e.NullableSentinelInt);
+                    b.HasAlternateKey(e => e.Guid1);
+                    b.HasAlternateKey(e => e.Guid2);
+                    b.HasAlternateKey(e => e.NullableGuid1);
+                    b.HasAlternateKey(e => e.NullableGuid2);
+                    b.HasAlternateKey(e => e.String);
+                    b.HasAlternateKey(e => e.SentinelString);
+                    b.HasAlternateKey(e => e.ByteArray);
+                    b.HasAlternateKey(e => new { e.Id, e.String });
                 });
 
             return builder.Model.GetEntityType(typeof(ScissorSister));

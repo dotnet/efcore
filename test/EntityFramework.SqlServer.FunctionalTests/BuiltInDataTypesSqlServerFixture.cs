@@ -71,13 +71,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             modelBuilder.Entity<MappedDataTypes>(b =>
                 {
-                    b.Key(e => e.Int);
+                    b.HasKey(e => e.Int);
                     b.Property(e => e.Int).ValueGeneratedNever();
                 });
 
             modelBuilder.Entity<MappedNullableDataTypes>(b =>
                 {
-                    b.Key(e => e.Int);
+                    b.HasKey(e => e.Int);
                     b.Property(e => e.Int)
                         .ValueGeneratedNever();
                 });

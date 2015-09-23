@@ -289,15 +289,15 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
-                    b.Key(c => c.Id);
+                    b.HasKey(c => c.Id);
                     b.Property(c => c.Value);
                 });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
-                    b.Key(c => c.Id);
-                    b.Reference<FakeEntity>()
-                        .InverseReference()
+                    b.HasKey(c => c.Id);
+                    b.HasOne<FakeEntity>()
+                        .WithOne()
                         .ForeignKey<RelatedFakeEntity>(c => c.Id);
                 });
 
@@ -310,22 +310,22 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             modelBuilder.Entity<FakeEntity>(b =>
                 {
-                    b.Key(c => c.Id);
+                    b.HasKey(c => c.Id);
                     b.Property(c => c.Value);
                 });
 
             modelBuilder.Entity<RelatedFakeEntity>(b =>
                 {
-                    b.Key(c => c.Id);
-                    b.Reference<FakeEntity>()
-                        .InverseReference()
+                    b.HasKey(c => c.Id);
+                    b.HasOne<FakeEntity>()
+                        .WithOne()
                         .ForeignKey<RelatedFakeEntity>(c => c.RelatedId);
                 });
 
             modelBuilder
                 .Entity<FakeEntity>()
-                .Reference<RelatedFakeEntity>()
-                .InverseReference()
+                .HasOne<RelatedFakeEntity>()
+                .WithOne()
                 .ForeignKey<FakeEntity>(c => c.RelatedId);
 
             return modelBuilder.Model;

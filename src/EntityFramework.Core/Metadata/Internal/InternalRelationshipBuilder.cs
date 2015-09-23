@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var property in propertyBuilders)
             {
-                var requiredSet = property.Required(isRequired, configurationSource);
+                var requiredSet = property.IsRequired(isRequired, configurationSource);
                 if (requiredSet
                     && isRequired != true)
                 {
@@ -504,7 +504,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 _principalKeyConfigurationSource = configurationSource.Max(_principalKeyConfigurationSource);
                 var principalEntityTypeBuilder = ModelBuilder.Entity(Metadata.PrincipalKey.DeclaringEntityType.Name, configurationSource);
-                principalEntityTypeBuilder.Key(properties.Select(p => p.Name).ToList(), configurationSource);
+                principalEntityTypeBuilder.HasKey(properties.Select(p => p.Name).ToList(), configurationSource);
                 return this;
             }
 

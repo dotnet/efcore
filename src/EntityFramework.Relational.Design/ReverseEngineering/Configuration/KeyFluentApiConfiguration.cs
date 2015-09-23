@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             FluentApi = string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}({1} => {2})",
-                nameof(EntityTypeBuilder.Key),
+                nameof(EntityTypeBuilder.HasKey),
                 lambdaIdentifier,
                 new ModelUtilities().GenerateLambdaToKey(properties, lambdaIdentifier));
         }

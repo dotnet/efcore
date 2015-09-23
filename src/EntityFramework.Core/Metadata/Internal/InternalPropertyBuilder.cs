@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual bool Required(bool? isRequired, ConfigurationSource configurationSource)
+        public virtual bool IsRequired(bool? isRequired, ConfigurationSource configurationSource)
         {
             if (CanSetRequired(isRequired, configurationSource))
             {
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => configurationSource.CanSet(_isRequiredConfigurationSource, Metadata.IsNullable.HasValue)
                || ((IProperty)Metadata).IsNullable == !isRequired;
 
-        public virtual bool MaxLength(int? maxLength, ConfigurationSource configurationSource)
+        public virtual bool HasMaxLength(int? maxLength, ConfigurationSource configurationSource)
         {
             if (configurationSource.CanSet(_maxLengthConfigurationSource, Metadata.GetMaxLength().HasValue)
                 || Metadata.GetMaxLength().Value == maxLength)
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return false;
         }
 
-        public virtual bool ConcurrencyToken(bool? isConcurrencyToken, ConfigurationSource configurationSource)
+        public virtual bool IsConcurrencyToken(bool? isConcurrencyToken, ConfigurationSource configurationSource)
         {
             if (configurationSource.CanSet(_isConcurrencyTokenConfigurationSource, Metadata.IsConcurrencyToken.HasValue)
                 || Metadata.IsConcurrencyToken.Value == isConcurrencyToken)

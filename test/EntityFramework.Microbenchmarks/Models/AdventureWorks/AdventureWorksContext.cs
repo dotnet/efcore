@@ -106,18 +106,18 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("Address", "Person");
 
-                entity.Property(e => e.AddressLine1).Required();
+                entity.Property(e => e.AddressLine1).IsRequired();
 
-                entity.Property(e => e.City).Required();
+                entity.Property(e => e.City).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.PostalCode).Required();
+                entity.Property(e => e.PostalCode).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
                 
-                entity.Reference(d => d.StateProvince)
-                      .InverseCollection(p => p.Address)
+                entity.HasOne(d => d.StateProvince)
+                      .WithMany(p => p.Address)
                       .ForeignKey(d => d.StateProvinceID);
             });
 
@@ -127,7 +127,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
             });
@@ -144,18 +144,18 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.StartDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.UnitMeasureCode).Required();
+                entity.Property(e => e.UnitMeasureCode).IsRequired();
 
-                entity.Reference(d => d.Component)
-                      .InverseCollection(p => p.BillOfMaterials)
+                entity.HasOne(d => d.Component)
+                      .WithMany(p => p.BillOfMaterials)
                       .ForeignKey(d => d.ComponentID);
 
-                entity.Reference(d => d.ProductAssembly)
-                      .InverseCollection(p => p.BillOfMaterialsNavigation)
+                entity.HasOne(d => d.ProductAssembly)
+                      .WithMany(p => p.BillOfMaterialsNavigation)
                       .ForeignKey(d => d.ProductAssemblyID);
 
-                entity.Reference(d => d.UnitMeasureCodeNavigation)
-                      .InverseCollection(p => p.BillOfMaterials)
+                entity.HasOne(d => d.UnitMeasureCodeNavigation)
+                      .WithMany(p => p.BillOfMaterials)
                       .ForeignKey(d => d.UnitMeasureCode);
             });
 
@@ -170,7 +170,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
             modelBuilder.Entity<BusinessEntityAddress>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.AddressID, e.AddressTypeID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.AddressID, e.AddressTypeID });
 
                 entity.ToTable("BusinessEntityAddress", "Person");
 
@@ -178,22 +178,22 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.Address)
-                      .InverseCollection(p => p.BusinessEntityAddress)
+                entity.HasOne(d => d.Address)
+                      .WithMany(p => p.BusinessEntityAddress)
                       .ForeignKey(d => d.AddressID);
 
-                entity.Reference(d => d.AddressType)
-                      .InverseCollection(p => p.BusinessEntityAddress)
+                entity.HasOne(d => d.AddressType)
+                      .WithMany(p => p.BusinessEntityAddress)
                       .ForeignKey(d => d.AddressTypeID);
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.BusinessEntityAddress)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.BusinessEntityAddress)
                       .ForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<BusinessEntityContact>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.PersonID, e.ContactTypeID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.PersonID, e.ContactTypeID });
 
                 entity.ToTable("BusinessEntityContact", "Person");
 
@@ -201,16 +201,16 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.BusinessEntityContact)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.BusinessEntityContact)
                       .ForeignKey(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.ContactType)
-                      .InverseCollection(p => p.BusinessEntityContact)
+                entity.HasOne(d => d.ContactType)
+                      .WithMany(p => p.BusinessEntityContact)
                       .ForeignKey(d => d.ContactTypeID);
 
-                entity.Reference(d => d.Person)
-                      .InverseCollection(p => p.BusinessEntityContact)
+                entity.HasOne(d => d.Person)
+                      .WithMany(p => p.BusinessEntityContact)
                       .ForeignKey(d => d.PersonID);
             });
 
@@ -220,34 +220,34 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<CountryRegion>(entity =>
             {
-                entity.Key(e => e.CountryRegionCode);
+                entity.HasKey(e => e.CountryRegionCode);
 
                 entity.ToTable("CountryRegion", "Person");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<CountryRegionCurrency>(entity =>
             {
-                entity.Key(e => new { e.CountryRegionCode, e.CurrencyCode });
+                entity.HasKey(e => new { e.CountryRegionCode, e.CurrencyCode });
 
                 entity.ToTable("CountryRegionCurrency", "Sales");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.CountryRegionCodeNavigation)
-                      .InverseCollection(p => p.CountryRegionCurrency)
+                entity.HasOne(d => d.CountryRegionCodeNavigation)
+                      .WithMany(p => p.CountryRegionCurrency)
                       .ForeignKey(d => d.CountryRegionCode);
 
-                entity.Reference(d => d.CurrencyCodeNavigation)
-                      .InverseCollection(p => p.CountryRegionCurrency)
+                entity.HasOne(d => d.CurrencyCodeNavigation)
+                      .WithMany(p => p.CountryRegionCurrency)
                       .ForeignKey(d => d.CurrencyCode);
             });
 
@@ -255,9 +255,9 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("CreditCard", "Sales");
 
-                entity.Property(e => e.CardNumber).Required();
+                entity.Property(e => e.CardNumber).IsRequired();
 
-                entity.Property(e => e.CardType).Required();
+                entity.Property(e => e.CardType).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
             });
@@ -268,36 +268,36 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<Currency>(entity =>
             {
-                entity.Key(e => e.CurrencyCode);
+                entity.HasKey(e => e.CurrencyCode);
 
                 entity.ToTable("Currency", "Sales");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<CurrencyRate>(entity =>
             {
                 entity.ToTable("CurrencyRate", "Sales");
 
-                entity.Property(e => e.FromCurrencyCode).Required();
+                entity.Property(e => e.FromCurrencyCode).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.ToCurrencyCode).Required();
+                entity.Property(e => e.ToCurrencyCode).IsRequired();
 
-                entity.Reference(d => d.FromCurrencyCodeNavigation)
-                      .InverseCollection(p => p.CurrencyRate)
+                entity.HasOne(d => d.FromCurrencyCodeNavigation)
+                      .WithMany(p => p.CurrencyRate)
                       .ForeignKey(d => d.FromCurrencyCode);
 
-                entity.Reference(d => d.ToCurrencyCodeNavigation)
-                      .InverseCollection(p => p.CurrencyRateNavigation)
+                entity.HasOne(d => d.ToCurrencyCodeNavigation)
+                      .WithMany(p => p.CurrencyRateNavigation)
                       .ForeignKey(d => d.ToCurrencyCode);
             });
 
@@ -306,23 +306,23 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 entity.ToTable("Customer", "Sales");
 
                 entity.Property(e => e.AccountNumber)
-                    .Required()
+                    .IsRequired()
                     .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.Person)
-                      .InverseCollection(p => p.Customer)
+                entity.HasOne(d => d.Person)
+                      .WithMany(p => p.Customer)
                       .ForeignKey(d => d.PersonID);
 
-                entity.Reference(d => d.Store)
-                      .InverseCollection(p => p.Customer)
+                entity.HasOne(d => d.Store)
+                      .WithMany(p => p.Customer)
                       .ForeignKey(d => d.StoreID);
 
-                entity.Reference(d => d.Territory)
-                      .InverseCollection(p => p.Customer)
+                entity.HasOne(d => d.Territory)
+                      .WithMany(p => p.Customer)
                       .ForeignKey(d => d.TerritoryID);
             });
 
@@ -330,16 +330,16 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("Department", "HumanResources");
 
-                entity.Property(e => e.GroupName).Required();
+                entity.Property(e => e.GroupName).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<EmailAddress>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.EmailAddressID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.EmailAddressID });
 
                 entity.ToTable("EmailAddress", "Person");
 
@@ -349,30 +349,30 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.EmailAddress)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.EmailAddress)
                       .ForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<Employee>(entity =>
             {
-                entity.Key(e => e.BusinessEntityID);
+                entity.HasKey(e => e.BusinessEntityID);
 
                 entity.ToTable("Employee", "HumanResources");
 
                 entity.Property(e => e.CurrentFlag).HasDefaultValue(true);
 
-                entity.Property(e => e.Gender).Required();
+                entity.Property(e => e.Gender).IsRequired();
 
-                entity.Property(e => e.JobTitle).Required();
+                entity.Property(e => e.JobTitle).IsRequired();
 
-                entity.Property(e => e.LoginID).Required();
+                entity.Property(e => e.LoginID).IsRequired();
 
-                entity.Property(e => e.MaritalStatus).Required();
+                entity.Property(e => e.MaritalStatus).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.NationalIDNumber).Required();
+                entity.Property(e => e.NationalIDNumber).IsRequired();
 
                 entity.Property(e => e.OrganizationLevel).ValueGeneratedOnAddOrUpdate();
 
@@ -384,42 +384,42 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.VacationHours).HasDefaultValue(0);
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseReference(p => p.Employee)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithOne(p => p.Employee)
                       .ForeignKey<Employee>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<EmployeeDepartmentHistory>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.StartDate, e.DepartmentID, e.ShiftID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.StartDate, e.DepartmentID, e.ShiftID });
 
                 entity.ToTable("EmployeeDepartmentHistory", "HumanResources");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.EmployeeDepartmentHistory)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.EmployeeDepartmentHistory)
                       .ForeignKey(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.Department)
-                      .InverseCollection(p => p.EmployeeDepartmentHistory)
+                entity.HasOne(d => d.Department)
+                      .WithMany(p => p.EmployeeDepartmentHistory)
                       .ForeignKey(d => d.DepartmentID);
 
-                entity.Reference(d => d.Shift)
-                      .InverseCollection(p => p.EmployeeDepartmentHistory)
+                entity.HasOne(d => d.Shift)
+                      .WithMany(p => p.EmployeeDepartmentHistory)
                       .ForeignKey(d => d.ShiftID);
             });
 
             modelBuilder.Entity<EmployeePayHistory>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.RateChangeDate });
+                entity.HasKey(e => new { e.BusinessEntityID, e.RateChangeDate });
 
                 entity.ToTable("EmployeePayHistory", "HumanResources");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.EmployeePayHistory)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.EmployeePayHistory)
                       .ForeignKey(d => d.BusinessEntityID);
             });
 
@@ -436,8 +436,8 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.JobCandidate)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.JobCandidate)
                       .ForeignKey(d => d.BusinessEntityID);
             });
 
@@ -453,82 +453,82 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<Password>(entity =>
             {
-                entity.Key(e => e.BusinessEntityID);
+                entity.HasKey(e => e.BusinessEntityID);
 
                 entity.ToTable("Password", "Person");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.PasswordHash).Required();
+                entity.Property(e => e.PasswordHash).IsRequired();
 
-                entity.Property(e => e.PasswordSalt).Required();
+                entity.Property(e => e.PasswordSalt).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.BusinessEntity).InverseReference(p => p.Password).ForeignKey<Password>(d => d.BusinessEntityID);
+                entity.HasOne(d => d.BusinessEntity).WithOne(p => p.Password).ForeignKey<Password>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<Person>(entity =>
             {
-                entity.Key(e => e.BusinessEntityID);
+                entity.HasKey(e => e.BusinessEntityID);
 
                 entity.ToTable("Person", "Person");
 
                 entity.Property(e => e.EmailPromotion).HasDefaultValue(0);
 
-                entity.Property(e => e.FirstName).Required();
+                entity.Property(e => e.FirstName).IsRequired();
 
-                entity.Property(e => e.LastName).Required();
+                entity.Property(e => e.LastName).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
                 entity.Property(e => e.NameStyle).HasDefaultValue(false);
 
-                entity.Property(e => e.PersonType).Required();
+                entity.Property(e => e.PersonType).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseReference(p => p.Person)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithOne(p => p.Person)
                       .ForeignKey<Person>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<PersonCreditCard>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.CreditCardID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.CreditCardID });
 
                 entity.ToTable("PersonCreditCard", "Sales");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.PersonCreditCard)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.PersonCreditCard)
                       .ForeignKey(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.CreditCard)
-                      .InverseCollection(p => p.PersonCreditCard)
+                entity.HasOne(d => d.CreditCard)
+                      .WithMany(p => p.PersonCreditCard)
                       .ForeignKey(d => d.CreditCardID);
             });
 
             modelBuilder.Entity<PersonPhone>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.PhoneNumber, e.PhoneNumberTypeID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.PhoneNumber, e.PhoneNumberTypeID });
 
                 entity.ToTable("PersonPhone", "Person");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.PersonPhone)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.PersonPhone)
                       .ForeignKey(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.PhoneNumberType)
-                      .InverseCollection(p => p.PersonPhone)
+                entity.HasOne(d => d.PhoneNumberType)
+                      .WithMany(p => p.PersonPhone)
                       .ForeignKey(d => d.PhoneNumberTypeID);
             });
 
@@ -538,7 +538,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<Product>(entity =>
@@ -551,28 +551,28 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
-                entity.Property(e => e.ProductNumber).Required();
+                entity.Property(e => e.ProductNumber).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
                 entity.Property(e => e.Weight).HasColumnType("decimal(8, 2)");
 
-                entity.Reference(d => d.ProductModel)
-                      .InverseCollection(p => p.Product)
+                entity.HasOne(d => d.ProductModel)
+                      .WithMany(p => p.Product)
                       .ForeignKey(d => d.ProductModelID);
 
-                entity.Reference(d => d.ProductSubcategory)
-                      .InverseCollection(p => p.Product)
+                entity.HasOne(d => d.ProductSubcategory)
+                      .WithMany(p => p.Product)
                       .ForeignKey(d => d.ProductSubcategoryID);
 
-                entity.Reference(d => d.SizeUnitMeasureCodeNavigation)
-                      .InverseCollection(p => p.Product)
+                entity.HasOne(d => d.SizeUnitMeasureCodeNavigation)
+                      .WithMany(p => p.Product)
                       .ForeignKey(d => d.SizeUnitMeasureCode);
 
-                entity.Reference(d => d.WeightUnitMeasureCodeNavigation)
-                      .InverseCollection(p => p.ProductNavigation)
+                entity.HasOne(d => d.WeightUnitMeasureCodeNavigation)
+                      .WithMany(p => p.ProductNavigation)
                       .ForeignKey(d => d.WeightUnitMeasureCode);
             });
 
@@ -582,21 +582,21 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
             });
 
             modelBuilder.Entity<ProductCostHistory>(entity =>
             {
-                entity.Key(e => new { e.ProductID, e.StartDate });
+                entity.HasKey(e => new { e.ProductID, e.StartDate });
 
                 entity.ToTable("ProductCostHistory", "Production");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductCostHistory)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductCostHistory)
                       .ForeignKey(d => d.ProductID);
             });
 
@@ -604,7 +604,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("ProductDescription", "Production");
 
-                entity.Property(e => e.Description).Required();
+                entity.Property(e => e.Description).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
@@ -613,20 +613,20 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
             modelBuilder.Entity<ProductDocument>(entity =>
             {
-                entity.Key(e => new { e.ProductID, e.DocumentNode });
+                entity.HasKey(e => new { e.ProductID, e.DocumentNode });
 
                 entity.ToTable("ProductDocument", "Production");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductDocument)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductDocument)
                       .ForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductInventory>(entity =>
             {
-                entity.Key(e => new { e.ProductID, e.LocationID });
+                entity.HasKey(e => new { e.ProductID, e.LocationID });
 
                 entity.ToTable("ProductInventory", "Production");
 
@@ -636,27 +636,27 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Property(e => e.Shelf).Required();
+                entity.Property(e => e.Shelf).IsRequired();
 
-                entity.Reference(d => d.Location)
-                      .InverseCollection(p => p.ProductInventory)
+                entity.HasOne(d => d.Location)
+                      .WithMany(p => p.ProductInventory)
                       .ForeignKey(d => d.LocationID);
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductInventory)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductInventory)
                       .ForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductListPriceHistory>(entity =>
             {
-                entity.Key(e => new { e.ProductID, e.StartDate });
+                entity.HasKey(e => new { e.ProductID, e.StartDate });
 
                 entity.ToTable("ProductListPriceHistory", "Production");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductListPriceHistory)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductListPriceHistory)
                       .ForeignKey(d => d.ProductID);
             });
 
@@ -666,46 +666,46 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
             });
 
             modelBuilder.Entity<ProductModelIllustration>(entity =>
             {
-                entity.Key(e => new { e.ProductModelID, e.IllustrationID });
+                entity.HasKey(e => new { e.ProductModelID, e.IllustrationID });
 
                 entity.ToTable("ProductModelIllustration", "Production");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.Illustration)
-                      .InverseCollection(p => p.ProductModelIllustration)
+                entity.HasOne(d => d.Illustration)
+                      .WithMany(p => p.ProductModelIllustration)
                       .ForeignKey(d => d.IllustrationID);
 
-                entity.Reference(d => d.ProductModel)
-                      .InverseCollection(p => p.ProductModelIllustration)
+                entity.HasOne(d => d.ProductModel)
+                      .WithMany(p => p.ProductModelIllustration)
                       .ForeignKey(d => d.ProductModelID);
             });
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>(entity =>
             {
-                entity.Key(e => new { e.ProductModelID, e.ProductDescriptionID, e.CultureID });
+                entity.HasKey(e => new { e.ProductModelID, e.ProductDescriptionID, e.CultureID });
 
                 entity.ToTable("ProductModelProductDescriptionCulture", "Production");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.Culture)
-                      .InverseCollection(p => p.ProductModelProductDescriptionCulture)
+                entity.HasOne(d => d.Culture)
+                      .WithMany(p => p.ProductModelProductDescriptionCulture)
                       .ForeignKey(d => d.CultureID);
 
-                entity.Reference(d => d.ProductDescription)
-                      .InverseCollection(p => p.ProductModelProductDescriptionCulture)
+                entity.HasOne(d => d.ProductDescription)
+                      .WithMany(p => p.ProductModelProductDescriptionCulture)
                       .ForeignKey(d => d.ProductDescriptionID);
 
-                entity.Reference(d => d.ProductModel)
-                      .InverseCollection(p => p.ProductModelProductDescriptionCulture)
+                entity.HasOne(d => d.ProductModel)
+                      .WithMany(p => p.ProductModelProductDescriptionCulture)
                       .ForeignKey(d => d.ProductModelID);
             });
 
@@ -718,7 +718,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
             modelBuilder.Entity<ProductProductPhoto>(entity =>
             {
-                entity.Key(e => new { e.ProductID, e.ProductPhotoID });
+                entity.HasKey(e => new { e.ProductID, e.ProductPhotoID });
 
                 entity.ToTable("ProductProductPhoto", "Production");
 
@@ -726,12 +726,12 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.Primary).HasDefaultValue(false);
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductProductPhoto)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductProductPhoto)
                       .ForeignKey(d => d.ProductID);
 
-                entity.Reference(d => d.ProductPhoto)
-                      .InverseCollection(p => p.ProductProductPhoto)
+                entity.HasOne(d => d.ProductPhoto)
+                      .WithMany(p => p.ProductProductPhoto)
                       .ForeignKey(d => d.ProductPhotoID);
             });
 
@@ -739,16 +739,16 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("ProductReview", "Production");
 
-                entity.Property(e => e.EmailAddress).Required();
+                entity.Property(e => e.EmailAddress).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
                 entity.Property(e => e.ReviewDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.ReviewerName).Required();
+                entity.Property(e => e.ReviewerName).IsRequired();
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductReview)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductReview)
                       .ForeignKey(d => d.ProductID);
             });
 
@@ -758,41 +758,41 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.ProductCategory)
-                      .InverseCollection(p => p.ProductSubcategory)
+                entity.HasOne(d => d.ProductCategory)
+                      .WithMany(p => p.ProductSubcategory)
                       .ForeignKey(d => d.ProductCategoryID);
             });
 
             modelBuilder.Entity<ProductVendor>(entity =>
             {
-                entity.Key(e => new { e.ProductID, e.BusinessEntityID });
+                entity.HasKey(e => new { e.ProductID, e.BusinessEntityID });
 
                 entity.ToTable("ProductVendor", "Purchasing");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.UnitMeasureCode).Required();
+                entity.Property(e => e.UnitMeasureCode).IsRequired();
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.ProductVendor)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.ProductVendor)
                       .ForeignKey(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ProductVendor)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ProductVendor)
                       .ForeignKey(d => d.ProductID);
 
-                entity.Reference(d => d.UnitMeasureCodeNavigation)
-                      .InverseCollection(p => p.ProductVendor)
+                entity.HasOne(d => d.UnitMeasureCodeNavigation)
+                      .WithMany(p => p.ProductVendor)
                       .ForeignKey(d => d.UnitMeasureCode);
             });
 
             modelBuilder.Entity<PurchaseOrderDetail>(entity =>
             {
-                entity.Key(e => new { e.PurchaseOrderID, e.PurchaseOrderDetailID });
+                entity.HasKey(e => new { e.PurchaseOrderID, e.PurchaseOrderDetailID });
 
                 entity.ToTable("PurchaseOrderDetail", "Purchasing");
 
@@ -808,18 +808,18 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                     .ValueGeneratedOnAddOrUpdate()
                     .HasColumnType("decimal(9, 2)");
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.PurchaseOrderDetail)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.PurchaseOrderDetail)
                       .ForeignKey(d => d.ProductID);
 
-                entity.Reference(d => d.PurchaseOrder)
-                      .InverseCollection(p => p.PurchaseOrderDetail)
+                entity.HasOne(d => d.PurchaseOrder)
+                      .WithMany(p => p.PurchaseOrderDetail)
                       .ForeignKey(d => d.PurchaseOrderID);
             });
 
             modelBuilder.Entity<PurchaseOrderHeader>(entity =>
             {
-                entity.Key(e => e.PurchaseOrderID);
+                entity.HasKey(e => e.PurchaseOrderID);
 
                 entity.ToTable("PurchaseOrderHeader", "Purchasing");
 
@@ -839,22 +839,22 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.TotalDue).ValueGeneratedOnAddOrUpdate();
 
-                entity.Reference(d => d.Employee)
-                      .InverseCollection(p => p.PurchaseOrderHeader)
+                entity.HasOne(d => d.Employee)
+                      .WithMany(p => p.PurchaseOrderHeader)
                       .ForeignKey(d => d.EmployeeID);
 
-                entity.Reference(d => d.ShipMethod)
-                      .InverseCollection(p => p.PurchaseOrderHeader)
+                entity.HasOne(d => d.ShipMethod)
+                      .WithMany(p => p.PurchaseOrderHeader)
                       .ForeignKey(d => d.ShipMethodID);
 
-                entity.Reference(d => d.Vendor)
-                      .InverseCollection(p => p.PurchaseOrderHeader)
+                entity.HasOne(d => d.Vendor)
+                      .WithMany(p => p.PurchaseOrderHeader)
                       .ForeignKey(d => d.VendorID);
             });
 
             modelBuilder.Entity<SalesOrderDetail>(entity =>
             {
-                entity.Key(e => new { e.SalesOrderID, e.SalesOrderDetailID });
+                entity.HasKey(e => new { e.SalesOrderID, e.SalesOrderDetailID });
 
                 entity.ToTable("SalesOrderDetail", "Sales");
 
@@ -868,18 +868,18 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.UnitPriceDiscount).HasDefaultValue(0.0m);
 
-                entity.Reference(d => d.SalesOrder)
-                      .InverseCollection(p => p.SalesOrderDetail)
+                entity.HasOne(d => d.SalesOrder)
+                      .WithMany(p => p.SalesOrderDetail)
                       .ForeignKey(d => d.SalesOrderID);
 
-                entity.Reference(d => d.SpecialOfferProduct)
-                      .InverseCollection(p => p.SalesOrderDetail)
+                entity.HasOne(d => d.SpecialOfferProduct)
+                      .WithMany(p => p.SalesOrderDetail)
                       .ForeignKey(d => new { d.SpecialOfferID, d.ProductID });
             });
 
             modelBuilder.Entity<SalesOrderHeader>(entity =>
             {
-                entity.Key(e => e.SalesOrderID);
+                entity.HasKey(e => e.SalesOrderID);
 
                 entity.ToTable("SalesOrderHeader", "Sales");
 
@@ -896,7 +896,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
                 entity.Property(e => e.SalesOrderNumber)
-                    .Required()
+                    .IsRequired()
                     .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.Status).HasDefaultValue(1);
@@ -907,59 +907,59 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.TotalDue).ValueGeneratedOnAddOrUpdate();
 
-                entity.Reference(d => d.BillToAddress)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.BillToAddress)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.BillToAddressID);
 
-                entity.Reference(d => d.CreditCard)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.CreditCard)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.CreditCardID);
 
-                entity.Reference(d => d.CurrencyRate)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.CurrencyRate)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.CurrencyRateID);
 
-                entity.Reference(d => d.Customer)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.Customer)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.CustomerID);
 
-                entity.Reference(d => d.SalesPerson)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.SalesPerson)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.SalesPersonID);
 
-                entity.Reference(d => d.ShipMethod)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.ShipMethod)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.ShipMethodID);
 
-                entity.Reference(d => d.ShipToAddress)
-                      .InverseCollection(p => p.SalesOrderHeaderNavigation)
+                entity.HasOne(d => d.ShipToAddress)
+                      .WithMany(p => p.SalesOrderHeaderNavigation)
                       .ForeignKey(d => d.ShipToAddressID);
 
-                entity.Reference(d => d.Territory)
-                      .InverseCollection(p => p.SalesOrderHeader)
+                entity.HasOne(d => d.Territory)
+                      .WithMany(p => p.SalesOrderHeader)
                       .ForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<SalesOrderHeaderSalesReason>(entity =>
             {
-                entity.Key(e => new { e.SalesOrderID, e.SalesReasonID });
+                entity.HasKey(e => new { e.SalesOrderID, e.SalesReasonID });
 
                 entity.ToTable("SalesOrderHeaderSalesReason", "Sales");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Reference(d => d.SalesOrder)
-                      .InverseCollection(p => p.SalesOrderHeaderSalesReason)
+                entity.HasOne(d => d.SalesOrder)
+                      .WithMany(p => p.SalesOrderHeaderSalesReason)
                       .ForeignKey(d => d.SalesOrderID);
 
-                entity.Reference(d => d.SalesReason)
-                      .InverseCollection(p => p.SalesOrderHeaderSalesReason)
+                entity.HasOne(d => d.SalesReason)
+                      .WithMany(p => p.SalesOrderHeaderSalesReason)
                       .ForeignKey(d => d.SalesReasonID);
             });
 
             modelBuilder.Entity<SalesPerson>(entity =>
             {
-                entity.Key(e => e.BusinessEntityID);
+                entity.HasKey(e => e.BusinessEntityID);
 
                 entity.ToTable("SalesPerson", "Sales");
 
@@ -975,18 +975,18 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.SalesYTD).HasDefaultValue(0.00m);
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseReference(p => p.SalesPerson)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithOne(p => p.SalesPerson)
                       .ForeignKey<SalesPerson>(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.Territory)
-                      .InverseCollection(p => p.SalesPerson)
+                entity.HasOne(d => d.Territory)
+                      .WithMany(p => p.SalesPerson)
                       .ForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<SalesPersonQuotaHistory>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.QuotaDate });
+                entity.HasKey(e => new { e.BusinessEntityID, e.QuotaDate });
 
                 entity.ToTable("SalesPersonQuotaHistory", "Sales");
 
@@ -994,8 +994,8 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
                 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.SalesPersonQuotaHistory)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.SalesPersonQuotaHistory)
                       .ForeignKey(d => d.BusinessEntityID);
             });
 
@@ -1005,9 +1005,9 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
-                entity.Property(e => e.ReasonType).Required();
+                entity.Property(e => e.ReasonType).IsRequired();
             });
 
             modelBuilder.Entity<SalesTaxRate>(entity =>
@@ -1016,20 +1016,20 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
                 
                 entity.Property(e => e.TaxRate).HasDefaultValue(0.00m);
                 
-                entity.Reference(d => d.StateProvince)
-                      .InverseCollection(p => p.SalesTaxRate)
+                entity.HasOne(d => d.StateProvince)
+                      .WithMany(p => p.SalesTaxRate)
                       .ForeignKey(d => d.StateProvinceID);
             });
 
             modelBuilder.Entity<SalesTerritory>(entity =>
             {
-                entity.Key(e => e.TerritoryID);
+                entity.HasKey(e => e.TerritoryID);
 
                 entity.ToTable("SalesTerritory", "Sales");
 
@@ -1037,13 +1037,13 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.CostYTD).HasDefaultValue(0.00m);
 
-                entity.Property(e => e.CountryRegionCode).Required();
+                entity.Property(e => e.CountryRegionCode).IsRequired();
 
-                entity.Property(e => e.Group).Required();
+                entity.Property(e => e.Group).IsRequired();
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
@@ -1051,14 +1051,14 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.SalesYTD).HasDefaultValue(0.00m);
 
-                entity.Reference(d => d.CountryRegionCodeNavigation)
-                      .InverseCollection(p => p.SalesTerritory)
+                entity.HasOne(d => d.CountryRegionCodeNavigation)
+                      .WithMany(p => p.SalesTerritory)
                       .ForeignKey(d => d.CountryRegionCode);
             });
 
             modelBuilder.Entity<SalesTerritoryHistory>(entity =>
             {
-                entity.Key(e => new { e.BusinessEntityID, e.StartDate, e.TerritoryID });
+                entity.HasKey(e => new { e.BusinessEntityID, e.StartDate, e.TerritoryID });
 
                 entity.ToTable("SalesTerritoryHistory", "Sales");
 
@@ -1066,12 +1066,12 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseCollection(p => p.SalesTerritoryHistory)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithMany(p => p.SalesTerritoryHistory)
                       .ForeignKey(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.Territory)
-                      .InverseCollection(p => p.SalesTerritoryHistory)
+                entity.HasOne(d => d.Territory)
+                      .WithMany(p => p.SalesTerritoryHistory)
                       .ForeignKey(d => d.TerritoryID);
             });
 
@@ -1081,7 +1081,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<Shift>(entity =>
@@ -1090,7 +1090,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<ShipMethod>(entity =>
@@ -1099,7 +1099,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
@@ -1118,8 +1118,8 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.Property(e => e.Quantity).HasDefaultValue(1);
                 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.ShoppingCartItem)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.ShoppingCartItem)
                       .ForeignKey(d => d.ProductID);
             });
 
@@ -1127,9 +1127,9 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("SpecialOffer", "Sales");
 
-                entity.Property(e => e.Category).Required();
+                entity.Property(e => e.Category).IsRequired();
 
-                entity.Property(e => e.Description).Required();
+                entity.Property(e => e.Description).IsRequired();
 
                 entity.Property(e => e.DiscountPct).HasDefaultValue(0.00m);
                 
@@ -1139,12 +1139,12 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
                 
-                entity.Property(e => e.Type).Required();
+                entity.Property(e => e.Type).IsRequired();
             });
 
             modelBuilder.Entity<SpecialOfferProduct>(entity =>
             {
-                entity.Key(e => new { e.SpecialOfferID, e.ProductID });
+                entity.HasKey(e => new { e.SpecialOfferID, e.ProductID });
 
                 entity.ToTable("SpecialOfferProduct", "Sales");
 
@@ -1152,12 +1152,12 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.SpecialOfferProduct)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.SpecialOfferProduct)
                       .ForeignKey(d => d.ProductID);
 
-                entity.Reference(d => d.SpecialOffer)
-                      .InverseCollection(p => p.SpecialOfferProduct)
+                entity.HasOne(d => d.SpecialOffer)
+                      .WithMany(p => p.SpecialOfferProduct)
                       .ForeignKey(d => d.SpecialOfferID);
             });
 
@@ -1165,51 +1165,51 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
             {
                 entity.ToTable("StateProvince", "Person");
 
-                entity.Property(e => e.CountryRegionCode).Required();
+                entity.Property(e => e.CountryRegionCode).IsRequired();
 
                 entity.Property(e => e.IsOnlyStateProvinceFlag).HasDefaultValue(true);
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Property(e => e.StateProvinceCode).Required();
+                entity.Property(e => e.StateProvinceCode).IsRequired();
                 
-                entity.Reference(d => d.CountryRegionCodeNavigation)
-                      .InverseCollection(p => p.StateProvince)
+                entity.HasOne(d => d.CountryRegionCodeNavigation)
+                      .WithMany(p => p.StateProvince)
                       .ForeignKey(d => d.CountryRegionCode);
 
-                entity.Reference(d => d.Territory)
-                      .InverseCollection(p => p.StateProvince)
+                entity.HasOne(d => d.Territory)
+                      .WithMany(p => p.StateProvince)
                       .ForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<Store>(entity =>
             {
-                entity.Key(e => e.BusinessEntityID);
+                entity.HasKey(e => e.BusinessEntityID);
 
                 entity.ToTable("Store", "Sales");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseReference(p => p.Store)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithOne(p => p.Store)
                       .ForeignKey<Store>(d => d.BusinessEntityID);
 
-                entity.Reference(d => d.SalesPerson)
-                      .InverseCollection(p => p.Store)
+                entity.HasOne(d => d.SalesPerson)
+                      .WithMany(p => p.Store)
                       .ForeignKey(d => d.SalesPersonID);
             });
 
             modelBuilder.Entity<TransactionHistory>(entity =>
             {
-                entity.Key(e => e.TransactionID);
+                entity.HasKey(e => e.TransactionID);
 
                 entity.ToTable("TransactionHistory", "Production");
                 
@@ -1219,16 +1219,16 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.TransactionDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.TransactionType).Required();
+                entity.Property(e => e.TransactionType).IsRequired();
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.TransactionHistory)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.TransactionHistory)
                       .ForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<TransactionHistoryArchive>(entity =>
             {
-                entity.Key(e => e.TransactionID);
+                entity.HasKey(e => e.TransactionID);
 
                 entity.ToTable("TransactionHistoryArchive", "Production");
                 
@@ -1238,38 +1238,38 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.TransactionDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.TransactionType).Required();
+                entity.Property(e => e.TransactionType).IsRequired();
             });
 
             modelBuilder.Entity<UnitMeasure>(entity =>
             {
-                entity.Key(e => e.UnitMeasureCode);
+                entity.HasKey(e => e.UnitMeasureCode);
 
                 entity.ToTable("UnitMeasure", "Production");
 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
             });
 
             modelBuilder.Entity<Vendor>(entity =>
             {
-                entity.Key(e => e.BusinessEntityID);
+                entity.HasKey(e => e.BusinessEntityID);
 
                 entity.ToTable("Vendor", "Purchasing");
 
-                entity.Property(e => e.AccountNumber).Required();
+                entity.Property(e => e.AccountNumber).IsRequired();
 
                 entity.Property(e => e.ActiveFlag).HasDefaultValue(true);
                 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
                 entity.Property(e => e.PreferredVendorStatus).HasDefaultValue(true);
 
-                entity.Reference(d => d.BusinessEntity)
-                      .InverseReference(p => p.Vendor)
+                entity.HasOne(d => d.BusinessEntity)
+                      .WithOne(p => p.Vendor)
                       .ForeignKey<Vendor>(d => d.BusinessEntityID);
             });
 
@@ -1281,18 +1281,18 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.Property(e => e.StockedQty).ValueGeneratedOnAddOrUpdate();
 
-                entity.Reference(d => d.Product)
-                      .InverseCollection(p => p.WorkOrder)
+                entity.HasOne(d => d.Product)
+                      .WithMany(p => p.WorkOrder)
                       .ForeignKey(d => d.ProductID);
 
-                entity.Reference(d => d.ScrapReason)
-                      .InverseCollection(p => p.WorkOrder)
+                entity.HasOne(d => d.ScrapReason)
+                      .WithMany(p => p.WorkOrder)
                       .ForeignKey(d => d.ScrapReasonID);
             });
 
             modelBuilder.Entity<WorkOrderRouting>(entity =>
             {
-                entity.Key(e => new { e.WorkOrderID, e.ProductID, e.OperationSequence });
+                entity.HasKey(e => new { e.WorkOrderID, e.ProductID, e.OperationSequence });
 
                 entity.ToTable("WorkOrderRouting", "Production");
 
@@ -1300,12 +1300,12 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.Property(e => e.ModifiedDate).HasDefaultValueSql("getdate()");
                 
-                entity.Reference(d => d.Location)
-                      .InverseCollection(p => p.WorkOrderRouting)
+                entity.HasOne(d => d.Location)
+                      .WithMany(p => p.WorkOrderRouting)
                       .ForeignKey(d => d.LocationID);
 
-                entity.Reference(d => d.WorkOrder)
-                      .InverseCollection(p => p.WorkOrderRouting)
+                entity.HasOne(d => d.WorkOrder)
+                      .WithMany(p => p.WorkOrderRouting)
                       .ForeignKey(d => d.WorkOrderID);
             });
         }

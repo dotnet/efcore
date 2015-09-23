@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             if (attribute.Length > 0)
             {
-                propertyBuilder.MaxLength(attribute.Length, ConfigurationSource.DataAnnotation);
+                propertyBuilder.HasMaxLength(attribute.Length, ConfigurationSource.DataAnnotation);
             }
 
             return propertyBuilder;
