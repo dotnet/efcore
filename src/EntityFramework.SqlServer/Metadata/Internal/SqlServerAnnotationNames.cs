@@ -10,7 +10,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public const string ValueGenerationStrategy = "ValueGenerationStrategy";
         public const string HiLoSequenceName = "HiLoSequenceName";
         public const string HiLoSequenceSchema = "HiLoSequenceSchema";
-        public const string HiLoSequencePoolSize = "HiLoSequencePoolSize";
 
         public const string DefaultHiLoSequenceName = "EntityFrameworkHiLoSequence";
     }

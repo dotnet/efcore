@@ -3,9 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -306,57 +304,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             Assert.Equal("DaneelOlivaw", cache.GetOrAddSequenceState(property).Sequence.Name);
             Assert.Equal("R", cache.GetOrAddSequenceState(property).Sequence.Schema);
-        }
-
-        [Fact]
-        public void Returns_the_default_pool_size_if_non_set()
-        {
-            var property = CreateProperty();
-
-            var cache = new SqlServerValueGeneratorCache();
-
-            Assert.Equal(1, cache.GetPoolSize(property));
-        }
-
-        [Fact]
-        public void Pool_size_is_obtained_from_property_over_model()
-        {
-            var property = CreateProperty();
-            property.SqlServer().HiLoSequencePoolSize = 5;
-            property.DeclaringEntityType.Model.SqlServer().HiLoSequencePoolSize = 10;
-
-            var cache = new SqlServerValueGeneratorCache();
-
-            Assert.Equal(5, cache.GetPoolSize(property));
-        }
-
-        [Fact]
-        public void Pool_size_is_obtained_from__model()
-        {
-            var property = CreateProperty();
-            property.DeclaringEntityType.Model.SqlServer().HiLoSequencePoolSize = 10;
-
-            var cache = new SqlServerValueGeneratorCache();
-
-            Assert.Equal(10, cache.GetPoolSize(property));
-        }
-
-        [Fact]
-        public void Non_positive_pool_sizes_are_not_allowed()
-        {
-            var property = CreateConventionModelBuilder()
-                .Entity<Robot>()
-                .Property(e => e.Id)
-                .UseSqlServerSequenceHiLo()
-                .Metadata;
-
-            property[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequencePoolSize] = 0;
-
-            var cache = new SqlServerValueGeneratorCache();
-
-            Assert.StartsWith(
-                Internal.Strings.HiLoBadPoolSize,
-                Assert.Throws<ArgumentOutOfRangeException>(() => cache.GetOrAddSequenceState(property)).Message);
         }
 
         protected virtual ModelBuilder CreateConventionModelBuilder() => SqlServerTestHelpers.Instance.CreateConventionBuilder();
