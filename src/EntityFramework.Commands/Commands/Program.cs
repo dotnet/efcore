@@ -149,6 +149,10 @@ namespace Microsoft.Data.Entity.Commands
                             var outputPath = scaffold.Option(
                                 "-o|--output-path <path>",
                                 "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
+                            var tableFilters = scaffold.Option(
+                                "-t|--tables <filter>",
+                                "Selects for which tables to generate classes. "
+                                + "<filter> is a comma-separated list of schema:table entries where either schema or table can be * to indicate 'any'.");
                             var useFluentApiOnly = scaffold.Option(
                                 "-u|--fluent-api",
                                 "Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.");
@@ -178,6 +182,7 @@ namespace Microsoft.Data.Entity.Commands
                                         provider.Value,
                                         outputPath.Value(),
                                         dbContextClassName.Value(),
+                                        tableFilters.Value(),
                                         useFluentApiOnly.HasValue(),
                                         _applicationShutdown.ShutdownRequested);
 
@@ -374,12 +379,13 @@ namespace Microsoft.Data.Entity.Commands
             [NotNull] string providerAssemblyName,
             [CanBeNull] string outputDirectory,
             [CanBeNull] string dbContextClassName,
+            [CanBeNull] string tableFilters,
             bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             await _databaseOperations.Value.ReverseEngineerAsync(
                 providerAssemblyName, connectionString, outputDirectory,
-                dbContextClassName, useFluentApiOnly);
+                dbContextClassName, tableFilters, useFluentApiOnly);
 
             _logger.Value.LogInformation("Done");
         }

@@ -331,6 +331,9 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER ContextClassName
     Specifies the name of the generated DbContext class.
 
+.PARAMETER Tables
+    Selects for which tables to generate classes. The argument is a comma-separated list of schema:table entries where either schema or table can be * to indicate 'any'.
+
 .PARAMETER FluentApi
     Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.
 
@@ -349,6 +352,7 @@ function Scaffold-DbContext {
         [string] $Provider,
         [string] $OutputDirectory,
         [string] $ContextClassName,
+        [string] $Tables,
         [switch] $FluentApi,
         [string] $Project)
 
@@ -360,6 +364,7 @@ function Scaffold-DbContext {
         provider = $Provider
         outputDir = $OutputDirectory
         dbContextClassName = $ContextClassName
+        tableFilters = $Tables
         useFluentApiOnly = [bool]$FluentApi
     }
 
