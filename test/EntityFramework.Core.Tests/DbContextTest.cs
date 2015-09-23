@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking;
@@ -2509,6 +2510,120 @@ namespace Microsoft.Data.Entity.Tests
             var internalEntryMock = new Mock<InternalEntityEntry>(
                 Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
             return internalEntryMock;
+        }
+
+        [Fact]
+        public async void It_throws_object_disposed_exception()
+        {
+            var context = new DbContext(new DbContextOptions<DbContext>());
+            context.Dispose();
+
+            // methods (tests all paths)
+            Assert.Throws<ObjectDisposedException>(() => context.Add(new object()));
+            Assert.Throws<ObjectDisposedException>(() => context.Attach(new object()));
+            Assert.Throws<ObjectDisposedException>(() => context.Update(new object()));
+            Assert.Throws<ObjectDisposedException>(() => context.Remove(new object()));
+            Assert.Throws<ObjectDisposedException>(() => context.SaveChanges());
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => context.SaveChangesAsync());
+
+            var methodCount = typeof(DbContext).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Count();
+            var expectedMethodCount = 27;
+            Assert.True(
+                methodCount == expectedMethodCount,
+                userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
+                    "Update test to ensure all methods throw ObjectDisposedException after dispose.");
+
+            // getters
+            Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
+            Assert.Throws<ObjectDisposedException>(() => context.Model);
+
+            var expectedProperties = new List<string> { "ChangeTracker", "Database", "Model" };
+
+            Assert.True(expectedProperties.SequenceEqual(
+                    typeof(DbContext)
+                    .GetProperties()
+                    .Select(p => p.Name)
+                    .OrderBy(s => s)
+                    .ToList()),
+                userMessage: "Unexpected properties on DbContext. " + 
+                    "Update test to ensure all getters throw ObjectDisposedException after dispose.");
+
+            Assert.Throws<ObjectDisposedException>(() => ((IAccessor<IServiceProvider>)context).Service);
+        }
+
+        [Fact]
+        public void It_throws_with_derived_name()
+        {
+            var context = new EarlyLearningCenter();
+
+            context.Dispose();
+
+            var ex = Assert.Throws<ObjectDisposedException>(() => context.Model);
+            Assert.Contains(nameof(EarlyLearningCenter), ex.Message);
+        }
+
+        [Fact]
+        public void It_disposes_scope()
+        {
+            var fakeServiceProvider = new FakeServiceProvider();
+            var context = new DbContext(fakeServiceProvider, new DbContextOptions<DbContext>());
+
+            var scopeService = Assert.IsType<FakeServiceProvider.FakeServiceScope>(context.GetService<IServiceScopeFactory>().CreateScope());
+
+            Assert.False(scopeService.Disposed);
+
+            context.Dispose();
+
+            Assert.True(scopeService.Disposed);
+
+            Assert.Throws<ObjectDisposedException>(() => ((IAccessor<IServiceProvider>)context).Service);
+        }
+
+        public class FakeServiceProvider : IServiceProvider, IDisposable
+        {
+            private IServiceProvider _realProvider;
+
+            public FakeServiceProvider()
+            {
+                _realProvider = ((IAccessor<IServiceCollection>)new ServiceCollection().AddEntityFramework())
+                    .Service.BuildServiceProvider();
+            }
+            public bool Disposed { get; set; }
+
+            public void Dispose()
+            {
+                Disposed = true;
+            }
+
+            public object GetService(Type serviceType)
+            {
+                if (serviceType == typeof(IServiceProvider))
+                {
+                    return this;
+                }
+                if (serviceType == typeof(IServiceScopeFactory))
+                {
+                    return new FakeServiceScopeFactory();
+                }
+                return _realProvider.GetService(serviceType);
+            }
+
+            public class FakeServiceScopeFactory : IServiceScopeFactory
+            {
+                public static FakeServiceScope Scope { get; } = new FakeServiceScope();
+                public IServiceScope CreateScope() => Scope;
+
+            }
+            public class FakeServiceScope : IServiceScope
+            {
+                public bool Disposed { get; set; }
+                public IServiceProvider ServiceProvider { get; set; } = new FakeServiceProvider();
+
+                public void Dispose()
+                {
+                    Disposed = true;
+                }
+            }
         }
     }
 }

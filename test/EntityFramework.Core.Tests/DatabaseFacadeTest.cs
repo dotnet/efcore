@@ -81,5 +81,20 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(context.GetService<IModel>(), context.Database.GetService<IModel>());
             }
         }
+
+        [Fact]
+        public void Cannot_use_DatabaseFacade_after_dispose()
+        {
+            var context = TestHelpers.Instance.CreateContext();
+            var facade = context.Database;
+            context.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => context.Database.GetService<IModel>());
+
+            foreach (var methodInfo in facade.GetType().GetMethods(System.Reflection.BindingFlags.Public))
+            {
+                Assert.Throws<ObjectDisposedException>(() => methodInfo.Invoke(facade, null));
+            }
+        }
     }
 }

@@ -84,7 +84,5 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         public virtual IServiceProvider ServiceProvider => _provider;
-
-        public virtual void Dispose() => (_provider as IDisposable)?.Dispose();
     }
 }

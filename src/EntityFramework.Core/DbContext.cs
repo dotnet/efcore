@@ -50,6 +50,8 @@ namespace Microsoft.Data.Entity
         private ILoggerFactory _loggerFactory;
 
         private bool _initializing;
+        private IServiceScope _serviceScope;
+        private bool _disposed;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContext" /> class. The
@@ -166,7 +168,17 @@ namespace Microsoft.Data.Entity
 
         private IStateManager GetStateManager() => ServiceProvider.GetRequiredService<IStateManager>();
 
-        private IServiceProvider ServiceProvider => _contextServices.Value.ServiceProvider;
+        private IServiceProvider ServiceProvider
+        {
+            get
+            {
+                if (_disposed)
+                {
+                    throw new ObjectDisposedException(GetType().Name);
+                }
+                return _contextServices.Value.ServiceProvider;
+            }
+        }
 
         private IDbContextServices InitializeServices(IServiceProvider serviceProvider, DbContextOptions options)
         {
@@ -190,10 +202,11 @@ namespace Microsoft.Data.Entity
                 _logger = _loggerFactory.CreateLogger<DbContext>();
                 _logger.LogDebug(Strings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
 
-                var scopedServiceProvider = serviceProvider
+                _serviceScope = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
-                    .CreateScope()
-                    .ServiceProvider;
+                    .CreateScope();
+
+                var scopedServiceProvider = _serviceScope.ServiceProvider;
 
                 return scopedServiceProvider
                     .GetRequiredService<IDbContextServices>()
@@ -390,10 +403,8 @@ namespace Microsoft.Data.Entity
         /// </summary>
         public virtual void Dispose()
         {
-            if (_contextServices.HasValue)
-            {
-                _contextServices.Value.Dispose();
-            }
+            _disposed = true;
+            _serviceScope?.Dispose();
         }
 
         /// <summary>

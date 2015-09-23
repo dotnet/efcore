@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    public interface IDbContextServices : IDisposable
+    public interface IDbContextServices
     {
         IDbContextServices Initialize(
             [NotNull] IServiceProvider scopedProvider,
