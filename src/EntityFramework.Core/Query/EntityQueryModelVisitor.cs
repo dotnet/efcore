@@ -1105,10 +1105,13 @@ namespace Microsoft.Data.Entity.Query
 
                 properties.Add(property);
 
-                querySourceReferenceExpression
-                    = memberExpression.Expression as QuerySourceReferenceExpression;
+                querySourceReferenceExpression =
+                    memberExpression.Expression as QuerySourceReferenceExpression
+                    ?? (memberExpression.Expression as UnaryExpression)?.Operand as QuerySourceReferenceExpression;
 
-                memberExpression = memberExpression.Expression as MemberExpression;
+                memberExpression =
+                    memberExpression.Expression as MemberExpression
+                    ?? (memberExpression.Expression as UnaryExpression)?.Operand as MemberExpression;
             }
 
             return querySourceReferenceExpression != null
