@@ -1053,14 +1053,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The pool size used for Hi-Lo value generators must be positive.
-        /// </summary>
-        public static string HiLoBadPoolSize
-        {
-            get { return GetString("HiLoBadPoolSize"); }
-        }
-
-        /// <summary>
         /// The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.
         /// </summary>
         public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey)

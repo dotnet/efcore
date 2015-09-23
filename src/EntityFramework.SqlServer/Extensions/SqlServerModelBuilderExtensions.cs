@@ -151,22 +151,6 @@ namespace Microsoft.Data.Entity
             return modelBuilder;
         }
 
-        public static ModelBuilder UseSqlServerSequenceHiLo(
-            [NotNull] this ModelBuilder modelBuilder,
-            int poolSize,
-            [CanBeNull] string name = null,
-            [CanBeNull] string schema = null)
-        {
-            Check.NotNull(modelBuilder, nameof(modelBuilder));
-            Check.NullButNotEmpty(name, nameof(name));
-            Check.NullButNotEmpty(schema, nameof(schema));
-
-            modelBuilder.UseSqlServerSequenceHiLo(name, schema);
-            modelBuilder.Model.SqlServer().HiLoSequencePoolSize = poolSize;
-
-            return modelBuilder;
-        }
-
         public static ModelBuilder UseSqlServerIdentityColumns(
             [NotNull] this ModelBuilder modelBuilder)
         {
@@ -177,7 +161,6 @@ namespace Microsoft.Data.Entity
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
             property.SqlServer().HiLoSequenceName = null;
             property.SqlServer().HiLoSequenceSchema = null;
-            property.SqlServer().HiLoSequencePoolSize = null;
 
             return modelBuilder;
         }

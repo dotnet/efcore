@@ -507,9 +507,6 @@
   <data name="HiLoBadBlockSize" xml:space="preserve">
     <value>The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.</value>
   </data>
-  <data name="HiLoBadPoolSize" xml:space="preserve">
-    <value>The pool size used for Hi-Lo value generators must be positive.</value>
-  </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
     <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
   </data>

@@ -550,26 +550,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         }
 
         [Fact]
-        public void Can_get_and_set_pool_size_on_model()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-            var model = modelBuilder.Model;
-
-            Assert.Null(model.SqlServer().HiLoSequencePoolSize);
-            Assert.Null(((IModel)model).SqlServer().HiLoSequencePoolSize);
-
-            model.SqlServer().HiLoSequencePoolSize = 88;
-
-            Assert.Equal(88, model.SqlServer().HiLoSequencePoolSize);
-            Assert.Equal(88, ((IModel)model).SqlServer().HiLoSequencePoolSize);
-
-            model.SqlServer().HiLoSequencePoolSize = null;
-
-            Assert.Null(model.SqlServer().HiLoSequencePoolSize);
-            Assert.Null(((IModel)model).SqlServer().HiLoSequencePoolSize);
-        }
-
-        [Fact]
         public void Can_get_and_set_default_sequence_schema_on_model()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
@@ -733,30 +713,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(property.SqlServer().HiLoSequenceName);
             Assert.Null(((IProperty)property).SqlServer().HiLoSequenceName);
-        }
-
-        [Fact]
-        public void Can_get_and_set_pool_size_on_property()
-        {
-            var modelBuilder = new ModelBuilder(new ConventionSet());
-
-            var property = modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .Metadata;
-
-            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
-            Assert.Null(((IProperty)property).SqlServer().HiLoSequencePoolSize);
-
-            property.SqlServer().HiLoSequencePoolSize = 77;
-
-            Assert.Equal(77, property.SqlServer().HiLoSequencePoolSize);
-            Assert.Equal(77, ((IProperty)property).SqlServer().HiLoSequencePoolSize);
-
-            property.SqlServer().HiLoSequencePoolSize = null;
-
-            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
-            Assert.Null(((IProperty)property).SqlServer().HiLoSequencePoolSize);
         }
 
         [Fact]

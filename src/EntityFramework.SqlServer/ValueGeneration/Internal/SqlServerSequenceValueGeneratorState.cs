@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class SqlServerSequenceValueGeneratorState : HiLoValueGeneratorState
     {
-        public SqlServerSequenceValueGeneratorState([NotNull] ISequence sequence, int poolSize)
-            : base(Check.NotNull(sequence, nameof(sequence)).IncrementBy, poolSize)
+        public SqlServerSequenceValueGeneratorState([NotNull] ISequence sequence)
+            : base(Check.NotNull(sequence, nameof(sequence)).IncrementBy)
         {
             Sequence = sequence;
         }

@@ -8,6 +8,5 @@ namespace Microsoft.Data.Entity.Metadata
         SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
         string HiLoSequenceName { get; }
         string HiLoSequenceSchema { get; }
-        int? HiLoSequencePoolSize { get; }
     }
 }
