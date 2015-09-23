@@ -857,6 +857,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 5);
         }
 
+        // [Fact] issue #3208
+        public virtual void Where_equals_on_null_nullable_int_types()
+        {
+            int? nullableIntPrm = null;
+
+            AssertQuery<Employee>(
+                es => es.Where(e => nullableIntPrm.Equals(e.ReportsTo)),
+                entryCount: 1);
+
+            AssertQuery<Employee>(
+                es => es.Where(e => e.ReportsTo.Equals(nullableIntPrm)),
+                entryCount: 1);
+        }
+
         [Fact]
         public virtual void Where_comparison_nullable_type_not_null()
         {

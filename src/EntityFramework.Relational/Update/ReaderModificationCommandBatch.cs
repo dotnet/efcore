@@ -18,15 +18,24 @@ namespace Microsoft.Data.Entity.Update
 {
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
-        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
+        protected virtual StringBuilder CachedCommandText { get;[param: NotNull] set; }
         protected int LastCachedCommandIndex;
 
+
         protected ReaderModificationCommandBatch(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IUpdateSqlGenerator sqlGenerator)
-            : base(sqlGenerator)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+
+            _commandBuilderFactory = commandBuilderFactory;
+            UpdateSqlGenerator = sqlGenerator;
         }
+
+        protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; private set; }
 
         public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
 
@@ -103,16 +112,16 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] IRelationalTypeMapper typeMapper,
             int? commandTimeout)
         {
-            var commandBuilder = new RelationalCommandBuilder();
-
-            commandBuilder.Append(commandText);
+            var commandBuilder = _commandBuilderFactory
+                .Create()
+                .Append(commandText);
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
-                PopulateParameters(commandBuilder.RelationalParameterList, columnModification);
+                PopulateParameters(commandBuilder, columnModification);
             }
 
-            var command = commandBuilder.RelationalCommand.CreateDbCommand(connection, typeMapper);
+            var command = commandBuilder.BuildRelationalCommand().CreateCommand(connection);
 
             if (commandTimeout != null)
             {
@@ -123,12 +132,12 @@ namespace Microsoft.Data.Entity.Update
         }
 
         protected virtual void PopulateParameters(
-            [NotNull] RelationalParameterList parameterList,
+            [NotNull] RelationalCommandBuilder commandBuilder,
             [NotNull] ColumnModification columnModification)
         {
             if (columnModification.ParameterName != null)
             {
-                parameterList.GetOrAdd(
+                commandBuilder.AddParameter(
                     columnModification.ParameterName,
                     columnModification.Value,
                     columnModification.Property);
@@ -136,7 +145,7 @@ namespace Microsoft.Data.Entity.Update
 
             if (columnModification.OriginalParameterName != null)
             {
-                parameterList.GetOrAdd(
+                commandBuilder.AddParameter(
                     columnModification.OriginalParameterName,
                     columnModification.OriginalValue,
                     columnModification.Property);

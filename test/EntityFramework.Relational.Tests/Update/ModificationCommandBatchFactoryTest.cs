@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
 using Moq;
 using Xunit;
 
@@ -18,6 +17,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void Create_returns_new_instances()
         {
             var factory = new TestModificationCommandBatchFactory(
+                Mock.Of<IRelationalCommandBuilderFactory>(),
                 Mock.Of<IUpdateSqlGenerator>());
 
             var options = new Mock<IDbContextOptions>().Object;
@@ -34,10 +34,11 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public void AddCommand_delegates()
         {
-            var sqlGenerator = new Mock<IUpdateSqlGenerator>().Object;
-            var factory = new TestModificationCommandBatchFactory(sqlGenerator);
+            var factory = new TestModificationCommandBatchFactory(
+                Mock.Of<IRelationalCommandBuilderFactory>(),
+                Mock.Of<IUpdateSqlGenerator>());
 
-            var modificationCommandBatchMock = new Mock<ModificationCommandBatch>(sqlGenerator);
+            var modificationCommandBatchMock = new Mock<ModificationCommandBatch>();
             var mockModificationCommand = new Mock<ModificationCommand>(
                 "T",
                 "S",
@@ -53,8 +54,9 @@ namespace Microsoft.Data.Entity.Tests.Update
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
             public TestModificationCommandBatchFactory(
+                IRelationalCommandBuilderFactory commandBuilderFactory,
                 IUpdateSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+                : base(commandBuilderFactory, sqlGenerator)
             {
             }
 
@@ -62,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 IDbContextOptions options,
                 IRelationalAnnotationProvider annotationProvider)
             {
-                return new SingularModificationCommandBatch(UpdateSqlGenerator);
+                return new SingularModificationCommandBatch(CommandBuilderFactory, UpdateSqlGenerator);
             }
         }
     }

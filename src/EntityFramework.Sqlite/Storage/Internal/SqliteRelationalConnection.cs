@@ -16,18 +16,18 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqliteRelationalConnection : RelationalConnection
     {
-        private readonly IRelationalTypeMapper _typeMapper;
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly bool _enforceForeignKeys = true;
 
         public SqliteRelationalConnection(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IDbContextOptions options,
-            [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] ILoggerFactory loggerFactory)
             : base(options, loggerFactory)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 
-            _typeMapper = typeMapper;
+            _commandBuilderFactory = commandBuilderFactory;
 
             var optionsExtension = options.Extensions.OfType<SqliteOptionsExtension>().FirstOrDefault();
             if (optionsExtension != null)
@@ -59,8 +59,12 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 return;
             }
 
-            var command = new RelationalCommand("PRAGMA foreign_keys=ON;");
-            command.CreateDbCommand(this, _typeMapper).ExecuteNonQuery();
+            _commandBuilderFactory
+                .Create()
+                .Append("PRAGMA foreign_keys=ON;")
+                .BuildRelationalCommand()
+                .CreateCommand(this)
+                .ExecuteNonQuery();
         }
     }
 }

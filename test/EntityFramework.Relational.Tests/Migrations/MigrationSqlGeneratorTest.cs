@@ -17,10 +17,19 @@ namespace Microsoft.Data.Entity.Migrations
     public class MigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
         protected override IMigrationsSqlGenerator SqlGenerator
-            => new ConcreteMigrationSqlGenerator(
-                new ConcreteUpdateSqlGenerator(),
-                new ConcreteRelationalTypeMapper(),
-                new TestAnnotationProvider());
+        {
+            get
+            {
+                var typeMapper = new ConcreteRelationalTypeMapper();
+
+                return new ConcreteMigrationSqlGenerator(
+                    new RelationalCommandBuilderFactory(
+                        typeMapper),
+                    new ConcreteUpdateSqlGenerator(),
+                    typeMapper,
+                    new TestAnnotationProvider());
+            }
+        }
 
         public override void AddColumnOperation_with_defaultValue()
         {
@@ -301,10 +310,11 @@ namespace Microsoft.Data.Entity.Migrations
         private class ConcreteMigrationSqlGenerator : MigrationsSqlGenerator
         {
             public ConcreteMigrationSqlGenerator(
+                IRelationalCommandBuilderFactory commandBuilderFactory,
                 IUpdateSqlGenerator sqlGenerator,
                 IRelationalTypeMapper typeMapper,
                 IRelationalAnnotationProvider annotations)
-                : base(sqlGenerator, typeMapper, annotations)
+                : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
             {
             }
 

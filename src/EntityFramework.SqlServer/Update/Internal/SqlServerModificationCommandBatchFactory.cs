@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update.Internal
@@ -13,8 +14,9 @@ namespace Microsoft.Data.Entity.Update.Internal
     public class SqlServerModificationCommandBatchFactory : ModificationCommandBatchFactory
     {
         public SqlServerModificationCommandBatchFactory(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+            : base(commandBuilderFactory, sqlGenerator)
         {
         }
 
@@ -29,7 +31,10 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             var maxBatchSize = optionsExtension?.MaxBatchSize;
 
-            return new SqlServerModificationCommandBatch((ISqlServerUpdateSqlGenerator)UpdateSqlGenerator, maxBatchSize);
+            return new SqlServerModificationCommandBatch(
+                CommandBuilderFactory,
+                (ISqlServerUpdateSqlGenerator)UpdateSqlGenerator,
+                maxBatchSize);
         }
     }
 }

@@ -119,7 +119,6 @@
     <Compile Include="Query\Internal\AsyncQueryingEnumerable.cs" />
     <Compile Include="Query\Internal\CommandBuilder.cs" />
     <Compile Include="Query\Internal\CommandBuilderFactory.cs" />
-    <Compile Include="Query\Internal\CommandParameter.cs" />
     <Compile Include="Query\Internal\IncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\IValueBufferCursor.cs" />
     <Compile Include="Query\Internal\QueryingEnumerable.cs" />
@@ -205,6 +204,7 @@
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\IRelationalCommandBuilderFactory.cs" />
     <Compile Include="Storage\IRelationalConnection.cs" />
     <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
     <Compile Include="Storage\IRelationalDatabaseProviderServices.cs" />
@@ -216,12 +216,12 @@
     <Compile Include="Storage\ISqlStatementExecutor.cs" />
     <Compile Include="Storage\RelationalCommand.cs" />
     <Compile Include="Storage\RelationalCommandBuilder.cs" />
+    <Compile Include="Storage\RelationalCommandBuilderFactory.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
     <Compile Include="Storage\RelationalParameter.cs" />
-    <Compile Include="Storage\RelationalParameterList.cs" />
     <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />
     <Compile Include="Storage\RelationalTypeMapper.cs" />

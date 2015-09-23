@@ -15,18 +15,18 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class SqlStatementExecutor : ISqlStatementExecutor
     {
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly LazyRef<ILogger> _logger;
-        private readonly IRelationalTypeMapper _typeMapper;
 
         public SqlStatementExecutor(
-            [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] ILoggerFactory loggerFactory)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
-            Check.NotNull(typeMapper, nameof(typeMapper));
 
+            _commandBuilderFactory = commandBuilderFactory;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<SqlStatementExecutor>);
-            _typeMapper = typeMapper;
         }
 
         protected virtual ILogger Logger => _logger.Value;
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Storage
 
             return Execute(
                 connection,
-                new RelationalCommand(sql),
+                CreateCommand(sql),
                 c => c.ExecuteScalar());
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Storage
 
             return ExecuteAsync(
                 connection,
-                new RelationalCommand(sql),
+                CreateCommand(sql),
                 c => c.ExecuteScalarAsync(cancellationToken),
                 cancellationToken);
         }
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Storage
 
             return Execute(
                 connection,
-                new RelationalCommand(sql),
+                CreateCommand(sql),
                 c => c.ExecuteReader());
         }
 
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Storage
 
             return ExecuteAsync(
                 connection,
-                new RelationalCommand(sql),
+                CreateCommand(sql),
                 c => c.ExecuteReaderAsync(cancellationToken),
                 cancellationToken);
         }
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Storage
 
             try
             {
-                using (var dbCommand = command.CreateDbCommand(connection, _typeMapper))
+                using (var dbCommand = command.CreateCommand(connection))
                 {
                     Logger.LogCommand(dbCommand);
 
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Storage
 
             try
             {
-                using (var dbCommand = command.CreateDbCommand(connection, _typeMapper))
+                using (var dbCommand = command.CreateCommand(connection))
                 {
                     Logger.LogCommand(dbCommand);
 
@@ -184,5 +184,10 @@ namespace Microsoft.Data.Entity.Storage
                 connection.Close();
             }
         }
+
+        private RelationalCommand CreateCommand(string sql)
+            => _commandBuilderFactory.Create()
+                .Append(sql)
+                .BuildRelationalCommand();
     }
 }

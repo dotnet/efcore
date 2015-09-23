@@ -5,24 +5,13 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Update
 {
     public abstract class ModificationCommandBatch
     {
-        protected ModificationCommandBatch([NotNull] IUpdateSqlGenerator sqlGenerator)
-        {
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-
-            UpdateSqlGenerator = sqlGenerator;
-        }
-
-        protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; private set; }
-
         public abstract IReadOnlyList<ModificationCommand> ModificationCommands { get; }
 
         public abstract bool AddCommand([NotNull] ModificationCommand modificationCommand);

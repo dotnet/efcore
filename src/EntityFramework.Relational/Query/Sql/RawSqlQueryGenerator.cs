@@ -8,7 +8,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -17,23 +16,26 @@ namespace Microsoft.Data.Entity.Query.Sql
 {
     public class RawSqlQueryGenerator : ISqlQueryGenerator
     {
-        private readonly List<CommandParameter> _commandParameters = new List<CommandParameter>();
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly SelectExpression _selectExpression;
         private readonly string _sql;
         private readonly object[] _inputParameters;
 
         public RawSqlQueryGenerator(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] object[] parameters)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
+            _commandBuilderFactory = commandBuilderFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _selectExpression = selectExpression;
             _sql = sql;
@@ -47,7 +49,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = _commandBuilderFactory.Create();
 
             var parameterNameGenerator = ParameterNameGeneratorFactory.Create();
 
@@ -57,14 +59,14 @@ namespace Microsoft.Data.Entity.Query.Sql
             {
                 substitutions[index] = parameterNameGenerator.GenerateNext();
 
-                commandBuilder.RelationalParameterList.GetOrAdd(
+                commandBuilder.AddParameter(
                     substitutions[index],
                     _inputParameters[index]);
             }
 
             commandBuilder.AppendLines(string.Format(_sql, substitutions));
 
-            return commandBuilder.RelationalCommand;
+            return commandBuilder.BuildRelationalCommand();
         }
 
 

@@ -23,6 +23,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 {
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
     {
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
         private RelationalCommandBuilder _sql;
@@ -46,12 +47,15 @@ namespace Microsoft.Data.Entity.Query.Sql
         };
 
         public DefaultQuerySqlGenerator(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
 
+            _commandBuilderFactory = commandBuilderFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             SelectExpression = selectExpression;
         }
@@ -64,13 +68,13 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _sql = new RelationalCommandBuilder();
+            _sql =  _commandBuilderFactory.Create();
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             _parameterValues = parameterValues;
 
             Visit(SelectExpression);
 
-            return _sql.RelationalCommand;
+            return _sql.BuildRelationalCommand();
         }
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
@@ -288,7 +292,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 {
                     substitutions[index] = ParameterNameGenerator.GenerateNext();
 
-                    _sql.RelationalParameterList.GetOrAdd(
+                    _sql.AddParameter(
                         substitutions[index],
                         rawSqlDerivedTableExpression.Parameters[index]);
                 }
@@ -925,7 +929,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             _sql.Append(name);
 
-            _sql.RelationalParameterList.GetOrAdd(name, value);
+            _sql.AddParameter(name, value, parameterExpression.Type);
 
             return parameterExpression;
         }

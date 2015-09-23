@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update.Internal
 {
@@ -22,9 +23,10 @@ namespace Microsoft.Data.Entity.Update.Internal
         private int _commandsLeftToLengthCheck = 50;
 
         public SqlServerModificationCommandBatch(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
             [CanBeNull] int? maxBatchSize)
-            : base(sqlGenerator)
+            : base(commandBuilderFactory, sqlGenerator)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

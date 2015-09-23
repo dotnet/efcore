@@ -47,6 +47,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<MigrationsModelDiffer>()
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<RelationalSqlExecutor>()
+                .AddScoped<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>()
                 .AddScoped<SqlStatementExecutor>()
                 .AddScoped<CommandBatchPreparer>()
                 .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()

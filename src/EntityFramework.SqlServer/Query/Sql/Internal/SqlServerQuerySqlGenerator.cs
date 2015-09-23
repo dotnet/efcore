@@ -14,9 +14,10 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
     public class SqlServerQuerySqlGenerator : DefaultQuerySqlGenerator, ISqlServerExpressionVisitor
     {
         public SqlServerQuerySqlGenerator(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
-            : base(parameterNameGeneratorFactory, selectExpression)
+            : base(commandBuilderFactory, parameterNameGeneratorFactory, selectExpression)
         {
         }
 

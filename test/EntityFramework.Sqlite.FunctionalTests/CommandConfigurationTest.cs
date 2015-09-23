@@ -123,9 +123,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         private CommandBuilder SetupCommandBuilder()
             => new CommandBuilder(
                 new UntypedRelationalValueBufferFactoryFactory(),
-                new SqliteTypeMapper(),
                 new SelectExpression(
                     new SqliteQuerySqlGeneratorFactory(
+                        new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
                         new ParameterNameGeneratorFactory()))
                     .CreateGenerator);
 
@@ -186,7 +186,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             }
 
             public TestSqliteModificationCommandBatch(IUpdateSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+                : base(
+                      new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
+                      sqlGenerator)
             {
             }
         }
@@ -195,7 +197,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             public TestSqliteModificationCommandBatchFactory(
                 IUpdateSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+                : base(
+                      new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
+                      sqlGenerator)
             {
             }
 

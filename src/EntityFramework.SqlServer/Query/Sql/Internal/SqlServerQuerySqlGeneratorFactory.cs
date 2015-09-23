@@ -10,18 +10,23 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
 {
     public class SqlServerQuerySqlGeneratorFactory : ISqlQueryGeneratorFactory
     {
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
         public SqlServerQuerySqlGeneratorFactory(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
 
+            _commandBuilderFactory = commandBuilderFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
         public virtual ISqlQueryGenerator CreateGenerator(SelectExpression selectExpression)
             => new SqlServerQuerySqlGenerator(
+                _commandBuilderFactory,
                 _parameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)));
 
@@ -30,6 +35,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
             string sql,
             object[] parameters)
             => new RawSqlQueryGenerator(
+                _commandBuilderFactory,
                 _parameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotNull(sql, nameof(sql)),

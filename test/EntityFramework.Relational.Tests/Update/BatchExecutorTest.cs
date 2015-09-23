@@ -20,8 +20,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public async Task ExecuteAsync_calls_Commit_if_no_transaction()
         {
-            var sqlGenerator = new Mock<IUpdateSqlGenerator>().Object;
-            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
+            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
             mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
@@ -52,8 +51,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public async Task ExecuteAsync_does_not_call_Commit_if_existing_transaction()
         {
-            var sqlGenerator = new Mock<IUpdateSqlGenerator>().Object;
-            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>(sqlGenerator);
+            var mockModificationCommandBatch = new Mock<ModificationCommandBatch>();
             mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();

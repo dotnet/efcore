@@ -19,10 +19,11 @@ namespace Microsoft.Data.Entity.Migrations
         private int _variableCounter;
 
         public SqlServerMigrationsSqlGenerator(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlServerUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
-            : base(sql, typeMapper, annotations)
+            : base(commandBuilderFactory, sql, typeMapper, annotations)
         {
         }
 

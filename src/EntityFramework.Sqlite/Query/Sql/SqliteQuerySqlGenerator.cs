@@ -13,9 +13,10 @@ namespace Microsoft.Data.Entity.Query.Sql
         protected override string ConcatOperator => "||";
 
         public SqliteQuerySqlGenerator(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
-            : base(parameterNameGeneratorFactory, selectExpression)
+            : base(commandBuilderFactory, parameterNameGeneratorFactory, selectExpression)
         {
         }
 

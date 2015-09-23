@@ -107,6 +107,10 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var annotationsProvider = new SqlServerAnnotationProvider();
             var updateSqlGenerator = new SqlServerUpdateSqlGenerator();
+            var typeMapper = new SqlServerTypeMapper();
+
+            var commandBuilderFactory = new RelationalCommandBuilderFactory(
+                typeMapper);
 
             return new SqlServerHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
@@ -121,8 +125,9 @@ namespace Microsoft.Data.Entity.Migrations
                     annotationsProvider,
                     new SqlServerMigrationsAnnotationProvider()),
                 new SqlServerMigrationsSqlGenerator(
+                    commandBuilderFactory,
                     updateSqlGenerator,
-                    new SqlServerTypeMapper(),
+                    typeMapper,
                     annotationsProvider),
                 annotationsProvider,
                 updateSqlGenerator);

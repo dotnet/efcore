@@ -379,7 +379,6 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var command = batch.CreateStoreCommandBase("foo", connectionMock.Object, new ConcreteTypeMapper(), null);
 
-            Assert.Equal(CommandType.Text, command.CommandType);
             Assert.Equal("foo", command.CommandText);
             Assert.Equal(2, batch.PopulateParameterCalls);
         }
@@ -391,10 +390,10 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = new CommandBuilderFake();
 
             batch.PopulateParametersBase(
-                commandBuilder.RelationalParameterList,
+                commandBuilder,
                 new ColumnModification(
                     entry,
                     property,
@@ -402,7 +401,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                     new ParameterNameGenerator(),
                     false, true, false, false));
 
-            Assert.Equal(1, commandBuilder.RelationalCommand.Parameters.Count);
+            Assert.Equal(1, commandBuilder.AddParameterCalls);
         }
 
         [Fact]
@@ -412,10 +411,10 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = new CommandBuilderFake();
 
             batch.PopulateParametersBase(
-                commandBuilder.RelationalParameterList,
+                commandBuilder,
                 new ColumnModification(
                     entry,
                     property,
@@ -423,7 +422,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                     new ParameterNameGenerator(),
                     false, false, false, true));
 
-            Assert.Equal(1, commandBuilder.RelationalCommand.Parameters.Count);
+            Assert.Equal(1, commandBuilder.AddParameterCalls);
         }
 
         [Fact]
@@ -433,10 +432,10 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = new CommandBuilderFake();
 
             batch.PopulateParametersBase(
-                commandBuilder.RelationalParameterList,
+                commandBuilder,
                 new ColumnModification(
                     entry,
                     property,
@@ -444,7 +443,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                     new ParameterNameGenerator(),
                     false, true, false, true));
 
-            Assert.Equal(2, commandBuilder.RelationalCommand.Parameters.Count);
+            Assert.Equal(2, commandBuilder.AddParameterCalls);
         }
 
         [Fact]
@@ -454,10 +453,10 @@ namespace Microsoft.Data.Entity.Tests.Update
             var property = entry.EntityType.GetProperty("Id");
             entry.MarkAsTemporary(property);
             var batch = new ModificationCommandBatchFake();
-            var commandBuilder = new RelationalCommandBuilder();
+            var commandBuilder = new CommandBuilderFake();
 
             batch.PopulateParametersBase(
-                commandBuilder.RelationalParameterList,
+                commandBuilder,
                 new ColumnModification(
                     entry,
                     property,
@@ -465,7 +464,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                     new ParameterNameGenerator(),
                     true, false, false, false));
 
-            Assert.Equal(0, commandBuilder.RelationalCommand.Parameters.Count);
+            Assert.Equal(0, commandBuilder.AddParameterCalls);
         }
 
         private static Mock<DbConnection> CreateMockDbConnection(DbCommand dbCommand = null)
@@ -625,14 +624,18 @@ namespace Microsoft.Data.Entity.Tests.Update
             private readonly DbDataReader _reader;
 
             public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator())
+                : base(
+                      new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                      sqlGenerator ?? new FakeSqlGenerator())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
             }
 
             public ModificationCommandBatchFake(DbDataReader reader, IUpdateSqlGenerator sqlGenerator = null)
-                : base(sqlGenerator ?? new FakeSqlGenerator())
+                : base(
+                      new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                      sqlGenerator ?? new FakeSqlGenerator())
             {
                 _reader = reader;
                 ShouldAddCommand = true;
@@ -681,14 +684,42 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public int PopulateParameterCalls { get; set; }
 
-            protected override void PopulateParameters(RelationalParameterList parameterList, ColumnModification columnModification)
+            protected override void PopulateParameters(RelationalCommandBuilder commandBuilder, ColumnModification columnModification)
             {
                 PopulateParameterCalls++;
             }
 
-            public void PopulateParametersBase(RelationalParameterList parameterList, ColumnModification columnModification)
+            public void PopulateParametersBase(RelationalCommandBuilder commandBuilder, ColumnModification columnModification)
             {
-                base.PopulateParameters(parameterList, columnModification);
+                base.PopulateParameters(commandBuilder, columnModification);
+            }
+        }
+
+        private class CommandBuilderFake : RelationalCommandBuilder
+        {
+            public int AddParameterCalls { get; private set; }
+
+            public CommandBuilderFake()
+                : base(new ConcreteTypeMapper())
+            {
+            }
+
+            public override RelationalCommandBuilder AddParameter(string name, object value)
+            {
+                AddParameterCalls++;
+                return this;
+            }
+
+            public override RelationalCommandBuilder AddParameter(string name, object value, Type type)
+            {
+                AddParameterCalls++;
+                return this;
+            }
+
+            public override RelationalCommandBuilder AddParameter(string name, object value, IProperty property)
+            {
+                AddParameterCalls++;
+                return this;
             }
         }
 

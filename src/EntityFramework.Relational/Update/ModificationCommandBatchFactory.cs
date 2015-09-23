@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
@@ -11,14 +12,19 @@ namespace Microsoft.Data.Entity.Update
     public abstract class ModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
         protected ModificationCommandBatchFactory(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IUpdateSqlGenerator sqlGenerator)
         {
+            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
+            CommandBuilderFactory = commandBuilderFactory;
             UpdateSqlGenerator = sqlGenerator;
         }
 
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
+
+        protected virtual IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
 
         public abstract ModificationCommandBatch Create(
             IDbContextOptions options,

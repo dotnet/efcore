@@ -274,6 +274,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(
+                    Mock.Of<IRelationalCommandBuilderFactory>(),
                     Mock.Of<IUpdateSqlGenerator>());
 
             return new TestCommandBatchPreparer(modificationCommandBatchFactory,
@@ -365,8 +366,9 @@ namespace Microsoft.Data.Entity.Tests.Update
         private class TestModificationCommandBatchFactory : ModificationCommandBatchFactory
         {
             public TestModificationCommandBatchFactory(
+                IRelationalCommandBuilderFactory commandBuilderfactory,
                 IUpdateSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+                : base(commandBuilderfactory, sqlGenerator)
             {
             }
 
@@ -374,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 IDbContextOptions options,
                 IRelationalAnnotationProvider annotationProvider)
             {
-                return new SingularModificationCommandBatch(UpdateSqlGenerator);
+                return new SingularModificationCommandBatch(CommandBuilderFactory, UpdateSqlGenerator);
             }
         }
     }

@@ -1451,6 +1451,15 @@ WHERE [e].[ReportsTo] = @__nullableIntPrm_0",
                 Sql);
         }
 
+        public override void Where_equals_on_null_nullable_int_types()
+        {
+            base.Where_equals_on_null_nullable_int_types();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         public override void Where_string_length()
         {
             base.Where_string_length();

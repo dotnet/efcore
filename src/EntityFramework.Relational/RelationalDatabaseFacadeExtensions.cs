@@ -36,6 +36,18 @@ namespace Microsoft.Data.Entity
                         sql,
                         parameters);
 
+        public static Task ExecuteSqlCommandAsync(
+            [NotNull] this DatabaseFacade databaseFacade,
+            [NotNull] string sql,
+            CancellationToken cancellationToken = default(CancellationToken),
+            [NotNull] params object[] parameters)
+            => Check.NotNull(databaseFacade, nameof(databaseFacade))
+                .GetService<RelationalSqlExecutor>()
+                    .ExecuteSqlCommandAsync(
+                        sql,
+                        cancellationToken,
+                        parameters);
+
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).DbConnection;
 

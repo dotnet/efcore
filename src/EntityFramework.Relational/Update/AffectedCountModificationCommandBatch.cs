@@ -10,8 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update
 {
@@ -24,8 +24,9 @@ namespace Microsoft.Data.Entity.Update
         private readonly List<bool> _resultSetEnd = new List<bool>();
 
         protected AffectedCountModificationCommandBatch(
+            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IUpdateSqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+            : base(commandBuilderFactory, sqlGenerator)
         {
         }
 

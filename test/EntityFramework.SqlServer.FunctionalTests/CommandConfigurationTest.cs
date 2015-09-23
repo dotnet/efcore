@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Query.Sql;
@@ -142,9 +141,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private CommandBuilder setupCommandBuilder()
             => new CommandBuilder(
                 new UntypedRelationalValueBufferFactoryFactory(),
-                new SqlServerTypeMapper(),
                 new SelectExpression(
                     new SqlServerQuerySqlGeneratorFactory(
+                        new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
                         new ParameterNameGeneratorFactory()))
                     .CreateGenerator);
 
@@ -364,7 +363,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public TestSqlServerModificationCommandBatch(
                 ISqlServerUpdateSqlGenerator sqlGenerator,
                 int? maxBatchSize)
-                : base(sqlGenerator, maxBatchSize)
+                : base(
+                      new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                      sqlGenerator,
+                      maxBatchSize)
             {
             }
         }
@@ -373,7 +375,9 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             public TestSqlServerModificationCommandBatchFactory(
                 ISqlServerUpdateSqlGenerator sqlGenerator)
-                : base(sqlGenerator)
+                : base(
+                      new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                      sqlGenerator)
             {
             }
 

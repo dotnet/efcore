@@ -100,6 +100,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
             var annotationsProvider = new SqliteAnnotationProvider();
             var updateSqlGenerator = new SqliteUpdateSqlGenerator();
+            var typeMapper = new SqliteTypeMapper();
 
             return new SqliteHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
@@ -114,8 +115,10 @@ namespace Microsoft.Data.Entity.Migrations
                     annotationsProvider,
                     new SqliteMigrationsAnnotationProvider()),
                 new SqliteMigrationsSqlGenerator(
+                    new RelationalCommandBuilderFactory(
+                        typeMapper),
                     updateSqlGenerator,
-                    new SqliteTypeMapper(),
+                    typeMapper,
                     annotationsProvider),
                 annotationsProvider,
                 updateSqlGenerator);

@@ -4,7 +4,6 @@
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Update;
@@ -15,11 +14,19 @@ namespace Microsoft.Data.Entity.Migrations
 {
     public class SqlServerMigrationSqlGeneratorTest : MigrationSqlGeneratorTestBase
     {
-        protected override IMigrationsSqlGenerator SqlGenerator =>
-            new SqlServerMigrationsSqlGenerator(
-                new SqlServerUpdateSqlGenerator(),
-                new SqlServerTypeMapper(),
-                new SqlServerAnnotationProvider());
+        protected override IMigrationsSqlGenerator SqlGenerator
+        {
+            get
+            {
+                var typeMapper = new SqlServerTypeMapper();
+
+                return new SqlServerMigrationsSqlGenerator(
+                    new RelationalCommandBuilderFactory(typeMapper),
+                    new SqlServerUpdateSqlGenerator(),
+                    typeMapper,
+                    new SqlServerAnnotationProvider());
+            }
+        }
 
         [Fact]
         public virtual void AddColumnOperation_with_computedSql()
