@@ -30,6 +30,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         protected virtual ModelBuilder CreateModelBuilder() => TestHelpers.Instance.CreateConventionBuilder();
         protected virtual MigrationsModelDiffer CreateModelDiffer()
-            => new MigrationsModelDiffer(new TestMetadataExtensionProvider(), new MigrationsAnnotationProvider());
+            => new MigrationsModelDiffer(new TestAnnotationProvider(), new MigrationsAnnotationProvider());
     }
 }

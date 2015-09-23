@@ -461,10 +461,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public void AlterSequenceOperation_required_args()
         {
             Test(
-                new AlterSequenceOperation { Name = "DefaultSequence" },
+                new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
                 "mb.AlterSequence(" + EOL +
-                "    name: \"DefaultSequence\");" + EOL,
-                o => Assert.Equal("DefaultSequence", o.Name));
+                "    name: \"EntityFrameworkHiLoSequence\");" + EOL,
+                o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
         [Fact]
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new AlterSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     IncrementBy = 3,
                     MinValue = 2,
@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     IsCyclic = true
                 },
                 "mb.AlterSequence(" + EOL +
-                "    name: \"DefaultSequence\"," + EOL +
+                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    incrementBy: 3," + EOL +
                 "    minValue: 2L," + EOL +
@@ -489,7 +489,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    cyclic: true);" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal(3, o.IncrementBy);
                     Assert.Equal(2, o.MinValue);
@@ -585,14 +585,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     ClrType = typeof(long)
                 },
                 "mb.CreateSequence(" + EOL +
-                "    name: \"DefaultSequence\");" + EOL,
+                "    name: \"EntityFrameworkHiLoSequence\");" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal(typeof(long), o.ClrType);
                 });
         }
@@ -603,14 +603,14 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     ClrType = typeof(int)
                 },
                 "mb.CreateSequence<int>(" + EOL +
-                "    name: \"DefaultSequence\");" + EOL,
+                "    name: \"EntityFrameworkHiLoSequence\");" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal(typeof(int), o.ClrType);
                 });
         }
@@ -621,7 +621,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     ClrType = typeof(long),
                     StartValue = 3,
@@ -631,7 +631,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     IsCyclic = true
                 },
                 "mb.CreateSequence(" + EOL +
-                "    name: \"DefaultSequence\"," + EOL +
+                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    startValue: 3L," + EOL +
                 "    incrementBy: 5," + EOL +
@@ -640,7 +640,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    cyclic: true);" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal(typeof(long), o.ClrType);
                     Assert.Equal(3, o.StartValue);
@@ -657,7 +657,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     ClrType = typeof(int),
                     StartValue = 3,
@@ -667,7 +667,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                     IsCyclic = true
                 },
                 "mb.CreateSequence<int>(" + EOL +
-                "    name: \"DefaultSequence\"," + EOL +
+                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    startValue: 3L," + EOL +
                 "    incrementBy: 5," + EOL +
@@ -676,7 +676,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
                 "    cyclic: true);" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal(typeof(int), o.ClrType);
                     Assert.Equal(3, o.StartValue);
@@ -1417,9 +1417,9 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public void DropSequenceOperation_required_args()
         {
             Test(
-                new DropSequenceOperation { Name = "DefaultSequence" },
-                "mb.DropSequence(\"DefaultSequence\");" + EOL,
-                o => Assert.Equal("DefaultSequence", o.Name));
+                new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
+                "mb.DropSequence(\"EntityFrameworkHiLoSequence\");" + EOL,
+                o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
         [Fact]
@@ -1428,13 +1428,13 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new DropSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo"
                 },
-                "mb.DropSequence(name: \"DefaultSequence\", schema: \"dbo\");" + EOL,
+                "mb.DropSequence(name: \"EntityFrameworkHiLoSequence\", schema: \"dbo\");" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                 });
         }
@@ -1599,10 +1599,10 @@ namespace Microsoft.Data.Entity.Commands.Migrations
         public void RenameSequenceOperation_required_args()
         {
             Test(
-                new RenameSequenceOperation { Name = "DefaultSequence" },
+                new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
                 "mb.RenameSequence(" + EOL +
-                "    name: \"DefaultSequence\");" + EOL,
-                o => Assert.Equal("DefaultSequence", o.Name));
+                "    name: \"EntityFrameworkHiLoSequence\");" + EOL,
+                o => Assert.Equal("EntityFrameworkHiLoSequence", o.Name));
         }
 
         [Fact]
@@ -1611,19 +1611,19 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new RenameSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     NewName = "MySequence",
                     NewSchema = "my"
                 },
                 "mb.RenameSequence(" + EOL +
-                "    name: \"DefaultSequence\"," + EOL +
+                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    newName: \"MySequence\"," + EOL +
                 "    newSchema: \"my\");" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal("MySequence", o.NewName);
                     Assert.Equal("my", o.NewSchema);
@@ -1671,15 +1671,15 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new RestartSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     StartValue = 1
                 },
                 "mb.RestartSequence(" + EOL +
-                "    name: \"DefaultSequence\"," + EOL +
+                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    startValue: 1L);" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal(1, o.StartValue);
                 });
         }
@@ -1690,17 +1690,17 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             Test(
                 new RestartSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     StartValue = 1
                 },
                 "mb.RestartSequence(" + EOL +
-                "    name: \"DefaultSequence\"," + EOL +
+                "    name: \"EntityFrameworkHiLoSequence\"," + EOL +
                 "    schema: \"dbo\"," + EOL +
                 "    startValue: 1L);" + EOL,
                 o =>
                 {
-                    Assert.Equal("DefaultSequence", o.Name);
+                    Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
                     Assert.Equal("dbo", o.Schema);
                     Assert.Equal(1, o.StartValue);
                 });

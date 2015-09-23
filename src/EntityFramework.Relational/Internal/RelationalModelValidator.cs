@@ -12,11 +12,11 @@ namespace Microsoft.Data.Entity.Internal
 {
     public class RelationalModelValidator : LoggingModelValidator
     {
-        private readonly IRelationalMetadataExtensionProvider _relationalExtensions;
+        private readonly IRelationalAnnotationProvider _relationalExtensions;
 
         public RelationalModelValidator(
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
+            [NotNull] IRelationalAnnotationProvider relationalExtensions)
             : base(loggerFactory)
         {
             _relationalExtensions = relationalExtensions;

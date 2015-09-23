@@ -48,12 +48,12 @@ namespace Microsoft.Data.Entity.Migrations
             };
 
         private readonly IRelationalTypeMapper _typeMapper;
-        private readonly IRelationalMetadataExtensionProvider _annotations;
+        private readonly IRelationalAnnotationProvider _annotations;
 
         public MigrationsSqlGenerator(
             [NotNull] IUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalMetadataExtensionProvider annotations)
+            [NotNull] IRelationalAnnotationProvider annotations)
         {
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(typeMapper, nameof(typeMapper));

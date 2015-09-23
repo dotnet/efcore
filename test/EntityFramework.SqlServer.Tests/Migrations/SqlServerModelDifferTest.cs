@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         Assert.Equal("bah", operation.Schema);
                         Assert.Equal("Lamb", operation.Table);
                         Assert.Equal("Id", operation.Name);
-                        Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, operation["SqlServer:ValueGenerationStrategy"]);
+                        Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, operation["SqlServer:ValueGenerationStrategy"]);
                     });
         }
 
@@ -694,7 +694,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         protected override MigrationsModelDiffer CreateModelDiffer()
             => new MigrationsModelDiffer(
-                new SqlServerMetadataExtensionProvider(),
+                new SqlServerAnnotationProvider(),
                 new SqlServerMigrationsAnnotationProvider());
     }
 }

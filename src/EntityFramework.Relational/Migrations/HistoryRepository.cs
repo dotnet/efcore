@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IRelationalMetadataExtensionProvider annotations,
+            [NotNull] IRelationalAnnotationProvider annotations,
             [NotNull] IUpdateSqlGenerator sql)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));

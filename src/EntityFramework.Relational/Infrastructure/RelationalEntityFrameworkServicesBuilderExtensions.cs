@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped(p => GetProviderServices(p).ValueBufferFactoryFactory)
                 .AddScoped(p => GetProviderServices(p).RelationalDatabaseCreator)
                 .AddScoped(p => GetProviderServices(p).UpdateSqlGenerator)
-                .AddScoped(p => GetProviderServices(p).MetadataExtensionProvider)
+                .AddScoped(p => GetProviderServices(p).AnnotationProvider)
                 .AddQuery());
 
             return builder;

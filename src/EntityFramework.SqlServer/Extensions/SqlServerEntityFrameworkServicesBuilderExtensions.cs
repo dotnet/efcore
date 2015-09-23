@@ -7,13 +7,19 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
+using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.Data.Entity.Query.ExpressionTranslators.Internal;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Query.Sql;
+using Microsoft.Data.Entity.Query.Sql.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
@@ -37,7 +43,7 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                 .AddSingleton<SqlServerTypeMapper>()
                 .AddSingleton<SqlServerModelSource>()
-                .AddSingleton<SqlServerMetadataExtensionProvider>()
+                .AddSingleton<SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerMigrationsAnnotationProvider>()
                 .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                 .AddScoped<SqlServerModificationCommandBatchFactory>()

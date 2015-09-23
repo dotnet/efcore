@@ -1,15 +1,19 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.Data.Entity.Migrations.Internal;
+using Microsoft.Data.Entity.Query.ExpressionTranslators.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity
 {
@@ -25,7 +29,7 @@ namespace Microsoft.Data.Entity
             VerifySingleton<ISqlServerUpdateSqlGenerator>();
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModelSource>();
-            VerifySingleton<SqlServerMetadataExtensionProvider>();
+            VerifySingleton<SqlServerAnnotationProvider>();
             VerifySingleton<SqlServerMigrationsAnnotationProvider>();
 
             // SQL Server scoped

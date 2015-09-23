@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IResultOperatorHandler resultOperatorHandler,
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IExpressionPrinter expressionPrinter,
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
@@ -51,14 +51,14 @@ namespace Microsoft.Data.Entity.Query
                 entityMaterializerSource,
                 expressionPrinter)
         {
-            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory));
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory));
             Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(shapedQueryFindingExpressionVisitorFactory));
 
-            RelationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            RelationalAnnotationProvider = relationalAnnotationProvider;
             IncludeExpressionVisitorFactory = includeExpressionVisitorFactory;
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Query
             ShapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
         }
 
-        protected virtual IRelationalMetadataExtensionProvider RelationalMetadataExtensionProvider { get; }
+        protected virtual IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
         protected virtual IIncludeExpressionVisitorFactory IncludeExpressionVisitorFactory { get; }
         protected virtual ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
         protected virtual ICompositePredicateExpressionVisitorFactory CompositePredicateExpressionVisitorFactory { get; }
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Query
                 ResultOperatorHandler,
                 EntityMaterializerSource,
                 ExpressionPrinter,
-                RelationalMetadataExtensionProvider,
+                RelationalAnnotationProvider,
                 IncludeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,

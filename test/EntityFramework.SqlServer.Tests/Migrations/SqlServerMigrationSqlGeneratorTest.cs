@@ -2,10 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Update.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -16,7 +19,7 @@ namespace Microsoft.Data.Entity.Migrations
             new SqlServerMigrationsSqlGenerator(
                 new SqlServerUpdateSqlGenerator(),
                 new SqlServerTypeMapper(),
-                new SqlServerMetadataExtensionProvider());
+                new SqlServerAnnotationProvider());
 
         [Fact]
         public virtual void AddColumnOperation_with_computedSql()
@@ -57,7 +60,7 @@ namespace Microsoft.Data.Entity.Migrations
                     ColumnType = "int",
                     IsNullable = false,
                     [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
-                        SqlServerIdentityStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -131,7 +134,7 @@ namespace Microsoft.Data.Entity.Migrations
                     Name = "Id",
                     ClrType = typeof(int),
                     [SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] =
-                        SqlServerIdentityStrategy.IdentityColumn
+                        SqlServerValueGenerationStrategy.IdentityColumn
                 });
 
             Assert.Equal(
@@ -148,7 +151,7 @@ namespace Microsoft.Data.Entity.Migrations
         [Fact]
         public virtual void CreateDatabaseOperation()
         {
-            Generate(new CreateDatabaseOperation { Name = "Northwind" });
+            Generate(new SqlServerCreateDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
                 "CREATE DATABASE [Northwind];" + EOL +
@@ -267,7 +270,7 @@ namespace Microsoft.Data.Entity.Migrations
         [Fact]
         public virtual void DropDatabaseOperation()
         {
-            Generate(new DropDatabaseOperation { Name = "Northwind" });
+            Generate(new SqlServerDropDatabaseOperation { Name = "Northwind" });
 
             Assert.Equal(
                 "IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE [Northwind] SET SINGLE_USER WITH ROLLBACK IMMEDIATE');" + EOL +
@@ -292,13 +295,13 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new RenameSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     NewSchema = "my"
                 });
 
             Assert.Equal(
-                "ALTER SCHEMA [my] TRANSFER [dbo].[DefaultSequence];" + EOL,
+                "ALTER SCHEMA [my] TRANSFER [dbo].[EntityFrameworkHiLoSequence];" + EOL,
                 Sql);
         }
 
@@ -358,13 +361,13 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new RenameSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     NewName = "MySequence"
                 });
 
             Assert.Equal(
-                "EXEC sp_rename N'dbo.DefaultSequence', N'MySequence';" + EOL,
+                "EXEC sp_rename N'dbo.EntityFrameworkHiLoSequence', N'MySequence';" + EOL,
                 Sql);
         }
 

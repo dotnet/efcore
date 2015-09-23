@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class SqlTranslatingExpressionVisitor : ThrowingExpressionVisitor
     {
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
         private readonly IMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly bool _inProjection;
 
         public SqlTranslatingExpressionVisitor(
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator,
@@ -43,13 +43,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             bool bindParentQueries = false,
             bool inProjection = false)
         {
-            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
             Check.NotNull(memberTranslator, nameof(memberTranslator));
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            _relationalAnnotationProvider = relationalAnnotationProvider;
             _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
             _methodCallTranslator = methodCallTranslator;
             _memberTranslator = memberTranslator;
@@ -392,7 +392,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 && selectExpression != _targetSelectExpression)
             {
                 selectExpression?.AddToProjection(
-                    _relationalMetadataExtensionProvider.For(property).ColumnName,
+                    _relationalAnnotationProvider.For(property).ColumnName,
                     property,
                     querySource);
 
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             IProperty property, IQuerySource querySource, SelectExpression selectExpression)
             => new AliasExpression(
                 new ColumnExpression(
-                    _relationalMetadataExtensionProvider.For(property).ColumnName,
+                    _relationalAnnotationProvider.For(property).ColumnName,
                     property,
                     selectExpression.GetTableForQuerySource(querySource)));
 

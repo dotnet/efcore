@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             public override ModificationCommandBatch Create(
                 IDbContextOptions options,
-                IRelationalMetadataExtensionProvider metadataExtensionProvider) => new TestSqliteModificationCommandBatch(UpdateSqlGenerator);
+                IRelationalAnnotationProvider annotationProvider) => new TestSqliteModificationCommandBatch(UpdateSqlGenerator);
         }
 
         private class ChipsContext : DbContext

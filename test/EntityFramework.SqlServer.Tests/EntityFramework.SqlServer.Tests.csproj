@@ -37,7 +37,7 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="Metadata\InternalSqlServerMetadataBuilderExtensionsTest.cs" />
-    <Compile Include="Metadata\ModelConventions\SqlServerIdentityStrategyConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\SqlServerValueGenerationStrategyConventionTest.cs" />
     <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
     <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />

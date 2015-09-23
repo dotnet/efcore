@@ -6,9 +6,10 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -20,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations
         public SqlServerMigrationsSqlGenerator(
             [NotNull] ISqlServerUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalMetadataExtensionProvider annotations)
+            [NotNull] IRelationalAnnotationProvider annotations)
             : base(sql, typeMapper, annotations)
         {
         }
@@ -30,8 +31,8 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            var createDatabaseOperation = operation as CreateDatabaseOperation;
-            var dropDatabaseOperation = operation as DropDatabaseOperation;
+            var createDatabaseOperation = operation as SqlServerCreateDatabaseOperation;
+            var dropDatabaseOperation = operation as SqlServerDropDatabaseOperation;
             if (createDatabaseOperation != null)
             {
                 Generate(createDatabaseOperation, model, builder);
@@ -229,7 +230,7 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected virtual void Generate(
-            [NotNull] CreateDatabaseOperation operation,
+            [NotNull] SqlServerCreateDatabaseOperation operation,
             [CanBeNull] IModel model,
             [NotNull] RelationalCommandListBuilder builder)
         {
@@ -247,7 +248,7 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         protected virtual void Generate(
-            [NotNull] DropDatabaseOperation operation,
+            [NotNull] SqlServerDropDatabaseOperation operation,
             [CanBeNull] IModel model,
             [NotNull] RelationalCommandListBuilder builder)
         {
@@ -329,7 +330,7 @@ namespace Microsoft.Data.Entity.Migrations
             RelationalCommandListBuilder builder)
         {
             var valueGenerationStrategy = annotatable[
-                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerIdentityStrategy?;
+                SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?;
 
             ColumnDefinition(
                 schema,
@@ -341,7 +342,7 @@ namespace Microsoft.Data.Entity.Migrations
                 defaultValue,
                 defaultValueSql,
                 computedColumnSql,
-                valueGenerationStrategy == SqlServerIdentityStrategy.IdentityColumn,
+                valueGenerationStrategy == SqlServerValueGenerationStrategy.IdentityColumn,
                 annotatable,
                 model,
                 builder);

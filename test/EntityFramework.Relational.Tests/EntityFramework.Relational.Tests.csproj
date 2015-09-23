@@ -61,7 +61,7 @@
     <Compile Include="SqlGeneratorTest.cs" />
     <Compile Include="SqlGeneratorTestBase.cs" />
     <Compile Include="Storage\RelationalTypeMapperTest.cs" />
-    <Compile Include="TestMetadataExtensionProvider.cs" />
+    <Compile Include="TestAnnotationProvider.cs" />
     <Compile Include="TestRelationalMetadataExtensions.cs" />
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
