@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Xunit.Abstractions;
 #if !DNXCORE50
@@ -18,85 +17,85 @@ namespace Microsoft.Data.Entity.FunctionalTests
 {
     public class TestSqlLoggerFactory : ILoggerFactory
     {
-#if DNXCORE50
-        private readonly static AsyncLocal<SqlLogger> _logger = new AsyncLocal<SqlLogger>();
-#else
-        private const string ContextName = "__SQL";
-#endif
+        private static SqlLogger _logger;
 
         public LogLevel MinimumLevel { get; set; }
 
-        public ILogger CreateLogger(string name)
-        {
-            return Logger;
-        }
+        public ILogger CreateLogger(string name) => Logger;
+
+        private static SqlLogger Logger => LazyInitializer.EnsureInitialized(ref _logger);
 
         public void AddProvider(ILoggerProvider provider)
         {
+            throw new NotImplementedException();
         }
 
-        private static SqlLogger Init()
+        public CancellationToken CancelQuery()
         {
-            var logger = new SqlLogger();
-#if DNXCORE50
-            _logger.Value = logger;
-#else
-            CallContext.LogicalSetData(ContextName, logger);
-#endif
-            return logger;
+            Logger.SqlLoggerData._cancellationTokenSource = new CancellationTokenSource();
+
+            return Logger.SqlLoggerData._cancellationTokenSource.Token;
         }
 
-        private static SqlLogger Logger
-        {
-            get
-            {
-#if DNXCORE50
-                var logger = _logger.Value;
-#else
-                var logger = (SqlLogger)CallContext.LogicalGetData(ContextName);
-#endif
-                return logger ?? Init();
-            }
-        }
-
-        public static CancellationToken CancelQuery()
-        {
-            Logger._cancellationTokenSource = new CancellationTokenSource();
-
-            return Logger._cancellationTokenSource.Token;
-        }
-
-        public static void Reset()
-        {
-#if DNXCORE50
-            _logger.Value = null;
-#else
-            CallContext.LogicalSetData(ContextName, null);
-#endif
-        }
+        public static void Reset() => Logger.Reset();
 
         public static void CaptureOutput(ITestOutputHelper testOutputHelper)
-        {
-            Logger._testOutputHelper = testOutputHelper;
-        }
+            => Logger.SqlLoggerData._testOutputHelper = testOutputHelper;
 
         public void Dispose()
         {
         }
 
-        public static string Log => Logger._log.ToString();
-        public static string Sql => string.Join(Environment.NewLine + Environment.NewLine, Logger._sqlStatements);
-        public static List<string> SqlStatements => Logger._sqlStatements;
+        public static string Log => Logger.SqlLoggerData._log.ToString();
 
-        private class SqlLogger : ILogger
+        public static string Sql
+            => string.Join(Environment.NewLine + Environment.NewLine, Logger.SqlLoggerData._sqlStatements);
+
+        public static List<string> SqlStatements => Logger.SqlLoggerData._sqlStatements;
+
+        private class SqlLoggerData
         {
             // ReSharper disable InconsistentNaming
             public readonly IndentedStringBuilder _log = new IndentedStringBuilder();
             public readonly List<string> _sqlStatements = new List<string>();
-
             public ITestOutputHelper _testOutputHelper;
             public CancellationTokenSource _cancellationTokenSource;
             // ReSharper restore InconsistentNaming
+        }
+
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class SqlLogger : ILogger
+        {
+#if DNXCORE50
+            private readonly static AsyncLocal<SqlLoggerData> _loggerData = new AsyncLocal<SqlLoggerData>();
+#else
+            private const string ContextName = "__SQL";
+#endif
+
+            // ReSharper disable once MemberCanBeMadeStatic.Local
+            public SqlLoggerData SqlLoggerData
+            {
+                get
+                {
+#if DNXCORE50
+                    var loggerData = _loggerData.Value;
+#else
+                    var loggerData = (SqlLoggerData)CallContext.LogicalGetData(ContextName);
+#endif
+                    return loggerData ?? CreateLoggerData();
+                }
+            }
+
+            private static SqlLoggerData CreateLoggerData()
+            {
+                var loggerData = new SqlLoggerData();
+#if DNXCORE50
+                _loggerData.Value = loggerData;
+#else
+                CallContext.LogicalSetData(ContextName, loggerData);
+#endif
+                return loggerData;
+            }
 
             public void Log(
                 LogLevel logLevel,
@@ -109,33 +108,38 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 if (format != null)
                 {
+                    var sqlLoggerData = SqlLoggerData;
+
                     if (eventId == RelationalLoggingEventIds.ExecutingSql)
                     {
-                        if (_cancellationTokenSource != null)
+                        if (sqlLoggerData._cancellationTokenSource != null)
                         {
-                            _cancellationTokenSource.Cancel();
-                            _cancellationTokenSource = null;
+                            sqlLoggerData._cancellationTokenSource.Cancel();
+                            sqlLoggerData._cancellationTokenSource = null;
                         }
 
-                        _sqlStatements.Add(format);
+                        sqlLoggerData._sqlStatements.Add(format);
                     }
                     else
                     {
-                        _log.AppendLine(format);
+                        sqlLoggerData._log.AppendLine(format);
                     }
 
-                    _testOutputHelper?.WriteLine(format + Environment.NewLine);
+                    sqlLoggerData._testOutputHelper?.WriteLine(format + Environment.NewLine);
                 }
             }
 
-            public bool IsEnabled(LogLevel logLevel)
-            {
-                return true;
-            }
+            public bool IsEnabled(LogLevel logLevel) => true;
 
-            public IDisposable BeginScopeImpl(object state)
+            public IDisposable BeginScopeImpl(object state) => SqlLoggerData._log.Indent();
+
+            public void Reset()
             {
-                return _log.Indent();
+#if DNXCORE50
+                _loggerData.Value = null;
+#else
+                CallContext.LogicalSetData(ContextName, null);
+#endif
             }
         }
     }

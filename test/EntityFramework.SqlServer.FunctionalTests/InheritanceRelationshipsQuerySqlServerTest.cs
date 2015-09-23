@@ -926,7 +926,6 @@ WHERE [e].[Discriminator] IN ('NestedCollectionDerived', 'NestedCollectionBase')
 
         protected override void ClearLog()
         {
-            TestSqlLoggerFactory.Reset();
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

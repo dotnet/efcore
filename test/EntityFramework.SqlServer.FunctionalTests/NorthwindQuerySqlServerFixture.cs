@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Infrastructure;
@@ -15,35 +16,37 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly DbContextOptions _options;
-        private readonly SqlServerTestStore _testStore;
+
+        private readonly SqlServerTestStore _testStore = SqlServerNorthwindContext.GetSharedStore();
+        private readonly TestSqlLoggerFactory _testSqlLoggerFactory = new TestSqlLoggerFactory();
 
         public NorthwindQuerySqlServerFixture()
         {
-            _testStore = SqlServerNorthwindContext.GetSharedStore();
-
-            _serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
-                .BuildServiceProvider();
+            _serviceProvider
+                = new ServiceCollection()
+                    .AddEntityFramework()
+                    .AddSqlServer()
+                    .ServiceCollection()
+                    .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
+                    .AddInstance<ILoggerFactory>(_testSqlLoggerFactory)
+                    .BuildServiceProvider();
 
             _options = ConfigureOptions();
-
-            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
         }
 
         protected virtual DbContextOptions ConfigureOptions()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            var sqlOptions = optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString).ApplyConfiguration();
+            optionsBuilder
+                .UseSqlServer(_testStore.Connection.ConnectionString)
+                .ApplyConfiguration();
 
             return optionsBuilder.Options;
         }
 
-        public override NorthwindContext CreateContext() => CreateContext(useRelationalNulls: false);
+        public override NorthwindContext CreateContext()
+            => CreateContext(useRelationalNulls: false);
 
         public override NorthwindContext CreateContext(bool useRelationalNulls)
         {
@@ -57,5 +60,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         public void Dispose() => _testStore.Dispose();
+
+        public override CancellationToken CancelQuery()
+            => _testSqlLoggerFactory.CancelQuery();
     }
 }

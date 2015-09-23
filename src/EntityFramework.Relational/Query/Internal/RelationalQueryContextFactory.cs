@@ -5,33 +5,25 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
     public class RelationalQueryContextFactory : QueryContextFactory
     {
         private readonly IRelationalConnection _connection;
-        private readonly DbContext _context;
 
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] DbContext context)
-            : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource, loggerFactory)
+            [NotNull] IRelationalConnection connection)
+            : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource)
         {
             _connection = connection;
-            _context = context;
         }
 
         public override QueryContext Create()
-            => new RelationalQueryContext(Logger, CreateQueryBuffer(), _connection)
-                {
-                    ContextType = _context.GetType()
-                };
+            => new RelationalQueryContext(CreateQueryBuffer(), _connection);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +9,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
@@ -29,18 +29,25 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] ILinqOperatorProvider linqOperatorProvider)
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
+            [NotNull] Type contextType)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
+            Check.NotNull(contextType, nameof(contextType));
 
-            Logger = loggerFactory.CreateLogger<Database>();
+            Logger = loggerFactory.CreateLogger<QueryCompilationContext>();
+
             _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
+
             LinqOperatorProvider = linqOperatorProvider;
+            ContextType = contextType;
         }
+
+        public virtual Type ContextType { get; }
 
         public virtual ILogger Logger { get; }
 

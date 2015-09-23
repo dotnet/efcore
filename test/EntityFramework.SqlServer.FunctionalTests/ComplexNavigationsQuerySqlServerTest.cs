@@ -13,10 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
         }
 
-        protected override void ClearLog()
-        {
-            TestSqlLoggerFactory.Reset();
-        }
+        protected override void ClearLog() => TestSqlLoggerFactory.Reset();
 
         public override void Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql()
         {

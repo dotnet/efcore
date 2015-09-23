@@ -17,19 +17,19 @@ namespace Microsoft.Data.Entity.Query.Internal
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
-        private readonly int? _queryIndex;
         private readonly ILogger _logger;
+        private readonly int? _queryIndex;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
-            int? queryIndex,
-            [NotNull] ILogger logger)
+            [NotNull] ILogger logger,
+            int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
-            _queryIndex = queryIndex;
             _logger = logger;
+            _queryIndex = queryIndex;
         }
 
         public virtual IEnumerator<ValueBuffer> GetEnumerator() => new Enumerator(this);

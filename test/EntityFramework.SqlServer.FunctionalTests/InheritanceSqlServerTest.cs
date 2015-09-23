@@ -271,7 +271,6 @@ WHERE ([k].[Discriminator] = 'Kiwi') AND [k].[Species] LIKE '%' + 'owenii'",
         public InheritanceSqlServerTest(InheritanceSqlServerFixture fixture)
             : base(fixture)
         {
-            TestSqlLoggerFactory.Reset();
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -22,12 +23,14 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] IQueryMethodProvider queryMethodProvider)
+            [NotNull] IQueryMethodProvider queryMethodProvider,
+            [NotNull] Type contextType)
             : base(
                 Check.NotNull(loggerFactory, nameof(loggerFactory)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)))
+                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
+                Check.NotNull(contextType, nameof(contextType)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
 
@@ -38,7 +41,7 @@ namespace Microsoft.Data.Entity.Query
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {
-            var relationalQueryModelVisitor 
+            var relationalQueryModelVisitor
                 = (RelationalQueryModelVisitor)base.CreateQueryModelVisitor();
 
             _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);
@@ -50,7 +53,7 @@ namespace Microsoft.Data.Entity.Query
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)
         {
-            var relationalQueryModelVisitor 
+            var relationalQueryModelVisitor
                 = (RelationalQueryModelVisitor)base.CreateQueryModelVisitor(parentEntityQueryModelVisitor);
 
             _relationalQueryModelVisitors.Add(relationalQueryModelVisitor);

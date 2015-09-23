@@ -264,6 +264,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                         _commandBuilderFactory.Create(
                                             () => _sqlQueryGeneratorFactory
                                                 .CreateGenerator(targetSelectExpression))),
+                                    Expression.Constant(_queryCompilationContext.Logger),
                                     Expression.Constant(queryIndex, typeof(int?))),
                                 materializer));
                 }
