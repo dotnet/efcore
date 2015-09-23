@@ -494,7 +494,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         public void Navigation_attribute_convention_runs_for_private_property()
         {
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
-            var referenceBuilder = modelBuilder.Entity<BlogDetails>().Reference(typeof(Post), "Post").InverseReference();
+            var referenceBuilder = modelBuilder.Entity<BlogDetails>().HasOne(typeof(Post), "Post").WithOne();
 
             Assert.False(referenceBuilder.Metadata.Properties.First().IsNullable);
         }

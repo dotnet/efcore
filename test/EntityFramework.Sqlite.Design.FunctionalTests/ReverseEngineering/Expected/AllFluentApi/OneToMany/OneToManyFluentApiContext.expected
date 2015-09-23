@@ -14,7 +14,7 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
 
                 entity.Property(e => e.OneToManyDependentID1).HasColumnType("INT");
 
@@ -25,22 +25,22 @@ namespace E2E.Sqlite
                 entity.Property(e => e.OneToManyDependentFK2).HasColumnType("INT");
 
                 entity.Property(e => e.SomeDependentEndColumn)
-                    .Required()
+                    .IsRequired()
                     .HasColumnType("VARCHAR");
 
-                entity.Reference(d => d.OneToManyDependentFK).InverseCollection(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
+                entity.HasOne(d => d.OneToManyDependentFK).WithMany(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
 
                 entity.Property(e => e.OneToManyPrincipalID1).HasColumnType("INT");
 
                 entity.Property(e => e.OneToManyPrincipalID2).HasColumnType("INT");
 
                 entity.Property(e => e.Other)
-                    .Required()
+                    .IsRequired()
                     .HasColumnType("TEXT");
             });
         }

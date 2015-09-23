@@ -480,7 +480,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 modelBuilder.Entity<Customer>(b =>
                     {
-                        b.Key(c => c.CustomerID);
+                        b.HasKey(c => c.CustomerID);
                         b.ToSqlServerTable("Customers");
                     });
             }

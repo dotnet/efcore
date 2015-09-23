@@ -51,9 +51,9 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 {
                     b.Property(e => e.Integer).HasColumnType("Integer");
                     b.Property(e => e.Real).HasColumnType("Real");
-                    b.Property(e => e.Text).HasColumnType("Text").Required();
-                    b.Property(e => e.Blob).HasColumnType("Blob").Required();
-                    b.Property(e => e.SomeString).HasColumnType("SomeString").Required();
+                    b.Property(e => e.Text).HasColumnType("Text").IsRequired();
+                    b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
+                    b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
                     b.Property(e => e.Int).HasColumnType("Int");
                 });
 

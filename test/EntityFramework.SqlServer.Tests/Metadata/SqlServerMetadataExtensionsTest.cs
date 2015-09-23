@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             var key = modelBuilder
                 .Entity<Customer>()
-                .Key(e => e.Id)
+                .HasKey(e => e.Id)
                 .Metadata;
 
             Assert.Equal("PK_Customer", key.Relational().Name);
@@ -257,12 +257,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Key(e => e.Id);
+                .HasKey(e => e.Id);
 
             var foreignKey = modelBuilder
                 .Entity<Order>()
-                .Reference<Customer>()
-                .InverseReference()
+                .HasOne<Customer>()
+                .WithOne()
                 .ForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             var key = modelBuilder
                 .Entity<Customer>()
-                .Key(e => e.Id)
+                .HasKey(e => e.Id)
                 .Metadata;
 
             Assert.Null(key.SqlServer().IsClustered);

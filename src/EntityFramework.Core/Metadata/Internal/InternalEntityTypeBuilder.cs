@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (Metadata.FindPrimaryKey(properties) != null)
             {
                 _primaryKeyConfigurationSource = configurationSource.Max(_primaryKeyConfigurationSource);
-                return Key(properties, configurationSource);
+                return HasKey(properties, configurationSource);
             }
 
             if (!_primaryKeyConfigurationSource.HasValue
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var keyBuilder = Key(properties, configurationSource);
+            var keyBuilder = HasKey(properties, configurationSource);
             if (keyBuilder == null)
             {
                 return null;
@@ -100,13 +100,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-            => Key(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+        public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
+            => HasKey(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
-        public virtual InternalKeyBuilder Key([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-            => Key(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+        public virtual InternalKeyBuilder HasKey([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+            => HasKey(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
-        private InternalKeyBuilder Key(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        private InternalKeyBuilder HasKey(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             if (properties == null)
             {
@@ -1382,7 +1382,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Key principalKey;
             if (principalProperties != null)
             {
-                var keyBuilder = principalBaseEntityTypeBuilder.Key(principalProperties, ConfigurationSource.Convention);
+                var keyBuilder = principalBaseEntityTypeBuilder.HasKey(principalProperties, ConfigurationSource.Convention);
                 if (keyBuilder == null)
                 {
                     return null;
@@ -1416,7 +1416,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                             isRequired: true);
                     }
 
-                    var keyBuilder = principalBaseEntityTypeBuilder.Key(principalKeyProperties, ConfigurationSource.Convention);
+                    var keyBuilder = principalBaseEntityTypeBuilder.HasKey(principalKeyProperties, ConfigurationSource.Convention);
 
                     principalKey = keyBuilder.Metadata;
                 }
@@ -1433,7 +1433,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         principalBaseEntityTypeBuilder,
                         isRequired: true);
 
-                    principalKey = principalBaseEntityTypeBuilder.Key(new[] { principalKeyProperty }, ConfigurationSource.Convention).Metadata;
+                    principalKey = principalBaseEntityTypeBuilder.HasKey(new[] { principalKeyProperty }, ConfigurationSource.Convention).Metadata;
                 }
 
                 var fkProperties = new Property[principalKey.Properties.Count];
@@ -1499,7 +1499,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     if (isRequired.HasValue
                         && propertyType.IsNullableType())
                     {
-                        propertyBuilder.Required(isRequired.Value, ConfigurationSource.Convention);
+                        propertyBuilder.IsRequired(isRequired.Value, ConfigurationSource.Convention);
                     }
                     return propertyBuilder.Metadata;
                 }

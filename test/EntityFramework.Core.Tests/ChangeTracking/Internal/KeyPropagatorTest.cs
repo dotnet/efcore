@@ -233,22 +233,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<Product>(b =>
                 {
-                    b.Collection(e => e.OrderLines).InverseReference(e => e.Product);
-                    b.Reference(e => e.Detail).InverseReference(e => e.Product).ForeignKey<ProductDetail>(e => e.Id);
+                    b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product).ForeignKey<ProductDetail>(e => e.Id);
                 });
 
-            builder.Entity<Category>().Collection(e => e.Products).InverseReference(e => e.Category);
+            builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
 
             builder.Entity<ProductDetail>();
 
-            builder.Entity<Order>().Collection(e => e.OrderLines).InverseReference(e => e.Order);
+            builder.Entity<Order>().HasMany(e => e.OrderLines).WithOne(e => e.Order);
 
-            builder.Entity<OrderLineDetail>().Key(e => new { e.OrderId, e.ProductId });
+            builder.Entity<OrderLineDetail>().HasKey(e => new { e.OrderId, e.ProductId });
 
             builder.Entity<OrderLine>(b =>
                 {
-                    b.Key(e => new { e.OrderId, e.ProductId });
-                    b.Reference(e => e.Detail).InverseReference(e => e.OrderLine);
+                    b.HasKey(e => new { e.OrderId, e.ProductId });
+                    b.HasOne(e => e.Detail).WithOne(e => e.OrderLine);
                 });
 
             return model;

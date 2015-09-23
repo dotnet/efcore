@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(em => em.Region);
                     e.Ignore(em => em.TitleOfCourtesy);
 
-                    e.Reference(e1 => e1.Manager).InverseCollection().ForeignKey(e1 => e1.ReportsTo);
+                    e.HasOne(e1 => e1.Manager).WithMany().ForeignKey(e1 => e1.ReportsTo);
                 });
 
             modelBuilder.Entity<Product>(e =>
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(o => o.ShippedDate);
                 });
 
-            modelBuilder.Entity<OrderDetail>(e => { e.Key(od => new { od.OrderID, od.ProductID }); });
+            modelBuilder.Entity<OrderDetail>(e => { e.HasKey(od => new { od.OrderID, od.ProductID }); });
         }
 
         public abstract NorthwindContext CreateContext();

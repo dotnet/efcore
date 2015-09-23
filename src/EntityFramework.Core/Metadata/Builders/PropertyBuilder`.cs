@@ -50,8 +50,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether the property is required. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> Required(bool required = true)
-            => (PropertyBuilder<TProperty>)base.Required(required);
+        public new virtual PropertyBuilder<TProperty> IsRequired(bool required = true)
+            => (PropertyBuilder<TProperty>)base.IsRequired(required);
 
         /// <summary>
         ///     Configures the maximum length of data that can be stored in this property.
@@ -59,8 +59,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="maxLength"> The maximum length of data allowed in the property. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> MaxLength(int maxLength)
-            => (PropertyBuilder<TProperty>)base.MaxLength(maxLength);
+        public new virtual PropertyBuilder<TProperty> HasMaxLength(int maxLength)
+            => (PropertyBuilder<TProperty>)base.HasMaxLength(maxLength);
 
         /// <summary>
         ///     Configures whether this property should be used as a concurrency token. When a property is configured
@@ -71,8 +71,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="concurrencyToken"> A value indicating whether this property is a concurrency token. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> ConcurrencyToken(bool concurrencyToken = true)
-            => (PropertyBuilder<TProperty>)base.ConcurrencyToken(concurrencyToken);
+        public new virtual PropertyBuilder<TProperty> IsConcurrencyToken(bool concurrencyToken = true)
+            => (PropertyBuilder<TProperty>)base.IsConcurrencyToken(concurrencyToken);
 
         /// <summary>
         ///     Configures a property to never have a value generated when an instance of this

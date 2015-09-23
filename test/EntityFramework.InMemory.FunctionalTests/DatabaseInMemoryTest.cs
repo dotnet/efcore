@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Artist>().Key(a => a.ArtistId);
+                modelBuilder.Entity<Artist>().HasKey(a => a.ArtistId);
             }
 
             public class Artist : ArtistBase<string>

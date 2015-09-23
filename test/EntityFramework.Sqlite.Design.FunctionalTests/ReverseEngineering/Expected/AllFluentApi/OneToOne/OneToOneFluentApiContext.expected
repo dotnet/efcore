@@ -18,7 +18,7 @@ namespace E2E.Sqlite
 
                 entity.Property(e => e.PrincipalId).HasColumnType("INT");
 
-                entity.Reference(d => d.Principal).InverseReference(p => p.Dependent).ForeignKey<Dependent>(d => d.PrincipalId);
+                entity.HasOne(d => d.Principal).WithOne(p => p.Dependent).ForeignKey<Dependent>(d => d.PrincipalId);
             });
 
             modelBuilder.Entity<Principal>(entity =>

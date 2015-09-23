@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         eb.Property(typeof(string), SimpleEntity.ShadowPartitionIdName);
                         eb.ToTable("RelationalSimpleEntity"); // TODO: specify schema when #948 is fixed
                         eb.Property(typeof(string), SimpleEntity.ShadowPropertyName);
-                        eb.Key(e => e.Id);
+                        eb.HasKey(e => e.Id);
                     });
         }
 

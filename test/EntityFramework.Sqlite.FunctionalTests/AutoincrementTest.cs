@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             modelBuilder.Entity<Person>(b =>
                 {
                     b.ToSqliteTable("People2");
-                    b.Key(t => t.Name);
+                    b.HasKey(t => t.Name);
                     b.Property(t => t.Name).ValueGeneratedOnAdd();
                 });
         }

@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Key(e => e.Id)
+                .HasKey(e => e.Id)
                 .Name("KeyLimePie")
                 .SqlServerKeyName("LemonSupreme");
 
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ConstraintName("LemonSupreme")
                 .SqlServerConstraintName("ChocolateLimes");
 
@@ -158,7 +158,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .SqlServerConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().Collection(e => e.Orders).InverseReference(e => e.Customer)
+                .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .ForeignKey(e => e.CustomerId)
                 .ConstraintName("LemonSupreme")
                 .SqlServerConstraintName("ChocolateLimes");
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ConstraintName("LemonSupreme")
                 .SqlServerConstraintName("ChocolateLimes");
 
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .SqlServerConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().Reference(e => e.Customer).InverseCollection(e => e.Orders)
+                .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .ForeignKey(e => e.CustomerId)
                 .ConstraintName("LemonSupreme")
                 .SqlServerConstraintName("ChocolateLimes");
@@ -228,7 +228,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .PrincipalKey<Order>(e => e.OrderId)
                 .ConstraintName("LemonSupreme")
                 .SqlServerConstraintName("ChocolateLimes");
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
 
             modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .SqlServerConstraintName(null);
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Order>().Reference(e => e.Details).InverseReference(e => e.Order)
+                .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
                 .ForeignKey<OrderDetails>(e => e.Id)
                 .ConstraintName("LemonSupreme")
                 .SqlServerConstraintName("ChocolateLimes");
@@ -374,7 +374,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             modelBuilder
                 .Entity<Customer>()
-                .Key(e => e.Id)
+                .HasKey(e => e.Id)
                 .SqlServerClustered();
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
@@ -1233,22 +1233,22 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             AssertIsGeneric(
                 modelBuilder
-                    .Entity<Customer>().Collection(e => e.Orders)
-                    .InverseReference(e => e.Customer)
+                    .Entity<Customer>().HasMany(e => e.Orders)
+                    .WithOne(e => e.Customer)
                     .SqlServerConstraintName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
-                    .Reference(e => e.Customer)
-                    .InverseCollection(e => e.Orders)
+                    .HasOne(e => e.Customer)
+                    .WithMany(e => e.Orders)
                     .SqlServerConstraintName("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
-                    .Reference(e => e.Details)
-                    .InverseReference(e => e.Order)
+                    .HasOne(e => e.Details)
+                    .WithOne(e => e.Order)
                     .SqlServerConstraintName("Simon"));
         }
 
@@ -1258,20 +1258,20 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Entity<Customer>().Collection(typeof(Order), "Orders")
-                .InverseReference("Customer")
+                .Entity<Customer>().HasMany(typeof(Order), "Orders")
+                .WithOne("Customer")
                 .SqlServerConstraintName("Will");
 
             modelBuilder
                 .Entity<Order>()
-                .Reference(e => e.Customer)
-                .InverseCollection(e => e.Orders)
+                .HasOne(e => e.Customer)
+                .WithMany(e => e.Orders)
                 .SqlServerConstraintName("Jay");
 
             modelBuilder
                 .Entity<Order>()
-                .Reference(e => e.Details)
-                .InverseReference(e => e.Order)
+                .HasOne(e => e.Details)
+                .WithOne(e => e.Order)
                 .SqlServerConstraintName("Simon");
         }
 

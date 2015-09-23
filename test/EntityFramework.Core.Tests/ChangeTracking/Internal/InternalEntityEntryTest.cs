@@ -1439,8 +1439,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             modelBuilder
                 .Entity<FirstDependent>()
-                .Reference(e => e.Second)
-                .InverseReference(e => e.First)
+                .HasOne(e => e.Second)
+                .WithOne(e => e.First)
                 .ForeignKey<SecondDependent>(e => e.Id)
                 .WillCascadeOnDelete();
 
@@ -1449,8 +1449,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                     {
                         b.Property(e => e.Id).ValueGeneratedNever();
 
-                        b.Reference(e => e.First)
-                            .InverseReference(e => e.Root)
+                        b.HasOne(e => e.First)
+                            .WithOne(e => e.Root)
                             .ForeignKey<FirstDependent>(e => e.Id);
 
                     });

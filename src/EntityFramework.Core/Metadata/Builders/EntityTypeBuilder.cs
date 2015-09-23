@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the primary key. </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder Key([NotNull] params string[] propertyNames)
+        public virtual KeyBuilder HasKey([NotNull] params string[] propertyNames)
         {
             Check.NotEmpty(propertyNames, nameof(propertyNames));
 
@@ -109,11 +109,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the unique constraint. </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>
-        public virtual KeyBuilder AlternateKey([NotNull] params string[] propertyNames)
+        public virtual KeyBuilder HasAlternateKey([NotNull] params string[] propertyNames)
         {
             Check.NotNull(propertyNames, nameof(propertyNames));
 
-            return new KeyBuilder(Builder.Key(propertyNames, ConfigurationSource.Explicit));
+            return new KeyBuilder(Builder.HasKey(propertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -188,8 +188,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder.InverseCollection(string)" />
-        ///         or <see cref="ReferenceNavigationBuilder.InverseReference(string)" /> to fully configure
+        ///         <see cref="ReferenceNavigationBuilder.WithMany" />
+        ///         or <see cref="ReferenceNavigationBuilder.WithOne" /> to fully configure
         ///         the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder Reference(
+        public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] Type relatedType,
             [CanBeNull] string navigationName = null)
         {
@@ -222,8 +222,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="ReferenceNavigationBuilder.InverseCollection(string)" />
-        ///         or <see cref="ReferenceNavigationBuilder.InverseReference(string)" /> to fully configure
+        ///         <see cref="ReferenceNavigationBuilder.WithMany" />
+        ///         or <see cref="ReferenceNavigationBuilder.WithOne" /> to fully configure
         ///         the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder Reference(
+        public virtual ReferenceNavigationBuilder HasOne(
             [NotNull] string relatedTypeName,
             [CanBeNull] string navigationName = null)
         {
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="CollectionNavigationBuilder.InverseReference(string)" />
+        ///         <see cref="CollectionNavigationBuilder.WithOne" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -268,7 +268,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual CollectionNavigationBuilder Collection(
+        public virtual CollectionNavigationBuilder HasMany(
             [NotNull] Type relatedType,
             [CanBeNull] string navigationName = null)
         {
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         ///     <para>
         ///         After calling this method, you should chain a call to
-        ///         <see cref="CollectionNavigationBuilder.InverseReference(string)" />
+        ///         <see cref="CollectionNavigationBuilder.WithOne" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual CollectionNavigationBuilder Collection(
+        public virtual CollectionNavigationBuilder HasMany(
             [NotNull] string relatedTypeName,
             [CanBeNull] string navigationName = null)
         {

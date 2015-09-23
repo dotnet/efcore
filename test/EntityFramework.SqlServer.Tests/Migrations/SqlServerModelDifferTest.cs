@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id").SqlServerKeyName("PK_People");
+                            x.HasKey("Id").SqlServerKeyName("PK_People");
                             x.ToSqlServerTable("People", "dbo");
                         }),
                 operations =>
@@ -47,14 +47,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                         }),
                 target => target.Entity(
                     "Person",
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.ToSqlServerTable("People", "dbo");
                         }),
                 operations =>
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.ToSqlServerTable("People", "dbo");
                         }),
                 _ => { },
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 target => target.Entity(
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value").HasSqlServerColumnName("PersonValue");
                         }),
                 operations =>
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 target => target.Entity(
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value")
                                 .HasSqlServerColumnType("varchar(8000)")
                                 .HasDefaultValueSql("1 + 1");
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Lamb", "bah");
                             x.Property<int>("Id").ValueGeneratedNever();
-                            x.Key("Id");
+                            x.HasKey("Id");
                         }),
                 target => target.Entity(
                     "Lamb",
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Lamb", "bah");
                             x.Property<int>("Id").ValueGeneratedOnAdd();
-                            x.Key("Id");
+                            x.HasKey("Id");
                         }),
                 operations =>
                     {
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Sheep", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Now");
                         }),
                 target => target.Entity(
@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Sheep", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Now").HasSqlServerComputedColumnSql("CAST(CURRENT_TIMESTAMP AS int)");
                         }),
                 operations =>
@@ -234,14 +234,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                         }),
                 target => target.Entity(
                     "Person",
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value").HasSqlServerColumnName("PersonValue");
                         }),
                 operations =>
@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value").HasSqlServerColumnName("PersonValue");
                         }),
                 target => target.Entity(
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                         {
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                         }),
                 operations =>
                     {
@@ -293,7 +293,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ram", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id").SqlServerClustered(false);
+                            x.HasKey("Id").SqlServerClustered(false);
                         }),
                 target => target.Entity(
                     "Ram",
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ram", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id").SqlServerClustered(true);
+                            x.HasKey("Id").SqlServerClustered(true);
                         }),
                 operations =>
                     {
@@ -330,9 +330,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
-                            x.AlternateKey("AlternateId").SqlServerClustered(false);
+                            x.HasAlternateKey("AlternateId").SqlServerClustered(false);
                         }),
                 target => target.Entity(
                     "Ewe",
@@ -340,9 +340,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
-                            x.AlternateKey("AlternateId").SqlServerClustered(true);
+                            x.HasAlternateKey("AlternateId").SqlServerClustered(true);
                         }),
                 operations =>
                     {
@@ -371,7 +371,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                         }),
                 target => target.Entity(
@@ -380,9 +380,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
-                            x.AlternateKey("AlternateId").SqlServerKeyName("AK_Ewe");
+                            x.HasAlternateKey("AlternateId").SqlServerKeyName("AK_Ewe");
                         }),
                 operations =>
                     {
@@ -405,9 +405,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
-                            x.AlternateKey("AlternateId").SqlServerKeyName("AK_Ewe");
+                            x.HasAlternateKey("AlternateId").SqlServerKeyName("AK_Ewe");
                         }),
                 target => target.Entity(
                     "Ewe",
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Ewe", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("AlternateId");
                         }),
                 operations =>
@@ -439,7 +439,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                         }),
                 target => target.Entity(
@@ -448,9 +448,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Amoeba", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.Reference("Amoeba").InverseCollection().ForeignKey("ParentId").SqlServerConstraintName("FK_Amoeba_Parent");
+                            x.HasOne("Amoeba").WithMany().ForeignKey("ParentId").SqlServerConstraintName("FK_Amoeba_Parent");
                         }),
                 operations =>
                     {
@@ -473,9 +473,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Anemone", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.Reference("Anemone").InverseCollection().ForeignKey("ParentId").SqlServerConstraintName("FK_Anemone_Parent");
+                            x.HasOne("Anemone").WithMany().ForeignKey("ParentId").SqlServerConstraintName("FK_Anemone_Parent");
                         }),
                 target => target.Entity(
                     "Anemone",
@@ -483,7 +483,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Anemone", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("ParentId");
                         }),
                 operations =>
@@ -507,7 +507,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Mutton", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Index("Value").SqlServerClustered(false);
                         }),
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Mutton", "bah");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Index("Value").SqlServerClustered(true);
                         }),
@@ -548,7 +548,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Donkey", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Index("Value");
                         }),
@@ -558,7 +558,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Donkey", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Index("Value").SqlServerIndexName("IX_dbo.Donkey_Value");
                         }),
@@ -584,7 +584,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Hippo", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 target => target.Entity(
@@ -593,7 +593,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Hippo", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Index("Value").SqlServerIndexName("IX_HipVal");
                         }),
@@ -618,7 +618,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Horse", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                             x.Index("Value").SqlServerIndexName("IX_HorseVal");
                         }),
@@ -628,7 +628,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.ToTable("Horse", "dbo");
                             x.Property<int>("Id");
-                            x.Key("Id");
+                            x.HasKey("Id");
                             x.Property<int>("Value");
                         }),
                 operations =>

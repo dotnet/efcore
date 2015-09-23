@@ -75,18 +75,18 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceCollectionBuilder InverseCollection([CanBeNull] string collection = null)
-            => new ReferenceCollectionBuilder(InverseCollectionBuilder(collection));
+        public virtual ReferenceCollectionBuilder WithMany([CanBeNull] string collection = null)
+            => new ReferenceCollectionBuilder(WithManyBuilder(collection));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="InverseCollection" /> is called.
+        ///     Returns the internal builder to be used when <see cref="WithMany" /> is called.
         /// </summary>
         /// <param name="collection">
         ///     The name of the collection navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder InverseCollectionBuilder([CanBeNull] string collection)
+        protected virtual InternalRelationshipBuilder WithManyBuilder([CanBeNull] string collection)
         {
             var needToInvert = Builder.Metadata.PrincipalEntityType != RelatedEntityType;
 
@@ -117,18 +117,18 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> An object to further configure the relationship. </returns>
-        public virtual ReferenceReferenceBuilder InverseReference([CanBeNull] string reference = null)
-            => new ReferenceReferenceBuilder(InverseReferenceBuilder(reference));
+        public virtual ReferenceReferenceBuilder WithOne([CanBeNull] string reference = null)
+            => new ReferenceReferenceBuilder(WithOneBuilder(reference));
 
         /// <summary>
-        ///     Returns the internal builder to be used when <see cref="InverseReference" /> is called.
+        ///     Returns the internal builder to be used when <see cref="WithOne" /> is called.
         /// </summary>
         /// <param name="reference">
         ///     The name of the reference navigation property on the other end of this relationship.
         ///     If null, there is no navigation property on the other end of the relationship.
         /// </param>
         /// <returns> The internal builder to further configure the relationship. </returns>
-        protected virtual InternalRelationshipBuilder InverseReferenceBuilder([CanBeNull] string reference)
+        protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
         {
             var builder = Builder;
             // TODO: Remove this when #1924 is fixed

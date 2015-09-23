@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
             Check.NotNull(attribute, nameof(attribute));
 
-            propertyBuilder.Required(true, ConfigurationSource.DataAnnotation);
+            propertyBuilder.IsRequired(true, ConfigurationSource.DataAnnotation);
 
             return propertyBuilder;
         }

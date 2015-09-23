@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var discriminatorSet = SetDiscriminatorProperty(propertyBuilder.Metadata);
             Debug.Assert(discriminatorSet);
 
-            propertyBuilder.Required(true, configurationSource);
+            propertyBuilder.IsRequired(true, configurationSource);
             //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);// #2132
             propertyBuilder.ReadOnlyAfterSave(true, configurationSource);
             propertyBuilder.UseValueGenerator(true, configurationSource);

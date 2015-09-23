@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
-                .Key(e => e.Id)
+                .HasKey(e => e.Id)
                 .KeyBuilderExtension("V1")
                 .KeyBuilderExtension("V2");
 
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var relationshipBuilder = builder
-                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter);
+                .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter);
 
             var returnedBuilder = relationshipBuilder
                 .OneToManyBuilderExtension("V1")
@@ -181,7 +181,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var relationshipBuilder = builder
-                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates);
+                .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates);
 
             var returnedBuilder = relationshipBuilder
                 .ManyToOneBuilderExtension("V1")
@@ -203,7 +203,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var relationshipBuilder = builder
-                .Entity<Avatar>().Reference(e => e.Gunter).InverseReference(e => e.Avatar)
+                .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
                 .PrincipalKey<Gunter>(e => e.Id);
 
             var returnedBuilder = relationshipBuilder
@@ -305,7 +305,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
-                .Key(e => e.Id)
+                .HasKey(e => e.Id)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var relationshipBuilder = builder
-                .Entity<Gunter>().Collection(e => e.Gates).InverseReference(e => e.Gunter);
+                .Entity<Gunter>().HasMany(e => e.Gates).WithOne(e => e.Gunter);
 
             var returnedBuilder = relationshipBuilder
                 .SharedNameExtension("V1")
@@ -389,7 +389,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var relationshipBuilder = builder
-                .Entity<Gate>().Reference(e => e.Gunter).InverseCollection(e => e.Gates);
+                .Entity<Gate>().HasOne(e => e.Gunter).WithMany(e => e.Gates);
 
             var returnedBuilder = relationshipBuilder
                 .SharedNameExtension("V1")
@@ -411,7 +411,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var builder = CreateModelBuilder();
 
             var relationshipBuilder = builder
-                .Entity<Avatar>().Reference(e => e.Gunter).InverseReference(e => e.Avatar)
+                .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
                 .PrincipalKey<Gunter>(e => e.Id);
 
             var returnedBuilder = relationshipBuilder

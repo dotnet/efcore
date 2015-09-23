@@ -14,7 +14,7 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
 
                 entity.Property(e => e.OneToManyDependentID1).HasColumnType("INT");
 
@@ -29,7 +29,7 @@ namespace E2E.Sqlite
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
 
                 entity.Property(e => e.OneToManyPrincipalID1).HasColumnType("INT");
 
