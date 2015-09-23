@@ -22,6 +22,24 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         public virtual string TestProjectDir => Path.Combine("E2ETest", "Output");
         public virtual string TestSubDir => "SubDir";
         public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
+        public static TableSelectionSet Filter
+        {
+            get
+            {
+                var filter = new TableSelectionSet();
+                filter.AddSelections(new TableSelection[]
+                {
+                    new TableSelection()
+                    {
+                        Schema = "dbo",
+                        Table = "FilteredOut",
+                        Exclude = true
+                    }
+                });
+
+                return filter;
+            }
+        }
 
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
             : base(output)
@@ -81,7 +99,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ContextClassName = "AttributesContext",
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
-                OutputPath = TestSubDir
+                OutputPath = TestSubDir,
+                TableSelectionSet = Filter,
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
@@ -127,6 +146,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = null, // not used for this test
                 UseFluentApiOnly = true,
+                TableSelectionSet = Filter,
             };
 
             var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();

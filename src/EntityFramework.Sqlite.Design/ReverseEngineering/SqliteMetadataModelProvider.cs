@@ -57,7 +57,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         var tableName = reader.GetString(3);
 
                         if (type == "table"
-                            && name != "sqlite_sequence")
+                            && name != "sqlite_sequence"
+                            && _tableSelectionSet.Allows(TableSelection.Any, name))
                         {
                             tables.Add(name, sql);
                         }

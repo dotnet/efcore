@@ -82,6 +82,10 @@ if exists (select * from sysobjects where id = object_id('dbo.SelfReferencing') 
 	drop table "dbo"."SelfReferencing"
 GO
 
+if exists (select * from sysobjects where id = object_id('dbo.FilteredOut') and sysstat & 0xf = 3)
+	drop table "dbo"."FilteredOut"
+GO
+
 CREATE TABLE "dbo"."AllDataTypes" (
 	"AllDataTypesID" "int" IDENTITY(1, 1) PRIMARY KEY,
 	"bigintColumn" "bigint" NOT NULL,
@@ -284,6 +288,14 @@ CREATE TABLE "TableWithUnmappablePrimaryKeyColumn" (
 	) REFERENCES "dbo"."ReferredToByTableWithUnmappablePrimaryKeyColumn" (
 		"ReferredToByTableWithUnmappablePrimaryKeyColumnID"
 	),
+)
+
+GO
+
+CREATE TABLE "FilteredOut" (
+	"FilteredOutID" "int" PRIMARY KEY,
+	"Unused1" nvarchar(20) NOT NULL,
+	"Unused2" "int" NOT NULL,
 )
 
 GO

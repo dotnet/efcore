@@ -8,6 +8,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public interface IDatabaseMetadataModelProvider
     {
-        IModel GenerateMetadataModel([NotNull] string connectionString);
+        IModel GenerateMetadataModel(
+            [NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet);
     }
 }

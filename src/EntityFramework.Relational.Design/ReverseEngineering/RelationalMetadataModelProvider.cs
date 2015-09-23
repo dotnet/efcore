@@ -38,6 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual ModelUtilities ModelUtilities { get; }
 
         protected abstract IRelationalAnnotationProvider ExtensionsProvider { get; }
+        protected TableSelectionSet _tableSelectionSet = TableSelectionSet.InclusiveAll;
 
         protected RelationalMetadataModelProvider([NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities, [NotNull] CSharpUtilities cSharpUtilities)
@@ -50,9 +51,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             ModelUtilities = modelUtilities;
         }
 
-        public virtual IModel GenerateMetadataModel([NotNull] string connectionString)
+        public virtual IModel GenerateMetadataModel(
+            [NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
+
+            _tableSelectionSet = tableSelectionSet ?? TableSelectionSet.InclusiveAll;
 
             var relationalModel = ConstructRelationalModel(connectionString);
 
