@@ -22,7 +22,7 @@ namespace EntityFramework.Microbenchmarks.Core
             return new BenchmarkConfig
             {
                 RunIterations = bool.Parse(config["benchmarks:runIterations"]),
-                ResultDatabases = resultDatabasesSection.GetChildren().Select(s => config[s.Key]).ToArray(),
+                ResultDatabases = resultDatabasesSection.GetChildren().Select(s => s.Value).ToArray(),
                 BenchmarkDatabaseInstance = config["benchmarks:benchmarkDatabaseInstance"],
                 ProductReportingVersion = config["benchmarks:productReportingVersion"],
                 CustomData = config["benchmarks:customData"]
