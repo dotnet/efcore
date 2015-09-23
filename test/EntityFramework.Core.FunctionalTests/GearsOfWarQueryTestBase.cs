@@ -159,6 +159,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
 
             ClearLog();
+
             using (var context = CreateContext())
             {
                 var query = context.Gears

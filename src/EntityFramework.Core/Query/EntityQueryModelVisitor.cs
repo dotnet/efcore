@@ -197,7 +197,8 @@ namespace Microsoft.Data.Entity.Query
                     LinqOperatorProvider.InterceptExceptions
                         .MakeGenericMethod(_expression.Type.GetSequenceType()),
                     Expression.Lambda(_expression),
-                    QueryContextParameter);
+                    Expression.Constant(QueryCompilationContext.ContextType),
+                    Expression.Constant(QueryCompilationContext.Logger));
         }
 
         protected virtual void ExtractQueryAnnotations([NotNull] QueryModel queryModel)

@@ -9,13 +9,15 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
-    public class ComplexNavigationsQuerySqlServerFixture : ComplexNavigationsQueryRelationalFixture<SqlServerTestStore>
+    public class ComplexNavigationsQuerySqlServerFixture 
+        : ComplexNavigationsQueryRelationalFixture<SqlServerTestStore>
     {
         public static readonly string DatabaseName = "ComplexNavigations";
 
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly string _connectionString = SqlServerTestStore.CreateConnectionString(DatabaseName);
+        private readonly string _connectionString 
+            = SqlServerTestStore.CreateConnectionString(DatabaseName);
 
         public ComplexNavigationsQuerySqlServerFixture()
         {
@@ -43,8 +45,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         {
                             ComplexNavigationsModelInitializer.Seed(context);
                         }
-
-                        TestSqlLoggerFactory.SqlStatements.Clear();
                     }
                 });
         }

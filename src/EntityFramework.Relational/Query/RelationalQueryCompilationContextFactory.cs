@@ -3,45 +3,41 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query
 {
-    public class RelationalQueryCompilationContextFactory : IQueryCompilationContextFactory
+    public class RelationalQueryCompilationContextFactory : QueryCompilationContextFactory
     {
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
-        private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
-
         public RelationalQueryCompilationContextFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory)
+            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] DbContext context)
+            : base(Check.NotNull(loggerFactory, nameof(loggerFactory)),
+                Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
+                Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
+                Check.NotNull(context, nameof(context)))
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
-            Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
-            Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
-
-            _loggerFactory = loggerFactory;
-            _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
-            _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
         }
 
-        public virtual QueryCompilationContext Create(bool async)
+        public override QueryCompilationContext Create(bool async)
             => async
                 ? new RelationalQueryCompilationContext(
-                    _loggerFactory,
-                    _entityQueryModelVisitorFactory,
-                    _requiresMaterializationExpressionVisitorFactory,
+                    LoggerFactory,
+                    EntityQueryModelVisitorFactory,
+                    RequiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
-                    new AsyncQueryMethodProvider())
+                    new AsyncQueryMethodProvider(),
+                    ContextType)
                 : new RelationalQueryCompilationContext(
-                    _loggerFactory,
-                    _entityQueryModelVisitorFactory,
-                    _requiresMaterializationExpressionVisitorFactory,
+                    LoggerFactory,
+                    EntityQueryModelVisitorFactory,
+                    RequiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),
-                    new QueryMethodProvider());
+                    new QueryMethodProvider(),
+                    ContextType);
     }
 }

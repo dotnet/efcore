@@ -29,9 +29,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static EnumerableAdapter<TResult> _ToEnumerable<TResult>(IAsyncEnumerable<TResult> results)
-        {
-            return new EnumerableAdapter<TResult>(results);
-        }
+            => new EnumerableAdapter<TResult>(results);
 
         private class EnumerableAdapter<TResult> : IAsyncEnumerable<TResult>, IEnumerable<TResult>
         {
@@ -42,20 +40,11 @@ namespace Microsoft.Data.Entity.Query
                 _results = results;
             }
 
-            IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator()
-            {
-                return _results.GetEnumerator();
-            }
+            IAsyncEnumerator<TResult> IAsyncEnumerable<TResult>.GetEnumerator() => _results.GetEnumerator();
 
-            IEnumerator<TResult> IEnumerable<TResult>.GetEnumerator()
-            {
-                return _results.ToEnumerable().GetEnumerator();
-            }
+            IEnumerator<TResult> IEnumerable<TResult>.GetEnumerator() => _results.ToEnumerable().GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable<TResult>)this).GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TResult>)this).GetEnumerator();
         }
 
         public virtual MethodInfo ToOrdered => _toOrdered;
@@ -66,9 +55,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IAsyncEnumerable<TResult> results)
-        {
-            return new OrderedEnumerableAdapter<TResult>(results);
-        }
+            => new OrderedEnumerableAdapter<TResult>(results);
 
         private class OrderedEnumerableAdapter<TResult>
             : EnumerableAdapter<TResult>, IOrderedAsyncEnumerable<TResult>, IOrderedEnumerable<TResult>
@@ -80,21 +67,15 @@ namespace Microsoft.Data.Entity.Query
 
             IOrderedAsyncEnumerable<TResult> IOrderedAsyncEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
-            {
-                return
-                    !descending
-                        ? _results.OrderBy(keySelector, comparer)
-                        : _results.OrderByDescending(keySelector, comparer);
-            }
+                => !@descending
+                    ? _results.OrderBy(keySelector, comparer)
+                    : _results.OrderByDescending(keySelector, comparer);
 
             IOrderedEnumerable<TResult> IOrderedEnumerable<TResult>.CreateOrderedEnumerable<TKey>(
                 Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
-            {
-                return
-                    !descending
-                        ? _results.ToEnumerable().OrderBy(keySelector, comparer)
-                        : _results.ToEnumerable().OrderByDescending(keySelector, comparer);
-            }
+                => !@descending
+                    ? _results.ToEnumerable().OrderBy(keySelector, comparer)
+                    : _results.ToEnumerable().OrderByDescending(keySelector, comparer);
         }
 
         private static readonly MethodInfo _interceptExceptions
@@ -103,26 +84,25 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
-            Func<IAsyncEnumerable<T>> source, QueryContext queryContext)
-            => new ExceptionInterceptor<T>(source, queryContext);
+            Func<IAsyncEnumerable<T>> source, Type contextType, ILogger logger)
+            => new ExceptionInterceptor<T>(source, contextType, logger);
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
         private sealed class ExceptionInterceptor<T> : IAsyncEnumerable<T>
         {
             private readonly Func<IAsyncEnumerable<T>> _innerFactory;
-            private readonly QueryContext _queryContext;
+            private readonly Type _contextType;
+            private readonly ILogger _logger;
 
-            public ExceptionInterceptor(Func<IAsyncEnumerable<T>> innerFactory, QueryContext queryContext)
+            public ExceptionInterceptor(Func<IAsyncEnumerable<T>> innerFactory, Type contextType, ILogger logger)
             {
                 _innerFactory = innerFactory;
-                _queryContext = queryContext;
+                _contextType = contextType;
+                _logger = logger;
             }
 
-            public IAsyncEnumerator<T> GetEnumerator()
-            {
-                return new EnumeratorExceptionInterceptor(this);
-            }
+            public IAsyncEnumerator<T> GetEnumerator() => new EnumeratorExceptionInterceptor(this);
 
             [DebuggerStepThrough]
             private sealed class EnumeratorExceptionInterceptor : IAsyncEnumerator<T>
@@ -151,8 +131,8 @@ namespace Microsoft.Data.Entity.Query
                     }
                     catch (Exception e)
                     {
-                        _exceptionInterceptor._queryContext.Logger.LogError(
-                            new DatabaseErrorLogState(_exceptionInterceptor._queryContext.ContextType),
+                        _exceptionInterceptor._logger.LogError(
+                            new DatabaseErrorLogState(_exceptionInterceptor._contextType),
                             e,
                             (state, exception) =>
                                 Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
@@ -161,10 +141,7 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
 
-                public void Dispose()
-                {
-                    _inner?.Dispose();
-                }
+                public void Dispose() => _inner?.Dispose();
             }
         }
 
@@ -247,10 +224,7 @@ namespace Microsoft.Data.Entity.Query
 
             public TKey Key => _grouping.Key;
 
-            public IAsyncEnumerator<TOut> GetEnumerator()
-            {
-                return CreateTrackingEnumerable().GetEnumerator();
-            }
+            public IAsyncEnumerator<TOut> GetEnumerator() => CreateTrackingEnumerable().GetEnumerator();
 
             private IAsyncEnumerable<TOut> CreateTrackingEnumerable()
             {
@@ -275,14 +249,9 @@ namespace Microsoft.Data.Entity.Query
             }
 
             IEnumerator<TOut> IEnumerable<TOut>.GetEnumerator()
-            {
-                return CreateTrackingEnumerable().ToEnumerable().GetEnumerator();
-            }
+                => CreateTrackingEnumerable().ToEnumerable().GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable<TOut>)this).GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TOut>)this).GetEnumerator();
         }
 
         private static readonly MethodInfo _toSequence
@@ -301,9 +270,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IAsyncEnumerable<TSource> source)
-        {
-            return new AsyncQueryableAdapter<TSource>(source);
-        }
+            => new AsyncQueryableAdapter<TSource>(source);
 
         private sealed class AsyncQueryableAdapter<T> : IOrderedQueryable<T>
         {
@@ -314,15 +281,9 @@ namespace Microsoft.Data.Entity.Query
                 _source = source;
             }
 
-            IEnumerator<T> IEnumerable<T>.GetEnumerator()
-            {
-                return _source.ToEnumerable().GetEnumerator();
-            }
+            IEnumerator<T> IEnumerable<T>.GetEnumerator() => _source.ToEnumerable().GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable<T>)this).GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<T>)this).GetEnumerator();
 
             public Type ElementType => typeof(T);
 
@@ -423,10 +384,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TSource> _Where<TSource>(
-            IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate)
-        {
-            return source.Where(predicate);
-        }
+            IAsyncEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
         public virtual MethodInfo Where => _where;
 
@@ -547,9 +505,7 @@ namespace Microsoft.Data.Entity.Query
             }
 
             public IAsyncEnumerator<T> GetEnumerator()
-            {
-                return new AsyncEnumeratorAdapter(_source.GetEnumerator());
-            }
+                => new AsyncEnumeratorAdapter(_source.GetEnumerator());
 
             private class AsyncEnumeratorAdapter : IAsyncEnumerator<T>
             {
@@ -569,10 +525,7 @@ namespace Microsoft.Data.Entity.Query
 
                 public T Current => _enumerator.Current;
 
-                public void Dispose()
-                {
-                    _enumerator.Dispose();
-                }
+                public void Dispose() => _enumerator.Dispose();
             }
         }
 

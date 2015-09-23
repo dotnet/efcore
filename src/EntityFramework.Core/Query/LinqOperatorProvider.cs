@@ -34,10 +34,8 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToEnumerable));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _ToEnumerable<TResult>(IEnumerable<TResult> results)
-        {
-            return results;
-        }
+        // ReSharper disable once PossibleMultipleEnumeration
+        private static IEnumerable<TResult> _ToEnumerable<TResult>(IEnumerable<TResult> results) => results;
 
         public virtual MethodInfo ToOrdered => _toOrdered;
 
@@ -47,9 +45,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IEnumerable<TResult> results)
-        {
-            return new OrderedEnumerableAdapter<TResult>(results);
-        }
+            => new OrderedEnumerableAdapter<TResult>(results);
 
         private class OrderedEnumerableAdapter<TResult> : IOrderedEnumerable<TResult>
         {
@@ -61,23 +57,13 @@ namespace Microsoft.Data.Entity.Query
             }
 
             public IOrderedEnumerable<TResult> CreateOrderedEnumerable<TKey>(
-                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending)
-            {
-                return
-                    !descending
-                        ? _results.OrderBy(keySelector, comparer)
-                        : _results.OrderByDescending(keySelector, comparer);
-            }
+                Func<TResult, TKey> keySelector, IComparer<TKey> comparer, bool descending) => !@descending
+                    ? _results.OrderBy(keySelector, comparer)
+                    : _results.OrderByDescending(keySelector, comparer);
 
-            public IEnumerator<TResult> GetEnumerator()
-            {
-                return _results.GetEnumerator();
-            }
+            public IEnumerator<TResult> GetEnumerator() => _results.GetEnumerator();
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         private static readonly MethodInfo _interceptExceptions
@@ -86,20 +72,22 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IEnumerable<T> _InterceptExceptions<T>(
-            Func<IEnumerable<T>> source, QueryContext queryContext)
-            => new ExceptionInterceptor<T>(source, queryContext);
+            Func<IEnumerable<T>> source, Type contextType, ILogger logger)
+            => new ExceptionInterceptor<T>(source, contextType, logger);
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
         private sealed class ExceptionInterceptor<T> : IEnumerable<T>
         {
             private readonly Func<IEnumerable<T>> _innerFactory;
-            private readonly QueryContext _queryContext;
+            private readonly Type _contextType;
+            private readonly ILogger _logger;
 
-            public ExceptionInterceptor(Func<IEnumerable<T>> innerFactory, QueryContext queryContext)
+            public ExceptionInterceptor(Func<IEnumerable<T>> innerFactory, Type contextType, ILogger logger)
             {
                 _innerFactory = innerFactory;
-                _queryContext = queryContext;
+                _contextType = contextType;
+                _logger = logger;
             }
 
             public IEnumerator<T> GetEnumerator() => new EnumeratorExceptionInterceptor(this);
@@ -135,8 +123,8 @@ namespace Microsoft.Data.Entity.Query
                     }
                     catch (Exception e)
                     {
-                        _exceptionInterceptor._queryContext.Logger.LogError(
-                            new DatabaseErrorLogState(_exceptionInterceptor._queryContext.ContextType),
+                        _exceptionInterceptor._logger.LogError(
+                            new DatabaseErrorLogState(_exceptionInterceptor._contextType),
                             e,
                             (state, exception) =>
                                 Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
@@ -253,10 +241,7 @@ namespace Microsoft.Data.Entity.Query
                     .GetEnumerator();
             }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         private static readonly MethodInfo _toSequence
@@ -362,10 +347,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IEnumerable<TSource> _Where<TSource>(
-            IEnumerable<TSource> source, Func<TSource, bool> predicate)
-        {
-            return source.Where(predicate);
-        }
+            IEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
         public virtual MethodInfo Where => _where;
 

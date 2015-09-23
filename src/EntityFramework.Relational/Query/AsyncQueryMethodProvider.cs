@@ -12,6 +12,7 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
@@ -144,16 +145,14 @@ namespace Microsoft.Data.Entity.Query
         private static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
+            ILogger logger,
             Func<ValueBuffer, T> shaper)
-        {
-            return
-                new AsyncQueryingEnumerable(
-                    ((RelationalQueryContext)queryContext),
-                    commandBuilder,
-                    /*queryIndex*/ null,
-                    queryContext.Logger)
-                    .Select(shaper);
-        }
+            => new AsyncQueryingEnumerable(
+                ((RelationalQueryContext)queryContext),
+                commandBuilder,
+                logger,
+                queryIndex: null)
+                .Select(shaper);
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
@@ -163,17 +162,15 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<ValueBuffer> _Query(
-            QueryContext queryContext, 
+            QueryContext queryContext,
             CommandBuilder commandBuilder,
+            ILogger logger,
             int? queryIndex)
-        {
-            return
-                new AsyncQueryingEnumerable(
-                    ((RelationalQueryContext)queryContext),
-                    commandBuilder,
-                    queryIndex,
-                    queryContext.Logger);
-        }
+            => new AsyncQueryingEnumerable(
+                ((RelationalQueryContext)queryContext),
+                commandBuilder,
+                logger,
+                queryIndex);
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 
@@ -230,7 +227,8 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual Type IncludeRelatedValuesFactoryType => typeof(Func<IAsyncIncludeRelatedValuesStrategy>);
 
-        public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod => _createReferenceIncludeStrategyMethodInfo;
+        public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod
+            => _createReferenceIncludeStrategyMethodInfo;
 
         private static readonly MethodInfo _createReferenceIncludeStrategyMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
@@ -242,10 +240,8 @@ namespace Microsoft.Data.Entity.Query
             int valueBufferOffset,
             int queryIndex,
             Func<ValueBuffer, object> materializer)
-        {
-            return new ReferenceIncludeRelatedValuesStrategy(
+            => new ReferenceIncludeRelatedValuesStrategy(
                 relationalQueryContext, valueBufferOffset, queryIndex, materializer);
-        }
 
         private class ReferenceIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
         {
@@ -283,10 +279,7 @@ namespace Microsoft.Data.Entity.Query
                     _value = value;
                 }
 
-                public IAsyncEnumerator<T> GetEnumerator()
-                {
-                    return new AsyncEnumeratorAdapter(_value);
-                }
+                public IAsyncEnumerator<T> GetEnumerator() => new AsyncEnumeratorAdapter(_value);
 
                 private class AsyncEnumeratorAdapter : IAsyncEnumerator<T>
                 {
@@ -324,7 +317,8 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        public virtual MethodInfo CreateCollectionIncludeRelatedValuesStrategyMethod => _createCollectionIncludeStrategyMethodInfo;
+        public virtual MethodInfo CreateCollectionIncludeRelatedValuesStrategyMethod
+            => _createCollectionIncludeStrategyMethodInfo;
 
         private static readonly MethodInfo _createCollectionIncludeStrategyMethodInfo
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
@@ -333,9 +327,7 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
             IAsyncEnumerable<ValueBuffer> relatedValueBuffers, Func<ValueBuffer, object> materializer)
-        {
-            return new CollectionIncludeRelatedValuesStrategy(relatedValueBuffers, materializer);
-        }
+            => new CollectionIncludeRelatedValuesStrategy(relatedValueBuffers, materializer);
 
         private class CollectionIncludeRelatedValuesStrategy : IAsyncIncludeRelatedValuesStrategy
         {
@@ -357,10 +349,7 @@ namespace Microsoft.Data.Entity.Query
                     .Select(vr => new EntityLoadInfo(vr, _materializer));
             }
 
-            public void Dispose()
-            {
-                _includeCollectionIterator.Dispose();
-            }
+            public void Dispose() => _includeCollectionIterator.Dispose();
         }
     }
 }

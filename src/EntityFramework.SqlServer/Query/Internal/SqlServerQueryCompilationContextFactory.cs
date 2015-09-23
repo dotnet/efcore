@@ -8,39 +8,35 @@ using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
-    public class SqlServerQueryCompilationContextFactory : IQueryCompilationContextFactory
+    public class SqlServerQueryCompilationContextFactory : RelationalQueryCompilationContextFactory
     {
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
-        private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
-
         public SqlServerQueryCompilationContextFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
-            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory)
+            [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
+            [NotNull] DbContext context)
+            : base(Check.NotNull(loggerFactory, nameof(loggerFactory)),
+                Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
+                Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
+                Check.NotNull(context, nameof(context)))
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
-            Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
-            Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
-
-            _loggerFactory = loggerFactory;
-            _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
-            _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
         }
 
-        public virtual QueryCompilationContext Create(bool async)
+        public override QueryCompilationContext Create(bool async)
             => async
                 ? new SqlServerQueryCompilationContext(
-                    _loggerFactory,
-                    _entityQueryModelVisitorFactory,
-                    _requiresMaterializationExpressionVisitorFactory,
+                    LoggerFactory,
+                    EntityQueryModelVisitorFactory,
+                    RequiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
-                    new AsyncQueryMethodProvider())
+                    new AsyncQueryMethodProvider(),
+                    ContextType)
                 : new SqlServerQueryCompilationContext(
-                    _loggerFactory,
-                    _entityQueryModelVisitorFactory,
-                    _requiresMaterializationExpressionVisitorFactory,
+                    LoggerFactory,
+                    EntityQueryModelVisitorFactory,
+                    RequiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),
-                    new QueryMethodProvider());
+                    new QueryMethodProvider(),
+                    ContextType);
     }
 }

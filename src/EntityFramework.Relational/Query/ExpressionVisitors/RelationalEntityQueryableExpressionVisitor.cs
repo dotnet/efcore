@@ -241,11 +241,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
 
             return Expression.Call(
-                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
+                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider
+                    .ShapedQueryMethod
                     .MakeGenericMethod(queryMethodInfo.ReturnType),
                 EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(
-                    _commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
+                Expression.Constant(_commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
+                Expression.Constant(QueryModelVisitor.QueryCompilationContext.Logger),
                 Expression.Lambda(
                     Expression.Call(queryMethodInfo, queryMethodArguments),
                     _valueBufferParameter));

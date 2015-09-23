@@ -62,7 +62,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             newExpression.Method,
                             newExpression.Arguments[0],
                             _outerCommandBuilder,
-                            newExpression.Arguments[2]);
+                            newExpression.Arguments[2],
+                            newExpression.Arguments[3]);
                 }
             }
 

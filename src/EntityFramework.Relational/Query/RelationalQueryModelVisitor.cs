@@ -561,7 +561,7 @@ namespace Microsoft.Data.Entity.Query
                         .Create(QueryCompilationContext)
                         .Find(subQueryModelVisitor.Expression);
 
-                var shaperLambda = (LambdaExpression)shapedQueryMethodExpression.Arguments[2];
+                var shaperLambda = (LambdaExpression)shapedQueryMethodExpression.Arguments[3];
                 var shaperMethodCall = (MethodCallExpression)shaperLambda.Body;
 
                 var shaperMethod = shaperMethodCall.Method;
@@ -621,6 +621,7 @@ namespace Microsoft.Data.Entity.Query
                         .MakeGenericMethod(shaperMethod.ReturnType),
                     shapedQueryMethodExpression.Arguments[0],
                     shapedQueryMethodExpression.Arguments[1],
+                    shapedQueryMethodExpression.Arguments[2],
                     Expression.Lambda(
                         Expression.Call(shaperMethod, shaperMethodArgs),
                         shaperLambda.Parameters[0]));
