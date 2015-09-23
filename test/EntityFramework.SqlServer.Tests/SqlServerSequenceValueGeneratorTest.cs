@@ -11,9 +11,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Update.Internal;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -74,16 +72,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Generates_sequential_values<TValue>()
         {
             const int blockSize = 4;
-            const int poolSize = 3;
 
             var state = new SqlServerSequenceValueGeneratorState(
                 new Sequence(
                     new Model(), RelationalAnnotationNames.Prefix, "Foo")
                 {
                     IncrementBy = blockSize
-                },
-                poolSize);
-
+                });
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeSqlStatementExecutor(blockSize),
@@ -91,15 +86,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 state,
                 CreateConnection());
 
-            var generatedValues = new List<TValue>();
-            for (var i = 0; i < 27; i++)
+            for (var i = 1; i <= 27; i++)
             {
-                generatedValues.Add(generator.Next());
+                Assert.Equal(i, (int)Convert.ChangeType(generator.Next(), typeof(int), CultureInfo.InvariantCulture)); 
             }
-
-            Assert.Equal(
-                new[] { 1, 5, 9, 2, 6, 10, 3, 7, 11, 4, 8, 12, 13, 17, 21, 14, 18, 22, 15, 19, 23, 16, 20, 24, 25, 29, 33 },
-                generatedValues.Select(v => (int)Convert.ChangeType(v, typeof(int), CultureInfo.InvariantCulture)));
         }
 
         [Fact]
@@ -107,9 +97,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             const int threadCount = 50;
             const int valueCount = 35;
-            const int poolSize = 1;
 
-            var generatedValues = GenerateValuesInMultipleThreads(poolSize, threadCount, valueCount);
+            var generatedValues = GenerateValuesInMultipleThreads(threadCount, valueCount);
 
             // Check that each value was generated once and only once
             var checks = new bool[threadCount * valueCount];
@@ -125,29 +114,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(checks.All(c => c));
         }
 
-        [Fact]
-        public void Multiple_threads_can_use_the_same_generator_state_with_pools()
-        {
-            const int threadCount = 50;
-            const int valueCount = 35;
-            const int poolSize = 5;
-
-            var generatedValues = GenerateValuesInMultipleThreads(poolSize, threadCount, valueCount);
-
-            // Check that no values are repeated
-            var checks = new bool[threadCount * valueCount * poolSize];
-            foreach (var values in generatedValues)
-            {
-                Assert.Equal(valueCount, values.Count);
-                foreach (var value in values)
-                {
-                    Assert.False(checks[value - 1]);
-                    checks[value - 1] = true;
-                }
-            }
-        }
-
-        private IList<long>[] GenerateValuesInMultipleThreads(int poolSize, int threadCount, int valueCount)
+        private IList<long>[] GenerateValuesInMultipleThreads(int threadCount, int valueCount)
         {
             const int blockSize = 10;
 
@@ -158,8 +125,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     new Model(), RelationalAnnotationNames.Prefix, "Foo")
                 {
                     IncrementBy = blockSize
-                },
-                poolSize);
+                });
 
             var executor = new FakeSqlStatementExecutor(blockSize);
             var sqlGenerator = new SqlServerUpdateSqlGenerator();
@@ -195,7 +161,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     new Model(), RelationalAnnotationNames.Prefix, "Foo")
                 {
                     IncrementBy = 4
-                }, 3);
+                });
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeSqlStatementExecutor(4),

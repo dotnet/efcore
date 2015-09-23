@@ -39,22 +39,6 @@ namespace Microsoft.Data.Entity.Metadata
         protected virtual bool SetHiLoSequenceSchema([CanBeNull] string value)
             => Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequenceSchema, Check.NullButNotEmpty(value, nameof(value)));
 
-        public virtual int? HiLoSequencePoolSize
-        {
-            get { return (int?)Annotations.GetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize); }
-            [param: CanBeNull] set { SetHiLoSequencePoolSize(value); }
-        }
-
-        protected virtual bool SetHiLoSequencePoolSize(int? value)
-        {
-            if (value <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value), Entity.Internal.Strings.HiLoBadPoolSize);
-            }
-
-            return Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize, value);
-        }
-
         public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
             get

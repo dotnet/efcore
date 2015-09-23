@@ -18,8 +18,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public new virtual bool HiLoSequenceSchema([CanBeNull] string value) => SetHiLoSequenceSchema(value);
 
-        public new virtual bool HiLoSequencePoolSize(int? value) => SetHiLoSequencePoolSize(value);
-
         public new virtual bool ValueGenerationStrategy(SqlServerValueGenerationStrategy? value) => SetValueGenerationStrategy(value);
     }
 }

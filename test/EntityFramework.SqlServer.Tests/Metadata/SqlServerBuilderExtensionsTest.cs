@@ -399,28 +399,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
             Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-
-            Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_pool_size_for_model()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder.UseSqlServerSequenceHiLo(7);
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
-            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
-
-            Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.NotNull(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-
-            Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
         }
 
         [Fact]
@@ -436,35 +414,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
-            Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
-
-            Assert.Null(relationalExtensions.FindSequence("Snook"));
-
-            var sequence = sqlServerExtensions.FindSequence("Snook");
-
-            Assert.Equal("Snook", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_name_and_pool_size_for_model()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder.UseSqlServerSequenceHiLo(7, "Snook");
-
-            var relationalExtensions = modelBuilder.Model.Relational();
-            var sqlServerExtensions = modelBuilder.Model.SqlServer();
-
-            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
-            Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
-            Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
-            Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
 
             Assert.Null(relationalExtensions.FindSequence("Snook"));
 
@@ -579,7 +528,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
-            Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
 
             Assert.Null(relationalExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
             Assert.Null(sqlServerExtensions.FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
@@ -604,31 +552,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
 
             Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
             Assert.NotNull(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-
-            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
-        }
-
-        [Fact]
-        public void Can_set_sequence_with_pool_size_for_property()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .UseSqlServerSequenceHiLo(3);
-
-            var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
-
-            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
-
-            Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-            Assert.NotNull(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
-
-            Assert.Equal(3, property.SqlServer().HiLoSequencePoolSize);
         }
 
         [Fact]
@@ -648,43 +571,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequenceSchema);
-            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
 
             Assert.Null(model.Relational().FindSequence("Snook"));
 
             var sequence = model.SqlServer().FindSequence("Snook");
 
-            Assert.Equal("Snook", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(10, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-        }
-
-        [Fact]
-        public void Can_set_sequences_with_name_and_pool_size_for_property()
-        {
-            var modelBuilder = CreateConventionModelBuilder();
-
-            modelBuilder
-                .Entity<Customer>()
-                .Property(e => e.Id)
-                .UseSqlServerSequenceHiLo(3, "Snook");
-
-            var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
-
-            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
-            Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-            Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
-            Assert.Null(property.SqlServer().HiLoSequenceSchema);
-            Assert.Equal(3, property.SqlServer().HiLoSequencePoolSize);
-
-            Assert.Null(model.Relational().FindSequence("Snook"));
-
-            var sequence = model.SqlServer().FindSequence("Snook");
             Assert.Equal("Snook", sequence.Name);
             Assert.Null(sequence.Schema);
             Assert.Equal(10, sequence.IncrementBy);
@@ -850,7 +741,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
-            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
 
             Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
             Assert.Null(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
@@ -872,7 +762,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
-            Assert.Null(property.SqlServer().HiLoSequencePoolSize);
 
             Assert.Null(model.Relational().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));
             Assert.Null(model.SqlServer().FindSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName));

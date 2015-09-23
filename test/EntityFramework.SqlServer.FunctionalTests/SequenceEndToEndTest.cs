@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -33,7 +32,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             AddEntities(serviceProvider);
             AddEntities(serviceProvider);
 
-            // Use a different service provider so a different generator pool is used but with
+            // Use a different service provider so a different generator is used but with
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -87,7 +86,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
             await AddEntitiesAsync(serviceProvider, "BroniesAsync");
 
-            // Use a different service provider so a different generator pool is used but with
+            // Use a different service provider so a different generator is used but with
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
@@ -184,7 +183,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             AddEntitiesWithIds(serviceProvider, 0);
             AddEntitiesWithIds(serviceProvider, 2);
 
-            // Use a different service provider so a different generator pool is used but with
+            // Use a different service provider so a different generator is used but with
             // the same server sequence.
             serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
