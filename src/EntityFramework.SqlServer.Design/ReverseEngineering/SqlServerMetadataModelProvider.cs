@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             [NotNull] ILogger logger,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider,
+            [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities)
             : base(logger, modelUtilities, cSharpUtilities)
         {
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             _sqlServerLiteralUtilities = sqlServerLiteralUtilities;
         }
 
-        protected override IRelationalMetadataExtensionProvider ExtensionsProvider { get; }
+        protected override IRelationalAnnotationProvider ExtensionsProvider { get; }
 
         public override IModel ConstructRelationalModel([NotNull] string connectionString)
         {
@@ -399,7 +399,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
                 else
                 {
-                    property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
+                    property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
                 }
             }
 

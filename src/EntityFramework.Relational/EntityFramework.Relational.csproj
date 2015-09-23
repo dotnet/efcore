@@ -71,7 +71,7 @@
     <Compile Include="Metadata\Internal\RelationalKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalModelBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalPropertyBuilderAnnotations.cs" />
-    <Compile Include="Metadata\IRelationalMetadataExtensionProvider.cs" />
+    <Compile Include="Metadata\IRelationalAnnotationProvider.cs" />
     <Compile Include="Metadata\RelationalAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalAnnotationsBuilder.cs" />
     <Compile Include="Metadata\Internal\RelationalEntityTypeBuilderAnnotations.cs" />

@@ -12,23 +12,23 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class SqlTranslatingExpressionVisitorFactory : ISqlTranslatingExpressionVisitorFactory
     {
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IExpressionFragmentTranslator _compositeExpressionFragmentTranslator;
         private readonly IMethodCallTranslator _methodCallTranslator;
         private readonly IMemberTranslator _memberTranslator;
 
         public SqlTranslatingExpressionVisitorFactory(
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] IExpressionFragmentTranslator compositeExpressionFragmentTranslator,
             [NotNull] IMethodCallTranslator methodCallTranslator,
             [NotNull] IMemberTranslator memberTranslator)
         {
-            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(compositeExpressionFragmentTranslator, nameof(compositeExpressionFragmentTranslator));
             Check.NotNull(methodCallTranslator, nameof(methodCallTranslator));
             Check.NotNull(memberTranslator, nameof(memberTranslator));
 
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            _relationalAnnotationProvider = relationalAnnotationProvider;
             _compositeExpressionFragmentTranslator = compositeExpressionFragmentTranslator;
             _methodCallTranslator = methodCallTranslator;
             _memberTranslator = memberTranslator;
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             bool bindParentQueries = false,
             bool inProjection = false)
             => new SqlTranslatingExpressionVisitor (
-                _relationalMetadataExtensionProvider,
+                _relationalAnnotationProvider,
                 _compositeExpressionFragmentTranslator,
                 _methodCallTranslator,
                 _memberTranslator,

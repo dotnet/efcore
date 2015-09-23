@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public ModelConfiguration(
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider,
+            [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
         {
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         }
 
         public virtual IModel Model { get;[param: NotNull] private set; }
-        public virtual IRelationalMetadataExtensionProvider ExtensionsProvider { get; private set; }
+        public virtual IRelationalAnnotationProvider ExtensionsProvider { get; private set; }
         public virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
         public virtual ModelUtilities ModelUtilities { get;[param: NotNull] private set; }
         public virtual CustomConfiguration CustomConfiguration { get;[param: NotNull] set; }

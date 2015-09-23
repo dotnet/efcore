@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
     public class SqlServerModelConfigurationFactory : ModelConfigurationFactory
     {
         public SqlServerModelConfigurationFactory(
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider,
+            [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
             : base(extensionsProvider, cSharpUtilities, modelUtilities)

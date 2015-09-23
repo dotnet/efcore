@@ -9,9 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -82,7 +85,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 poolSize);
 
 
-            var generator = new SqlServerSequenceValueGenerator<TValue>(
+            var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeSqlStatementExecutor(blockSize),
                 new SqlServerUpdateSqlGenerator(),
                 state,
@@ -172,7 +175,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                         for (var j = 0; j < valueCount; j++)
                         {
                             var connection = CreateConnection(serviceProvider);
-                            var generator = new SqlServerSequenceValueGenerator<long>(executor, sqlGenerator, state, connection);
+                            var generator = new SqlServerSequenceHiLoValueGenerator<long>(executor, sqlGenerator, state, connection);
 
                             generatedValues[testNumber].Add(generator.Next());
                         }
@@ -194,7 +197,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     IncrementBy = 4
                 }, 3);
 
-            var generator = new SqlServerSequenceValueGenerator<int>(
+            var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeSqlStatementExecutor(4),
                 new SqlServerUpdateSqlGenerator(),
                 state,

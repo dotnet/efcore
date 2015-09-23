@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Storage
         public override IModificationCommandBatchFactory ModificationCommandBatchFactory => GetService<SqliteModificationCommandBatchFactory>();
         public override IRelationalDatabaseCreator RelationalDatabaseCreator => GetService<SqliteDatabaseCreator>();
         public override IConventionSetBuilder ConventionSetBuilder => GetService<SqliteConventionSetBuilder>();
-        public override IRelationalMetadataExtensionProvider MetadataExtensionProvider => GetService<SqliteAnnotationProvider>();
+        public override IRelationalAnnotationProvider AnnotationProvider => GetService<SqliteAnnotationProvider>();
         public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<SqliteCompositeMethodCallTranslator>();
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqliteCompositeMemberTranslator>();
         public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<SqliteMigrationsAnnotationProvider>();

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.Update
     {
         ModificationCommandBatch Create(
             [NotNull] IDbContextOptions options,
-            [NotNull] IRelationalMetadataExtensionProvider metadataExtensionProvider);
+            [NotNull] IRelationalAnnotationProvider annotationProvider);
 
         bool AddCommand(
             [NotNull] ModificationCommandBatch modificationCommandBatch,

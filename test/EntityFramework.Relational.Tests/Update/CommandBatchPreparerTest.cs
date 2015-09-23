@@ -229,13 +229,13 @@ namespace Microsoft.Data.Entity.Tests.Update
             commandBatchesEnumerator.MoveNext();
 
             modificationCommandBatchFactoryMock.Verify(
-                mcb => mcb.Create(options, It.IsAny<IRelationalMetadataExtensionProvider>()),
+                mcb => mcb.Create(options, It.IsAny<IRelationalAnnotationProvider>()),
                 Times.Once);
 
             commandBatchesEnumerator.MoveNext();
 
             modificationCommandBatchFactoryMock.Verify(
-                mcb => mcb.Create(options, It.IsAny<IRelationalMetadataExtensionProvider>()),
+                mcb => mcb.Create(options, It.IsAny<IRelationalAnnotationProvider>()),
                 Times.Exactly(2));
         }
 
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 new ParameterNameGeneratorFactory(),
                 new ModificationCommandComparer(),
                 Mock.Of<IRelationalValueBufferFactoryFactory>(),
-                new TestMetadataExtensionProvider());
+                new TestAnnotationProvider());
         }
 
         private static IModel CreateSimpleFKModel()
@@ -351,13 +351,13 @@ namespace Microsoft.Data.Entity.Tests.Update
                 IParameterNameGeneratorFactory parameterNameGeneratorFactory,
                 IComparer<ModificationCommand> modificationCommandComparer,
                 IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-                IRelationalMetadataExtensionProvider metadataExtensionProvider)
+                IRelationalAnnotationProvider annotationProvider)
                 : base(
                       modificationCommandBatchFactory,
                       parameterNameGeneratorFactory,
                       modificationCommandComparer,
                       valueBufferFactoryFactory,
-                      metadataExtensionProvider)
+                      annotationProvider)
             {
             }
         }
@@ -372,7 +372,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public override ModificationCommandBatch Create(
                 IDbContextOptions options,
-                IRelationalMetadataExtensionProvider metadataExtensionProvider)
+                IRelationalAnnotationProvider annotationProvider)
             {
                 return new SingularModificationCommandBatch(UpdateSqlGenerator);
             }

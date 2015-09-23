@@ -17,26 +17,26 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly ICommandBuilderFactory _commandBuilderFactory;
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly ISqlQueryGeneratorFactory _sqlQueryGeneratorFactory;
 
         public IncludeExpressionVisitorFactory(
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] ICommandBuilderFactory commandBuilderFactory,
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] ISqlQueryGeneratorFactory sqlQueryGeneratorFactory)
         {
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(sqlQueryGeneratorFactory, nameof(sqlQueryGeneratorFactory));
 
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
             _commandBuilderFactory = commandBuilderFactory;
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            _relationalAnnotationProvider = relationalAnnotationProvider;
             _sqlQueryGeneratorFactory = sqlQueryGeneratorFactory;
         }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 _selectExpressionFactory,
                 _materializerFactory,
                 _commandBuilderFactory,
-                _relationalMetadataExtensionProvider,
+                _relationalAnnotationProvider,
                 _sqlQueryGeneratorFactory,
                 Check.NotNull(querySource, nameof(querySource)),
                 Check.NotNull(navigationPath, nameof(navigationPath)),

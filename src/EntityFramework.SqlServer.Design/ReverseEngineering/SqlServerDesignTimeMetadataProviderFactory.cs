@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 .AddScoped<ICompilationService, RoslynCompilationService>()
                 .AddScoped<RazorTemplating>()
                 .AddScoped<IDatabaseMetadataModelProvider, SqlServerMetadataModelProvider>()
-                .AddScoped<IRelationalMetadataExtensionProvider, SqlServerMetadataExtensionProvider>()
+                .AddScoped<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddScoped<SqlServerLiteralUtilities>()
                 .AddScoped<ModelConfigurationFactory, SqlServerModelConfigurationFactory>()
                 .AddScoped<CodeWriter, RazorTemplateCodeWriter>();

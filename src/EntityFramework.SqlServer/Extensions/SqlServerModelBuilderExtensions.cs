@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
@@ -143,7 +144,7 @@ namespace Microsoft.Data.Entity
                 model.SqlServer().FindSequence(name, schema) ?? 
                 modelBuilder.SqlServerSequence(name, schema).IncrementsBy(10).Metadata;
 
-            model.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.SequenceHiLo;
+            model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
             model.SqlServer().HiLoSequenceName = name;
             model.SqlServer().HiLoSequenceSchema = schema;
 
@@ -173,7 +174,7 @@ namespace Microsoft.Data.Entity
 
             var property = modelBuilder.Model;
 
-            property.SqlServer().IdentityStrategy = SqlServerIdentityStrategy.IdentityColumn;
+            property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn;
             property.SqlServer().HiLoSequenceName = null;
             property.SqlServer().HiLoSequenceSchema = null;
             property.SqlServer().HiLoSequencePoolSize = null;

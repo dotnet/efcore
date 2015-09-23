@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Migrations
             => new ConcreteMigrationSqlGenerator(
                 new ConcreteUpdateSqlGenerator(),
                 new ConcreteRelationalTypeMapper(),
-                new TestMetadataExtensionProvider());
+                new TestAnnotationProvider());
 
         public override void AddColumnOperation_with_defaultValue()
         {
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Migrations
             base.AlterSequenceOperation_with_minValue_and_maxValue();
 
             Assert.Equal(
-                "ALTER SEQUENCE \"dbo\".\"DefaultSequence\" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                "ALTER SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Migrations
             base.AlterSequenceOperation_without_minValue_and_maxValue();
 
             Assert.Equal(
-                "ALTER SEQUENCE \"DefaultSequence\" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
+                "ALTER SEQUENCE \"EntityFrameworkHiLoSequence\" INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
                 Sql);
         }
 
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.Migrations
             base.CreateSequenceOperation_with_minValue_and_maxValue();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Migrations
             base.CreateSequenceOperation_with_minValue_and_maxValue_not_long();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"dbo\".\"DefaultSequence\" AS int START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
+                "CREATE SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\" AS int START WITH 3 INCREMENT BY 1 MINVALUE 2 MAXVALUE 816 CYCLE;" + EOL,
                 Sql);
         }
 
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Migrations
             base.CreateSequenceOperation_without_minValue_and_maxValue();
 
             Assert.Equal(
-                "CREATE SEQUENCE \"DefaultSequence\" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
+                "CREATE SEQUENCE \"EntityFrameworkHiLoSequence\" START WITH 3 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;" + EOL,
                 Sql);
         }
 
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Migrations
             base.DropSequenceOperation();
 
             Assert.Equal(
-                "DROP SEQUENCE \"dbo\".\"DefaultSequence\";" + EOL,
+                "DROP SEQUENCE \"dbo\".\"EntityFrameworkHiLoSequence\";" + EOL,
                 Sql);
         }
 
@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Migrations
             public ConcreteMigrationSqlGenerator(
                 IUpdateSqlGenerator sqlGenerator,
                 IRelationalTypeMapper typeMapper,
-                IRelationalMetadataExtensionProvider annotations)
+                IRelationalAnnotationProvider annotations)
                 : base(sqlGenerator, typeMapper, annotations)
             {
             }

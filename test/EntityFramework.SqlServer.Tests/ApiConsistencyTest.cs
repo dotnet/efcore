@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {

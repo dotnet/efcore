@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -53,13 +54,13 @@ namespace Microsoft.Data.Entity.Metadata
             return Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize, value);
         }
 
-        public virtual SqlServerIdentityStrategy? IdentityStrategy
+        public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
-            get { return (SqlServerIdentityStrategy?)Annotations.GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy); }
-            set { SetIdentityStrategy(value); }
+            get { return (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy); }
+            set { SetValueGenerationStrategy(value); }
         }
 
-        protected virtual bool SetIdentityStrategy(SqlServerIdentityStrategy? value)
+        protected virtual bool SetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
             => Annotations.SetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy, value);
     }
 }

@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         };
 
         public MigrationsModelDiffer(
-            [NotNull] IRelationalMetadataExtensionProvider annotations,
+            [NotNull] IRelationalAnnotationProvider annotations,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
         {
             Check.NotNull(annotations, nameof(annotations));
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             MigrationsAnnotations = migrationsAnnotations;
         }
 
-        protected virtual IRelationalMetadataExtensionProvider Annotations { get; }
+        protected virtual IRelationalAnnotationProvider Annotations { get; }
         protected virtual IMigrationsAnnotationProvider MigrationsAnnotations { get; }
 
         public virtual bool HasDifferences(IModel source, [CanBeNull] IModel target)

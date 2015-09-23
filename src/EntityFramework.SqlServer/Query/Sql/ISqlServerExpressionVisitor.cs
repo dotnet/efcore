@@ -4,6 +4,7 @@
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
+using Microsoft.Data.Entity.Query.Expressions.Internal;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {

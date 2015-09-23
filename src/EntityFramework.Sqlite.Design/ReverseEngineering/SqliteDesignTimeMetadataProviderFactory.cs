@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 .AddScoped<RazorTemplating>()
                 .AddScoped<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
                 .AddScoped<SqliteReverseTypeMapper>()
-                .AddScoped<IRelationalMetadataExtensionProvider, SqliteAnnotationProvider>()
+                .AddScoped<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .AddScoped<ModelConfigurationFactory, SqliteModelConfigurationFactory>()
                 .AddScoped<CodeWriter, RazorTemplateCodeWriter>();
         }

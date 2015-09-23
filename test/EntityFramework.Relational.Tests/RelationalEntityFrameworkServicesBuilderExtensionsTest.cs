@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<IRelationalValueBufferFactoryFactory>();
             VerifyScoped<IRelationalDatabaseCreator>();
             VerifyScoped<IUpdateSqlGenerator>();
-            VerifyScoped<IRelationalMetadataExtensionProvider>();
+            VerifyScoped<IRelationalAnnotationProvider>();
             VerifyScoped<MigrationsSqlGenerator>();
         }
 

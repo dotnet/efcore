@@ -19,17 +19,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class MaterializerFactory : IMaterializerFactory
     {
         private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
 
         public MaterializerFactory(
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider)
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
-            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
             _entityMaterializerSource = entityMaterializerSource;
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            _relationalAnnotationProvider = relationalAnnotationProvider;
         }
 
         public virtual Expression CreateMaterializer(
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 return Expression.Lambda<Func<ValueBuffer, object>>(materializer, valueBufferParameter);
             }
 
-            var discriminatorProperty = _relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
+            var discriminatorProperty = _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
             var discriminatorColumn
                 = selectExpression.Projection
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var firstDiscriminatorValue
                 = Expression.Constant(
-                    _relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
+                    _relationalAnnotationProvider.For(concreteEntityTypes[0]).DiscriminatorValue);
 
             var discriminatorPredicate
                 = Expression.Equal(discriminatorColumn, firstDiscriminatorValue);
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 var discriminatorValue
                     = Expression.Constant(
-                        _relationalMetadataExtensionProvider.For(concreteEntityType).DiscriminatorValue);
+                        _relationalAnnotationProvider.For(concreteEntityType).DiscriminatorValue);
 
                 materializer
                     = _entityMaterializerSource
