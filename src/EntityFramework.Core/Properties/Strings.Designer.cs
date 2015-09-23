@@ -637,7 +637,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The specified entity type '{type}' is invalid. It should be either the dependent entity  type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
+        /// The specified entity type '{type}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
         /// </summary>
         public static string EntityTypeNotInRelationship([CanBeNull] object type, [CanBeNull] object dependentType, [CanBeNull] object principalType)
         {

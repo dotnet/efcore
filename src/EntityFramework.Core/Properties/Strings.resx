@@ -352,7 +352,7 @@
     <value>The collection argument '{argumentName}' must not contain any null references.</value>
   </data>
   <data name="EntityTypeNotInRelationship" xml:space="preserve">
-    <value>The specified entity type '{type}' is invalid. It should be either the dependent entity  type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
+    <value>The specified entity type '{type}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>
   <data name="DuplicateEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be added to the model because an entity with the same name already exists.</value>

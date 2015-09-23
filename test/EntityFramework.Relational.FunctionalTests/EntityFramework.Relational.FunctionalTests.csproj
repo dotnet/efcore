@@ -39,6 +39,7 @@
     <Compile Include="AsyncFromSqlSprocQueryTestBase.cs" />
     <Compile Include="FromSqlSprocQueryTestBase.cs" />
     <Compile Include="InheritanceRelationalFixture.cs" />
+    <Compile Include="InheritanceRelationshipsQueryRelationalFixture.cs" />
     <Compile Include="MigrationsFixtureBase.cs" />
     <Compile Include="MigrationsTestBase.cs" />
     <Compile Include="NorthwindSprocQueryRelationalFixture.cs" />

@@ -45,6 +45,8 @@
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithIdentitySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />
+    <Compile Include="InheritanceRelationshipsQuerySqlServerFixture.cs" />
+    <Compile Include="InheritanceRelationshipsQuerySqlServerTest.cs" />
     <Compile Include="MigrationsSqlServerFixture.cs" />
     <Compile Include="MigrationsSqlServerTest.cs" />
     <Compile Include="NorthwindRowNumberPagingQuerySqlServerFixture.cs" />

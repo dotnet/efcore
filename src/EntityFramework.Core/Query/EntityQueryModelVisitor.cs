@@ -1106,9 +1106,9 @@ namespace Microsoft.Data.Entity.Query
                 properties.Add(property);
 
                 querySourceReferenceExpression
-                    = memberExpression.Expression as QuerySourceReferenceExpression;
+                    = memberExpression.Expression.RemoveConvert() as QuerySourceReferenceExpression;
 
-                memberExpression = memberExpression.Expression as MemberExpression;
+                memberExpression = memberExpression.Expression.RemoveConvert() as MemberExpression;
             }
 
             return querySourceReferenceExpression != null

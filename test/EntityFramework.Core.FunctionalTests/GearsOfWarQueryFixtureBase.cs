@@ -21,9 +21,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.Key(g => new { g.Nickname, g.SquadId });
 
                     b.Reference(g => g.CityOfBirth).InverseCollection(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
-                    b.Collection(g => g.Reports).InverseReference().ForeignKey(g => new { g.LeaderNickname, g.LeaderSquadId });
                     b.Reference(g => g.Tag).InverseReference(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
                     b.Reference(g => g.AssignedCity).InverseCollection(c => c.StationedGears).Required(false);
+                });
+
+            modelBuilder.Entity<Officer>().BaseType<Gear>();
+            modelBuilder.Entity<Officer>(b =>
+                {
+                    b.Collection(o => o.Reports).InverseReference().ForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
                 });
 
             modelBuilder.Entity<CogTag>(b =>

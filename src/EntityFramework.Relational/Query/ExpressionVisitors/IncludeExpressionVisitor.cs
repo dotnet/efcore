@@ -146,6 +146,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             : selectExpression
                                 .AddOuterJoin(joinedTableExpression);
 
+                    var oldPredicate = selectExpression.Predicate;
+
                     var materializer
                         = _materializerFactory
                             .CreateMaterializer(
@@ -158,6 +160,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                             p,
                                             joinedTableExpression))) - valueBufferOffset,
                                 querySource: null);
+
+                    if (selectExpression.Predicate != oldPredicate)
+                    {
+                        var newJoinExpression = AdjustJoinExpression(selectExpression, joinExpression);
+
+                        selectExpression.Predicate = oldPredicate;
+                        selectExpression.RemoveTable(joinExpression);
+                        selectExpression.AddTable(newJoinExpression);
+                        joinExpression = newJoinExpression;
+                    }
 
                     joinExpression.Predicate
                         = BuildJoinEqualityExpression(
@@ -256,6 +268,23 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                 materializer));
                 }
             }
+        }
+
+        private JoinExpressionBase AdjustJoinExpression(SelectExpression selectExpression, JoinExpressionBase joinExpression)
+        {
+            var subquery = new SelectExpression(_sqlQueryGeneratorFactory, joinExpression.Alias);
+            subquery.AddTable(joinExpression.TableExpression);
+            subquery.IsProjectStar = true;
+            subquery.Predicate = selectExpression.Predicate;
+
+            var newJoinExpression = joinExpression is LeftOuterJoinExpression
+                ? (JoinExpressionBase)new LeftOuterJoinExpression(subquery)
+                : new InnerJoinExpression(subquery);
+
+            newJoinExpression.QuerySource = joinExpression.QuerySource;
+            newJoinExpression.Alias = joinExpression.Alias;
+
+            return newJoinExpression;
         }
 
         private static void LiftOrderBy(

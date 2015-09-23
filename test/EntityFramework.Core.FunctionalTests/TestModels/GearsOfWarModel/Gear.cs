@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
 {
@@ -10,7 +11,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         public Gear()
         {
             Weapons = new List<Weapon>();
-            Reports = new List<Gear>();
         }
 
         // composite key
@@ -26,6 +26,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
 
         public MilitaryRank Rank { get; set; }
 
+        // TODO: temporary workaround, remove once #1704 is fixed
+        [NotMapped]
         public virtual CogTag Tag { get; set; }
         public virtual Squad Squad { get; set; }
 
@@ -34,9 +36,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
 
         public string LeaderNickname { get; set; }
         public int LeaderSquadId { get; set; }
-
-        // 1 - many self reference
-        public virtual ICollection<Gear> Reports { get; set; }
 
         public bool IsMarcus => Nickname == "Marcus";
     }
