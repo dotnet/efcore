@@ -78,6 +78,8 @@
     <Compile Include="ReverseEngineering\IDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
     <Compile Include="ReverseEngineering\Internal\RazorTemplateCodeWriter.cs" />
+    <Compile Include="ReverseEngineering\Internal\TableSelection.cs" />
+    <Compile Include="ReverseEngineering\Internal\TableSelectionSet.cs" />
     <Compile Include="ReverseEngineering\Internal\Templating\Compilation\CompiledAssemblyResult.cs" />
     <Compile Include="ReverseEngineering\Internal\Templating\Compilation\CompilationResult.cs" />
     <Compile Include="ReverseEngineering\Internal\Templating\Compilation\ICompilationService.cs" />

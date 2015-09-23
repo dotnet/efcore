@@ -89,8 +89,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            var metadataModel = _provider
-                .GenerateMetadataModel(configuration.ConnectionString);
+            var metadataModel = _provider.GenerateMetadataModel(
+                configuration.ConnectionString, configuration.TableSelectionSet);
             if (metadataModel == null)
             {
                 throw new InvalidOperationException(
