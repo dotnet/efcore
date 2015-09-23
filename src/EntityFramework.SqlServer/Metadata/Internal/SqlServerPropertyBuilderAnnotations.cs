@@ -28,6 +28,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public new virtual bool HiLoSequencePoolSize(int? value) => SetHiLoSequencePoolSize(value);
 
-        public new virtual bool IdentityStrategy(SqlServerIdentityStrategy? value) => SetIdentityStrategy(value);
+        public new virtual bool ValueGenerationStrategy(SqlServerValueGenerationStrategy? value) => SetValueGenerationStrategy(value);
     }
 }

@@ -20,14 +20,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
         {
             var builder = CreateBuilder();
 
-            Assert.True(builder.SqlServer(ConfigurationSource.Convention).IdentityStrategy(SqlServerIdentityStrategy.SequenceHiLo));
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, builder.Metadata.SqlServer().IdentityStrategy);
+            Assert.True(builder.SqlServer(ConfigurationSource.Convention).ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, builder.Metadata.SqlServer().ValueGenerationStrategy);
 
-            Assert.True(builder.SqlServer(ConfigurationSource.DataAnnotation).IdentityStrategy(SqlServerIdentityStrategy.IdentityColumn));
-            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, builder.Metadata.SqlServer().IdentityStrategy);
+            Assert.True(builder.SqlServer(ConfigurationSource.DataAnnotation).ValueGenerationStrategy(SqlServerValueGenerationStrategy.IdentityColumn));
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.SqlServer().ValueGenerationStrategy);
 
-            Assert.False(builder.SqlServer(ConfigurationSource.Convention).IdentityStrategy(SqlServerIdentityStrategy.SequenceHiLo));
-            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, builder.Metadata.SqlServer().IdentityStrategy);
+            Assert.False(builder.SqlServer(ConfigurationSource.Convention).ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.SqlServer().ValueGenerationStrategy);
 
             Assert.Equal(1, builder.Metadata.Annotations.Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));

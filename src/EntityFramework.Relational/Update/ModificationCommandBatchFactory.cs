@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Update
 
         public abstract ModificationCommandBatch Create(
             IDbContextOptions options,
-            IRelationalMetadataExtensionProvider metadataExtensionProvider);
+            IRelationalAnnotationProvider annotationProvider);
 
         public virtual bool AddCommand(
             ModificationCommandBatch modificationCommandBatch,

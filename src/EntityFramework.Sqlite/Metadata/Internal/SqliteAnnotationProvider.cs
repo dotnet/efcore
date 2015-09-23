@@ -3,7 +3,7 @@
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class SqliteAnnotationProvider : IRelationalMetadataExtensionProvider
+    public class SqliteAnnotationProvider : IRelationalAnnotationProvider
     {
         public virtual IRelationalEntityTypeAnnotations For(IEntityType entityType) => entityType.Sqlite();
         public virtual IRelationalForeignKeyAnnotations For(IForeignKey foreignKey) => foreignKey.Sqlite();

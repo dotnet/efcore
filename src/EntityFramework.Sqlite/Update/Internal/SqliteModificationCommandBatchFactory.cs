@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         public override ModificationCommandBatch Create(
             IDbContextOptions options,
-            IRelationalMetadataExtensionProvider metadataExtensionProvider)
+            IRelationalAnnotationProvider annotationProvider)
             => new SingularModificationCommandBatch(UpdateSqlGenerator);
     }
 }

@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 Mock.Of<IUpdateSqlGenerator>());
 
             var options = new Mock<IDbContextOptions>().Object;
-            var metadataExtensionProvider = Mock.Of<IRelationalMetadataExtensionProvider>();
+            var metadataExtensionProvider = Mock.Of<IRelationalAnnotationProvider>();
 
             var firstBatch = factory.Create(options, metadataExtensionProvider);
             var secondBatch = factory.Create(options, metadataExtensionProvider);
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public override ModificationCommandBatch Create(
                 IDbContextOptions options,
-                IRelationalMetadataExtensionProvider metadataExtensionProvider)
+                IRelationalAnnotationProvider annotationProvider)
             {
                 return new SingularModificationCommandBatch(UpdateSqlGenerator);
             }

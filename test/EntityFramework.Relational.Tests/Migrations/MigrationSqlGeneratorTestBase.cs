@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new AlterSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     IncrementBy = 1,
                     MinValue = 2,
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new AlterSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     IncrementBy = 1
                 });
         }
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     StartValue = 3,
                     IncrementBy = 1,
@@ -269,7 +269,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo",
                     StartValue = 3,
                     IncrementBy = 1,
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new CreateSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     ClrType = typeof(long),
                     StartValue = 3,
                     IncrementBy = 1
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Migrations
             Generate(
                 new DropSequenceOperation
                 {
-                    Name = "DefaultSequence",
+                    Name = "EntityFrameworkHiLoSequence",
                     Schema = "dbo"
                 });
         }

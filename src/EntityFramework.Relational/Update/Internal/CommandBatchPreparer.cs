@@ -18,20 +18,20 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-        private readonly IRelationalMetadataExtensionProvider _metadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _annotationProvider;
 
         public CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] IRelationalMetadataExtensionProvider metadataExtensions)
+            [NotNull] IRelationalAnnotationProvider annotations)
         {
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
-            _metadataExtensionProvider = metadataExtensions;
+            _annotationProvider = annotations;
         }
 
         public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
@@ -44,13 +44,13 @@ namespace Microsoft.Data.Entity.Update.Internal
             {
                 independentCommandSet.Sort(_modificationCommandComparer);
 
-                var batch = _modificationCommandBatchFactory.Create(options, _metadataExtensionProvider);
+                var batch = _modificationCommandBatchFactory.Create(options, _annotationProvider);
                 foreach (var modificationCommand in independentCommandSet)
                 {
                     if (!_modificationCommandBatchFactory.AddCommand(batch, modificationCommand))
                     {
                         yield return batch;
-                        batch = _modificationCommandBatchFactory.Create(options, _metadataExtensionProvider);
+                        batch = _modificationCommandBatchFactory.Create(options, _annotationProvider);
                         _modificationCommandBatchFactory.AddCommand(batch, modificationCommand);
                     }
                 }
@@ -65,10 +65,10 @@ namespace Microsoft.Data.Entity.Update.Internal
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
                 e => new ModificationCommand(
-                    _metadataExtensionProvider.For(e.EntityType).TableName,
-                    _metadataExtensionProvider.For(e.EntityType).Schema,
+                    _annotationProvider.For(e.EntityType).TableName,
+                    _annotationProvider.For(e.EntityType).Schema,
                     parameterNameGenerator,
-                    _metadataExtensionProvider.For,
+                    _annotationProvider.For,
                     _valueBufferFactoryFactory)
                     .AddEntry(e));
         }

@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly ICommandBuilderFactory _commandBuilderFactory;
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IQuerySource _querySource;
 
         public RelationalEntityQueryableExpressionVisitor(
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] ICommandBuilderFactory commandBuilderFactory,
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [NotNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(relationalMetadataExtensionProvider, nameof(relationalMetadataExtensionProvider));
+            Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
             Check.NotNull(querySource, nameof(querySource));
 
             _model = model;
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
             _commandBuilderFactory = commandBuilderFactory;
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            _relationalAnnotationProvider = relationalAnnotationProvider;
             _querySource = querySource;
         }
 
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     memberExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            _relationalMetadataExtensionProvider.For(property).ColumnName,
+                            _relationalAnnotationProvider.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     methodCallExpression,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
-                            _relationalMetadataExtensionProvider.For(property).ColumnName,
+                            _relationalAnnotationProvider.For(property).ColumnName,
                             property,
                             querySource),
                     bindSubQueries: true);
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = _model.GetEntityType(elementType);
             var selectExpression = _selectExpressionFactory.Create();
-            var name = _relationalMetadataExtensionProvider.For(entityType).TableName;
+            var name = _relationalAnnotationProvider.For(entityType).TableName;
 
             var tableAlias
                 = _querySource.HasGeneratedItemName()
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 selectExpression.AddTable(
                     new TableExpression(
                         name,
-                        _relationalMetadataExtensionProvider.For(entityType).Schema,
+                        _relationalAnnotationProvider.For(entityType).Schema,
                         tableAlias,
                         _querySource));
             }
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             selectExpression,
                             (p, se) =>
                                 se.AddToProjection(
-                                    _relationalMetadataExtensionProvider.For(p).ColumnName,
+                                    _relationalAnnotationProvider.For(p).ColumnName,
                                     p,
                                     _querySource),
                             _querySource);

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
     {
         public RelationalValueGeneratorSelector(
             [NotNull] IValueGeneratorCache cache,
-            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
+            [NotNull] IRelationalAnnotationProvider relationalExtensions)
             : base(cache)
         {
             Check.NotNull(relationalExtensions, nameof(relationalExtensions));
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             RelationalExtensions = relationalExtensions;
         }
 
-        protected virtual IRelationalMetadataExtensionProvider RelationalExtensions { get; }
+        protected virtual IRelationalAnnotationProvider RelationalExtensions { get; }
 
         public override ValueGenerator Create(IProperty property, IEntityType entityType)
         {

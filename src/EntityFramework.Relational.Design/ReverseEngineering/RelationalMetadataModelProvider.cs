@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public virtual CSharpUtilities CSharpUtilities { get; }
         public virtual ModelUtilities ModelUtilities { get; }
 
-        protected abstract IRelationalMetadataExtensionProvider ExtensionsProvider { get; }
+        protected abstract IRelationalAnnotationProvider ExtensionsProvider { get; }
 
         protected RelationalMetadataModelProvider([NotNull] ILogger logger,
             [NotNull] ModelUtilities modelUtilities, [NotNull] CSharpUtilities cSharpUtilities)

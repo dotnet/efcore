@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             _typeMapper = typeMapper;
         }
 
-        protected override IRelationalMetadataExtensionProvider ExtensionsProvider => new SqliteAnnotationProvider();
+        protected override IRelationalAnnotationProvider ExtensionsProvider => new SqliteAnnotationProvider();
 
         public override IModel ConstructRelationalModel([NotNull] string connectionString)
         {

@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             public HandlerContext(
                 IResultOperatorHandler resultOperatorHandler,
                 IModel model,
-                IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+                IRelationalAnnotationProvider relationalAnnotationProvider,
                 ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
                 ISelectExpressionFactory selectExpressionFactory,
                 RelationalQueryModelVisitor queryModelVisitor,
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             {
                 _resultOperatorHandler = resultOperatorHandler;
                 Model = model;
-                RelationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+                RelationalAnnotationProvider = relationalAnnotationProvider;
                 SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
                 SelectExpressionFactory = selectExpressionFactory;
                 QueryModelVisitor = queryModelVisitor;
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             public IModel Model { get; }
 
-            public IRelationalMetadataExtensionProvider RelationalMetadataExtensionProvider { get; }
+            public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
 
             public ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
 
@@ -94,20 +94,20 @@ namespace Microsoft.Data.Entity.Query.Internal
                 };
 
         private readonly IModel _model;
-        private readonly IRelationalMetadataExtensionProvider _relationalMetadataExtensionProvider;
+        private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly ResultOperatorHandler _resultOperatorHandler;
 
         public RelationalResultOperatorHandler(
             [NotNull] IModel model,
-            [NotNull] IRelationalMetadataExtensionProvider relationalMetadataExtensionProvider,
+            [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] ResultOperatorHandler resultOperatorHandler)
         {
             _model = model;
-            _relationalMetadataExtensionProvider = relationalMetadataExtensionProvider;
+            _relationalAnnotationProvider = relationalAnnotationProvider;
             _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             _selectExpressionFactory = selectExpressionFactory;
             _resultOperatorHandler = resultOperatorHandler;
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 = new HandlerContext(
                     _resultOperatorHandler,
                     _model,
-                    _relationalMetadataExtensionProvider,
+                    _relationalAnnotationProvider,
                     _sqlTranslatingExpressionVisitorFactory,
                     _selectExpressionFactory,
                     relationalQueryModelVisitor,
@@ -360,7 +360,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
                 var relationalMetadataExtensionProvider 
-                    = handlerContext.RelationalMetadataExtensionProvider;
+                    = handlerContext.RelationalAnnotationProvider;
 
                 var discriminatorProperty 
                     = relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;

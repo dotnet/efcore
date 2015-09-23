@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Storage
         IBatchExecutor BatchExecutor { get; }
         IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
         IRelationalDatabaseCreator RelationalDatabaseCreator { get; }
-        IRelationalMetadataExtensionProvider MetadataExtensionProvider { get; }
+        IRelationalAnnotationProvider AnnotationProvider { get; }
         ISqlStatementExecutor SqlStatementExecutor { get; }
         IMethodCallTranslator CompositeMethodCallTranslator { get; }
         IMemberTranslator CompositeMemberTranslator { get; }

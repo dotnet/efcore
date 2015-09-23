@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Tests;
 using Xunit;
 
@@ -392,7 +393,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
@@ -412,7 +413,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
 
@@ -432,7 +433,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
             Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
@@ -460,7 +461,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
             Assert.Equal(7, sqlServerExtensions.HiLoSequencePoolSize);
@@ -488,7 +489,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
@@ -521,7 +522,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
@@ -546,7 +547,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Equal("Snook", sqlServerExtensions.HiLoSequenceName);
             Assert.Equal("Tasty", sqlServerExtensions.HiLoSequenceSchema);
 
@@ -575,7 +576,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var relationalExtensions = modelBuilder.Model.Relational();
             var sqlServerExtensions = modelBuilder.Model.SqlServer();
 
-            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, sqlServerExtensions.IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, sqlServerExtensions.ValueGenerationStrategy);
             Assert.Null(sqlServerExtensions.HiLoSequenceName);
             Assert.Null(sqlServerExtensions.HiLoSequenceSchema);
             Assert.Null(sqlServerExtensions.HiLoSequencePoolSize);
@@ -597,7 +598,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
 
@@ -620,7 +621,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal(SqlServerAnnotationNames.DefaultHiLoSequenceName, property.SqlServer().HiLoSequenceName);
 
@@ -643,7 +644,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequenceSchema);
@@ -675,7 +676,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequenceSchema);
@@ -706,7 +707,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
@@ -743,7 +744,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
@@ -766,7 +767,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
@@ -795,7 +796,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
@@ -824,7 +825,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.SequenceHiLo, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Equal("Snook", property.SqlServer().HiLoSequenceName);
             Assert.Equal("Tasty", property.SqlServer().HiLoSequenceSchema);
@@ -846,7 +847,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequencePoolSize);
@@ -868,7 +869,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var model = modelBuilder.Model;
             var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
 
-            Assert.Equal(SqlServerIdentityStrategy.IdentityColumn, property.SqlServer().IdentityStrategy);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
             Assert.Null(property.SqlServer().HiLoSequenceName);
             Assert.Null(property.SqlServer().HiLoSequencePoolSize);

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Configuration
         public SqliteModelConfiguration(
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
-            [NotNull] IRelationalMetadataExtensionProvider extensionsProvider,
+            [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
             : base(model, customConfiguration, extensionsProvider, cSharpUtilities, modelUtilities)

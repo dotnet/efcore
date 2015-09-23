@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             base.AddConventions(conventionSet);
 
-            conventionSet.ModelInitializedConventions.Add(new SqlServerIdentityStrategyConvention());
+            conventionSet.ModelInitializedConventions.Add(new SqlServerValueGenerationStrategyConvention());
 
             return conventionSet;
         }

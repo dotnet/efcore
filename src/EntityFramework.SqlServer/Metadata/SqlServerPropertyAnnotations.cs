@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Utilities;
 
@@ -54,7 +55,7 @@ namespace Microsoft.Data.Entity.Metadata
             return Annotations.SetAnnotation(SqlServerAnnotationNames.HiLoSequencePoolSize, value);
         }
 
-        public virtual SqlServerIdentityStrategy? IdentityStrategy
+        public virtual SqlServerValueGenerationStrategy? ValueGenerationStrategy
         {
             get
             {
@@ -65,21 +66,21 @@ namespace Microsoft.Data.Entity.Metadata
                     return null;
                 }
 
-                var value = (SqlServerIdentityStrategy?)Annotations.GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
+                var value = (SqlServerValueGenerationStrategy?)Annotations.GetAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
 
-                return value ?? Property.DeclaringEntityType.Model.SqlServer().IdentityStrategy;
+                return value ?? Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
             }
             [param: CanBeNull]
-            set { SetIdentityStrategy(value); }
+            set { SetValueGenerationStrategy(value); }
         }
 
-        protected virtual bool SetIdentityStrategy(SqlServerIdentityStrategy? value)
+        protected virtual bool SetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
         {
             if (value != null)
             {
                 var propertyType = Property.ClrType;
 
-                if (value == SqlServerIdentityStrategy.IdentityColumn
+                if (value == SqlServerValueGenerationStrategy.IdentityColumn
                     && (!propertyType.IsInteger()
                         || propertyType == typeof(byte)
                         || propertyType == typeof(byte?)))
@@ -88,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata
                         Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                 }
 
-                if (value == SqlServerIdentityStrategy.SequenceHiLo
+                if (value == SqlServerValueGenerationStrategy.SequenceHiLo
                     && !propertyType.IsInteger())
                 {
                     throw new ArgumentException(Strings.SequenceBadType(
@@ -103,7 +104,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var modelExtensions = Property.DeclaringEntityType.Model.SqlServer();
 
-            if (IdentityStrategy != SqlServerIdentityStrategy.SequenceHiLo)
+            if (ValueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
             {
                 return null;
             }

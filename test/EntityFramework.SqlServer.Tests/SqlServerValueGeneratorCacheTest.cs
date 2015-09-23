@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
@@ -170,7 +171,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
+            Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]
@@ -198,7 +199,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var cache = new SqlServerValueGeneratorCache();
 
-            Assert.Equal("DefaultSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
+            Assert.Equal("EntityFrameworkHiLoSequence", cache.GetOrAddSequenceState(property).Sequence.Name);
         }
 
         [Fact]

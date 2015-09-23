@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface ISqlServerModelAnnotations : IRelationalModelAnnotations
     {
-        SqlServerIdentityStrategy? IdentityStrategy { get; }
+        SqlServerValueGenerationStrategy? ValueGenerationStrategy { get; }
         string HiLoSequenceName { get; }
         string HiLoSequenceSchema { get; }
         int? HiLoSequencePoolSize { get; }
