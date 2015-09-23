@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<MappingQueryTestBase.MappedCustomer>(e =>
                 {
-                    e.Key(c => c.CustomerID);
+                    e.HasKey(c => c.CustomerID);
                     e.Property(c => c.CompanyName2).Metadata.Relational().ColumnName = "Broken";
                     e.Metadata.Relational().TableName = "Broken";
                     if (!string.IsNullOrEmpty(DatabaseSchema))
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<MappingQueryTestBase.MappedEmployee>(e =>
                 {
-                    e.Key(em => em.EmployeeID);
+                    e.HasKey(em => em.EmployeeID);
                     e.Property(em => em.City2).Metadata.Relational().ColumnName = "City";
                     e.Metadata.Relational().TableName = "Employees";
                     e.Metadata.Relational().Schema = DatabaseSchema;
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<MappingQueryTestBase.MappedOrder>(e =>
                 {
-                    e.Key(o => o.OrderID);
+                    e.HasKey(o => o.OrderID);
                     e.Property(em => em.ShipVia2).Metadata.Relational().ColumnName = "ShipVia";
                     e.Metadata.Relational().TableName = "Orders";
                     e.Metadata.Relational().Schema = DatabaseSchema;

@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Kiwi>().BaseType<Bird>();
             modelBuilder.Entity<Eagle>().BaseType<Bird>();
             modelBuilder.Entity<Bird>().BaseType<Animal>();
-            modelBuilder.Entity<Animal>().Key(e => e.Species);
+            modelBuilder.Entity<Animal>().HasKey(e => e.Species);
             modelBuilder.Entity<Rose>().BaseType<Flower>();
             modelBuilder.Entity<Daisy>().BaseType<Flower>();
             modelBuilder.Entity<Flower>().BaseType<Plant>();
-            modelBuilder.Entity<Plant>().Key(e => e.Species);
+            modelBuilder.Entity<Plant>().HasKey(e => e.Species);
             modelBuilder.Entity<Country>();
         }
 

@@ -118,9 +118,9 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual void ConfigureTable([NotNull] EntityTypeBuilder<HistoryRow> history)
         {
             history.ToTable(DefaultTableName);
-            history.Key(h => h.MigrationId);
-            history.Property(h => h.MigrationId).MaxLength(150);
-            history.Property(h => h.ProductVersion).MaxLength(32).Required();
+            history.HasKey(h => h.MigrationId);
+            history.Property(h => h.MigrationId).HasMaxLength(150);
+            history.Property(h => h.ProductVersion).HasMaxLength(32).IsRequired();
         }
 
         public virtual IReadOnlyList<HistoryRow> GetAppliedMigrations()

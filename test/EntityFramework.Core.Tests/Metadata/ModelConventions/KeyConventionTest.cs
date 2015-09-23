@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "Id", "Name" };
-            var keyBuilder = entityBuilder.Key(properties, ConfigurationSource.Convention);
+            var keyBuilder = entityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            var keyBuilder = referencedEntityBuilder.Key(properties, ConfigurationSource.Convention);
+            var keyBuilder = referencedEntityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            var keyBuilder = referencedEntityBuilder.Key(new List<string> { "Id", "SampleEntityId" }, ConfigurationSource.Convention);
+            var keyBuilder = referencedEntityBuilder.HasKey(new List<string> { "Id", "SampleEntityId" }, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            var keyBuilder = referencedEntityBuilder.Key(new List<string> { "SampleEntityId" }, ConfigurationSource.Convention);
+            var keyBuilder = referencedEntityBuilder.HasKey(new List<string> { "SampleEntityId" }, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var properties = new List<string> { "Id" };
             entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).UseValueGenerator(false, ConfigurationSource.Explicit);
 
-            var keyBuilder = entityBuilder.Key(properties, ConfigurationSource.Convention);
+            var keyBuilder = entityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
-            var keyBuilder = referencedEntityBuilder.Key(properties, ConfigurationSource.Convention);
+            var keyBuilder = referencedEntityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
-            var keyBuilder = referencedEntityBuilder.Key(properties, ConfigurationSource.Convention);
+            var keyBuilder = referencedEntityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
-            var keyBuilder = entityBuilder.Key(new List<string> { "Number" }, ConfigurationSource.Convention);
+            var keyBuilder = entityBuilder.HasKey(new List<string> { "Number" }, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 

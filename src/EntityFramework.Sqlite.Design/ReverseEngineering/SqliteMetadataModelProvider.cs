@@ -283,14 +283,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                                 }
                                 else
                                 {
-                                    property.Required(notNull);
+                                    property.IsRequired(notNull);
                                 }
                             }
                         }
 
                         if (keyProps.Count > 0)
                         {
-                            builder.Key(keyProps.ToArray());
+                            builder.HasKey(keyProps.ToArray());
                         }
                         else
                         {

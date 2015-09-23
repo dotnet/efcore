@@ -11,8 +11,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<CustomerOrderHistory>().Key(coh => coh.ProductName);
-            modelBuilder.Entity<MostExpensiveProduct>().Key(mep => mep.TenMostExpensiveProducts);
+            modelBuilder.Entity<CustomerOrderHistory>().HasKey(coh => coh.ProductName);
+            modelBuilder.Entity<MostExpensiveProduct>().HasKey(mep => mep.TenMostExpensiveProducts);
         }
     }
 }

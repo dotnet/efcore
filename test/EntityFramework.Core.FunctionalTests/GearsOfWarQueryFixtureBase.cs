@@ -14,15 +14,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<City>().Key(c => c.Name);
+            modelBuilder.Entity<City>().HasKey(c => c.Name);
 
             modelBuilder.Entity<Gear>(b =>
                 {
-                    b.Key(g => new { g.Nickname, g.SquadId });
+                    b.HasKey(g => new { g.Nickname, g.SquadId });
 
-                    b.Reference(g => g.CityOfBirth).InverseCollection(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
-                    b.Reference(g => g.Tag).InverseReference(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
-                    b.Reference(g => g.AssignedCity).InverseCollection(c => c.StationedGears).Required(false);
+                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
+                    b.HasOne(g => g.Tag).WithMany(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+                    b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).Required(false);
                 });
 
             modelBuilder.Entity<Officer>().BaseType<Gear>();
@@ -33,19 +33,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<CogTag>(b =>
                 {
-                    b.Key(t => t.Id);
+                    b.HasKey(t => t.Id);
                 });
 
             modelBuilder.Entity<Squad>(b =>
                 {
-                    b.Key(s => s.Id);
-                    b.Collection(s => s.Members).InverseReference(g => g.Squad).ForeignKey(g => g.SquadId);
+                    b.HasKey(s => s.Id);
+                    b.HasMany(s => s.Members).WithOne(g => g.Squad).ForeignKey(g => g.SquadId);
                 });
 
             modelBuilder.Entity<Weapon>(b =>
                 {
-                    b.Reference(w => w.SynergyWith).InverseReference().ForeignKey<Weapon>(w => w.SynergyWithId);
-                    b.Reference(w => w.Owner).InverseCollection(g => g.Weapons).ForeignKey(w => w.OwnerFullName).PrincipalKey(g => g.FullName);
+                    b.HasOne(w => w.SynergyWith).WithOne().ForeignKey<Weapon>(w => w.SynergyWithId);
+                    b.HasOne(w => w.Owner).WithMany(g => g.Weapons).ForeignKey(w => w.OwnerFullName).PrincipalKey(g => g.FullName);
                 });
         }
     }

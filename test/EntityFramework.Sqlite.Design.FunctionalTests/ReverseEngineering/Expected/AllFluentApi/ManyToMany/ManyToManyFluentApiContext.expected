@@ -14,9 +14,9 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<Users_Groups>(entity =>
             {
-                entity.Reference(d => d.Group).InverseCollection(p => p.Users_Groups).ForeignKey(d => d.GroupId);
+                entity.HasOne(d => d.Group).WithMany(p => p.Users_Groups).ForeignKey(d => d.GroupId);
 
-                entity.Reference(d => d.User).InverseCollection(p => p.Users_Groups).ForeignKey(d => d.UserId);
+                entity.HasOne(d => d.User).WithMany(p => p.Users_Groups).ForeignKey(d => d.UserId);
             });
         }
 

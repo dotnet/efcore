@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(), conventions);
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var explicitKeyBuilder = entityBuilder.Key(new List<string> { "OrderId" }, ConfigurationSource.Convention);
+            var explicitKeyBuilder = entityBuilder.HasKey(new List<string> { "OrderId" }, ConfigurationSource.Convention);
 
             Assert.Null(explicitKeyBuilder);
             Assert.NotNull(keyBuilder);
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = new InternalModelBuilder(new Model(), conventions)
                 .Entity(typeof(Order), ConfigurationSource.Convention);
 
-            entityBuilder.Key(new[] { "OrderId" }, ConfigurationSource.Convention);
+            entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention);
             Assert.NotNull(entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention));
 
             Assert.NotNull(internalKeyBuilder);
@@ -364,7 +364,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(
                 new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
-                entityBuilder.Key(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
+                entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
                 entityBuilder.Metadata,
                 entityBuilder.Metadata);
             var conventionDispatcher = new ConventionDispatcher(conventions);

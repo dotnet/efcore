@@ -52,7 +52,7 @@
         string dependentEndLambdaIdentifier, string principalEndLambdaIdentifier)
     {
         var sb = new StringBuilder();
-        sb.Append("Reference(");
+        sb.Append("HasOne(");
         sb.Append(dependentEndLambdaIdentifier);
         sb.Append(" => ");
         sb.Append(dependentEndLambdaIdentifier);
@@ -62,11 +62,11 @@
 
         if (rc.ForeignKey.IsUnique)
         {
-            sb.Append(".InverseReference(");
+            sb.Append(".WithOne(");
         }
         else
         {
-            sb.Append(".InverseCollection(");
+            sb.Append(".WithMany(");
         }
         if (!string.IsNullOrEmpty(rc.PrincipalEndNavigationPropertyName))
         {

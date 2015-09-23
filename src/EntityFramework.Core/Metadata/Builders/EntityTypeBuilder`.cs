@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
-        public virtual KeyBuilder Key([NotNull] Expression<Func<TEntity, object>> keyExpression)
+        public virtual KeyBuilder HasKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
 
@@ -96,11 +96,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>
-        public virtual KeyBuilder AlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
+        public virtual KeyBuilder HasAlternateKey([NotNull] Expression<Func<TEntity, object>> keyExpression)
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
 
-            return new KeyBuilder(Builder.Key(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new KeyBuilder(Builder.HasKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -182,10 +182,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.InverseCollection(Expression{Func{TRelatedEntity, IEnumerable{TEntity}}})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(System.Linq.Expressions.Expression{System.Func{TRelatedEntity,System.Collections.Generic.IEnumerable{TEntity}}})" />
         ///         or
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.InverseReference(Expression{Func{TRelatedEntity, TEntity}})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(System.Linq.Expressions.Expression{System.Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> Reference<TRelatedEntity>(
+        public virtual ReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, TRelatedEntity>> reference = null)
             where TRelatedEntity : class
         {
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.InverseReference(Expression{Func{TRelatedEntity, TEntity}})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(System.Linq.Expressions.Expression{System.Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
-        public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> Collection<TRelatedEntity>(
+        public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(
             [CanBeNull] Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> collection = null)
             where TRelatedEntity : class
         {

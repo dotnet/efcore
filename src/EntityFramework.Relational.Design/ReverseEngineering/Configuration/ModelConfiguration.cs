@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 if (!entityKeyProperties.Contains(propertyConfiguration.Property))
                 {
                     propertyConfiguration.FluentApiConfigurations.Add(
-                        new FluentApiConfiguration(nameof(PropertyBuilder.Required))
+                        new FluentApiConfiguration(nameof(PropertyBuilder.IsRequired))
                         {
                             HasAttributeEquivalent = true
                         });
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     CSharpUtilities.GenerateLiteral(
                         ((Property)propertyConfiguration.Property).GetMaxLength().Value);
                 propertyConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(nameof(PropertyBuilder.MaxLength), maxLengthLiteral)
+                    new FluentApiConfiguration(nameof(PropertyBuilder.HasMaxLength), maxLengthLiteral)
                     {
                         HasAttributeEquivalent = true
                     });

@@ -605,7 +605,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var builder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var model = builder.Model;
 
-            builder.Entity<Product>().Reference<Category>().InverseReference()
+            builder.Entity<Product>().HasOne<Category>().WithOne()
                 .ForeignKey<Product>(e => e.DependentId)
                 .PrincipalKey<Category>(e => e.PrincipalId);
             builder.Entity<Category>();
@@ -614,7 +614,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 {
                     eb.Property<int>("Id");
                     eb.Property<string>("Planet");
-                    eb.Key("Id");
+                    eb.HasKey("Id");
                 });
 
             return model;

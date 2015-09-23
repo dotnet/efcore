@@ -28,10 +28,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<MaxLengthDataTypes>(b =>
                 {
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.ByteArray5).MaxLength(5);
-                    b.Property(e => e.String3).MaxLength(3);
-                    b.Property(e => e.ByteArray9000).MaxLength(9000);
-                    b.Property(e => e.String9000).MaxLength(9000);
+                    b.Property(e => e.ByteArray5).HasMaxLength(5);
+                    b.Property(e => e.String3).HasMaxLength(3);
+                    b.Property(e => e.ByteArray9000).HasMaxLength(9000);
+                    b.Property(e => e.String9000).HasMaxLength(9000);
                 });
         }
 

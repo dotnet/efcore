@@ -25,50 +25,50 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
-                entity.Key(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
+                entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
 
-                entity.Property(e => e.SomeDependentEndColumn).Required();
+                entity.Property(e => e.SomeDependentEndColumn).IsRequired();
 
-                entity.Reference(d => d.OneToManyDependentFK).InverseCollection(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
+                entity.HasOne(d => d.OneToManyDependentFK).WithMany(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
             {
-                entity.Key(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
+                entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
 
-                entity.Property(e => e.Other).Required();
+                entity.Property(e => e.Other).IsRequired();
             });
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
-                entity.Key(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
+                entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
 
-                entity.Property(e => e.SomeDependentEndColumn).Required();
+                entity.Property(e => e.SomeDependentEndColumn).IsRequired();
 
-                entity.Reference(d => d.OneToOneDependentNavigation).InverseReference(p => p.OneToOneDependent).ForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 });
+                entity.HasOne(d => d.OneToOneDependentNavigation).WithOne(p => p.OneToOneDependent).ForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 });
             });
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
-                entity.Key(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
+                entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
 
-                entity.Property(e => e.SomeOneToOnePrincipalColumn).Required();
+                entity.Property(e => e.SomeOneToOnePrincipalColumn).IsRequired();
             });
 
             modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
             {
-                entity.Key(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
+                entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
 
-                entity.Property(e => e.SomeDependentEndColumn).Required();
+                entity.Property(e => e.SomeDependentEndColumn).IsRequired();
 
-                entity.Reference(d => d.OneToOneSeparateFKDependentFK).InverseReference(p => p.OneToOneSeparateFKDependent).ForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
+                entity.HasOne(d => d.OneToOneSeparateFKDependentFK).WithOne(p => p.OneToOneSeparateFKDependent).ForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
             });
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
             {
-                entity.Key(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
+                entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
 
-                entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn).Required();
+                entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn).IsRequired();
             });
 
             modelBuilder.Entity<PropertyConfiguration>(entity =>
@@ -76,7 +76,7 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.PropertyConfigurationID).ValueGeneratedNever();
 
                 entity.Property(e => e.RowversionColumn)
-                    .Required()
+                    .IsRequired()
                     .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
@@ -96,7 +96,7 @@ namespace E2ETest.Namespace
             {
                 entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
 
-                entity.Property(e => e.AColumn).Required();
+                entity.Property(e => e.AColumn).IsRequired();
 
                 entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
             });
@@ -105,11 +105,11 @@ namespace E2ETest.Namespace
             {
                 entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
 
-                entity.Property(e => e.Description).Required();
+                entity.Property(e => e.Description).IsRequired();
 
-                entity.Property(e => e.Name).Required();
+                entity.Property(e => e.Name).IsRequired();
 
-                entity.Reference(d => d.SelfReferenceFKNavigation).InverseCollection(p => p.InverseSelfReferenceFKNavigation).ForeignKey(d => d.SelfReferenceFK);
+                entity.HasOne(d => d.SelfReferenceFKNavigation).WithMany(p => p.InverseSelfReferenceFKNavigation).ForeignKey(d => d.SelfReferenceFK);
             });
 
             modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>

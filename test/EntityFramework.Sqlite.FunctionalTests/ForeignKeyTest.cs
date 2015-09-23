@@ -60,8 +60,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Parent>()
-                .Collection(b => b.Children)
-                .InverseReference(b => b.MyParent)
+                .HasMany(b => b.Children)
+                .WithOne(b => b.MyParent)
                 .ForeignKey(b => b.ParentId);
         }
     }

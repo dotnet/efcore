@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("RowVersion", typeof(Guid), ConfigurationSource.Explicit);
 
-            propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Convention);
+            propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
 
             new ConcurrencyCheckAttributeConvention().Apply(propertyBuilder);
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("RowVersion", typeof(Guid), ConfigurationSource.Explicit);
 
-            propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Explicit);
+            propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);
 
             new ConcurrencyCheckAttributeConvention().Apply(propertyBuilder);
 
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("MaxLengthProperty", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.MaxLength(100, ConfigurationSource.Convention);
+            propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
             new MaxLengthAttributeConvention().Apply(propertyBuilder);
 
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("MaxLengthProperty", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.MaxLength(100, ConfigurationSource.Explicit);
+            propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
             new MaxLengthAttributeConvention().Apply(propertyBuilder);
 
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.Required(false, ConfigurationSource.Convention);
+            propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
 
             new RequiredPropertyAttributeConvention().Apply(propertyBuilder);
 
@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("Name", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.Required(false, ConfigurationSource.Explicit);
+            propertyBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
             new RequiredPropertyAttributeConvention().Apply(propertyBuilder);
 
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("StringLengthProperty", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.MaxLength(100, ConfigurationSource.Convention);
+            propertyBuilder.HasMaxLength(100, ConfigurationSource.Convention);
 
             new StringLengthAttributeConvention().Apply(propertyBuilder);
 
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var propertyBuilder = entityTypeBuilder.Property("StringLengthProperty", typeof(string), ConfigurationSource.Explicit);
 
-            propertyBuilder.MaxLength(100, ConfigurationSource.Explicit);
+            propertyBuilder.HasMaxLength(100, ConfigurationSource.Explicit);
 
             new StringLengthAttributeConvention().Apply(propertyBuilder);
 
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var propertyBuilder = entityTypeBuilder.Property("Timestamp", typeof(byte[]), ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
-            propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Convention);
+            propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Convention);
 
             new TimestampAttributeConvention().Apply(propertyBuilder);
 
@@ -379,7 +379,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var propertyBuilder = entityTypeBuilder.Property("Timestamp", typeof(byte[]), ConfigurationSource.Explicit);
 
             propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Explicit);
-            propertyBuilder.ConcurrencyToken(false, ConfigurationSource.Explicit);
+            propertyBuilder.IsConcurrencyToken(false, ConfigurationSource.Explicit);
 
             new TimestampAttributeConvention().Apply(propertyBuilder);
 
@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<B>().Key(e => new { e.MyPrimaryKey, e.Id });
+                modelBuilder.Entity<B>().HasKey(e => new { e.MyPrimaryKey, e.Id });
             }
         }
     }

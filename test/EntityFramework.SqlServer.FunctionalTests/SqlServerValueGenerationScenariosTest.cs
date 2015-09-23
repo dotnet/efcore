@@ -719,7 +719,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     modelBuilder.Entity<ConcurrentBlog>()
                         .Property(e => e.Timestamp)
                         .ValueGeneratedOnAddOrUpdate()
-                        .ConcurrencyToken();
+                        .IsConcurrencyToken();
                 }
             }
         }

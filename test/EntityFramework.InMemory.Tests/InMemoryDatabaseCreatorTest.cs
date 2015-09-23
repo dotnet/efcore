@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 
             modelBuilder.Entity<Test>(b =>
                 {
-                    b.Key(c => c.Id);
+                    b.HasKey(c => c.Id);
                     b.Property(c => c.Name);
                 });
 

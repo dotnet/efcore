@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             var idProperty = entityTypeBuilder.Property("Id", ConfigurationSource.Convention).Metadata;
-            var keyBuilder = entityTypeBuilder.Key(new[] { idProperty.Name }, ConfigurationSource.Convention);
+            var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
             Assert.True(keyBuilder.Sqlite(ConfigurationSource.Convention).Name("Splew"));
             Assert.Equal("Splew", keyBuilder.Metadata.Sqlite().Name);
