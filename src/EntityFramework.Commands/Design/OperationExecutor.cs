@@ -270,10 +270,11 @@ namespace Microsoft.Data.Entity.Design
                 var provider = (string)args["provider"];
                 var outputDir = (string)args["outputDir"];
                 var dbContextClassName = (string)args["dbContextClassName"];
+                var tableFilters = (string)args["tableFilters"];
                 var useFluentApiOnly = (bool)args["useFluentApiOnly"];
 
                 Execute(() => executor.ReverseEngineerImpl(provider,
-                    connectionString, outputDir, dbContextClassName, useFluentApiOnly));
+                    connectionString, outputDir, dbContextClassName, tableFilters, useFluentApiOnly));
             }
         }
 
@@ -282,13 +283,14 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
+            [CanBeNull] string tableFilters,
             bool useFluentApiOnly)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
 
             var files = _databaseOperations.Value.ReverseEngineerAsync(
-                    provider, connectionString, outputDir, dbContextClassName, useFluentApiOnly).Result;
+                    provider, connectionString, outputDir, dbContextClassName, tableFilters, useFluentApiOnly).Result;
 
             // NOTE: First file will be opened in VS
             yield return files.ContextFile;
