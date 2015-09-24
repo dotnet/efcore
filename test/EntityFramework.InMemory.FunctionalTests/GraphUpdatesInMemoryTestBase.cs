@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .BuildServiceProvider();
 
                 _optionsBuilder = new DbContextOptionsBuilder();
-                _optionsBuilder.UseInMemoryDatabase(persist: true);
+                _optionsBuilder.UseInMemoryDatabase();
             }
 
             public override InMemoryTestStore CreateTestStore()

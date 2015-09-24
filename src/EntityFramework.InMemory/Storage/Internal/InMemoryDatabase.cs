@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.InMemory;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -22,7 +19,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class InMemoryDatabase : Database, IInMemoryDatabase
     {
-        private readonly ThreadSafeLazyRef<IInMemoryStore> _database;
+        private readonly IInMemoryStore _database;
 
         public InMemoryDatabase(
             [NotNull] ILoggerFactory loggerFactory,
@@ -36,28 +33,21 @@ namespace Microsoft.Data.Entity.Storage.Internal
             Check.NotNull(persistentStore, nameof(persistentStore));
             Check.NotNull(options, nameof(options));
 
-            var storeConfig = options.Extensions
-                .OfType<InMemoryOptionsExtension>()
-                .FirstOrDefault();
-
-            _database = new ThreadSafeLazyRef<IInMemoryStore>(
-                () => storeConfig?.Persist ?? true
-                    ? persistentStore
-                    : new InMemoryStore(loggerFactory));
+            _database = persistentStore;
         }
 
-        public virtual IInMemoryStore Store => _database.Value;
+        public virtual IInMemoryStore Store => _database;
 
         public override int SaveChanges(IReadOnlyList<InternalEntityEntry> entries)
-            => _database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries)));
+            => _database.ExecuteTransaction(Check.NotNull(entries, nameof(entries)));
 
         public override Task<int> SaveChangesAsync(
             IReadOnlyList<InternalEntityEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
-            => Task.FromResult(_database.Value.ExecuteTransaction(Check.NotNull(entries, nameof(entries))));
+            => Task.FromResult(_database.ExecuteTransaction(Check.NotNull(entries, nameof(entries))));
 
         public virtual bool EnsureDatabaseCreated(IModel model)
-            => _database.Value.EnsureCreated(Check.NotNull(model, nameof(model)));
+            => _database.EnsureCreated(Check.NotNull(model, nameof(model)));
 
         public override Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>(QueryModel queryModel)
         {

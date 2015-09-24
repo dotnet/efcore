@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public void Can_register_configuration_with_DI_container_and_have_it_injected()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase(persist: false);
+            optionsBuilder.UseInMemoryDatabase();
 
             var services = new ServiceCollection();
             services.AddTransient<InjectConfigurationBlogContext>()
@@ -362,6 +362,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 Assert.NotEqual(0, blog.Id);
                 Assert.Equal("The Waffle Cart", blog.Name);
+
+                _context.Remove(blog);
+                _context.SaveChanges();
             }
         }
 

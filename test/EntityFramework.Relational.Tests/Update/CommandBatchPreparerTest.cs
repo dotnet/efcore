@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase(persist: false);
+            optionsBuilder.UseInMemoryDatabase();
 
             return new DbContext(optionsBuilder.Options).GetService();
         }
