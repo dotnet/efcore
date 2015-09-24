@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
@@ -27,6 +28,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (string.IsNullOrEmpty(ProjectPath))
             {
                 throw new ArgumentException(Strings.ProjectPathRequired);
+            }
+
+            if (!string.IsNullOrWhiteSpace(ContextClassName)
+                && !CSharpUtilities.Instance.IsValidCSharpIdentifier(ContextClassName))
+            {
+                throw new ArgumentException(
+                    Strings.ContextClassNotValidCSharpIdentifier(ContextClassName));
             }
 
             if (string.IsNullOrEmpty(ProjectRootNamespace))

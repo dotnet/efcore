@@ -207,6 +207,32 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             return string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
 
+        public virtual bool IsValidCSharpIdentifier([NotNull] string identifier)
+        {
+            Check.NotEmpty(identifier, nameof(identifier));
+
+            var firstChar = identifier[0];
+            if (!char.IsLetter(firstChar)
+                && firstChar != '_'
+                && firstChar != '@')
+            {
+                return false;
+            }
+
+            if (_cSharpKeywords.Contains(identifier))
+            {
+                return false;
+            }
+
+            if (_invalidCharsRegex.IsMatch(identifier))
+            {
+                System.IO.File.AppendAllText(@"C:\work\150924_ContextClassName", "Identifier, " + identifier + ", matches _invalidCharsRegex" + Environment.NewLine);
+                return false;
+            }
+
+            return true;
+        }
+
         public virtual string GenerateCSharpIdentifier(
             [NotNull] string identifier, [CanBeNull] ICollection<string> existingIdentifiers)
         {

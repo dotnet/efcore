@@ -56,9 +56,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
 
         private const string _connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30";
 
-        private static readonly List<string> _expectedFiles = new List<string>
+        private static readonly List<string> _expectedEntityTypeFiles = new List<string>
             {
-                "SqlServerReverseEngineerTestE2EContext.expected",
                 "AllDataTypes.expected",
                 "OneToManyDependent.expected",
                 "OneToManyPrincipal.expected",
@@ -79,6 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = _connectionString,
+                ContextClassName = "AttributesContext",
                 ProjectPath = TestProjectDir,
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = TestSubDir
@@ -95,7 +95,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_UseAttributesInsteadOfFluentApi"),
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir))
             {
-                Files = _expectedFiles
+                Files = (new List<string> { "AttributesContext.expected"})
+                    .Concat(_expectedEntityTypeFiles).ToList()
             };
 
             AssertLog(new LoggerMessages
@@ -138,7 +139,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             var expectedFileSet = new FileSet(new FileSystemFileService(),
                 Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_AllFluentApi"))
             {
-                Files = _expectedFiles
+                Files = (new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" })
+                    .Concat(_expectedEntityTypeFiles).ToList()
             };
 
             AssertLog(new LoggerMessages

@@ -100,7 +100,7 @@
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\SelfReferencing.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\AttributesContext.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\TableWithUnmappablePrimaryKeyColumn.expected">
