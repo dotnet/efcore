@@ -6,7 +6,6 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -42,33 +41,30 @@ namespace Microsoft.Data.Entity.Commands
             var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
             _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
 
+            var targetName = appEnv.ApplicationName;
+            var startupTargetName = appEnv.ApplicationName;
             var projectDir = appEnv.ApplicationBasePath;
             var rootNamespace = appEnv.ApplicationName;
-
-            var startupAssemblyName = appEnv.ApplicationName;
-
-            var assemblyName = new AssemblyName(appEnv.ApplicationName);
-            var assembly = Assembly.Load(assemblyName);
 
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssemblyName,
+                    targetName,
+                    startupTargetName,
                     dnxServices));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssemblyName,
+                    targetName,
+                    startupTargetName,
                     projectDir,
                     rootNamespace,
                     dnxServices));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssemblyName,
+                    targetName,
+                    startupTargetName,
                     projectDir,
                     rootNamespace,
                     dnxServices));

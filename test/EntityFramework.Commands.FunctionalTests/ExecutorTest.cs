@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Commands
                             }" }
                     };
                     var build = source.Build();
-                    Executor = new OperationExecutorWrapper(TargetDir, build.TargetName + ".dll", TargetDir, "SimpleProject");
+                    Executor = new OperationExecutorWrapper(TargetDir, build.TargetName, TargetDir, "SimpleProject");
                 }
 
                 public string TargetDir
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Commands
                         }" }
                 };
                 var build = source.Build();
-                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName + ".dll", targetDir, "MyProject"))
+                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, "MyProject"))
                 {
                     var migrations = executor.GetMigrations("Context1");
 
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Commands
                         }" }
                 };
                 var migrationsBuild = migrationsSource.Build();
-                using (var executor = new OperationExecutorWrapper(targetDir, migrationsBuild.TargetName + ".dll", targetDir, "MyProject"))
+                using (var executor = new OperationExecutorWrapper(targetDir, migrationsBuild.TargetName, targetDir, "MyProject"))
                 {
                     var contextTypes = executor.GetContextTypes();
 

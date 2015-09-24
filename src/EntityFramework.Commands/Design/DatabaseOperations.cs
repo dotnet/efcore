@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -11,9 +10,6 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-#if DNX451 || DNXCORE50
-using Microsoft.Dnx.Runtime;
-#endif
 
 namespace Microsoft.Data.Entity.Design
 {
@@ -26,14 +22,15 @@ namespace Microsoft.Data.Entity.Design
 
         public DatabaseOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] Assembly assembly,
-            [CanBeNull] string startupAssemblyName,
+            [NotNull] string assemblyName,
+            [NotNull] string startupAssemblyName,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
             [CanBeNull] IServiceProvider dnxServices = null)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotNull(assembly, nameof(assembly));
+            Check.NotEmpty(assemblyName, nameof(assemblyName));
+            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 

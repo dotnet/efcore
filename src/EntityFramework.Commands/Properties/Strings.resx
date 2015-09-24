@@ -204,4 +204,7 @@
   <data name="NonRelationalProvider" xml:space="preserve">
     <value>{provider} is not a Relational provider and therefore cannot be use with Migrations.</value>
   </data>
+  <data name="UnreferencedAssembly" xml:space="preserve">
+    <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
+  </data>
 </root>

@@ -7,7 +7,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
@@ -29,34 +28,28 @@ namespace Microsoft.Data.Entity.Design
             var unwrappedLogHandler = ForwardingProxy.Unwrap<IOperationLogHandler>(logHandler);
             var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
 
-            var targetPath = (string)args["targetPath"];
-            var startupTargetPath = (string)args["startupTargetPath"];
-
+            var targetName = (string)args["targetName"];
+            var startupTargetName = (string)args["startupTargetName"];
             var projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
-
-            var startupAssemblyName = AssemblyName.GetAssemblyName(startupTargetPath).Name;
-
-            var assemblyName = AssemblyName.GetAssemblyName(targetPath);
-            var assembly = Assembly.Load(assemblyName);
 
             _contextOperations = new LazyRef<DbContextOperations>(
                 () => new DbContextOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssemblyName));
+                    targetName,
+                    startupTargetName));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssemblyName,
+                    targetName,
+                    startupTargetName,
                     projectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
                 () => new MigrationsOperations(
                     loggerProvider,
-                    assembly,
-                    startupAssemblyName,
+                    targetName,
+                    startupTargetName,
                     projectDir,
                     rootNamespace));
         }

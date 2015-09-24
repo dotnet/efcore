@@ -24,22 +24,24 @@ namespace Microsoft.Data.Entity.Design
     public class DbContextOperations
     {
         private readonly ILoggerProvider _loggerProvider;
-        private readonly Assembly _assembly;
+        private readonly string _assemblyName;
         private readonly string _startupAssemblyName;
         private readonly IServiceProvider _dnxServices;
         private readonly LazyRef<ILogger> _logger;
+        private Assembly _assembly;
 
         public DbContextOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] Assembly assembly,
-            [CanBeNull] string startupAssemblyName,
+            [NotNull] string assemblyName,
+            [NotNull] string startupAssemblyName,
             [CanBeNull] IServiceProvider dnxServices = null)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotNull(assembly, nameof(assembly));
+            Check.NotEmpty(assemblyName, nameof(assemblyName));
+            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
 
             _loggerProvider = loggerProvider;
-            _assembly = assembly;
+            _assemblyName = assemblyName;
             _startupAssemblyName = startupAssemblyName;
             _dnxServices = dnxServices;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
@@ -84,12 +86,12 @@ namespace Microsoft.Data.Entity.Design
 #endif
 
         public virtual IEnumerable<Type> GetContextTypes()
-            => _assembly.GetTypes().Where(
+            => GetAssembly().GetTypes().Where(
                 t => !t.GetTypeInfo().IsAbstract
                     && !t.GetTypeInfo().IsGenericType
                     && typeof(DbContext).IsAssignableFrom(t))
             .Concat(
-                _assembly.GetConstructibleTypes()
+                GetAssembly().GetConstructibleTypes()
                    .Where(t => typeof(Migration).IsAssignableFrom(t.AsType()))
                    .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
                    .Where(t => t != null))
@@ -101,6 +103,23 @@ namespace Microsoft.Data.Entity.Design
             _logger.Value.LogVerbose(Strings.LogUseContext(contextType.Name));
 
             return contextType;
+        }
+
+        private Assembly GetAssembly()
+        {
+            if (_assembly == null)
+            {
+                try
+                {
+                    _assembly = Assembly.Load(new AssemblyName(_assemblyName));
+                }
+                catch (Exception ex)
+                {
+                    throw new OperationException(Strings.UnreferencedAssembly(_assemblyName, _startupAssemblyName), ex);
+                }
+            }
+
+            return _assembly;
         }
 
         private Type FindContextType(string name)

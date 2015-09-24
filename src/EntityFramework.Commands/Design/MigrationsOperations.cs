@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
@@ -22,8 +21,6 @@ namespace Microsoft.Data.Entity.Design
     {
         private readonly ILoggerProvider _loggerProvider;
         private readonly LazyRef<ILogger> _logger;
-        private readonly Assembly _assembly;
-        private readonly string _startupAssemblyName;
         private readonly string _projectDir;
         private readonly string _rootNamespace;
         private readonly DesignTimeServicesBuilder _servicesBuilder;
@@ -31,14 +28,15 @@ namespace Microsoft.Data.Entity.Design
 
         public MigrationsOperations(
             [NotNull] ILoggerProvider loggerProvider,
-            [NotNull] Assembly assembly,
-            [CanBeNull] string startupAssemblyName,
+            [NotNull] string assemblyName,
+            [NotNull] string startupAssemblyName,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
             [CanBeNull] IServiceProvider dnxServices = null)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
-            Check.NotNull(assembly, nameof(assembly));
+            Check.NotEmpty(assemblyName, nameof(assemblyName));
+            Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
             Check.NotNull(projectDir, nameof(projectDir));
             Check.NotNull(rootNamespace, nameof(rootNamespace));
 
@@ -47,14 +45,12 @@ namespace Microsoft.Data.Entity.Design
 
             _loggerProvider = loggerProvider;
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
-            _assembly = assembly;
-            _startupAssemblyName = startupAssemblyName;
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
             _servicesBuilder = new DesignTimeServicesBuilder(dnxServices);
             _contextOperations = new DbContextOperations(
                 loggerProvider,
-                assembly,
+                assemblyName,
                 startupAssemblyName,
                 dnxServices);
         }

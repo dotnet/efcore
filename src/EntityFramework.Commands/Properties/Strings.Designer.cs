@@ -244,6 +244,14 @@ namespace Microsoft.Data.Entity.Design.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NonRelationalProvider", "provider"), provider);
         }
 
+        /// <summary>
+        /// Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.
+        /// </summary>
+        public static string UnreferencedAssembly([CanBeNull] object assembly, [CanBeNull] object startupProject)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnreferencedAssembly", "assembly", "startupProject"), assembly, startupProject);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

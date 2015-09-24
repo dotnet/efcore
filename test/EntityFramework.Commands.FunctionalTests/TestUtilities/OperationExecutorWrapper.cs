@@ -6,7 +6,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using Microsoft.Data.Entity.Design;
 
 namespace Microsoft.Data.Entity.Commands.TestUtilities
@@ -21,9 +20,8 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
         private readonly AppDomain _domain;
         private readonly object _executor;
 
-        public OperationExecutorWrapper(string targetDir, string targetFileName, string projectDir, string rootNamespace)
+        public OperationExecutorWrapper(string targetDir, string targetName, string projectDir, string rootNamespace)
         {
-            var targetPath = Path.Combine(targetDir, targetFileName);
             _targetDir = targetDir;
             _domain = AppDomain.CreateDomain(
                 "ExecutorWrapper",
@@ -41,8 +39,8 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
                         new OperationLogHandler(),
                         new Hashtable
                             {
-                                { "targetPath", targetPath },
-                                { "startupTargetPath", targetPath },
+                                { "targetName", targetName },
+                                { "startupTargetName", targetName },
                                 { "projectDir", projectDir },
                                 { "rootNamespace", rootNamespace }
                             }
