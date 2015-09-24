@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
@@ -33,7 +34,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
-            [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory)
+            [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
+            [NotNull] IDbContextOptions contextOptions)
             : base(
                 model,
                 queryOptimizer,
@@ -57,6 +59,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory));
             Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(shapedQueryFindingExpressionVisitorFactory));
+            Check.NotNull(contextOptions, nameof(contextOptions));
 
             RelationalAnnotationProvider = relationalAnnotationProvider;
             IncludeExpressionVisitorFactory = includeExpressionVisitorFactory;
@@ -64,6 +67,7 @@ namespace Microsoft.Data.Entity.Query
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             QueryFlatteningExpressionVisitorFactory = queryFlatteningExpressionVisitorFactory;
             ShapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
+            ContextOptions = contextOptions;
         }
 
         protected virtual IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
@@ -72,6 +76,7 @@ namespace Microsoft.Data.Entity.Query
         protected virtual ICompositePredicateExpressionVisitorFactory CompositePredicateExpressionVisitorFactory { get; }
         protected virtual IQueryFlatteningExpressionVisitorFactory QueryFlatteningExpressionVisitorFactory { get; }
         protected virtual IShapedQueryFindingExpressionVisitorFactory ShapedQueryFindingExpressionVisitorFactory { get; }
+        protected virtual IDbContextOptions ContextOptions { get; }
 
         public override EntityQueryModelVisitor Create(
             QueryCompilationContext queryCompilationContext,
@@ -98,6 +103,7 @@ namespace Microsoft.Data.Entity.Query
                 CompositePredicateExpressionVisitorFactory,
                 QueryFlatteningExpressionVisitorFactory,
                 ShapedQueryFindingExpressionVisitorFactory,
+                ContextOptions,
                 (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);
     }

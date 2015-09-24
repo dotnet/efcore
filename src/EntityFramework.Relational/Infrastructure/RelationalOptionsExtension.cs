@@ -89,6 +89,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         public virtual bool UseRelationalNulls { get; set; }
+        public virtual bool IsQueryClientEvaluationEnabled { get; set; } = true;
 
         public virtual bool? ThrowOnAmbientTransaction { get; set; }
 
@@ -101,21 +102,22 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(options, nameof(options));
 
-            var configs = options.Extensions
-                .OfType<RelationalOptionsExtension>()
-                .ToArray();
+            var relationalOptionsExtensions
+                = options.Extensions
+                    .OfType<RelationalOptionsExtension>()
+                    .ToArray();
 
-            if (configs.Length == 0)
+            if (relationalOptionsExtensions.Length == 0)
             {
                 throw new InvalidOperationException(Strings.NoProviderConfigured);
             }
 
-            if (configs.Length > 1)
+            if (relationalOptionsExtensions.Length > 1)
             {
                 throw new InvalidOperationException(Strings.MultipleProvidersConfigured);
             }
 
-            return configs[0];
+            return relationalOptionsExtensions[0];
         }
 
         public abstract void ApplyServices(EntityFrameworkServicesBuilder builder);

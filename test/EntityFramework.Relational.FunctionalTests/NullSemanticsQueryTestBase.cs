@@ -528,6 +528,20 @@ namespace Microsoft.Data.Entity.FunctionalTests
             Assert.True(results1.Count != results2.Count);
         }
 
+        [Fact]
+        public virtual void From_sql_composed_with_relational_null_comparison()
+        {
+            using (var context = CreateContext(useRelationalNulls: true))
+            {
+                var actual = context.Entities1
+                    .FromSql(@"SELECT * FROM ""NullSemanticsEntity1""")
+                    .Where(c => c.StringA == c.StringB)
+                    .ToArray();
+
+                Assert.Equal(15, actual.Length);
+            }
+        }
+
         protected void AssertQuery<TItem>(
             Func<IQueryable<TItem>, IQueryable<TItem>> l2eQuery,
             Func<IQueryable<TItem>, IQueryable<TItem>> l2oQuery,

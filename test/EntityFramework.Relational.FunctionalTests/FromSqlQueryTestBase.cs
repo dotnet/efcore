@@ -360,22 +360,7 @@ AND ((UnitsInStock + UnitsOnOrder) < ReorderLevel)")
             }
         }
 
-        [Fact]
-        public virtual void From_sql_composed_with_relational_null_comparison()
-        {
-            using (var context = CreateContext(useRelationalNulls: true))
-            {
-                var actual = context.Set<Customer>()
-                    .FromSql(@"SELECT * FROM ""Customers""")
-                    .Where(c => c.ContactName == c.CompanyName)
-                    .ToArray();
-
-                Assert.Equal(0, actual.Length);
-            }
-        }
-
-        protected NorthwindContext CreateContext(bool useRelationalNulls = false) 
-            => Fixture.CreateContext(useRelationalNulls);
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected FromSqlQueryTestBase(TFixture fixture)
         {

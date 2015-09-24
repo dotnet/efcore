@@ -31,24 +31,29 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     .AddInstance<ILoggerFactory>(_testSqlLoggerFactory)
                     .BuildServiceProvider();
 
-            _options = ConfigureOptions();
+            _options = BuildOptions();
+
+            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
         }
 
-        protected virtual DbContextOptions ConfigureOptions()
+        protected DbContextOptions BuildOptions()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString);
+            var sqliteDbContextOptionsBuilder
+                = optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString);
+
+            ConfigureOptions(sqliteDbContextOptionsBuilder);
 
             return optionsBuilder.Options;
         }
 
-        public override NorthwindContext CreateContext() => CreateContext(useRelationalNulls: false);
-
-        public override NorthwindContext CreateContext(bool useRelationalNulls)
+        protected virtual void ConfigureOptions(SqliteDbContextOptionsBuilder sqliteDbContextOptionsBuilder)
         {
-            RelationalOptionsExtension.Extract(_options).UseRelationalNulls = useRelationalNulls;
+        }
 
+        public override NorthwindContext CreateContext()
+        {
             var context = new SqliteNorthwindContext(_serviceProvider, _options);
 
             context.ChangeTracker.AutoDetectChangesEnabled = false;

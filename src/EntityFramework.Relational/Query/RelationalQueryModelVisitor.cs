@@ -8,12 +8,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Framework.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -42,6 +45,7 @@ namespace Microsoft.Data.Entity.Query
         private bool _requiresClientJoin;
         private bool _requiresClientProjection;
         private bool _requiresClientResultOperator;
+
         private Dictionary<IncludeSpecification, List<int>> _navigationIndexMap = new Dictionary<IncludeSpecification, List<int>>();
 
         public RelationalQueryModelVisitor(
@@ -66,6 +70,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
+            [NotNull] IDbContextOptions contextOptions,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             [CanBeNull] RelationalQueryModelVisitor parentQueryModelVisitor)
             : base(
@@ -92,6 +97,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
             Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory));
             Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(shapedQueryFindingExpressionVisitorFactory));
+            Check.NotNull(contextOptions, nameof(contextOptions));
 
             _relationalAnnotationProvider = relationalAnnotationProvider;
             _includeExpressionVisitorFactory = includeExpressionVisitorFactory;
@@ -99,8 +105,12 @@ namespace Microsoft.Data.Entity.Query
             _compositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
             _queryFlatteningExpressionVisitorFactory = queryFlatteningExpressionVisitorFactory;
             _shapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
+
+            ContextOptions = contextOptions;
             ParentQueryModelVisitor = parentQueryModelVisitor;
         }
+        
+        protected virtual IDbContextOptions ContextOptions { get; }
 
         public virtual bool RequiresClientEval { get; set; }
 
@@ -324,6 +334,11 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
             }
+
+            if (RequiresClientSelectMany)
+            {
+                CheckClientEval(fromClause);
+            }
         }
 
         protected override Expression CompileAdditionalFromClauseExpression(
@@ -463,6 +478,11 @@ namespace Microsoft.Data.Entity.Query
                         RequiresClientJoin = false;
                     }
                 }
+            }
+            
+            if (RequiresClientJoin)
+            {
+                CheckClientEval(joinClause);
             }
         }
 
@@ -670,6 +690,8 @@ namespace Microsoft.Data.Entity.Query
 
             if (RequiresClientFilter)
             {
+                CheckClientEval(whereClause.Predicate);
+
                 base.VisitWhereClause(whereClause, queryModel, index);
             }
         }
@@ -719,8 +741,32 @@ namespace Microsoft.Data.Entity.Query
 
             if (RequiresClientEval || requiresClientOrderBy)
             {
+                CheckClientEval(orderByClause);
+
                 base.VisitOrderByClause(orderByClause, queryModel, index);
             }
+        }
+
+        public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+        {
+            base.VisitResultOperator(resultOperator, queryModel, index);
+
+            if (RequiresClientResultOperator)
+            {
+                CheckClientEval(resultOperator);
+            }
+        }
+
+        protected virtual void CheckClientEval([NotNull] object expression)
+        {
+            Check.NotNull(expression, nameof(expression));
+
+            if (RelationalOptionsExtension.Extract(ContextOptions).IsQueryClientEvaluationEnabled == false)
+            {
+                throw new InvalidOperationException(Strings.ClientEvalDisabled(expression));
+            }
+
+            QueryCompilationContext.Logger.LogWarning(Strings.ClientEvalWarning(expression));
         }
 
         public override Expression BindMemberToValueBuffer(MemberExpression memberExpression, Expression expression)

@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
 
             var offsetSupport = TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
+
             if (!offsetSupport)
             {
                 optionsBuilder.UseRowNumberForPaging();

@@ -74,6 +74,8 @@
     <Compile Include="OptimisticConcurrencySqliteTest.cs" />
     <Compile Include="PropertyEntrySqliteTest.cs" />
     <Compile Include="QueryNavigationsInMemoryTest.cs" />
+    <Compile Include="QueryNoClientEvalSqliteTest.cs" />
+    <Compile Include="QueryNoClientEvalSqliteFixture.cs" />
     <Compile Include="QuerySqliteTest.cs" />
     <Compile Include="SentinelGraphUpdatesSqliteTest.cs" />
     <Compile Include="SqliteTestHelpers.cs" />

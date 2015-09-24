@@ -283,4 +283,10 @@
   <data name="InvalidKeyValue" xml:space="preserve">
     <value>Unable to materialize an entity of type '{entityType}' because it has an invalid key value. Ensure that the key properties of the entity type have the correct sentinel value configuration.</value>
   </data>
+  <data name="ClientEvalDisabled" xml:space="preserve">
+    <value>Unabled to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.</value>
+  </data>
+  <data name="ClientEvalWarning" xml:space="preserve">
+    <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
+  </data>
 </root>

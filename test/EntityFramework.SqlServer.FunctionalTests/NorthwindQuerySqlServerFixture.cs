@@ -31,27 +31,31 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddInstance<ILoggerFactory>(_testSqlLoggerFactory)
                     .BuildServiceProvider();
 
-            _options = ConfigureOptions();
+            _options = BuildOptions();
+
+            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
         }
 
-        protected virtual DbContextOptions ConfigureOptions()
+        protected DbContextOptions BuildOptions()
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            optionsBuilder
-                .UseSqlServer(_testStore.Connection.ConnectionString)
-                .ApplyConfiguration();
+            var sqlServerDbContextOptionsBuilder
+                = optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+
+            ConfigureOptions(sqlServerDbContextOptionsBuilder);
+
+            sqlServerDbContextOptionsBuilder.ApplyConfiguration();
 
             return optionsBuilder.Options;
         }
 
-        public override NorthwindContext CreateContext()
-            => CreateContext(useRelationalNulls: false);
-
-        public override NorthwindContext CreateContext(bool useRelationalNulls)
+        protected virtual void ConfigureOptions(SqlServerDbContextOptionsBuilder sqlServerDbContextOptionsBuilder)
         {
-            RelationalOptionsExtension.Extract(_options).UseRelationalNulls = useRelationalNulls;
+        }
 
+        public override NorthwindContext CreateContext()
+        {
             var context = new SqlServerNorthwindContext(_serviceProvider, _options);
 
             context.ChangeTracker.AutoDetectChangesEnabled = false;
@@ -61,7 +65,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public void Dispose() => _testStore.Dispose();
 
-        public override CancellationToken CancelQuery()
-            => _testSqlLoggerFactory.CancelQuery();
+        public override CancellationToken CancelQuery() => _testSqlLoggerFactory.CancelQuery();
     }
 }

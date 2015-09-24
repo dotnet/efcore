@@ -22,8 +22,6 @@ namespace Microsoft.Data.Entity.Query.Internal
     {
         private const string RowNumberColumnName = "__RowNumber__";
 
-        private readonly bool _useRowNumberPaging;
-
         public SqlServerQueryModelVisitor(
             [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
@@ -46,48 +44,43 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
-            [NotNull] IDbContextOptions options,
+            [NotNull] IDbContextOptions contextOptions,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             // ReSharper disable once SuggestBaseTypeForParameter
             [CanBeNull] SqlServerQueryModelVisitor parentQueryModelVisitor)
-            : base(model,
-                queryOptimizer,
-                navigationRewritingExpressionVisitorFactory,
-                subQueryMemberPushDownExpressionVisitor,
-                querySourceTracingExpressionVisitorFactory,
-                entityResultFindingExpressionVisitorFactory,
-                taskBlockingExpressionVisitor,
-                memberAccessBindingExpressionVisitorFactory,
-                orderingExpressionVisitorFactory,
-                projectionExpressionVisitorFactory,
-                entityQueryableExpressionVisitorFactory,
-                queryAnnotationExtractor,
-                resultOperatorHandler,
-                entityMaterializerSource,
-                expressionPrinter,
-                relationalAnnotationProvider,
-                includeExpressionVisitorFactory,
-                sqlTranslatingExpressionVisitorFactory,
-                compositePredicateExpressionVisitorFactory,
-                queryFlatteningExpressionVisitorFactory,
-                shapedQueryFindingExpressionVisitorFactory,
-                queryCompilationContext,
+            : base(
+                Check.NotNull(model, nameof(model)),
+                Check.NotNull(queryOptimizer, nameof(queryOptimizer)),
+                Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory)),
+                Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor)),
+                Check.NotNull(querySourceTracingExpressionVisitorFactory, nameof(querySourceTracingExpressionVisitorFactory)),
+                Check.NotNull(entityResultFindingExpressionVisitorFactory, nameof(entityResultFindingExpressionVisitorFactory)),
+                Check.NotNull(taskBlockingExpressionVisitor, nameof(taskBlockingExpressionVisitor)),
+                Check.NotNull(memberAccessBindingExpressionVisitorFactory, nameof(memberAccessBindingExpressionVisitorFactory)),
+                Check.NotNull(orderingExpressionVisitorFactory, nameof(orderingExpressionVisitorFactory)),
+                Check.NotNull(projectionExpressionVisitorFactory, nameof(projectionExpressionVisitorFactory)),
+                Check.NotNull(entityQueryableExpressionVisitorFactory, nameof(entityQueryableExpressionVisitorFactory)),
+                Check.NotNull(queryAnnotationExtractor, nameof(queryAnnotationExtractor)),
+                Check.NotNull(resultOperatorHandler, nameof(resultOperatorHandler)),
+                Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource)),
+                Check.NotNull(expressionPrinter, nameof(expressionPrinter)),
+                Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider)),
+                Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory)),
+                Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory)),
+                Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory)),
+                Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory)),
+                Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory)),
+                Check.NotNull(contextOptions, nameof(contextOptions)),
+                Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 parentQueryModelVisitor)
         {
-            Check.NotNull(options, nameof(options));
-
-            var extension = options.FindExtension<SqlServerOptionsExtension>();
-
-            _useRowNumberPaging
-                = extension?.RowNumberPaging != null
-                  && extension.RowNumberPaging.Value;
         }
 
         public override void VisitQueryModel(QueryModel queryModel)
         {
             base.VisitQueryModel(queryModel);
 
-            if (_useRowNumberPaging)
+            if (ContextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging == true)
             {
                 var visitor = new RowNumberPagingExpressionVisitor();
 

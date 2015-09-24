@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
             [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
             [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
-            [NotNull] IDbContextOptions options)
+            [NotNull] IDbContextOptions contextOptions)
             : base(
                 model,
                 queryOptimizer,
@@ -56,14 +56,10 @@ namespace Microsoft.Data.Entity.Query.Internal
                 sqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
                 queryFlatteningExpressionVisitorFactory,
-                shapedQueryFindingExpressionVisitorFactory)
+                shapedQueryFindingExpressionVisitorFactory,
+                contextOptions)
         {
-            Check.NotNull(options, nameof(options));
-
-            ContextOptions = options;
         }
-
-        protected virtual IDbContextOptions ContextOptions { get; }
 
         public override EntityQueryModelVisitor Create(
             QueryCompilationContext queryCompilationContext,

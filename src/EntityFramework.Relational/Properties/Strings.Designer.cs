@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Relational.Internal
     using System.Globalization;
     using System.Reflection;
     using System.Resources;
-	using JetBrains.Annotations;
+    using JetBrains.Annotations;
 
     public static class Strings
     {
@@ -450,6 +450,22 @@ namespace Microsoft.Data.Entity.Relational.Internal
         public static string InvalidKeyValue([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidKeyValue", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Unabled to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.
+        /// </summary>
+        public static string ClientEvalDisabled([CanBeNull] object expression)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClientEvalDisabled", "expression"), expression);
+        }
+
+        /// <summary>
+        /// The LINQ expression '{expression}' could not be translated and will be evaluated locally.
+        /// </summary>
+        public static string ClientEvalWarning([CanBeNull] object expression)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClientEvalWarning", "expression"), expression);
         }
 
         private static string GetString(string name, params string[] formatterNames)

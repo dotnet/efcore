@@ -989,6 +989,19 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]",
                 Sql);
         }
 
+        public override void From_sql_composed_with_relational_null_comparison()
+        {
+            base.From_sql_composed_with_relational_null_comparison();
+
+            Assert.Equal(
+                @"SELECT [c].[Id], [c].[BoolA], [c].[BoolB], [c].[BoolC], [c].[IntA], [c].[IntB], [c].[IntC], [c].[NullableBoolA], [c].[NullableBoolB], [c].[NullableBoolC], [c].[NullableIntA], [c].[NullableIntB], [c].[NullableIntC], [c].[NullableStringA], [c].[NullableStringB], [c].[NullableStringC], [c].[StringA], [c].[StringB], [c].[StringC]
+FROM (
+    SELECT * FROM ""NullSemanticsEntity1""
+) AS [c]
+WHERE [c].[StringA] = [c].[StringB]",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

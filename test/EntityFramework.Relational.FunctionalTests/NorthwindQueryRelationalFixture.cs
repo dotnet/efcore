@@ -20,7 +20,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<OrderDetail>().ToTable("Order Details");
         }
 
-        public abstract NorthwindContext CreateContext(bool useRelationalNulls);
         public abstract CancellationToken CancelQuery();
     }
 }

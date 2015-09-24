@@ -53,6 +53,7 @@
     <Compile Include="GearsOfWarQueryRelationalFixture.cs" />
     <Compile Include="NorthwindQueryRelationalFixture.cs" />
     <Compile Include="FromSqlQueryTestBase.cs" />
+    <Compile Include="QueryNoClientEvalTestBase.cs" />
     <Compile Include="RelationalTestHelpers.cs" />
     <Compile Include="RelationalTestStore.cs" />
     <Compile Include="SqlExecutorTestBase.cs" />
