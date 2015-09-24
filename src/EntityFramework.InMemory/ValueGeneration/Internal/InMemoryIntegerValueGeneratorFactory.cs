@@ -4,9 +4,8 @@
 using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.InMemory
+namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class InMemoryIntegerValueGeneratorFactory : ValueGeneratorFactory
     {
@@ -56,7 +55,7 @@ namespace Microsoft.Data.Entity.InMemory
                 return new InMemoryIntegerValueGenerator<sbyte>();
             }
 
-            throw new ArgumentException(Internal.Strings.InvalidValueGeneratorFactoryProperty(
+            throw new ArgumentException(Entity.Internal.Strings.InvalidValueGeneratorFactoryProperty(
                 nameof(InMemoryIntegerValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }

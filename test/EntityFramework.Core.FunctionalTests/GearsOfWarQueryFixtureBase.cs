@@ -21,14 +21,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.HasKey(g => new { g.Nickname, g.SquadId });
 
                     b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
-                    b.HasOne(g => g.Tag).WithMany(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+                    b.HasOne(g => g.Tag).WithOne(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
                     b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).Required(false);
                 });
 
             modelBuilder.Entity<Officer>().BaseType<Gear>();
             modelBuilder.Entity<Officer>(b =>
                 {
-                    b.Collection(o => o.Reports).InverseReference().ForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
+                    b.HasMany(o => o.Reports).WithOne().ForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
                 });
 
             modelBuilder.Entity<CogTag>(b =>
