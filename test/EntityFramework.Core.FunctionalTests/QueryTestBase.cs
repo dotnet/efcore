@@ -1143,6 +1143,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Where_bool_client_side_negated()
+        {
+            AssertQuery<Product>(ps => ps.Where(p => !ClientFunc(p.ProductID) && p.Discontinued), entryCount: 8);
+        }
+
+        private static bool ClientFunc(int id)
+        {
+            return false;
+        }
+
+        [Fact]
         public virtual void Where_bool_member_negated_twice()
         {
             // ReSharper disable once NegativeEqualityExpression

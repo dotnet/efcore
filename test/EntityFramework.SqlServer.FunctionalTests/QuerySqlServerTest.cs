@@ -2608,6 +2608,17 @@ WHERE [p].[Discontinued] = 0",
                 Sql);
         }
 
+        public override void Where_bool_client_side_negated()
+        {
+            base.Where_bool_client_side_negated();
+
+            Assert.Equal(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[UnitsInStock]
+FROM [Products] AS [p]
+WHERE [p].[Discontinued] = 1",
+                Sql);
+        }
+
         public override void Where_bool_member_negated_twice()
         {
             base.Where_bool_member_negated_twice();

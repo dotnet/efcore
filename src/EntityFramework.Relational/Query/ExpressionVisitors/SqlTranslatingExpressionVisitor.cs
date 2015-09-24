@@ -419,13 +419,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 case ExpressionType.Not:
                 {
                     var operand = Visit(unaryExpression.Operand);
+                    if (operand != null)
+                    {
+                        return Expression.Not(operand);
+                    }
 
-                    return Expression.Not(operand);
+                    break;
                 }
                 case ExpressionType.Convert:
                 {
                     var operand = Visit(unaryExpression.Operand);
-
                     if (operand != null)
                     {
                         return Expression.Convert(operand, unaryExpression.Type);
