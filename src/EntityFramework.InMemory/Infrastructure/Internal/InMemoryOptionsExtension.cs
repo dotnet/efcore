@@ -8,8 +8,6 @@ namespace Microsoft.Data.Entity.Infrastructure.Internal
 {
     public class InMemoryOptionsExtension : IDbContextOptionsExtension
     {
-        public virtual bool Persist { get; internal set; }
-
         public virtual void ApplyServices(EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));

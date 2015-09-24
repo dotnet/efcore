@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Framework.DependencyInjection;
@@ -41,16 +40,6 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         }
 
         [Fact]
-        public void Uses_transient_database_if_not_configured_as_persistent()
-        {
-            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-
-            Assert.NotSame(
-                CreateStore(serviceProvider, persist: false).Store,
-                CreateStore(serviceProvider, persist: false).Store);
-        }
-
-        [Fact]
         public void EnsureDatabaseCreated_returns_true_for_first_use_of_persistent_database_and_false_thereafter()
         {
             var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
@@ -66,28 +55,10 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             Assert.False(store.EnsureDatabaseCreated(model));
         }
 
-        [Fact]
-        public void EnsureDatabaseCreated_returns_true_for_first_use_of_non_persistent_database_and_false_thereafter()
-        {
-            var serviceProvider = InMemoryTestHelpers.Instance.CreateServiceProvider();
-            var model = CreateModel();
-            var store = CreateStore(serviceProvider, persist: false);
-
-            Assert.True(store.EnsureDatabaseCreated(model));
-            Assert.False(store.EnsureDatabaseCreated(model));
-            Assert.False(store.EnsureDatabaseCreated(model));
-
-            store = CreateStore(serviceProvider, persist: false);
-
-            Assert.True(store.EnsureDatabaseCreated(model));
-            Assert.False(store.EnsureDatabaseCreated(model));
-            Assert.False(store.EnsureDatabaseCreated(model));
-        }
-
         private static IInMemoryDatabase CreateStore(IServiceProvider serviceProvider, bool persist)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseInMemoryDatabase(persist: persist);
+            optionsBuilder.UseInMemoryDatabase();
 
             return InMemoryTestHelpers.Instance.CreateContextServices(serviceProvider, optionsBuilder.Options).GetRequiredService<IInMemoryDatabase>();
         }

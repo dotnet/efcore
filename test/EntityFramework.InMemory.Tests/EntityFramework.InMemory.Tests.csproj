@@ -32,7 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="InMemoryDbContextOptionsExtensionsTest.cs" />
     <Compile Include="InMemoryIntegerValueGeneratorFactoryTest.cs" />
     <Compile Include="InMemoryOptionsExtensionTest.cs" />
     <Compile Include="InMemoryDatabaseCreatorTest.cs" />

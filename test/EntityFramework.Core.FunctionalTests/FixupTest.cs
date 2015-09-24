@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(persist: false);
+                optionsBuilder.UseInMemoryDatabase();
             }
         }
 

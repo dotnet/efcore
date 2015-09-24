@@ -1975,7 +1975,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(persist: false);
+                optionsBuilder.UseInMemoryDatabase();
             }
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
@@ -2363,7 +2363,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(persist: true);
+                optionsBuilder.UseInMemoryDatabase();
             }
         }
 

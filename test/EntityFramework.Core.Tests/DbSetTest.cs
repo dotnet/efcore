@@ -446,7 +446,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
-                optionsBuilder.UseInMemoryDatabase(persist: false);
+                optionsBuilder.UseInMemoryDatabase();
             }
         }
     }
