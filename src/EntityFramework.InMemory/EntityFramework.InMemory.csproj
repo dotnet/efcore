@@ -8,7 +8,7 @@
     <ProjectGuid>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.InMemory</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
     <AssemblyName>EntityFramework.InMemory</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -43,42 +43,48 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
+      <Link>Utilities\LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="IInMemoryStore.cs" />
-    <Compile Include="IInMemoryDatabase.cs" />
-    <Compile Include="InMemoryDatabaseProviderServices.cs" />
-    <Compile Include="InMemoryIntegerValueGeneratorFactory.cs" />
-    <Compile Include="InMemoryModelSource.cs" />
-    <Compile Include="InMemoryOptionsExtension.cs" />
-    <Compile Include="InMemoryStore.cs" />
-    <Compile Include="InMemoryDatabase.cs" />
-    <Compile Include="InMemoryDatabaseCreator.cs" />
-    <Compile Include="Metadata\EntityTypeNameEqualityComparer.cs" />
-    <Compile Include="Query\ExpressionVisitors\InMemoryEntityQueryableExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\InMemoryEntityQueryableExpressionVisitorFactory.cs" />
-    <Compile Include="Query\IMaterializerFactory.cs" />
-    <Compile Include="Query\InMemoryQueryModelVisitorFactory.cs" />
-    <Compile Include="Query\InMemoryQueryContext.cs" />
+    <Compile Include="Infrastructure\Internal\InMemoryModelSource.cs" />
+    <Compile Include="Infrastructure\Internal\InMemoryOptionsExtension.cs" />
+    <Compile Include="Metadata\Internal\EntityTypeNameEqualityComparer.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\InMemoryEntityQueryableExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\InMemoryEntityQueryableExpressionVisitorFactory.cs" />
     <Compile Include="Extensions\InMemoryDbContextOptionsExtensions.cs" />
-    <Compile Include="InMemoryEntityFrameworkServicesBuilderExtensions.cs" />
-    <Compile Include="InMemoryIntegerValueGenerator.cs" />
-    <Compile Include="InMemoryValueGeneratorCache.cs" />
-    <Compile Include="InMemoryValueGeneratorSelector.cs" />
+    <Compile Include="Extensions\InMemoryEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="Properties\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="Query\InMemoryQueryContextFactory.cs" />
-    <Compile Include="Query\InMemoryQueryModelVisitor.cs" />
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
-    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
-    <Compile Include="Query\MaterializerFactory.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>Utilities\CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>Utilities\StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Utilities\SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Query\Internal\IMaterializerFactory.cs" />
+    <Compile Include="Query\Internal\InMemoryQueryContext.cs" />
+    <Compile Include="Query\Internal\InMemoryQueryContextFactory.cs" />
+    <Compile Include="Query\Internal\InMemoryQueryModelVisitor.cs" />
+    <Compile Include="Query\Internal\InMemoryQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\Internal\MaterializerFactory.cs" />
+    <Compile Include="Storage\Internal\IInMemoryDatabase.cs" />
+    <Compile Include="Storage\Internal\IInMemoryStore.cs" />
+    <Compile Include="Storage\Internal\InMemoryDatabase.cs" />
+    <Compile Include="Storage\Internal\InMemoryDatabaseCreator.cs" />
+    <Compile Include="Storage\Internal\InMemoryDatabaseProviderServices.cs" />
+    <Compile Include="Storage\Internal\InMemoryStore.cs" />
+    <Compile Include="ValueGeneration\Internal\InMemoryIntegerValueGenerator.cs" />
+    <Compile Include="ValueGeneration\Internal\InMemoryIntegerValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorSelector.cs" />
     <EmbeddedResource Include="Properties\Strings.resx">
       <LogicalName>EntityFramework.InMemory.Strings.resources</LogicalName>
       <SubType>Designer</SubType>
