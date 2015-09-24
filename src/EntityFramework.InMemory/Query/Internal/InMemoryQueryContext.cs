@@ -3,10 +3,11 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.InMemory;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.Data.Entity.Query.Internal
 {
     public class InMemoryQueryContext : QueryContext
     {

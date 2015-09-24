@@ -11,11 +11,10 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
-using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Query
+namespace Microsoft.Data.Entity.Query.Internal
 {
     public class InMemoryQueryModelVisitor : EntityQueryModelVisitor
     {
@@ -83,12 +82,12 @@ namespace Microsoft.Data.Entity.Query
                     Expression,
                     Expression.Constant(navigationPath),
                     accessorLambda,
-                    Expression.NewArrayInit(
+                    System.Linq.Expressions.Expression.NewArrayInit(
                         typeof(RelatedEntitiesLoader),
                         navigationPath.Select(
                             n =>
                                 {
-                                    var targetType = n.GetTargetType();
+                                    var targetType = NavigationExtensions.GetTargetType((INavigation)n);
 
                                     var materializer
                                         = _materializerFactory

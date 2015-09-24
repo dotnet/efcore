@@ -3,9 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Metadata;
 
-namespace Microsoft.Data.Entity.InMemory.Metadata
+namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class EntityTypeNameEqualityComparer : IEqualityComparer<IEntityType>
     {

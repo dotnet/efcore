@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.InMemory.Tests

@@ -5,9 +5,8 @@ using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.InMemory
+namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     {

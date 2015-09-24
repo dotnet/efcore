@@ -3,9 +3,8 @@
 
 using System;
 using System.Threading;
-using Microsoft.Data.Entity.ValueGeneration;
 
-namespace Microsoft.Data.Entity.InMemory
+namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class InMemoryIntegerValueGenerator<TValue> : ValueGenerator<TValue>
     {

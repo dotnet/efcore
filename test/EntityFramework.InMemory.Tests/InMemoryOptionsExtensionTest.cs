@@ -4,6 +4,8 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Infrastructure.Internal;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
