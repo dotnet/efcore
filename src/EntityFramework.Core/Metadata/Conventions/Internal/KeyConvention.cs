@@ -5,17 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class KeyConvention : IKeyConvention, IForeignKeyRemovedConvention, IPrimaryKeyConvention
+    public class KeyConvention : IKeyConvention, IForeignKeyRemovedConvention, IPrimaryKeyConvention, IModelConvention
     {
         public virtual InternalKeyBuilder Apply(InternalKeyBuilder keyBuilder)
         {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
-
             var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(
                 keyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
 
@@ -26,9 +25,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual void Apply(InternalEntityTypeBuilder entityTypeBuilder, ForeignKey foreignKey)
         {
-            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
-            Check.NotNull(foreignKey, nameof(foreignKey));
-
             var properties = foreignKey.Properties;
             SetValueGeneration(entityTypeBuilder, properties);
 
@@ -42,8 +38,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual bool Apply(InternalKeyBuilder keyBuilder, Key previousPrimaryKey)
         {
-            Check.NotNull(keyBuilder, nameof(keyBuilder));
-
             var entityTypeBuilder = keyBuilder.ModelBuilder.Entity(
                 keyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
 
@@ -128,5 +122,41 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 ((IProperty)property).ClrType,
                 ConfigurationSource.Convention)
                 ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+
+        public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Metadata.EntityTypes)
+            {
+                var entityTypeBuilder = modelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
+                foreach (var key in entityType.GetDeclaredKeys())
+                {
+                    if (key.Properties.Any(p => ((IProperty)p).IsShadowProperty && entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)))
+                    {
+                        string message;
+                        var referencingFk = modelBuilder.Metadata.FindReferencingForeignKeys(key).FirstOrDefault();
+                        if (referencingFk != null)
+                        {
+                            message = Strings.ReferencedShadowKey(
+                                Property.Format(key.Properties),
+                                entityType.Name,
+                                Property.Format(key.Properties),
+                                Property.Format(referencingFk.Properties),
+                                referencingFk.DeclaringEntityType.Name);
+                        }
+                        else
+                        {
+                            message = Strings.ShadowKey(
+                                Property.Format(key.Properties),
+                                entityType.Name,
+                                Property.Format(key.Properties));
+                        }
+
+                        throw new InvalidOperationException(message);
+                    }
+                }
+            }
+
+            return modelBuilder;
+        }
     }
 }

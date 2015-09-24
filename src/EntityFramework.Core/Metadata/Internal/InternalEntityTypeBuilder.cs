@@ -227,6 +227,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return builder;
         }
 
+        public virtual bool CanRemoveProperty([NotNull] Property property, ConfigurationSource configurationSource, bool canOverrideSameSource = true)
+        {
+            Check.NotNull(property, nameof(property));
+            if (property.DeclaringEntityType != Metadata)
+            {
+                return ModelBuilder.Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
+                    .CanRemoveProperty(property, configurationSource, canOverrideSameSource);
+            }
+
+            return _propertyBuilders.CanRemove(property, configurationSource, canOverrideSameSource);
+        }
+
         public virtual bool CanAddNavigation([NotNull] string navigationName, ConfigurationSource configurationSource)
             => !IsIgnored(navigationName, configurationSource: configurationSource)
                && Metadata.FindNavigation(navigationName) == null;

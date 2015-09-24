@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
@@ -383,6 +385,88 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
+        }
+
+        #endregion
+
+        #region ShadowKeys
+
+        [Fact]
+        public void Throws_an_exception_when_shadow_key_is_defined_by_convention()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
+            entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
+
+            Assert.Equal(Strings.ShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}"),
+                Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
+        }
+
+        [Fact]
+        public void Does_not_throw_an_exception_when_shadow_key_is_not_defined_by_convention()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
+            entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.DataAnnotation);
+
+            Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
+        }
+
+        [Fact]
+        public void Does_not_throw_an_exception_when_key_is_defined_on_shadow_properties_which_are_not_defined_by_convention()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            entityTypeBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
+            entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
+
+            Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
+        }
+
+        [Fact]
+        public void Throws_an_exception_when_shadow_key_is_referenced_by_foreign_key()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+
+            referencedEntityBuilder.Property("Foo", ConfigurationSource.Convention);
+            var properties = new List<string> { "Foo" };
+            principalEntityBuilder.Relationship(
+                principalEntityBuilder,
+                referencedEntityBuilder,
+                null,
+                null,
+                referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
+                null,
+                ConfigurationSource.Convention);
+
+            Assert.Equal(Strings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}",typeof(ReferencedEntity).FullName),
+                Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
+        }
+
+        [Fact]
+        public void Does_not_throw_an_exception_when_key_is_referenced_by_foreign_key_and_defined_on_shadow_properties_which_are_not_defined_by_convention()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
+            var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
+
+            principalEntityBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
+            referencedEntityBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
+            var properties = new List<string> { "Foo" };
+            principalEntityBuilder.Relationship(
+                principalEntityBuilder,
+                referencedEntityBuilder,
+                null,
+                null,
+                referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
+                principalEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
+                ConfigurationSource.Convention);
+
+            Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
         }
 
         #endregion

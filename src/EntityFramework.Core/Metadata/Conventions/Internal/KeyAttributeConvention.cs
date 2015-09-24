@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 throw new InvalidOperationException(Strings.KeyAttributeOnDerivedEntity(entityType.DisplayName(), propertyBuilder.Metadata.Name));
             }
 
-            var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.DataAnnotation);
+            var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             var properties = new List<string> { propertyBuilder.Metadata.Name };
 
