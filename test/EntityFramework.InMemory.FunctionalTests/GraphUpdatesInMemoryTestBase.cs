@@ -4,6 +4,7 @@
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
 
@@ -105,10 +106,41 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             }
 
             public override InMemoryTestStore CreateTestStore()
-                => new InMemoryTestStore();
+            {
+                var store = new InMemoryGraphUpdatesTestStore(_serviceProvider);
+
+                using (var context = CreateContext(store))
+                {
+                    Seed(context);
+                }
+
+                return store;
+            }
 
             public override DbContext CreateContext(InMemoryTestStore testStore)
-                => new GraphUpdatesContext(_serviceProvider, _optionsBuilder.Options);
+            {
+                var optionsBuilder = new DbContextOptionsBuilder();
+                optionsBuilder.UseInMemoryDatabase();
+
+                return new GraphUpdatesContext(_serviceProvider, optionsBuilder.Options);
+            }
+
+            public class InMemoryGraphUpdatesTestStore : InMemoryTestStore
+            {
+                private readonly IServiceProvider _serviceProvider;
+
+                public InMemoryGraphUpdatesTestStore(IServiceProvider serviceProvider)
+                {
+                    _serviceProvider = serviceProvider;
+                }
+
+                public override void Dispose()
+                {
+                    _serviceProvider.GetRequiredService<IInMemoryStore>().Clear();
+
+                    base.Dispose();
+                }
+            }
         }
     }
 }
