@@ -14,12 +14,13 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         protected override void VerifyError(string expectedMessage, IModel model) => VerifyWarning(expectedMessage, model);
 
         protected override ModelValidator CreateModelValidator() 
-            => new NonThrowingModelValidator(new ListLoggerFactory(Log, l => l == typeof(ModelValidator).FullName));
+            => new NonThrowingModelValidator(
+                new Logger<LoggingModelValidator>(new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)));
 
         private class NonThrowingModelValidator : LoggingModelValidator
         {
-            public NonThrowingModelValidator([NotNull] ILoggerFactory loggerFactory)
-                : base(loggerFactory)
+            public NonThrowingModelValidator([NotNull] ILogger<LoggingModelValidator> logger)  // TODO: Fix covariance: Logging#253
+                : base(logger)
             {
             }
 

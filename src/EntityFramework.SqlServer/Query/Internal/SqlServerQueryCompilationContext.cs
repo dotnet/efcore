@@ -12,14 +12,14 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class SqlServerQueryCompilationContext : RelationalQueryCompilationContext
     {
         public SqlServerQueryCompilationContext(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOpeartorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] Type contextType)
             : base(
-                Check.NotNull(loggerFactory, nameof(loggerFactory)),
+                Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(linqOpeartorProvider, nameof(linqOpeartorProvider)),

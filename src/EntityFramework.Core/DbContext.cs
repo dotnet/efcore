@@ -47,7 +47,6 @@ namespace Microsoft.Data.Entity
         private LazyRef<IDbSetInitializer> _setInitializer;
         private LazyRef<ChangeTracker> _changeTracker;
         private ILogger _logger;
-        private ILoggerFactory _loggerFactory;
 
         private bool _initializing;
         private IServiceScope _serviceScope;
@@ -198,8 +197,7 @@ namespace Microsoft.Data.Entity
 
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
 
-                _loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-                _logger = _loggerFactory.CreateLogger<DbContext>();
+                _logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
                 _logger.LogDebug(Strings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
 
                 _serviceScope = serviceProvider

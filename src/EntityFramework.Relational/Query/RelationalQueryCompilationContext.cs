@@ -19,14 +19,14 @@ namespace Microsoft.Data.Entity.Query
             = new List<RelationalQueryModelVisitor>();
 
         public RelationalQueryCompilationContext(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] Type contextType)
             : base(
-                Check.NotNull(loggerFactory, nameof(loggerFactory)),
+                Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),

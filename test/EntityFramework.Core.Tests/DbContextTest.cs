@@ -1601,7 +1601,9 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
                 { CallBase = true }.Object);
-            servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
+            servicesMock
+                .Setup(m => m.ModelValidator)
+                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -1643,7 +1645,9 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
                 { CallBase = true }.Object);
-            servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
+            servicesMock
+                .Setup(m => m.ModelValidator)
+                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
@@ -1689,8 +1693,10 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
                 { CallBase = true }.Object);
-            servicesMock.Setup(m => m.ModelValidator).Returns(new LoggingModelValidator(new LoggerFactory()));
-
+            servicesMock
+                .Setup(m => m.ModelValidator)
+                .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+                
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
             sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);

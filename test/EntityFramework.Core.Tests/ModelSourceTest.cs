@@ -21,13 +21,15 @@ namespace Microsoft.Data.Entity.Tests
             var setFinderMock = new Mock<IDbSetFinder>();
             setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
-                    {
-                        new DbSetProperty(typeof(JustAClass), "One", typeof(SetA), hasSetter: true),
-                        new DbSetProperty(typeof(JustAClass), "Two", typeof(SetB), hasSetter: true),
-                        new DbSetProperty(typeof(JustAClass), "Three", typeof(SetA), hasSetter: true)
-                    });
+                {
+                    new DbSetProperty(typeof(JustAClass), "One", typeof(SetA), hasSetter: true),
+                    new DbSetProperty(typeof(JustAClass), "Two", typeof(SetB), hasSetter: true),
+                    new DbSetProperty(typeof(JustAClass), "Three", typeof(SetA), hasSetter: true)
+                });
 
-            var model = CreateDefaultModelSource(setFinderMock.Object).GetModel(new Mock<DbContext>().Object, null, new LoggingModelValidator(new LoggerFactory()));
+            var model = CreateDefaultModelSource(setFinderMock.Object)
+                .GetModel(new Mock<DbContext>().Object, null,
+                    new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
@@ -57,12 +59,17 @@ namespace Microsoft.Data.Entity.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model1 = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()));
-            var model2 = modelSource.GetModel(new Context2(), null, new LoggingModelValidator(new LoggerFactory()));
+            // TODO: Fix covariance: Logging#253
+            var model1 = modelSource.GetModel(new Context1(), null,
+                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
+            var model2 = modelSource.GetModel(new Context2(), null,
+                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
             Assert.NotSame(model1, model2);
-            Assert.Same(model1, modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory())));
-            Assert.Same(model2, modelSource.GetModel(new Context2(), null, new LoggingModelValidator(new LoggerFactory())));
+            Assert.Same(model1, modelSource.GetModel(new Context1(), null,
+                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory()))));
+            Assert.Same(model2, modelSource.GetModel(new Context2(), null,
+                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory()))));
         }
 
         [Fact]
@@ -70,7 +77,9 @@ namespace Microsoft.Data.Entity.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            var model = modelSource.GetModel(new Context1(), null, new LoggingModelValidator(new LoggerFactory()));
+            // TODO: Fix covariance: Logging#253
+            var model = modelSource.GetModel(new Context1(), null,
+                new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 
             Assert.StartsWith("7.0.0", model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
         }
@@ -93,6 +102,5 @@ namespace Microsoft.Data.Entity.Tests
             {
             }
         }
-
     }
 }

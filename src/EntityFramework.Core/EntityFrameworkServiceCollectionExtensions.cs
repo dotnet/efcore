@@ -85,7 +85,6 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddSingleton<IRelationshipsSnapshotFactory, RelationshipsSnapshotFactory>()
                 .AddSingleton<IStoreGeneratedValuesFactory, StoreGeneratedValuesFactory>()
                 .AddSingleton<IEntityEntryMetadataServices, EntityEntryMetadataServices>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddSingleton<ICoreConventionSetBuilder, CoreConventionSetBuilder>()
                 .AddSingleton<LoggingModelValidator>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
@@ -114,7 +113,8 @@ namespace Microsoft.Framework.DependencyInjection
                 .AddScoped(p => GetProviderServices(p).ModelSource)
                 .AddScoped(p => GetProviderServices(p).ModelValidator)
                 .AddQuery()
-                .AddOptions());
+                .AddOptions()
+                .AddLogging());
 
             return new EntityFrameworkServicesBuilder(serviceCollection);
         }

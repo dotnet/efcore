@@ -25,11 +25,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
             = new ThreadSafeLazyRef<ImmutableDictionary<IEntityType, InMemoryTable>>(
                 () => ImmutableDictionary<IEntityType, InMemoryTable>.Empty.WithComparers(new EntityTypeNameEqualityComparer()));
 
-        public InMemoryStore([NotNull] ILoggerFactory loggerFactory)
+        public InMemoryStore([NotNull] ILogger<InMemoryStore> logger)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
 
-            _logger = loggerFactory.CreateLogger<InMemoryStore>();
+            _logger = logger;
         }
 
         /// <summary>
@@ -157,16 +157,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
 
             public virtual IEnumerator<object[]> GetEnumerator()
-            {
-                return _rows.HasValue
+                => _rows.HasValue
                     ? _rows.Value.Values.GetEnumerator()
                     : Enumerable.Empty<object[]>().GetEnumerator();
-            }
 
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
     }
 }

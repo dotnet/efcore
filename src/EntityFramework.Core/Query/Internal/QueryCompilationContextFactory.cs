@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class QueryCompilationContextFactory : IQueryCompilationContextFactory
     {
+        private readonly ILoggerFactory _loggerFactory;
         private readonly DbContext _context;
 
         public QueryCompilationContextFactory(
@@ -24,27 +25,28 @@ namespace Microsoft.Data.Entity.Query.Internal
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(context, nameof(context));
 
-            LoggerFactory = loggerFactory;
+            _loggerFactory = loggerFactory;
+
             EntityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             RequiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
 
             _context = context;
         }
 
-        protected virtual ILoggerFactory LoggerFactory { get; }
-
         protected virtual IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory { get; }
-
         protected virtual IRequiresMaterializationExpressionVisitorFactory RequiresMaterializationExpressionVisitorFactory { get; }
 
         protected virtual Type ContextType => _context.GetType();
 
         public virtual QueryCompilationContext Create(bool async)
             => new QueryCompilationContext(
-                LoggerFactory,
+                CreateLogger(),
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 async ? (ILinqOperatorProvider)new AsyncLinqOperatorProvider() : new LinqOperatorProvider(),
                 ContextType);
+
+        protected virtual ILogger CreateLogger()
+            => _loggerFactory.CreateLogger<QueryCompilationContext>();
     }
 }

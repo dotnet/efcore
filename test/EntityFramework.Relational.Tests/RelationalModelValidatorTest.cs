@@ -4,6 +4,7 @@
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
+using Microsoft.Framework.Logging;
 using Xunit;
 using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
@@ -154,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests
 
         protected override ModelValidator CreateModelValidator()
             => new RelationalModelValidator(
-                new ListLoggerFactory(Log, l => l == typeof(ModelValidator).FullName),
+                new Logger<LoggingModelValidator>(new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)),
                 new TestAnnotationProvider());
     }
 }

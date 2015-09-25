@@ -32,6 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             => Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
 
         protected override ModelValidator CreateModelValidator() 
-            => new LoggingModelValidator(new ListLoggerFactory(Log, l => l == typeof(ModelValidator).FullName));
+            => new LoggingModelValidator(
+                new Logger<LoggingModelValidator>(new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)));
     }
 }

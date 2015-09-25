@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Storage.Internal
@@ -22,13 +21,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private readonly IInMemoryStore _database;
 
         public InMemoryDatabase(
-            [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IQueryCompilationContextFactory queryCompilationContextFactory,
             [NotNull] IInMemoryStore persistentStore,
             [NotNull] IDbContextOptions options)
             : base(queryCompilationContextFactory)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(queryCompilationContextFactory, nameof(queryCompilationContextFactory));
             Check.NotNull(persistentStore, nameof(persistentStore));
             Check.NotNull(options, nameof(options));

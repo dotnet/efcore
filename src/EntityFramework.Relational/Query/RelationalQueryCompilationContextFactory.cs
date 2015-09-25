@@ -26,14 +26,14 @@ namespace Microsoft.Data.Entity.Query
         public override QueryCompilationContext Create(bool async)
             => async
                 ? new RelationalQueryCompilationContext(
-                    LoggerFactory,
+                    CreateLogger(),
                     EntityQueryModelVisitorFactory,
                     RequiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
                     ContextType)
                 : new RelationalQueryCompilationContext(
-                    LoggerFactory,
+                    CreateLogger(),
                     EntityQueryModelVisitorFactory,
                     RequiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),

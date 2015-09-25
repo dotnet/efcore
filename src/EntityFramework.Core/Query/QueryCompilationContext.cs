@@ -26,19 +26,18 @@ namespace Microsoft.Data.Entity.Query
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
         public QueryCompilationContext(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] Type contextType)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider));
             Check.NotNull(contextType, nameof(contextType));
 
-            Logger = loggerFactory.CreateLogger<QueryCompilationContext>();
+            Logger = logger;
 
             _entityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             _requiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
