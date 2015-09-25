@@ -274,6 +274,145 @@ ORDER BY [g0].[Nickname], [g0].[SquadId]",
                 Sql);
         }
 
+        public override void Select_Where_Navigation_Included()
+        {
+            base.Select_Where_Navigation_Included();
+
+            Assert.Equal(
+                @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [CogTag] AS [o]
+INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])
+LEFT JOIN (
+    SELECT [g].*
+    FROM [Gear] AS [g]
+    WHERE ([g].[Discriminator] = 'Officer') OR ([g].[Discriminator] = 'Gear')
+) AS [g] ON ([o].[GearNickName] = [g].[Nickname]) AND ([o].[GearSquadId] = [g].[SquadId])
+WHERE [o.Gear].[Nickname] = 'Marcus'",
+                Sql);
+        }
+
+        public override void Include_with_join_reference1()
+        {
+            base.Include_with_join_reference1();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Name], [c].[Location]
+FROM [Gear] AS [g]
+INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
+INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
+WHERE [g].[Discriminator] IN ('Officer', 'Gear')",
+                Sql);
+        }
+
+        public override void Include_with_join_reference2()
+        {
+            base.Include_with_join_reference2();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Name], [c].[Location]
+FROM [CogTag] AS [t]
+INNER JOIN [Gear] AS [g] ON ([t].[GearSquadId] = [g].[SquadId]) AND ([t].[GearNickName] = [g].[Nickname])
+INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]",
+                Sql);
+        }
+
+        public override void Include_with_join_collection1()
+        {
+            base.Include_with_join_collection1();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
+WHERE [g].[Discriminator] IN ('Officer', 'Gear')
+ORDER BY [g].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[FullName]
+    FROM [Gear] AS [g]
+    INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
+    WHERE [g].[Discriminator] IN ('Officer', 'Gear')
+) AS [g] ON [w].[OwnerFullName] = [g].[FullName]
+ORDER BY [g].[FullName]",
+                Sql);
+        }
+
+        public override void Include_with_join_collection2()
+        {
+            base.Include_with_join_collection2();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [CogTag] AS [t]
+INNER JOIN [Gear] AS [g] ON ([t].[GearSquadId] = [g].[SquadId]) AND ([t].[GearNickName] = [g].[Nickname])
+ORDER BY [g].[FullName]
+
+SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
+FROM [Weapon] AS [w]
+INNER JOIN (
+    SELECT DISTINCT [g].[FullName]
+    FROM [CogTag] AS [t]
+    INNER JOIN [Gear] AS [g] ON ([t].[GearSquadId] = [g].[SquadId]) AND ([t].[GearNickName] = [g].[Nickname])
+) AS [g] ON [w].[OwnerFullName] = [g].[FullName]
+ORDER BY [g].[FullName]",
+                Sql);
+        }
+
+        public override void Include_with_join_multi_level()
+        {
+            base.Include_with_join_multi_level();
+
+            Assert.Equal(
+                @"SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [c].[Name], [c].[Location]
+FROM [Gear] AS [g]
+INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
+INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
+WHERE [g].[Discriminator] IN ('Officer', 'Gear')
+ORDER BY [c].[Name]
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gear] AS [g]
+INNER JOIN (
+    SELECT DISTINCT [c].[Name]
+    FROM [Gear] AS [g]
+    INNER JOIN [CogTag] AS [t] ON ([g].[SquadId] = [t].[GearSquadId]) AND ([g].[Nickname] = [t].[GearNickName])
+    INNER JOIN [City] AS [c] ON [g].[CityOrBirthName] = [c].[Name]
+    WHERE [g].[Discriminator] IN ('Officer', 'Gear')
+) AS [c] ON [g].[AssignedCityName] = [c].[Name]
+WHERE ([g].[Discriminator] = 'Officer') OR ([g].[Discriminator] = 'Gear')
+ORDER BY [c].[Name]",
+                Sql);
+        }
+
+        public override void Include_with_join_and_inheritance1()
+        {
+            base.Include_with_join_and_inheritance1();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Include_with_join_and_inheritance2()
+        {
+            base.Include_with_join_and_inheritance2();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
+        public override void Include_with_join_and_inheritance3()
+        {
+            base.Include_with_join_and_inheritance3();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         public override void Where_enum()
         {
             base.Where_enum();
@@ -395,23 +534,6 @@ INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND 
 FROM [CogTag] AS [ct1]
 CROSS JOIN [CogTag] AS [ct2]
 WHERE (([ct1].[GearNickName] = [ct2].[GearNickName]) OR ([ct1].[GearNickName] IS NULL AND [ct2].[GearNickName] IS NULL)) AND (([ct1].[GearSquadId] = [ct2].[GearSquadId]) OR ([ct1].[GearSquadId] IS NULL AND [ct2].[GearSquadId] IS NULL))",
-                Sql);
-        }
-
-        public override void Select_Where_Navigation_Included()
-        {
-            base.Select_Where_Navigation_Included();
-
-            Assert.Equal(
-                @"SELECT [o].[Id], [o].[GearNickName], [o].[GearSquadId], [o].[Note], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
-FROM [CogTag] AS [o]
-INNER JOIN [Gear] AS [o.Gear] ON ([o].[GearNickName] = [o.Gear].[Nickname]) AND ([o].[GearSquadId] = [o.Gear].[SquadId])
-LEFT JOIN (
-    SELECT [g].*
-    FROM [Gear] AS [g]
-    WHERE ([g].[Discriminator] = 'Officer') OR ([g].[Discriminator] = 'Gear')
-) AS [g] ON ([o].[GearNickName] = [g].[Nickname]) AND ([o].[GearSquadId] = [g].[SquadId])
-WHERE [o.Gear].[Nickname] = 'Marcus'",
                 Sql);
         }
 

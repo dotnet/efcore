@@ -31,7 +31,12 @@ namespace Microsoft.Data.Entity.Query.Internal
                     .ToList())
             {
                 resultOperator.Annotation.QueryModel = queryModel;
-                resultOperator.Annotation.QuerySource = queryModel.MainFromClause;
+
+                var includeAnnotation = resultOperator.Annotation as IncludeQueryAnnotation;
+                resultOperator.Annotation.QuerySource = includeAnnotation != null
+                    ? ExtractSourceReferenceExpression(includeAnnotation.NavigationPropertyPath).ReferencedQuerySource
+                    : queryModel.MainFromClause;
+
                 queryAnnotations.Add(resultOperator.Annotation);
                 queryModel.ResultOperators.Remove(resultOperator);
             }
@@ -46,6 +51,13 @@ namespace Microsoft.Data.Entity.Query.Internal
                     .TransformExpressions(e =>
                         ExtractQueryAnnotations(e, queryAnnotations));
             }
+        }
+
+        private static QuerySourceReferenceExpression ExtractSourceReferenceExpression(MemberExpression expression)
+        {
+            var expressionWithoutConvert = expression.Expression.RemoveConvert();
+            return expressionWithoutConvert as QuerySourceReferenceExpression
+                ?? ExtractSourceReferenceExpression((MemberExpression)expressionWithoutConvert);
         }
 
         private static Expression ExtractQueryAnnotations(

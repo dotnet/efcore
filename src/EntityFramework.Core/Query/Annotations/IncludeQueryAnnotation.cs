@@ -15,11 +15,11 @@ namespace Microsoft.Data.Entity.Query.Annotations
     {
         private readonly List<PropertyInfo> _chainedNavigationProperties;
 
-        public virtual Expression NavigationPropertyPath { get; }
+        public virtual MemberExpression NavigationPropertyPath { get; }
 
         public virtual IReadOnlyList<PropertyInfo> ChainedNavigationProperties => _chainedNavigationProperties;
 
-        public IncludeQueryAnnotation([NotNull] Expression navigationPropertyPath)
+        public IncludeQueryAnnotation([NotNull] MemberExpression navigationPropertyPath)
         {
             Check.NotNull(navigationPropertyPath, nameof(navigationPropertyPath));
 

@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
         {
             var navigationPropertyPath
-                = Source.Resolve(
+                = (MemberExpression)Source.Resolve(
                     _navigationPropertyPathLambda.Parameters[0],
                     _navigationPropertyPathLambda.Body,
                     clauseGenerationContext);
