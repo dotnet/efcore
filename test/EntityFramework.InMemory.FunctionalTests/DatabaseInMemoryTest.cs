@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             var optionsBuilder = new DbContextOptionsBuilder()
                 .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase(persist: true);
+            optionsBuilder.UseInMemoryDatabase();
 
             var customer = new Customer { Id = 42, Name = "Theon" };
 

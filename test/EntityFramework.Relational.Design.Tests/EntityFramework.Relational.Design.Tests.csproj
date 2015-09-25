@@ -33,6 +33,9 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="NullLogger.cs" />
+    <Compile Include="ReverseEngineering\Internal\TableSelectionSetTests.cs" />
+    <Compile Include="ReverseEngineering\Internal\TableSelectionTests.cs" />
+    <Compile Include="ReverseEngineering\Internal\TableSelectionSetBuilderTests.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
     <Compile Include="ReverseEngineering\TableSelectionSetTests.cs" />
     <Compile Include="ReverseEngineering\TableSelectionTests.cs" />
@@ -55,6 +58,7 @@
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

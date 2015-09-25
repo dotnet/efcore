@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Xunit;
 using Xunit.Abstractions;

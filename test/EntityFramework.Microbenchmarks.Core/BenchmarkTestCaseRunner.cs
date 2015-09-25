@@ -125,7 +125,8 @@ namespace EntityFramework.Microbenchmarks.Core
         private static string GetMachineName()
         {
 #if DNXCORE50
-            var config = new ConfigurationBuilder(".")
+            var config = new ConfigurationBuilder()
+                .SetBasePath(".")
                 .AddEnvironmentVariables()
                 .Build();
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -48,6 +49,7 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
+            [CanBeNull] string tableFilters,
             bool useFluentApiOnly,
             CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -60,6 +62,7 @@ namespace Microsoft.Data.Entity.Design
             loggerFactory.AddProvider(_loggerProvider);
 
             var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
+            var tableSelectionSet = TableSelectionSetBuilder.BuildFromString(tableFilters);
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = connectionString,
@@ -67,6 +70,7 @@ namespace Microsoft.Data.Entity.Design
                 ProjectPath = _projectDir,
                 ProjectRootNamespace = _rootNamespace,
                 OutputPath = outputDir,
+                TableSelectionSet = tableSelectionSet,
                 UseFluentApiOnly = useFluentApiOnly
             };
 

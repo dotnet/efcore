@@ -11,7 +11,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         static TestEnvironment()
         {
-            var configBuilder = new ConfigurationBuilder(".")
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(".")
                 .AddJsonFile("config.json", optional: true)
                 .AddJsonFile("config.test.json", optional: true)
                 .AddEnvironmentVariables();
