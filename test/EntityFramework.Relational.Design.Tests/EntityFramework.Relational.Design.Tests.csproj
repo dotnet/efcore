@@ -36,6 +36,8 @@
     <Compile Include="ReverseEngineering\Internal\TableSelectionSetTests.cs" />
     <Compile Include="ReverseEngineering\Internal\TableSelectionTests.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
+    <Compile Include="ReverseEngineering\TableSelectionSetTests.cs" />
+    <Compile Include="ReverseEngineering\TableSelectionTests.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
