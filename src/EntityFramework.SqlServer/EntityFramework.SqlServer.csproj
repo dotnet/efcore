@@ -71,6 +71,7 @@
     <Compile Include="Storage\Internal\SqlServerDatabaseCreator.cs" />
     <Compile Include="Storage\Internal\SqlServerDatabaseProviderServices.cs" />
     <Compile Include="Storage\Internal\SqlServerMaxLengthMapping.cs" />
+    <Compile Include="Storage\Internal\SqlServerSqlGenerator.cs" />
     <Compile Include="Storage\Internal\SqlServerTypeMapper.cs" />
     <Compile Include="Update\Internal\ISqlServerUpdateSqlGenerator.cs" />
     <Compile Include="Update\Internal\SqlServerModificationCommandBatch.cs" />

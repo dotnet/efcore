@@ -126,6 +126,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 new SelectExpression(
                     new SqliteQuerySqlGeneratorFactory(
                         new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
+                        new RelationalSqlGenerator(),
                         new ParameterNameGeneratorFactory()))
                     .CreateGenerator);
 

@@ -3,12 +3,12 @@
 
 using System;
 using System.Text;
-using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class SqlGeneratorTest : SqlGeneratorTestBase
+    public class UpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {
         protected override IUpdateSqlGenerator CreateSqlGenerator()
         {
@@ -27,10 +27,15 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ConcreteSqlGenerator : UpdateSqlGenerator
         {
+            public ConcreteSqlGenerator()
+                :base(new RelationalSqlGenerator())
+            {
+            }
+
             protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             {
                 commandStringBuilder
-                    .Append(DelimitIdentifier(columnModification.ColumnName))
+                    .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
                     .Append(" = ")
                     .Append("provider_specific_identity()");
             }

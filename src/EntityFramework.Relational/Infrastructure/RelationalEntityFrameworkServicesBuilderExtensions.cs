@@ -54,6 +54,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<MigrationsSqlGenerator>()
                 .AddScoped(p => GetProviderServices(p).ParameterNameGeneratorFactory)
                 .AddScoped(p => GetProviderServices(p).SqlStatementExecutor)
+                .AddScoped(p => GetProviderServices(p).SqlGenerator)
                 .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)
                 .AddScoped(p => GetProviderServices(p).CompositeMemberTranslator)
                 .AddScoped(p => GetProviderServices(p).CompositeExpressionFragmentTranslator)

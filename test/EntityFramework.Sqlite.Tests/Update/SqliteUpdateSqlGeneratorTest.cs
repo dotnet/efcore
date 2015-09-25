@@ -3,15 +3,18 @@
 
 using System;
 using Microsoft.Data.Entity.Sqlite.Internal;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Update
 {
-    public class SqliteUpdateSqlGeneratorTest : SqlGeneratorTestBase
+    public class SqliteUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {
-        protected override IUpdateSqlGenerator CreateSqlGenerator() => new SqliteUpdateSqlGenerator();
+        protected override IUpdateSqlGenerator CreateSqlGenerator()
+            => new SqliteUpdateSqlGenerator(new SqliteSqlGenerator());
+
         protected override string RowsAffected => "changes()";
         protected override string Identity => "last_insert_rowid()";
         protected override string Schema => null;
@@ -28,18 +31,6 @@ namespace Microsoft.Data.Entity.Update
             Assert.Equal(Strings.SequencesNotSupported, ex.Message);
         }
 
-        public override void GenerateLiteral_returns_DateTimeOffset_literal()
-        {
-            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.371-07:00'", literal);
-        }
 
-        public override void GenerateLiteral_returns_DateTime_literal()
-        {
-            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.371'", literal);
-        }
     }
 }

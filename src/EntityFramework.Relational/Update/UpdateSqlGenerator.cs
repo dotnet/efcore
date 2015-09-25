@@ -1,18 +1,26 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
 {
     public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
     {
+        public UpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
+        {
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+
+            SqlGenerator = sqlGenerator;
+        }
+
+        protected virtual ISqlGenerator SqlGenerator { get; }
+
         public virtual void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
@@ -166,13 +174,13 @@ namespace Microsoft.Data.Entity.Update
 
             commandStringBuilder
                 .Append("INSERT INTO ")
-                .Append(DelimitIdentifier(name, schema));
+                .Append(SqlGenerator.DelimitIdentifier(name, schema));
 
             if (operations.Count > 0)
             {
                 commandStringBuilder
                     .Append(" (")
-                    .AppendJoin(operations.Select(o => DelimitIdentifier(o.ColumnName)))
+                    .AppendJoin(operations.Select(o => SqlGenerator.DelimitIdentifier(o.ColumnName)))
                     .Append(")");
             }
         }
@@ -187,7 +195,7 @@ namespace Microsoft.Data.Entity.Update
 
             commandStringBuilder
                 .Append("DELETE FROM ")
-                .Append(DelimitIdentifier(name, schema));
+                .Append(SqlGenerator.DelimitIdentifier(name, schema));
         }
 
         protected virtual void AppendUpdateCommandHeader(
@@ -202,11 +210,11 @@ namespace Microsoft.Data.Entity.Update
 
             commandStringBuilder
                 .Append("UPDATE ")
-                .Append(DelimitIdentifier(name, schema))
+                .Append(SqlGenerator.DelimitIdentifier(name, schema))
                 .Append(" SET ")
                 .AppendJoin(
                     operations,
-                    (sb, v) => sb.Append(DelimitIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
+                    (sb, v) => sb.Append(SqlGenerator.DelimitIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
         }
 
         protected virtual void AppendSelectCommandHeader(
@@ -218,7 +226,7 @@ namespace Microsoft.Data.Entity.Update
 
             commandStringBuilder
                 .Append("SELECT ")
-                .AppendJoin(operations.Select(c => DelimitIdentifier(c.ColumnName)));
+                .AppendJoin(operations.Select(c => SqlGenerator.DelimitIdentifier(c.ColumnName)));
         }
 
         protected virtual void AppendFromClause(
@@ -232,7 +240,7 @@ namespace Microsoft.Data.Entity.Update
             commandStringBuilder
                 .AppendLine()
                 .Append("FROM ")
-                .Append(DelimitIdentifier(name, schema));
+                .Append(SqlGenerator.DelimitIdentifier(name, schema));
         }
 
         protected virtual void AppendValuesHeader(
@@ -323,7 +331,7 @@ namespace Microsoft.Data.Entity.Update
             Check.NotNull(columnModification, nameof(columnModification));
 
             commandStringBuilder
-                .Append(DelimitIdentifier(columnModification.ColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
                 .Append(useOriginalValue
                     ? columnModification.OriginalParameterName
@@ -342,62 +350,7 @@ namespace Microsoft.Data.Entity.Update
 
         public virtual string BatchSeparator => string.Empty;
 
-        // TODO: Consider adding a base class for all SQL generators (DDL, DML),
-        // to avoid duplicating the five methods below.
-
-        public virtual string DelimitIdentifier(string name, string schema)
-            => (!string.IsNullOrEmpty(schema)
-                ? DelimitIdentifier(schema) + "."
-                : string.Empty)
-               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
-
-        public virtual string DelimitIdentifier(string identifier)
-            => "\"" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "\"";
-
-        protected virtual string EscapeIdentifier([NotNull] string identifier)
-            => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
-
-        public virtual string GenerateLiteral(string literal)
-            => "'" + EscapeLiteral(Check.NotNull(literal, nameof(literal))) + "'";
-
-        public virtual string EscapeLiteral(string literal)
-            => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
-
-        public virtual string GenerateLiteral(byte[] literal)
-        {
-            Check.NotNull(literal, nameof(literal));
-
-            var builder = new StringBuilder();
-
-            builder.Append("X'");
-
-            var parts = literal.Select(b => b.ToString("X2", CultureInfo.InvariantCulture));
-            foreach (var part in parts)
-            {
-                builder.Append(part);
-            }
-
-            builder.Append("'");
-
-            return builder.ToString();
-        }
-
-        public virtual string GenerateLiteral(bool literal) => literal ? "TRUE" : "FALSE";
-        public virtual string GenerateLiteral(char literal) => "'" + literal + "'";
-        public virtual string GenerateLiteral(DateTime literal) => "TIMESTAMP '" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffff") + "'";
-        public virtual string GenerateLiteral(DateTimeOffset literal) => "TIMESTAMP '" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffffzzz") + "'";
-
-        public virtual string GenerateLiteral<T>(T? literal) where T : struct
-            => literal.HasValue
-                ? GenerateLiteral((dynamic)literal.Value)
-                : "NULL";
-
-        public virtual string GenerateLiteral(object literal)
-            => literal != null
-                ? string.Format(CultureInfo.InvariantCulture, "{0}", literal)
-                : "NULL";
-
         public virtual string GenerateNextSequenceValueOperation(string name, string schema)
-            => "SELECT NEXT VALUE FOR " + DelimitIdentifier(Check.NotNull(name, nameof(name)), schema);
+            => "SELECT NEXT VALUE FOR " + SqlGenerator.DelimitIdentifier(Check.NotNull(name, nameof(name)), schema);
     }
 }

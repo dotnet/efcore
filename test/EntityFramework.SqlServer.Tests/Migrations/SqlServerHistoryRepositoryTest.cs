@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Migrations
         private static IHistoryRepository CreateHistoryRepository()
         {
             var annotationsProvider = new SqlServerAnnotationProvider();
-            var updateSqlGenerator = new SqlServerUpdateSqlGenerator();
+            var sqlGenerator = new SqlServerSqlGenerator();
             var typeMapper = new SqlServerTypeMapper();
 
             var commandBuilderFactory = new RelationalCommandBuilderFactory(
@@ -126,11 +126,12 @@ namespace Microsoft.Data.Entity.Migrations
                     new SqlServerMigrationsAnnotationProvider()),
                 new SqlServerMigrationsSqlGenerator(
                     commandBuilderFactory,
-                    updateSqlGenerator,
+                    new SqlServerSqlGenerator(),
+                    new SqlServerUpdateSqlGenerator(sqlGenerator),
                     typeMapper,
                     annotationsProvider),
                 annotationsProvider,
-                updateSqlGenerator);
+                sqlGenerator);
         }
 
         private class Context : DbContext

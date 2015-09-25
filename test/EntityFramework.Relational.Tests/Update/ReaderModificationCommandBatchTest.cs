@@ -145,6 +145,11 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private class FakeSqlGenerator : UpdateSqlGenerator
         {
+            public FakeSqlGenerator()
+                :base(new RelationalSqlGenerator())
+            {
+            }
+
             public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
             {
                 if (!string.IsNullOrEmpty(command.Schema))

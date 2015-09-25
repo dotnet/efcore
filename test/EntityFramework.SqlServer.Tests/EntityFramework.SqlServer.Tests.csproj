@@ -51,7 +51,8 @@
     <Compile Include="SqlServerDatabaseSourceTest.cs" />
     <Compile Include="SqlServerEntityFrameworkServicesBuilderExtensionsTest.cs" />
     <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
-    <Compile Include="SqlServerSqlGeneratorTest.cs" />
+    <Compile Include="Storage\SqlServerSqlGeneratorTest.cs" />
+    <Compile Include="Update\SqlServerUpdateSqlGeneratorTest.cs" />
     <Compile Include="SqlServerTypeMapperTest.cs" />
     <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
     <Compile Include="SqlServerValueGeneratorCacheTest.cs" />

@@ -213,6 +213,7 @@
     <Compile Include="Storage\IRelationalTypeMapper.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
+    <Compile Include="Storage\ISqlGenerator.cs" />
     <Compile Include="Storage\ISqlStatementExecutor.cs" />
     <Compile Include="Storage\RelationalCommand.cs" />
     <Compile Include="Storage\RelationalCommandBuilder.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
     <Compile Include="Storage\RelationalParameter.cs" />
     <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
+    <Compile Include="Storage\RelationalSqlGenerator.cs" />
     <Compile Include="Storage\RelationalTransaction.cs" />
     <Compile Include="Storage\RelationalTypeMapper.cs" />
     <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />

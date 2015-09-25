@@ -20,10 +20,11 @@ namespace Microsoft.Data.Entity.Migrations
 
         public SqlServerMigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] ISqlServerUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sql, typeMapper, annotations)
+            : base(commandBuilderFactory, sqlGenerator, sql, typeMapper, annotations)
         {
         }
 
@@ -60,7 +61,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(Sql.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ALTER COLUMN ");
 
             ColumnDefinition(
@@ -84,12 +85,12 @@ namespace Microsoft.Data.Entity.Migrations
                 builder
                     .AppendLine(";")
                     .Append("ALTER TABLE ")
-                    .Append(Sql.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
                     .Append(" ADD");
                 DefaultValue(operation.DefaultValue, operation.DefaultValueSql, builder);
                 builder
                     .Append(" FOR ")
-                    .Append(Sql.DelimitIdentifier(operation.Name));
+                    .Append(SqlGenerator.DelimitIdentifier(operation.Name));
             }
         }
 
@@ -206,7 +207,7 @@ namespace Microsoft.Data.Entity.Migrations
                     }
 
                     builder
-                        .Append(Sql.DelimitIdentifier(operation.Columns[i]))
+                        .Append(SqlGenerator.DelimitIdentifier(operation.Columns[i]))
                         .Append(" IS NOT NULL");
                 }
             }
@@ -224,9 +225,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("IF SCHEMA_ID(N")
-                .Append(Sql.GenerateLiteral(operation.Name))
+                .Append(SqlGenerator.GenerateLiteral(operation.Name))
                 .Append(") IS NULL EXEC(N'CREATE SCHEMA ")
-                .Append(Sql.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                 .Append("')");
         }
 
@@ -240,11 +241,11 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("CREATE DATABASE ")
-                .Append(Sql.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                 .AppendLine(Sql.BatchCommandSeparator)
                 .EndCommand()
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
-                .Append(Sql.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                 .Append(" SET READ_COMMITTED_SNAPSHOT ON')");
         }
 
@@ -258,12 +259,12 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
-                .Append(Sql.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                 .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE')")
                 .AppendLine(Sql.BatchCommandSeparator)
                 .EndCommand()
                 .Append("DROP DATABASE ")
-                .Append(Sql.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
         }
 
         protected override void Generate(
@@ -276,9 +277,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("DROP INDEX ")
-                .Append(Sql.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                 .Append(" ON ")
-                .Append(Sql.DelimitIdentifier(operation.Table, operation.Schema));
+                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema));
         }
 
         protected override void Generate(
@@ -372,7 +373,7 @@ namespace Microsoft.Data.Entity.Migrations
             if (computedColumnSql != null)
             {
                 builder
-                    .Append(Sql.DelimitIdentifier(name))
+                    .Append(SqlGenerator.DelimitIdentifier(name))
                     .Append(" AS ")
                     .Append(computedColumnSql);
 
@@ -416,15 +417,15 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("EXEC sp_rename N")
-                .Append(Sql.GenerateLiteral(name))
+                .Append(SqlGenerator.GenerateLiteral(name))
                 .Append(", N")
-                .Append(Sql.GenerateLiteral(newName));
+                .Append(SqlGenerator.GenerateLiteral(newName));
 
             if (type != null)
             {
                 builder
                     .Append(", ")
-                    .Append(Sql.GenerateLiteral(type));
+                    .Append(SqlGenerator.GenerateLiteral(type));
             }
         }
 
@@ -440,9 +441,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER SCHEMA ")
-                .Append(Sql.DelimitIdentifier(newSchema))
+                .Append(SqlGenerator.DelimitIdentifier(newSchema))
                 .Append(" TRANSFER ")
-                .Append(Sql.DelimitIdentifier(name, schema));
+                .Append(SqlGenerator.DelimitIdentifier(name, schema));
         }
 
         protected override void IndexTraits(MigrationOperation operation, IModel model, RelationalCommandListBuilder builder)
@@ -497,19 +498,19 @@ namespace Microsoft.Data.Entity.Migrations
             if (schema != null)
             {
                 builder
-                    .Append(Sql.EscapeLiteral(schema))
+                    .Append(SqlGenerator.EscapeLiteral(schema))
                     .Append(".");
             }
 
             builder
-                .Append(Sql.EscapeLiteral(tableName))
+                .Append(SqlGenerator.EscapeLiteral(tableName))
                 .Append("') AND [c].[name] = N'")
-                .Append(Sql.EscapeLiteral(columnName))
+                .Append(SqlGenerator.EscapeLiteral(columnName))
                 .AppendLine("');")
                 .Append("IF ")
                 .Append(variable)
                 .Append(" IS NOT NULL EXEC(N'ALTER TABLE ")
-                .Append(Sql.DelimitIdentifier(tableName, schema))
+                .Append(SqlGenerator.DelimitIdentifier(tableName, schema))
                 .Append(" DROP CONSTRAINT [' + ")
                 .Append(variable)
                 .AppendLine(" + ']');");

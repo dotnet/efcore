@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Migrations
         private static IHistoryRepository CreateHistoryRepository()
         {
             var annotationsProvider = new SqliteAnnotationProvider();
-            var updateSqlGenerator = new SqliteUpdateSqlGenerator();
+            var sqlGenerator = new SqliteSqlGenerator();
             var typeMapper = new SqliteTypeMapper();
 
             return new SqliteHistoryRepository(
@@ -115,13 +115,13 @@ namespace Microsoft.Data.Entity.Migrations
                     annotationsProvider,
                     new SqliteMigrationsAnnotationProvider()),
                 new SqliteMigrationsSqlGenerator(
-                    new RelationalCommandBuilderFactory(
-                        typeMapper),
-                    updateSqlGenerator,
+                    new RelationalCommandBuilderFactory(typeMapper),
+                    new SqliteSqlGenerator(),
+                    new SqliteUpdateSqlGenerator(sqlGenerator),
                     typeMapper,
                     annotationsProvider),
                 annotationsProvider,
-                updateSqlGenerator);
+                sqlGenerator);
         }
 
         private class Context : DbContext

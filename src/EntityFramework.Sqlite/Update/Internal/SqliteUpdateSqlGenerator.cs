@@ -3,15 +3,19 @@
 
 using System;
 using System.Text;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Sqlite.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update.Internal
 {
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {
-        // TODO throw a logger warning that this call was improperly made. The SQLite provider should never specify a schema
-        public override string DelimitIdentifier(string name, string schema) => base.DelimitIdentifier(name);
+        public SqliteUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
+            : base(sqlGenerator)
+        {
+        }
 
         protected override void AppendIdentityWhereCondition(StringBuilder builder, ColumnModification columnModification)
         {
@@ -19,7 +23,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             Check.NotNull(columnModification, nameof(columnModification));
 
             builder
-                .Append(DelimitIdentifier(columnModification.ColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
                 .Append("last_insert_rowid()");
         }
@@ -41,9 +45,6 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             builder.Append("changes() = " + expectedRowsAffected);
         }
-
-        public override string GenerateLiteral(DateTime literal) => "'" + literal.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF") + "'";
-        public override string GenerateLiteral(DateTimeOffset literal) => "'" + literal.ToString(@"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz") + "'";
 
         public override string GenerateNextSequenceValueOperation(string name, string schema)
         {

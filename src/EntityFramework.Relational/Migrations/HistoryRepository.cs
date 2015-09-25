@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRelationalAnnotationProvider annotations,
-            [NotNull] IUpdateSqlGenerator sql)
+            [NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(executor, nameof(executor));
@@ -51,14 +50,14 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(annotations, nameof(annotations));
-            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
             _executor = executor;
             _connection = connection;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
-            Sql = sql;
+            SqlGenerator = sqlGenerator;
 
             var relationalOptions = RelationalOptionsExtension.Extract(options);
             TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
@@ -83,7 +82,7 @@ namespace Microsoft.Data.Entity.Migrations
                 () => annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion))).ColumnName);
         }
 
-        protected virtual IUpdateSqlGenerator Sql { get; }
+        protected virtual ISqlGenerator SqlGenerator { get; }
         protected virtual string TableName { get; }
         protected virtual string TableSchema { get; }
         protected virtual string MigrationIdColumnName => _migrationIdColumnName.Value;
@@ -179,13 +178,13 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual string GetAppliedMigrationsSql
             => new StringBuilder()
                 .Append("SELECT ")
-                .Append(Sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
                 .Append(", ")
-                .AppendLine(Sql.DelimitIdentifier(ProductVersionColumnName))
+                .AppendLine(SqlGenerator.DelimitIdentifier(ProductVersionColumnName))
                 .Append("FROM ")
-                .AppendLine(Sql.DelimitIdentifier(TableName, TableSchema))
+                .AppendLine(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
                 .Append("ORDER BY ")
-                .Append(Sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
                 .Append(";")
                 .ToString();
 
@@ -194,16 +193,16 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(row, nameof(row));
 
             return new StringBuilder().Append("INSERT INTO ")
-                .Append(Sql.DelimitIdentifier(TableName, TableSchema))
+                .Append(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
                 .Append(" (")
-                .Append(Sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
                 .Append(", ")
-                .Append(Sql.DelimitIdentifier(ProductVersionColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(ProductVersionColumnName))
                 .AppendLine(")")
                 .Append("VALUES ('")
-                .Append(Sql.EscapeLiteral(row.MigrationId))
+                .Append(SqlGenerator.EscapeLiteral(row.MigrationId))
                 .Append("', '")
-                .Append(Sql.EscapeLiteral(row.ProductVersion))
+                .Append(SqlGenerator.EscapeLiteral(row.ProductVersion))
                 .AppendLine("');")
                 .ToString();
         }
@@ -213,11 +212,11 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder().Append("DELETE FROM ")
-                .AppendLine(Sql.DelimitIdentifier(TableName, TableSchema))
+                .AppendLine(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
                 .Append("WHERE ")
-                .Append(Sql.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = '")
-                .Append(Sql.EscapeLiteral(migrationId))
+                .Append(SqlGenerator.EscapeLiteral(migrationId))
                 .AppendLine("';")
                 .ToString();
         }

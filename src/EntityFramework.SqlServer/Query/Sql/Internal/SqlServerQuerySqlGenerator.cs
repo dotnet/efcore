@@ -15,14 +15,12 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
     {
         public SqlServerQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
-            : base(commandBuilderFactory, parameterNameGeneratorFactory, selectExpression)
+            : base(commandBuilderFactory, sqlGenerator, parameterNameGeneratorFactory, selectExpression)
         {
         }
-
-        protected override string DelimitIdentifier(string identifier)
-            => "[" + identifier.Replace("]", "]]") + "]";
 
         public override Expression VisitCount(CountExpression countExpression)
         {
@@ -60,7 +58,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
 
             Sql.Append("ROW_NUMBER() OVER(");
             GenerateOrderBy(rowNumberExpression.Orderings);
-            Sql.Append(") AS ").Append(DelimitIdentifier(rowNumberExpression.ColumnExpression.Name));
+            Sql.Append(") AS ").Append(SqlGenerator.DelimitIdentifier(rowNumberExpression.ColumnExpression.Name));
 
             return rowNumberExpression;
         }

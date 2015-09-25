@@ -28,6 +28,7 @@ namespace Microsoft.Data.Entity.Storage
         IMemberTranslator CompositeMemberTranslator { get; }
         IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }
         IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
+        ISqlGenerator SqlGenerator { get; }
         ISqlQueryGeneratorFactory SqlQueryGeneratorFactory { get; }
     }
 }

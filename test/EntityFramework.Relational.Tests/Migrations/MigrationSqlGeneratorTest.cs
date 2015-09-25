@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Migrations
                 var typeMapper = new ConcreteRelationalTypeMapper();
 
                 return new ConcreteMigrationSqlGenerator(
-                    new RelationalCommandBuilderFactory(
-                        typeMapper),
+                    new RelationalCommandBuilderFactory(typeMapper),
+                    new RelationalSqlGenerator(),
                     new ConcreteUpdateSqlGenerator(),
                     typeMapper,
                     new TestAnnotationProvider());
@@ -281,6 +281,11 @@ namespace Microsoft.Data.Entity.Migrations
 
         private class ConcreteUpdateSqlGenerator : UpdateSqlGenerator
         {
+            public ConcreteUpdateSqlGenerator()
+                : base(new RelationalSqlGenerator())
+            {
+            }
+
             protected override void AppendIdentityWhereCondition(
                 StringBuilder commandStringBuilder,
                 ColumnModification columnModification)
@@ -311,10 +316,11 @@ namespace Microsoft.Data.Entity.Migrations
         {
             public ConcreteMigrationSqlGenerator(
                 IRelationalCommandBuilderFactory commandBuilderFactory,
-                IUpdateSqlGenerator sqlGenerator,
+                ISqlGenerator sqlGenerator,
+                IUpdateSqlGenerator updateSqlGenerator,
                 IRelationalTypeMapper typeMapper,
                 IRelationalAnnotationProvider annotations)
-                : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
+                : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, typeMapper, annotations)
             {
             }
 

@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Query.Sql.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
@@ -144,6 +143,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 new SelectExpression(
                     new SqlServerQuerySqlGeneratorFactory(
                         new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                        new RelationalSqlGenerator(),
                         new ParameterNameGeneratorFactory()))
                     .CreateGenerator);
 
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ChipsContext(serviceProvider))
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))
@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ChipsContext(serviceProvider))
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ChipsContext(serviceProvider))
@@ -262,7 +262,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSqlServer()
                 .ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddSingleton<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
+                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))

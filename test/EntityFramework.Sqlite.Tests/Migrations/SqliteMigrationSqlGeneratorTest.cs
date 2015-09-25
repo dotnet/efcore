@@ -21,9 +21,9 @@ namespace Microsoft.Data.Entity.Migrations
                 var typeMapper = new SqliteTypeMapper();
 
                 return new SqliteMigrationsSqlGenerator(
-                    new RelationalCommandBuilderFactory(
-                        typeMapper),
-                    new SqliteUpdateSqlGenerator(),
+                    new RelationalCommandBuilderFactory(typeMapper),
+                    new SqliteSqlGenerator(),
+                    new SqliteUpdateSqlGenerator(new SqliteSqlGenerator()),
                     typeMapper,
                     new SqliteAnnotationProvider());
             }

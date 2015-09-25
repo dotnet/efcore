@@ -3,15 +3,21 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update.Internal
 {
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
+        public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
+            : base(sqlGenerator)
+        {
+        }
+
         public override void AppendInsertOperation(
             StringBuilder commandStringBuilder,
             ModificationCommand command)
@@ -107,7 +113,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             => commandStringBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(operations.Select(c => "INSERTED." + DelimitIdentifier(c.ColumnName)));
+                .AppendJoin(operations.Select(c => "INSERTED." + SqlGenerator.DelimitIdentifier(c.ColumnName)));
 
         protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
@@ -121,7 +127,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
-                .Append(DelimitIdentifier(Check.NotNull(columnModification, nameof(columnModification)).ColumnName))
+                .Append(SqlGenerator.DelimitIdentifier(Check.NotNull(columnModification, nameof(columnModification)).ColumnName))
                 .Append(" = ")
                 .Append("scope_identity()");
 
@@ -130,34 +136,6 @@ namespace Microsoft.Data.Entity.Update.Internal
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
 
         public override string BatchSeparator => "GO" + Environment.NewLine + Environment.NewLine;
-
-        public override string DelimitIdentifier(string identifier)
-            => "[" + EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier))) + "]";
-
-        protected override string EscapeIdentifier(string identifier)
-            => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
-
-        public override string GenerateLiteral(byte[] literal)
-        {
-            Check.NotNull(literal, nameof(literal));
-
-            var builder = new StringBuilder();
-
-            builder.Append("0x");
-
-            var parts = literal.Select(b => b.ToString("X2", CultureInfo.InvariantCulture));
-            foreach (var part in parts)
-            {
-                builder.Append(part);
-            }
-
-            return builder.ToString();
-        }
-
-        public override string GenerateLiteral(bool literal) => literal ? "1" : "0";
-        public override string GenerateLiteral(DateTime literal) => "'" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffff") + "'";
-        public override string GenerateLiteral(DateTimeOffset literal) => "'" + literal.ToString(@"yyyy-MM-dd HH\:mm\:ss.fffffffzzz") + "'";
-        public virtual string GenerateLiteral(Guid literal) => "'" + literal + "'";
 
         public enum ResultsGrouping
         {

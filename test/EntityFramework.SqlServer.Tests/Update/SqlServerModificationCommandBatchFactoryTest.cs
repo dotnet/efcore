@@ -58,6 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             => new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
                     new SqlServerTypeMapper()),
-                new SqlServerUpdateSqlGenerator());
+                new SqlServerUpdateSqlGenerator(
+                    new SqlServerSqlGenerator()));
     }
 }

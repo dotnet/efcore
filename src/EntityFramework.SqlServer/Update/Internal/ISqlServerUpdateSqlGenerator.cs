@@ -13,7 +13,5 @@ namespace Microsoft.Data.Entity.Update.Internal
         SqlServerUpdateSqlGenerator.ResultsGrouping AppendBulkInsertOperation(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] IReadOnlyList<ModificationCommand> modificationCommands);
-
-        string GenerateLiteral(Guid literal);
     }
 }

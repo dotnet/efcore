@@ -20,10 +20,11 @@ namespace Microsoft.Data.Entity.Migrations
     {
         public SqliteMigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sql, typeMapper, annotations)
+            : base(commandBuilderFactory, sqlGenerator, sql, typeMapper, annotations)
         {
         }
 
@@ -62,7 +63,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("DROP INDEX ")
-                .Append(Sql.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
         }
 
         protected override void Generate(RenameTableOperation operation, IModel model, RelationalCommandListBuilder builder)
@@ -74,9 +75,9 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append("ALTER TABLE ")
-                    .Append(Sql.DelimitIdentifier(operation.Name))
+                    .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                     .Append(" RENAME TO ")
-                    .Append(Sql.DelimitIdentifier(operation.NewName));
+                    .Append(SqlGenerator.DelimitIdentifier(operation.NewName));
             }
         }
 
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Entity.Migrations
                 {
                     builder
                         .Append(" CONSTRAINT ")
-                        .Append(Sql.DelimitIdentifier(inlinePkName));
+                        .Append(SqlGenerator.DelimitIdentifier(inlinePkName));
                 }
                 builder.Append(" PRIMARY KEY");
                 var autoincrement = annotatable[SqliteAnnotationNames.Prefix + SqliteAnnotationNames.Autoincrement] as bool?;

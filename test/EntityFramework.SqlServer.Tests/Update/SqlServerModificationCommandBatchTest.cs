@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         {
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
-                new SqlServerUpdateSqlGenerator(), 1);
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()), 1);
 
             Assert.True(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedRelationalValueBufferFactoryFactory())));
             Assert.False(batch.AddCommand(new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.SqlServer(), new UntypedRelationalValueBufferFactoryFactory())));

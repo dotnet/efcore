@@ -3,6 +3,7 @@
 
 using System;
 using System.Text;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Update.Internal;
@@ -10,19 +11,17 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
-    public class SqlServerSqlGeneratorTest : SqlGeneratorTestBase
+    public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {
         protected override IUpdateSqlGenerator CreateSqlGenerator()
-        {
-            return new SqlServerUpdateSqlGenerator();
-        }
+            => new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator());
 
         [Fact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_OFF()
         {
             var sb = new StringBuilder();
 
-            new SqlServerUpdateSqlGenerator().AppendBatchHeader(sb);
+            CreateSqlGenerator().AppendBatchHeader(sb);
 
             Assert.Equal("SET NOCOUNT OFF;" + Environment.NewLine, sb.ToString());
         }
@@ -164,51 +163,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public override void BatchSeparator_returns_seperator()
         {
             Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
-        }
-
-        [Fact]
-        public override void GenerateLiteral_returns_ByteArray_literal()
-        {
-            var literal = CreateSqlGenerator().GenerateLiteral(new byte[] { 0xDA, 0x7A });
-            Assert.Equal("0xDA7A", literal);
-        }
-
-        [Fact]
-        public override void GenerateLiteral_returns_bool_literal_when_true()
-        {
-            var literal = CreateSqlGenerator().GenerateLiteral(true);
-            Assert.Equal("1", literal);
-        }
-
-        [Fact]
-        public override void GenerateLiteral_returns_bool_literal_when_false()
-        {
-            var literal = CreateSqlGenerator().GenerateLiteral(false);
-            Assert.Equal("0", literal);
-        }
-
-        [Fact]
-        public override void GenerateLiteral_returns_DateTime_literal()
-        {
-            var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.3710000'", literal);
-        }
-
-        [Fact]
-        public override void GenerateLiteral_returns_DateTimeOffset_literal()
-        {
-            var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
-            Assert.Equal("'2015-03-12 13:36:37.3710000-07:00'", literal);
-        }
-
-        [Fact]
-        public virtual void GenerateLiteral_returns_Guid_literal()
-        {
-            var value = new Guid("c6f43a9e-91e1-45ef-a320-832ea23b7292");
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
-            Assert.Equal("c6f43a9e-91e1-45ef-a320-832ea23b7292", literal);
         }
 
         protected override string RowsAffected

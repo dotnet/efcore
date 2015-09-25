@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
         public override IDatabaseCreator Creator => GetService<SqlServerDatabaseCreator>();
         public override IRelationalConnection RelationalConnection => GetService<ISqlServerConnection>();
+        public override ISqlGenerator SqlGenerator => GetService<SqlServerSqlGenerator>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<SqlServerValueGeneratorSelector>();
         public override IRelationalDatabaseCreator RelationalDatabaseCreator => GetService<SqlServerDatabaseCreator>();
         public override IConventionSetBuilder ConventionSetBuilder => GetService<SqlServerConventionSetBuilder>();

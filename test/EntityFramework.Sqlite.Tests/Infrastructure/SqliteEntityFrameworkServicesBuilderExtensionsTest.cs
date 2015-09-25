@@ -24,7 +24,6 @@ namespace Microsoft.Data.Entity
 
             // SQLite dingletones
             VerifySingleton<SqliteValueGeneratorCache>();
-            VerifySingleton<SqliteUpdateSqlGenerator>();
             VerifySingleton<SqliteAnnotationProvider>();
             VerifySingleton<SqliteTypeMapper>();
             VerifySingleton<SqliteModelSource>();
@@ -32,6 +31,7 @@ namespace Microsoft.Data.Entity
             VerifySingleton<SqliteConventionSetBuilder>();
 
             // SQLite scoped
+            VerifyScoped<SqliteUpdateSqlGenerator>();
             VerifyScoped<SqliteModificationCommandBatchFactory>();
             VerifyScoped<SqliteDatabaseProviderServices>();
             VerifyScoped<SqliteRelationalConnection>();

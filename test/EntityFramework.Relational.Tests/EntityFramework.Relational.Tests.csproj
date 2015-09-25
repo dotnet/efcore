@@ -58,8 +58,10 @@
     <Compile Include="RelationalModelValidatorTest.cs" />
     <Compile Include="RelationalOptionsExtensionTest.cs" />
     <Compile Include="SqlBatchBuilderTest.cs" />
-    <Compile Include="SqlGeneratorTest.cs" />
-    <Compile Include="SqlGeneratorTestBase.cs" />
+    <Compile Include="Storage\RelationalSqlGeneratorTest.cs" />
+    <Compile Include="Storage\SqlGeneratorTestBase.cs" />
+    <Compile Include="Update\UpdateSqlGeneratorTest.cs" />
+    <Compile Include="Update\UpdateSqlGeneratorTestBase.cs" />
     <Compile Include="Storage\RelationalTypeMapperTest.cs" />
     <Compile Include="TestAnnotationProvider.cs" />
     <Compile Include="TestRelationalMetadataExtensions.cs" />
