@@ -70,7 +70,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 .CreateModelConfiguration(metadataModel, customConfiguration);
 
             var dbContextClassName =
-                customConfiguration.ContextClassName ?? modelConfiguration.ClassName();
+                string.IsNullOrWhiteSpace(customConfiguration.ContextClassName)
+                ? modelConfiguration.ClassName()
+                : customConfiguration.ContextClassName;
 
             CheckOutputFiles(configuration.ProjectPath,
                 configuration.OutputPath, dbContextClassName, metadataModel);
