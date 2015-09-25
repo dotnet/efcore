@@ -332,6 +332,53 @@ CREATE TABLE String (
             }
         }
 
+        [Fact]
+        public virtual async void Foreign_key_to_unique_index()
+        {
+            using (var testStore = SqliteTestStore.GetOrCreateShared("FkToAltKey" + DbSuffix).AsTransient())
+            {
+                testStore.ExecuteNonQuery(@"
+CREATE TABLE User (
+    Id INTEGER PRIMARY KEY,
+    AltId INTEGER NOT NULL UNIQUE
+);
+CREATE TABLE Comment (
+    Id INTEGER PRIMARY KEY,
+    UserAltId INTEGER NOT NULL,
+    Contents TEXT,
+    FOREIGN KEY (UserAltId) REFERENCES User (AltId)
+);");
+                testStore.Transaction.Commit();
+
+                var results = await Generator.GenerateAsync(new ReverseEngineeringConfiguration
+                {
+                    ConnectionString = testStore.Connection.ConnectionString,
+                    ContextClassName = "FkToAltKeyContext",
+                    ProjectPath = "testout",
+                    ProjectRootNamespace = "E2E.Sqlite",
+                    UseFluentApiOnly = UseFluentApiOnly
+                });
+
+                AssertLog(new LoggerMessages());
+
+                var expectedFileSet = new FileSet(new FileSystemFileService(), Path.Combine(ExpectedResultsParentDir, "FkToAltKey"))
+                {
+                    Files =
+                    {
+                        "FkToAltKeyContext.expected",
+                        "Comment.expected",
+                        "User.expected"
+                    }
+                };
+                var actualFileSet = new FileSet(InMemoryFiles, "testout")
+                {
+                    Files = Enumerable.Repeat(results.ContextFile, 1).Concat(results.EntityTypeFiles).Select(Path.GetFileName).ToList()
+                };
+                AssertEqualFileContents(expectedFileSet, actualFileSet);
+                AssertCompile(actualFileSet);
+            }
+        }
+
         protected override E2ECompiler GetCompiler() => new E2ECompiler
         {
             NamedReferences =

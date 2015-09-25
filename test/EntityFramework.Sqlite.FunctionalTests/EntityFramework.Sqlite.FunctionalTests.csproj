@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
@@ -50,7 +51,7 @@
     <Compile Include="DataAnnotationSqliteTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
-    <Compile Include="ForeignKeyTest.cs" />
+    <Compile Include="SqliteForeignKeyTest.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />
     <Compile Include="GearsOfWarQuerySqliteTest.cs" />

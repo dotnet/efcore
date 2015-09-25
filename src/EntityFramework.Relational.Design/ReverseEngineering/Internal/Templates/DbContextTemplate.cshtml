@@ -78,6 +78,15 @@
         }
         sb.Append(")");
 
+        if (!rc.ForeignKey.PrincipalKey.IsPrimaryKey())
+        {
+            sb.Append(".PrincipalKey(")
+                .Append(principalEndLambdaIdentifier)
+                .Append(" => ")
+                .Append(ModelUtilities.GenerateLambdaToKey(rc.ForeignKey.PrincipalKey.Properties, principalEndLambdaIdentifier))
+                .Append(")");
+        }
+
         sb.Append(".ForeignKey");
         if (rc.ForeignKey.IsUnique)
         {

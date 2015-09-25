@@ -14,6 +14,8 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<Dependent>(entity =>
             {
+                entity.HasAlternateKey(e => e.PrincipalId);
+
                 entity.Property(e => e.Id).HasColumnType("INT");
 
                 entity.Property(e => e.PrincipalId).HasColumnType("INT");

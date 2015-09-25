@@ -63,7 +63,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             var nameMapper = GetNameMapper(relationalModel);
 
-            return ConstructCodeGenModel(relationalModel, nameMapper);
+            var codeGenModel = ConstructCodeGenModel(relationalModel, nameMapper);
+            return codeGenModel;
         }
 
         public virtual MetadataModelNameMapper GetNameMapper([NotNull] IModel relationalModel)
@@ -124,14 +125,24 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 }
 
 
-                var primaryKey = relationalEntityType.FindPrimaryKey();
-                if (primaryKey != null)
+                foreach(var key in relationalEntityType.GetKeys())
                 {
-                    codeGenEntityType.SetPrimaryKey(
-                        primaryKey.Properties
+                    var props = key.Properties
                             .Select(p => _relationalToCodeGenPropertyMap[p])
-                            .ToList());
+                            .ToList();
+                    Key codeGenKey;
+                    if (key.IsPrimaryKey())
+                    {
+                        codeGenKey = codeGenEntityType.SetPrimaryKey(props);
+                    }
+                    else
+                    {
+                        codeGenKey = codeGenEntityType.AddKey(props);
+                    }
+
+                    key.Annotations.Select(a => codeGenKey.AddAnnotation(a.Name, a.Value));
                 }
+
             } // end of loop over all relational EntityTypes
 
             AddForeignKeysToCodeGenModel(relationalModel, codeGenModel);
@@ -160,12 +171,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                                     : null;
                         })
                         .ToList();
-                    var targetRelationalEntityType = relationalForeignKey.PrincipalEntityType;
-                    var targetCodeGenEntityType = _relationalToCodeGenEntityTypeMap[targetRelationalEntityType];
-                    var targetPrimaryKey = targetCodeGenEntityType.GetPrimaryKey();
+                    
+                    var principalCodeGenEntityType = _relationalToCodeGenEntityTypeMap[relationalForeignKey.PrincipalEntityType];
+                    var principalCodeGenKeyProperties = relationalForeignKey
+                        .PrincipalKey
+                        .Properties
+                        .Select(p => _relationalToCodeGenPropertyMap[p]).ToList().AsReadOnly();
+                    var principal = principalCodeGenEntityType.GetKey(principalCodeGenKeyProperties);
 
                     var codeGenForeignKey = codeGenEntityType
-                        .GetOrAddForeignKey(foreignKeyCodeGenProperties, targetPrimaryKey, targetCodeGenEntityType);
+                        .GetOrAddForeignKey(foreignKeyCodeGenProperties, principal, principalCodeGenEntityType);
                     codeGenForeignKey.IsUnique = relationalForeignKey.IsUnique;
                 }
             }

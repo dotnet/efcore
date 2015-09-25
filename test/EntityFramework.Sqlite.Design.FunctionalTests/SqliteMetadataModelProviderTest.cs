@@ -112,6 +112,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [InlineData(new[] { "Qu\"oted" }, "CREATE TABLE t (\"Qu\"\"oted\" text, Unique(\"Qu\"\"oted\"))")]
         [InlineData(new[] { "Qu\"oted" }, "CREATE TABLE t (\"Qu\"\"oted\" text UNIQUE);")]
         [InlineData(new[] { "Qu\"oted" }, "CREATE TABLE t (\"Qu\"\"oted\" text); CREATE Unique INDEX idx_1 on t(\"Qu\"\"oted\");")]
+        [InlineData(new[] { "a", "b" }, "CREATE TABLE t (a int, b int, UNIQUE(a,b));")]
+        [InlineData(new[] { "z", "y" }, "CREATE TABLE t (y int, z int, UNIQUE(z,y));")]
         public void It_gets_unique_indexes(string[] columns, string create)
         {
             var entityType = GetModel(create).GetEntityType("t");
@@ -121,6 +123,12 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.Equal(
                 columns,
                 idx.Properties.Select(c => c.Sqlite().ColumnName).ToArray());
+
+            var props = columns.Select(c => entityType.GetProperty(c)).ToArray();
+            var key = entityType.FindKey(props);
+
+            Assert.NotNull(key);
+            Assert.Null(entityType.FindPrimaryKey());
         }
 
         [Fact]
@@ -133,6 +141,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.Equal(
                 new[] { "Id", "A" },
                 idx.Properties.Select(c => c.Sqlite().ColumnName).ToArray());
+
+            Assert.Empty(entityType.GetKeys());
         }
 
         [Fact]
@@ -235,6 +245,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             var fk = table.GetForeignKey(new[] { table.GetProperty("BuddyId") });
 
             Assert.True(fk.IsUnique);
+            Assert.Equal(table.GetPrimaryKey(), fk.PrincipalKey);
         }
 
         [Fact]

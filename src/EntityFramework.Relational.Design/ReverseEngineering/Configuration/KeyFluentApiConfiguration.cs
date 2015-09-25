@@ -13,24 +13,29 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public class KeyFluentApiConfiguration : IFluentApiConfiguration
     {
+        private readonly IReadOnlyList<Property> _properties;
+        private readonly string _lambdaIdentifier;
+
         public KeyFluentApiConfiguration(
-            [NotNull] string lambdaIdentifier, 
+            [NotNull] string lambdaIdentifier,
             [NotNull] IReadOnlyList<Property> properties)
         {
             Check.NotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
             Check.NotEmpty(properties, nameof(properties));
 
-            FluentApi = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}({1} => {2})",
-                nameof(EntityTypeBuilder.HasKey),
-                lambdaIdentifier,
-                new ModelUtilities().GenerateLambdaToKey(properties, lambdaIdentifier));
+            _lambdaIdentifier = lambdaIdentifier;
+            _properties = new List<Property>(properties);
         }
 
-        public virtual bool HasAttributeEquivalent { get; set; } = false;
-        public virtual string For { get; } = null;
+        public virtual bool IsPrimaryKey { get; set; }
+        public virtual bool HasAttributeEquivalent { get; set; }
+        public virtual string For { get; }
 
-        public virtual string FluentApi { get;[param: NotNull] private set; }
+        public virtual string FluentApi => string.Format(
+                CultureInfo.InvariantCulture,
+                "{0}({1} => {2})",
+                IsPrimaryKey ? nameof(EntityTypeBuilder.HasKey) : nameof(EntityTypeBuilder.HasAlternateKey),
+                _lambdaIdentifier,
+                new ModelUtilities().GenerateLambdaToKey(_properties, _lambdaIdentifier));
     }
 }

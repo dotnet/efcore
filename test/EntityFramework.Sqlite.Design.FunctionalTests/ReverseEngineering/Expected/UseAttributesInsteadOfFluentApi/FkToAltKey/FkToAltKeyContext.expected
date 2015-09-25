@@ -1,0 +1,39 @@
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2E.Sqlite
+{
+    public partial class FkToAltKeyContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlite(@"Data Source=FkToAltKeyAttributes.db;Cache=Private");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnType("INTEGER");
+
+                entity.Property(e => e.Contents).HasColumnType("TEXT");
+
+                entity.Property(e => e.UserAltId).HasColumnType("INTEGER");
+
+                entity.HasOne(d => d.UserAlt).WithMany(p => p.Comment).PrincipalKey(p => p.AltId).ForeignKey(d => d.UserAltId);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasAlternateKey(e => e.AltId);
+
+                entity.Property(e => e.Id).HasColumnType("INTEGER");
+
+                entity.Property(e => e.AltId).HasColumnType("INTEGER");
+            });
+        }
+
+        public virtual DbSet<Comment> Comment { get; set; }
+        public virtual DbSet<User> User { get; set; }
+    }
+}

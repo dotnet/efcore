@@ -4,42 +4,50 @@
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Framework.Logging;
+using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
 {
     public class InMemoryCommandLogger : CommandLogger
     {
         public LoggerMessages Messages = new LoggerMessages();
+        private readonly ITestOutputHelper _output;
 
-        public InMemoryCommandLogger(string name)
+        public InMemoryCommandLogger(string name, ITestOutputHelper output)
             : base(name)
         {
+            // _output = output;
         }
 
         public override bool IsEnabled(LogLevel logLevel) => true;
 
         protected override void WriteError(string message)
         {
+            _output?.WriteLine("[ERROR]: " + message);
             Messages.Error.Add(message);
         }
 
         protected override void WriteWarning(string message)
         {
+            _output?.WriteLine("[WARN]: " + message);
             Messages.Warn.Add(message);
         }
 
         protected override void WriteInformation(string message)
         {
+            _output?.WriteLine("[INFO]: " + message);
             Messages.Info.Add(message);
         }
 
         protected override void WriteVerbose(string message)
         {
+            _output?.WriteLine("[VERBOSE]: " + message);
             Messages.Verbose.Add(message);
         }
 
         protected override void WriteDebug(string message)
         {
+            _output?.WriteLine("[DEBUG]: " + message);
             Messages.Debug.Add(message);
         }
     }

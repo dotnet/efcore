@@ -74,11 +74,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         }
 
         public virtual List<RelationshipConfiguration> GetRelationshipConfigurations(bool useFluentApiOnly)
-        {
-            return (useFluentApiOnly
-                ? RelationshipConfigurations
-                : Enumerable.Empty<RelationshipConfiguration>())
+            => RelationshipConfigurations
+                .Where(rc => useFluentApiOnly || !rc.HasAttributeEquivalent)
                 .ToList();
-        }
     }
 }

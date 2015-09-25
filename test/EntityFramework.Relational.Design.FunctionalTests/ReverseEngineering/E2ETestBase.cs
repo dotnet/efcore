@@ -2,9 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Globalization;
 using System.Linq;
-using System.Threading;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
@@ -34,22 +32,11 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            _logger = new InMemoryCommandLogger("E2ETest");
+            _logger = new InMemoryCommandLogger("E2ETest", _output);
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             MetadataModelProvider = serviceProvider.GetRequiredService<IDatabaseMetadataModelProvider>();
-
-            // set current cultures to English because expected results for error messages
-            // (both those output to the Logger and those put in comments in the .cs files)
-            // are in English
-#if DNXCORE50
-            CultureInfo.CurrentCulture = new CultureInfo("en-US");
-            CultureInfo.CurrentUICulture = new CultureInfo("en-US");
-#else
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
-#endif
         }
 
         protected abstract E2ECompiler GetCompiler();
@@ -63,12 +50,21 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
             for (var i = 0; i < expected.Files.Count; i++)
             {
                 Assert.True(actual.Exists(i), $"Could not find file '{actual.Files[i]}' in directory '{actual.Directory}'");
+                var expectedContents = expected.Contents(i);
+                var actualContents = actual.Contents(i);
+
                 try
                 {
-                    Assert.Equal(expected.Contents(i), actual.Contents(i));
+                    Assert.Equal(expectedContents, actualContents);
                 }
                 catch (EqualException e)
                 {
+                    var sep = new string('=', 60);
+                    _output.WriteLine($"Contents of actual: '{actual.Files[i]}'");
+                    _output.WriteLine(sep);
+                    _output.WriteLine(actualContents);
+                    _output.WriteLine(sep);
+
                     throw new XunitException($"Files did not match: '{expected.Files[i]}' and '{actual.Files[i]}'" + Environment.NewLine + $"{e.Message}");
                 }
             }

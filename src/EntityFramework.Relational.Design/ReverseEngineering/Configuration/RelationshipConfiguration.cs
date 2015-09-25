@@ -9,8 +9,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public class RelationshipConfiguration
     {
-        public RelationshipConfiguration([NotNull] EntityConfiguration entityConfiguration,
-            [NotNull] IForeignKey foreignKey, [NotNull] string dependentEndNavigationPropertyName,
+        public RelationshipConfiguration(
+            [NotNull] EntityConfiguration entityConfiguration,
+            [NotNull] IForeignKey foreignKey,
+            [NotNull] string dependentEndNavigationPropertyName,
             [NotNull] string principalEndNavigationPropertyName)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
@@ -24,6 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             PrincipalEndNavigationPropertyName = principalEndNavigationPropertyName;
         }
 
+        public virtual bool HasAttributeEquivalent { get; set; } = true;
         public virtual EntityConfiguration EntityConfiguration { get; }
         public virtual IForeignKey ForeignKey { get; }
         public virtual string DependentEndNavigationPropertyName { get; }

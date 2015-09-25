@@ -35,6 +35,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
+    <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\Comment.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\FkToAltKeyContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\AllFluentApi\FkToAltKey\User.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="ReverseEngineering\Expected\AllFluentApi\ManyToMany\Groups.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -78,6 +87,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\AllFluentApi\SelfRef\SelfRef.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\FkToAltKey\Comment.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\FkToAltKey\FkToAltKeyContext.expected">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\FkToAltKey\User.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\ManyToMany\Groups.expected">

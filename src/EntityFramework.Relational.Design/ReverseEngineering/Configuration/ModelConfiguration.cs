@@ -140,33 +140,42 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             var entityType = (EntityType)entityConfiguration.EntityType;
-            var key = entityType.FindPrimaryKey();
-            if (key == null
-                || key.Properties.Count == 0)
+            foreach(var key in entityType.GetKeys())
             {
-                return;
-            }
+                if (key == null
+                    || key.Properties.Count == 0)
+                {
+                    continue;
+                }
 
-            var conventionKeyProperties =
-                _keyDiscoveryConvention.DiscoverKeyProperties(entityType);
-            if (conventionKeyProperties != null
-                && key.Properties.OrderBy(p => p.Name).SequenceEqual(conventionKeyProperties.OrderBy(p => p.Name)))
-            {
-                return;
-            }
+                var conventionKeyProperties =
+                    _keyDiscoveryConvention.DiscoverKeyProperties(entityType);
+                if (conventionKeyProperties != null
+                    && key.Properties.OrderBy(p => p.Name).SequenceEqual(conventionKeyProperties.OrderBy(p => p.Name)))
+                {
+                    continue;
+                }
 
-            var keyFluentApi = new KeyFluentApiConfiguration("e", key.Properties);
-            if (key.Properties.Count == 1)
-            {
-                keyFluentApi.HasAttributeEquivalent = true;
+                var keyFluentApi = new KeyFluentApiConfiguration("e", key.Properties);
 
-                var propertyConfiguration =
-                    entityConfiguration.GetOrAddPropertyConfiguration(
-                        entityConfiguration, key.Properties.First());
-                propertyConfiguration.AttributeConfigurations.Add(
-                    new AttributeConfiguration(nameof(KeyAttribute)));
+                if(key.IsPrimaryKey())
+                {
+                    keyFluentApi.IsPrimaryKey = true;
+
+                    if (key.Properties.Count == 1)
+                    {
+                        keyFluentApi.HasAttributeEquivalent = true;
+
+                        var propertyConfiguration =
+                            entityConfiguration.GetOrAddPropertyConfiguration(
+                                entityConfiguration, key.Properties.First());
+                        propertyConfiguration.AttributeConfigurations.Add(
+                            new AttributeConfiguration(nameof(KeyAttribute)));
+                    }
+                }
+
+                entityConfiguration.FluentApiConfigurations.Add(keyFluentApi);
             }
-            entityConfiguration.FluentApiConfigurations.Add(keyFluentApi);
         }
 
         public virtual void AddTableNameConfiguration([NotNull] EntityConfiguration entityConfiguration)
@@ -417,11 +426,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                             new NavigationPropertyConfiguration(
                                 referencedType,
                                 (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]);
-                        navPropConfiguration.AttributeConfigurations.Add(
+
+                        if (foreignKey.PrincipalKey.IsPrimaryKey())
+                        {
+                            navPropConfiguration.AttributeConfigurations.Add(
                             new AttributeConfiguration(
                                 nameof(InversePropertyAttribute),
                                 CSharpUtilities.DelimitString(
                                     (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName])));
+                        }
+
                         entityConfiguration.NavigationPropertyConfigurations.Add(
                             navPropConfiguration);
                     }
@@ -436,16 +450,21 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     new NavigationPropertyConfiguration(
                         foreignKey.PrincipalEntityType.Name,
                         (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName]);
-                dependentEndNavPropConfiguration.AttributeConfigurations.Add(
-                    new AttributeConfiguration(
-                        nameof(ForeignKeyAttribute),
-                        CSharpUtilities.DelimitString(
-                            string.Join(",", foreignKey.Properties.Select(p => p.Name)))));
-                dependentEndNavPropConfiguration.AttributeConfigurations.Add(
-                    new AttributeConfiguration(
-                        nameof(InversePropertyAttribute),
-                        CSharpUtilities.DelimitString(
-                            (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName])));
+
+                if(foreignKey.PrincipalKey.IsPrimaryKey())
+                {
+                    dependentEndNavPropConfiguration.AttributeConfigurations.Add(
+                        new AttributeConfiguration(
+                            nameof(ForeignKeyAttribute),
+                            CSharpUtilities.DelimitString(
+                                string.Join(",", foreignKey.Properties.Select(p => p.Name)))));
+                    dependentEndNavPropConfiguration.AttributeConfigurations.Add(
+                        new AttributeConfiguration(
+                            nameof(InversePropertyAttribute),
+                            CSharpUtilities.DelimitString(
+                                (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName])));
+                }
+
                 entityConfiguration.NavigationPropertyConfigurations.Add(
                     dependentEndNavPropConfiguration);
 
@@ -514,7 +533,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
                 entityConfiguration.RelationshipConfigurations.Add(
                     new RelationshipConfiguration(entityConfiguration, foreignKey,
-                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName));
+                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName)
+                    {
+                        HasAttributeEquivalent = foreignKey.PrincipalKey.IsPrimaryKey()
+                    });
             }
         }
 

@@ -83,6 +83,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                     SqliteDmlParser.ParseTableDefinition(modelBuilder, item.Key, item.Value);
                 }
 
+                AddAlternateKeys(modelBuilder);
                 LoadForeignKeys(connection, modelBuilder, tables.Keys);
             }
 
@@ -301,6 +302,19 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                             Logger.LogWarning(errorMessage);
                         }
                     });
+            }
+        }
+
+        private void AddAlternateKeys(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.EntityTypes.Cast<EntityType>())
+            {
+                foreach (var index in entityType.Indexes.Where(i => i.IsUnique == true))
+                {
+                    modelBuilder.Entity(entityType.Name)
+                        .HasAlternateKey(index.Properties.Select(p => p.Name).ToArray())
+                        .SqliteKeyName(index.Sqlite().Name);
+                }
             }
         }
 
