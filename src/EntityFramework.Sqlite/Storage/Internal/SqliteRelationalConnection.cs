@@ -22,8 +22,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public SqliteRelationalConnection(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] IDbContextOptions options,
-            [NotNull] ILoggerFactory loggerFactory)
-            : base(options, loggerFactory)
+            // ReSharper disable once SuggestBaseTypeForParameter
+            [NotNull] ILogger<SqliteRelationalConnection> logger)
+            : base(options, logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
 

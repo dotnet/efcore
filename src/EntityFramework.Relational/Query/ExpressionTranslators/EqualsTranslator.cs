@@ -14,12 +14,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
     {
         private readonly ILogger _logger;
 
-        public EqualsTranslator([NotNull] ILoggerFactory loggerFactory)
+        public EqualsTranslator([NotNull] ILogger logger)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
 
-            _logger = loggerFactory.CreateLogger(nameof(EqualsTranslator));
-            ;
+            _logger = logger;
         }
 
         public virtual Expression Translate(MethodCallExpression methodCallExpression)
@@ -27,20 +26,23 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
             if (methodCallExpression.Method.Name == nameof(object.Equals)
-                && methodCallExpression.Arguments.Count == 1)
+                && methodCallExpression.Arguments.Count == 1
+                && methodCallExpression.Object != null)
             {
                 var argument = methodCallExpression.Arguments[0];
-                var @object = methodCallExpression.Object;
+
                 if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
-                    && @object.Type != argument.Type)
+                    && methodCallExpression.Object.Type != argument.Type)
                 {
                     argument = argument.RemoveConvert();
-                    var unwrappedObjectType = @object.Type.UnwrapNullableType();
+
+                    var unwrappedObjectType = methodCallExpression.Object.Type.UnwrapNullableType();
                     var unwrappedArgumentType = argument.Type.UnwrapNullableType();
+
                     if (unwrappedObjectType == unwrappedArgumentType)
                     {
                         return Expression.Equal(
-                            Expression.Convert(@object, unwrappedObjectType),
+                            Expression.Convert(methodCallExpression.Object, unwrappedObjectType),
                             Expression.Convert(argument, unwrappedArgumentType));
                     }
 

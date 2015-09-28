@@ -5,21 +5,24 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     {
-        private readonly ILoggerFactory _loggerFactory;
-
-        public SqlServerConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
-            : base(options, loggerFactory)
+        public SqlServerConnection(
+            [NotNull] IDbContextOptions options,
+            // ReSharper disable once SuggestBaseTypeForParameter
+            [NotNull] ILogger<SqlServerConnection> logger)
+            : base(options, logger)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+        }
 
-            _loggerFactory = loggerFactory;
+        private SqlServerConnection(
+            [NotNull] IDbContextOptions options, [NotNull] ILogger logger)
+            : base(options, logger)
+        {
         }
 
         protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
@@ -32,7 +35,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
 
-            return new SqlServerConnection(optionsBuilder.Options, _loggerFactory);
+            return new SqlServerConnection(optionsBuilder.Options, Logger);
         }
 
         public override bool IsMultipleActiveResultSetsEnabled

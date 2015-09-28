@@ -21,17 +21,17 @@ namespace Microsoft.Data.Entity.Storage
         private readonly bool _connectionOwned;
         private int _openedCount;
         private int? _commandTimeout;
-        private readonly LazyRef<ILogger> _logger;
+        private readonly ILogger _logger;
 #if NET45
         private readonly bool _throwOnAmbientTransaction;
 #endif
 
-        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILoggerFactory loggerFactory)
+        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILogger logger)
         {
             Check.NotNull(options, nameof(options));
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
 
-            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<RelationalConnection>);
+            _logger = logger;
 
             var relationalOptions = RelationalOptionsExtension.Extract(options);
 
@@ -65,6 +65,8 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         protected abstract DbConnection CreateDbConnection();
+
+        protected virtual ILogger Logger => _logger;
 
         public virtual string ConnectionString => _connectionString ?? _connection.Value.ConnectionString;
 
@@ -126,9 +128,9 @@ namespace Microsoft.Data.Entity.Storage
 
         private IRelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            _logger.Value.BeginningTransaction(isolationLevel);
+            _logger.BeginningTransaction(isolationLevel);
 
-            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), /*transactionOwned*/ true, _logger.Value);
+            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), /*transactionOwned*/ true, _logger);
 
             return Transaction;
         }
@@ -153,7 +155,7 @@ namespace Microsoft.Data.Entity.Storage
 
                 Open();
 
-                Transaction = new RelationalTransaction(this, transaction, /*transactionOwned*/ false, _logger.Value);
+                Transaction = new RelationalTransaction(this, transaction, /*transactionOwned*/ false, _logger);
             }
 
             return Transaction;
@@ -167,7 +169,7 @@ namespace Microsoft.Data.Entity.Storage
 #endif
             if (_openedCount == 0)
             {
-                _logger.Value.OpeningConnection(ConnectionString);
+                _logger.OpeningConnection(ConnectionString);
 
                 _connection.Value.Open();
             }
@@ -183,7 +185,7 @@ namespace Microsoft.Data.Entity.Storage
 #endif
             if (_openedCount == 0)
             {
-                _logger.Value.OpeningConnection(ConnectionString);
+                _logger.OpeningConnection(ConnectionString);
 
                 await _connection.Value.OpenAsync(cancellationToken);
             }
@@ -210,7 +212,7 @@ namespace Microsoft.Data.Entity.Storage
             if (_openedCount > 0
                 && --_openedCount == 0)
             {
-                _logger.Value.ClosingConnection(ConnectionString);
+                _logger.ClosingConnection(ConnectionString);
 
                 _connection.Value.Close();
             }

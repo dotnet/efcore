@@ -16,6 +16,9 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
 
+// ReSharper disable ClassNeverInstantiated.Local
+// ReSharper disable MemberCanBePrivate.Local
+
 namespace Microsoft.Data.Entity.SqlServer.Tests
 {
     public class SqlServerDatabaseCreatorTest
@@ -123,7 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private class FakeSqlServerConnection : SqlServerConnection
         {
             public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
-                : base(options, loggerFactory)
+                : base(options, new Logger<SqlServerConnection>(loggerFactory))
             {
             }
 
@@ -154,8 +157,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             public FakeSqlStatementExecutor(
                 IRelationalCommandBuilderFactory commandBuilderFactory,
-                ILoggerFactory loggerFactory)
-                : base(commandBuilderFactory, loggerFactory)
+                ILogger<SqlStatementExecutor> logger)
+                : base(commandBuilderFactory, logger)
             {
             }
 
@@ -163,10 +166,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
             }
 
-            public override Task ExecuteNonQueryAsync(IRelationalConnection connection, IEnumerable<RelationalCommand> relationalCommands, CancellationToken cancellationToken = default(CancellationToken))
-            {
-                return Task.FromResult(0);
-            }
+            public override Task ExecuteNonQueryAsync(
+                IRelationalConnection connection,
+                IEnumerable<RelationalCommand> relationalCommands,
+                CancellationToken cancellationToken = default(CancellationToken))
+                => Task.FromResult(0);
         }
 
         private static SqlException CreateSqlException(int number)

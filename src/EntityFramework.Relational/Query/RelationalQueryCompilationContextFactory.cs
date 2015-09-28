@@ -16,7 +16,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] DbContext context)
-            : base(Check.NotNull(loggerFactory, nameof(loggerFactory)),
+            : base(
+                Check.NotNull(loggerFactory, nameof(loggerFactory)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(context, nameof(context)))

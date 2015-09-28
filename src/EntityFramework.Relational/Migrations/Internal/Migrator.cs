@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         private readonly ISqlStatementExecutor _executor;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerator _sqlGenerator;
-        private readonly LazyRef<ILogger> _logger;
+        private readonly ILogger _logger;
         private readonly string _activeProvider;
 
         public Migrator(
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger<Migrator> logger,
             [NotNull] IDatabaseProviderServices providerServices)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotNull(executor, nameof(executor));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(providerServices, nameof(providerServices));
 
             _migrationsAssembly = migrationsAssembly;
@@ -59,14 +59,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             _executor = executor;
             _connection = connection;
             _sqlGenerator = sqlGenerator;
-            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Migrator>);
+            _logger = logger;
             _activeProvider = providerServices.InvariantName;
         }
 
         public virtual void Migrate(string targetMigration = null)
         {
             var connection = _connection.DbConnection;
-            _logger.Value.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!_historyRepository.Exists())
             {
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = _connection.DbConnection;
-            _logger.Value.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                 yield return () =>
                 {
-                    _logger.Value.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+                    _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
 
                     return GenerateDownSql(
                         migration,
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             {
                 yield return () =>
                 {
-                    _logger.Value.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+                    _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
 
                     return GenerateUpSql(migration);
                 };
@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         checkFirst = false;
                     }
 
-                    _logger.Value.LogVerbose(RelationalStrings.GeneratingUp(migration.GetId()));
+                    _logger.LogVerbose(RelationalStrings.GeneratingUp(migration.GetId()));
 
                     foreach (var command in GenerateUpSql(migration))
                     {
@@ -284,7 +284,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         ? migrationsToRevert[i + 1]
                         : null;
 
-                    _logger.Value.LogVerbose(RelationalStrings.GeneratingDown(migration.GetId()));
+                    _logger.LogVerbose(RelationalStrings.GeneratingDown(migration.GetId()));
 
                     foreach (var command in GenerateDownSql(migration, previousMigration))
                     {

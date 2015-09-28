@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Tests
         private class FakeConnection : RelationalConnection
         {
             public FakeConnection(IDbContextOptions options)
-                : base(options, new LoggerFactory())
+                : base(options, new Logger<FakeConnection>(new LoggerFactory()))
             {
             }
 

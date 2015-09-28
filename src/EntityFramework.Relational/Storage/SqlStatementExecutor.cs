@@ -7,7 +7,6 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -16,20 +15,19 @@ namespace Microsoft.Data.Entity.Storage
     public class SqlStatementExecutor : ISqlStatementExecutor
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly LazyRef<ILogger> _logger;
 
         public SqlStatementExecutor(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ILoggerFactory loggerFactory)
+            [NotNull] ILogger<SqlStatementExecutor> logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
 
             _commandBuilderFactory = commandBuilderFactory;
-            _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<SqlStatementExecutor>);
+            Logger = logger;
         }
 
-        protected virtual ILogger Logger => _logger.Value;
+        protected virtual ILogger Logger { get; }
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,

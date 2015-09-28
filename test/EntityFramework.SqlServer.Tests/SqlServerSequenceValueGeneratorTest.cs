@@ -22,52 +22,28 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerSequenceValueGeneratorTest
     {
         [Fact]
-        public void Generates_sequential_int_values()
-        {
-            Generates_sequential_values<int>();
-        }
+        public void Generates_sequential_int_values() => Generates_sequential_values<int>();
 
         [Fact]
-        public void Generates_sequential_long_values()
-        {
-            Generates_sequential_values<long>();
-        }
+        public void Generates_sequential_long_values() => Generates_sequential_values<long>();
 
         [Fact]
-        public void Generates_sequential_short_values()
-        {
-            Generates_sequential_values<short>();
-        }
+        public void Generates_sequential_short_values() => Generates_sequential_values<short>();
 
         [Fact]
-        public void Generates_sequential_byte_values()
-        {
-            Generates_sequential_values<byte>();
-        }
+        public void Generates_sequential_byte_values() => Generates_sequential_values<byte>();
 
         [Fact]
-        public void Generates_sequential_uint_values()
-        {
-            Generates_sequential_values<uint>();
-        }
+        public void Generates_sequential_uint_values() => Generates_sequential_values<uint>();
 
         [Fact]
-        public void Generates_sequential_ulong_values()
-        {
-            Generates_sequential_values<ulong>();
-        }
+        public void Generates_sequential_ulong_values() => Generates_sequential_values<ulong>();
 
         [Fact]
-        public void Generates_sequential_ushort_values()
-        {
-            Generates_sequential_values<ushort>();
-        }
+        public void Generates_sequential_ushort_values() => Generates_sequential_values<ushort>();
 
         [Fact]
-        public void Generates_sequential_sbyte_values()
-        {
-            Generates_sequential_values<sbyte>();
-        }
+        public void Generates_sequential_sbyte_values() => Generates_sequential_values<sbyte>();
 
         public void Generates_sequential_values<TValue>()
         {
@@ -88,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             for (var i = 1; i <= 27; i++)
             {
-                Assert.Equal(i, (int)Convert.ChangeType(generator.Next(), typeof(int), CultureInfo.InvariantCulture)); 
+                Assert.Equal(i, (int)Convert.ChangeType(generator.Next(), typeof(int), CultureInfo.InvariantCulture));
             }
         }
 
@@ -114,7 +90,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.True(checks.All(c => c));
         }
 
-        private IList<long>[] GenerateValuesInMultipleThreads(int threadCount, int valueCount)
+        private IEnumerable<List<long>> GenerateValuesInMultipleThreads(int threadCount, int valueCount)
         {
             const int blockSize = 10;
 
@@ -172,7 +148,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.False(generator.GeneratesTemporaryValues);
         }
 
-        private ISqlServerConnection CreateConnection(IServiceProvider serviceProvider = null)
+        private static ISqlServerConnection CreateConnection(IServiceProvider serviceProvider = null)
         {
             serviceProvider = serviceProvider ?? SqlServerTestHelpers.Instance.CreateServiceProvider();
 
@@ -186,23 +162,21 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             public FakeSqlStatementExecutor(int blockSize)
                 : base(
-                      new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
-                      new LoggerFactory())
+                    new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                    new Logger<SqlStatementExecutor>(new LoggerFactory()))
             {
                 _blockSize = blockSize;
                 _current = -blockSize + 1;
             }
 
             public override object ExecuteScalar(IRelationalConnection connection, string sql)
-            {
-                return Interlocked.Add(ref _current, _blockSize);
-            }
+                => Interlocked.Add(ref _current, _blockSize);
 
             public override Task<object> ExecuteScalarAsync(
-                IRelationalConnection connection, string sql, CancellationToken cancellationToken = new CancellationToken())
-            {
-                return Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
-            }
+                IRelationalConnection connection,
+                string sql,
+                CancellationToken cancellationToken = new CancellationToken())
+                => Task.FromResult<object>(Interlocked.Add(ref _current, _blockSize));
         }
     }
 }
