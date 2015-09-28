@@ -9,7 +9,8 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "EntityFramework.Core": "7.0.0-*"
+    "EntityFramework.Core": "7.0.0-*",
+    "System.Diagnostics.Tracing.Telemetry": "4.0.0-beta-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {

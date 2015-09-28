@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Diagnostics.Tracing;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
@@ -14,11 +15,13 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] ISensitiveDataLogger<SqlServerQueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] DbContext context)
+            [NotNull] DbContext context,
+            [NotNull] TelemetrySource telemetrySource)
             : base(Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-                Check.NotNull(context, nameof(context)))
+                Check.NotNull(context, nameof(context)),
+                Check.NotNull(telemetrySource, nameof(telemetrySource)))
         {
         }
 
@@ -30,13 +33,15 @@ namespace Microsoft.Data.Entity.Query.Internal
                     RequiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
-                    ContextType)
+                    ContextType,
+                    TelemetrySource)
                 : new SqlServerQueryCompilationContext(
                     (ISensitiveDataLogger)Logger,
                     EntityQueryModelVisitorFactory,
                     RequiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
-                    ContextType);
+                    ContextType,
+                    TelemetrySource);
     }
 }

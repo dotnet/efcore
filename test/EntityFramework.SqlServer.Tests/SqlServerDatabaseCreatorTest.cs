@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -158,7 +159,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public FakeSqlStatementExecutor(
                 IRelationalCommandBuilderFactory commandBuilderFactory,
                 ISensitiveDataLogger<FakeSqlStatementExecutor> logger)
-                : base(commandBuilderFactory, logger)
+                : base(commandBuilderFactory, logger, new TelemetryListener("Fake"))
             {
             }
 

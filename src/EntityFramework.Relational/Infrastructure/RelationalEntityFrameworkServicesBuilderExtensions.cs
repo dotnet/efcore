@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
@@ -32,8 +33,12 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(builder, nameof(builder));
 
+            var telemetrySource = new TelemetryListener("Microsoft.AspNet"); // copied from Hosting
+            
             builder.GetService()
                 .TryAdd(new ServiceCollection()
+                .AddInstance<TelemetrySource>(telemetrySource)
+                .AddInstance(telemetrySource)
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()

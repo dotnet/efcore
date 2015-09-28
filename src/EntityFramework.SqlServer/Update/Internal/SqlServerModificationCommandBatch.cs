@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
@@ -27,8 +29,16 @@ namespace Microsoft.Data.Entity.Update.Internal
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
+            [NotNull] ISensitiveDataLogger logger,
+            [NotNull] TelemetrySource telemetrySource,
             [CanBeNull] int? maxBatchSize)
-            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory)
+            : base(
+                commandBuilderFactory,
+                sqlGenerator,
+                updateSqlGenerator,
+                valueBufferFactoryFactory,
+                logger,
+                telemetrySource)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

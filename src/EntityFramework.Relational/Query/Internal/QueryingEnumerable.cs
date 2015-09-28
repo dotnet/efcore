@@ -5,9 +5,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Extensions;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
@@ -18,17 +20,20 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
         private readonly ISensitiveDataLogger _logger;
+        private readonly TelemetrySource _telemetrySource;
         private readonly int? _queryIndex;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
             [NotNull] ISensitiveDataLogger logger,
+            [NotNull] TelemetrySource telemetrySource,
             int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;
             _commandBuilder = commandBuilder;
             _logger = logger;
+            _telemetrySource = telemetrySource;
             _queryIndex = queryIndex;
         }
 
@@ -65,6 +70,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                                     _queryingEnumerable._relationalQueryContext.ParameterValues))
                         {
                             _queryingEnumerable._logger.LogCommand(command);
+                            _queryingEnumerable._telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteReader", command);
 
                             _queryingEnumerable._relationalQueryContext.RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
 

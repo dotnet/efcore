@@ -43,6 +43,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 FROM [Customers] AS [c]
             , 
             logger: SensitiveDataLogger`1, 
+            telemetrySource: Microsoft.AspNet, 
             shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                 querySource: from Customer <generated>_0 in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
                 queryContext: prm0, 
@@ -134,6 +135,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     ORDER BY [c].[CustomerID]
                 , 
                 logger: SensitiveDataLogger`1, 
+                telemetrySource: Microsoft.AspNet, 
                 shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                     querySource: from Customer c in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
                     queryContext: prm0, 
@@ -181,6 +183,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             ORDER BY [c].[CustomerID]
                         , 
                         logger: SensitiveDataLogger`1, 
+                        telemetrySource: Microsoft.AspNet, 
                         queryIndex: 1
                     )
                     , 

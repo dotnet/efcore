@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -101,11 +102,13 @@ namespace Microsoft.Data.Entity.Query
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             ISensitiveDataLogger logger,
+            TelemetrySource telemetrySource,
             Func<ValueBuffer, T> shaper)
             => new QueryingEnumerable(
                 (RelationalQueryContext)queryContext,
                 commandBuilder,
                 logger,
+                telemetrySource,
                 queryIndex: null)
                 .Select(shaper);
 
@@ -120,11 +123,13 @@ namespace Microsoft.Data.Entity.Query
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             ISensitiveDataLogger logger,
+            TelemetrySource telemetrySource,
             int? queryIndex)
             => new QueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
                 commandBuilder,
                 logger,
+                telemetrySource,
                 queryIndex);
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;

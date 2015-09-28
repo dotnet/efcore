@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics.Tracing;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
@@ -17,14 +18,16 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOpeartorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType)
+            [NotNull] Type contextType,
+            [NotNull] TelemetrySource telemetrySource)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(linqOpeartorProvider, nameof(linqOpeartorProvider)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(contextType, nameof(contextType)))
+                Check.NotNull(contextType, nameof(contextType)),
+                Check.NotNull(telemetrySource, nameof(telemetrySource)))
         {
         }
 

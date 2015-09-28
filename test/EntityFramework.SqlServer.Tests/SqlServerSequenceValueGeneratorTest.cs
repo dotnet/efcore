@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -164,7 +165,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public FakeSqlStatementExecutor(int blockSize)
                 : base(
                     new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
-                    new Mock<ISensitiveDataLogger<SqlStatementExecutor>>().Object)
+                    new Mock<ISensitiveDataLogger<SqlStatementExecutor>>().Object,
+                    new TelemetryListener("Fake"))
             {
                 _blockSize = blockSize;
                 _current = -blockSize + 1;

@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
+using System.Diagnostics.Tracing;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -24,7 +25,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType)
+            [NotNull] Type contextType,
+            [NotNull] TelemetrySource telemetrySource)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
@@ -33,11 +35,14 @@ namespace Microsoft.Data.Entity.Query
                 Check.NotNull(contextType, nameof(contextType)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
+            Check.NotNull(telemetrySource, nameof(telemetrySource));
 
             QueryMethodProvider = queryMethodProvider;
+            TelemetrySource = telemetrySource;
         }
 
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
+        public virtual TelemetrySource TelemetrySource { get; }
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {

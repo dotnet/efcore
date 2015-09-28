@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Extensions;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
@@ -15,20 +17,22 @@ namespace Microsoft.Data.Entity.Storage
     public class SqlStatementExecutor : ISqlStatementExecutor
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+        private readonly TelemetrySource _telemetrySource;
+        private readonly ISensitiveDataLogger _logger;
 
         public SqlStatementExecutor(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISensitiveDataLogger<SqlStatementExecutor> logger)
+            [NotNull] ISensitiveDataLogger<SqlStatementExecutor> logger,
+            [NotNull] TelemetrySource telemetrySource)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(telemetrySource, nameof(telemetrySource));
 
             _commandBuilderFactory = commandBuilderFactory;
-
-            Logger = logger;
+            _logger = logger;
+            _telemetrySource = telemetrySource;
         }
-
-        protected virtual ISensitiveDataLogger Logger { get; }
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,
@@ -150,7 +154,8 @@ namespace Microsoft.Data.Entity.Storage
             {
                 using (var dbCommand = command.CreateCommand(connection))
                 {
-                    Logger.LogCommand(dbCommand);
+                    _logger.LogCommand(dbCommand);
+                    _telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteCommand", dbCommand);
 
                     return action(dbCommand);
                 }
@@ -173,7 +178,8 @@ namespace Microsoft.Data.Entity.Storage
             {
                 using (var dbCommand = command.CreateCommand(connection))
                 {
-                    Logger.LogCommand(dbCommand);
+                    _logger.LogCommand(dbCommand);
+                    _telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteCommand", dbCommand);
 
                     return await action(dbCommand);
                 }

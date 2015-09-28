@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -147,11 +148,13 @@ namespace Microsoft.Data.Entity.Query
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             ISensitiveDataLogger logger,
+            TelemetrySource telemetrySource,
             Func<ValueBuffer, T> shaper)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
                 commandBuilder,
                 logger,
+                telemetrySource,
                 queryIndex: null)
                 .Select(shaper);
 
@@ -166,11 +169,13 @@ namespace Microsoft.Data.Entity.Query
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             ISensitiveDataLogger logger,
+            TelemetrySource telemetrySource,
             int? queryIndex)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
                 commandBuilder,
                 logger,
+                telemetrySource,
                 queryIndex);
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;

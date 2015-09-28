@@ -50,6 +50,7 @@
       <Link>Extensions\AsyncEnumerableExtensions.cs</Link>
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
+    <Compile Include="Extensions\TelemetrySourceExtensions.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger`.cs" />

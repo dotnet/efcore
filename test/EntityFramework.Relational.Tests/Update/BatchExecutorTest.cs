@@ -40,7 +40,6 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
                 It.IsAny<IRelationalConnection>(),
-                It.IsAny<ISensitiveDataLogger>(),
                 cancellationToken));
         }
 
@@ -66,7 +65,6 @@ namespace Microsoft.Data.Entity.Tests.Update
             transactionMock.Verify(t => t.Commit(), Times.Never);
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
                 It.IsAny<IRelationalConnection>(),
-                It.IsAny<ISensitiveDataLogger>(),
                 cancellationToken));
         }
 

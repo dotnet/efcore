@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    commandbatch.Execute(connection, _logger);
+                    commandbatch.Execute(connection);
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    await commandbatch.ExecuteAsync(connection, _logger, cancellationToken);
+                    await commandbatch.ExecuteAsync(connection, cancellationToken);
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
