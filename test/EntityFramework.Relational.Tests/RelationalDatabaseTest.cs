@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Tests
 
             await relationalDatabase.SaveChangesAsync(entries, cancellationToken);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, contextServices.GetService<IDbContextOptions>()));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries));
             batchExecutorMock.Verify(be => be.ExecuteAsync(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object, cancellationToken));
         }
 
@@ -70,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests
 
             relationalDatabase.SaveChanges(entries);
 
-            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries, contextServices.GetService<IDbContextOptions>()));
+            commandBatchPreparerMock.Verify(c => c.BatchCommands(entries));
             batchExecutorMock.Verify(be => be.Execute(It.IsAny<IEnumerable<ModificationCommandBatch>>(), relationalConnectionMock.Object));
         }
     }

@@ -68,7 +68,6 @@
     <Compile Include="Update\BatchExecutorTest.cs" />
     <Compile Include="Update\ColumnModificationTest.cs" />
     <Compile Include="Update\CommandBatchPreparerTest.cs" />
-    <Compile Include="Update\ModificationCommandBatchFactoryTest.cs" />
     <Compile Include="Update\ReaderModificationCommandBatchTest.cs" />
     <Compile Include="Update\ModificationCommandComparerTest.cs" />
     <Compile Include="Update\ModificationCommandTest.cs" />

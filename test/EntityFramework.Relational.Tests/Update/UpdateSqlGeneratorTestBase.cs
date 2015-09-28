@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func, Mock.Of<IRelationalValueBufferFactoryFactory>()) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -362,7 +362,7 @@ namespace Microsoft.Data.Entity.Tests
                 };
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func, Mock.Of<IRelationalValueBufferFactoryFactory>()) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;
@@ -384,7 +384,7 @@ namespace Microsoft.Data.Entity.Tests
                 };
 
             Func<IProperty, IRelationalPropertyAnnotations> func = p => p.TestProvider();
-            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func, Mock.Of<IRelationalValueBufferFactoryFactory>()) { CallBase = true };
+            var commandMock = new Mock<ModificationCommand>("Ducks", Schema, new ParameterNameGenerator(), func) { CallBase = true };
             commandMock.Setup(m => m.ColumnModifications).Returns(columnModifications);
 
             return commandMock.Object;

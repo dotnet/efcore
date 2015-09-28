@@ -3,17 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
@@ -129,85 +125,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                         new RelationalSqlGenerator(),
                         new ParameterNameGeneratorFactory()))
                     .CreateGenerator);
-
-        [Fact]
-        public void Constructed_update_statement_uses_default_when_CommandTimeout_not_configured()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
-                .AddScoped<SqliteModificationCommandBatchFactory, TestSqliteModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                context.SaveChanges();
-                Assert.Null(GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public async void Constructed_update_statement_uses_default_CommandTimeout_can_override()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlite()
-                .ServiceCollection()
-                .AddScoped<SqliteModificationCommandBatchFactory, TestSqliteModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Null(GlobalCommandTimeout);
-
-                context.Database.SetCommandTimeout(88);
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Equal(88, GlobalCommandTimeout);
-            }
-        }
-
-        public static int? GlobalCommandTimeout;
-
-        public class TestSqliteModificationCommandBatch : SingularModificationCommandBatch
-        {
-            protected override DbCommand CreateStoreCommand(string commandText, IRelationalConnection connection, IRelationalTypeMapper typeMapper, int? commandTimeout)
-            {
-                GlobalCommandTimeout = commandTimeout;
-                return base.CreateStoreCommand(commandText, connection, typeMapper, commandTimeout);
-            }
-
-            public TestSqliteModificationCommandBatch(IUpdateSqlGenerator sqlGenerator)
-                : base(
-                      new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
-                      sqlGenerator)
-            {
-            }
-        }
-
-        public class TestSqliteModificationCommandBatchFactory : SqliteModificationCommandBatchFactory
-        {
-            public TestSqliteModificationCommandBatchFactory(
-                IUpdateSqlGenerator sqlGenerator)
-                : base(
-                      new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
-                      sqlGenerator)
-            {
-            }
-
-            public override ModificationCommandBatch Create(
-                IDbContextOptions options,
-                IRelationalAnnotationProvider annotationProvider) => new TestSqliteModificationCommandBatch(UpdateSqlGenerator);
-        }
 
         private class ChipsContext : DbContext
         {

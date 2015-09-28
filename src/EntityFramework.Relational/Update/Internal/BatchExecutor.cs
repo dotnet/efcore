@@ -13,17 +13,10 @@ namespace Microsoft.Data.Entity.Update.Internal
 {
     public class BatchExecutor : IBatchExecutor
     {
-        private readonly IRelationalTypeMapper _typeMapper;
-        private readonly DbContext _context;
         private readonly LazyRef<ILogger> _logger;
 
-        public BatchExecutor(
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] DbContext context,
-            [NotNull] ILoggerFactory loggerFactory)
+        public BatchExecutor([NotNull] ILoggerFactory loggerFactory)
         {
-            _typeMapper = typeMapper;
-            _context = context;
             _logger = new LazyRef<ILogger>(() => (loggerFactory.CreateLogger<BatchExecutor>()));
         }
 
@@ -45,11 +38,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    commandbatch.Execute(
-                        connection.Transaction,
-                        _typeMapper,
-                        _context,
-                        Logger);
+                    commandbatch.Execute(connection, Logger);
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
@@ -81,11 +70,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    await commandbatch.ExecuteAsync(
-                        connection.Transaction,
-                        _typeMapper,
-                        _context,
-                        Logger, cancellationToken);
+                    await commandbatch.ExecuteAsync(connection, Logger, cancellationToken);
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 

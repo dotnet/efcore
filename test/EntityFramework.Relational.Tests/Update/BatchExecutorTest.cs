@@ -1,11 +1,8 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Update.Internal;
@@ -32,8 +29,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var relationalTypeMapper = new ConcreteTypeMapper();
-            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper);
+            var batchExecutor = new BatchExecutorForTest();
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -41,9 +37,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             mockRelationalConnection.Verify(rc => rc.Close());
             transactionMock.Verify(t => t.Commit());
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
-                It.IsAny<IRelationalTransaction>(),
-                relationalTypeMapper,
-                It.IsAny<DbContext>(),
+                It.IsAny<IRelationalConnection>(),
                 null,
                 cancellationToken));
         }
@@ -60,8 +54,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var cancellationToken = new CancellationTokenSource().Token;
 
-            var relationalTypeMapper = new ConcreteTypeMapper();
-            var batchExecutor = new BatchExecutorForTest(relationalTypeMapper);
+            var batchExecutor = new BatchExecutorForTest();
 
             await batchExecutor.ExecuteAsync(new[] { mockModificationCommandBatch.Object }, mockRelationalConnection.Object, cancellationToken);
 
@@ -70,32 +63,19 @@ namespace Microsoft.Data.Entity.Tests.Update
             mockRelationalConnection.Verify(rc => rc.BeginTransaction(), Times.Never);
             transactionMock.Verify(t => t.Commit(), Times.Never);
             mockModificationCommandBatch.Verify(mcb => mcb.ExecuteAsync(
-                It.IsAny<IRelationalTransaction>(),
-                relationalTypeMapper,
-                It.IsAny<DbContext>(),
+                It.IsAny<IRelationalConnection>(),
                 null,
                 cancellationToken));
         }
 
         private class BatchExecutorForTest : BatchExecutor
         {
-            public BatchExecutorForTest(IRelationalTypeMapper typeMapper)
-                : base(typeMapper, TestHelpers.Instance.CreateContext(), new LoggerFactory())
+            public BatchExecutorForTest()
+                : base(new LoggerFactory())
             {
             }
 
             protected override ILogger Logger => null;
-        }
-
-        private class ConcreteTypeMapper : RelationalTypeMapper
-        {
-            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
-
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
-                = new Dictionary<Type, RelationalTypeMapping>();
-
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
-                = new Dictionary<string, RelationalTypeMapping>();
         }
     }
 }

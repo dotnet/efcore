@@ -3,20 +3,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Query.Sql.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -147,162 +142,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         new ParameterNameGeneratorFactory()))
                     .CreateGenerator);
 
-        [Fact]
-        public void Constructed_update_statement_uses_default_when_commandTimeout_not_configured()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                context.SaveChanges();
-                Assert.Null(GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public void Constructed_update_statement_uses_commandTimeout_configured_in_Context()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                context.SaveChanges();
-                Assert.Equal(77, GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public void Constructed_update_statement_uses_commandTimeout_not_configured_in_context()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Database.SetCommandTimeout(88);
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                context.SaveChanges();
-                Assert.Equal(88, GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public void Constructed_update_statement_uses_commandTimeout_overriding_configured_in_context()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Database.SetCommandTimeout(88);
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                context.SaveChanges();
-                Assert.Equal(88, GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public async void Constructed_update_statement_uses_default_commandTimeout_can_override_not_configured_in_context_async()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Null(GlobalCommandTimeout);
-
-                context.Database.SetCommandTimeout(88);
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Equal(88, GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public async void Constructed_update_statement_uses_default_commandTimeout_can_override_configured_in_context_async()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Equal(77, GlobalCommandTimeout);
-
-                context.Database.SetCommandTimeout(88);
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Equal(88, GlobalCommandTimeout);
-            }
-        }
-
-        [Fact]
-        public async void Overridden_commandTimeout_overrides_timeout_configured_in_context_async()
-        {
-            var serviceProvider = new ServiceCollection()
-                .AddEntityFramework()
-                .AddSqlServer()
-                .ServiceCollection()
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
-                .BuildServiceProvider();
-
-            using (var context = new ConfiguredChipsContext(serviceProvider))
-            {
-                context.Database.EnsureCreated();
-
-                context.Database.SetCommandTimeout(88);
-
-                context.Chips.Add(new KettleChips { BestBuyDate = DateTime.Now, Name = "Doritos Locos Tacos" });
-                await context.SaveChangesAsync();
-                Assert.Equal(88, GlobalCommandTimeout);
-            }
-        }
-
         [ConditionalTheory]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]
         [InlineData(51, 6)]
@@ -317,7 +156,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddSqlServer()
                 .ServiceCollection()
                 .AddInstance<ILoggerFactory>(loggerFactory)
-                .AddScoped<IModificationCommandBatchFactory, TestSqlServerModificationCommandBatchFactory>()
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))
@@ -348,51 +186,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                              select word;
 
             return matchQuery.Count();
-        }
-
-        public static int? GlobalCommandTimeout;
-
-        public class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
-        {
-            protected override DbCommand CreateStoreCommand(string commandText, IRelationalConnection connection, IRelationalTypeMapper typeMapper, int? commandTimeout)
-            {
-                GlobalCommandTimeout = commandTimeout;
-                return base.CreateStoreCommand(commandText, connection, typeMapper, commandTimeout);
-            }
-
-            public TestSqlServerModificationCommandBatch(
-                ISqlServerUpdateSqlGenerator sqlGenerator,
-                int? maxBatchSize)
-                : base(
-                      new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
-                      sqlGenerator,
-                      maxBatchSize)
-            {
-            }
-        }
-
-        public class TestSqlServerModificationCommandBatchFactory : SqlServerModificationCommandBatchFactory
-        {
-            public TestSqlServerModificationCommandBatchFactory(
-                ISqlServerUpdateSqlGenerator sqlGenerator)
-                : base(
-                      new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
-                      sqlGenerator)
-            {
-            }
-
-            public override ModificationCommandBatch Create(
-                IDbContextOptions options,
-                IRelationalAnnotationProvider annotationProvider)
-            {
-                var optionsExtension = options.Extensions.OfType<SqlServerOptionsExtension>().FirstOrDefault();
-
-                var maxBatchSize = optionsExtension?.MaxBatchSize;
-
-                return new TestSqlServerModificationCommandBatch(
-                    (ISqlServerUpdateSqlGenerator)UpdateSqlGenerator,
-                    maxBatchSize);
-            }
         }
 
         private class ChipsContext : DbContext

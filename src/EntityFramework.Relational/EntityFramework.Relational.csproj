@@ -302,7 +302,6 @@
     <Compile Include="Update\ModificationCommand.cs" />
     <Compile Include="Update\ModificationCommandBatch.cs" />
     <Compile Include="Update\ReaderModificationCommandBatch.cs" />
-    <Compile Include="Update\ModificationCommandBatchFactory.cs" />
     <Compile Include="Storage\ParameterNameGenerator.cs" />
     <Compile Include="Storage\ParameterNameGeneratorFactory.cs" />
     <Compile Include="..\Shared\Check.cs">

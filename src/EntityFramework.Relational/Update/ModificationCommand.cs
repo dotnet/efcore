@@ -16,13 +16,12 @@ namespace Microsoft.Data.Entity.Update
     public class ModificationCommand
     {
         private readonly Func<IProperty, IRelationalPropertyAnnotations> _getPropertyExtensions;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
+        private readonly ParameterNameGenerator _parameterNameGenerator;
+
         private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
-
-        private readonly LazyRef<IRelationalValueBufferFactory> _valueBufferFactory;
 
         private bool _requiresResultPropagation;
 
@@ -30,21 +29,16 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
-            [NotNull] Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            [NotNull] Func<IProperty, IRelationalPropertyAnnotations> getPropertyExtensions)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(parameterNameGenerator, nameof(parameterNameGenerator));
             Check.NotNull(getPropertyExtensions, nameof(getPropertyExtensions));
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             TableName = name;
             Schema = schema;
-            ParameterNameGenerator = parameterNameGenerator;
+            _parameterNameGenerator = parameterNameGenerator;
             _getPropertyExtensions = getPropertyExtensions;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
-
-            _valueBufferFactory = new LazyRef<IRelationalValueBufferFactory>(CreateValueBufferFactory);
         }
 
         public virtual string TableName { get; }
@@ -57,8 +51,6 @@ namespace Microsoft.Data.Entity.Update
 
         public virtual IReadOnlyList<ColumnModification> ColumnModifications => _columnModifications.Value;
 
-        public virtual IRelationalValueBufferFactory ValueBufferFactory => _valueBufferFactory.Value;
-
         public virtual bool RequiresResultPropagation
         {
             get
@@ -69,9 +61,7 @@ namespace Microsoft.Data.Entity.Update
             }
         }
 
-        public virtual ParameterNameGenerator ParameterNameGenerator { get; }
-
-        public virtual ModificationCommand AddEntry([NotNull] InternalEntityEntry entry)
+        public virtual void AddEntry([NotNull] InternalEntityEntry entry)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -94,9 +84,6 @@ namespace Microsoft.Data.Entity.Update
 
             _entries.Add(entry);
             _columnModifications.Reset(GenerateColumnModifications);
-            _valueBufferFactory.Reset(CreateValueBufferFactory);
-
-            return this;
         }
 
         private IReadOnlyList<ColumnModification> GenerateColumnModifications()
@@ -128,7 +115,7 @@ namespace Microsoft.Data.Entity.Update
                             entry,
                             property,
                             _getPropertyExtensions(property),
-                            ParameterNameGenerator,
+                            _parameterNameGenerator,
                             readValue,
                             writeValue,
                             isKey,
@@ -139,15 +126,6 @@ namespace Microsoft.Data.Entity.Update
 
             return columnModifications;
         }
-
-        private IRelationalValueBufferFactory CreateValueBufferFactory()
-            => _valueBufferFactoryFactory
-                .Create(
-                    ColumnModifications
-                        .Where(c => c.IsRead)
-                        .Select(c => c.Property.ClrType)
-                        .ToArray(),
-                    indexMap: null);
 
         public virtual void PropagateResults(ValueBuffer valueBuffer)
         {

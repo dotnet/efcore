@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -17,24 +16,21 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly IModificationCommandBatchFactory _modificationCommandBatchFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly IComparer<ModificationCommand> _modificationCommandComparer;
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly IRelationalAnnotationProvider _annotationProvider;
 
         public CommandBatchPreparer(
             [NotNull] IModificationCommandBatchFactory modificationCommandBatchFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] IComparer<ModificationCommand> modificationCommandComparer,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IRelationalAnnotationProvider annotations)
         {
             _modificationCommandBatchFactory = modificationCommandBatchFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _modificationCommandComparer = modificationCommandComparer;
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
             _annotationProvider = annotations;
         }
 
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries, IDbContextOptions options)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries)
         {
             var commands = CreateModificationCommands(entries);
             var sortedCommandSets = TopologicalSort(commands);
@@ -44,14 +40,14 @@ namespace Microsoft.Data.Entity.Update.Internal
             {
                 independentCommandSet.Sort(_modificationCommandComparer);
 
-                var batch = _modificationCommandBatchFactory.Create(options, _annotationProvider);
+                var batch = _modificationCommandBatchFactory.Create();
                 foreach (var modificationCommand in independentCommandSet)
                 {
-                    if (!_modificationCommandBatchFactory.AddCommand(batch, modificationCommand))
+                    if (!batch.AddCommand(modificationCommand))
                     {
                         yield return batch;
-                        batch = _modificationCommandBatchFactory.Create(options, _annotationProvider);
-                        _modificationCommandBatchFactory.AddCommand(batch, modificationCommand);
+                        batch = _modificationCommandBatchFactory.Create();
+                        batch.AddCommand(modificationCommand);
                     }
                 }
 
@@ -64,13 +60,17 @@ namespace Microsoft.Data.Entity.Update.Internal
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
-                e => new ModificationCommand(
-                    _annotationProvider.For(e.EntityType).TableName,
-                    _annotationProvider.For(e.EntityType).Schema,
-                    parameterNameGenerator,
-                    _annotationProvider.For,
-                    _valueBufferFactoryFactory)
-                    .AddEntry(e));
+                e =>
+                {
+                    var command = new ModificationCommand(
+                        _annotationProvider.For(e.EntityType).TableName,
+                        _annotationProvider.For(e.EntityType).Schema,
+                        parameterNameGenerator,
+                        _annotationProvider.For);
+
+                    command.AddEntry(e);
+                    return command;
+                });
         }
 
         // To avoid violating store constraints the modification commands must be sorted

@@ -17,15 +17,11 @@ namespace Microsoft.Data.Entity.Update
         public abstract bool AddCommand([NotNull] ModificationCommand modificationCommand);
 
         public abstract void Execute(
-            [NotNull] IRelationalTransaction transaction,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] DbContext context,
+            [NotNull] IRelationalConnection connection,
             [NotNull] ILogger logger);
 
         public abstract Task ExecuteAsync(
-            [NotNull] IRelationalTransaction transaction,
-            [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] DbContext context,
+            [NotNull] IRelationalConnection connection,
             [NotNull] ILogger logger,
             CancellationToken cancellationToken = default(CancellationToken));
     }
