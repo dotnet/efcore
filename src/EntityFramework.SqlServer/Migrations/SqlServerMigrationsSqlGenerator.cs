@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -21,10 +20,9 @@ namespace Microsoft.Data.Entity.Migrations
         public SqlServerMigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] ISqlServerUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sqlGenerator, sql, typeMapper, annotations)
+            : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
         {
         }
 
@@ -145,7 +143,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 if (separate)
                 {
-                    builder.AppendLine(Sql.BatchCommandSeparator);
+                    builder.AppendLine(SqlGenerator.BatchCommandSeparator);
                 }
 
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
@@ -183,7 +181,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 if (separate)
                 {
-                    builder.AppendLine(Sql.BatchCommandSeparator);
+                    builder.AppendLine(SqlGenerator.BatchCommandSeparator);
                 }
 
                 Transfer(operation.NewSchema, operation.Schema, name, builder);
@@ -242,7 +240,7 @@ namespace Microsoft.Data.Entity.Migrations
             builder
                 .Append("CREATE DATABASE ")
                 .Append(SqlGenerator.DelimitIdentifier(operation.Name))
-                .AppendLine(Sql.BatchCommandSeparator)
+                .AppendLine(SqlGenerator.BatchCommandSeparator)
                 .EndCommand()
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(SqlGenerator.DelimitIdentifier(operation.Name))
@@ -261,7 +259,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append("IF SERVERPROPERTY('EngineEdition') <> 5 EXEC(N'ALTER DATABASE ")
                 .Append(SqlGenerator.DelimitIdentifier(operation.Name))
                 .Append(" SET SINGLE_USER WITH ROLLBACK IMMEDIATE')")
-                .AppendLine(Sql.BatchCommandSeparator)
+                .AppendLine(SqlGenerator.BatchCommandSeparator)
                 .EndCommand()
                 .Append("DROP DATABASE ")
                 .Append(SqlGenerator.DelimitIdentifier(operation.Name));

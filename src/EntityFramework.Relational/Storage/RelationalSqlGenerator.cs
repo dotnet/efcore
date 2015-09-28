@@ -28,6 +28,10 @@ namespace Microsoft.Data.Entity.Storage
             { DbType.String, "nvarchar" },
         };
 
+        public virtual string BatchCommandSeparator => ";";
+
+        public virtual string BatchSeparator => string.Empty;
+
         public virtual string GenerateLiteral([CanBeNull]object value)
             => value != null
                 ? GenerateLiteralValue((dynamic)value)

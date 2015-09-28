@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update.Internal;
 using Moq;
 using Xunit;
 
@@ -117,7 +116,6 @@ namespace Microsoft.Data.Entity.Migrations
                 new SqliteMigrationsSqlGenerator(
                     new RelationalCommandBuilderFactory(typeMapper),
                     new SqliteSqlGenerator(),
-                    new SqliteUpdateSqlGenerator(sqlGenerator),
                     typeMapper,
                     annotationsProvider),
                 annotationsProvider,

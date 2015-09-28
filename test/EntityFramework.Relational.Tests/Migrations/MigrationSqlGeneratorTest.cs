@@ -3,13 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Tests;
-using Microsoft.Data.Entity.Update;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -25,7 +23,6 @@ namespace Microsoft.Data.Entity.Migrations
                 return new ConcreteMigrationSqlGenerator(
                     new RelationalCommandBuilderFactory(typeMapper),
                     new RelationalSqlGenerator(),
-                    new ConcreteUpdateSqlGenerator(),
                     typeMapper,
                     new TestAnnotationProvider());
             }
@@ -279,24 +276,6 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql);
         }
 
-        private class ConcreteUpdateSqlGenerator : UpdateSqlGenerator
-        {
-            public ConcreteUpdateSqlGenerator()
-                : base(new RelationalSqlGenerator())
-            {
-            }
-
-            protected override void AppendIdentityWhereCondition(
-                StringBuilder commandStringBuilder,
-                ColumnModification columnModification)
-            {
-            }
-
-            protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
-            {
-            }
-        }
-
         private class ConcreteRelationalTypeMapper : RelationalTypeMapper
         {
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
@@ -317,10 +296,9 @@ namespace Microsoft.Data.Entity.Migrations
             public ConcreteMigrationSqlGenerator(
                 IRelationalCommandBuilderFactory commandBuilderFactory,
                 ISqlGenerator sqlGenerator,
-                IUpdateSqlGenerator updateSqlGenerator,
                 IRelationalTypeMapper typeMapper,
                 IRelationalAnnotationProvider annotations)
-                : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, typeMapper, annotations)
+                : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
             {
             }
 

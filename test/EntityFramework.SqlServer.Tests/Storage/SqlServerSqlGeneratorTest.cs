@@ -32,6 +32,12 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal("'2015-03-12 13:36:37.3710000-07:00'", literal);
         }
 
+        [Fact]
+        public override void BatchSeparator_returns_seperator()
+        {
+            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
+        }
+
         protected override ISqlGenerator CreateSqlGenerator()
             => new SqlServerSqlGenerator();
     }

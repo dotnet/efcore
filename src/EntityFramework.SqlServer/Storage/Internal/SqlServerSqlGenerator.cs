@@ -11,6 +11,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqlServerSqlGenerator : RelationalSqlGenerator
     {
+        public override string BatchSeparator => "GO" + Environment.NewLine + Environment.NewLine;
+
         public override string EscapeIdentifier([NotNull] string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
 

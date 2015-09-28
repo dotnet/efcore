@@ -15,18 +15,18 @@ namespace Microsoft.Data.Entity.Storage.Internal
     public class SqlServerDatabaseCreator : RelationalDatabaseCreator
     {
         private readonly ISqlServerConnection _connection;
-        private readonly IMigrationsSqlGenerator _sqlGenerator;
+        private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
 
         public SqlServerDatabaseCreator(
             [NotNull] ISqlServerConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator sqlGenerator,
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] ISqlStatementExecutor statementExecutor,
             [NotNull] IModel model)
-            : base(model, connection, modelDiffer, sqlGenerator, statementExecutor)
+            : base(model, connection, modelDiffer, migrationsSqlGenerator, statementExecutor)
         {
             _connection = connection;
-            _sqlGenerator = sqlGenerator;
+            _migrationsSqlGenerator = migrationsSqlGenerator;
         }
 
         public override void Create()
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0";
 
         private IEnumerable<RelationalCommand> CreateCreateOperations()
-            => _sqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = _connection.DbConnection.Database } });
+            => _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = _connection.DbConnection.Database } });
 
         public override bool Exists()
             => Exists(retryOnNotExists: false);
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 new SqlServerDropDatabaseOperation { Name = _connection.DbConnection.Database }
             };
 
-            var masterCommands = _sqlGenerator.Generate(operations);
+            var masterCommands = _migrationsSqlGenerator.Generate(operations);
             return masterCommands;
         }
 

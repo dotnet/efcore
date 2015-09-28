@@ -7,11 +7,8 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update;
-using Microsoft.Data.Entity.Update.Internal;
 using Moq;
 using Xunit;
 
@@ -127,7 +124,6 @@ namespace Microsoft.Data.Entity.Migrations
                 new SqlServerMigrationsSqlGenerator(
                     commandBuilderFactory,
                     new SqlServerSqlGenerator(),
-                    new SqlServerUpdateSqlGenerator(sqlGenerator),
                     typeMapper,
                     annotationsProvider),
                 annotationsProvider,

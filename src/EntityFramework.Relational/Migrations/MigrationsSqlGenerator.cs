@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -54,26 +53,21 @@ namespace Microsoft.Data.Entity.Migrations
         public MigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-            Check.NotNull(sql, nameof(sql));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(annotations, nameof(annotations));
 
             _commandBuilderFactory = commandBuilderFactory;
             SqlGenerator = sqlGenerator;
-            Sql = sql;
             _typeMapper = typeMapper;
             _annotations = annotations;
         }
 
         protected virtual ISqlGenerator SqlGenerator { get; }
-
-        protected virtual IUpdateSqlGenerator Sql { get; }
 
         public virtual IReadOnlyList<RelationalCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
@@ -86,7 +80,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 Generate(operation, model, builder);
                 builder
-                    .AppendLine(Sql.BatchCommandSeparator)
+                    .AppendLine(SqlGenerator.BatchCommandSeparator)
                     .EndCommand();
             }
 

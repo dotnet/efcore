@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -22,7 +21,6 @@ namespace Microsoft.Data.Entity.Migrations
                 return new SqlServerMigrationsSqlGenerator(
                     new RelationalCommandBuilderFactory(typeMapper),
                     new SqlServerSqlGenerator(),
-                    new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
                     typeMapper,
                     new SqlServerAnnotationProvider());
             }

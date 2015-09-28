@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -21,10 +20,9 @@ namespace Microsoft.Data.Entity.Migrations
         public SqliteMigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IUpdateSqlGenerator sql,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
-            : base(commandBuilderFactory, sqlGenerator, sql, typeMapper, annotations)
+            : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
         {
         }
 

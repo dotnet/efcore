@@ -7,6 +7,10 @@ namespace Microsoft.Data.Entity.Storage
 {
     public interface ISqlGenerator
     {
+        string BatchCommandSeparator { get; }
+
+        string BatchSeparator { get; }
+
         string GenerateLiteral([CanBeNull] object value);
 
         string EscapeLiteral([NotNull] string literal);

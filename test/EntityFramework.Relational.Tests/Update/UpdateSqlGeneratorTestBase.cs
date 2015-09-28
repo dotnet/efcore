@@ -258,18 +258,6 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Default_BatchCommandSeparator_is_semicolon()
-        {
-            Assert.Equal(";", CreateSqlGenerator().BatchCommandSeparator);
-        }
-
-        [Fact]
-        public virtual void BatchSeparator_returns_seperator()
-        {
-            Assert.Equal(string.Empty, CreateSqlGenerator().BatchSeparator);
-        }
-
-        [Fact]
         public virtual void GenerateNextSequenceValueOperation_returns_statement_with_sanatized_sequence()
         {
             var statement = CreateSqlGenerator().GenerateNextSequenceValueOperation("sequence" + CloseDelimeter + "; --", null);

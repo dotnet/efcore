@@ -8,8 +8,6 @@ namespace Microsoft.Data.Entity.Update
 {
     public interface IUpdateSqlGenerator
     {
-        string BatchCommandSeparator { get; }
-        string BatchSeparator { get; }
         string GenerateNextSequenceValueOperation([NotNull] string name, [CanBeNull] string schema);
         void AppendBatchHeader([NotNull] StringBuilder commandStringBuilder);
         void AppendDeleteOperation([NotNull] StringBuilder commandStringBuilder, [NotNull] ModificationCommand command);

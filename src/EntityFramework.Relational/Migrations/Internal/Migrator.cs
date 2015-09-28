@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
@@ -22,11 +21,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         private readonly IMigrationsAssembly _migrationsAssembly;
         private readonly IHistoryRepository _historyRepository;
         private readonly IRelationalDatabaseCreator _databaseCreator;
-        private readonly IMigrationsSqlGenerator _sqlGenerator;
+        private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly ISqlStatementExecutor _executor;
         private readonly IRelationalConnection _connection;
-        private readonly IUpdateSqlGenerator _sql;
+        private readonly ISqlGenerator _sqlGenerator;
         private readonly LazyRef<ILogger> _logger;
         private readonly string _activeProvider;
 
@@ -34,33 +33,33 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [NotNull] IMigrationsAssembly migrationsAssembly,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] IMigrationsSqlGenerator sqlGenerator,
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlStatementExecutor executor,
             [NotNull] IRelationalConnection connection,
-            [NotNull] IUpdateSqlGenerator sql,
+            [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IDatabaseProviderServices providerServices)
         {
             Check.NotNull(migrationsAssembly, nameof(migrationsAssembly));
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(databaseCreator, nameof(databaseCreator));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(executor, nameof(executor));
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(sql, nameof(sql));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(providerServices, nameof(providerServices));
 
             _migrationsAssembly = migrationsAssembly;
             _historyRepository = historyRepository;
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
-            _sqlGenerator = sqlGenerator;
+            _migrationsSqlGenerator = migrationsSqlGenerator;
             _commandBuilderFactory = commandBuilderFactory;
             _executor = executor;
             _connection = connection;
-            _sql = sql;
+            _sqlGenerator = sqlGenerator;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateLogger<Migrator>);
             _activeProvider = providerServices.InvariantName;
         }
@@ -242,7 +241,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         if (migration.GetId() == migrations.Keys.First())
                         {
                             builder.AppendLine(_historyRepository.GetCreateIfNotExistsScript());
-                            builder.Append(_sql.BatchSeparator);
+                            builder.Append(_sqlGenerator.BatchSeparator);
                         }
 
                         checkFirst = false;
@@ -266,7 +265,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             builder.AppendLine(command.CommandText);
                         }
 
-                        builder.Append(_sql.BatchSeparator);
+                        builder.Append(_sqlGenerator.BatchSeparator);
                     }
                 }
             }
@@ -304,7 +303,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             builder.AppendLine(command.CommandText);
                         }
 
-                        builder.Append(_sql.BatchSeparator);
+                        builder.Append(_sqlGenerator.BatchSeparator);
                     }
                 }
             }
@@ -317,7 +316,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotNull(migration, nameof(migration));
 
             var commands = new List<RelationalCommand>();
-            commands.AddRange(_sqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
+            commands.AddRange(_migrationsSqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
             commands.Add(
                 _commandBuilderFactory.Create()
                     .Append(_historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())))
@@ -333,7 +332,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotNull(migration, nameof(migration));
 
             var commands = new List<RelationalCommand>();
-            commands.AddRange(_sqlGenerator.Generate(migration.DownOperations, previousMigration?.TargetModel));
+            commands.AddRange(_migrationsSqlGenerator.Generate(migration.DownOperations, previousMigration?.TargetModel));
             commands.Add(
                 _commandBuilderFactory.Create()
                     .Append(_historyRepository.GetDeleteScript(migration.GetId()))

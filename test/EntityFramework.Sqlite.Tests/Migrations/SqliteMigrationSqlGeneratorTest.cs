@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -23,7 +22,6 @@ namespace Microsoft.Data.Entity.Migrations
                 return new SqliteMigrationsSqlGenerator(
                     new RelationalCommandBuilderFactory(typeMapper),
                     new SqliteSqlGenerator(),
-                    new SqliteUpdateSqlGenerator(new SqliteSqlGenerator()),
                     typeMapper,
                     new SqliteAnnotationProvider());
             }

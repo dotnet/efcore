@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,7 +63,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                     commandStringBuilder.Append(",").AppendLine();
                     AppendValues(commandStringBuilder, modificationCommands[j].ColumnModifications.Where(o => o.IsWrite).ToArray());
                 }
-                commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+                commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
 
                 if (readOperations.Length == 0)
                 {
@@ -98,7 +97,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                 AppendOutputClause(commandStringBuilder, readOperations);
             }
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+            commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
 
             if (readOperations.Length == 0)
             {
@@ -118,12 +117,12 @@ namespace Microsoft.Data.Entity.Update.Internal
         protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SELECT @@ROWCOUNT")
-                .Append(BatchCommandSeparator).AppendLine();
+                .Append(SqlGenerator.BatchCommandSeparator).AppendLine();
 
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SET NOCOUNT OFF")
-                .Append(BatchCommandSeparator).AppendLine();
+                .Append(SqlGenerator.BatchCommandSeparator).AppendLine();
 
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
@@ -134,8 +133,6 @@ namespace Microsoft.Data.Entity.Update.Internal
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
-
-        public override string BatchSeparator => "GO" + Environment.NewLine + Environment.NewLine;
 
         public enum ResultsGrouping
         {

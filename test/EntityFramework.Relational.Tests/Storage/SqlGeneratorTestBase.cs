@@ -88,6 +88,18 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal("'A'", literal);
         }
 
+        [Fact]
+        public void Default_BatchCommandSeparator_is_semicolon()
+        {
+            Assert.Equal(";", CreateSqlGenerator().BatchCommandSeparator);
+        }
+
+        [Fact]
+        public virtual void BatchSeparator_returns_seperator()
+        {
+            Assert.Equal(string.Empty, CreateSqlGenerator().BatchSeparator);
+        }
+
         protected abstract ISqlGenerator CreateSqlGenerator();
     }
 }

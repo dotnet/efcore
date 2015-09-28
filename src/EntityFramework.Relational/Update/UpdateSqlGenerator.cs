@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Update
             AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendValuesHeader(commandStringBuilder, writeOperations);
             AppendValues(commandStringBuilder, writeOperations);
-            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+            commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
         }
 
         protected virtual void AppendUpdateCommand(
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Update
 
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+            commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
         }
 
         protected virtual void AppendDeleteCommand(
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Update
 
             AppendDeleteCommandHeader(commandStringBuilder, name, schema);
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+            commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
         }
 
         protected virtual void AppendSelectAffectedCountCommand(
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Update
             AppendFromClause(commandStringBuilder, name, schema);
             // TODO: there is no notion of operator - currently all the where conditions check equality
             AppendWhereAffectedClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(BatchCommandSeparator).AppendLine();
+            commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
         }
 
         protected virtual void AppendInsertCommandHeader(
@@ -345,10 +345,6 @@ namespace Microsoft.Data.Entity.Update
         public virtual void AppendBatchHeader(StringBuilder commandStringBuilder)
         {
         }
-
-        public virtual string BatchCommandSeparator => ";";
-
-        public virtual string BatchSeparator => string.Empty;
 
         public virtual string GenerateNextSequenceValueOperation(string name, string schema)
             => "SELECT NEXT VALUE FOR " + SqlGenerator.DelimitIdentifier(Check.NotNull(name, nameof(name)), schema);

@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             builder
                 .Append("SELECT changes()")
-                .Append(BatchCommandSeparator)
+                .Append(SqlGenerator.BatchCommandSeparator)
                 .AppendLine();
         }
 

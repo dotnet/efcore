@@ -159,12 +159,6 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.Equal(SqlServerUpdateSqlGenerator.ResultsGrouping.OneCommandPerResultSet, grouping);
         }
 
-        [Fact]
-        public override void BatchSeparator_returns_seperator()
-        {
-            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
-        }
-
         protected override string RowsAffected
         {
             get { return "@@ROWCOUNT"; }
