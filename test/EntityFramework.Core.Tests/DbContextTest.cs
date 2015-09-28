@@ -1600,7 +1600,7 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
-                { CallBase = true }.Object);
+            { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -1644,7 +1644,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
-                { CallBase = true }.Object);
+            { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -1692,11 +1692,11 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
-                { CallBase = true }.Object);
+            { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
-                
+
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
             sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
@@ -2551,7 +2551,7 @@ namespace Microsoft.Data.Entity.Tests
                     .Select(p => p.Name)
                     .OrderBy(s => s)
                     .ToList()),
-                userMessage: "Unexpected properties on DbContext. " + 
+                userMessage: "Unexpected properties on DbContext. " +
                     "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
             Assert.Throws<ObjectDisposedException>(() => ((IAccessor<IServiceProvider>)context).Service);
@@ -2630,6 +2630,47 @@ namespace Microsoft.Data.Entity.Tests
                     Disposed = true;
                 }
             }
+        }
+
+        [Fact]
+        public void Can_configure_implicit_service_provider()
+        {
+            using (var context = new ContextWithConfiguredServices())
+            {
+                Assert.NotNull(context.GetService().GetService<MyCustomService>());
+            }
+        }
+
+        [Fact]
+        public void OnConfiguringServices_isnt_called_when_using_explicit_service_provider()
+        {
+            var serviceProvider = TestHelpers.Instance.CreateServiceProvider();
+
+            using (var context = new ContextWithConfiguredServices(serviceProvider))
+            {
+                Assert.Null(context.GetService().GetService<MyCustomService>());
+            }
+        }
+
+        private class ContextWithConfiguredServices : DbContext
+        {
+            public ContextWithConfiguredServices()
+            {
+            }
+
+            public ContextWithConfiguredServices(IServiceProvider serviceProvider)
+                : base(serviceProvider)
+            {
+            }
+
+            protected override void OnConfiguringServices(IServiceCollection serviceCollection)
+            {
+                serviceCollection.AddSingleton<MyCustomService>();
+            }
+        }
+
+        private class MyCustomService
+        {
         }
     }
 }

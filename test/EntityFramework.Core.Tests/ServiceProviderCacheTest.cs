@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var cache = new ServiceProviderCache();
 
-            Assert.Same(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
+            Assert.Same(cache.GetOrAdd(config1, ConfigureServices), cache.GetOrAdd(config2, ConfigureServices));
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var cache = new ServiceProviderCache();
 
-            Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
+            Assert.NotSame(cache.GetOrAdd(config1, ConfigureServices), cache.GetOrAdd(config2, ConfigureServices));
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var cache = new ServiceProviderCache();
 
-            Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
+            Assert.NotSame(cache.GetOrAdd(config1, ConfigureServices), cache.GetOrAdd(config2, ConfigureServices));
         }
 
         [Fact]
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var cache = new ServiceProviderCache();
 
-            Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
+            Assert.NotSame(cache.GetOrAdd(config1, ConfigureServices), cache.GetOrAdd(config2, ConfigureServices));
         }
 
         [Fact]
@@ -126,7 +126,11 @@ namespace Microsoft.Data.Entity.Tests
 
             var cache = new ServiceProviderCache();
 
-            Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
+            Assert.NotSame(cache.GetOrAdd(config1, ConfigureServices), cache.GetOrAdd(config2, ConfigureServices));
+        }
+
+        private static void ConfigureServices(IServiceCollection serviceCollection)
+        {
         }
 
         private static DbContextOptions CreateOptions(Action<EntityFrameworkServicesBuilder> builderAction)

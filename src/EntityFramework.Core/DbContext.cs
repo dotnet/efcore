@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity
 
                 var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
 
-                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
+                serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options, OnConfiguringServices);
 
                 _logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
                 _logger.LogDebug(CoreStrings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity
         }
 
         private void InitializeSets(IServiceProvider serviceProvider, DbContextOptions options)
-            => (serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options))
+            => (serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(options, OnConfiguringServices))
                 .GetRequiredService<IDbSetInitializer>().InitializeSets(this);
 
         /// <summary>
@@ -247,6 +247,18 @@ namespace Microsoft.Data.Entity
         ///     typically define extension methods on this object that allow you to configure the context.
         /// </param>
         protected internal virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+        }
+
+        /// <summary>
+        ///     Override this method to configure the <see cref="IServiceProvider" /> created by Entity Framework.
+        ///     <para>
+        ///         If an <see cref="IServiceProvider" /> is explicitly passed to the <see cref="DbContext" />, then this method
+        ///         will not be called.
+        ///     </para>
+        /// </summary>
+        /// <param name="serviceCollection">The <see cref="IServiceCollection"/> used to build the <see cref="IServiceProvider" />.</param>
+        protected virtual void OnConfiguringServices(IServiceCollection serviceCollection)
         {
         }
 
@@ -478,7 +490,7 @@ namespace Microsoft.Data.Entity
         ///     actions on the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add<TEntity>(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
 
@@ -524,7 +536,7 @@ namespace Microsoft.Data.Entity
         ///     actions on the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Update<TEntity>(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
 

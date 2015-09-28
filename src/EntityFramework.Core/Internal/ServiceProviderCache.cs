@@ -16,7 +16,9 @@ namespace Microsoft.Data.Entity.Internal
 
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
-        public virtual IServiceProvider GetOrAdd([NotNull] IDbContextOptions options)
+        public virtual IServiceProvider GetOrAdd(
+            [NotNull] IDbContextOptions options,
+            [NotNull] Action<IServiceCollection> configureServicesAction)
         {
             var services = new ServiceCollection();
             var builder = services.AddEntityFramework();
@@ -25,6 +27,8 @@ namespace Microsoft.Data.Entity.Internal
             {
                 extension.ApplyServices(builder);
             }
+
+            configureServicesAction(services);
 
             // Decided that this hashing algorithm is robust enough. See issue #762.
             unchecked

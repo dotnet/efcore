@@ -63,6 +63,7 @@ namespace Microsoft.Data.Entity
                           && (method is ConstructorInfo
                               || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
                           && method.Name != nameof(DbContext.OnConfiguring)
+                          && method.Name != nameof(DbContext.OnConfiguringServices)
                           && method.Name != nameof(DbContext.OnModelCreating)
                     where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                     where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
