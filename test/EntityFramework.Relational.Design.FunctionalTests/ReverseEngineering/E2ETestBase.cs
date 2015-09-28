@@ -15,8 +15,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
     public abstract class E2ETestBase
     {
         private readonly ITestOutputHelper _output;
-        private InMemoryCommandLogger _logger;
-
+        protected InMemoryCommandLogger _logger;
         protected InMemoryFileService InMemoryFiles;
         protected readonly ReverseEngineeringGenerator Generator;
         protected readonly IDatabaseMetadataModelProvider MetadataModelProvider;

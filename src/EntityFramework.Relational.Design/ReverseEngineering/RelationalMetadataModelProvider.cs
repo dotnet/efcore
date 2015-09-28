@@ -173,7 +173,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                         })
                         .ToList();
                     
-                    var principalCodeGenEntityType = _relationalToCodeGenEntityTypeMap[relationalForeignKey.PrincipalEntityType];
+                    var principalCodeGenEntityType =
+                        _relationalToCodeGenEntityTypeMap[relationalForeignKey.PrincipalEntityType];
                     var principalCodeGenKeyProperties = relationalForeignKey
                         .PrincipalKey
                         .Properties
@@ -242,13 +243,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
                 }
             }
-        }
-
-        public static string ConstructIdForCombinationOfColumns([NotNull] IEnumerable<string> listOfColumnIds)
-        {
-            Check.NotNull(listOfColumnIds, nameof(listOfColumnIds));
-
-            return string.Join(string.Empty, listOfColumnIds.OrderBy(columnId => columnId));
         }
 
         public virtual string NavigationUniquifier(

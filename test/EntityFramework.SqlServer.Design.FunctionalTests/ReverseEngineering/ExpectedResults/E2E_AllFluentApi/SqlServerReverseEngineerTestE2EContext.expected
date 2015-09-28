@@ -57,16 +57,20 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
             {
+                entity.HasAlternateKey(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 });
+
                 entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
 
                 entity.Property(e => e.SomeDependentEndColumn).IsRequired();
 
-                entity.HasOne(d => d.OneToOneSeparateFKDependentFK).WithOne(p => p.OneToOneSeparateFKDependent).ForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
+                entity.HasOne(d => d.OneToOneSeparateFKDependentFK).WithOne(p => p.OneToOneSeparateFKDependent).PrincipalKey<OneToOneSeparateFKPrincipal>(p => new { p.OneToOneSeparateFKUniqueKey1, p.OneToOneSeparateFKUniqueKey2 }).ForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
             });
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
             {
                 entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
+
+                entity.HasAlternateKey(e => new { e.OneToOneSeparateFKUniqueKey1, e.OneToOneSeparateFKUniqueKey2 });
 
                 entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn).IsRequired();
             });

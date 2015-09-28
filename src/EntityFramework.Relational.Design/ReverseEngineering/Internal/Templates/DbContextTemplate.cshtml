@@ -80,7 +80,16 @@
 
         if (!rc.ForeignKey.PrincipalKey.IsPrimaryKey())
         {
-            sb.Append(".PrincipalKey(")
+            sb.Append(".PrincipalKey");
+            if (rc.ForeignKey.IsUnique)
+            {
+                // If the relationship is 1:1 need to define to which end
+                // the PrincipalKey properties belong.
+                sb.Append("<");
+                sb.Append(rc.ForeignKey.PrincipalEntityType.DisplayName());
+                sb.Append(">");
+            }
+            sb.Append("(")
                 .Append(principalEndLambdaIdentifier)
                 .Append(" => ")
                 .Append(ModelUtilities.GenerateLambdaToKey(rc.ForeignKey.PrincipalKey.Properties, principalEndLambdaIdentifier))

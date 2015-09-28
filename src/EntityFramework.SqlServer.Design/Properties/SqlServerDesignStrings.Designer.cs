@@ -29,14 +29,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// For column {columnId}. Could not find table with TableId {tableId}. Skipping column.
-        /// </summary>
-        public static string CannotFindTableForColumn([CanBeNull] object columnId, [CanBeNull] object tableId)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindTableForColumn", "columnId", "tableId"), columnId, tableId);
-        }
-
-        /// <summary>
         /// For column {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.
         /// </summary>
         public static string CannotFindTypeMappingForColumn([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
@@ -61,6 +53,22 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// For foreign key constraint {constraintId}.  The target column(s) belong to table [{schemaName}].[{tableName}] which was excluded from code generation.
+        /// </summary>
+        public static string ForeignKeyTargetTableWasExcluded([CanBeNull] object constraintId, [CanBeNull] object schemaName, [CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyTargetTableWasExcluded", "constraintId", "schemaName", "tableName"), constraintId, schemaName, tableName);
+        }
+
+        /// <summary>
+        /// For foreign key constraint {constraintId}. Unable to identify any primary or alternate key on entity type {entityTypeName} for properties {propertyNames}. Skipping generation of ForeignKey.
+        /// </summary>
+        public static string NoKeyForColumns([CanBeNull] object constraintId, [CanBeNull] object entityTypeName, [CanBeNull] object propertyNames)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NoKeyForColumns", "constraintId", "entityTypeName", "propertyNames"), constraintId, entityTypeName, propertyNames);
+        }
+
+        /// <summary>
         /// Unable to identify any primary key columns in the underlying SQL Server table [{schemaName}].[{tableName}].
         /// </summary>
         public static string NoPrimaryKeyColumns([CanBeNull] object schemaName, [CanBeNull] object tableName)
@@ -74,6 +82,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string UnableToConvertDefaultValue([CanBeNull] object columnId, [CanBeNull] object defaultValue, [CanBeNull] object propertyType, [CanBeNull] object propertyName, [CanBeNull] object entityTypeName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToConvertDefaultValue", "columnId", "defaultValue", "propertyType", "propertyName", "entityTypeName"), columnId, defaultValue, propertyType, propertyName, entityTypeName);
+        }
+
+        /// <summary>
+        /// For foreign key constraint {constraintId}. Could not find properties mapped to the following columns: {unmappedColumnIds}. Skipping generation of ForeignKey.
+        /// </summary>
+        public static string UnableToMatchPropertiesForForeignKey([CanBeNull] object constraintId, [CanBeNull] object unmappedColumnIds)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToMatchPropertiesForForeignKey", "constraintId", "unmappedColumnIds"), constraintId, unmappedColumnIds);
+        }
+
+        /// <summary>
+        /// For unique constraint {constraintId}. Could not find properties mapped to the following columns: {unmappedColumnIds}. Skipping generation of AlternateKey.
+        /// </summary>
+        public static string UnableToMatchPropertiesForUniqueKey([CanBeNull] object constraintId, [CanBeNull] object unmappedColumnIds)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToMatchPropertiesForUniqueKey", "constraintId", "unmappedColumnIds"), constraintId, unmappedColumnIds);
         }
 
         private static string GetString(string name, params string[] formatterNames)
