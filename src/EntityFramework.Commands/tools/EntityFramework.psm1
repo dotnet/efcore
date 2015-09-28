@@ -10,7 +10,7 @@ $EFDefaultParameterValues = @{
 #
 
 Register-TabExpansion Use-DbContext @{
-    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -36,11 +36,11 @@ Register-TabExpansion Use-DbContext @{
 #>
 function Use-DbContext {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Context, [string] $Project, [string] $StartupProject)
+    param ([Parameter(Position = 0, Mandatory = $true)] [string] $Context, [string] $Project, [string] $StartupProject, [string] $Environment)
 
     $dteProject = GetProject $Project
     $dteStartupProject = GetStartupProject $StartupProject $dteProject
-    $contextTypeName = InvokeOperation $dteStartupProject $dteProject GetContextType @{ name = $Context }
+    $contextTypeName = InvokeOperation $dteStartupProject $Environment $dteProject GetContextType @{ name = $Context }
 
     $EFDefaultParameterValues.ContextTypeName = $contextTypeName
     $EFDefaultParameterValues.ProjectName = $dteProject.ProjectName
@@ -51,7 +51,7 @@ function Use-DbContext {
 #
 
 Register-TabExpansion Add-Migration @{
-    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -87,14 +87,15 @@ function Add-Migration {
         [string] $Name,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Environment)
 
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $artifacts = InvokeOperation $dteStartupProject $dteProject AddMigration @{
+    $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject AddMigration @{
         name = $Name
         contextType = $contextTypeName
     }
@@ -111,8 +112,8 @@ function Add-Migration {
 #
 
 Register-TabExpansion Update-Database @{
-    Migration = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project $tabExpansionContext.StartupProject }
-    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject }
+    Migration = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -142,7 +143,13 @@ Register-TabExpansion Update-Database @{
 #>
 function Update-Database {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([Parameter(Position = 0)] [string] $Migration, [string] $Context, [string] $Project, [string] $StartupProject)
+    param (
+        [Parameter(Position = 0)]
+        [string] $Migration,
+        [string] $Context,
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Environment)
 
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteStartupProject = $values.StartupProject
@@ -155,7 +162,7 @@ function Update-Database {
         throw 'Update-Database should not be used with Universal Windows apps. Instead, call DbContext.Database.Migrate() at runtime.'
     }
 
-    InvokeOperation $dteStartupProject $dteProject UpdateDatabase @{
+    InvokeOperation $dteStartupProject $Environment $dteProject UpdateDatabase @{
         targetMigration = $Migration
         contextType = $contextTypeName
     }
@@ -175,9 +182,9 @@ function Apply-Migration {
 #
 
 Register-TabExpansion Script-Migration @{
-    From = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project $tabExpansionContext.StartupProject }
-    To = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project $tabExpansionContext.StartupProject }
-    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject }
+    From = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
+    To = { param ($tabExpansionContext) GetMigrations $tabExpansionContext.Context $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -222,14 +229,15 @@ function Script-Migration {
         [switch] $Idempotent,
         [string] $Context,
         [string] $Project,
-        [string] $StartupProject)
+        [string] $StartupProject,
+        [string] $Environment)
 
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $script = InvokeOperation $dteStartupProject $dteProject ScriptMigration @{
+    $script = InvokeOperation $dteStartupProject $Environment $dteProject ScriptMigration @{
         fromMigration = $From
         toMigration = $To
         idempotent = [bool]$Idempotent
@@ -262,7 +270,7 @@ function Script-Migration {
 #
 
 Register-TabExpansion Remove-Migration @{
-    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject }
+    Context = { param ($tabExpansionContext) GetContextTypes $tabExpansionContext.Project $tabExpansionContext.StartupProject $tabExpansionContext.Environment }
     Project = { GetProjects }
     StartupProject = { GetProjects }
 }
@@ -289,14 +297,14 @@ Register-TabExpansion Remove-Migration @{
 #>
 function Remove-Migration {
     [CmdletBinding(PositionalBinding = $false)]
-    param ([string] $Context, [string] $Project, [string] $StartupProject)
+    param ([string] $Context, [string] $Project, [string] $StartupProject, [string] $Environment)
 
     $values = ProcessCommonParameters $StartupProject $Project $Context
     $dteProject = $values.Project
     $contextTypeName = $values.ContextTypeName
     $dteStartupProject = $values.StartupProject
 
-    $filesToRemove = InvokeOperation $dteStartupProject $dteProject RemoveMigration @{
+    $filesToRemove = InvokeOperation $dteStartupProject $Environment $dteProject RemoveMigration @{
         contextType = $contextTypeName
     }
 
@@ -360,13 +368,15 @@ function Scaffold-DbContext {
         [string] $ContextClassName,
         [string] $Tables,
         [switch] $FluentApi,
-        [string] $Project)
+        [string] $Project,
+        [string] $StartupProject,
+        [string] $Environment)
 
     $values = ProcessCommonParameters $StartupProject $Project
     $dteStartupProject = $values.StartupProject
     $dteProject = $values.Project
 
-    $artifacts = InvokeOperation $dteStartupProject $dteProject ReverseEngineer @{
+    $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject ReverseEngineer @{
         connectionString = $Connection
         provider = $Provider
         outputDir = $OutputDirectory
@@ -406,23 +416,23 @@ function GetProjects {
     }
 }
 
-function GetContextTypes($projectName, $startupProjectName) {
+function GetContextTypes($projectName, $startupProjectName, $environment) {
     $values = ProcessCommonParameters $startupProjectName $projectName
     $startupProject = $values.StartupProject
     $project = $values.Project
 
-    $contextTypes = InvokeOperation $startupProject $project GetContextTypes -skipBuild
+    $contextTypes = InvokeOperation $startupProject $environment $project GetContextTypes -skipBuild
 
     return $contextTypes | %{ $_.SafeName }
 }
 
-function GetMigrations($contextTypeName, $projectName, $startupProjectName) {
+function GetMigrations($contextTypeName, $projectName, $startupProjectName, $environment) {
     $values = ProcessCommonParameters $startupProjectName $projectName $contextTypeName
     $startupProject = $values.StartupProject
     $project = $values.Project
     $contextTypeName = $values.ContextTypeName
 
-    $migrations = InvokeOperation $startupProject $project GetMigrations @{ contextTypeName = $contextTypeName } -skipBuild
+    $migrations = InvokeOperation $startupProject $environment $project GetMigrations @{ contextTypeName = $contextTypeName } -skipBuild
 
     return $migrations | %{ $_.SafeName }
 }
@@ -457,7 +467,7 @@ function ShowConsole {
     $powerConsoleWindow.Show()
 }
 
-function InvokeOperation($startupProject, $project, $operation, $arguments = @{}, [switch] $skipBuild) {
+function InvokeOperation($startupProject, $environment, $project, $operation, $arguments = @{}, [switch] $skipBuild) {
     $startupProjectName = $startupProject.ProjectName
 
     Write-Verbose "Using startup project '$startupProjectName'."
@@ -556,6 +566,7 @@ function InvokeOperation($startupProject, $project, $operation, $arguments = @{}
                 @{
                     startupTargetName = $startupAssemblyName
                     targetName = $targetAssemblyName
+                    environment = $environment
                     projectDir = $fullPath
                     rootNamespace = $rootNamespace
                 }

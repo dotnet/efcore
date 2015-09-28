@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] string assemblyName,
             [NotNull] string startupAssemblyName,
+            [CanBeNull] string environment,
             [NotNull] string projectDir,
             [NotNull] string rootNamespace,
             [CanBeNull] IServiceProvider dnxServices = null)
@@ -46,12 +47,15 @@ namespace Microsoft.Data.Entity.Design
             _logger = new LazyRef<ILogger>(() => loggerFactory.CreateCommandsLogger());
             _projectDir = projectDir;
             _rootNamespace = rootNamespace;
-            _servicesBuilder = new DesignTimeServicesBuilder(dnxServices);
             _contextOperations = new DbContextOperations(
                 loggerProvider,
                 assemblyName,
                 startupAssemblyName,
+                environment,
                 dnxServices);
+
+            var startup = new StartupInvoker(startupAssemblyName, environment, dnxServices);
+            _servicesBuilder = new DesignTimeServicesBuilder(startup, dnxServices);
         }
 
         public virtual MigrationFiles AddMigration(

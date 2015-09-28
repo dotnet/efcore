@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-
 #if DNX451 || DNXCORE50
 
 using System;
@@ -24,50 +23,16 @@ namespace Microsoft.Data.Entity.Commands
     {
         private readonly IApplicationShutdown _applicationShutdown;
         private readonly bool _useConsoleColors;
-        private readonly LazyRef<ILogger> _logger;
-        private readonly LazyRef<MigrationsOperations> _migrationsOperations;
-        private readonly LazyRef<DbContextOperations> _contextOperations;
-        private readonly LazyRef<DatabaseOperations> _databaseOperations;
+        private readonly IServiceProvider _dnxServices;
 
         public Program([NotNull] IServiceProvider dnxServices)
         {
             Check.NotNull(dnxServices, nameof(dnxServices));
 
-            var appEnv = dnxServices.GetRequiredService<IApplicationEnvironment>();
             var runtimeEnv = dnxServices.GetRequiredService<IRuntimeEnvironment>();
             _applicationShutdown = dnxServices.GetRequiredService<IApplicationShutdown>();
             _useConsoleColors = runtimeEnv.OperatingSystem == "Windows";
-
-            var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose: true));
-            _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
-
-            var targetName = appEnv.ApplicationName;
-            var startupTargetName = appEnv.ApplicationName;
-            var projectDir = appEnv.ApplicationBasePath;
-            var rootNamespace = appEnv.ApplicationName;
-
-            _contextOperations = new LazyRef<DbContextOperations>(
-                () => new DbContextOperations(
-                    loggerProvider,
-                    targetName,
-                    startupTargetName,
-                    dnxServices));
-            _databaseOperations = new LazyRef<DatabaseOperations>(
-                () => new DatabaseOperations(
-                    loggerProvider,
-                    targetName,
-                    startupTargetName,
-                    projectDir,
-                    rootNamespace,
-                    dnxServices));
-            _migrationsOperations = new LazyRef<MigrationsOperations>(
-                () => new MigrationsOperations(
-                    loggerProvider,
-                    targetName,
-                    startupTargetName,
-                    projectDir,
-                    rootNamespace,
-                    dnxServices));
+            _dnxServices = dnxServices;
         }
 
         public virtual int Main([NotNull] string[] args)
@@ -105,12 +70,21 @@ namespace Microsoft.Data.Entity.Commands
                             update.Description = "Updates the database to a specified migration";
                             var migrationName = update.Argument(
                                 "[migration]",
-                                "the target migration. If '0', all migrations will be reverted. If omitted, all pending migrations will be applied");
+                                "The target migration. If '0', all migrations will be reverted. If omitted, all pending migrations will be applied");
                             var context = update.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var environment = update.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = update.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             update.HelpOption("-?|-h|--help");
-                            update.OnExecute(() => UpdateDatabase(migrationName.Value, context.Value()));
+                            update.OnExecute(
+                                () => CreateExecutor(environment.Value(), verbose.HasValue()).UpdateDatabase(
+                                    migrationName.Value,
+                                    context.Value()));
                         });
                 });
             app.Command(
@@ -125,8 +99,15 @@ namespace Microsoft.Data.Entity.Commands
                         list =>
                         {
                             list.Description = "List your DbContext types";
+                            var environment = list.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = list.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             list.HelpOption("-?|-h|--help");
-                            list.OnExecute(() => ListContexts());
+                            list.OnExecute(
+                                () => CreateExecutor(environment.Value(), verbose.HasValue()).ListContexts());
                         });
                     dbcontext.Command(
                         "scaffold",
@@ -152,13 +133,19 @@ namespace Microsoft.Data.Entity.Commands
                             var useFluentApiOnly = scaffold.Option(
                                 "-u|--fluent-api",
                                 "Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.");
+                            var environment = scaffold.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = scaffold.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             scaffold.HelpOption("-?|-h|--help");
                             scaffold.OnExecute(
                                 async () =>
                                 {
                                     if (string.IsNullOrEmpty(connection.Value))
                                     {
-                                        _logger.Value.LogError("Missing required argument '{0}'", connection.Name);
+                                        LogError("Missing required argument '{0}'", connection.Name);
 
                                         scaffold.ShowHelp();
 
@@ -166,14 +153,14 @@ namespace Microsoft.Data.Entity.Commands
                                     }
                                     if (string.IsNullOrEmpty(provider.Value))
                                     {
-                                        _logger.Value.LogError("Missing required argument '{0}'", provider.Name);
+                                        LogError("Missing required argument '{0}'", provider.Name);
 
                                         scaffold.ShowHelp();
 
                                         return 1;
                                     }
 
-                                    await ReverseEngineerAsync(
+                                    return await CreateExecutor(environment.Value(), verbose.HasValue()).ReverseEngineerAsync(
                                         connection.Value,
                                         provider.Value,
                                         outputPath.Value(),
@@ -181,8 +168,6 @@ namespace Microsoft.Data.Entity.Commands
                                         tableFilters.Value(),
                                         useFluentApiOnly.HasValue(),
                                         _applicationShutdown.ShutdownRequested);
-
-                                    return 0;
                                 });
                         });
                 });
@@ -204,22 +189,28 @@ namespace Microsoft.Data.Entity.Commands
                             var context = add.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var environment = add.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = add.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             add.HelpOption("-?|-h|--help");
                             add.OnExecute(
                                 () =>
                                 {
                                     if (string.IsNullOrEmpty(name.Value))
                                     {
-                                        _logger.Value.LogError("Missing required argument '{0}'", name.Name);
+                                        LogError("Missing required argument '{0}'", name.Name);
 
                                         add.ShowHelp();
 
                                         return 1;
                                     }
 
-                                    AddMigration(name.Value, context.Value());
-
-                                    return 0;
+                                    return CreateExecutor(environment.Value(), verbose.HasValue()).AddMigration(
+                                        name.Value,
+                                        context.Value());
                                 });
                         });
                     migration.Command(
@@ -230,8 +221,16 @@ namespace Microsoft.Data.Entity.Commands
                             var context = list.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var environment = list.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = list.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             list.HelpOption("-?|-h|--help");
-                            list.OnExecute(() => ListMigrations(context.Value()));
+                            list.OnExecute(
+                                () => CreateExecutor(environment.Value(), verbose.HasValue()).ListMigrations(
+                                    context.Value()));
                         });
                     migration.Command(
                         "remove",
@@ -241,8 +240,16 @@ namespace Microsoft.Data.Entity.Commands
                             var context = remove.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var environment = remove.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = remove.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             remove.HelpOption("-?|-h|--help");
-                            remove.OnExecute(() => RemoveMigration(context.Value()));
+                            remove.OnExecute(
+                                () => CreateExecutor(environment.Value(), verbose.HasValue()).RemoveMigration(
+                                    context.Value()));
                         });
                     migration.Command(
                         "script",
@@ -264,132 +271,38 @@ namespace Microsoft.Data.Entity.Commands
                             var context = script.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var environment = script.Option(
+                                "-e|--environment <environment>",
+                                "The environment to use. If omitted, \"Development\" is used.");
+                            var verbose = script.Option(
+                                "-v|--verbose",
+                                "Show verbose output");
                             script.HelpOption("-?|-h|--help");
                             script.OnExecute(
                                 () =>
                                 {
                                     if (!string.IsNullOrEmpty(to.Value) && string.IsNullOrEmpty(from.Value))
                                     {
-                                        _logger.Value.LogError("Missing required argument '{0}'", from.Name);
+                                        LogError("Missing required argument '{0}'", from.Name);
 
                                         return 1;
                                     }
 
-                                    ScriptMigration(
+                                    return CreateExecutor(environment.Value(), verbose.HasValue()).ScriptMigration(
                                         from.Value,
                                         to.Value,
                                         output.Value(),
                                         idempotent.HasValue(),
                                         context.Value());
-
-                                    return 0;
                                 });
                         });
                 });
 
-            try
-            {
-                return app.Execute(args);
-            }
-            catch (Exception ex)
-            {
-                LogException(ex);
-
-                return 1;
-            }
-        }
-
-        public virtual void ListContexts()
-        {
-            var contexts = _contextOperations.Value.GetContextTypes();
-            var any = false;
-            foreach (var context in contexts)
-            {
-                _logger.Value.LogInformation(context.FullName);
-                any = true;
-            }
-
-            if (!any)
-            {
-                _logger.Value.LogInformation("No DbContext was found");
-            }
-        }
-
-        public virtual void AddMigration(
-            [NotNull] string name,
-            [CanBeNull] string context)
-        {
-            _migrationsOperations.Value.AddMigration(name, context);
-
-            _logger.Value.LogInformation("Done. To undo this action, use 'ef migrations remove'");
-        }
-
-        public virtual void UpdateDatabase(
-            [CanBeNull] string migration,
-            [CanBeNull] string context)
-            => _migrationsOperations.Value.UpdateDatabase(migration, context);
-
-        public virtual void ListMigrations([CanBeNull] string context)
-        {
-            var migrations = _migrationsOperations.Value.GetMigrations(context);
-            var any = false;
-            foreach (var migration in migrations)
-            {
-                _logger.Value.LogInformation(migration.Id);
-                any = true;
-            }
-
-            if (!any)
-            {
-                _logger.Value.LogInformation("No migrations were found");
-            }
-        }
-
-        public virtual void ScriptMigration(
-            [CanBeNull] string from,
-            [CanBeNull] string to,
-            [CanBeNull] string output,
-            bool idempotent,
-            [CanBeNull] string context)
-        {
-            var sql = _migrationsOperations.Value.ScriptMigration(from, to, idempotent, context);
-
-            if (string.IsNullOrEmpty(output))
-            {
-                _logger.Value.LogInformation(sql);
-            }
-            else
-            {
-                _logger.Value.LogVerbose("Writing SQL script to '{0}'", output);
-                File.WriteAllText(output, sql);
-
-                _logger.Value.LogInformation("Done");
-            }
-        }
-
-        public virtual void RemoveMigration([CanBeNull] string context)
-            => _migrationsOperations.Value.RemoveMigration(context);
-
-        public virtual async Task ReverseEngineerAsync(
-            [NotNull] string connectionString,
-            [NotNull] string providerAssemblyName,
-            [CanBeNull] string outputDirectory,
-            [CanBeNull] string dbContextClassName,
-            [CanBeNull] string tableFilters,
-            bool useFluentApiOnly,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            await _databaseOperations.Value.ReverseEngineerAsync(
-                providerAssemblyName, connectionString, outputDirectory,
-                dbContextClassName, tableFilters, useFluentApiOnly);
-
-            _logger.Value.LogInformation("Done");
+            return app.Execute(args);
         }
 
         private void ShowLogo()
-        {
-            // TODO: Enable multiple parameters in escape sequences
-            AnsiConsole.GetOutput(_useConsoleColors).WriteLine(
+            => AnsiConsole.GetOutput(_useConsoleColors).WriteLine(
                 "\x1b[1m\x1b[37m" + Environment.NewLine +
                 "                     _/\\__" + Environment.NewLine +
                 "               ---==/    \\\\" + Environment.NewLine +
@@ -398,20 +311,204 @@ namespace Microsoft.Data.Entity.Commands
                 "        \x1b[22m\x1b[35m| _| | _| \x1b[1m\x1b[37m  \\_/ |  //|\\\\" + Environment.NewLine +
                 "        \x1b[22m\x1b[35m|___||_|  \x1b[1m\x1b[37m     /   \\\\\\/\\\\" + Environment.NewLine +
                 "\x1b[22m\x1b[39m");
+
+        private Executor CreateExecutor(string environment, bool verbose)
+            => new Executor(environment, verbose, _dnxServices);
+
+        private void LogError(string format, params object[] arg)
+        {
+            using (new ColorScope(ConsoleColor.Red))
+            {
+                Console.WriteLine(format, arg);
+            }
         }
 
-        private void LogException(Exception ex)
+        private class Executor
         {
-            if (ex is OperationException)
+            private readonly LazyRef<ILogger> _logger;
+            private readonly LazyRef<MigrationsOperations> _migrationsOperations;
+            private readonly LazyRef<DbContextOperations> _contextOperations;
+            private readonly LazyRef<DatabaseOperations> _databaseOperations;
+
+            public Executor(string environment, bool verbose, IServiceProvider dnxServices)
             {
-                _logger.Value.LogVerbose(ex.ToString());
-            }
-            else
-            {
-                _logger.Value.LogInformation(ex.ToString());
+                var appEnv = dnxServices.GetRequiredService<IApplicationEnvironment>();
+
+                var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose));
+                _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
+
+                var targetName = appEnv.ApplicationName;
+                var startupTargetName = appEnv.ApplicationName;
+                var projectDir = appEnv.ApplicationBasePath;
+                var rootNamespace = appEnv.ApplicationName;
+
+                _contextOperations = new LazyRef<DbContextOperations>(
+                    () => new DbContextOperations(
+                        loggerProvider,
+                        targetName,
+                        startupTargetName,
+                        environment,
+                        dnxServices));
+                _databaseOperations = new LazyRef<DatabaseOperations>(
+                    () => new DatabaseOperations(
+                        loggerProvider,
+                        targetName,
+                        startupTargetName,
+                        environment,
+                        projectDir,
+                        rootNamespace,
+                        dnxServices));
+                _migrationsOperations = new LazyRef<MigrationsOperations>(
+                    () => new MigrationsOperations(
+                        loggerProvider,
+                        targetName,
+                        startupTargetName,
+                        environment,
+                        projectDir,
+                        rootNamespace,
+                        dnxServices));
             }
 
-            _logger.Value.LogError(ex.Message);
+            public virtual int ListContexts()
+                => Execute(
+                    () =>
+                    {
+                        var contexts = _contextOperations.Value.GetContextTypes();
+                        var any = false;
+                        foreach (var context in contexts)
+                        {
+                            _logger.Value.LogInformation(context.FullName);
+                            any = true;
+                        }
+
+                        if (!any)
+                        {
+                            _logger.Value.LogInformation("No DbContext was found");
+                        }
+                    });
+
+            public virtual int AddMigration(
+                [NotNull] string name,
+                [CanBeNull] string context)
+                => Execute(
+                    () =>
+                    {
+                        _migrationsOperations.Value.AddMigration(name, context);
+
+                        _logger.Value.LogInformation("Done. To undo this action, use 'ef migrations remove'");
+                    });
+
+            public virtual int UpdateDatabase([CanBeNull] string migration, [CanBeNull] string context)
+                => Execute(() => _migrationsOperations.Value.UpdateDatabase(migration, context));
+
+            public virtual int ListMigrations([CanBeNull] string context)
+                => Execute(
+                    () =>
+                    {
+                        var migrations = _migrationsOperations.Value.GetMigrations(context);
+                        var any = false;
+                        foreach (var migration in migrations)
+                        {
+                            _logger.Value.LogInformation(migration.Id);
+                            any = true;
+                        }
+
+                        if (!any)
+                        {
+                            _logger.Value.LogInformation("No migrations were found");
+                        }
+                    });
+
+            public virtual int ScriptMigration(
+                [CanBeNull] string from,
+                [CanBeNull] string to,
+                [CanBeNull] string output,
+                bool idempotent,
+                [CanBeNull] string context)
+                => Execute(
+                    () =>
+                    {
+                        var sql = _migrationsOperations.Value.ScriptMigration(from, to, idempotent, context);
+
+                        if (string.IsNullOrEmpty(output))
+                        {
+                            _logger.Value.LogInformation(sql);
+                        }
+                        else
+                        {
+                            _logger.Value.LogVerbose("Writing SQL script to '{0}'", output);
+                            File.WriteAllText(output, sql);
+
+                            _logger.Value.LogInformation("Done");
+                        }
+                    });
+
+            public virtual int RemoveMigration([CanBeNull] string context)
+                => Execute(() => _migrationsOperations.Value.RemoveMigration(context));
+
+            public virtual Task<int> ReverseEngineerAsync(
+                [NotNull] string connectionString,
+                [NotNull] string providerAssemblyName,
+                [CanBeNull] string outputDirectory,
+                [CanBeNull] string dbContextClassName,
+                [CanBeNull] string tableFilters,
+                bool useFluentApiOnly,
+                CancellationToken cancellationToken = default(CancellationToken))
+                => ExecuteAsync(
+                    async () =>
+                    {
+                        await _databaseOperations.Value.ReverseEngineerAsync(
+                            providerAssemblyName, connectionString, outputDirectory,
+                            dbContextClassName, tableFilters, useFluentApiOnly);
+
+                        _logger.Value.LogInformation("Done");
+                    });
+
+            private int Execute(Action action)
+            {
+                try
+                {
+                    action();
+
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    LogException(ex);
+
+                    return 1;
+                }
+            }
+
+            private async Task<int> ExecuteAsync(Func<Task> action)
+            {
+                try
+                {
+                    await action();
+
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    LogException(ex);
+
+                    return 1;
+                }
+            }
+
+            private void LogException(Exception ex)
+            {
+                if (ex is OperationException)
+                {
+                    _logger.Value.LogVerbose(ex.ToString());
+                }
+                else
+                {
+                    _logger.Value.LogInformation(ex.ToString());
+                }
+
+                _logger.Value.LogError(ex.Message);
+            }
         }
     }
 }

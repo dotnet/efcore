@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.Design
         private readonly ILoggerProvider _loggerProvider;
         private readonly string _assemblyName;
         private readonly string _startupAssemblyName;
+        private readonly string _environment;
         private readonly IServiceProvider _dnxServices;
         private readonly LazyRef<ILogger> _logger;
         private Assembly _assembly;
@@ -33,6 +34,7 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] string assemblyName,
             [NotNull] string startupAssemblyName,
+            [CanBeNull] string environment,
             [CanBeNull] IServiceProvider dnxServices = null)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
@@ -42,6 +44,7 @@ namespace Microsoft.Data.Entity.Design
             _loggerProvider = loggerProvider;
             _assemblyName = assemblyName;
             _startupAssemblyName = startupAssemblyName;
+            _environment = environment;
             _dnxServices = dnxServices;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
         }
@@ -72,7 +75,10 @@ namespace Microsoft.Data.Entity.Design
         private DbContext TryCreateContextFromStartup(Type type)
         {
             var hostBuilder = new WebHostBuilder(_dnxServices)
-                .UseEnvironment(EnvironmentName.Development);
+                .UseEnvironment(
+                    !string.IsNullOrEmpty(_environment)
+                        ? _environment
+                        : EnvironmentName.Development);
             if (_startupAssemblyName != null)
             {
                 hostBuilder.UseStartup(_startupAssemblyName);

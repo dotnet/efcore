@@ -15,19 +15,18 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 
-#if DNX451 || DNXCORE50
-using Microsoft.Dnx.Runtime;
-#endif
-
 namespace Microsoft.Data.Entity.Design.Internal
 {
-    // TODO: Allow design-time services to be overridden by users
     public partial class DesignTimeServicesBuilder
     {
+        private readonly StartupInvoker _startup;
         private readonly IServiceProvider _dnxServices;
 
-        public DesignTimeServicesBuilder([CanBeNull] IServiceProvider dnxServices)
+        public DesignTimeServicesBuilder(
+            [NotNull] StartupInvoker startupInvoker,
+            [CanBeNull] IServiceProvider dnxServices)
         {
+            _startup = startupInvoker;
             _dnxServices = dnxServices;
         }
 
@@ -42,7 +41,12 @@ namespace Microsoft.Data.Entity.Design.Internal
             var contextServices = ((IAccessor<IServiceProvider>)context).Service;
             ConfigureContextServices(contextServices, services);
 
-            // TODO: Add design-time provider services
+            var databaseProviderServices = contextServices.GetRequiredService<IDatabaseProviderServices>();
+            var provider = databaseProviderServices.InvariantName;
+            ConfigureProviderServices(provider, services);
+
+            ConfigureUserServices(services);
+
             return services.BuildServiceProvider();
         }
 
@@ -53,7 +57,8 @@ namespace Microsoft.Data.Entity.Design.Internal
             var services = new ServiceCollection();
             ConfigureServices(services);
             ConfigureDnxServices(services);
-            ConfigureProviderServices(provider, services);
+            ConfigureProviderServices(provider, services, throwOnError: true);
+            ConfigureUserServices(services);
 
             return services.BuildServiceProvider();
         }
@@ -72,22 +77,15 @@ namespace Microsoft.Data.Entity.Design.Internal
 
 #if DNX451 || DNXCORE50
         partial void ConfigureDnxServices(IServiceCollection services)
-        {
-            if (_dnxServices == null)
-            {
-                return;
-            }
-
-            var runtimeServices = _dnxServices.GetRequiredService<IRuntimeServices>();
-            foreach (var service in runtimeServices.Services)
-            {
-                services.AddTransient(service, _ => _dnxServices.GetService(service));
-            }
-        }
+            => services.ImportDnxServices(_dnxServices);
 #endif
 
-        private static void ConfigureProviderServices(string provider, IServiceCollection services)
-            => GetProviderDesignTimeServicesBuilder(provider).AddMetadataProviderServices(services);
+        private static void ConfigureProviderServices(
+            string provider,
+            IServiceCollection services,
+            bool throwOnError = false)
+            => GetProviderDesignTimeServicesBuilder(provider, throwOnError)
+                ?.AddMetadataProviderServices(services);
 
         protected virtual void ConfigureContextServices(
             [NotNull] IServiceProvider contextServices,
@@ -104,7 +102,12 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddTransient(_ => contextServices.GetService<IMigrator>())
                 .AddTransient(_ => contextServices.GetService<IModel>());
 
-        private static IDesignTimeMetadataProviderFactory GetProviderDesignTimeServicesBuilder(string provider)
+        private void ConfigureUserServices(IServiceCollection services)
+            => _startup.ConfigureDesignTimeServices(services);
+
+        private static IDesignTimeMetadataProviderFactory GetProviderDesignTimeServicesBuilder(
+            string provider,
+            bool throwOnError)
         {
             Assembly providerAssembly;
             try
@@ -113,12 +116,22 @@ namespace Microsoft.Data.Entity.Design.Internal
             }
             catch (Exception ex)
             {
+                if (!throwOnError)
+                {
+                    return null;
+                }
+
                 throw new OperationException(CommandsStrings.CannotFindRuntimeProviderAssembly(provider), ex);
             }
 
             var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
             if (providerServicesAttribute == null)
             {
+                if (!throwOnError)
+                {
+                    return null;
+                }
+
                 throw new InvalidOperationException(
                     CommandsStrings.CannotFindDesignTimeProviderAssemblyAttribute(
                         nameof(DesignTimeProviderServicesAttribute),
@@ -135,6 +148,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                 }
                 catch (Exception ex)
                 {
+                    if (!throwOnError)
+                    {
+                        return null;
+                    }
+
                     throw new OperationException(
                         CommandsStrings.CannotFindDesignTimeProviderAssembly(providerServicesAssemblyName), ex);
                 }

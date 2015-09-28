@@ -49,6 +49,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="Design\Internal\StartupInvoker.cs" />
     <Compile Include="Design\MigrationInfo.cs" />
     <Compile Include="Design\OperationException.cs" />
     <Compile Include="Design\DbContextOperations.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Extensions\CommandLineUtilsExtensions.cs" />
     <Compile Include="Design\OperationHandlers.cs" />
     <Compile Include="Design\MigrationsOperations.cs" />
+    <Compile Include="Extensions\ServiceCollectionExtensions.cs" />
     <Compile Include="Migrations\Design\ScaffoldedMigration.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationsGenerator.cs" />
     <Compile Include="Migrations\Design\CSharpMigrationOperationGenerator.cs" />

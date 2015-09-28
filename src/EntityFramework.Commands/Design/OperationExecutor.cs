@@ -30,6 +30,7 @@ namespace Microsoft.Data.Entity.Design
 
             var targetName = (string)args["targetName"];
             var startupTargetName = (string)args["startupTargetName"];
+            var environment = (string)args["environment"];
             var projectDir = (string)args["projectDir"];
             var rootNamespace = (string)args["rootNamespace"];
 
@@ -37,12 +38,14 @@ namespace Microsoft.Data.Entity.Design
                 () => new DbContextOperations(
                     loggerProvider,
                     targetName,
-                    startupTargetName));
+                    startupTargetName,
+                    environment));
             _databaseOperations = new LazyRef<DatabaseOperations>(
                 () => new DatabaseOperations(
                     loggerProvider,
                     targetName,
                     startupTargetName,
+                    environment,
                     projectDir,
                     rootNamespace));
             _migrationsOperations = new LazyRef<MigrationsOperations>(
@@ -50,6 +53,7 @@ namespace Microsoft.Data.Entity.Design
                     loggerProvider,
                     targetName,
                     startupTargetName,
+                    environment,
                     projectDir,
                     rootNamespace));
         }
