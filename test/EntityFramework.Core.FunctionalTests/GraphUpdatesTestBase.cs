@@ -548,7 +548,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(new1, new2.Back);
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.Id, old2.BackId);
             }
 
@@ -650,7 +650,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.Id, old2.Id);
             }
 
@@ -696,7 +696,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.Id, old2.BackId);
             }
 
@@ -1352,7 +1352,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(new1, new2.Back);
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.AlternateId, old2.BackId);
             }
 
@@ -1435,7 +1435,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Same(new1, new2.Back);
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.AlternateId, old2.BackId);
             }
 
@@ -1537,7 +1537,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.AlternateId, old2.BackId);
             }
 
@@ -1583,7 +1583,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.SaveChanges();
 
                 Assert.Null(old1.Root);
-                Assert.Same(old1, old2.Back);
+                Assert.Null(old2.Back);
                 Assert.Equal(old1.AlternateId, old2.BackId);
             }
 
@@ -1827,41 +1827,695 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [ConditionalFact]
         public virtual void Required_many_to_one_dependents_are_cascade_deleted()
         {
-            int removed1;
-            List<int> removed2s;
+            int removedId;
+            List<int> orphanedIds;
 
             using (var context = CreateContext())
             {
-                var root = context.Roots
-                    .Include(q => q.RequiredChildren)
-                    .ThenInclude(q => q.Children)
-                    .Single();
+                var root = LoadFullGraph(context);
 
                 Assert.Equal(2, root.RequiredChildren.Count);
 
-                var toRemove = root.RequiredChildren.First();
+                var removed = root.RequiredChildren.First();
 
-                removed1 = toRemove.Id;
-                removed2s = toRemove.Children.Select(e => e.Id).ToList();
+                removedId = removed.Id;
+                var cascadeRemoved = removed.Children.ToList();
+                orphanedIds = cascadeRemoved.Select(e => e.Id).ToList();
 
-                Assert.Equal(2, removed2s.Count);
+                Assert.Equal(2, orphanedIds.Count);
 
-                context.Remove(toRemove);
+                context.Remove(removed);
 
                 context.SaveChanges();
 
-                // TODO: Test delete also happened in state manager
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
             }
 
             using (var context = CreateContext())
             {
-                var root = context.Roots.Include(q => q.RequiredChildren).Single();
+                var root = LoadFullGraph(context);
 
                 Assert.Equal(1, root.RequiredChildren.Count);
-                Assert.DoesNotContain(removed1, root.RequiredChildren.Select(e => e.Id));
+                Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
 
-                Assert.Empty(context.Required1s.Where(e => e.Id == removed1));
-                Assert.Empty(context.Required2s.Where(e => removed2s.Contains(e.Id)));
+                Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_many_to_one_dependents_are_orphaned()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(2, root.OptionalChildren.Count);
+
+                var removed = root.OptionalChildren.First();
+
+                removedId = removed.Id;
+                var orphaned = removed.Children.ToList();
+                orphanedIds = orphaned.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
+
+                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
+                Assert.Equal(orphanedIds.Count, context.Optional2s.Count(e => orphanedIds.Contains(e.Id)));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
+                Assert.Equal(orphanedIds.Count, context.Optional2s.Count(e => orphanedIds.Contains(e.Id)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_one_to_one_are_orphaned()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                var removed = root.OptionalSingle;
+
+                removedId = removed.Id;
+                var orphaned = removed.Single;
+                orphanedId = orphaned.Id;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
+
+                Assert.Null(root.OptionalSingle);
+
+                Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
+                Assert.Equal(1, context.OptionalSingle2s.Count(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.OptionalSingle);
+
+                Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
+                Assert.Equal(1, context.OptionalSingle2s.Count(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_one_to_one_are_cascade_deleted()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                var removed = root.RequiredSingle;
+
+                removedId = removed.Id;
+                var orphaned = removed.Single;
+                orphanedId = orphaned.Id;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                Assert.Null(root.RequiredSingle);
+
+                Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredSingle);
+
+                Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_non_PK_one_to_one_are_cascade_deleted()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                var removed = root.RequiredNonPkSingle;
+
+                removedId = removed.Id;
+                var orphaned = removed.Single;
+                orphanedId = orphaned.Id;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                Assert.Null(root.RequiredNonPkSingle);
+
+                Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredNonPkSingle);
+
+                Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(2, root.OptionalChildrenAk.Count);
+
+                var removed = root.OptionalChildrenAk.First();
+
+                removedId = removed.Id;
+                var orphaned = removed.Children.ToList();
+                orphanedIds = orphaned.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
+
+                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
+                Assert.Equal(orphanedIds.Count, context.OptionalAk2s.Count(e => orphanedIds.Contains(e.Id)));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
+                Assert.Equal(orphanedIds.Count, context.OptionalAk2s.Count(e => orphanedIds.Contains(e.Id)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(2, root.RequiredChildrenAk.Count);
+
+                var removed = root.RequiredChildrenAk.First();
+
+                removedId = removed.Id;
+                var cascadeRemoved = removed.Children.ToList();
+                orphanedIds = cascadeRemoved.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.True(cascadeRemoved.All(e => context.Entry(e).State == EntityState.Detached));
+
+                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_one_to_one_with_alternate_key_are_orphaned()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                var removed = root.OptionalSingleAk;
+
+                removedId = removed.Id;
+                var orphaned = removed.Single;
+                orphanedId = orphaned.Id;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(orphaned).State);
+
+                Assert.Null(root.OptionalSingleAk);
+
+                Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Equal(1, context.OptionalSingleAk2s.Count(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.OptionalSingleAk);
+
+                Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Equal(1, context.OptionalSingleAk2s.Count(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_one_to_one_with_alternate_key_are_cascade_deleted()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                var removed = root.RequiredSingleAk;
+
+                removedId = removed.Id;
+                var orphaned = removed.Single;
+                orphanedId = orphaned.Id;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                Assert.Null(root.RequiredSingleAk);
+
+                Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredSingleAk);
+
+                Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                var removed = root.RequiredNonPkSingleAk;
+
+                removedId = removed.Id;
+                var orphaned = removed.Single;
+                orphanedId = orphaned.Id;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.Equal(EntityState.Detached, context.Entry(orphaned).State);
+
+                Assert.Null(root.RequiredNonPkSingleAk);
+
+                Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredNonPkSingleAk);
+
+                Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_many_to_one_dependents_are_cascade_deleted_in_store()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).RequiredChildren.First();
+
+                removedId = removed.Id;
+                orphanedIds = removed.Children.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.RequiredChildren).Single();
+
+                var removed = root.RequiredChildren.Single(e => e.Id == removedId);
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.RequiredChildren.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Required1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.Required2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_one_to_one_are_cascade_deleted_in_store()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).RequiredSingle;
+
+                removedId = removed.Id;
+                orphanedId = removed.Single.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.RequiredSingle).Single();
+
+                var removed = root.RequiredSingle;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Null(root.RequiredSingle);
+
+                Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredSingle);
+
+                Assert.Empty(context.RequiredSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingle2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_non_PK_one_to_one_are_cascade_deleted_in_store()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).RequiredNonPkSingle;
+
+                removedId = removed.Id;
+                orphanedId = removed.Single.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.RequiredNonPkSingle).Single();
+
+                var removed = root.RequiredNonPkSingle;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Null(root.RequiredNonPkSingle);
+
+                Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredNonPkSingle);
+
+                Assert.Empty(context.RequiredNonPkSingle1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingle2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+
+        [ConditionalFact]
+        public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).RequiredChildrenAk.First();
+
+                removedId = removed.Id;
+                orphanedIds = removed.Children.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.RequiredChildrenAk).Single();
+
+                var removed = root.RequiredChildrenAk.Single(e => e.Id == removedId);
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.RequiredChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.RequiredChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.RequiredAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredAk2s.Where(e => orphanedIds.Contains(e.Id)));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).RequiredSingleAk;
+
+                removedId = removed.Id;
+                orphanedId = removed.Single.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.RequiredSingleAk).Single();
+
+                var removed = root.RequiredSingleAk;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Null(root.RequiredSingleAk);
+
+                Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredSingleAk);
+
+                Assert.Empty(context.RequiredSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).RequiredNonPkSingleAk;
+
+                removedId = removed.Id;
+                orphanedId = removed.Single.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.RequiredNonPkSingleAk).Single();
+
+                var removed = root.RequiredNonPkSingleAk;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Null(root.RequiredNonPkSingleAk);
+
+                Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.RequiredNonPkSingleAk);
+
+                Assert.Empty(context.RequiredNonPkSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Empty(context.RequiredNonPkSingleAk2s.Where(e => e.Id == orphanedId));
             }
         }
 
