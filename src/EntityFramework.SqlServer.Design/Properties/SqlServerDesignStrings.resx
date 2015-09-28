@@ -123,9 +123,6 @@
   <data name="CannotFindRelationalPropertyForColumnId" xml:space="preserve">
     <value>For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumn {toColumnId}. Skipping generation of ForeignKey.</value>
   </data>
-  <data name="CannotFindTableForColumn" xml:space="preserve">
-    <value>For column {columnId}. Could not find table with TableId {tableId}. Skipping column.</value>
-  </data>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
     <value>For column {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.</value>
   </data>
@@ -135,10 +132,22 @@
   <data name="DataTypeDoesNotAllowSqlServerIdentityStrategy" xml:space="preserve">
     <value>For column {columnId}. This column is set up as an Identity column, but the SQL Server data type is {sqlServerDataType}. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.</value>
   </data>
+  <data name="ForeignKeyTargetTableWasExcluded" xml:space="preserve">
+    <value>For foreign key constraint {constraintId}.  The target column(s) belong to table [{schemaName}].[{tableName}] which was excluded from code generation.</value>
+  </data>
+  <data name="NoKeyForColumns" xml:space="preserve">
+    <value>For foreign key constraint {constraintId}. Unable to identify any primary or alternate key on entity type {entityTypeName} for properties {propertyNames}. Skipping generation of ForeignKey.</value>
+  </data>
   <data name="NoPrimaryKeyColumns" xml:space="preserve">
     <value>Unable to identify any primary key columns in the underlying SQL Server table [{schemaName}].[{tableName}].</value>
   </data>
   <data name="UnableToConvertDefaultValue" xml:space="preserve">
     <value>For column {columnId} unable to convert default value {defaultValue} into type {propertyType}. Will not generate code setting a default value for the property {propertyName} on entity type {entityTypeName}.</value>
+  </data>
+  <data name="UnableToMatchPropertiesForForeignKey" xml:space="preserve">
+    <value>For foreign key constraint {constraintId}. Could not find properties mapped to the following columns: {unmappedColumnIds}. Skipping generation of ForeignKey.</value>
+  </data>
+  <data name="UnableToMatchPropertiesForUniqueKey" xml:space="preserve">
+    <value>For unique constraint {constraintId}. Could not find properties mapped to the following columns: {unmappedColumnIds}. Skipping generation of AlternateKey.</value>
   </data>
 </root>

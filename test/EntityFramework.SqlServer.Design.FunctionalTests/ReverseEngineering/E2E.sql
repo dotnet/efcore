@@ -238,9 +238,15 @@ CREATE TABLE "OneToOneSeparateFKPrincipal" (
 	"OneToOneSeparateFKPrincipalID1" "int",
 	"OneToOneSeparateFKPrincipalID2" "int",
 	"SomeOneToOneSeparateFKPrincipalColumn" nvarchar (20) NOT NULL,
+	"OneToOneSeparateFKUniqueKey1" "int" NOT NULL,
+	"OneToOneSeparateFKUniqueKey2" "int" NOT NULL,
 	CONSTRAINT "PK_OneToOneSeparateFKPrincipal" PRIMARY KEY  CLUSTERED 
 	(
 		"OneToOneSeparateFKPrincipalID1", "OneToOneSeparateFKPrincipalID2"
+	),
+	CONSTRAINT "UK_OneToOneSeparateFKPrincipal" UNIQUE
+	(
+		"OneToOneSeparateFKUniqueKey1", "OneToOneSeparateFKUniqueKey2"
 	)
 )
 
@@ -260,7 +266,7 @@ CREATE TABLE "OneToOneSeparateFKDependent" (
 	(
 		"OneToOneSeparateFKDependentFK1", "OneToOneSeparateFKDependentFK2"
 	) REFERENCES "dbo"."OneToOneSeparateFKPrincipal" (
-		"OneToOneSeparateFKPrincipalID1", "OneToOneSeparateFKPrincipalID2"
+		"OneToOneSeparateFKUniqueKey1", "OneToOneSeparateFKUniqueKey2"
 	),
 	CONSTRAINT "UK_OneToOneSeparateFKDependent" UNIQUE
 	(

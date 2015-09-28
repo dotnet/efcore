@@ -44,14 +44,16 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             var sqlServerStringLiteralLength = sqlServerStringLiteral.Length;
             if (sqlServerStringLiteralLength < 2)
             {
-                Logger.LogWarning(SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
+                Logger.LogWarning(
+                    SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;
             }
 
             if (sqlServerStringLiteral[0] != '\''
                 || sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
             {
-                Logger.LogWarning(SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
+                Logger.LogWarning(
+                    SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;
             }
 
