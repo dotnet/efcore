@@ -16,10 +16,18 @@ namespace Microsoft.Data.Entity.Infrastructure
         private DbConnection _connection;
         private int? _commandTimeout;
         private int? _maxBatchSize;
+        private bool _useRelationalNulls;
+        private bool _queryClientEvaluationEnabled = true;
+        private bool? _throwOnAmbientTransaction;
+        private string _migrationsAssembly;
+        private string _migrationsHistoryTableName;
+        private string _migrationsHistoryTableSchema;
 
         protected RelationalOptionsExtension()
         {
         }
+
+        // NB: When adding new options, make sure to update the copy ctor below.
 
         protected RelationalOptionsExtension([NotNull] RelationalOptionsExtension copyFrom)
         {
@@ -29,12 +37,17 @@ namespace Microsoft.Data.Entity.Infrastructure
             _connection = copyFrom._connection;
             _commandTimeout = copyFrom._commandTimeout;
             _maxBatchSize = copyFrom._maxBatchSize;
+            _useRelationalNulls = copyFrom._useRelationalNulls;
+            _queryClientEvaluationEnabled = copyFrom._queryClientEvaluationEnabled;
+            _throwOnAmbientTransaction = copyFrom._throwOnAmbientTransaction;
+            _migrationsAssembly = copyFrom._migrationsAssembly;
+            _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
+            _migrationsHistoryTableSchema = copyFrom._migrationsHistoryTableSchema;
         }
 
         public virtual string ConnectionString
         {
             get { return _connectionString; }
-
             [param: NotNull]
             set
             {
@@ -88,15 +101,41 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
         }
 
-        public virtual bool UseRelationalNulls { get; set; }
-        public virtual bool IsQueryClientEvaluationEnabled { get; set; } = true;
+        public virtual bool UseRelationalNulls
+        {
+            get { return _useRelationalNulls; }
+            set { _useRelationalNulls = value; }
+        }
 
-        public virtual bool? ThrowOnAmbientTransaction { get; set; }
+        public virtual bool IsQueryClientEvaluationEnabled
+        {
+            get { return _queryClientEvaluationEnabled; }
+            set { _queryClientEvaluationEnabled = value; }
+        }
 
-        public virtual string MigrationsAssembly { get; [param: CanBeNull] set; }
+        public virtual bool? ThrowOnAmbientTransaction
+        {
+            get { return _throwOnAmbientTransaction; }
+            set { _throwOnAmbientTransaction = value; }
+        }
 
-        public virtual string MigrationsHistoryTableName { get;[param: CanBeNull] set; }
-        public virtual string MigrationsHistoryTableSchema { get;[param: CanBeNull] set; }
+        public virtual string MigrationsAssembly
+        {
+            get { return _migrationsAssembly; }
+            [param: CanBeNull] set { _migrationsAssembly = value; }
+        }
+
+        public virtual string MigrationsHistoryTableName
+        {
+            get { return _migrationsHistoryTableName; }
+            [param: CanBeNull] set { _migrationsHistoryTableName = value; }
+        }
+
+        public virtual string MigrationsHistoryTableSchema
+        {
+            get { return _migrationsHistoryTableSchema; }
+            [param: CanBeNull] set { _migrationsHistoryTableSchema = value; }
+        }
 
         public static RelationalOptionsExtension Extract([NotNull] IDbContextOptions options)
         {

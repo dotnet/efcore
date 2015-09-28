@@ -10,16 +10,25 @@ namespace Microsoft.Data.Entity.Internal
 {
     public class SqlServerOptionsExtension : RelationalOptionsExtension
     {
+        private bool? _rowNumberPaging;
+
         public SqlServerOptionsExtension()
         {
         }
 
+        // NB: When adding new options, make sure to update the copy ctor below.
+
         public SqlServerOptionsExtension([NotNull] SqlServerOptionsExtension copyFrom)
             : base(copyFrom)
         {
+            _rowNumberPaging = copyFrom._rowNumberPaging;
         }
 
-        public virtual bool? RowNumberPaging { get; set; }
+        public virtual bool? RowNumberPaging
+        {
+            get { return _rowNumberPaging; }
+            set { _rowNumberPaging = value; }
+        }
 
         public override void ApplyServices(EntityFrameworkServicesBuilder builder)
             => Check.NotNull(builder, nameof(builder)).AddSqlServer();

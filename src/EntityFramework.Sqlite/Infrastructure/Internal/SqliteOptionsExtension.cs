@@ -9,16 +9,24 @@ namespace Microsoft.Data.Entity.Infrastructure.Internal
 {
     public class SqliteOptionsExtension : RelationalOptionsExtension
     {
-        public virtual bool EnforceForeignKeys { get; set; } = true;
+        private bool _enforceForeignKeys = true;
 
         public SqliteOptionsExtension()
         {
         }
 
+        // NB: When adding new options, make sure to update the copy ctor below.
+
         public SqliteOptionsExtension([NotNull] SqliteOptionsExtension copyFrom)
             : base(copyFrom)
         {
-            EnforceForeignKeys = copyFrom.EnforceForeignKeys;
+            _enforceForeignKeys = copyFrom._enforceForeignKeys;
+        }
+
+        public virtual bool EnforceForeignKeys
+        {
+            get { return _enforceForeignKeys; }
+            set { _enforceForeignKeys = value; }
         }
 
         public override void ApplyServices(EntityFrameworkServicesBuilder builder)
