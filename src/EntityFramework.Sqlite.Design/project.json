@@ -14,7 +14,7 @@
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.Sqlite.Design.Strings": "Properties/Strings.resx"
+    "EntityFramework.Sqlite.Design.SqliteDesignStrings": "Properties/SqliteDesignStrings.resx"
   },
   "resource": "ReverseEngineering/Templates/*.cshtml",
   "frameworks": {

@@ -2276,7 +2276,7 @@ namespace Microsoft.Data.Entity
                 return entityQueryableAccessor.AsyncEnumerable;
             }
 
-            throw new InvalidOperationException(Strings.IQueryableNotAsync(typeof(TSource)));
+            throw new InvalidOperationException(CoreStrings.IQueryableNotAsync(typeof(TSource)));
         }
 
         #endregion
@@ -2594,7 +2594,7 @@ namespace Microsoft.Data.Entity
                     cancellationToken);
             }
 
-            throw new InvalidOperationException(Strings.IQueryableProviderNotAsync);
+            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
         }
 
         private static Task<TResult> ExecuteAsync<TSource, TResult>(
@@ -2628,7 +2628,7 @@ namespace Microsoft.Data.Entity
                     cancellationToken);
             }
 
-            throw new InvalidOperationException(Strings.IQueryableProviderNotAsync);
+            throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
         }
 
         private static MethodInfo GetMethod<TResult>(

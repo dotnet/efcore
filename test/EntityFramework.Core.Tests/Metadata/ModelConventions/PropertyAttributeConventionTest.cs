@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[1].Name);
 
             Assert.Equal(
-                Strings.CompositePKWithDataAnnotation(entityTypeBuilder.Metadata.DisplayName()),
+                CoreStrings.CompositePKWithDataAnnotation(entityTypeBuilder.Metadata.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => keyAttributeConvention.Apply(entityTypeBuilder.ModelBuilder)).Message);
         }
 
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var propertyBuilder = derivedEntityTypeBuilder.Property("Number", typeof(int), ConfigurationSource.Explicit);
 
             Assert.Equal(
-                Strings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
+                CoreStrings.KeyAttributeOnDerivedEntity(derivedEntityTypeBuilder.Metadata.DisplayName(), propertyBuilder.Metadata.Name),
                 Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(propertyBuilder)).Message);
         }
 

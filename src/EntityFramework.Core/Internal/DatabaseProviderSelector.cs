@@ -37,24 +37,24 @@ namespace Microsoft.Data.Entity.Internal
 
             if (configured.Length > 1)
             {
-                throw new InvalidOperationException(Strings.MultipleProvidersConfigured(BuildDatabaseNamesString(configured)));
+                throw new InvalidOperationException(CoreStrings.MultipleProvidersConfigured(BuildDatabaseNamesString(configured)));
             }
 
             if (_providers.Length == 0)
             {
                 if (providerSource == ServiceProviderSource.Implicit)
                 {
-                    throw new InvalidOperationException(Strings.NoProviderConfigured);
+                    throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
                 }
-                throw new InvalidOperationException(Strings.NoProviderServices);
+                throw new InvalidOperationException(CoreStrings.NoProviderServices);
             }
 
             if (_providers.Length > 1)
             {
-                throw new InvalidOperationException(Strings.MultipleProvidersAvailable(BuildDatabaseNamesString(_providers)));
+                throw new InvalidOperationException(CoreStrings.MultipleProvidersAvailable(BuildDatabaseNamesString(_providers)));
             }
 
-            throw new InvalidOperationException(Strings.NoProviderConfigured);
+            throw new InvalidOperationException(CoreStrings.NoProviderConfigured);
         }
 
         private string BuildDatabaseNamesString(IEnumerable<IDatabaseProvider> available)

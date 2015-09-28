@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var dependentProperty = entityType.AddProperty("Alaska");
             entityType.AddForeignKey(dependentProperty, key, entityType);
 
-            Assert.Equal(Strings.PropertyClrTypeCannotBeChangedWhenReferenced("Kake", "{'Alaska'}", "object"),
+            Assert.Equal(CoreStrings.PropertyClrTypeCannotBeChangedWhenReferenced("Kake", "{'Alaska'}", "object"),
                 Assert.Throws<InvalidOperationException>(() =>
                     principalProperty.ClrType = typeof(int)).Message);
             Assert.Equal(typeof(string), ((IProperty)principalProperty).ClrType);
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             intProperty.IsShadowProperty = false;
 
             Assert.Equal(
-                Strings.CannotBeNullable("Name", "object", "Int32"),
+                CoreStrings.CannotBeNullable("Name", "object", "Int32"),
                 Assert.Throws<InvalidOperationException>(() => intProperty.IsNullable = true).Message);
         }
 
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
 
             Assert.Equal(
-                Strings.CannotBeNullablePK("Name", "object"),
+                CoreStrings.CannotBeNullablePK("Name", "object"),
                 Assert.Throws<InvalidOperationException>(() => stringProperty.IsNullable = true).Message);
         }
 

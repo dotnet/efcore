@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity
     {
         public static TProperty Property<TProperty>([NotNull] object entity, [NotNull] string propertyName)
         {
-            throw new InvalidOperationException(Strings.PropertyMethodInvoked);
+            throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
         }
     }
 }

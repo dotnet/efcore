@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<SelfReferencingEntity>();
 
-            Assert.Equal(Strings.SelfReferencingNavigationWithInverseProperty("AnotherEntity", typeof(SelfReferencingEntity).FullName, "AnotherEntity", typeof(SelfReferencingEntity).FullName),
+            Assert.Equal(CoreStrings.SelfReferencingNavigationWithInverseProperty("AnotherEntity", typeof(SelfReferencingEntity).FullName, "AnotherEntity", typeof(SelfReferencingEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => new InversePropertyAttributeConvention().Apply(entityTypeBuilder)).Message);
         }
 
@@ -249,7 +249,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<NonExistentNavigation>();
 
-            Assert.Equal(Strings.InvalidNavigationWithInverseProperty("Principal", typeof(NonExistentNavigation).FullName, "WrongNavigation", typeof(Principal).FullName),
+            Assert.Equal(CoreStrings.InvalidNavigationWithInverseProperty("Principal", typeof(NonExistentNavigation).FullName, "WrongNavigation", typeof(Principal).FullName),
                 Assert.Throws<InvalidOperationException>(() => new InversePropertyAttributeConvention().Apply(entityTypeBuilder)).Message);
         }
 
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<WrongNavigationType>();
 
-            Assert.Equal(Strings.InvalidNavigationWithInverseProperty("Principal", typeof(WrongNavigationType).FullName, "Dependent", typeof(Principal).FullName),
+            Assert.Equal(CoreStrings.InvalidNavigationWithInverseProperty("Principal", typeof(WrongNavigationType).FullName, "Dependent", typeof(Principal).FullName),
                 Assert.Throws<InvalidOperationException>(() => new InversePropertyAttributeConvention().Apply(entityTypeBuilder)).Message);
         }
 
@@ -268,7 +268,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<MismatchedInverseProperty>();
 
             Assert.Equal(
-                Strings.InversePropertyMismatch("Principal", typeof(MismatchedInverseProperty).FullName, "MismatchedInverseProperty", typeof(Principal).FullName),
+                CoreStrings.InversePropertyMismatch("Principal", typeof(MismatchedInverseProperty).FullName, "MismatchedInverseProperty", typeof(Principal).FullName),
                 Assert.Throws<InvalidOperationException>(() => new InversePropertyAttributeConvention().Apply(entityTypeBuilder)).Message);
         }
 
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
                 "Principal",
                 null,ConfigurationSource.Convention);
 
-            Assert.Equal(Strings.FkAttributeOnPropertyNavigationMismatch("PrincipalId", "Principal", typeof(FkPropertyNavigationMismatch).FullName),
+            Assert.Equal(CoreStrings.FkAttributeOnPropertyNavigationMismatch("PrincipalId", "Principal", typeof(FkPropertyNavigationMismatch).FullName),
                 Assert.Throws<InvalidOperationException>(() => new ForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
         }
 
@@ -467,7 +467,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Equal(Strings.CompositeFkOnProperty("Principal", typeof(CompositeFkOnProperty).FullName),
+            Assert.Equal(CoreStrings.CompositeFkOnProperty("Principal", typeof(CompositeFkOnProperty).FullName),
                 Assert.Throws<InvalidOperationException>(() => new ForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
         }
 
@@ -484,7 +484,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Equal(Strings.InvalidPropertyListOnNavigation("Principal", typeof(InvalidPropertyListOnNavigation).FullName),
+            Assert.Equal(CoreStrings.InvalidPropertyListOnNavigation("Principal", typeof(InvalidPropertyListOnNavigation).FullName),
                 Assert.Throws<InvalidOperationException>(() => new ForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
         }
 

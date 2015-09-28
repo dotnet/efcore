@@ -8,11 +8,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.Sql;
-using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     if (relationalQueryCompilationContext.QueryAnnotations
                         .OfType<IncludeQueryAnnotation>().Any())
                     {
-                        throw new InvalidOperationException(Strings.StoredProcedureIncludeNotSupported);
+                        throw new InvalidOperationException(RelationalStrings.StoredProcedureIncludeNotSupported);
                     }
 
                     QueryModelVisitor.RequiresClientEval = true;
@@ -298,7 +298,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             {
                 if (!allowNullResult)
                 {
-                    throw new InvalidOperationException(Strings.InvalidKeyValue(entityType.DisplayName()));
+                    throw new InvalidOperationException(RelationalStrings.InvalidKeyValue(entityType.DisplayName()));
                 }
             }
             else

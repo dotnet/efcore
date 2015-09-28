@@ -57,13 +57,13 @@ namespace Microsoft.Data.Entity.Metadata
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
@@ -82,13 +82,13 @@ namespace Microsoft.Data.Entity.Metadata
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
@@ -107,13 +107,13 @@ namespace Microsoft.Data.Entity.Metadata
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
@@ -132,13 +132,13 @@ namespace Microsoft.Data.Entity.Metadata
             if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
-                throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
                     entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(Strings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)

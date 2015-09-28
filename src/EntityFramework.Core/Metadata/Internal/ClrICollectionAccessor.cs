@@ -53,12 +53,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (_setCollection == null)
                 {
-                    throw new InvalidOperationException(Strings.NavigationNoSetter(_propertyName, typeof(TEntity).FullName));
+                    throw new InvalidOperationException(CoreStrings.NavigationNoSetter(_propertyName, typeof(TEntity).FullName));
                 }
 
                 if (_createAndSetCollection == null)
                 {
-                    throw new InvalidOperationException(Strings.NavigationCannotCreateType(
+                    throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
                         _propertyName, typeof(TEntity).FullName, typeof(TCollection).FullName));
                 }
 

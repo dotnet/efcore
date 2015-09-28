@@ -3,8 +3,8 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Relational.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Builders
 {
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
                 && entityTypeBuilder.BaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.Annotations.ConfigurationSource) == null)
             {
-                throw new InvalidOperationException(Strings.DiscriminatorEntityTypeNotDerived(
+                throw new InvalidOperationException(RelationalStrings.DiscriminatorEntityTypeNotDerived(
                     entityTypeBuilder.Metadata.DisplayName(),
                     baseEntityTypeBuilder.Metadata.DisplayName()));
             }

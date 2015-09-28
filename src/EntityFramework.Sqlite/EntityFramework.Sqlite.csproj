@@ -73,8 +73,8 @@
     <Compile Include="Migrations\Internal\SqliteHistoryRepository.cs" />
     <Compile Include="Migrations\SqliteMigrationsAnnotationProvider.cs" />
     <Compile Include="Migrations\SqliteMigrationsSqlGenerator.cs" />
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
+    <Compile Include="Properties\SqliteStrings.Designer.cs">
+      <DependentUpon>SqliteStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteMathAbsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteStringLengthTranslator.cs" />
@@ -105,14 +105,14 @@
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.Data.Entity.Sqlite.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <EmbeddedResource Include="Properties\EntityFramework.Sqlite.rd.xml" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Sqlite.Strings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\SqliteStrings.resx">
+      <LogicalName>EntityFramework.Sqlite.SqliteStrings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

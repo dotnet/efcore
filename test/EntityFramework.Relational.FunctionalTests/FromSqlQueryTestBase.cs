@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    Strings.FromSqlMissingColumn("Region"),
+                    RelationalStrings.FromSqlMissingColumn("Region"),
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Customer>()

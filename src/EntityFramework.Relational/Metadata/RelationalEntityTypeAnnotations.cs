@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -81,13 +81,13 @@ namespace Microsoft.Data.Entity.Metadata
                 if (EntityType != EntityType.RootType())
                 {
                     throw new InvalidOperationException(
-                        Strings.DiscriminatorPropertyMustBeOnRoot(EntityType));
+                        RelationalStrings.DiscriminatorPropertyMustBeOnRoot(EntityType));
                 }
 
                 if (value.DeclaringEntityType != EntityType)
                 {
                     throw new InvalidOperationException(
-                        Strings.DiscriminatorPropertyNotFound(value.Name, EntityType));
+                        RelationalStrings.DiscriminatorPropertyNotFound(value.Name, EntityType));
                 }
             }
 
@@ -105,12 +105,12 @@ namespace Microsoft.Data.Entity.Metadata
             if (DiscriminatorProperty == null)
             {
                 throw new InvalidOperationException(
-                    Strings.NoDiscriminatorForValue(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
+                    RelationalStrings.NoDiscriminatorForValue(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
             }
 
             if (value != null && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
-                throw new InvalidOperationException(Strings.DiscriminitatorValueIncompatible(
+                throw new InvalidOperationException(RelationalStrings.DiscriminitatorValueIncompatible(
                     value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));
             }
 

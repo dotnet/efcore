@@ -4,10 +4,10 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Relational.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Metadata
                 modelBuilder.Entity("Splod", ConfigurationSource.Convention).Metadata, ConfigurationSource.Explicit);
 
             var discriminatorBuilder = typeBuilder.Relational(ConfigurationSource.Convention).Discriminator();
-            Assert.Equal(Strings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
+            Assert.Equal(RelationalStrings.DiscriminatorEntityTypeNotDerived("Splow", "Splot"),
                 Assert.Throws<InvalidOperationException>(() => discriminatorBuilder.HasValue("Splow", "1")).Message);
         }
 

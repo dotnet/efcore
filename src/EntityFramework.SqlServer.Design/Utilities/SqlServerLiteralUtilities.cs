@@ -4,6 +4,7 @@
 using System;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -43,14 +44,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
             var sqlServerStringLiteralLength = sqlServerStringLiteral.Length;
             if (sqlServerStringLiteralLength < 2)
             {
-                Logger.LogWarning(Strings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
+                Logger.LogWarning(SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;
             }
 
             if (sqlServerStringLiteral[0] != '\''
                 || sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
             {
-                Logger.LogWarning(Strings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
+                Logger.LogWarning(SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
                 return null;
             }
 

@@ -95,29 +95,29 @@ namespace Microsoft.Data.Entity.Metadata
                     {
                         if (!value.HasClrType)
                         {
-                            throw new InvalidOperationException(Strings.NonClrBaseType(this, value));
+                            throw new InvalidOperationException(CoreStrings.NonClrBaseType(this, value));
                         }
 
                         if (!value.ClrType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                         {
-                            throw new InvalidOperationException(Strings.NotAssignableClrBaseType(this, value, ClrType.Name, value.ClrType.Name));
+                            throw new InvalidOperationException(CoreStrings.NotAssignableClrBaseType(this, value, ClrType.Name, value.ClrType.Name));
                         }
                     }
 
                     if (!HasClrType
                         && value.HasClrType)
                     {
-                        throw new InvalidOperationException(Strings.NonShadowBaseType(this, value));
+                        throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this, value));
                     }
 
                     if (value.InheritsFrom(this))
                     {
-                        throw new InvalidOperationException(Strings.CircularInheritance(this, value));
+                        throw new InvalidOperationException(CoreStrings.CircularInheritance(this, value));
                     }
 
                     if (_keys.Any())
                     {
-                        throw new InvalidOperationException(Strings.DerivedEntityCannotHaveKeys(Name));
+                        throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(Name));
                     }
 
                     var propertyCollisions = value.Properties.Select(p => p.Name)
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Metadata
                     if (propertyCollisions.Any())
                     {
                         throw new InvalidOperationException(
-                            Strings.DuplicatePropertiesOnBase(
+                            CoreStrings.DuplicatePropertiesOnBase(
                                 Name,
                                 value.Name,
                                 string.Join(", ", propertyCollisions.Select(p => p.Name))));
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Metadata
                     if (navigationCollisions.Any())
                     {
                         throw new InvalidOperationException(
-                            Strings.DuplicateNavigationsOnBase(
+                            CoreStrings.DuplicateNavigationsOnBase(
                                 Name,
                                 value.Name,
                                 string.Join(", ", navigationCollisions.Select(p => p.Name))));
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (!value
                     && !this.HasPropertyChangingNotifications())
                 {
-                    throw new InvalidOperationException(Strings.EagerOriginalValuesRequired(Name));
+                    throw new InvalidOperationException(CoreStrings.EagerOriginalValuesRequired(Name));
                 }
 
                 _useEagerSnapshots = value;
@@ -250,7 +250,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             if (BaseType != null)
             {
-                throw new InvalidOperationException(Strings.DerivedEntityTypeKey(Name));
+                throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(Name));
             }
 
             if (_primaryKey != null)
@@ -343,21 +343,21 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotEmpty(properties, nameof(properties));
             if (BaseType != null)
             {
-                throw new InvalidOperationException(Strings.DerivedEntityTypeKey(Name));
+                throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(Name));
             }
 
             foreach (var property in properties)
             {
                 if (FindProperty(property.Name) != property)
                 {
-                    throw new ArgumentException(Strings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
+                    throw new ArgumentException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), Name));
                 }
             }
 
             var key = FindKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateKey(Property.Format(properties), DisplayName(), key.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateKey(Property.Format(properties), DisplayName(), key.DeclaringEntityType.DisplayName()));
             }
 
             key = new Key(properties);
@@ -424,7 +424,7 @@ namespace Microsoft.Data.Entity.Metadata
             var foreignKey = Model?.FindReferencingForeignKeys(key).FirstOrDefault();
             if (foreignKey != null)
             {
-                throw new InvalidOperationException(Strings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.DeclaringEntityType.Name));
+                throw new InvalidOperationException(CoreStrings.KeyInUse(Property.Format(key.Properties), Name, foreignKey.DeclaringEntityType.Name));
             }
         }
 
@@ -456,21 +456,21 @@ namespace Microsoft.Data.Entity.Metadata
                 if (actualProperty == null
                     || actualProperty.DeclaringEntityType != property.DeclaringEntityType)
                 {
-                    throw new ArgumentException(Strings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
+                    throw new ArgumentException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
                 }
             }
 
             var duplicateForeignKey = FindForeignKeysInHierarchy(properties).FirstOrDefault();
             if (duplicateForeignKey != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateForeignKey(Property.Format(properties), DisplayName(), duplicateForeignKey.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateForeignKey(Property.Format(properties), DisplayName(), duplicateForeignKey.DeclaringEntityType.DisplayName()));
             }
 
             var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType);
 
             if (principalEntityType.Model != Model)
             {
-                throw new ArgumentException(Strings.EntityTypeModelMismatch(this, principalEntityType));
+                throw new ArgumentException(CoreStrings.EntityTypeModelMismatch(this, principalEntityType));
             }
 
             _foreignKeys.Add(properties, foreignKey);
@@ -547,7 +547,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (navigation != null)
             {
                 throw new InvalidOperationException(
-                    Strings.ForeignKeyInUse(
+                    CoreStrings.ForeignKeyInUse(
                         Property.Format(foreignKey.Properties),
                         Name,
                         navigation.Name,
@@ -570,13 +570,13 @@ namespace Microsoft.Data.Entity.Metadata
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateNavigation(name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateNavigation(name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
             if (duplicateProperty != null)
             {
-                throw new InvalidOperationException(Strings.ConflictingProperty(name, DisplayName(),
+                throw new InvalidOperationException(CoreStrings.ConflictingProperty(name, DisplayName(),
                     duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
@@ -586,7 +586,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (otherNavigation != null)
             {
-                throw new InvalidOperationException(Strings.MultipleNavigations(name, otherNavigation.Name, Name));
+                throw new InvalidOperationException(CoreStrings.MultipleNavigations(name, otherNavigation.Name, Name));
             }
 
             var declaringTypeFromFk = pointsToPrincipal
@@ -595,7 +595,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (declaringTypeFromFk != this)
             {
-                throw new InvalidOperationException(Strings.NavigationOnWrongEntityType(name, Name, declaringTypeFromFk.Name));
+                throw new InvalidOperationException(CoreStrings.NavigationOnWrongEntityType(name, Name, declaringTypeFromFk.Name));
             }
 
             Navigation.IsCompatible(
@@ -692,14 +692,14 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (FindProperty(property.Name) != property)
                 {
-                    throw new ArgumentException(Strings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
+                    throw new ArgumentException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), Name));
                 }
             }
 
             var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
             if (duplicateIndex != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateIndex(Property.Format(properties), DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.DuplicateIndex(Property.Format(properties), DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
             var index = new Index(properties);
@@ -778,12 +778,12 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
                 {
-                    throw new ArgumentException(Strings.PropertyWrongEntityClrType(propertyInfo.Name, Name, propertyInfo.DeclaringType.Name));
+                    throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(propertyInfo.Name, Name, propertyInfo.DeclaringType.Name));
                 }
             }
             else
             {
-                throw new InvalidOperationException(Strings.ClrPropertyOnShadowEntity(propertyInfo.Name, Name));
+                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(propertyInfo.Name, Name));
             }
 
             var property = AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
@@ -807,14 +807,14 @@ namespace Microsoft.Data.Entity.Metadata
             var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
             if (duplicateProperty != null)
             {
-                throw new InvalidOperationException(Strings.DuplicateProperty(
+                throw new InvalidOperationException(CoreStrings.DuplicateProperty(
                     name, DisplayName(), duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {
-                throw new InvalidOperationException(Strings.ConflictingNavigation(name, DisplayName(),
+                throw new InvalidOperationException(CoreStrings.ConflictingNavigation(name, DisplayName(),
                     duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
@@ -899,7 +899,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (property.IsInUse)
                 {
-                    throw new InvalidOperationException(Strings.PropertyInUse(property.Name, Name));
+                    throw new InvalidOperationException(CoreStrings.PropertyInUse(property.Name, Name));
                 }
 
                 _properties.Remove(property.Name);

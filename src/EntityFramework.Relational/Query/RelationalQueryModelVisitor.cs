@@ -9,12 +9,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 using Remotion.Linq;
@@ -763,10 +763,10 @@ namespace Microsoft.Data.Entity.Query
 
             if (RelationalOptionsExtension.Extract(ContextOptions).IsQueryClientEvaluationEnabled == false)
             {
-                throw new InvalidOperationException(Strings.ClientEvalDisabled(expression));
+                throw new InvalidOperationException(RelationalStrings.ClientEvalDisabled(expression));
             }
 
-            QueryCompilationContext.Logger.LogWarning(Strings.ClientEvalWarning(expression));
+            QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
         }
 
         public override Expression BindMemberToValueBuffer(MemberExpression memberExpression, Expression expression)

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.Data.Entity.Design.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Design
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 return Literal(enumValue);
             }
 
-            throw new InvalidOperationException(Strings.UnknownLiteral(value.GetType()));
+            throw new InvalidOperationException(CommandsStrings.UnknownLiteral(value.GetType()));
         }
     }
 }

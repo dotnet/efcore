@@ -14,7 +14,6 @@ using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Migrations
 {
@@ -108,7 +107,7 @@ namespace Microsoft.Data.Entity.Migrations
             var commands = _migrationsSqlGenerator.Generate(operations, _model.Value);
             if (commands.Count != 1)
             {
-                throw new InvalidOperationException(Strings.InvalidCreateScript);
+                throw new InvalidOperationException(RelationalStrings.InvalidCreateScript);
             }
 
             return commands[0].CommandText;

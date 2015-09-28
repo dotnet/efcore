@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Storage
             logger.LogInformation(
                 RelationalLoggingEventIds.CreatingDatabase,
                 databaseName,
-                Strings.RelationalLoggerCreatingDatabase);
+                RelationalStrings.RelationalLoggerCreatingDatabase);
         }
 
         public static void OpeningConnection([NotNull] this ILogger logger, [NotNull] string connectionString)
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Storage
             logger.LogVerbose(
                 RelationalLoggingEventIds.OpeningConnection,
                 connectionString,
-                Strings.RelationalLoggerOpeningConnection);
+                RelationalStrings.RelationalLoggerOpeningConnection);
         }
 
         public static void ClosingConnection([NotNull] this ILogger logger, [NotNull] string connectionString)
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Storage
             logger.LogVerbose(
                 RelationalLoggingEventIds.ClosingConnection,
                 connectionString,
-                Strings.RelationalLoggerClosingConnection);
+                RelationalStrings.RelationalLoggerClosingConnection);
         }
 
         public static void BeginningTransaction([NotNull] this ILogger logger, IsolationLevel isolationLevel)
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Storage
             logger.LogVerbose(
                 RelationalLoggingEventIds.BeginningTransaction,
                 isolationLevel,
-                il => Strings.RelationalLoggerBeginningTransaction(il.ToString("G")));
+                il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
         }
 
         public static void CommittingTransaction([NotNull] this ILogger logger)
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Storage
 
             logger.LogVerbose(
                 RelationalLoggingEventIds.CommittingTransaction,
-                Strings.RelationalLoggerCommittingTransaction);
+                RelationalStrings.RelationalLoggerCommittingTransaction);
         }
 
         public static void RollingbackTransaction([NotNull] this ILogger logger)
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Storage
 
             logger.LogVerbose(
                 RelationalLoggingEventIds.RollingbackTransaction,
-                Strings.RelationalLoggerRollingbackTransaction);
+                RelationalStrings.RelationalLoggerRollingbackTransaction);
         }
     }
 }

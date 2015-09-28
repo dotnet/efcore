@@ -2,13 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -142,7 +141,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && value != typeof(int)
                     && value != typeof(short))
                 {
-                    throw new ArgumentException(Strings.BadSequenceType);
+                    throw new ArgumentException(RelationalStrings.BadSequenceType);
                 }
 
                 var data = GetData();
@@ -246,7 +245,7 @@ namespace Microsoft.Data.Entity.Metadata
                 }
                 catch (Exception ex)
                 {
-                    throw new ArgumentException(Strings.BadSequenceString, ex);
+                    throw new ArgumentException(RelationalStrings.BadSequenceString, ex);
                 }
             }
 

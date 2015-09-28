@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update.Internal
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), Strings.InvalidMaxBatchSize);
+                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize);
             }
 
             _maxBatchSize = Math.Min(maxBatchSize ?? Int32.MaxValue, MaxRowCount);

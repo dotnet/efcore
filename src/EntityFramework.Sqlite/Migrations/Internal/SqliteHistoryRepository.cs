@@ -4,8 +4,8 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Migrations.Internal
@@ -49,17 +49,17 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
         public override string GetBeginIfNotExistsScript(string migrationId)
         {
-            throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
+            throw new NotSupportedException(SqliteStrings.MigrationScriptGenerationNotSupported);
         }
 
         public override string GetBeginIfExistsScript(string migrationId)
         {
-            throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
+            throw new NotSupportedException(SqliteStrings.MigrationScriptGenerationNotSupported);
         }
 
         public override string GetEndIfScript()
         {
-            throw new NotSupportedException(Strings.MigrationScriptGenerationNotSupported);
+            throw new NotSupportedException(SqliteStrings.MigrationScriptGenerationNotSupported);
         }
     }
 }

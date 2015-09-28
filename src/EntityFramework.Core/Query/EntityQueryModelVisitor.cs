@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
-                QueryCompilationContext.Logger.LogDebug(queryModel, Strings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger.LogDebug(queryModel, CoreStrings.LogCompilingQueryModel);
 
                 _blockTaskExpressions = false;
 
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
-                QueryCompilationContext.Logger.LogDebug(queryModel, Strings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger.LogDebug(queryModel, CoreStrings.LogCompilingQueryModel);
 
                 _blockTaskExpressions = false;
 
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Query
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
-            QueryCompilationContext.Logger.LogDebug(queryModel, Strings.LogOptimizedQueryModel);
+            QueryCompilationContext.Logger.LogDebug(queryModel, CoreStrings.LogOptimizedQueryModel);
         }
 
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
@@ -284,7 +284,7 @@ namespace Microsoft.Data.Entity.Query
                                         if (properties.Length != navigations.Length)
                                         {
                                             throw new InvalidOperationException(
-                                                Strings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
+                                                CoreStrings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
                                         }
 
                                         return BindChainedNavigations(
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Query
                             if (navigationPath == null)
                             {
                                 throw new InvalidOperationException(
-                                    Strings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
+                                    CoreStrings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
                             }
 
                             return new IncludeSpecification(annotation.QuerySource, navigationPath);
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.Query
                     QueryCompilationContext.Logger
                         .LogDebug(
                             includeSpecification.NavigationPath.Join("."),
-                            Strings.LogIncludingNavigation);
+                            CoreStrings.LogIncludingNavigation);
 
                     IncludeNavigations(
                         includeSpecification,
@@ -384,7 +384,7 @@ namespace Microsoft.Data.Entity.Query
         {
             // template method
 
-            throw new NotImplementedException(Strings.IncludeNotImplemented);
+            throw new NotImplementedException(CoreStrings.IncludeNotImplemented);
         }
 
         protected virtual void TrackEntitiesInResults<TResult>(
@@ -406,7 +406,7 @@ namespace Microsoft.Data.Entity.Query
                 QueryCompilationContext.Logger
                     .LogDebug(
                         entityTrackingInfos,
-                        etis => Strings.LogTrackingQuerySources(
+                        etis => CoreStrings.LogTrackingQuerySources(
                             etis.Select(eti => eti.QuerySource.ItemName).Join()));
 
                 var resultItemType

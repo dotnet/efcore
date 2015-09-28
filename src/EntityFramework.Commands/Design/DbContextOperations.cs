@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using Strings = Microsoft.Data.Entity.Design.Internal.Strings;
 
 #if DNX451 || DNXCORE50
 using Microsoft.AspNet.Hosting;
@@ -100,7 +99,7 @@ namespace Microsoft.Data.Entity.Design
         public virtual Type GetContextType([CanBeNull] string name)
         {
             var contextType = FindContextType(name);
-            _logger.Value.LogVerbose(Strings.LogUseContext(contextType.Name));
+            _logger.Value.LogVerbose(CommandsStrings.LogUseContext(contextType.Name));
 
             return contextType;
         }
@@ -115,7 +114,7 @@ namespace Microsoft.Data.Entity.Design
                 }
                 catch (Exception ex)
                 {
-                    throw new OperationException(Strings.UnreferencedAssembly(_assemblyName, _startupAssemblyName), ex);
+                    throw new OperationException(CommandsStrings.UnreferencedAssembly(_assemblyName, _startupAssemblyName), ex);
                 }
             }
 
@@ -133,20 +132,20 @@ namespace Microsoft.Data.Entity.Design
                 candidates = types.Take(2).ToArray();
                 if (candidates.Length == 0)
                 {
-                    throw new OperationException(Strings.NoContext);
+                    throw new OperationException(CommandsStrings.NoContext);
                 }
                 if (candidates.Length == 1)
                 {
                     return candidates[0];
                 }
 
-                throw new OperationException(Strings.MultipleContexts);
+                throw new OperationException(CommandsStrings.MultipleContexts);
             }
 
             candidates = FilterTypes(types, name, ignoreCase: true).ToArray();
             if (candidates.Length == 0)
             {
-                throw new OperationException(Strings.NoContextWithName(name));
+                throw new OperationException(CommandsStrings.NoContextWithName(name));
             }
             if (candidates.Length == 1)
             {
@@ -157,7 +156,7 @@ namespace Microsoft.Data.Entity.Design
             candidates = FilterTypes(candidates, name).ToArray();
             if (candidates.Length == 0)
             {
-                throw new OperationException(Strings.MultipleContextsWithName(name));
+                throw new OperationException(CommandsStrings.MultipleContextsWithName(name));
             }
             if (candidates.Length == 1)
             {
@@ -168,7 +167,7 @@ namespace Microsoft.Data.Entity.Design
             candidates = candidates.Where(t => t.Namespace == null).ToArray();
             if (candidates.Length == 0)
             {
-                throw new OperationException(Strings.MultipleContextsWithQualifiedName(name));
+                throw new OperationException(CommandsStrings.MultipleContextsWithQualifiedName(name));
             }
 
             Debug.Assert(candidates.Length == 1, "candidates.Length is not 1.");

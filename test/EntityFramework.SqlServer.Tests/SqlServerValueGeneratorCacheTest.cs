@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
@@ -139,7 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var cache = new SqlServerValueGeneratorCache();
 
             Assert.StartsWith(
-                Internal.Strings.HiLoBadBlockSize,
+                CoreStrings.HiLoBadBlockSize,
                 Assert.Throws<ArgumentOutOfRangeException>(() => cache.GetOrAddSequenceState(property).Sequence.IncrementBy).Message);
         }
 

@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -146,52 +146,52 @@ namespace Microsoft.Data.Entity.Migrations
         // These operations can be accomplished instead with a table-rebuild
         protected override void Generate(AddForeignKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(AddPrimaryKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(AddUniqueConstraintOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(DropColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(DropForeignKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(DropPrimaryKeyOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(DropUniqueConstraintOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(RenameColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(RenameIndexOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         protected override void Generate(AlterColumnOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.InvalidMigrationOperation);
+            throw new NotSupportedException(SqliteStrings.InvalidMigrationOperation);
         }
 
         #endregion
@@ -200,12 +200,12 @@ namespace Microsoft.Data.Entity.Migrations
 
         protected override void Generate(EnsureSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SchemasNotSupported);
+            throw new NotSupportedException(SqliteStrings.SchemasNotSupported);
         }
 
         protected override void Generate(DropSchemaOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SchemasNotSupported);
+            throw new NotSupportedException(SqliteStrings.SchemasNotSupported);
         }
 
         #endregion
@@ -215,27 +215,27 @@ namespace Microsoft.Data.Entity.Migrations
         // SQLite does not have sequences
         protected override void Generate(RestartSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SequencesNotSupported);
+            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
         protected override void Generate(CreateSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SequencesNotSupported);
+            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
         protected override void Generate(RenameSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SequencesNotSupported);
+            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
         protected override void Generate(AlterSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SequencesNotSupported);
+            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
         protected override void Generate(DropSequenceOperation operation, IModel model, RelationalCommandListBuilder builder)
         {
-            throw new NotSupportedException(Strings.SequencesNotSupported);
+            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
 
         #endregion

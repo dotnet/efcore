@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Xunit;
@@ -222,7 +222,7 @@ CREATE TABLE Users_Groups (
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly
                 });
-                var errorMessage = Strings.MissingPrimaryKey("Alicia");
+                var errorMessage = SqliteDesignStrings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
@@ -260,8 +260,8 @@ CREATE TABLE Principal ( Id INT);");
                 {
                     Warn =
                     {
-                        Strings.MissingPrimaryKey("Principal"),
-                        Strings.ForeignKeyScaffoldError("Dependent", "PrincipalId")
+                        SqliteDesignStrings.MissingPrimaryKey("Principal"),
+                        SqliteDesignStrings.ForeignKeyScaffoldError("Dependent", "PrincipalId")
                     }
                 };
                 AssertLog(expectedLog);

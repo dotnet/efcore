@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity
     {
         IList IListSource.GetList()
         {
-            throw new NotSupportedException(Strings.DataBindingWithIListSource);
+            throw new NotSupportedException(CoreStrings.DataBindingWithIListSource);
         }
 
         bool IListSource.ContainsListCollection => false;

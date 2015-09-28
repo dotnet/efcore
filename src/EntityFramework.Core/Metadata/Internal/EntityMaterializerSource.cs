@@ -49,12 +49,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (!entityType.HasClrType())
             {
-                throw new InvalidOperationException(Strings.NoClrType(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.NoClrType(entityType.Name));
             }
 
             if (entityType.IsAbstract())
             {
-                throw new InvalidOperationException(Strings.CannotMaterializeAbstractType(entityType));
+                throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType));
             }
 
             var instanceVariable = Expression.Variable(entityType.ClrType, "instance");

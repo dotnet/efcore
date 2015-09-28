@@ -6,7 +6,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Tests
             var context = RelationalTestHelpers.Instance.CreateContext();
 
             Assert.Equal(
-                Strings.RelationalNotInUse,
+                RelationalStrings.RelationalNotInUse,
                 Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
         }
 

@@ -6,7 +6,6 @@ using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
 using Microsoft.Framework.Logging;
 using Xunit;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Tests
 {
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Entity.Tests
             entityA.Relational().TableName = "Table";
             entityB.Relational().TableName = "Table";
 
-            VerifyError(Strings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
+            VerifyError(RelationalStrings.DuplicateTableName("Table", null, entityB.DisplayName()), model);
         }
 
         [Fact]
@@ -39,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests
             entityB.Relational().TableName = "Table";
             entityB.Relational().Schema = "Schema";
 
-            VerifyError(Strings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
+            VerifyError(RelationalStrings.DuplicateTableName("Table", "Schema", entityB.DisplayName()), model);
         }
 
         [Fact]
@@ -106,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityC = model.AddEntityType(typeof(C));
             entityC.BaseType = entityA;
 
-            VerifyError(Strings.NoDiscriminatorProperty(entityC.DisplayName()), model);
+            VerifyError(RelationalStrings.NoDiscriminatorProperty(entityC.DisplayName()), model);
         }
 
         [Fact]
@@ -122,7 +121,7 @@ namespace Microsoft.Data.Entity.Tests
             entityA.Relational().DiscriminatorProperty = discriminatorProperty;
             entityAbstract.Relational().DiscriminatorValue = 1;
             
-            VerifyError(Strings.NoDiscriminatorValue(entityA.DisplayName()), model);
+            VerifyError(RelationalStrings.NoDiscriminatorValue(entityA.DisplayName()), model);
         }
 
         [Fact]
@@ -138,7 +137,7 @@ namespace Microsoft.Data.Entity.Tests
             entityAbstract.Relational().DiscriminatorProperty = discriminatorProperty;
             entityAbstract.Relational().DiscriminatorValue = 0;
             
-            VerifyError(Strings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
+            VerifyError(RelationalStrings.NoDiscriminatorValue(entityGeneric.DisplayName()), model);
         }
 
         protected class C : A

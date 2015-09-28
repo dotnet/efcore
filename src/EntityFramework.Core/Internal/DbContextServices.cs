@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Internal
         {
             if (_inOnModelCreating)
             {
-                throw new InvalidOperationException(Strings.RecursiveOnModelCreating);
+                throw new InvalidOperationException(CoreStrings.RecursiveOnModelCreating);
             }
 
             try

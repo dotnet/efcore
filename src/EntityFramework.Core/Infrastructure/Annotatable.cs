@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             if (previousLength == _annotations.Value.Count)
             {
-                throw new InvalidOperationException(Strings.DuplicateAnnotation(annotationName));
+                throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(annotationName));
             }
 
             return annotation;
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             var annotation = FindAnnotation(annotationName);
             if (annotation == null)
             {
-                throw new InvalidOperationException(Strings.AnnotationNotFound(annotationName));
+                throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName));
             }
 
             return annotation;

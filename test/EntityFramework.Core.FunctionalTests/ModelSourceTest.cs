@@ -4,10 +4,8 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;

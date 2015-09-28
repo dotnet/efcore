@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
-using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Migrations
             Action<MigrationsSqlGenerator, MigrationOperation, IModel, RelationalCommandListBuilder> generateAction;
             if (!_generateActions.TryGetValue(operationType, out generateAction))
             {
-                throw new InvalidOperationException(Strings.UnknownOperation(GetType().Name, operationType));
+                throw new InvalidOperationException(RelationalStrings.UnknownOperation(GetType().Name, operationType));
             }
 
             generateAction(this, operation, model, builder);

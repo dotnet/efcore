@@ -399,7 +399,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
             entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
 
-            Assert.Equal(Strings.ShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}"),
+            Assert.Equal(CoreStrings.ShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}"),
                 Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
         }
 
@@ -443,7 +443,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Convention);
 
-            Assert.Equal(Strings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}",typeof(ReferencedEntity).FullName),
+            Assert.Equal(CoreStrings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}",typeof(ReferencedEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
         }
 

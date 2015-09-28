@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 
@@ -24,12 +25,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             if (string.IsNullOrEmpty(ConnectionString))
             {
-                throw new ArgumentException(Strings.ConnectionStringRequired);
+                throw new ArgumentException(RelationalDesignStrings.ConnectionStringRequired);
             }
 
             if (string.IsNullOrEmpty(ProjectPath))
             {
-                throw new ArgumentException(Strings.ProjectPathRequired);
+                throw new ArgumentException(RelationalDesignStrings.ProjectPathRequired);
             }
 
             if (!string.IsNullOrWhiteSpace(ContextClassName)
@@ -37,12 +38,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     || CSharpUtilities.Instance.IsCSharpKeyword(ContextClassName)))
             {
                 throw new ArgumentException(
-                    Strings.ContextClassNotValidCSharpIdentifier(ContextClassName));
+                    RelationalDesignStrings.ContextClassNotValidCSharpIdentifier(ContextClassName));
             }
 
             if (string.IsNullOrEmpty(ProjectRootNamespace))
             {
-                throw new ArgumentException(Strings.RootNamespaceRequired);
+                throw new ArgumentException(RelationalDesignStrings.RootNamespaceRequired);
             }
         }
     }

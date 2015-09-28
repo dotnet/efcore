@@ -52,19 +52,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (elementType == null)
             {
                 throw new NotSupportedException(
-                    Strings.NavigationBadType(
+                    CoreStrings.NavigationBadType(
                         navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName, navigation.GetTargetType().Name));
             }
 
             if (property.PropertyType.IsArray)
             {
                 throw new NotSupportedException(
-                    Strings.NavigationArray(navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName));
+                    CoreStrings.NavigationArray(navigation.Name, navigation.DeclaringEntityType.Name, property.PropertyType.FullName));
             }
 
             if (property.GetMethod == null)
             {
-                throw new NotSupportedException(Strings.NavigationNoGetter(navigation.Name, navigation.DeclaringEntityType.Name));
+                throw new NotSupportedException(CoreStrings.NavigationNoGetter(navigation.Name, navigation.DeclaringEntityType.Name));
             }
 
             var boundMethod = _genericCreate.MakeGenericMethod(

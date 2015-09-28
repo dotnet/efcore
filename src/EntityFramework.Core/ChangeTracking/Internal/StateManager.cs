@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             if (entityKey == EntityKey.InvalidEntityKey)
             {
-                throw new InvalidOperationException(Strings.InvalidPrimaryKey(entityType.DisplayName()));
+                throw new InvalidOperationException(CoreStrings.InvalidPrimaryKey(entityType.DisplayName()));
             }
 
             var existingEntry = TryGetEntry(entityKey);
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (existingEntry.Entity != entity)
                 {
-                    throw new InvalidOperationException(Strings.IdentityConflict(entityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.IdentityConflict(entityType.DisplayName()));
                 }
 
                 return existingEntry;
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (entry.StateManager != this)
             {
-                throw new InvalidOperationException(Strings.WrongStateManager(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.WrongStateManager(entityType.Name));
             }
 
             var mapKey = entry.Entity ?? entry;
@@ -209,7 +209,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else
             {
-                throw new InvalidOperationException(Strings.MultipleEntries(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.Name));
             }
 
             var keyValue = GetKeyValueChecked(entityType.GetPrimaryKey(), entry);
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 {
                     // TODO: Consider specialized exception types
                     // Issue #611
-                    throw new InvalidOperationException(Strings.IdentityConflict(entityType.Name));
+                    throw new InvalidOperationException(CoreStrings.IdentityConflict(entityType.Name));
                 }
             }
             else
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             if (_identityMap.TryGetValue(newKey, out existingEntry)
                 && existingEntry != entry)
             {
-                throw new InvalidOperationException(Strings.IdentityConflict(entry.EntityType.Name));
+                throw new InvalidOperationException(CoreStrings.IdentityConflict(entry.EntityType.Name));
             }
 
             _identityMap.Remove(oldKey);
@@ -374,7 +374,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             if (keyValue == EntityKey.InvalidEntityKey)
             {
                 // TODO: Check message text here
-                throw new InvalidOperationException(Strings.InvalidPrimaryKey(entry.EntityType.Name));
+                throw new InvalidOperationException(CoreStrings.InvalidPrimaryKey(entry.EntityType.Name));
             }
 
             return keyValue;

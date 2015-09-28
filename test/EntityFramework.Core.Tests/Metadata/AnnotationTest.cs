@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Members_check_arguments()
         {
             Assert.Equal(
-                Strings.ArgumentIsEmpty("name"),
+                CoreStrings.ArgumentIsEmpty("name"),
                 Assert.Throws<ArgumentException>(() => new Annotation("", "Kake")).Message);
 
             // ReSharper disable once AssignNullToNotNullAttribute

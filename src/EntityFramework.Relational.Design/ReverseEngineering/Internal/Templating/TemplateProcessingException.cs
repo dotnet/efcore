@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating
 {
@@ -17,14 +18,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
 
         public virtual IEnumerable<string> Messages { get; }
 
-        public override string Message
-        {
-            get { return Strings.TemplateProcessingFailed(FormatMessage(Messages)); }
-        }
+        public override string Message 
+            => RelationalDesignStrings.TemplateProcessingFailed(FormatMessage(Messages));
 
-        private static string FormatMessage([param: NotNull] IEnumerable<string> messages)
-        {
-            return String.Join(Environment.NewLine, messages);
-        }
+        private static string FormatMessage([param: NotNull] IEnumerable<string> messages) 
+            => String.Join(Environment.NewLine, messages);
     }
 }

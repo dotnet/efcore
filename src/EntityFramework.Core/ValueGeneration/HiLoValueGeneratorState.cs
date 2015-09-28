@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         {
             if (blockSize <= 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(blockSize), Strings.HiLoBadBlockSize);
+                throw new ArgumentOutOfRangeException(nameof(blockSize), CoreStrings.HiLoBadBlockSize);
             }
 
             _blockSize = blockSize;

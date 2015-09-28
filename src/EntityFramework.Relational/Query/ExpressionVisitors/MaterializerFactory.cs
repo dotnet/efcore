@@ -6,10 +6,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -162,6 +162,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         [UsedImplicitly]
         private static Exception CreateUnableToDiscriminateException(IEntityType entityType)
-            => new InvalidOperationException(Strings.UnableToDiscriminate(entityType.Name));
+            => new InvalidOperationException(RelationalStrings.UnableToDiscriminate(entityType.Name));
     }
 }

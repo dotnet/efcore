@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (hasTempValue != null)
                 {
-                    throw new InvalidOperationException(Strings.TempValuePersists(hasTempValue.Name, EntityType.DisplayName(), newState));
+                    throw new InvalidOperationException(CoreStrings.TempValuePersists(hasTempValue.Name, EntityType.DisplayName(), newState));
                 }
             }
 
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (isModified && property.IsKey())
             {
-                throw new NotSupportedException(Strings.KeyReadOnly(property.Name, EntityType.DisplayName()));
+                throw new NotSupportedException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
 
             _stateData.FlagProperty(property.Index, PropertyFlag.TemporaryOrModified, isModified);
@@ -415,13 +415,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
                 else if (fks.Any())
                 {
-                    throw new InvalidOperationException(Strings.RelationshipConceptualNull(
+                    throw new InvalidOperationException(CoreStrings.RelationshipConceptualNull(
                         fks.First().PrincipalEntityType.DisplayName(),
                         EntityType.DisplayName()));
                 }
                 else
                 {
-                    throw new InvalidOperationException(Strings.PropertyConceptualNull(
+                    throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
                         EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)).Name,
                         EntityType.DisplayName()));
                 }
@@ -432,7 +432,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 var setProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyBeforeSave && !IsTemporaryOrSentinel(p));
                 if (setProperty != null)
                 {
-                    throw new InvalidOperationException(Strings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
                 }
             }
             else if (EntityState == EntityState.Modified)
@@ -440,7 +440,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 var modifiedProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyAfterSave && IsPropertyModified(p));
                 if (modifiedProperty != null)
                 {
-                    throw new InvalidOperationException(Strings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
+                    throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
                 }
             }
 

@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -42,7 +41,7 @@ namespace Microsoft.Data.Entity.Storage
             {
                 if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
                 {
-                    throw new InvalidOperationException(Strings.ConnectionAndConnectionString);
+                    throw new InvalidOperationException(RelationalStrings.ConnectionAndConnectionString);
                 }
 
                 _connection = new LazyRef<DbConnection>(() => relationalOptions.Connection);
@@ -57,7 +56,7 @@ namespace Microsoft.Data.Entity.Storage
             }
             else
             {
-                throw new InvalidOperationException(Strings.NoConnectionOrConnectionString);
+                throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
             }
 
 #if NET45
@@ -81,7 +80,7 @@ namespace Microsoft.Data.Entity.Storage
                 if (value.HasValue
                     && value < 0)
                 {
-                    throw new ArgumentException(Strings.InvalidCommandTimeout);
+                    throw new ArgumentException(RelationalStrings.InvalidCommandTimeout);
                 }
 
                 _commandTimeout = value;
@@ -102,7 +101,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             if (Transaction != null)
             {
-                throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
+                throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
             Open();
@@ -117,7 +116,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             if (Transaction != null)
             {
-                throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
+                throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
 
             await OpenAsync(cancellationToken);
@@ -149,7 +148,7 @@ namespace Microsoft.Data.Entity.Storage
             {
                 if (Transaction != null)
                 {
-                    throw new InvalidOperationException(Strings.TransactionAlreadyStarted);
+                    throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
                 }
 
                 Open();
@@ -198,7 +197,7 @@ namespace Microsoft.Data.Entity.Storage
             if (_throwOnAmbientTransaction
                 && System.Transactions.Transaction.Current != null)
             {
-                throw new InvalidOperationException(Strings.AmbientTransaction);
+                throw new InvalidOperationException(RelationalStrings.AmbientTransaction);
             }
         }
 #endif

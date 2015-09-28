@@ -54,8 +54,8 @@
     <Compile Include="Extensions\InMemoryEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
+    <Compile Include="Properties\InMemoryStrings.Designer.cs">
+      <DependentUpon>InMemoryStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
@@ -85,14 +85,15 @@
     <Compile Include="ValueGeneration\Internal\InMemoryIntegerValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\Internal\InMemoryValueGeneratorSelector.cs" />
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.InMemory.Strings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\InMemoryStrings.resx">
+      <LogicalName>EntityFramework.InMemory.InMemoryStrings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
   </ItemGroup>

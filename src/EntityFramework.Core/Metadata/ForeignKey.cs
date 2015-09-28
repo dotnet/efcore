@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
             if (!principalEntityType.GetKeys().Contains(principalKey))
             {
                 throw new ArgumentException(
-                    Strings.ForeignKeyReferencedEntityKeyMismatch(
+                    CoreStrings.ForeignKeyReferencedEntityKeyMismatch(
                         Property.Format(principalKey.Properties),
                         principalEntityType));
             }
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && DeclaringEntityType.Navigations.Contains(_dependentToPrincipal))
                 {
                     throw new InvalidOperationException(
-                        Strings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name));
+                        CoreStrings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name));
                 }
 
                 _dependentToPrincipal = value;
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && PrincipalEntityType.Navigations.Contains(_principalToDependent))
                 {
                     throw new InvalidOperationException(
-                        Strings.NavigationStillOnEntityType(_principalToDependent.Name, PrincipalEntityType.Name));
+                        CoreStrings.NavigationStillOnEntityType(_principalToDependent.Name, PrincipalEntityType.Name));
                 }
 
                 _principalToDependent = value;
@@ -95,12 +95,12 @@ namespace Microsoft.Data.Entity.Metadata
                 if (value.ForeignKey != this)
                 {
                     throw new InvalidOperationException(
-                        Strings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
+                        CoreStrings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
                 }
 
                 if (!entityType.Navigations.Contains(value))
                 {
-                    throw new InvalidOperationException(Strings.NavigationNotFound(value.Name, entityType.Name));
+                    throw new InvalidOperationException(CoreStrings.NavigationNotFound(value.Name, entityType.Name));
                 }
             }
         }
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(Strings.ForeignKeyCannotBeOptional(
+                    throw new InvalidOperationException(CoreStrings.ForeignKeyCannotBeOptional(
                         Property.Format(properties), entityType.DisplayName()));
                 }
                 return false;
@@ -292,7 +292,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                        Strings.ForeignKeyCountMismatch(
+                        CoreStrings.ForeignKeyCountMismatch(
                             Property.Format(dependentProperties),
                             dependentEntityType.Name,
                             Property.Format(principalProperties),
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Metadata
                 if (shouldThrow)
                 {
                     throw new InvalidOperationException(
-                        Strings.ForeignKeyTypeMismatch(
+                        CoreStrings.ForeignKeyTypeMismatch(
                             Property.Format(dependentProperties),
                             dependentEntityType.Name,
                             Property.Format(principalProperties),

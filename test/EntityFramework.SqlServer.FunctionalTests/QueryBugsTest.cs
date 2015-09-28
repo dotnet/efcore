@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
 using Xunit;
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (var context = new SentinelKeyContext(testStore.Connection.ConnectionString))
                 {
                     Assert.Equal(
-                        Relational.Internal.Strings.InvalidKeyValue("ZeroKey"),
+                        RelationalStrings.InvalidKeyValue("ZeroKey"),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }
@@ -51,7 +52,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 using (var context = new SentinelKeyContext(testStore.Connection.ConnectionString))
                 {
                     Assert.Equal(
-                        Relational.Internal.Strings.InvalidKeyValue("ZeroKey"),
+                        RelationalStrings.InvalidKeyValue("ZeroKey"),
                         Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
                 }
             }

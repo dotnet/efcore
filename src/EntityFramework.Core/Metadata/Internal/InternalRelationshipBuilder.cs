@@ -434,7 +434,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (configurationSource == ConfigurationSource.Explicit)
                 {
-                    throw new InvalidOperationException(Strings.RelationshipCannotBeInverted);
+                    throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
                 }
                 return null;
             }
@@ -491,7 +491,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (configurationSource == ConfigurationSource.Explicit)
                 {
-                    throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                    throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
                         dependentEntityType.DisplayName(),
                         Metadata.DeclaringEntityType.DisplayName(),
                         Metadata.PrincipalEntityType.DisplayName()));
@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (configurationSource == ConfigurationSource.Explicit)
                 {
-                    throw new ArgumentException(Strings.EntityTypeNotInRelationship(
+                    throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
                         principalEntityType.DisplayName(),
                         Metadata.DeclaringEntityType.DisplayName(),
                         Metadata.PrincipalEntityType.DisplayName()));

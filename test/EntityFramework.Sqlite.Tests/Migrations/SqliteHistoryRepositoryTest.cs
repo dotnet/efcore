@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Infrastructure.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Sqlite.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Moq;
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Migrations
             var repository = CreateHistoryRepository();
             var ex = Assert.Throws<NotSupportedException>(() => repository.GetBeginIfNotExistsScript("Migration1"));
 
-            Assert.Equal(Strings.MigrationScriptGenerationNotSupported, ex.Message);
+            Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Migrations
             var repository = CreateHistoryRepository();
             var ex = Assert.Throws<NotSupportedException>(() => repository.GetBeginIfExistsScript("Migration1"));
 
-            Assert.Equal(Strings.MigrationScriptGenerationNotSupported, ex.Message);
+            Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Migrations
             var repository = CreateHistoryRepository();
             var ex = Assert.Throws<NotSupportedException>(() => repository.GetEndIfScript());
 
-            Assert.Equal(Strings.MigrationScriptGenerationNotSupported, ex.Message);
+            Assert.Equal(SqliteStrings.MigrationScriptGenerationNotSupported, ex.Message);
         }
 
         private static IHistoryRepository CreateHistoryRepository()

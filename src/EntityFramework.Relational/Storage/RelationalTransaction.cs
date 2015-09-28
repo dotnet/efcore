@@ -6,7 +6,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Storage
 
             if (connection.DbConnection != dbTransaction.Connection)
             {
-                throw new InvalidOperationException(Strings.TransactionAssociatedWithDifferentConnection);
+                throw new InvalidOperationException(RelationalStrings.TransactionAssociatedWithDifferentConnection);
             }
 
             Connection = connection;

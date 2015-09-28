@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             var model = new Model();
             model.AddEntityType("A");
 
-            VerifyError(Strings.ShadowEntity("A"), model);
+            VerifyError(CoreStrings.ShadowEntity("A"), model);
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             var keyProperty = entityType.AddProperty("Key", typeof(int));
             entityType.AddKey(keyProperty);
 
-            VerifyWarning(Strings.ShadowKey("{'Key'}", typeof(A).FullName, "{'Key'}"), model);
+            VerifyWarning(CoreStrings.ShadowKey("{'Key'}", typeof(A).FullName, "{'Key'}"), model);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             var entityType = model.AddEntityType(typeof(A));
             var property = entityType.AddProperty("Id", typeof(int));
 
-            VerifyError(Strings.EntityRequiresKey(typeof(A).FullName), model);
+            VerifyError(CoreStrings.EntityRequiresKey(typeof(A).FullName), model);
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             property.IsShadowProperty = false;
             entityType.SetPrimaryKey(property);
 
-            VerifyError(Strings.NoClrProperty("Id1", typeof(A).FullName), model);
+            VerifyError(CoreStrings.NoClrProperty("Id1", typeof(A).FullName), model);
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             property.IsShadowProperty = false;
             entityType.SetPrimaryKey(property);
 
-            VerifyError(Strings.PropertyWrongClrType("P0", typeof(A).FullName), model);
+            VerifyError(CoreStrings.PropertyWrongClrType("P0", typeof(A).FullName), model);
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             CreateForeignKey(keyA, keyA);
 
-            VerifyError(Strings.CircularDependency("'A' {'P0'} -> 'A' {'P0'}"), model);
+            VerifyError(CoreStrings.CircularDependency("'A' {'P0'} -> 'A' {'P0'}"), model);
         }
 
         [Fact]
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             CreateForeignKey(keyA, keyB);
             CreateForeignKey(keyB, keyA);
 
-            VerifyError(Strings.CircularDependency("'A' {'P0'} -> 'B' {'P0'}, 'B' {'P0'} -> 'A' {'P0'}"), model);
+            VerifyError(CoreStrings.CircularDependency("'A' {'P0'} -> 'B' {'P0'}, 'B' {'P0'} -> 'A' {'P0'}"), model);
         }
 
         [Fact]
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             keyA.Properties[0].RequiresValueGenerator = true;
             keyB.Properties[0].RequiresValueGenerator = true;
 
-            VerifyError(Strings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
+            VerifyError(CoreStrings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             keyA.Properties[0].RequiresValueGenerator = true;
 
-            VerifyError(Strings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
+            VerifyError(CoreStrings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
         }
 
         [Fact]
@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             keyB.Properties[0].RequiresValueGenerator = true;
 
-            VerifyError(Strings.ForeignKeyValueGenerationOnAdd("P0", "B", "{'P0'}"), model);
+            VerifyError(CoreStrings.ForeignKeyValueGenerationOnAdd("P0", "B", "{'P0'}"), model);
         }
 
         [Fact]
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             keyB.Properties[0].RequiresValueGenerator = false;
 
-            VerifyError(Strings.PrincipalKeyNoValueGenerationOnAdd("P0", "B"), model);
+            VerifyError(CoreStrings.PrincipalKeyNoValueGenerationOnAdd("P0", "B"), model);
         }
 
         [Fact]
@@ -245,7 +245,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             CreateForeignKey(keyA1, keyB1);
             CreateForeignKey(keyA2, keyB2);
 
-            VerifyWarning(Strings.MultipleRootPrincipals("A", "{'P0'}", "B", "P0", "{'P0', 'P1'}", "B", "P1"), model);
+            VerifyWarning(CoreStrings.MultipleRootPrincipals("A", "{'P0'}", "B", "P0", "{'P0', 'P1'}", "B", "P1"), model);
         }
 
         [Fact]

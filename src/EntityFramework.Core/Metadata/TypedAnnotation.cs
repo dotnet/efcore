@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             if (!_supportedTypes.Contains(type))
             {
-                throw new NotSupportedException(Strings.UnsupportedAnnotationType(type.Name));
+                throw new NotSupportedException(CoreStrings.UnsupportedAnnotationType(type.Name));
             }
 
             return type;

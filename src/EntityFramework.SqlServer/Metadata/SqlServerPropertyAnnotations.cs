@@ -3,8 +3,8 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.SqlServer;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -69,14 +69,14 @@ namespace Microsoft.Data.Entity.Metadata
                         || propertyType == typeof(byte)
                         || propertyType == typeof(byte?)))
                 {
-                    throw new ArgumentException(Strings.IdentityBadType(
+                    throw new ArgumentException(SqlServerStrings.IdentityBadType(
                         Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                 }
 
                 if (value == SqlServerValueGenerationStrategy.SequenceHiLo
                     && !propertyType.IsInteger())
                 {
-                    throw new ArgumentException(Strings.SequenceBadType(
+                    throw new ArgumentException(SqlServerStrings.SequenceBadType(
                         Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                 }
             }

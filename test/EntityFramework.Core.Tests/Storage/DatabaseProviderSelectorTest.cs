@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 new[] { provider1, provider2, provider3, provider4 });
 
-            Assert.Equal(Strings.MultipleProvidersConfigured("'Database1' 'Database2' 'Database4' "),
+            Assert.Equal(CoreStrings.MultipleProvidersConfigured("'Database1' 'Database2' 'Database4' "),
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 null);
 
-            Assert.Equal(Strings.NoProviderServices,
+            Assert.Equal(CoreStrings.NoProviderServices,
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 null);
 
-            Assert.Equal(Strings.NoProviderConfigured,
+            Assert.Equal(CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Implicit)).Message);
         }
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 new[] { provider1, provider2, provider3 });
 
-            Assert.Equal(Strings.MultipleProvidersAvailable("'Database1' 'Database2' 'Database3' "),
+            Assert.Equal(CoreStrings.MultipleProvidersAvailable("'Database1' 'Database2' 'Database3' "),
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }
@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.Storage
                 Mock.Of<IDbContextOptions>(),
                 new[] { provider });
 
-            Assert.Equal(Strings.NoProviderConfigured,
+            Assert.Equal(CoreStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () => selector.SelectServices(ServiceProviderSource.Explicit)).Message);
         }

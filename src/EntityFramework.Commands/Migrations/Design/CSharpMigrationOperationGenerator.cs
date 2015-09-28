@@ -9,7 +9,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Utilities;
-using Strings = Microsoft.Data.Entity.Design.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Migrations.Design
 {
@@ -46,7 +45,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            throw new InvalidOperationException(Strings.UnknownOperation(operation.GetType()));
+            throw new InvalidOperationException(CommandsStrings.UnknownOperation(operation.GetType()));
         }
 
         protected virtual void Generate([NotNull] AddColumnOperation operation, [NotNull] IndentedStringBuilder builder)

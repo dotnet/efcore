@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
@@ -415,7 +416,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     {
                         entityConfiguration.NavigationPropertyConfigurations.Add(
                             new NavigationPropertyConfiguration(
-                                Strings.UnableToAddNavigationProperty(otherEntityType.Name)));
+                                RelationalDesignStrings.UnableToAddNavigationProperty(otherEntityType.Name)));
                     }
                     else
                     {

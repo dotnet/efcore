@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Xunit;
@@ -638,7 +639,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.SequenceBadType("Name", typeof(Customer).FullName, "String"),
+                SqlServerStrings.SequenceBadType("Name", typeof(Customer).FullName, "String"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo).Message);
         }
@@ -654,7 +655,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.IdentityBadType("Name", typeof(Customer).FullName, "String"),
+                SqlServerStrings.IdentityBadType("Name", typeof(Customer).FullName, "String"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
         }
@@ -670,7 +671,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.IdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
+                SqlServerStrings.IdentityBadType("Byte", typeof(Customer).FullName, "Byte"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
         }
@@ -686,7 +687,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Equal(
-                Strings.IdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
+                SqlServerStrings.IdentityBadType("NullableByte", typeof(Customer).FullName, "Nullable`1"),
                 Assert.Throws<ArgumentException>(
                     () => property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.IdentityColumn).Message);
         }

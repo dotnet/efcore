@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
 
             Assert.Equal(
-                Strings.IdentityConflict("Category"),
+                CoreStrings.IdentityConflict("Category"),
                 Assert.Throws<InvalidOperationException>(
                     () => stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer)).Message);
         }
@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var valueBuffer = new ValueBuffer(new object[] { 0, "Bjork", null });
 
             Assert.Equal(
-                Strings.InvalidPrimaryKey("Category"),
+                CoreStrings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
                     () => stateManager.StartTracking(categoryType, EntityKey.InvalidEntityKey, new Category { Id = 0 }, valueBuffer)).Message);
         }
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             stateManager.StartTracking(entry1);
 
             Assert.Equal(
-                Strings.IdentityConflict(typeof(Category).FullName),
+                CoreStrings.IdentityConflict(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry2)).Message);
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(
-                Strings.InvalidPrimaryKey(typeof(Dogegory).FullName),
+                CoreStrings.InvalidPrimaryKey(typeof(Dogegory).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
         }
 
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(
-                Strings.InvalidPrimaryKey(typeof(Category).FullName),
+                CoreStrings.InvalidPrimaryKey(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
         }
 
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             Assert.Equal(
-                Strings.InvalidPrimaryKey(typeof(Category).FullName),
+                CoreStrings.InvalidPrimaryKey(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
         }
 
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(new Category());
 
             Assert.Equal(
-                Strings.WrongStateManager(typeof(Category).FullName),
+                CoreStrings.WrongStateManager(typeof(Category).FullName),
                 Assert.Throws<InvalidOperationException>(() => stateManager2.StartTracking(entry)).Message);
         }
 

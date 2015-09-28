@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal(Strings.InvalidRelationshipUsingDataAnnotations("B", typeof(A).FullName, "A", typeof(B).FullName),
+                Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("B", typeof(A).FullName, "A", typeof(B).FullName),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<A>()).Message);
             }
 
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal(Strings.InvalidRelationshipUsingDataAnnotations("C", typeof(D).FullName, "D", typeof(C).FullName),
+                Assert.Equal(CoreStrings.InvalidRelationshipUsingDataAnnotations("C", typeof(D).FullName, "D", typeof(C).FullName),
                     Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<D>()).Message);
             }
         }

@@ -7,7 +7,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 
@@ -361,7 +361,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     var ex = Assert.Throws<InvalidOperationException>(() =>
                         context.Database.UseTransaction(transaction));
-                    Assert.Equal(Strings.TransactionAssociatedWithDifferentConnection, ex.Message);
+                    Assert.Equal(RelationalStrings.TransactionAssociatedWithDifferentConnection, ex.Message);
                 }
             }
         }
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         var ex = Assert.Throws<InvalidOperationException>(() =>
                             context.Database.UseTransaction(transaction));
-                        Assert.Equal(Strings.TransactionAlreadyStarted, ex.Message);
+                        Assert.Equal(RelationalStrings.TransactionAlreadyStarted, ex.Message);
                     }
                 }
             }

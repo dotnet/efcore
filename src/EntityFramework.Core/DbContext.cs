@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity
             if (options != null
                 && options.GetType() != genericOptions)
             {
-                throw new InvalidOperationException(Strings.NonGenericOptions);
+                throw new InvalidOperationException(CoreStrings.NonGenericOptions);
             }
 
             return options ?? new DbContextOptions<DbContext>();
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity
         {
             if (_initializing)
             {
-                throw new InvalidOperationException(Strings.RecursiveOnConfiguring);
+                throw new InvalidOperationException(CoreStrings.RecursiveOnConfiguring);
             }
 
             try
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
 
                 _logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
-                _logger.LogDebug(Strings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
+                _logger.LogDebug(CoreStrings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
 
                 _serviceScope = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity
                     new DatabaseErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
-                        Strings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
+                        CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
 
                 throw;
             }
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity
                     new DatabaseErrorLogState(GetType()),
                     ex,
                     (state, exception) =>
-                        Strings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
+                        CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
 
                 throw;
             }

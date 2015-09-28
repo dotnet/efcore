@@ -3,10 +3,9 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NorthwindSproc;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -142,7 +141,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 Assert.Equal(
-                    Strings.StoredProcedureIncludeNotSupported,
+                    RelationalStrings.StoredProcedureIncludeNotSupported,
                     Assert.Throws<InvalidOperationException>(
                         () =>
                             context.Set<Product>()

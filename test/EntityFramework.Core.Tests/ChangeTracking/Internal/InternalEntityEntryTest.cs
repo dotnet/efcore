@@ -7,15 +7,14 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
-using Strings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
 {
@@ -128,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[nonKeyProperty] = "Jillybean";
 
             Assert.Equal(
-                Strings.PropertyReadOnlyBeforeSave("Name", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyBeforeSave("Name", typeof(SomeEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
 
             entry[nonKeyProperty] = null;
@@ -136,7 +135,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperty] = 2;
 
             Assert.Equal(
-                Strings.PropertyReadOnlyBeforeSave("Id", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyBeforeSave("Id", typeof(SomeEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
         }
 
@@ -167,7 +166,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
             Assert.Equal(
-                Strings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
 
             entry.SetPropertyModified(nonKeyProperty, isModified: false);
@@ -177,7 +176,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.True(entry.IsPropertyModified(nonKeyProperty));
 
             Assert.Equal(
-                Strings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
         }
 
@@ -202,14 +201,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsPropertyModified(keyProperty));
 
             Assert.Equal(
-                Strings.KeyReadOnly("Id", typeof(SomeEntity).Name),
+                CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
                 Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsPropertyModified(keyProperty));
 
             Assert.Equal(
-                Strings.KeyReadOnly("Id", typeof(SomeEntity).Name),
+                CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
                 Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
 
 
@@ -298,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.MarkAsTemporary(keyProperty);
 
             Assert.Equal(
-                Strings.TempValuePersists("Id", "SomeEntity", targetState.ToString()),
+                CoreStrings.TempValuePersists("Id", "SomeEntity", targetState.ToString()),
                 Assert.Throws<InvalidOperationException>(() => entry.SetEntityState(targetState)).Message);
         }
 
@@ -1513,7 +1512,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fkProperty] = null;
 
             Assert.Equal(
-                Strings.RelationshipConceptualNull("SomeEntity", "SomeDependentEntity"),
+                CoreStrings.RelationshipConceptualNull("SomeEntity", "SomeDependentEntity"),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
         }
 
@@ -1535,7 +1534,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[property] = null;
 
             Assert.Equal(
-                Strings.PropertyConceptualNull("JustAProperty", "SomeDependentEntity"),
+                CoreStrings.PropertyConceptualNull("JustAProperty", "SomeDependentEntity"),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
         }
 

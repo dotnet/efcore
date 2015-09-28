@@ -14,7 +14,7 @@
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.SqlServer.Design.Strings": "Properties/Strings.resx"
+    "EntityFramework.SqlServer.Design.SqlServerDesignStrings": "Properties/SqlServerDesignStrings.resx"
   },
   "frameworks": {
     "net45": { },

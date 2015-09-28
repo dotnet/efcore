@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.FunctionalTests;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Framework.DependencyInjection;
@@ -229,7 +229,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Warning: " + Strings.ForeignKeyScaffoldError("Children", "ParentId"), _logger.FullLog);
+            Assert.Contains("Warning: " + SqliteDesignStrings.ForeignKeyScaffoldError("Children", "ParentId"), _logger.FullLog);
         }
 
         [Fact]

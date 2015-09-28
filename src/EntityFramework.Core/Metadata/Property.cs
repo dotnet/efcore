@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata
                     if (foreignKey != null)
                     {
                         throw new InvalidOperationException(
-                            Strings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
+                            CoreStrings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
                     }
                 }
                 _clrType = value;
@@ -64,12 +64,12 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     if (!((IProperty)this).ClrType.IsNullableType())
                     {
-                        throw new InvalidOperationException(Strings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ((IProperty)this).ClrType.Name));
+                        throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ((IProperty)this).ClrType.Name));
                     }
 
                     if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
                     {
-                        throw new InvalidOperationException(Strings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
                     }
                 }
 
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Metadata
                     && !value.Value
                     && this.IsKey())
                 {
-                    throw new NotSupportedException(Strings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
+                    throw new NotSupportedException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
                 }
                 SetFlag(value, PropertyFlags.IsReadOnlyAfterSave);
             }

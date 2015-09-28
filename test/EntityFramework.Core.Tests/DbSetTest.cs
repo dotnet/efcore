@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.Equal(Strings.DataBindingWithIListSource,
+                Assert.Equal(CoreStrings.DataBindingWithIListSource,
                     Assert.Throws<NotSupportedException>(() => ((IListSource) context.Gus).GetList()).Message);
             }
         }

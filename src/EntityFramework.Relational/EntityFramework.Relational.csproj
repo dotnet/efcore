@@ -286,8 +286,8 @@
     <Compile Include="Query\RelationalQueryContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
+    <Compile Include="Properties\RelationalStrings.Designer.cs">
+      <DependentUpon>RelationalStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Update\AffectedCountModificationCommandBatch.cs" />
     <Compile Include="Update\ColumnModification.cs" />
@@ -325,15 +325,15 @@
     <Compile Include="ValueGeneration\Internal\DiscriminatorValueGenerator.cs" />
     <Compile Include="ValueGeneration\RelationalValueGeneratorSelector.cs" />
     <EmbeddedResource Include="Properties\EntityFramework.Relational.rd.xml" />
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Relational.Strings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\RelationalStrings.resx">
+      <LogicalName>EntityFramework.Relational.RelationalStrings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.Data.Entity.Relational.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
   </ItemGroup>

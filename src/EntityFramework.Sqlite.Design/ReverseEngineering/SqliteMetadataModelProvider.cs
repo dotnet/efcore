@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -191,7 +192,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         }
 
         private void LogFailedForeignKey(ForeignKeyInfo foreignKey)
-            => Logger.LogWarning(Strings.ForeignKeyScaffoldError(foreignKey.Table, string.Join(",", foreignKey.From)));
+            => Logger.LogWarning(SqliteDesignStrings.ForeignKeyScaffoldError(foreignKey.Table, string.Join(",", foreignKey.From)));
 
         private void LoadIndexes(SqliteConnection connection, ModelBuilder modelBuilder, ICollection<SqliteIndexInfo> indexes)
         {
@@ -297,7 +298,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         }
                         else
                         {
-                            var errorMessage = Strings.MissingPrimaryKey(tableName);
+                            var errorMessage = SqliteDesignStrings.MissingPrimaryKey(tableName);
                             builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
                             Logger.LogWarning(errorMessage);
                         }

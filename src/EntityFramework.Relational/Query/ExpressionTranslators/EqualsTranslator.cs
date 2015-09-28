@@ -4,7 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
                     }
 
                     _logger.LogInformation(
-                        Strings.PossibleUnintendedUseOfEquals(
+                        RelationalStrings.PossibleUnintendedUseOfEquals(
                             methodCallExpression.Object.ToString(),
                             argument.ToString()));
 

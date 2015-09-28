@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
@@ -96,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (metadataModel == null)
             {
                 throw new InvalidOperationException(
-                    Strings.ProviderReturnedNullModel(
+                    RelationalDesignStrings.ProviderReturnedNullModel(
                         _provider.GetType().FullName,
                         configuration.ConnectionString));
             }
@@ -123,7 +124,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             if (readOnlyFiles.Count > 0)
             {
                 throw new InvalidOperationException(
-                    Strings.ReadOnlyFiles(
+                    RelationalDesignStrings.ReadOnlyFiles(
                         outputPath, string.Join(", ", readOnlyFiles)));
             }
         }

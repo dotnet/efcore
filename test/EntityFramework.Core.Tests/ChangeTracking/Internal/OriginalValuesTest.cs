@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Throws_on_attempt_to_read_when_original_value_cannot_be_stored()
         {
             Assert.Equal(
-                Strings.OriginalValueNotTracked("Name", typeof(Banana).FullName),
+                CoreStrings.OriginalValueNotTracked("Name", typeof(Banana).FullName),
                 Assert.Throws<InvalidOperationException>(() => CreateSidecar()[NameProperty]).Message);
         }
 
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Throws_on_attempt_to_write_when_original_value_cannot_be_stored()
         {
             Assert.Equal(
-                Strings.OriginalValueNotTracked("Name", typeof(Banana).FullName),
+                CoreStrings.OriginalValueNotTracked("Name", typeof(Banana).FullName),
                 Assert.Throws<InvalidOperationException>(() => CreateSidecar()[NameProperty] = "Yellow").Message);
         }
 

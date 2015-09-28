@@ -3,8 +3,8 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Xunit;
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedRelationalValueBufferFactoryFactory());
 
             Assert.Equal(
-                Strings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
+                RelationalStrings.ModificationFunctionInvalidEntityState(EntityState.Unchanged),
                 Assert.Throws<NotSupportedException>(() => command.AddEntry(entry)).Message);
         }
 
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider(), new UntypedRelationalValueBufferFactoryFactory());
 
             Assert.Equal(
-                Strings.ModificationFunctionInvalidEntityState(EntityState.Detached),
+                RelationalStrings.ModificationFunctionInvalidEntityState(EntityState.Detached),
                 Assert.Throws<NotSupportedException>(() => command.AddEntry(entry)).Message);
         }
 

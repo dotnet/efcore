@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -525,7 +526,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // the entity's state to 'Unchanged'. Either set a permanent value explicitly or ensure
                     // that the database is configured to generate values for this property.
                     Assert.Equal(
-                        Internal.Strings.TempValuePersists("Id", "Blog", "Unchanged"),
+                        CoreStrings.TempValuePersists("Id", "Blog", "Unchanged"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
@@ -555,7 +556,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // The property 'Id' on entity type 'Blog' is defined to be read-only before it is 
                     // saved, but its value has been set to something other than a temporary or default value.
                     Assert.Equal(
-                        Internal.Strings.PropertyReadOnlyBeforeSave("Id", "Blog"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("Id", "Blog"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
@@ -589,7 +590,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // The property 'CreatedOn' on entity type 'Blog' is defined to be read-only before it is 
                     // saved, but its value has been set to something other than a temporary or default value.
                     Assert.Equal(
-                        Internal.Strings.PropertyReadOnlyBeforeSave("CreatedOn", "Blog"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("CreatedOn", "Blog"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
@@ -618,7 +619,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only before it is 
                     // saved, but its value has been set to something other than a temporary or default value.
                     Assert.Equal(
-                        Internal.Strings.PropertyReadOnlyBeforeSave("FullName", "FullNameBlog"),
+                        CoreStrings.PropertyReadOnlyBeforeSave("FullName", "FullNameBlog"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }
@@ -655,7 +656,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     // The property 'FullName' on entity type 'FullNameBlog' is defined to be read-only after it has been saved, 
                     // but its value has been modified or marked as modified.
                     Assert.Equal(
-                        Internal.Strings.PropertyReadOnlyAfterSave("FullName", "FullNameBlog"),
+                        CoreStrings.PropertyReadOnlyAfterSave("FullName", "FullNameBlog"),
                         Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
             }

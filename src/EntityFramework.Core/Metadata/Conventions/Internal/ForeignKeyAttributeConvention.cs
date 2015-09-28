@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 || GetInversePropertyAttributeOnNavigation(foreignKey.DependentToPrincipal) != null)
             {
                 // Relationship is joined by InversePropertyAttribute
-                throw new InvalidOperationException(Strings.InvalidRelationshipUsingDataAnnotations(
+                throw new InvalidOperationException(CoreStrings.InvalidRelationshipUsingDataAnnotations(
                     dependentToPrincipalNavigationName,
                     foreignKey.DeclaringEntityType.Name,
                     principalToDepedentNavigationName,
@@ -189,7 +189,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             if (candidateProperties.Count > 1)
             {
-                throw new InvalidOperationException(Strings.CompositeFkOnProperty(navigationName, entityType.Name));
+                throw new InvalidOperationException(CoreStrings.CompositeFkOnProperty(navigationName, entityType.Name));
             }
 
             if (candidateProperties.Count == 1)
@@ -197,7 +197,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 var fkAttributeOnNavigation = GetForeignKeyAttribute(entityType, navigationName);
                 if (fkAttributeOnNavigation != null && fkAttributeOnNavigation.Name != candidateProperties.First())
                 {
-                    throw new InvalidOperationException(Strings.FkAttributeOnPropertyNavigationMismatch(candidateProperties.First(), navigationName, entityType.Name));
+                    throw new InvalidOperationException(CoreStrings.FkAttributeOnPropertyNavigationMismatch(candidateProperties.First(), navigationName, entityType.Name));
                 }
             }
 
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                 if (properties.Any(string.IsNullOrWhiteSpace))
                 {
-                    throw new InvalidOperationException(Strings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.Name));
+                    throw new InvalidOperationException(CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.Name));
                 }
 
                 return properties;

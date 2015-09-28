@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var entity = context.Add(new Chunky()).Entity;
 
-                Assert.Equal(Strings.WrongGenericPropertyType("Monkey", entity.GetType(), typeof(int).Name, typeof(string).Name),
+                Assert.Equal(CoreStrings.WrongGenericPropertyType("Monkey", entity.GetType(), typeof(int).Name, typeof(string).Name),
                     Assert.Throws<ArgumentException>(() => context.Entry(entity).Property<string>("Monkey")).Message);
             }
         }
@@ -197,11 +197,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var entity = context.Add(new Chunky()).Entity;
 
-                Assert.Equal(Strings.PropertyNotFound("Chimp", entity.GetType()),
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType()),
                     Assert.Throws<ModelItemNotFoundException>(() => context.Entry(entity).Property("Chimp").Metadata.Name).Message);
-                Assert.Equal(Strings.PropertyNotFound("Chimp", entity.GetType()),
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType()),
                     Assert.Throws<ModelItemNotFoundException>(() => context.Entry((object)entity).Property("Chimp").Metadata.Name).Message);
-                Assert.Equal(Strings.PropertyNotFound("Chimp", entity.GetType()),
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType()),
                     Assert.Throws<ModelItemNotFoundException>(() => context.Entry(entity).Property<int>("Chimp").Metadata.Name).Message);
             }
         }

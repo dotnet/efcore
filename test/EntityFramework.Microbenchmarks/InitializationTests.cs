@@ -7,7 +7,6 @@ using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers;
 using EntityFramework.Microbenchmarks.Models.AdventureWorks;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.SqlServer;
 using System;
 using System.Linq;
 using Xunit;

@@ -189,11 +189,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Throws_for_unsupported_types()
         {
             Assert.Equal(
-                Strings.UnsupportedAnnotationType("Random"),
+                CoreStrings.UnsupportedAnnotationType("Random"),
                 Assert.Throws<NotSupportedException>(() => new TypedAnnotation(new Random())).Message);
 
             Assert.Equal(
-                Strings.UnsupportedAnnotationType("Random"),
+                CoreStrings.UnsupportedAnnotationType("Random"),
                 Assert.Throws<NotSupportedException>(() => new TypedAnnotation(typeof(Random).FullName, "Rand!")).Message);
         }
     }

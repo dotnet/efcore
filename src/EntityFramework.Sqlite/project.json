@@ -14,7 +14,7 @@
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
-    "EntityFramework.Sqlite.Strings": "Properties/Strings.resx"
+    "EntityFramework.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
   },
   "resource": ["Properties/EntityFramework.Sqlite.rd.xml"],
   "frameworks": {

@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
                 return new SqlServerSequenceHiLoValueGenerator<sbyte>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            throw new ArgumentException(Strings.InvalidValueGeneratorFactoryProperty(
+            throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(
                 nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
         }
     }

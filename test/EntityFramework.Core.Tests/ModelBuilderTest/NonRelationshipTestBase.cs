@@ -436,15 +436,15 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Quarks>(b =>
                     {
                         Assert.Equal(
-                            Strings.CannotBeNullable("Up", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Up", "Quarks", "Int32"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).IsRequired(false)).Message);
 
                         Assert.Equal(
-                            Strings.CannotBeNullable("Charm", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Charm", "Quarks", "Int32"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Charm").IsRequired(false)).Message);
 
                         Assert.Equal(
-                            Strings.CannotBeNullable("Top", "Quarks", "Int32"),
+                            CoreStrings.CannotBeNullable("Top", "Quarks", "Int32"),
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 

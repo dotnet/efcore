@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         properties[i].DeclaringEntityType.GetProperty(properties[i].Name) != properties[i])
                     {
                         throw new ArgumentException(
-                            Strings.InconsistentEntityType(argumentName));
+                            CoreStrings.InconsistentEntityType(argumentName));
                     }
                 }
             }

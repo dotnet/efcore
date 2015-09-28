@@ -4,7 +4,7 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Sqlite.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         public override string GenerateNextSequenceValueOperation(string name, string schema)
         {
-            throw new NotSupportedException(Strings.SequencesNotSupported);
+            throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
         }
     }
 }

@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.AddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
-                Strings.EntityTypeInUse(typeof(Customer).FullName),
+                CoreStrings.EntityTypeInUse(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType)).Message);
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             model.AddEntityType(typeof(Customer));
 
             Assert.Equal(
-                Strings.DuplicateEntityType(typeof(Customer).FullName),
+                CoreStrings.DuplicateEntityType(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer))).Message);
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             model.AddEntityType(typeof(Customer));
 
             Assert.Equal(
-                Strings.DuplicateEntityType(typeof(Customer).FullName),
+                CoreStrings.DuplicateEntityType(typeof(Customer).FullName),
                 Assert.Throws<InvalidOperationException>(() => model.AddEntityType(typeof(Customer).FullName)).Message);
         }
 
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(model.FindEntityType(typeof(string)));
 
             Assert.Equal(
-                Strings.EntityTypeNotFound("String"),
+                CoreStrings.EntityTypeNotFound("String"),
                 Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType(typeof(string))).Message);
         }
 
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Null(model.FindEntityType(typeof(string)));
 
             Assert.Equal(
-                Strings.EntityTypeNotFound("String"),
+                CoreStrings.EntityTypeNotFound("String"),
                 Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType("String")).Message);
         }
 

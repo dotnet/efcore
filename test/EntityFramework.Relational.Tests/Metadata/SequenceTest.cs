@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Tests
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Same(typeof(long), new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(long) }.ClrType);
 
             Assert.Equal(
-                Strings.BadSequenceType,
+                RelationalStrings.BadSequenceType,
                 Assert.Throws<ArgumentException>(
                     () => new Sequence(new Model(), RelationalAnnotationNames.Prefix, "Foo") { ClrType = typeof(decimal) }).Message);
         }
@@ -174,7 +174,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             model[annotationName] = ((string)model[annotationName]).Replace("1", "Z");
 
             Assert.Equal(
-                Strings.BadSequenceString,
+                RelationalStrings.BadSequenceString,
                 Assert.Throws<ArgumentException>(
                     () => new Sequence(model, RelationalAnnotationNames.Prefix, "Foo", "Smoo").ClrType).Message);
         }

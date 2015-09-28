@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     catch (Exception exception)
                     {
                         throw new InvalidOperationException(
-                            Strings.ExpressionParameterizationException(expression),
+                            CoreStrings.ExpressionParameterizationException(expression),
                             exception);
                     }
                 }

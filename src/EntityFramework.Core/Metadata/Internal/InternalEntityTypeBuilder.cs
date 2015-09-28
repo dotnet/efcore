@@ -1614,13 +1614,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (Metadata.ClrType == null)
                     {
-                        throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, Metadata.Name));
+                        throw new ModelItemNotFoundException(CoreStrings.PropertyNotFound(propertyName, Metadata.Name));
                     }
 
                     var clrProperty = Metadata.ClrType.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
                     if (clrProperty == null)
                     {
-                        throw new InvalidOperationException(Strings.NoClrProperty(propertyName, Metadata.Name));
+                        throw new InvalidOperationException(CoreStrings.NoClrProperty(propertyName, Metadata.Name));
                     }
 
                     var propertyBuilder = Property(clrProperty, configurationSource);

@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Migrations.Internal
 {
@@ -67,7 +66,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public virtual void Migrate(string targetMigration = null)
         {
             var connection = _connection.DbConnection;
-            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.Value.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!_historyRepository.Exists())
             {
@@ -95,7 +94,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var connection = _connection.DbConnection;
-            _logger.Value.LogVerbose(Strings.UsingConnection(connection.Database, connection.DataSource));
+            _logger.Value.LogVerbose(RelationalStrings.UsingConnection(connection.Database, connection.DataSource));
 
             if (!await _historyRepository.ExistsAsync(cancellationToken))
             {
@@ -178,7 +177,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
                 yield return () =>
                 {
-                    _logger.Value.LogInformation(Strings.RevertingMigration(migration.GetId()));
+                    _logger.Value.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
 
                     return GenerateDownSql(
                         migration,
@@ -192,7 +191,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             {
                 yield return () =>
                 {
-                    _logger.Value.LogInformation(Strings.ApplyingMigration(migration.GetId()));
+                    _logger.Value.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
 
                     return GenerateUpSql(migration);
                 };
@@ -247,7 +246,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         checkFirst = false;
                     }
 
-                    _logger.Value.LogVerbose(Strings.GeneratingUp(migration.GetId()));
+                    _logger.Value.LogVerbose(RelationalStrings.GeneratingUp(migration.GetId()));
 
                     foreach (var command in GenerateUpSql(migration))
                     {
@@ -285,7 +284,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         ? migrationsToRevert[i + 1]
                         : null;
 
-                    _logger.Value.LogVerbose(Strings.GeneratingDown(migration.GetId()));
+                    _logger.Value.LogVerbose(RelationalStrings.GeneratingDown(migration.GetId()));
 
                     foreach (var command in GenerateDownSql(migration, previousMigration))
                     {

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Internal
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         [Fact]
         public void GetMigrationId_throws_when_no_match()
             => Assert.Equal(
-                Strings.MigrationNotFound("Spike"),
+                RelationalStrings.MigrationNotFound("Spike"),
                 Assert.Throws<InvalidOperationException>(
                         () => CreateMigrationsAssembly().GetMigrationId("Spike"))
                     .Message);

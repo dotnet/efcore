@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Update
 {
@@ -80,7 +79,7 @@ namespace Microsoft.Data.Entity.Update
                 && entry.EntityState != EntityState.Modified
                 && entry.EntityState != EntityState.Deleted)
             {
-                throw new NotSupportedException(Strings.ModificationFunctionInvalidEntityState(entry.EntityState));
+                throw new NotSupportedException(RelationalStrings.ModificationFunctionInvalidEntityState(entry.EntityState));
             }
 
             var firstEntry = _entries.FirstOrDefault();

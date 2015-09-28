@@ -72,8 +72,8 @@
     <Compile Include="..\Shared\CodeAnnotations.cs">
       <Link>Utilities\CodeAnnotations.cs</Link>
     </Compile>
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
+    <Compile Include="Properties\CommandsStrings.Designer.cs">
+      <DependentUpon>CommandsStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
@@ -85,15 +85,15 @@
     <Compile Include="Migrations\Design\CSharpHelper.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Commands.Strings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\CommandsStrings.resx">
+      <LogicalName>EntityFramework.Commands.CommandsStrings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
-      <CustomToolNamespace>Microsoft.Data.Entity.Design.Internal</CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="build\uap10.0\EntityFramework.Commands.props" />
     <None Include="lib\uap10.0\_._" />

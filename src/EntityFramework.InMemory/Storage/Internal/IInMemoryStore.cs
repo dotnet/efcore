@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Storage.Internal

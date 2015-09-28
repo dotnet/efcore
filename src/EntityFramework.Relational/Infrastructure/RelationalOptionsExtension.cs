@@ -5,7 +5,7 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 if (value.HasValue
                     && value <= 0)
                 {
-                    throw new InvalidOperationException(Strings.InvalidCommandTimeout);
+                    throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout);
                 }
 
                 _commandTimeout = value;
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 if (value.HasValue
                     && value <= 0)
                 {
-                    throw new InvalidOperationException(Strings.InvalidMaxBatchSize);
+                    throw new InvalidOperationException(RelationalStrings.InvalidMaxBatchSize);
                 }
 
                 _maxBatchSize = value;
@@ -148,12 +148,12 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             if (relationalOptionsExtensions.Length == 0)
             {
-                throw new InvalidOperationException(Strings.NoProviderConfigured);
+                throw new InvalidOperationException(RelationalStrings.NoProviderConfigured);
             }
 
             if (relationalOptionsExtensions.Length > 1)
             {
-                throw new InvalidOperationException(Strings.MultipleProvidersConfigured);
+                throw new InvalidOperationException(RelationalStrings.MultipleProvidersConfigured);
             }
 
             return relationalOptionsExtensions[0];

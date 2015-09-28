@@ -3,9 +3,8 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -23,7 +22,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var trackedEntry = context.ChangeTracker.Entries<Engine>().First();
                 trackedEntry.Property(e => e.Name).OriginalValue = "ChangedEngine";
 
-                Assert.Equal(Strings.UpdateConcurrencyException("1", "0"),
+                Assert.Equal(RelationalStrings.UpdateConcurrencyException("1", "0"),
                     Assert.Throws<DbUpdateConcurrencyException>(() => context.SaveChanges()).Message);
             }
         }

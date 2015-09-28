@@ -4,7 +4,7 @@
 using System;
 using System.Globalization;
 using System.Threading;
-using Microsoft.Data.Entity.Design.Internal;
+using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Design
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         {
             var ex = Assert.Throws<InvalidOperationException>(
                 () => new CSharpHelper().UnknownLiteral(new object()));
-            Assert.Equal(Strings.UnknownLiteral(typeof(object)), ex.Message);
+            Assert.Equal(CommandsStrings.UnknownLiteral(typeof(object)), ex.Message);
         }
 
         [Fact]

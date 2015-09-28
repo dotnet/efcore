@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (entityKey == EntityKey.InvalidEntityKey)
             {
                 throw new InvalidOperationException(
-                    Strings.InvalidEntityKeyOnQuery(entityType.DisplayName()));
+                    CoreStrings.InvalidEntityKeyOnQuery(entityType.DisplayName()));
             }
 
             if (queryStateManager)

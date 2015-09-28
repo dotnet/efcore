@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             annotatable.AddAnnotation("Foo", "Bar");
 
             Assert.Equal(
-                Strings.DuplicateAnnotation("Foo"),
+                CoreStrings.DuplicateAnnotation("Foo"),
                 Assert.Throws<InvalidOperationException>(() => annotatable.AddAnnotation("Foo", "Bar")).Message);
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             Assert.Empty(annotatable.Annotations);
 
             Assert.Equal(
-                Strings.AnnotationNotFound("Foo"),
+                CoreStrings.AnnotationNotFound("Foo"),
                 Assert.Throws<InvalidOperationException>(() => annotatable.GetAnnotation("Foo")).Message);
         }
 

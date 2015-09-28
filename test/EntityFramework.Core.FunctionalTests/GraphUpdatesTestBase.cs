@@ -831,7 +831,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 newRoot.RequiredSingle = root.RequiredSingle;
 
                 Assert.Equal(
-                    Strings.KeyReadOnly("Id", typeof(RequiredSingle1).Name),
+                    CoreStrings.KeyReadOnly("Id", typeof(RequiredSingle1).Name),
                     Assert.Throws<NotSupportedException>(() => context.SaveChanges()).Message);
             }
         }

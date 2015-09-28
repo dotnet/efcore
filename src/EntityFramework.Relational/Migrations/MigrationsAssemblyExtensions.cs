@@ -3,7 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Migrations
             var id = assembly.FindMigrationId(nameOrId);
             if (id == null)
             {
-                throw new InvalidOperationException(Strings.MigrationNotFound(nameOrId));
+                throw new InvalidOperationException(RelationalStrings.MigrationNotFound(nameOrId));
             }
 
             return id;

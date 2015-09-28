@@ -5,10 +5,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests.TestModels;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
-using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {

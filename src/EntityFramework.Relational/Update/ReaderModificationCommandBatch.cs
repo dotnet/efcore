@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.Update
                 }
                 catch (Exception ex)
                 {
-                    throw new DbUpdateException(Strings.UpdateStoreException, ex);
+                    throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
                 }
             }
         }
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Update
                 }
                 catch (Exception ex)
                 {
-                    throw new DbUpdateException(Strings.UpdateStoreException, ex);
+                    throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
                 }
             }
         }

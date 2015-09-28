@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Utilities
                 NotEmpty(parameterName, nameof(parameterName));
                 NotEmpty(propertyName, nameof(propertyName));
 
-                throw new ArgumentException(Strings.ArgumentPropertyNull(propertyName, parameterName));
+                throw new ArgumentException(CoreStrings.ArgumentPropertyNull(propertyName, parameterName));
             }
 
             return value;
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
-                throw new ArgumentException(Strings.CollectionArgumentIsEmpty(parameterName));
+                throw new ArgumentException(CoreStrings.CollectionArgumentIsEmpty(parameterName));
             }
 
             return value;
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Utilities
             }
             else if (value.Trim().Length == 0)
             {
-                e = new ArgumentException(Strings.ArgumentIsEmpty(parameterName));
+                e = new ArgumentException(CoreStrings.ArgumentIsEmpty(parameterName));
             }
 
             if (e != null)
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
-                throw new ArgumentException(Strings.ArgumentIsEmpty(parameterName));
+                throw new ArgumentException(CoreStrings.ArgumentIsEmpty(parameterName));
             }
 
             return value;
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
-                throw new ArgumentException(Strings.InvalidEnumValue(parameterName, typeof(T)));
+                throw new ArgumentException(CoreStrings.InvalidEnumValue(parameterName, typeof(T)));
             }
 
             return value;
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Utilities
             {
                 NotEmpty(parameterName, nameof(parameterName));
 
-                throw new ArgumentException(Strings.InvalidEntityType(parameterName, value));
+                throw new ArgumentException(CoreStrings.InvalidEntityType(parameterName, value));
             }
 
             return value;

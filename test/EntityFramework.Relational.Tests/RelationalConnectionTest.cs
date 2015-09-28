@@ -7,7 +7,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 using Moq;
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_relational_store_configured()
         {
             Assert.Equal(
-                Strings.NoProviderConfigured,
+                RelationalStrings.NoProviderConfigured,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(null))).Message);
         }
 
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_multiple_relational_stores_configured()
         {
             Assert.Equal(
-                Strings.MultipleProvidersConfigured,
+                RelationalStrings.MultipleProvidersConfigured,
                 Assert.Throws<InvalidOperationException>(
                     () => new FakeConnection(CreateOptions(new FakeOptionsExtension1(), new FakeOptionsExtension2()))).Message);
         }
@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_no_connection_or_connection_string_is_specified()
         {
             Assert.Equal(
-                Relational.Internal.Strings.NoConnectionOrConnectionString,
+                RelationalStrings.NoConnectionOrConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(CreateOptions(new FakeOptionsExtension1()))).Message);
         }
 
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_both_connection_and_connection_string_are_specified()
         {
             Assert.Equal(
-                Relational.Internal.Strings.ConnectionAndConnectionString,
+                RelationalStrings.ConnectionAndConnectionString,
                 Assert.Throws<InvalidOperationException>(() => new FakeConnection(
                     CreateOptions(new FakeOptionsExtension1
                         {

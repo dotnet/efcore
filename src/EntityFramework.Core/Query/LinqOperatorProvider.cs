@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Query
                             new DatabaseErrorLogState(_exceptionInterceptor._contextType),
                             e,
                             (state, exception) =>
-                                Strings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
+                                CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
 
                         throw;
                     }

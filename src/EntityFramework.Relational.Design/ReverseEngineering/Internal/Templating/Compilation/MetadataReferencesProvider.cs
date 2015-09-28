@@ -14,6 +14,7 @@ using Microsoft.Framework.DependencyInjection;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Compilation;
 using Microsoft.Dnx.Runtime.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
 
@@ -95,7 +96,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
                 }
             }
 
-            throw new InvalidOperationException(Strings.UnableToCreateMetadataReference(name));
+            throw new InvalidOperationException(RelationalDesignStrings.UnableToCreateMetadataReference(name));
 #else
             _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
 #endif

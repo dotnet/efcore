@@ -52,8 +52,8 @@
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
+    <Compile Include="Properties\RelationalDesignStrings.Designer.cs">
+      <DependentUpon>RelationalDesignStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
@@ -100,14 +100,15 @@
     <Compile Include="Utilities\CSharpUtilities.cs" />
     <Compile Include="Utilities\ModelUtilities.cs" />
     <Compile Include="Utilities\PlatformHelper.cs" />
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Relational.Design.Strings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">
+      <LogicalName>EntityFramework.Relational.Design.RelationalDesignStrings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
     <EmbeddedResource Include="ReverseEngineering\Internal\Templates\DbContextTemplate.cshtml">

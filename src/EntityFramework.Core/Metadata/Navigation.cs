@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(Strings.NavigationOnShadowEntity(navigationPropertyName, sourceType.Name));
+                    throw new InvalidOperationException(CoreStrings.NavigationOnShadowEntity(navigationPropertyName, sourceType.Name));
                 }
                 return false;
             }
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(Strings.NavigationToShadowEntity(navigationPropertyName, sourceType.Name, targetType.Name));
+                    throw new InvalidOperationException(CoreStrings.NavigationToShadowEntity(navigationPropertyName, sourceType.Name, targetType.Name));
                 }
                 return false;
             }
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(Strings.NoClrNavigation(navigationPropertyName, sourceType.Name));
+                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(navigationPropertyName, sourceType.Name));
                 }
                 return false;
             }
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     if (shouldThrow)
                     {
-                        throw new InvalidOperationException(Strings.NavigationCollectionWrongClrType(
+                        throw new InvalidOperationException(CoreStrings.NavigationCollectionWrongClrType(
                             navigationProperty.Name, sourceClrType.FullName, navigationProperty.PropertyType.FullName, targetClrType.FullName));
                     }
                     return false;
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Metadata
                 {
                     if (shouldThrow)
                     {
-                        throw new InvalidOperationException(Strings.NavigationSingleWrongClrType(
+                        throw new InvalidOperationException(CoreStrings.NavigationSingleWrongClrType(
                             navigationProperty.Name, sourceClrType.FullName, navigationProperty.PropertyType.FullName, targetClrType.FullName));
                     }
                     return false;

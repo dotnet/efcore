@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Relational.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Tests
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Metadata;
             derivedType.BaseType = entityType;
 
-            Assert.Equal(Strings.DiscriminatorPropertyMustBeOnRoot(typeof(SpecialCustomer).FullName),
+            Assert.Equal(RelationalStrings.DiscriminatorPropertyMustBeOnRoot(typeof(SpecialCustomer).FullName),
                 Assert.Throws<InvalidOperationException>(() => derivedType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var property = entityType.AddProperty("D");
 
-            Assert.Equal(Strings.DiscriminatorPropertyNotFound("D", typeof(SpecialCustomer).FullName),
+            Assert.Equal(RelationalStrings.DiscriminatorPropertyNotFound("D", typeof(SpecialCustomer).FullName),
                 Assert.Throws<InvalidOperationException>(() => otherType.Relational().DiscriminatorProperty = property).Message);
         }
 
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .Metadata;
 
-            Assert.Equal(Strings.NoDiscriminatorForValue("Customer", "Customer"),
+            Assert.Equal(RelationalStrings.NoDiscriminatorForValue("Customer", "Customer"),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.Relational().DiscriminatorValue = "V").Message);
         }
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             property.ClrType = typeof(int);
             entityType.Relational().DiscriminatorProperty = property;
 
-            Assert.Equal(Strings.DiscriminitatorValueIncompatible("V", "D", typeof(int)),
+            Assert.Equal(RelationalStrings.DiscriminitatorValueIncompatible("V", "D", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.Relational().DiscriminatorValue = "V").Message);
 

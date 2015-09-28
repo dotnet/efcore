@@ -152,11 +152,11 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.AddVertex(vertexOne);
 
             Assert.Equal(
-                Strings.GraphDoesNotContainVertex(vertexTwo),
+                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdge(vertexOne, vertexTwo, edgeOne)).Message);
 
             Assert.Equal(
-                Strings.GraphDoesNotContainVertex(vertexTwo),
+                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdge(vertexTwo, vertexOne, edgeOne)).Message);
         }
 
@@ -192,11 +192,11 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.AddVertex(vertexOne);
 
             Assert.Equal(
-                Strings.GraphDoesNotContainVertex(vertexTwo),
+                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdges(vertexOne, vertexTwo, new[] { edgeOne })).Message);
 
             Assert.Equal(
-                Strings.GraphDoesNotContainVertex(vertexTwo),
+                CoreStrings.GraphDoesNotContainVertex(vertexTwo),
                 Assert.Throws<InvalidOperationException>(() => graph.AddEdges(vertexTwo, vertexOne, new[] { edgeOne })).Message);
         }
 
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.AddEdge(vertexThree, vertexOne, edgeThree);
 
             Assert.Equal(
-                Strings.CircularDependency(string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
+                CoreStrings.CircularDependency(string.Join(" -> ", new[] { vertexOne, vertexTwo, vertexThree, vertexOne }.Select(v => v.ToString()))),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort()).Message);
         }
 
@@ -436,7 +436,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 };
 
             Assert.Equal(
-                Strings.CircularDependency(message),
+                CoreStrings.CircularDependency(message),
                 Assert.Throws<InvalidOperationException>(() => graph.TopologicalSort(formatter)).Message);
 
             Assert.Equal(3, cycleData.Count());
@@ -483,7 +483,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 };
 
             Assert.Equal(
-                Strings.CircularDependency(message),
+                CoreStrings.CircularDependency(message),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort(formatter)).Message);
 
             Assert.Equal(3, cycleData.Count());
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA);
 
             Assert.Equal(
-                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(A).FullName),
+                CoreStrings.CircularDependency(typeof(A).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -684,7 +684,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
 
             Assert.Equal(
-                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
+                CoreStrings.CircularDependency(typeof(A).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -711,7 +711,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
+                CoreStrings.CircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -749,7 +749,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
 
             Assert.Equal(
-                Strings.CircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
+                CoreStrings.CircularDependency(typeof(A).FullName + " -> " + typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
 
@@ -776,7 +776,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
 
             Assert.Equal(
-                Strings.CircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
+                CoreStrings.CircularDependency(typeof(C).FullName + " -> " + typeof(B).FullName + " -> " + typeof(C).FullName + " -> " + typeof(A).FullName),
                 Assert.Throws<InvalidOperationException>(() => graph.BatchingTopologicalSort()).Message);
         }
     }

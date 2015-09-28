@@ -1520,7 +1520,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Ignore<Customer>();
                 modelBuilder.Ignore<CustomerDetails>();
 
-                Assert.Equal(Strings.RelationshipCannotBeInverted,
+                Assert.Equal(CoreStrings.RelationshipCannotBeInverted,
                     Assert.Throws<InvalidOperationException>(() => modelBuilder
                         .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details)
                         .ForeignKey<OrderDetails>(e => e.OrderId)
@@ -1539,7 +1539,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Ignore<Customer>();
                 modelBuilder.Ignore<CustomerDetails>();
 
-                Assert.Equal(Strings.RelationshipCannotBeInverted,
+                Assert.Equal(CoreStrings.RelationshipCannotBeInverted,
                     Assert.Throws<InvalidOperationException>(() => modelBuilder
                         .Entity<OrderDetails>().HasOne(e => e.Order).WithOne(e => e.Details)
                         .PrincipalKey<OrderDetails>(e => e.OrderId)
@@ -2312,7 +2312,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 var modelBuilder = CreateModelBuilder();
 
-                Assert.Equal(Strings.DuplicateNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),
+                Assert.Equal(CoreStrings.DuplicateNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),
                     Assert.Throws<InvalidOperationException>(() =>
                         modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne(e => e.SelfRef1)).Message);
             }

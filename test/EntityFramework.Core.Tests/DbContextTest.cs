@@ -2203,7 +2203,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<UseModelInOnModelCreatingContext>())
             {
                 Assert.Equal(
-                    Strings.RecursiveOnModelCreating,
+                    CoreStrings.RecursiveOnModelCreating,
                     Assert.Throws<InvalidOperationException>(() => context.Model).Message);
             }
         }
@@ -2239,7 +2239,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<UseInOnModelCreatingContext>())
             {
                 Assert.Equal(
-                    Strings.RecursiveOnModelCreating,
+                    CoreStrings.RecursiveOnModelCreating,
                     Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
             }
         }
@@ -2273,7 +2273,7 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = serviceProvider.GetRequiredService<UseInOnConfiguringContext>())
             {
                 Assert.Equal(
-                    Strings.RecursiveOnConfiguring,
+                    CoreStrings.RecursiveOnConfiguring,
                     Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
             }
         }

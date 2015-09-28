@@ -9,8 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Framework.Logging;
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var transaction = Mock.Of<IRelationalTransaction>();
 
-            Assert.Equal(Strings.UpdateConcurrencyException(1, 42),
+            Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 42),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         transaction,
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var transaction = Mock.Of<IRelationalTransaction>();
 
-            Assert.Equal(Strings.UpdateConcurrencyException(1, 0),
+            Assert.Equal(RelationalStrings.UpdateConcurrencyException(1, 0),
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         transaction,

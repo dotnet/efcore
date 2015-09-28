@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Storage;
@@ -14,8 +15,6 @@ using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Moq;
 using Xunit;
-
-using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Tests.Update
 {

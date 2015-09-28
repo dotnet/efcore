@@ -43,12 +43,12 @@ namespace Microsoft.Data.Entity.Internal
         {
             if (!_vertices.Contains(from))
             {
-                throw new InvalidOperationException(Strings.GraphDoesNotContainVertex(from));
+                throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(from));
             }
 
             if (!_vertices.Contains(to))
             {
-                throw new InvalidOperationException(Strings.GraphDoesNotContainVertex(to));
+                throw new InvalidOperationException(CoreStrings.GraphDoesNotContainVertex(to));
             }
 
             Dictionary<TVertex, List<TEdge>> successorSet;
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Internal
                         if (formatCycle == null)
                         {
                             throw new InvalidOperationException(
-                                Strings.CircularDependency(
+                                CoreStrings.CircularDependency(
                                     cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
                         }
                         // Build the cycle message data
@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.Internal
                             currentCycleVertex = vertex;
                         }
                         throw new InvalidOperationException(
-                            Strings.CircularDependency(
+                            CoreStrings.CircularDependency(
                                 formatCycle(cycleData)));
                     }
                 }
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Internal
                 if (formatCycle == null)
                 {
                     throw new InvalidOperationException(
-                        Strings.CircularDependency(
+                        CoreStrings.CircularDependency(
                             cycle.Select(vertex => vertex.ToString()).Join(" -> ")));
                 }
                 // Build the cycle message data
@@ -309,7 +309,7 @@ namespace Microsoft.Data.Entity.Internal
                     currentCycleVertex = vertex;
                 }
                 throw new InvalidOperationException(
-                    Strings.CircularDependency(
+                    CoreStrings.CircularDependency(
                         formatCycle(cycleData)));
             }
 

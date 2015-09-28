@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.Logging;
-using Strings = Microsoft.Data.Entity.InMemory.Strings;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
@@ -114,7 +113,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                     return ts;
                 });
 
-            _logger.LogInformation(rowsAffected, ra => Strings.LogSavedChanges(ra));
+            _logger.LogInformation(rowsAffected, ra => InMemoryStrings.LogSavedChanges(ra));
 
             return rowsAffected;
         }

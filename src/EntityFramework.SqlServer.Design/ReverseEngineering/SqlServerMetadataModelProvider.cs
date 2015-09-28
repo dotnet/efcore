@@ -7,6 +7,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
@@ -221,7 +222,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 if (!_tableIdToEntityType.TryGetValue(tc.TableId, out entityType))
                 {
                     Logger.LogWarning(
-                        Strings.CannotFindTableForColumn(tc.Id, tc.TableId));
+                        SqlServerDesignStrings.CannotFindTableForColumn(tc.Id, tc.TableId));
                     continue;
                 }
 
@@ -231,7 +232,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
                 {
                     Logger.LogWarning(
-                        Strings.CannotFindTypeMappingForColumn(tc.Id, tc.DataType));
+                        SqlServerDesignStrings.CannotFindTypeMappingForColumn(tc.Id, tc.DataType));
                     continue;
                 }
 
@@ -293,7 +294,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
                 else
                 {
-                    var errorMessage = Strings.NoPrimaryKeyColumns(
+                    var errorMessage = SqlServerDesignStrings.NoPrimaryKeyColumns(
                         entityType.Relational().Schema,
                         entityType.Relational().TableName);
                     entityType.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
@@ -404,7 +405,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tableColumn.DataType])
                 {
                     Logger.LogWarning(
-                        Strings.DataTypeDoesNotAllowSqlServerIdentityStrategy(tableColumn.Id, tableColumn.DataType));
+                        SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(tableColumn.Id, tableColumn.DataType));
                 }
                 else
                 {
@@ -439,7 +440,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 else
                 {
                     Logger.LogWarning(
-                        Strings.UnableToConvertDefaultValue(
+                        SqlServerDesignStrings.UnableToConvertDefaultValue(
                             tableColumn.Id, tableColumn.DefaultValue,
                             ((IProperty)property).ClrType, property.Name, property.DeclaringEntityType.Name));
                 }
@@ -457,7 +458,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 foreignKeyConstraintId + fromColumnId, out foreignKeyColumnMapping))
             {
                 Logger.LogWarning(
-                    Strings.CannotFindForeignKeyMappingForConstraintId(
+                    SqlServerDesignStrings.CannotFindForeignKeyMappingForConstraintId(
                         foreignKeyConstraintId, fromColumnId));
                 return null;
             }
@@ -474,7 +475,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 foreignKeyColumnMapping.ToColumnId, out toColumnRelationalProperty))
             {
                 Logger.LogWarning(
-                    Strings.CannotFindRelationalPropertyForColumnId(
+                    SqlServerDesignStrings.CannotFindRelationalPropertyForColumnId(
                         foreignKeyConstraintId, foreignKeyColumnMapping.ToColumnId));
                 return null;
             }

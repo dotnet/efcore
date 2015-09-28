@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (previousLength == _entities.Count)
             {
-                throw new InvalidOperationException(Strings.DuplicateEntityType(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
             }
 
             return entityType;
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata
             var entityType = FindEntityType(type);
             if (entityType == null)
             {
-                throw new ModelItemNotFoundException(Strings.EntityTypeNotFound(type.Name));
+                throw new ModelItemNotFoundException(CoreStrings.EntityTypeNotFound(type.Name));
             }
 
             return entityType;
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Metadata
             var entityType = FindEntityType(name);
             if (entityType == null)
             {
-                throw new ModelItemNotFoundException(Strings.EntityTypeNotFound(name));
+                throw new ModelItemNotFoundException(CoreStrings.EntityTypeNotFound(name));
             }
 
             return entityType;
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             if (FindReferencingForeignKeys(entityType).Any())
             {
-                throw new InvalidOperationException(Strings.EntityTypeInUse(entityType.Name));
+                throw new InvalidOperationException(CoreStrings.EntityTypeInUse(entityType.Name));
             }
 
             var previousEntities = _entities;

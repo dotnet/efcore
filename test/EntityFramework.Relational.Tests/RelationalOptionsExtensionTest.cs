@@ -4,7 +4,7 @@
 using System;
 using System.Data.Common;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Moq;
 using Xunit;
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_CommandTimeout_out_of_range()
         {
             Assert.Equal(
-                Strings.InvalidCommandTimeout,
+                RelationalStrings.InvalidCommandTimeout,
                 Assert.Throws<InvalidOperationException>(
                     () => { new TestRelationalOptionsExtension().CommandTimeout = -1; }).Message);
         }
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests
         public void Throws_if_MaxBatchSize_out_of_range()
         {
             Assert.Equal(
-                Strings.InvalidMaxBatchSize,
+                RelationalStrings.InvalidMaxBatchSize,
                 Assert.Throws<InvalidOperationException>(
                     () => { new TestRelationalOptionsExtension().MaxBatchSize = -1; }).Message);
         }

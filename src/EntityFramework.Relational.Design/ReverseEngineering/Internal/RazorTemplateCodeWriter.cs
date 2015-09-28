@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
@@ -65,7 +66,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
             if (templateResult.ProcessingException != null)
             {
                 throw new InvalidOperationException(
-                    Strings.ErrorRunningDbContextTemplate(templateResult.ProcessingException.Message));
+                    RelationalDesignStrings.ErrorRunningDbContextTemplate(templateResult.ProcessingException.Message));
             }
 
             // output DbContext .cs file
@@ -81,7 +82,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
                 if (templateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(
-                        Strings.ErrorRunningEntityTypeTemplate(templateResult.ProcessingException.Message));
+                        RelationalDesignStrings.ErrorRunningEntityTypeTemplate(templateResult.ProcessingException.Message));
                 }
 
                 // output EntityType poco .cs file

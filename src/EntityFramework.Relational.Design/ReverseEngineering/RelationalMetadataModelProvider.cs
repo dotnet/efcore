@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
@@ -112,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 if (errorMessage != null)
                 {
                     codeGenEntityType.AddAnnotation(AnnotationNameEntityTypeError,
-                        Strings.UnableToGenerateEntityType(codeGenEntityType.Name, errorMessage));
+                        RelationalDesignStrings.UnableToGenerateEntityType(codeGenEntityType.Name, errorMessage));
                 }
 
                 foreach (var relationalProperty in relationalEntityType.Properties)

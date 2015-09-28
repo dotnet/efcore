@@ -43,13 +43,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 || inverseNavigationPropertyInfo.FindCandidateNavigationPropertyType() != entityTypeBuilder.Metadata.ClrType)
             {
                 throw new InvalidOperationException(
-                    Strings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityTypeBuilder.Metadata.Name, attribute.Property, targetType.FullName));
+                    CoreStrings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityTypeBuilder.Metadata.Name, attribute.Property, targetType.FullName));
             }
 
             if (inverseNavigationPropertyInfo == navigationPropertyInfo)
             {
                 throw new InvalidOperationException(
-                    Strings.SelfReferencingNavigationWithInverseProperty(
+                    CoreStrings.SelfReferencingNavigationWithInverseProperty(
                         navigationPropertyInfo.Name,
                         entityTypeBuilder.Metadata.Name,
                         navigationPropertyInfo.Name,
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 && inverseAttribute.Property != navigationPropertyInfo.Name)
             {
                 throw new InvalidOperationException(
-                    Strings.InversePropertyMismatch(
+                    CoreStrings.InversePropertyMismatch(
                         navigationPropertyInfo.Name,
                         entityTypeBuilder.Metadata.Name,
                         inverseNavigationPropertyInfo.Name,

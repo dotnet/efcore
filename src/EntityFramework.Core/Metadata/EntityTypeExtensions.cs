@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Metadata
             var property = entityType.FindProperty(propertyName);
             if (property == null)
             {
-                throw new ModelItemNotFoundException(Strings.PropertyNotFound(propertyName, entityType.Name));
+                throw new ModelItemNotFoundException(CoreStrings.PropertyNotFound(propertyName, entityType.Name));
             }
 
             return property;
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Metadata
             var navigation = entityType.FindNavigation(name);
             if (navigation == null)
             {
-                throw new ModelItemNotFoundException(Strings.NavigationNotFound(name, entityType.Name));
+                throw new ModelItemNotFoundException(CoreStrings.NavigationNotFound(name, entityType.Name));
             }
 
             return navigation;
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Metadata
             var index = entityType.FindIndex(properties);
             if (index == null)
             {
-                throw new ModelItemNotFoundException(Strings.IndexNotFound(Property.Format(properties), entityType.Name));
+                throw new ModelItemNotFoundException(CoreStrings.IndexNotFound(Property.Format(properties), entityType.Name));
             }
             return index;
         }
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Metadata
             var foreignKey = entityType.FindForeignKey(properties);
             if (foreignKey == null)
             {
-                throw new ModelItemNotFoundException(Strings.ForeignKeyNotFound(Property.Format(properties), entityType.Name));
+                throw new ModelItemNotFoundException(CoreStrings.ForeignKeyNotFound(Property.Format(properties), entityType.Name));
             }
 
             return foreignKey;
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Metadata
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null)
             {
-                throw new ModelItemNotFoundException(Strings.EntityRequiresKey(entityType.Name));
+                throw new ModelItemNotFoundException(CoreStrings.EntityRequiresKey(entityType.Name));
             }
 
             return primaryKey;
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.Metadata
             var key = entityType.FindKey(properties);
             if (key == null)
             {
-                throw new ModelItemNotFoundException(Strings.KeyNotFound(Property.Format(properties), entityType.Name));
+                throw new ModelItemNotFoundException(CoreStrings.KeyNotFound(Property.Format(properties), entityType.Name));
             }
 
             return key;

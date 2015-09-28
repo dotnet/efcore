@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Internal
 
                 if (!tables.Add(name))
                 {
-                    ShowError(Relational.Internal.Strings.DuplicateTableName(annotations.TableName, annotations.Schema, entityType.DisplayName()));
+                    ShowError(RelationalStrings.DuplicateTableName(annotations.TableName, annotations.Schema, entityType.DisplayName()));
                 }
             }
         }
@@ -69,11 +69,11 @@ namespace Microsoft.Data.Entity.Internal
                 var annotations = _relationalExtensions.For(entityType);
                 if (annotations.DiscriminatorProperty == null)
                 {
-                    ShowError(Relational.Internal.Strings.NoDiscriminatorProperty(entityType.DisplayName()));
+                    ShowError(RelationalStrings.NoDiscriminatorProperty(entityType.DisplayName()));
                 }
                 if (annotations.DiscriminatorValue == null)
                 {
-                    ShowError(Relational.Internal.Strings.NoDiscriminatorValue(entityType.DisplayName()));
+                    ShowError(RelationalStrings.NoDiscriminatorValue(entityType.DisplayName()));
                 }
             }
         }

@@ -4,9 +4,9 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.DependencyInjection;
 using Xunit;
-using CoreStrings = Microsoft.Data.Entity.Internal.Strings;
 
 namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {

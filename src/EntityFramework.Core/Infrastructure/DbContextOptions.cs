@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             var extension = FindExtension<TExtension>();
             if (extension == null)
             {
-                throw new InvalidOperationException(Strings.OptionsExtensionNotFound(typeof(TExtension).Name));
+                throw new InvalidOperationException(CoreStrings.OptionsExtensionNotFound(typeof(TExtension).Name));
             }
             return extension;
         }

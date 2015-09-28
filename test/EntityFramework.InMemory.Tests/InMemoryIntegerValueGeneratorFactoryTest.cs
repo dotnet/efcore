@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
@@ -47,7 +48,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("BadCheese");
 
             Assert.Equal(
-                Internal.Strings.InvalidValueGeneratorFactoryProperty(nameof(InMemoryIntegerValueGeneratorFactory), "BadCheese", "AnEntity"),
+                CoreStrings.InvalidValueGeneratorFactoryProperty(nameof(InMemoryIntegerValueGeneratorFactory), "BadCheese", "AnEntity"),
                 Assert.Throws<ArgumentException>(() => new InMemoryIntegerValueGeneratorFactory().Create(property)).Message);
         }
 

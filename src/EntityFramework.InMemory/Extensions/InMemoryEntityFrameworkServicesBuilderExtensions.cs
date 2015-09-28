@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Infrastructure.Internal;
-using Microsoft.Data.Entity.InMemory;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;

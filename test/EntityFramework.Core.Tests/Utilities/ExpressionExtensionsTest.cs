@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Expression<Func<DateTime, int>> expression = d => 123;
 
             Assert.Contains(
-                Strings.InvalidPropertyExpression(expression),
+                CoreStrings.InvalidPropertyExpression(expression),
                 Assert.Throws<ArgumentException>(() => expression.GetPropertyAccess()).Message);
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Expression<Func<DateTime, int>> expression = d => closure.Hour;
 
             Assert.Contains(
-                Strings.InvalidPropertyExpression(expression),
+                CoreStrings.InvalidPropertyExpression(expression),
                 Assert.Throws<ArgumentException>(() => expression.GetPropertyAccess()).Message);
         }
 
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 };
 
             Assert.Contains(
-                Strings.InvalidPropertiesExpression(expression),
+                CoreStrings.InvalidPropertiesExpression(expression),
                 Assert.Throws<ArgumentException>(() => expression.GetPropertyAccessList()).Message);
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 };
 
             Assert.Contains(
-                Strings.InvalidPropertiesExpression(expression),
+                CoreStrings.InvalidPropertiesExpression(expression),
                 Assert.Throws<ArgumentException>(() => expression.GetPropertyAccessList()).Message);
         }
     }

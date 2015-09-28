@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
-using Strings = Microsoft.Data.Entity.Relational.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -56,14 +55,14 @@ namespace Microsoft.Data.Entity.Storage
                 return mapping;
             }
 
-            throw new NotSupportedException(Strings.UnsupportedType(clrType.Name));
+            throw new NotSupportedException(RelationalStrings.UnsupportedType(clrType.Name));
         }
 
         protected virtual RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
-            throw new NotSupportedException(Strings.UnsupportedType(property.ClrType.Name));
+            throw new NotSupportedException(RelationalStrings.UnsupportedType(property.ClrType.Name));
         }
 
         protected virtual RelationalTypeMapping GetStringMapping(

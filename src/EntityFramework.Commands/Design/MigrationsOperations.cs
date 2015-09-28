@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Framework.DependencyInjection;
 using Microsoft.Framework.Logging;
-using Strings = Microsoft.Data.Entity.Design.Internal.Strings;
 
 namespace Microsoft.Data.Entity.Design
 {
@@ -121,7 +120,7 @@ namespace Microsoft.Data.Entity.Design
                 migrator.Migrate(targetMigration);
             }
 
-            _logger.Value.LogInformation(Strings.Done);
+            _logger.Value.LogInformation(CommandsStrings.Done);
         }
 
         public virtual MigrationFiles RemoveMigration(
@@ -136,7 +135,7 @@ namespace Microsoft.Data.Entity.Design
 
                 var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace);
 
-                _logger.Value.LogInformation(Strings.Done);
+                _logger.Value.LogInformation(CommandsStrings.Done);
 
                 return files;
             }
@@ -147,7 +146,7 @@ namespace Microsoft.Data.Entity.Design
             var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
             if (!(providerServices is IRelationalDatabaseProviderServices))
             {
-                throw new OperationException(Strings.NonRelationalProvider(providerServices.InvariantName));
+                throw new OperationException(CommandsStrings.NonRelationalProvider(providerServices.InvariantName));
             }
         }
     }

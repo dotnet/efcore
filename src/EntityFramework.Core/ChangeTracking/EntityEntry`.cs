@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             if (property.ClrType != typeof(TProperty))
             {
-                throw new ArgumentException(Strings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
+                throw new ArgumentException(CoreStrings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }
 
             return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyName);

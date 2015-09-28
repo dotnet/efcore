@@ -5,6 +5,7 @@ using System;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Design;
@@ -112,14 +113,14 @@ namespace Microsoft.Data.Entity.Design.Internal
             }
             catch (Exception ex)
             {
-                throw new OperationException(Strings.CannotFindRuntimeProviderAssembly(provider), ex);
+                throw new OperationException(CommandsStrings.CannotFindRuntimeProviderAssembly(provider), ex);
             }
 
             var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
             if (providerServicesAttribute == null)
             {
                 throw new InvalidOperationException(
-                    Strings.CannotFindDesignTimeProviderAssemblyAttribute(
+                    CommandsStrings.CannotFindDesignTimeProviderAssemblyAttribute(
                         nameof(DesignTimeProviderServicesAttribute),
                         provider));
             }
@@ -135,7 +136,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                 catch (Exception ex)
                 {
                     throw new OperationException(
-                        Strings.CannotFindDesignTimeProviderAssembly(providerServicesAssemblyName), ex);
+                        CommandsStrings.CannotFindDesignTimeProviderAssembly(providerServicesAssemblyName), ex);
                 }
             }
             else

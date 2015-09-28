@@ -4,6 +4,7 @@
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Framework.Logging;
 using Xunit;
 
@@ -97,7 +98,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     var customers
                         = context.Customers.Where(c => c.City == city).ToList();
                 }
-                Assert.Contains(Internal.Strings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)), TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)), TestSqlLoggerFactory.Log);
                 Assert.Equal(@"@__city_0: Seattle
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]

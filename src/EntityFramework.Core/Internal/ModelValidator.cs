@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Internal
             var firstShadowEntity = model.EntityTypes.FirstOrDefault(entityType => !entityType.HasClrType());
             if (firstShadowEntity != null)
             {
-                ShowError(Strings.ShadowEntity(firstShadowEntity.Name));
+                ShowError(CoreStrings.ShadowEntity(firstShadowEntity.Name));
             }
         }
 
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Internal
                         var referencingFk = model.FindReferencingForeignKeys(key).FirstOrDefault();
                         if (referencingFk != null)
                         {
-                            message = Strings.ReferencedShadowKey(
+                            message = CoreStrings.ReferencedShadowKey(
                                 Property.Format(key.Properties),
                                 entityType.Name,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)),
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Internal
                         }
                         else
                         {
-                            message = Strings.ShadowKey(
+                            message = CoreStrings.ShadowKey(
                                 Property.Format(key.Properties),
                                 entityType.Name,
                                 Property.Format(key.Properties.Where(p => p.IsShadowProperty)));
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Internal
             var entityTypeWithNullPk = model.EntityTypes.FirstOrDefault(et => et.FindPrimaryKey() == null);
             if (entityTypeWithNullPk != null)
             {
-                ShowError(Strings.EntityRequiresKey(entityTypeWithNullPk.Name));
+                ShowError(CoreStrings.EntityRequiresKey(entityTypeWithNullPk.Name));
             }
         }
 
@@ -91,13 +91,13 @@ namespace Microsoft.Data.Entity.Internal
                     var clrProperty = entityType.ClrType.GetPropertiesInHierarchy(property.Name).FirstOrDefault();
                     if (clrProperty == null)
                     {
-                        ShowError(Strings.NoClrProperty(property.Name, entityType.Name));
+                        ShowError(CoreStrings.NoClrProperty(property.Name, entityType.Name));
                         continue;
                     }
 
                     if (property.ClrType != clrProperty.PropertyType)
                     {
-                        ShowError(Strings.PropertyWrongClrType(property.Name, entityType.Name));
+                        ShowError(CoreStrings.PropertyWrongClrType(property.Name, entityType.Name));
                     }
                 }
             }
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Internal
                         {
                             var cycleStart = visitedForeignKeys.IndexOf(foreignKey);
                             var cycle = visitedForeignKeys.GetRange(cycleStart, visitedForeignKeys.Count - cycleStart);
-                            errorMessage = Strings.CircularDependency(cycle.Select(fk => fk.ToString()).Join());
+                            errorMessage = CoreStrings.CircularDependency(cycle.Select(fk => fk.ToString()).Join());
                             continue;
                         }
                         rootPrincipal = VerifyRootPrincipal(nextPrincipalProperty, verifiedProperties, visitedForeignKeys.Add(foreignKey), out errorMessage);
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Internal
 
                         if (principalProperty.RequiresValueGenerator)
                         {
-                            ShowError(Strings.ForeignKeyValueGenerationOnAdd(
+                            ShowError(CoreStrings.ForeignKeyValueGenerationOnAdd(
                                 principalProperty.Name,
                                 principalProperty.DeclaringEntityType.DisplayName(),
                                 Property.Format(foreignKey.Properties)));
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Internal
 
                 if (!principalProperty.RequiresValueGenerator)
                 {
-                    ShowError(Strings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.DeclaringEntityType.DisplayName()));
+                    ShowError(CoreStrings.PrincipalKeyNoValueGenerationOnAdd(principalProperty.Name, principalProperty.DeclaringEntityType.DisplayName()));
                     return null;
                 }
 
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Internal
             {
                 var firstRoot = rootPrincipals.Keys.ElementAt(0);
                 var secondRoot = rootPrincipals.Keys.ElementAt(1);
-                ShowWarning(Strings.MultipleRootPrincipals(
+                ShowWarning(CoreStrings.MultipleRootPrincipals(
                     rootPrincipals[firstRoot].DeclaringEntityType.DisplayName(),
                     Property.Format(rootPrincipals[firstRoot].Properties),
                     firstRoot.DeclaringEntityType.DisplayName(),

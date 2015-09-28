@@ -10,7 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Relational.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Update
             catch (Exception ex)
             {
                 throw new DbUpdateException(
-                    Strings.UpdateStoreException,
+                    RelationalStrings.UpdateStoreException,
                     ex,
                     ModificationCommands[commandIndex].Entries);
             }
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Update
             catch (Exception ex)
             {
                 throw new DbUpdateException(
-                    Strings.UpdateStoreException,
+                    RelationalStrings.UpdateStoreException,
                     ex,
                     ModificationCommands[commandIndex].Entries);
             }
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Update
             int rowsAffected)
         {
             throw new DbUpdateConcurrencyException(
-                Strings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
+                RelationalStrings.UpdateConcurrencyException(expectedRowsAffected, rowsAffected),
                 AggregateEntries(commandIndex, expectedRowsAffected));
         }
     }

@@ -382,8 +382,8 @@
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="Properties\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
+    <Compile Include="Properties\CoreStrings.Designer.cs">
+      <DependentUpon>CoreStrings.resx</DependentUpon>
     </Compile>
     <Compile Include="Query\AsyncLinqOperatorProvider.cs" />
     <Compile Include="Query\EntityQueryable`.cs" />
@@ -429,8 +429,8 @@
     <Compile Include="ValueGeneration\IValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
     <EmbeddedResource Include="Properties\EntityFramework.Core.rd.xml" />
-    <EmbeddedResource Include="Properties\Strings.resx">
-      <LogicalName>EntityFramework.Core.Strings.resources</LogicalName>
+    <EmbeddedResource Include="Properties\CoreStrings.resx">
+      <LogicalName>EntityFramework.Core.CoreStrings.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="..\..\tools\Resources.tt">

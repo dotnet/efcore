@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         var referencingFk = modelBuilder.Metadata.FindReferencingForeignKeys(key).FirstOrDefault();
                         if (referencingFk != null)
                         {
-                            message = Strings.ReferencedShadowKey(
+                            message = CoreStrings.ReferencedShadowKey(
                                 Property.Format(key.Properties),
                                 entityType.Name,
                                 Property.Format(key.Properties),
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         }
                         else
                         {
-                            message = Strings.ShadowKey(
+                            message = CoreStrings.ShadowKey(
                                 Property.Format(key.Properties),
                                 entityType.Name,
                                 Property.Format(key.Properties));
