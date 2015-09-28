@@ -1765,9 +1765,9 @@ namespace Microsoft.Data.Entity.Tests
                 .AddSingleton<IMemberMapper, MemberMapper>()
                 .AddSingleton<IFieldMatcher, FieldMatcher>()
                 .AddSingleton<DatabaseProviderSelector>()
-                .AddSingleton<ILoggerFactory, LoggerFactory>()
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
+                .AddLogging()
                 .AddInstance(factory);
 
             var provider = serviceCollection.BuildServiceProvider();

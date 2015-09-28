@@ -30,7 +30,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+
+            optionsBuilder
+                .UseSqlServer(_testStore.Connection.ConnectionString)
+                .LogSqlParameterValues();
+
             _options = optionsBuilder.Options;
 
             _serviceProvider.GetRequiredService<ILoggerFactory>()

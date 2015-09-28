@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -193,7 +194,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var connection = Mock.Of<IRelationalConnection>();
 
-            await batch.ExecuteAsync(connection, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(connection, new Mock<ISensitiveDataLogger>().Object);
 
             mockReader.Verify(r => r.ReadAsync(It.IsAny<CancellationToken>()), Times.Once);
             mockReader.Verify(r => r.GetInt32(0), Times.Once);
@@ -213,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var connection = Mock.Of<IRelationalConnection>();
 
-            await batch.ExecuteAsync(connection, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(connection, new Mock<ISensitiveDataLogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("Test", entry[entry.EntityType.GetProperty("Name")]);
@@ -234,7 +235,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var connection = Mock.Of<IRelationalConnection>();
 
-            await batch.ExecuteAsync(connection, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(connection, new Mock<ISensitiveDataLogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
@@ -254,7 +255,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var connection = Mock.Of<IRelationalConnection>();
 
-            await batch.ExecuteAsync(connection, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(connection, new Mock<ISensitiveDataLogger>().Object);
 
             Assert.Equal(1, entry[entry.EntityType.GetProperty("Id")]);
             Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
@@ -279,7 +280,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var connection = Mock.Of<IRelationalConnection>();
 
-            await batch.ExecuteAsync(connection, new Mock<ILogger>().Object);
+            await batch.ExecuteAsync(connection, new Mock<ISensitiveDataLogger>().Object);
 
             Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
         }
@@ -301,7 +302,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         connection,
-                        new Mock<ILogger>().Object))).Message);
+                        new Mock<ISensitiveDataLogger>().Object))).Message);
         }
 
         [Fact]
@@ -322,7 +323,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 (await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
                     async () => await batch.ExecuteAsync(
                         connection,
-                        new Mock<ILogger>().Object))).Message);
+                        new Mock<ISensitiveDataLogger>().Object))).Message);
         }
 
         [Fact]

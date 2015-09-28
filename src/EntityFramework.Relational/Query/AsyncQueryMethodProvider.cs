@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -145,7 +146,7 @@ namespace Microsoft.Data.Entity.Query
         private static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
-            ILogger logger,
+            ISensitiveDataLogger logger,
             Func<ValueBuffer, T> shaper)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
@@ -164,7 +165,7 @@ namespace Microsoft.Data.Entity.Query
         private static IAsyncEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
-            ILogger logger,
+            ISensitiveDataLogger logger,
             int? queryIndex)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),

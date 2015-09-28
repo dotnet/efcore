@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Extensions.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -191,14 +192,14 @@ namespace Microsoft.Data.Entity
                 _initializing = true;
 
                 var optionsBuilder = new DbContextOptionsBuilder(options);
+
                 OnConfiguring(optionsBuilder);
 
                 var providerSource = serviceProvider != null ? ServiceProviderSource.Explicit : ServiceProviderSource.Implicit;
 
                 serviceProvider = serviceProvider ?? ServiceProviderCache.Instance.GetOrAdd(optionsBuilder.Options);
 
-                _logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<DbContext>();
-                _logger.LogDebug(CoreStrings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)));
+                _logger = serviceProvider.GetRequiredService<ILogger<DbContext>>();
 
                 _serviceScope = serviceProvider
                     .GetRequiredService<IServiceScopeFactory>()
@@ -304,13 +305,13 @@ namespace Microsoft.Data.Entity
             {
                 return stateManager.SaveChanges(acceptAllChangesOnSuccess);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 _logger.LogError(
-                    new DatabaseErrorLogState(GetType()),
-                    ex,
-                    (state, exception) =>
-                        CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
+                    CoreLoggingEventId.DatabaseError,
+                    () => new DatabaseErrorLogState(GetType()),
+                    exception,
+                    e => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));
 
                 throw;
             }
@@ -384,13 +385,13 @@ namespace Microsoft.Data.Entity
             {
                 return await stateManager.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
                 _logger.LogError(
-                    new DatabaseErrorLogState(GetType()),
-                    ex,
-                    (state, exception) =>
-                        CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, exception));
+                    CoreLoggingEventId.DatabaseError,
+                    () => new DatabaseErrorLogState(GetType()),
+                    exception,
+                    e => CoreStrings.LogExceptionDuringSaveChanges(Environment.NewLine, e));
 
                 throw;
             }

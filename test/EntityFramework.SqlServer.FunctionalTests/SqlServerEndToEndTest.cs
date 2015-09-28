@@ -111,7 +111,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             using (var testDatabase = await SqlServerTestStore.CreateScratchAsync())
             {
                 var optionsBuilder = new DbContextOptionsBuilder();
-                optionsBuilder.UseSqlServer(testDatabase.Connection.ConnectionString);
+
+                optionsBuilder
+                    .UseSqlServer(testDatabase.Connection.ConnectionString)
+                    .LogSqlParameterValues();
 
                 using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {
@@ -160,13 +163,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     Assert.Equal(EntityState.Unchanged, db.Entry(toAdd).State);
                     Assert.DoesNotContain(toDelete, db.ChangeTracker.Entries().Select(e => e.Entity));
 
-                    Assert.Equal(4, TestSqlLoggerFactory.SqlStatements.Count);
+                    Assert.Equal(3, TestSqlLoggerFactory.SqlStatements.Count);
                     Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[0]);
                     Assert.Contains("SELECT", TestSqlLoggerFactory.SqlStatements[1]);
                     Assert.Contains("@p0: " + deletedId, TestSqlLoggerFactory.SqlStatements[2]);
-                    Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[3]);
-                    Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[3]);
-                    Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[3]);
+                    Assert.Contains("DELETE", TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("UPDATE", TestSqlLoggerFactory.SqlStatements[2]);
+                    Assert.Contains("INSERT", TestSqlLoggerFactory.SqlStatements[2]);
 
                     var rows = await testDatabase.ExecuteScalarAsync<int>(
                         $@"SELECT Count(*) FROM [dbo].[Blog] WHERE Id = {updatedId} AND Name = 'Blog is Updated'",

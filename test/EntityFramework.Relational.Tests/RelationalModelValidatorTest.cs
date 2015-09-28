@@ -154,7 +154,8 @@ namespace Microsoft.Data.Entity.Tests
 
         protected override ModelValidator CreateModelValidator()
             => new RelationalModelValidator(
-                new Logger<LoggingModelValidator>(new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)),
+                new Logger<RelationalModelValidator>(
+                    new ListLoggerFactory(Log, l => l == typeof(RelationalModelValidator).FullName)),
                 new TestAnnotationProvider());
     }
 }

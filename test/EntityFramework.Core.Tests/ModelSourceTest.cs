@@ -59,7 +59,6 @@ namespace Microsoft.Data.Entity.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            // TODO: Fix covariance: Logging#253
             var model1 = modelSource.GetModel(new Context1(), null,
                 new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
             var model2 = modelSource.GetModel(new Context2(), null,
@@ -77,7 +76,6 @@ namespace Microsoft.Data.Entity.Tests
         {
             var modelSource = CreateDefaultModelSource(new DbSetFinder());
 
-            // TODO: Fix covariance: Logging#253
             var model = modelSource.GetModel(new Context1(), null,
                 new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
 

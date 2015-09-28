@@ -85,7 +85,7 @@ SELECT ""Id""
 FROM ""BookDetail""
 WHERE changes() = 1 AND ""Id"" = last_insert_rowid();
 
-@p0:
+@p0: 
 
 INSERT INTO ""BookDetail"" (""BookId"")
 VALUES (@p0);

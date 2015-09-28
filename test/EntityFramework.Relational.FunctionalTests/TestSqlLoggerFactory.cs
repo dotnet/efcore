@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Framework.Logging;
 using Xunit.Abstractions;
 #if !DNXCORE50
@@ -37,7 +40,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             return Logger.SqlLoggerData._cancellationTokenSource.Token;
         }
 
-        public static void Reset() => Logger.Reset();
+        public static void Reset() => Logger.ResetLoggerData();
 
         public static void CaptureOutput(ITestOutputHelper testOutputHelper)
             => Logger.SqlLoggerData._testOutputHelper = testOutputHelper;
@@ -49,7 +52,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public static string Log => Logger.SqlLoggerData._log.ToString();
 
         public static string Sql
-            => string.Join(Environment.NewLine + Environment.NewLine, Logger.SqlLoggerData._sqlStatements);
+            => string.Join("\r\n\r\n", Logger.SqlLoggerData._sqlStatements);
 
         public static List<string> SqlStatements => Logger.SqlLoggerData._sqlStatements;
 
@@ -110,16 +113,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     var sqlLoggerData = SqlLoggerData;
 
-                    if (eventId == RelationalLoggingEventIds.ExecutingSql)
+                    if (sqlLoggerData._cancellationTokenSource != null)
                     {
-                        if (sqlLoggerData._cancellationTokenSource != null)
+                        sqlLoggerData._cancellationTokenSource.Cancel();
+                        sqlLoggerData._cancellationTokenSource = null;
+                    }
+
+                    var commandLogData = state as DbCommandLogData;
+
+                    if (commandLogData != null)
+                    {
+                        var parameters = "";
+
+                        if (commandLogData.Parameters.Any())
                         {
-                            sqlLoggerData._cancellationTokenSource.Cancel();
-                            sqlLoggerData._cancellationTokenSource = null;
+                            parameters
+                                = string.Join(
+                                    "\r\n",
+                                    commandLogData.Parameters
+                                        .Select(kv => kv.Key + ": "
+                                                      + Convert.ToString(kv.Value, CultureInfo.InvariantCulture)))
+                                  + "\r\n\r\n";
                         }
 
-                        sqlLoggerData._sqlStatements.Add(format);
+                        sqlLoggerData._sqlStatements.Add(parameters + commandLogData.CommandText);
                     }
+
                     else
                     {
                         sqlLoggerData._log.AppendLine(format);
@@ -133,14 +152,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public IDisposable BeginScopeImpl(object state) => SqlLoggerData._log.Indent();
 
-            public void Reset()
-            {
+            // ReSharper disable once MemberCanBeMadeStatic.Local
+            public void ResetLoggerData()
+                =>
 #if DNXCORE50
-                _loggerData.Value = null;
+                    _loggerData.Value = null;
 #else
-                CallContext.LogicalSetData(ContextName, null);
+                    CallContext.LogicalSetData(ContextName, null);
 #endif
-            }
         }
     }
 }

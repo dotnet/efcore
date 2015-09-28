@@ -29,7 +29,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var testStore = SqlServerTestStore.CreateScratch();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+
+            optionsBuilder
+                .UseSqlServer(testStore.Connection)
+                .LogSqlParameterValues();
+
             _options = optionsBuilder.Options;
 
             // TODO: Do this via migrations

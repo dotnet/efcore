@@ -13,7 +13,8 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions
     {
-        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
+        public static SqlServerDbContextOptionsBuilder UseSqlServer(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -26,7 +27,8 @@ namespace Microsoft.Data.Entity
         }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
-        public static SqlServerDbContextOptionsBuilder UseSqlServer([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection)
+        public static SqlServerDbContextOptionsBuilder UseSqlServer(
+            [NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection)
         {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));

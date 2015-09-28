@@ -11,21 +11,20 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class QueryCompilationContextFactory : IQueryCompilationContextFactory
     {
-        private readonly ILoggerFactory _loggerFactory;
         private readonly DbContext _context;
 
         public QueryCompilationContextFactory(
-            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] ILogger<QueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] DbContext context)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
+            Check.NotNull(logger, nameof(logger));
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(context, nameof(context));
 
-            _loggerFactory = loggerFactory;
+            Logger = logger;
 
             EntityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
             RequiresMaterializationExpressionVisitorFactory = requiresMaterializationExpressionVisitorFactory;
@@ -33,6 +32,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             _context = context;
         }
 
+        protected virtual ILogger Logger { get; }
         protected virtual IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory { get; }
         protected virtual IRequiresMaterializationExpressionVisitorFactory RequiresMaterializationExpressionVisitorFactory { get; }
 
@@ -40,13 +40,10 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public virtual QueryCompilationContext Create(bool async)
             => new QueryCompilationContext(
-                CreateLogger(),
+                Logger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 async ? (ILinqOperatorProvider)new AsyncLinqOperatorProvider() : new LinqOperatorProvider(),
                 ContextType);
-
-        protected virtual ILogger CreateLogger()
-            => _loggerFactory.CreateLogger<QueryCompilationContext>();
     }
 }

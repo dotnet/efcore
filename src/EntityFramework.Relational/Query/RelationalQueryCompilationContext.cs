@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Query
             = new List<RelationalQueryModelVisitor>();
 
         public RelationalQueryCompilationContext(
-            [NotNull] ILogger logger,
+            [NotNull] ISensitiveDataLogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
@@ -67,9 +67,9 @@ namespace Microsoft.Data.Entity.Query
 
             return
                 (from v in _relationalQueryModelVisitors
-                    let selectExpression = v.TryGetQuery(querySource)
-                    where selectExpression != null
-                    select selectExpression)
+                 let selectExpression = v.TryGetQuery(querySource)
+                 where selectExpression != null
+                 select selectExpression)
                     .First();
         }
     }

@@ -7,8 +7,8 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -18,16 +18,17 @@ namespace Microsoft.Data.Entity.Storage
 
         public SqlStatementExecutor(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ILogger<SqlStatementExecutor> logger)
+            [NotNull] ISensitiveDataLogger<SqlStatementExecutor> logger)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(logger, nameof(logger));
 
             _commandBuilderFactory = commandBuilderFactory;
+
             Logger = logger;
         }
 
-        protected virtual ILogger Logger { get; }
+        protected virtual ISensitiveDataLogger Logger { get; }
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,

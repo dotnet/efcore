@@ -15,11 +15,12 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
         protected override ModelValidator CreateModelValidator() 
             => new NonThrowingModelValidator(
-                new Logger<LoggingModelValidator>(new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)));
+                new Logger<NonThrowingModelValidator>(
+                    new ListLoggerFactory(Log, l => l == typeof(NonThrowingModelValidator).FullName)));
 
         private class NonThrowingModelValidator : LoggingModelValidator
         {
-            public NonThrowingModelValidator([NotNull] ILogger<LoggingModelValidator> logger)  // TODO: Fix covariance: Logging#253
+            public NonThrowingModelValidator([NotNull] ILogger<NonThrowingModelValidator> logger)
                 : base(logger)
             {
             }

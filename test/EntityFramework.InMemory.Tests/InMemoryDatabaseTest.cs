@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Storage.Internal;
@@ -150,7 +151,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             mockLogger.Verify(
                 l => l.Log(
                     LogLevel.Information,
-                    0,
+                    (int)InMemoryLoggingEventId.SavedChanges,
                     1,
                     null,
                     It.IsAny<Func<object, Exception, string>>()),

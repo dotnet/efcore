@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
         protected override ModelValidator CreateModelValidator() 
             => new LoggingModelValidator(
-                new Logger<LoggingModelValidator>(new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)));
+                new Logger<LoggingModelValidator>(
+                    new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)));
     }
 }

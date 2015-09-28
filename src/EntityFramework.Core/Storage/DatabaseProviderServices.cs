@@ -34,8 +34,7 @@ namespace Microsoft.Data.Entity.Storage
         public virtual IConventionSetBuilder ConventionSetBuilder => null;
         public virtual IValueGeneratorSelector ValueGeneratorSelector => GetService<ValueGeneratorSelector>();
         public virtual IModelValidator ModelValidator => GetService<LoggingModelValidator>();
-        public virtual ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator
-            => GetService<CompiledQueryCacheKeyGenerator>();
+        public virtual ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => GetService<CompiledQueryCacheKeyGenerator>();
         public virtual IExpressionPrinter ExpressionPrinter => GetService<ExpressionPrinter>();
         public virtual IResultOperatorHandler ResultOperatorHandler => GetService<ResultOperatorHandler>();
         public virtual IQueryCompilationContextFactory QueryCompilationContextFactory => GetService<QueryCompilationContextFactory>();

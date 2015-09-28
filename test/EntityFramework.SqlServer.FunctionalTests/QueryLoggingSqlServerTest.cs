@@ -5,7 +5,6 @@ using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Framework.Logging;
 using Xunit;
 
 #if DNXCORE50
@@ -27,8 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    @"Debug level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure ILoggerFactory.MinimumLevel to LogLevel.Verbose
-    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
+                    @"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Tracking query sources: [<generated>_0]
     TRACKED: True
@@ -44,7 +42,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
                 FROM [Customers] AS [c]
             , 
-            logger: SqlLogger, 
+            logger: SensitiveDataLogger`1, 
             shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                 querySource: from Customer <generated>_0 in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
                 queryContext: prm0, 
@@ -81,36 +79,26 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     selector: (QueryResultScope prm1) => Customer prm1._GetResult(
         querySource: from Customer <generated>_0 in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer])
     )
-)", 
+)",
                     TestSqlLoggerFactory.Log);
             }
         }
 
         [Fact]
-        public virtual void Queryable_with_parameter()
+        public virtual void Queryable_with_parameter_outputs_parameter_value_logging_warning()
         {
             using (var context = CreateContext())
             {
-                var cities = new[] { "Seattle", "Redmond" };
+                // ReSharper disable once ConvertToConstant.Local
+                var city = "Redmond";
 
-                foreach (var city in cities)
-                {
-                    var customers
-                        = context.Customers.Where(c => c.City == city).ToList();
-                }
-                Assert.Contains(CoreStrings.DebugLogWarning(nameof(LogLevel.Debug), nameof(ILoggerFactory) + "." + nameof(ILoggerFactory.MinimumLevel), nameof(LogLevel) + "." + nameof(LogLevel.Verbose)), TestSqlLoggerFactory.Log);
-                Assert.Equal(@"@__city_0: Seattle
+                var customers
+                    = context.Customers
+                        .Where(c => c.City == city)
+                        .ToList();
 
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[City] = @__city_0
-
-@__city_0: Redmond
-
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[City] = @__city_0",
-                TestSqlLoggerFactory.Sql);
+                Assert.NotNull(customers);
+                Assert.Contains(RelationalStrings.ParameterLoggingEnabled, TestSqlLoggerFactory.Log);
             }
         }
 
@@ -125,8 +113,7 @@ WHERE [c].[City] = @__city_0",
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(@"Debug level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure ILoggerFactory.MinimumLevel to LogLevel.Verbose
-    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => AnnotateQuery(Include([c].Orders))'
+                Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => AnnotateQuery(Include([c].Orders))'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Including navigation: 'Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer.Orders'
     Tracking query sources: [c]
@@ -146,7 +133,7 @@ WHERE [c].[City] = @__city_0",
                     FROM [Customers] AS [c]
                     ORDER BY [c].[CustomerID]
                 , 
-                logger: SqlLogger, 
+                logger: SensitiveDataLogger`1, 
                 shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                     querySource: from Customer c in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
                     queryContext: prm0, 
@@ -193,7 +180,7 @@ WHERE [c].[City] = @__city_0",
                             ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
                             ORDER BY [c].[CustomerID]
                         , 
-                        logger: SqlLogger, 
+                        logger: SensitiveDataLogger`1, 
                         queryIndex: 1
                     )
                     , 
@@ -217,8 +204,8 @@ WHERE [c].[City] = @__city_0",
     selector: (QueryResultScope prm1) => Customer prm1._GetResult(
         querySource: from Customer c in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer])
     )
-)", 
-                TestSqlLoggerFactory.Log);
+)",
+                    TestSqlLoggerFactory.Log);
             }
         }
 
