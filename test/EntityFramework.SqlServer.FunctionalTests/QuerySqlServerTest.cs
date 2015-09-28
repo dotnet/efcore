@@ -813,6 +813,34 @@ OFFSET 5 ROWS FETCH NEXT 10 ROWS ONLY",
 
         [ConditionalFact]
         [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Join_Customers_Orders_Skip_Take()
+        {
+            base.Join_Customers_Orders_Skip_Take();
+            Assert.Equal(
+                @"SELECT [c].[ContactName], [o].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY",
+                Sql);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
+        public override void Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
+        {
+            base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take();
+            Assert.Equal(
+                @"SELECT ([c].[ContactName] + ' ') + [c].[ContactTitle], [o].[OrderID]
+FROM [Customers] AS [c]
+INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+ORDER BY [o].[OrderID]
+OFFSET 10 ROWS FETCH NEXT 5 ROWS ONLY",
+                Sql);
+        }
+
+        [ConditionalFact]
+        [SqlServerCondition(SqlServerCondition.SupportsOffset)]
         public override void Take_Skip()
         {
             base.Take_Skip();

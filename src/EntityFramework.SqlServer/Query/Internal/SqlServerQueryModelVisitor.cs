@@ -124,12 +124,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                     return selectExpression;
                 }
 
-                var projections = new List<Expression>();
-                projections.AddRange(selectExpression.Projection);
-
                 var subQuery = selectExpression.PushDownSubquery();
 
-                foreach (var projection in projections)
+                foreach (var projection in subQuery.Projection)
                 {
                     var alias = projection as AliasExpression;
                     var column = projection as ColumnExpression;
@@ -151,7 +148,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                     }
                     else
                     {
-                        selectExpression.AddToProjection(projection);
+                        column = new ColumnExpression(alias.Alias, alias.Expression.Type, subQuery);
+                        selectExpression.AddToProjection(column);
                     }
                 }
 
@@ -165,9 +163,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 var rowNumber = new RowNumberExpression(columnExpression, subQuery.OrderBy);
 
                 subQuery.ClearOrderBy();
-                subQuery.ClearProjection();
-                subQuery.AddToProjection(rowNumber);
-                subQuery.IsProjectStar = true;
+                subQuery.AddToProjection(rowNumber, false);
 
                 Expression predicate = null;
 
