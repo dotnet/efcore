@@ -10,8 +10,8 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
 using Microsoft.Framework.Logging;
@@ -20,18 +20,19 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
     public class SqliteMetadataModelProvider : RelationalMetadataModelProvider
     {
-        private readonly SqliteReverseTypeMapper _typeMapper;
+        private readonly SqliteMetadataReader _metadataReader;
 
         public SqliteMetadataModelProvider(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
-            [NotNull] SqliteReverseTypeMapper typeMapper)
+            [NotNull] SqliteMetadataReader metadataReader
+            )
             : base(loggerFactory, modelUtilities, cSharpUtilities)
         {
-            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(metadataReader, nameof(metadataReader));
 
-            _typeMapper = typeMapper;
+            _metadataReader = metadataReader;
         }
 
         protected override IRelationalAnnotationProvider ExtensionsProvider => new SqliteAnnotationProvider();
@@ -42,253 +43,136 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
+            DatabaseInfo databaseInfo;
+
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                var tables = new Dictionary<string, string>();
-                var indexes = new List<SqliteIndexInfo>();
-                var master = connection.CreateCommand();
-                master.CommandText = "SELECT type, name, sql, tbl_name FROM sqlite_master";
-                using (var reader = master.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var type = reader.GetString(0);
-                        var name = reader.GetString(1);
-                        var sql = reader.GetValue(2) as string; // can be null
-                        var tableName = reader.GetString(3);
 
-                        if (type == "table"
-                            && name != "sqlite_sequence"
-                            && _tableSelectionSet.Allows(TableSelection.Any, name))
-                        {
-                            tables.Add(name, sql);
-                        }
-                        else if (type == "index")
-                        {
-                            indexes.Add(new SqliteIndexInfo
-                            {
-                                Name = name,
-                                TableName = tableName,
-                                Sql = sql
-                            });
-                        }
-                    }
-                }
-
-                LoadTablesAndColumns(connection, modelBuilder, tables.Keys);
-                LoadIndexes(connection, modelBuilder, indexes);
-
-                foreach (var item in tables)
-                {
-                    SqliteDmlParser.ParseTableDefinition(modelBuilder, item.Key, item.Value);
-                }
-
-                AddAlternateKeys(modelBuilder);
-                LoadForeignKeys(connection, modelBuilder, tables.Keys);
+                databaseInfo = _metadataReader.ReadDatabaseInfo(connection, _tableSelectionSet);
             }
+
+            LoadEntityTypes(modelBuilder, databaseInfo);
+            LoadIndexes(modelBuilder, databaseInfo);
+            LoadForeignKeys(modelBuilder, databaseInfo);
 
             return modelBuilder.Model;
         }
 
-        private enum ForeignKeyList
+        private void LoadForeignKeys(ModelBuilder modelBuilder, DatabaseInfo databaseInfo)
         {
-            Id,
-            Seq,
-            Table,
-            From,
-            To,
-            OnUpdate,
-            OnDelete,
-            Match
-        }
-
-        private void LoadForeignKeys(SqliteConnection connection, ModelBuilder modelBuilder, ICollection<string> tables)
-        {
-            foreach (var tableName in tables)
+            foreach (var fkInfo in databaseInfo.ForeignKeys)
             {
-                var fkList = connection.CreateCommand();
-                fkList.CommandText = $"PRAGMA foreign_key_list(\"{tableName.Replace("\"", "\"\"")}\");";
+                var dependentEntityType = modelBuilder.Entity(fkInfo.TableName).Metadata;
 
-                var foreignKeys = new Dictionary<int, ForeignKeyInfo>();
-                using (var reader = fkList.ExecuteReader())
+                try
                 {
-                    while (reader.Read())
+                    var principalEntityType = modelBuilder.Model.EntityTypes.First(e => e.Name.Equals(fkInfo.PrincipalTableName, StringComparison.OrdinalIgnoreCase));
+
+                    var principalProps = fkInfo.To
+                        .Select(to => principalEntityType
+                            .Properties
+                            .First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase))
+                        )
+                        .ToList()
+                        .AsReadOnly();
+
+                    var principalKey = principalEntityType.FindKey(principalProps);
+                    if (principalKey == null)
                     {
-                        var id = reader.GetInt32((int)ForeignKeyList.Id);
-                        var refTable = reader.GetString((int)ForeignKeyList.Table);
-                        ForeignKeyInfo foreignKey;
-                        if (!foreignKeys.TryGetValue(id, out foreignKey))
+                        var index = principalEntityType.FindIndex(principalProps);
+                        if (index != null
+                            && index.IsUnique == true)
                         {
-                            foreignKeys.Add(id, (foreignKey = new ForeignKeyInfo { Table = tableName, ReferencedTable = refTable }));
+                            principalKey = principalEntityType.AddKey(principalProps);
                         }
-                        foreignKey.From.Add(reader.GetString((int)ForeignKeyList.From));
-                        foreignKey.To.Add(reader.GetString((int)ForeignKeyList.To));
+                        else
+                        {
+                            LogFailedForeignKey(fkInfo);
+                            continue;
+                        }
+                    }
+
+                    var depProps = fkInfo.From
+                        .Select(
+                            @from => dependentEntityType
+                                .Properties.
+                                First(p => p.Sqlite().ColumnName.Equals(@from, StringComparison.OrdinalIgnoreCase))
+                        )
+                        .ToList()
+                        .AsReadOnly();
+
+                    var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
+
+                    if (dependentEntityType.FindIndex(depProps)?.IsUnique == true
+                        || dependentEntityType.GetKeys().Any(k => k.Properties.All(p => depProps.Contains(p))))
+                    {
+                        foreignKey.IsUnique = true;
                     }
                 }
-
-                var dependentEntityType = modelBuilder.Entity(tableName).Metadata;
-
-                foreach (var fkInfo in foreignKeys.Values)
+                catch (InvalidOperationException)
                 {
-                    try
-                    {
-                        var principalEntityType = modelBuilder.Model.EntityTypes.First(e => e.Name.Equals(fkInfo.ReferencedTable, StringComparison.OrdinalIgnoreCase));
-
-                        var principalProps = fkInfo.To
-                            .Select(to => principalEntityType
-                                .Properties
-                                .First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase))
-                            )
-                            .ToList()
-                            .AsReadOnly();
-
-                        var principalKey = principalEntityType.FindKey(principalProps);
-                        if (principalKey == null)
-                        {
-                            var index = principalEntityType.FindIndex(principalProps);
-                            if (index != null
-                                && index.IsUnique == true)
-                            {
-                                principalKey = principalEntityType.AddKey(principalProps);
-                            }
-                            else
-                            {
-                                LogFailedForeignKey(fkInfo);
-                                continue;
-                            }
-                        }
-
-                        var depProps = fkInfo.From
-                            .Select(
-                                @from => dependentEntityType
-                                    .Properties.
-                                    First(p => p.Sqlite().ColumnName.Equals(@from, StringComparison.OrdinalIgnoreCase))
-                            )
-                            .ToList()
-                            .AsReadOnly();
-
-                        var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
-
-                        if (dependentEntityType.FindIndex(depProps)?.IsUnique == true
-                            || dependentEntityType.GetKeys().Any(k => k.Properties.All(p => depProps.Contains(p))))
-                        {
-                            foreignKey.IsUnique = true;
-                        }
-                    }
-                    catch (InvalidOperationException)
-                    {
-                        LogFailedForeignKey(fkInfo);
-                    }
+                    LogFailedForeignKey(fkInfo);
                 }
             }
-        }
-
-        private enum IndexInfo
-        {
-            Seqno,
-            Cid,
-            Name
         }
 
         private void LogFailedForeignKey(ForeignKeyInfo foreignKey)
-            => Logger.LogWarning(SqliteDesignStrings.ForeignKeyScaffoldError(foreignKey.Table, string.Join(",", foreignKey.From)));
+            => Logger.LogWarning(SqliteDesignStrings.ForeignKeyScaffoldError(foreignKey.TableName, string.Join(",", foreignKey.From)));
 
-        private void LoadIndexes(SqliteConnection connection, ModelBuilder modelBuilder, ICollection<SqliteIndexInfo> indexes)
+        private void LoadIndexes(ModelBuilder modelBuilder, DatabaseInfo databaseInfo)
         {
-            foreach (var index in indexes)
+            foreach (var index in databaseInfo.Indexes)
             {
-                var indexInfo = connection.CreateCommand();
-                indexInfo.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
-
-                var indexProps = new List<string>();
-                using (var reader = indexInfo.ExecuteReader())
-                {
-                    while (reader.Read())
+                var columns = index.Columns.ToArray();
+                modelBuilder.Entity(index.TableName, entity =>
                     {
-                        var name = reader.GetValue((int)IndexInfo.Name) as string;
-                        if (!string.IsNullOrEmpty(name))
+                        entity.Index(columns)
+                            .Unique(index.IsUnique)
+                            .SqliteIndexName(index.Name);
+
+                        if (index.IsUnique)
                         {
-                            indexProps.Add(name);
+                            entity.HasAlternateKey(columns);
                         }
-                    }
-                }
-
-                if (indexProps.Count > 0)
-                {
-                    var indexBuilder = modelBuilder.Entity(index.TableName)
-                        .Index(indexProps.ToArray())
-                        .SqliteIndexName(index.Name);
-
-                    if (!string.IsNullOrEmpty(index.Sql))
-                    {
-                        var uniqueKeyword = index.Sql.IndexOf("UNIQUE", StringComparison.OrdinalIgnoreCase);
-                        var indexKeyword = index.Sql.IndexOf("INDEX", StringComparison.OrdinalIgnoreCase);
-
-                        indexBuilder.Unique(uniqueKeyword > 0 && uniqueKeyword < indexKeyword);
-                    }
-                }
+                    });
             }
         }
 
-        private enum TableInfo
+        private void LoadEntityTypes(ModelBuilder modelBuilder, DatabaseInfo databaseInfo)
         {
-            Cid,
-            Name,
-            Type,
-            NotNull,
-            DefaultValue,
-            Pk
-        }
-
-        private void LoadTablesAndColumns(SqliteConnection connection, ModelBuilder modelBuilder, ICollection<string> tables)
-        {
-            foreach (var tableName in tables)
+            foreach (var table in databaseInfo.Tables)
             {
+                var tableName = table.Name;
+
                 modelBuilder.Entity(tableName, builder =>
                     {
                         builder.ToTable(tableName);
 
-                        var tableInfo = connection.CreateCommand();
-                        tableInfo.CommandText = $"PRAGMA table_info(\"{tableName.Replace("\"", "\"\"")}\");";
-
                         var keyProps = new List<string>();
 
-                        using (var reader = tableInfo.ExecuteReader())
+                        foreach (var column in databaseInfo.Columns.Where(c => c.TableName.Equals(tableName, StringComparison.OrdinalIgnoreCase)))
                         {
-                            while (reader.Read())
+                            var property = builder.Property(column.ClrType, column.Name)
+                                .HasSqliteColumnName(column.Name);
+
+                            if (!string.IsNullOrEmpty(column.DataType))
                             {
-                                var colName = reader.GetString((int)TableInfo.Name);
-                                var typeName = reader.GetString((int)TableInfo.Type);
+                                property.HasSqliteColumnType(column.DataType);
+                            }
 
-                                var isPk = reader.GetBoolean((int)TableInfo.Pk);
+                            if (!string.IsNullOrEmpty(column.DefaultValue))
+                            {
+                                property.HasSqliteDefaultValueSql(column.DefaultValue);
+                            }
 
-                                var notNull = isPk || reader.GetBoolean((int)TableInfo.NotNull);
-
-                                var clrType = _typeMapper.GetClrType(typeName, nullable: !notNull);
-
-                                var property = builder.Property(clrType, colName)
-                                    .HasColumnName(colName);
-                                if (!string.IsNullOrEmpty(typeName))
-                                {
-                                    property.HasColumnType(typeName);
-                                }
-
-                                var defaultVal = reader.GetValue((int)TableInfo.DefaultValue) as string;
-
-                                if (!string.IsNullOrEmpty(defaultVal))
-                                {
-                                    property.HasDefaultValueSql(defaultVal);
-                                }
-
-                                if (isPk)
-                                {
-                                    keyProps.Add(colName);
-                                }
-                                else
-                                {
-                                    property.IsRequired(notNull);
-                                }
+                            if (column.IsPrimaryKey)
+                            {
+                                keyProps.Add(column.Name);
+                            }
+                            else
+                            {
+                                property.IsRequired(!column.IsNullable);
                             }
                         }
 
@@ -304,40 +188,6 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         }
                     });
             }
-        }
-
-        private void AddAlternateKeys(ModelBuilder modelBuilder)
-        {
-            foreach (var entityType in modelBuilder.Model.EntityTypes.Cast<EntityType>())
-            {
-                foreach (var index in entityType.Indexes.Where(i => i.IsUnique == true))
-                {
-                    modelBuilder.Entity(entityType.Name)
-                        .HasAlternateKey(index.Properties.Select(p => p.Name).ToArray())
-                        .SqliteKeyName(index.Sqlite().Name);
-                }
-            }
-        }
-
-        private class SqliteIndexInfo
-        {
-            public string Name { get; set; }
-            public string TableName { get; set; }
-            public string Sql { get; set; }
-        }
-
-        private class ForeignKeyInfo
-        {
-            public string Table { get; set; }
-            public string ReferencedTable { get; set; }
-            public List<string> From { get; } = new List<string>();
-            public List<string> To { get; } = new List<string>();
-
-            // TODO foreign key triggers
-            //public string OnUpdate { get; set; }
-
-            // TODO https://github.com/aspnet/EntityFramework/issues/333
-            //public string OnDelete { get; set; }
         }
     }
 }

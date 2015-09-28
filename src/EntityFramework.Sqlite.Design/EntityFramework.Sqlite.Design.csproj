@@ -52,14 +52,20 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="ReverseEngineering\Model\ColumnInfo.cs" />
     <Compile Include="ReverseEngineering\Configuration\SqliteModelConfiguration.cs" />
+    <Compile Include="ReverseEngineering\Model\DatabaseInfo.cs" />
+    <Compile Include="ReverseEngineering\Model\ForeignKeyInfo.cs" />
+    <Compile Include="ReverseEngineering\Model\IndexInfo.cs" />
     <Compile Include="ReverseEngineering\SqliteDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\SqliteDmlParser.cs" />
     <Compile Include="ReverseEngineering\SqliteMetadataModelProvider.cs" />
     <Compile Include="Properties\SqliteDesignStrings.Designer.cs">
       <DependentUpon>SqliteDesignStrings.resx</DependentUpon>
     </Compile>
+    <Compile Include="ReverseEngineering\SqliteMetadataReader.cs" />
     <Compile Include="ReverseEngineering\SqliteModelConfigurationFactory.cs" />
+    <Compile Include="ReverseEngineering\Model\TableInfo.cs" />
     <Compile Include="SqliteReverseTypeMapper.cs" />
     <Content Include="..\..\tools\Resources.tt">
       <Link>Properties\Resources.tt</Link>

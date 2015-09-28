@@ -25,7 +25,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 .AddSingleton<SqliteReverseTypeMapper>()
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .AddSingleton<ModelConfigurationFactory, SqliteModelConfigurationFactory>()
-                .AddSingleton<CodeWriter, RazorTemplateCodeWriter>();
+                .AddSingleton<CodeWriter, RazorTemplateCodeWriter>()
+                .AddTransient<SqliteMetadataReader>();
         }
     }
 }

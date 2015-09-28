@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Model;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
@@ -19,10 +19,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             "FOREIGN"
         };
 
-        public static void ParseTableDefinition(ModelBuilder modelBuilder, string tableName, string sql)
+        public static void ParseTableDefinition(DatabaseInfo databaseInfo, TableInfo table)
         {
-            var entityBuilder = modelBuilder.Entity(tableName);
-            var statements = ParseStatements(sql).ToList();
+            var statements = ParseStatements(table.CreateStatement).ToList();
             var i = 0;
             for (; i < statements.Count; i++)
             {
@@ -31,11 +30,11 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 {
                     break; // once we see the first constraint, stop looking for params
                 }
-                ParseColumnDefinition(entityBuilder, statements[i]);
+                ParseColumnDefinition(databaseInfo, table, statements[i]);
             }
             for (; i < statements.Count; i++)
             {
-                ParseConstraints(entityBuilder, statements[i]);
+                ParseConstraints(databaseInfo, table, statements[i]);
             }
         }
 
@@ -67,52 +66,57 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             return SafeSplit(statementsChunk, ',').Select(s => s.Trim());
         }
 
-        public static void ParseColumnDefinition(EntityTypeBuilder entityBuilder, string statement)
+        public static void ParseColumnDefinition(DatabaseInfo databaseInfo, TableInfo table, string statement)
         {
             var paramName = UnescapeString(SafeSplit(statement, ' ').First());
-            var prop = entityBuilder.Metadata.FindProperty(paramName);
-            if (prop == null)
+            var column = databaseInfo.Columns.FirstOrDefault(c =>
+                c.TableName.Equals(table.Name, StringComparison.OrdinalIgnoreCase)
+                && c.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase));
+            if (column == null)
             {
                 return;
             }
 
             if (statement.IndexOf(" UNIQUE", StringComparison.OrdinalIgnoreCase) > 0)
             {
-                entityBuilder.Index(prop.Name).Unique();
+                var indexInfo = databaseInfo.Indexes.FirstOrDefault(i =>
+                    i.TableName.Equals(table.Name, StringComparison.OrdinalIgnoreCase)
+                    && i.Columns.SingleOrDefault()?.Equals(column.Name, StringComparison.OrdinalIgnoreCase) == true);
+
+                if (indexInfo != null)
+                {
+                    indexInfo.IsUnique = true;
+                }
             }
         }
 
-        public static void ParseConstraints(EntityTypeBuilder entityBuilder, string statement)
+        public static void ParseConstraints(DatabaseInfo databaseInfo, TableInfo table, string statement)
         {
             var constraint = statement.Split(' ', '(')[0];
             if (constraint.Equals("UNIQUE", StringComparison.OrdinalIgnoreCase))
             {
-                ParseInlineUniqueConstraint(entityBuilder, statement);
+                ParseInlineUniqueConstraint(databaseInfo, table, statement);
             }
         }
 
-        public static void ParseInlineUniqueConstraint(EntityTypeBuilder entityBuilder, string statement)
+        public static void ParseInlineUniqueConstraint(DatabaseInfo databaseInfo, TableInfo table, string statement)
         {
             var start = statement.IndexOf('(') + 1;
             var paramChunk = statement.Substring(start, statement.LastIndexOf(')') - start);
-            var props = SafeSplit(paramChunk, ',')
+            var columns = SafeSplit(paramChunk, ',')
                 .Select(UnescapeString)
                 .ToList();
-            var index = entityBuilder.Metadata.Indexes.FirstOrDefault(i =>
+
+            var index = databaseInfo.Indexes.FirstOrDefault(i =>
                 {
-                    if (!i.Sqlite().Name.StartsWith("sqlite_autoindex"))
+                    if (!i.Name.StartsWith("sqlite_autoindex")
+                        || !i.TableName.Equals(table.Name, StringComparison.OrdinalIgnoreCase))
                     {
                         return false;
                     }
-                    foreach (var prop in props)
-                    {
-                        if (!i.Properties.Any(p => p.Sqlite().ColumnName.Equals(prop, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
+                    return columns.All(prop => i.Columns.Any(p => p.Equals(prop, StringComparison.OrdinalIgnoreCase)));
                 });
+
             if (index != null)
             {
                 index.IsUnique = true;
