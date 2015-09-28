@@ -1471,7 +1471,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetEntityState(EntityState.Unchanged);
 
             entry[fkProperty] = null;
-            entry.PrepareToSave();
+            entry.HandleConceptualNulls();
 
             Assert.Equal(EntityState.Deleted, entry.EntityState);
         }
@@ -1489,7 +1489,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.SetEntityState(EntityState.Added);
 
             entry[fkProperty] = null;
-            entry.PrepareToSave();
+            entry.HandleConceptualNulls();
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
         }
@@ -1513,7 +1513,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 CoreStrings.RelationshipConceptualNull("SomeEntity", "SomeDependentEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls()).Message);
         }
 
         [Fact]
@@ -1535,7 +1535,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(
                 CoreStrings.PropertyConceptualNull("JustAProperty", "SomeDependentEntity"),
-                Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
+                Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls()).Message);
         }
 
         public class TestInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector

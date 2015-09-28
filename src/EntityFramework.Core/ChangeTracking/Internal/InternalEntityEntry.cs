@@ -398,35 +398,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual bool PrepareToSave()
+        public virtual InternalEntityEntry PrepareToSave()
         {
-            if (HasConceptualNull)
-            {
-                var fks = EntityType.GetForeignKeys()
-                    .Where(fk => fk.Properties
-                        .Any(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)))
-                    .ToList();
-
-                if (fks.Any(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
-                {
-                    SetEntityState(EntityState == EntityState.Added
-                        ? EntityState.Detached
-                        : EntityState.Deleted);
-                }
-                else if (fks.Any())
-                {
-                    throw new InvalidOperationException(CoreStrings.RelationshipConceptualNull(
-                        fks.First().PrincipalEntityType.DisplayName(),
-                        EntityType.DisplayName()));
-                }
-                else
-                {
-                    throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
-                        EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)).Name,
-                        EntityType.DisplayName()));
-                }
-            }
-
             if (EntityState == EntityState.Added)
             {
                 var setProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyBeforeSave && !IsTemporaryOrSentinel(p));
@@ -450,8 +423,68 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 AddSidecar(MetadataServices.CreateStoreGeneratedValues(this, properties));
             }
 
-            return EntityState != EntityState.Detached 
-                && EntityState != EntityState.Unchanged;
+            return this;
+        }
+
+        public virtual void HandleConceptualNulls()
+        {
+            var fks = EntityType.GetForeignKeys()
+                .Where(fk => fk.Properties
+                    .Any(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)))
+                .ToList();
+
+            if (fks.Any(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
+            {
+                SetEntityState(EntityState == EntityState.Added
+                    ? EntityState.Detached
+                    : EntityState.Deleted);
+            }
+            else if (fks.Any())
+            {
+                throw new InvalidOperationException(CoreStrings.RelationshipConceptualNull(
+                    fks.First().PrincipalEntityType.DisplayName(),
+                    EntityType.DisplayName()));
+            }
+            else
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
+                    EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)).Name,
+                    EntityType.DisplayName()));
+            }
+        }
+
+        public virtual void CascadeDelete()
+        {
+            foreach (var fk in EntityType.FindReferencingForeignKeys())
+            {
+                foreach (var dependent in StateManager.GetDependents(this, fk).ToList())
+                {
+                    if (dependent.EntityState != EntityState.Deleted
+                        && dependent.EntityState != EntityState.Detached)
+                    {
+                        if (fk.DeleteBehavior == DeleteBehavior.Cascade)
+                        {
+                            dependent.SetEntityState(dependent.EntityState == EntityState.Added
+                                ? EntityState.Detached
+                                : EntityState.Deleted);
+
+                            dependent.CascadeDelete();
+                        }
+                        else
+                        {
+                            foreach (var dependentProperty in fk.Properties)
+                            {
+                                dependent[dependentProperty] = null;
+                            }
+
+                            if (dependent.HasConceptualNull)
+                            {
+                                dependent.HandleConceptualNulls();
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private IReadOnlyList<IProperty> MayGetStoreValue()

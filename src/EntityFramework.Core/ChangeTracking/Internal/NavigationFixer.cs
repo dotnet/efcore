@@ -178,12 +178,51 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState)
         {
-            if (oldState != EntityState.Detached)
+            if (oldState == EntityState.Detached)
             {
-                return;
+                PerformFixup(() => InitialFixup(entry));
             }
 
-            PerformFixup(() => InitialFixup(entry));
+            else if (entry.EntityState == EntityState.Detached
+                     && oldState == EntityState.Deleted)
+            {
+                PerformFixup(() => DeleteFixup(entry));
+            }
+        }
+
+        private void DeleteFixup(InternalEntityEntry entry)
+        {
+            var entityType = entry.EntityType;
+            var entries = entry.StateManager.Entries.ToList();
+
+            // TODO: Perf on this state manager query
+            foreach (var navigation in _model.EntityTypes
+                .SelectMany(e => e.GetNavigations())
+                .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
+            {
+                var collectionAccessor = navigation.IsCollection()
+                    ? _collectionAccessorSource.GetAccessor(navigation)
+                    : null;
+
+                var navigationEntityType = navigation.DeclaringEntityType;
+
+                foreach (var relatedEntry in entries)
+                {
+                    if (!navigationEntityType.IsAssignableFrom(relatedEntry.EntityType))
+                    {
+                        continue;
+                    }
+
+                    if (collectionAccessor != null)
+                    {
+                        collectionAccessor.Remove(relatedEntry.Entity, entry.Entity);
+                    }
+                    else if (relatedEntry[navigation] == entry.Entity)
+                    {
+                        relatedEntry[navigation] = null;
+                    }
+                }
+            }
         }
 
         private void InitialFixup(InternalEntityEntry entry)
@@ -226,11 +265,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     .SelectMany(e => e.GetNavigations())
                     .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
                 {
-                    IClrCollectionAccessor collectionAccessor = null;
-                    if (navigation.IsCollection())
-                    {
-                        collectionAccessor = _collectionAccessorSource.GetAccessor(navigation);
-                    }
+                    var collectionAccessor = navigation.IsCollection()
+                        ? _collectionAccessorSource.GetAccessor(navigation)
+                        : null;
 
                     var navigationEntityType = navigation.DeclaringEntityType;
 

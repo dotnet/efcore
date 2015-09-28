@@ -18,12 +18,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         {
         }
 
-        [ConditionalFact]
-        public override void Required_many_to_one_dependents_are_cascade_deleted()
-        {
-            // Cascade delete not supported by in-memory database
-        }
-
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal, false)]
         public override void Save_required_one_to_one_changed_by_reference_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
@@ -83,6 +77,42 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         [ConditionalTheory]
         [InlineData((int)ChangeMechanism.Principal)]
         public override void Sever_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism)
+        {
+            // Cascade delete not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_many_to_one_dependents_are_cascade_deleted_in_store()
+        {
+            // Cascade delete not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_one_to_one_are_cascade_deleted_in_store()
+        {
+            // Cascade delete not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_non_PK_one_to_one_are_cascade_deleted_in_store()
+        {
+            // Cascade delete not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store()
+        {
+            // Cascade delete not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
+        {
+            // Cascade delete not supported by in-memory database
+        }
+
+        [ConditionalFact]
+        public override void Required_non_PK_one_to_one_with_alternate_key_are_cascade_deleted_in_store()
         {
             // Cascade delete not supported by in-memory database
         }
