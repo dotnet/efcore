@@ -17,7 +17,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
 
         public UseCultureAttribute(string culture)
             : this(culture, culture)
-        { }
+        {
+        }
 
         public UseCultureAttribute(string culture, string uiCulture)
         {
@@ -28,7 +29,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
         public CultureInfo Culture { get; }
 
         public CultureInfo UICulture { get; }
-
 
         public override void Before(MethodInfo methodUnderTest)
         {

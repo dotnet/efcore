@@ -8,10 +8,10 @@ using Xunit.Sdk;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
 {
-    internal class SkipXunitTestCase : XunitTestCase
+    internal class SkipXunitTheoryTestCase : XunitTheoryTestCase
     {
-        public SkipXunitTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod, object[] testMethodArguments = null)
-            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod, testMethodArguments)
+        public SkipXunitTheoryTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
+            : base(diagnosticMessageSink, defaultMethodDisplay, testMethod)
         {
         }
 

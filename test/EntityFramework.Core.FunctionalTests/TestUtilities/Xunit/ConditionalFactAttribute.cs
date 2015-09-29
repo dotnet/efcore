@@ -8,7 +8,7 @@ using Xunit.Sdk;
 namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit
 {
     [AttributeUsage(AttributeTargets.Method)]
-    [XunitTestCaseDiscoverer("Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit.ConditionalAttributeDiscoverer", "EntityFramework.Core.FunctionalTests")]
+    [XunitTestCaseDiscoverer("Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit.ConditionalFactDiscoverer", "EntityFramework.Core.FunctionalTests")]
     public class ConditionalFactAttribute : FactAttribute
     {
     }
