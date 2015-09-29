@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace System.Linq.Expressions
 {
-    [DebuggerStepThrough]
+    //[DebuggerStepThrough]
     public static class ExpressionExtensions
     {
         public static PropertyInfo GetPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
@@ -139,7 +139,7 @@ namespace System.Linq.Expressions
 
                 propertyAccessExpression = memberExpression.Expression;
             }
-            while (memberExpression.Expression != parameterExpression);
+            while (memberExpression.Expression.RemoveConvert() != parameterExpression);
 
             return propertyInfos.ToArray();
         }

@@ -70,6 +70,32 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal("Date", propertyInfos.First().Name);
             Assert.Equal("Day", propertyInfos.Last().Name);
         }
+        [Fact]
+        public void Get_property_access_should_handle_convert()
+        {
+            Expression<Func<DateTime, object>> expression = d => ((DateTime)d).Date;
+
+            var propertyInfos = expression.GetPropertyAccess();
+
+            Assert.NotNull(propertyInfos);
+        }
+
+        [Fact]
+        public void Get_property_access_list_should_handle_convert()
+        {
+            Expression<Func<DateTime, object>> expression = d => new
+            {
+                ((DateTime)d).Date,
+                d.Day
+            };
+
+            var propertyInfos = expression.GetPropertyAccessList();
+
+            Assert.NotNull(propertyInfos);
+            Assert.Equal(2, propertyInfos.Count);
+            Assert.Equal("Date", propertyInfos.First().Name);
+            Assert.Equal("Day", propertyInfos.Last().Name);
+        }
 
         [Fact]
         public void Get_property_access_list_should_throw_when_invalid_expression()
