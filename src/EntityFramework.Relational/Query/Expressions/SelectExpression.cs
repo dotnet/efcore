@@ -231,18 +231,25 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             var columnAliasCounter = 0;
 
-            // TODO: Only AliasExpressions? Don't unique-ify here.
-            foreach (var aliasExpression in _projection.OfType<AliasExpression>())
+            foreach (var expression in _projection)
             {
-                var columnExpression = aliasExpression.TryGetColumnExpression();
-
-                if (columnExpression != null
-                    && subquery._projection.OfType<AliasExpression>().Any(ae =>
-                        ae.TryGetColumnExpression()?.Name == columnExpression.Name))
+                AliasExpression aliasExpression;
+                if (expression is AliasExpression)
                 {
-                    aliasExpression.Alias = "c" + columnAliasCounter++;
-                }
+                    aliasExpression = expression as AliasExpression;
+                    var columnExpression = aliasExpression.TryGetColumnExpression();
 
+                    if (columnExpression != null
+                        && subquery._projection.OfType<AliasExpression>().Any(ae =>
+                            ae.TryGetColumnExpression()?.Name == columnExpression.Name))
+                    {
+                        aliasExpression.Alias = "c" + columnAliasCounter++;
+                    }
+                }
+                else
+                {
+                    aliasExpression = new AliasExpression("c" + columnAliasCounter++, expression);
+                }
                 subquery._projection.Add(aliasExpression);
             }
 
@@ -297,6 +304,11 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
         public virtual int AddToProjection([NotNull] Expression expression)
         {
+            return AddToProjection(expression, true);
+        }
+
+        public virtual int AddToProjection([NotNull] Expression expression, bool resetProjectStar)
+        {
             Check.NotNull(expression, nameof(expression));
 
             var columnExpression = expression as ColumnExpression;
@@ -319,7 +331,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             _projection.Add(expression);
 
-            IsProjectStar = false;
+            if (resetProjectStar)
+                IsProjectStar = false;
 
             return _projection.Count - 1;
         }

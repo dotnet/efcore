@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Assert.Equal(
                @"SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
-    SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[CustomerID]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t0]
 WHERE [t0].[__RowNumber__] > 5",
@@ -44,7 +44,7 @@ WHERE [t0].[__RowNumber__] > 5",
             Assert.EndsWith(
                 @"SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
-    SELECT [c].*, ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY @@RowCount) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t0]
 WHERE [t0].[__RowNumber__] > 5",
@@ -58,10 +58,38 @@ WHERE [t0].[__RowNumber__] > 5",
             Assert.Equal(
                 @"SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
-    SELECT [c].*, ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(ORDER BY [c].[ContactName]) AS [__RowNumber__]
     FROM [Customers] AS [c]
 ) AS [t0]
 WHERE ([t0].[__RowNumber__] > 5) AND ([t0].[__RowNumber__] <= 15)",
+                Sql);
+        }
+
+        public override void Join_Customers_Orders_Skip_Take()
+        {
+            base.Join_Customers_Orders_Skip_Take();
+            Assert.Equal(
+                @"SELECT [t0].[ContactName], [t0].[OrderID]
+FROM (
+    SELECT [c].[ContactName], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    FROM [Customers] AS [c]
+    INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+) AS [t0]
+WHERE ([t0].[__RowNumber__] > 10) AND ([t0].[__RowNumber__] <= 15)",
+                Sql);
+        }
+
+        public override void Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
+        {
+            base.Join_Customers_Orders_Projection_With_String_Concat_Skip_Take();
+            Assert.Equal(
+                @"SELECT [t0].[c0], [t0].[OrderID]
+FROM (
+    SELECT ([c].[ContactName] + ' ') + [c].[ContactTitle] AS [c0], [o].[OrderID], ROW_NUMBER() OVER(ORDER BY [o].[OrderID]) AS [__RowNumber__]
+    FROM [Customers] AS [c]
+    INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+) AS [t0]
+WHERE ([t0].[__RowNumber__] > 10) AND ([t0].[__RowNumber__] <= 15)",
                 Sql);
         }
 

@@ -120,6 +120,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Join_Customers_Orders_Skip_Take()
+        {
+            AssertQuery<Customer, Order>((cs, os) => (
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID
+                orderby o.OrderID
+                select new { c.ContactName, o.OrderID }).Skip(10).Take(5));
+        }
+
+        [Fact]
+        public virtual void Join_Customers_Orders_Projection_With_String_Concat_Skip_Take()
+        {
+            AssertQuery<Customer, Order>((cs, os) => (
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID
+                orderby o.OrderID
+                select new { Contact = c.ContactName + " " + c.ContactTitle, o.OrderID }).Skip(10).Take(5));
+        }
+
+        [Fact]
         public virtual void Distinct_Skip_Take()
         {
             AssertQuery<Customer>(
