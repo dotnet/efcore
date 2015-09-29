@@ -11,80 +11,46 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public class RelationalSqlExecutor
     {
-        private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
-        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
-        private readonly ISqlGenerator _sqlGenerator;
+        private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly ISqlStatementExecutor _statementExecutor;
         private readonly IRelationalConnection _connection;
 
         public RelationalSqlExecutor(
-            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] ISqlStatementExecutor statementExecutor,
             [NotNull] IRelationalConnection connection)
         {
-            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
-            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
             Check.NotNull(statementExecutor, nameof(statementExecutor));
             Check.NotNull(connection, nameof(connection));
 
-            _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
-            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
-            _sqlGenerator = sqlGenerator;
+            _sqlCommandBuilder = sqlCommandBuilder;
             _statementExecutor = statementExecutor;
             _connection = connection;
         }
 
         public virtual void ExecuteSqlCommand([NotNull] string sql, [NotNull] params object[] parameters)
-        {
-            Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
-
-            _statementExecutor.ExecuteNonQuery(
-                _connection,
-                new[] { CreateCommand(sql, parameters) });
-        }
+        => _statementExecutor.ExecuteNonQuery(
+            _connection,
+            new[]
+            {
+                _sqlCommandBuilder.Build(
+                    Check.NotNull(sql, nameof(sql)),
+                    Check.NotNull(parameters, nameof(parameters)))
+            });
 
         public virtual async Task ExecuteSqlCommandAsync(
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken),
             [NotNull] params object[] parameters)
-        {
-            Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
-
-            await _statementExecutor.ExecuteNonQueryAsync(
+            => await _statementExecutor.ExecuteNonQueryAsync(
                 _connection,
-                new[] { CreateCommand(sql, parameters) },
+                new[]
+                {
+                    _sqlCommandBuilder.Build(
+                        Check.NotNull(sql, nameof(sql)),
+                        Check.NotNull(parameters, nameof(parameters)))
+                },
                 cancellationToken);
-        }
-
-        private RelationalCommand CreateCommand(
-            string sql,
-            object[] parameters)
-        {
-            var builder = _relationalCommandBuilderFactory.Create();
-
-            var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-
-            var substitutions = new string[parameters.Length];
-
-            for (var index = 0; index < substitutions.Length; index++)
-            {
-                substitutions[index] =
-                    _sqlGenerator.GenerateParameterName(
-                        parameterNameGenerator.GenerateNext());
-
-                builder.AddParameter(
-                    substitutions[index],
-                    parameters[index]);
-            }
-
-            builder.AppendLines(string.Format(sql, substitutions));
-
-            return builder.BuildRelationalCommand();
-        }
     }
 }

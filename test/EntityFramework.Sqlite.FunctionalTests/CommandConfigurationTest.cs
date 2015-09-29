@@ -117,14 +117,23 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         }
 
         private CommandBuilder SetupCommandBuilder()
-            => new CommandBuilder(
+        {
+            var commandBuilderFactory = new RelationalCommandBuilderFactory(new SqliteTypeMapper());
+            var parameterNameGeneratorFactory = new ParameterNameGeneratorFactory();
+
+            return new CommandBuilder(
                 new UntypedRelationalValueBufferFactoryFactory(),
                 new SelectExpression(
                     new SqliteQuerySqlGeneratorFactory(
-                        new RelationalCommandBuilderFactory(new SqliteTypeMapper()),
+                        commandBuilderFactory,
                         new RelationalSqlGenerator(),
-                        new ParameterNameGeneratorFactory()))
+                        parameterNameGeneratorFactory,
+                        new SqlCommandBuilder(
+                            commandBuilderFactory,
+                            new SqliteSqlGenerator(),
+                            parameterNameGeneratorFactory)))
                     .CreateGenerator);
+        }
 
         private class ChipsContext : DbContext
         {

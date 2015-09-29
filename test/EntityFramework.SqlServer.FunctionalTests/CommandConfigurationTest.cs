@@ -133,14 +133,23 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         }
 
         private CommandBuilder setupCommandBuilder()
-            => new CommandBuilder(
+        {
+            var commandBuilderFactory = new RelationalCommandBuilderFactory(new SqlServerTypeMapper());
+            var parameterNameGeneratorFactory = new ParameterNameGeneratorFactory();
+
+            return new CommandBuilder(
                 new UntypedRelationalValueBufferFactoryFactory(),
                 new SelectExpression(
                     new SqlServerQuerySqlGeneratorFactory(
-                        new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                        commandBuilderFactory,
                         new RelationalSqlGenerator(),
-                        new ParameterNameGeneratorFactory()))
+                        parameterNameGeneratorFactory,
+                        new SqlCommandBuilder(
+                            commandBuilderFactory,
+                            new SqlServerSqlGenerator(),
+                            parameterNameGeneratorFactory)))
                     .CreateGenerator);
+        }
 
         [ConditionalTheory]
         [SqlServerCondition(SqlServerCondition.SupportsSequences)]

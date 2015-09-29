@@ -16,65 +16,33 @@ namespace Microsoft.Data.Entity.Query.Sql
 {
     public class RawSqlQueryGenerator : ISqlQueryGenerator
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlGenerator _sqlGenerator;
-        private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly SelectExpression _selectExpression;
         private readonly string _sql;
         private readonly object[] _inputParameters;
 
         public RawSqlQueryGenerator(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] object[] parameters)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
-            Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
-            _commandBuilderFactory = commandBuilderFactory;
-            _sqlGenerator = sqlGenerator;
-            _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            _sqlCommandBuilder = sqlCommandBuilder;
             _selectExpression = selectExpression;
             _sql = sql;
             _inputParameters = parameters;
         }
 
-        protected virtual ISqlGenerator SqlGenerator => _sqlGenerator;
-
-        protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory
-            => _parameterNameGeneratorFactory;
-
         public virtual RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            var commandBuilder = _commandBuilderFactory.Create();
-
-            var parameterNameGenerator = ParameterNameGeneratorFactory.Create();
-
-            var substitutions = new string[_inputParameters.Length];
-
-            for (var index = 0; index < substitutions.Length; index++)
-            {
-                substitutions[index] =
-                    SqlGenerator.GenerateParameterName(
-                        parameterNameGenerator.GenerateNext());
-
-                commandBuilder.AddParameter(
-                    substitutions[index],
-                    _inputParameters[index]);
-            }
-
-            commandBuilder.AppendLines(string.Format(_sql, substitutions));
-
-            return commandBuilder.BuildRelationalCommand();
+            return _sqlCommandBuilder.Build(_sql, _inputParameters);
         }
 
 

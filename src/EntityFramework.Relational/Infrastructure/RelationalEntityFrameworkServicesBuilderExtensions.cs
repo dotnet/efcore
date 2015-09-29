@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -47,6 +48,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<RelationalValueGeneratorSelector>()
                 .AddScoped<RelationalSqlExecutor>()
                 .AddScoped<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>()
+                .AddScoped<ISqlCommandBuilder, SqlCommandBuilder>()
                 .AddScoped<SqlStatementExecutor>()
                 .AddScoped<CommandBatchPreparer>()
                 .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
