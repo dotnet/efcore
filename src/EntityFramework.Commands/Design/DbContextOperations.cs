@@ -7,16 +7,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Extensions.Logging;
-
-#if DNX451 || DNXCORE50
-using Microsoft.AspNet.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-#endif
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Design
 {
@@ -25,10 +22,8 @@ namespace Microsoft.Data.Entity.Design
         private readonly ILoggerProvider _loggerProvider;
         private readonly string _assemblyName;
         private readonly string _startupAssemblyName;
-        private readonly string _environment;
-        private readonly IServiceProvider _dnxServices;
         private readonly LazyRef<ILogger> _logger;
-        private Assembly _assembly;
+        private readonly IServiceProvider _runtimeServices;
 
         public DbContextOperations(
             [NotNull] ILoggerProvider loggerProvider,
@@ -44,26 +39,16 @@ namespace Microsoft.Data.Entity.Design
             _loggerProvider = loggerProvider;
             _assemblyName = assemblyName;
             _startupAssemblyName = startupAssemblyName;
-            _environment = environment;
-            _dnxServices = dnxServices;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
+
+            var startup = new StartupInvoker(startupAssemblyName, environment, dnxServices);
+            _runtimeServices = startup.ConfigureServices();
         }
 
         public virtual DbContext CreateContext([CanBeNull] string contextType)
         {
-            var type = GetContextType(contextType);
-
-            // TODO: Allow other construction patterns (See #639)
-            DbContext context = null;
-
-#if DNX451 || DNXCORE50
-            context = TryCreateContextFromStartup(type);
-#endif
-
-            if (context == null)
-            {
-                context = (DbContext)Activator.CreateInstance(type);
-            }
+            var context = FindContextType(contextType).Value();
+            _logger.Value.LogVerbose(CommandsStrings.LogUseContext(context.GetType().Name));
 
             var loggerFactory = context.GetService<ILoggerFactory>();
             loggerFactory.AddProvider(_loggerProvider);
@@ -71,130 +56,119 @@ namespace Microsoft.Data.Entity.Design
             return context;
         }
 
-#if DNX451 || DNXCORE50
-        private DbContext TryCreateContextFromStartup(Type type)
-        {
-            var hostBuilder = new WebHostBuilder(_dnxServices)
-                .UseEnvironment(
-                    !string.IsNullOrEmpty(_environment)
-                        ? _environment
-                        : EnvironmentName.Development);
-            if (_startupAssemblyName != null)
-            {
-                hostBuilder.UseStartup(_startupAssemblyName);
-            }
-
-            var appServices = hostBuilder.Build().ApplicationServices;
-
-            return (DbContext)appServices.GetService(type);
-        }
-#endif
-
         public virtual IEnumerable<Type> GetContextTypes()
-            => GetAssembly().GetTypes().Where(
-                t => !t.GetTypeInfo().IsAbstract
-                    && !t.GetTypeInfo().IsGenericType
-                    && typeof(DbContext).IsAssignableFrom(t))
-            .Concat(
-                GetAssembly().GetConstructibleTypes()
-                   .Where(t => typeof(Migration).IsAssignableFrom(t.AsType()))
-                   .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
-                   .Where(t => t != null))
-            .Distinct();
+            => FindContextTypes().Keys;
 
         public virtual Type GetContextType([CanBeNull] string name)
-        {
-            var contextType = FindContextType(name);
-            _logger.Value.LogVerbose(CommandsStrings.LogUseContext(contextType.Name));
+            => FindContextType(name).Key;
 
-            return contextType;
-        }
-
-        private Assembly GetAssembly()
+        private IDictionary<Type, Func<DbContext>> FindContextTypes()
         {
-            if (_assembly == null)
+            // TODO: Look for IDbContextFactory implementations
+            var contexts = new Dictionary<Type, Func<DbContext>>();
+
+            // Look for DbContext classes registered in the service provider
+            var registeredContexts = _runtimeServices.GetServices<DbContextOptions>()
+                .Select(o => o.GetType().GenericTypeArguments[0]);
+            foreach (var context in registeredContexts)
             {
-                try
-                {
-                    _assembly = Assembly.Load(new AssemblyName(_assemblyName));
-                }
-                catch (Exception ex)
-                {
-                    throw new OperationException(CommandsStrings.UnreferencedAssembly(_assemblyName, _startupAssemblyName), ex);
-                }
+                contexts.Add(context, () => (DbContext)_runtimeServices.GetRequiredService(context));
             }
 
-            return _assembly;
+            // Look for DbContext classes in assemblies
+            var startupAssembly = Assembly.Load(new AssemblyName(_startupAssemblyName));
+
+            Assembly assembly;
+            try
+            {
+                assembly = Assembly.Load(new AssemblyName(_assemblyName));
+            }
+            catch (Exception ex)
+            {
+                throw new OperationException(CommandsStrings.UnreferencedAssembly(_assemblyName, _startupAssemblyName), ex);
+            }
+
+            var types = startupAssembly.GetConstructibleTypes()
+                .Concat(assembly.GetConstructibleTypes())
+                .Select(i => i.AsType());
+            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t))
+                .Concat(
+                    types.Where(t => typeof(Migration).IsAssignableFrom(t))
+                        .Select(t => t.GetTypeInfo().GetCustomAttribute<DbContextAttribute>()?.ContextType)
+                        .Where(t => t != null))
+                .Distinct();
+            foreach (var context in contextTypes)
+            {
+                contexts.Add(context, () => (DbContext)Activator.CreateInstance(context));
+            }
+
+            return contexts;
         }
 
-        private Type FindContextType(string name)
+        private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)
         {
-            var types = GetContextTypes();
-
-            Type[] candidates;
+            var types = FindContextTypes();
 
             if (string.IsNullOrEmpty(name))
             {
-                candidates = types.Take(2).ToArray();
-                if (candidates.Length == 0)
+                if (types.Count == 0)
                 {
                     throw new OperationException(CommandsStrings.NoContext);
                 }
-                if (candidates.Length == 1)
+                if (types.Count == 1)
                 {
-                    return candidates[0];
+                    return types.First();
                 }
 
                 throw new OperationException(CommandsStrings.MultipleContexts);
             }
 
-            candidates = FilterTypes(types, name, ignoreCase: true).ToArray();
-            if (candidates.Length == 0)
+            var candidates = FilterTypes(types, name, ignoreCase: true);
+            if (candidates.Count == 0)
             {
                 throw new OperationException(CommandsStrings.NoContextWithName(name));
             }
-            if (candidates.Length == 1)
+            if (candidates.Count == 1)
             {
-                return candidates[0];
+                return candidates.First();
             }
 
             // Disambiguate using case
-            candidates = FilterTypes(candidates, name).ToArray();
-            if (candidates.Length == 0)
+            candidates = FilterTypes(candidates, name);
+            if (candidates.Count == 0)
             {
                 throw new OperationException(CommandsStrings.MultipleContextsWithName(name));
             }
-            if (candidates.Length == 1)
+            if (candidates.Count == 1)
             {
-                return candidates[0];
+                return candidates.First();
             }
 
             // Allow selecting types in the default namespace
-            candidates = candidates.Where(t => t.Namespace == null).ToArray();
-            if (candidates.Length == 0)
+            candidates = candidates.Where(t => t.Key.Namespace == null).ToDictionary(t => t.Key, t => t.Value);
+            if (candidates.Count == 0)
             {
                 throw new OperationException(CommandsStrings.MultipleContextsWithQualifiedName(name));
             }
 
-            Debug.Assert(candidates.Length == 1, "candidates.Length is not 1.");
+            Debug.Assert(candidates.Count == 1, "candidates.Count is not 1.");
 
-            return candidates[0];
+            return candidates.First();
         }
 
-        private static IEnumerable<Type> FilterTypes(
-            [NotNull] IEnumerable<Type> types,
-            [NotNull] string name,
+        private static IDictionary<Type, Func<DbContext>> FilterTypes(
+            IDictionary<Type, Func<DbContext>> types,
+            string name,
             bool ignoreCase = false)
         {
-            Debug.Assert(types != null, "types is null.");
-            Debug.Assert(!string.IsNullOrEmpty(name), "name is null or empty.");
-
             var comparisonType = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
-            return types.Where(
-                t => string.Equals(t.Name, name, comparisonType)
-                     || string.Equals(t.FullName, name, comparisonType)
-                     || string.Equals(t.AssemblyQualifiedName, name, comparisonType));
+            return types
+                .Where(
+                    t => string.Equals(t.Key.Name, name, comparisonType)
+                         || string.Equals(t.Key.FullName, name, comparisonType)
+                         || string.Equals(t.Key.AssemblyQualifiedName, name, comparisonType))
+                .ToDictionary(t => t.Key, t => t.Value);
         }
     }
 }

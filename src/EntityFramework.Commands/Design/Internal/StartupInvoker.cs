@@ -39,17 +39,38 @@ namespace Microsoft.Data.Entity.Design.Internal
             _dnxServices = dnxServices;
         }
 
+        public virtual IServiceProvider ConfigureServices()
+        {
+            var services = ConfigureHostServices(new ServiceCollection());
+
+            return Invoke(
+                    new[] { "ConfigureServices", "Configure" + _environment + "Services" },
+                    services) as IServiceProvider
+                ?? services.BuildServiceProvider();
+        }
+
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection services)
+            => Invoke(new[] { "ConfigureDesignTimeServices" }, services);
+
+        private object Invoke(string[] methodNames, IServiceCollection services)
         {
             if (_startupType == null)
             {
-                return;
+                return null;
             }
 
-            var method = _startupType.GetDeclaredMethod("ConfigureDesignTimeServices");
-            if (method == null)
+            MethodInfo method = null;
+            for (int i = 0; i < methodNames.Length; i++)
             {
-                return;
+                method = _startupType.GetDeclaredMethod(methodNames[i]);
+                if (method != null)
+                {
+                    break;
+                }
+                else if (i == methodNames.Length - 1)
+                {
+                    return null;
+                }
             }
 
             var instance = !method.IsStatic
@@ -66,16 +87,18 @@ namespace Microsoft.Data.Entity.Design.Internal
                     : ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), parameterType);
             }
 
-            method.Invoke(instance, arguments);
+            return method.Invoke(instance, arguments);
         }
 
-        protected virtual IServiceProvider GetHostServices()
-            => new ServiceCollection()
+        protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
+            => services
 #if DNX451 || DNXCORE50
                 .ImportDnxServices(_dnxServices)
                 .AddInstance<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = _environment })
 #endif
-                .AddLogging()
-                .BuildServiceProvider();
+                .AddLogging();
+
+        private IServiceProvider GetHostServices()
+            => ConfigureHostServices(new ServiceCollection()).BuildServiceProvider();
     }
 }

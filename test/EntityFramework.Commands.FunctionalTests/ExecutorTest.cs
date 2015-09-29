@@ -244,6 +244,8 @@ namespace Microsoft.Data.Entity.Commands
                                 BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
                                 BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                 BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
+                                BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                                 BuildReference.ByPath(contextsBuild.TargetPath)
