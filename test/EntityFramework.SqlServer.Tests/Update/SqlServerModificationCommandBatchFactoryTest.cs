@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                new SqlServerSqlGenerator(),
                 new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
                 new UntypedRelationalValueBufferFactoryFactory(),
                 optionsBuilder.Options);
@@ -37,6 +38,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
 
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                new SqlServerSqlGenerator(),
                 new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
                 new UntypedRelationalValueBufferFactoryFactory(),
                 optionsBuilder.Options);

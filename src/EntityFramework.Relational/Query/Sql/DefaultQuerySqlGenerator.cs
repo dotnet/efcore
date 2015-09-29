@@ -293,7 +293,9 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 for (var index = 0; index < substitutions.Length; index++)
                 {
-                    substitutions[index] = ParameterNameGenerator.GenerateNext();
+                    substitutions[index] =
+                        _sqlGenerator.GenerateParameterName(
+                            ParameterNameGenerator.GenerateNext());
 
                     _sql.AddParameter(
                         substitutions[index],
@@ -928,7 +930,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 value = string.Empty;
             }
 
-            var name = ParameterNameGenerator.Generate(parameterExpression.Name);
+            var name = _sqlGenerator.GenerateParameterName(parameterExpression.Name);
 
             _sql.Append(name);
 

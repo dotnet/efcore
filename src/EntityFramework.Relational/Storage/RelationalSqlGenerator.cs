@@ -32,6 +32,9 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual string BatchSeparator => string.Empty;
 
+        public virtual string GenerateParameterName([NotNull] string name)
+            => $"@{Check.NotEmpty(name, nameof(name))}";
+
         public virtual string GenerateLiteral([CanBeNull]object value)
             => value != null
                 ? GenerateLiteralValue((dynamic)value)

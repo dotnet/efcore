@@ -27,14 +27,18 @@ namespace Microsoft.Data.Entity.Update
 
         protected ReaderModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] IUpdateSqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IUpdateSqlGenerator updateSqlGenerator)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
 
             _commandBuilderFactory = commandBuilderFactory;
-            UpdateSqlGenerator = sqlGenerator;
+            SqlGenerator = sqlGenerator;
+            UpdateSqlGenerator = updateSqlGenerator;
         }
+
+        protected virtual ISqlGenerator SqlGenerator { get; }
 
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
 
@@ -130,7 +134,7 @@ namespace Microsoft.Data.Entity.Update
             if (columnModification.ParameterName != null)
             {
                 commandBuilder.AddParameter(
-                    columnModification.ParameterName,
+                    SqlGenerator.GenerateParameterName(columnModification.ParameterName),
                     columnModification.Value,
                     columnModification.Property);
             }
@@ -138,7 +142,7 @@ namespace Microsoft.Data.Entity.Update
             if (columnModification.OriginalParameterName != null)
             {
                 commandBuilder.AddParameter(
-                    columnModification.OriginalParameterName,
+                    SqlGenerator.GenerateParameterName(columnModification.OriginalParameterName),
                     columnModification.OriginalValue,
                     columnModification.Property);
             }

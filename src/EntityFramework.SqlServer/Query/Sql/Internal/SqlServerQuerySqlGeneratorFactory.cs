@@ -41,6 +41,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
             object[] parameters)
             => new RawSqlQueryGenerator(
                 _commandBuilderFactory,
+                _sqlGenerator,
                 _parameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotNull(sql, nameof(sql)),

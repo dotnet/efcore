@@ -13,24 +13,26 @@ namespace Microsoft.Data.Entity.Infrastructure
     {
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
+        private readonly ISqlGenerator _sqlGenerator;
         private readonly ISqlStatementExecutor _statementExecutor;
         private readonly IRelationalConnection _connection;
 
         public RelationalSqlExecutor(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
+            [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] ISqlStatementExecutor statementExecutor,
-            [NotNull] IRelationalConnection connection,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalConnection connection)
         {
             Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(statementExecutor, nameof(statementExecutor));
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(typeMapper, nameof(typeMapper));
 
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+            _sqlGenerator = sqlGenerator;
             _statementExecutor = statementExecutor;
             _connection = connection;
         }
@@ -71,7 +73,10 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             for (var index = 0; index < substitutions.Length; index++)
             {
-                substitutions[index] = parameterNameGenerator.GenerateNext();
+                substitutions[index] =
+                    _sqlGenerator.GenerateParameterName(
+                        parameterNameGenerator.GenerateNext());
+
                 builder.AddParameter(
                     substitutions[index],
                     parameters[index]);

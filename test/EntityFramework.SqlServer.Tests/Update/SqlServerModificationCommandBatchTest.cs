@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
         {
             var batch = new SqlServerModificationCommandBatch(
                 new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
+                new SqlServerSqlGenerator(),
                 new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
                 new UntypedRelationalValueBufferFactoryFactory(),
                 1);

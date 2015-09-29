@@ -27,9 +27,10 @@ namespace Microsoft.Data.Entity.Update
 
         protected AffectedCountModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] IUpdateSqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
-            : base(commandBuilderFactory, sqlGenerator)
+            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator)
         {
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 

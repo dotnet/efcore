@@ -9,6 +9,13 @@ namespace Microsoft.Data.Entity.Storage
     public abstract class SqlGeneratorTestBase
     {
         [Fact]
+        public virtual void GenerateParameterName_returns_parameter_name()
+        {
+            var name = CreateSqlGenerator().GenerateParameterName("name");
+            Assert.Equal("@name", name);
+        }
+
+        [Fact]
         public virtual void GenerateLiteral_returns_bool_literal_when_true()
         {
             var literal = CreateSqlGenerator().GenerateLiteral(true);

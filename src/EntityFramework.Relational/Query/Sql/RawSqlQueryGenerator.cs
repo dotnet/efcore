@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Query.Sql
     public class RawSqlQueryGenerator : ISqlQueryGenerator
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+        private readonly ISqlGenerator _sqlGenerator;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
         private readonly SelectExpression _selectExpression;
         private readonly string _sql;
@@ -24,23 +25,28 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public RawSqlQueryGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] object[] parameters)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
 
             _commandBuilderFactory = commandBuilderFactory;
+            _sqlGenerator = sqlGenerator;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
             _selectExpression = selectExpression;
             _sql = sql;
             _inputParameters = parameters;
         }
+
+        protected virtual ISqlGenerator SqlGenerator => _sqlGenerator;
 
         protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory
             => _parameterNameGeneratorFactory;
@@ -57,7 +63,9 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             for (var index = 0; index < substitutions.Length; index++)
             {
-                substitutions[index] = parameterNameGenerator.GenerateNext();
+                substitutions[index] =
+                    SqlGenerator.GenerateParameterName(
+                        parameterNameGenerator.GenerateNext());
 
                 commandBuilder.AddParameter(
                     substitutions[index],

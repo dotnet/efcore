@@ -24,10 +24,11 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         public SqlServerModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [CanBeNull] int? maxBatchSize)
-            : base(commandBuilderFactory, sqlGenerator, valueBufferFactoryFactory)
+            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)

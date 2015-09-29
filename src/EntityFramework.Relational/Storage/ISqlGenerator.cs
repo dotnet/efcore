@@ -11,6 +11,8 @@ namespace Microsoft.Data.Entity.Storage
 
         string BatchSeparator { get; }
 
+        string GenerateParameterName([NotNull] string name);
+
         string GenerateLiteral([CanBeNull] object value);
 
         string EscapeLiteral([NotNull] string literal);

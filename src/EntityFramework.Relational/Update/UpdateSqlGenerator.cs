@@ -214,7 +214,11 @@ namespace Microsoft.Data.Entity.Update
                 .Append(" SET ")
                 .AppendJoin(
                     operations,
-                    (sb, v) => sb.Append(SqlGenerator.DelimitIdentifier(v.ColumnName)).Append(" = ").Append(v.ParameterName), ", ");
+                    (sb, v) => sb
+                        .Append(SqlGenerator.DelimitIdentifier(v.ColumnName))
+                        .Append(" = ")
+                        .Append(SqlGenerator.GenerateParameterName(v.ParameterName)),
+                    ", ");
         }
 
         protected virtual void AppendSelectCommandHeader(
@@ -265,7 +269,8 @@ namespace Microsoft.Data.Entity.Update
             {
                 commandStringBuilder
                     .Append("(")
-                    .AppendJoin(operations.Select(o => o.ParameterName))
+                    .AppendJoin(operations.Select(
+                        o => SqlGenerator.GenerateParameterName(o.ParameterName)))
                     .Append(")");
             }
         }
@@ -333,9 +338,11 @@ namespace Microsoft.Data.Entity.Update
             commandStringBuilder
                 .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
-                .Append(useOriginalValue
-                    ? columnModification.OriginalParameterName
-                    : columnModification.ParameterName);
+                .Append(
+                    SqlGenerator.GenerateParameterName(
+                        useOriginalValue
+                            ? columnModification.OriginalParameterName
+                            : columnModification.ParameterName));
         }
 
         protected abstract void AppendIdentityWhereCondition(

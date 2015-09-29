@@ -625,6 +625,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null)
                 : base(
                       new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                      new RelationalSqlGenerator(),
                       sqlGenerator ?? new FakeSqlGenerator(),
                       new TypedRelationalValueBufferFactoryFactory())
             {
@@ -635,6 +636,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             public ModificationCommandBatchFake(DbDataReader reader, IUpdateSqlGenerator sqlGenerator = null)
                 : base(
                       new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                      new RelationalSqlGenerator(),
                       sqlGenerator ?? new FakeSqlGenerator(),
                       new TypedRelationalValueBufferFactoryFactory())
             {

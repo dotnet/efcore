@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity.Tests.Update
             Assert.True(columnModification.IsWrite);
             Assert.True(columnModification.IsKey);
             Assert.True(columnModification.IsCondition);
-            Assert.Equal("@p0", columnModification.ParameterName);
-            Assert.Equal("@p1", columnModification.OriginalParameterName);
-            Assert.Equal("@p2", columnModification.OutputParameterName);
+            Assert.Equal("p0", columnModification.ParameterName);
+            Assert.Equal("p1", columnModification.OriginalParameterName);
+            Assert.Equal("p2", columnModification.OutputParameterName);
         }
 
         [Fact]
