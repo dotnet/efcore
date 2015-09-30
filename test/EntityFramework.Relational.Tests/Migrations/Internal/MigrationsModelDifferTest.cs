@@ -924,7 +924,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Amoeba").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Amoeba").WithMany().ForeignKey("ParentId").WillCascadeOnDelete(false);
                     }),
                 operations =>
                 {
@@ -1119,7 +1119,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
-                        x.HasOne("Mushroom").WithMany().ForeignKey("ParentId1");
+                        x.HasOne("Mushroom").WithMany().ForeignKey("ParentId1").WillCascadeOnDelete(false);
                         x.Property<int>("ParentId2");
                     }),
                 target => target.Entity(
