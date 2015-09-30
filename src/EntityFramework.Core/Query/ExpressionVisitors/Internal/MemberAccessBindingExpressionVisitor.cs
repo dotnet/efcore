@@ -104,14 +104,23 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             expression.QueryModel.TransformExpressions(Visit);
+
             return expression;
         }
 
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
-            var newExpression = Visit(memberExpression.Expression);
+            var expression = memberExpression.Expression.RemoveConvert();
 
-            if (newExpression != memberExpression.Expression)
+            if (expression != memberExpression.Expression
+                && !(expression is QuerySourceReferenceExpression))
+            {
+                expression = memberExpression.Expression;
+            }
+
+            var newExpression = Visit(expression);
+
+            if (newExpression != expression)
             {
                 if (newExpression.Type == typeof(ValueBuffer))
                 {
