@@ -33,9 +33,6 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="NullLogger.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSetTests.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionTests.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSetBuilderTests.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
     <None Include="project.json" />
   </ItemGroup>

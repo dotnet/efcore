@@ -30,18 +30,16 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         {
             get
             {
-                var filter = new TableSelectionSet();
-                filter.AddSelections(new TableSelection[]
-                {
-                    new TableSelection()
-                    {
-                        Schema = "dbo",
-                        Table = "FilteredOut",
-                        Exclude = true
-                    }
-                });
-
-                return filter;
+                var tables = new List<string> {
+                    "AllDataTypes", "PropertyConfiguration", "Test Spaces Keywords Table",
+                    "OneToManyDependent", "OneToManyPrincipal",
+                    "OneToOneDependent", "OneToOnePrincipal",
+                    "OneToOneSeparateFKDependent", "OneToOneSeparateFKPrincipal",
+                    "OneToOneFKToUniqueKeyDependent", "OneToOneFKToUniqueKeyPrincipal",
+                    "TableWithUnmappablePrimaryKeyColumn", "ReferredToByTableWithUnmappablePrimaryKeyColumn",
+                    "SelfReferencing"
+                };
+                return new TableSelectionSet(null, tables);
             }
         }
 

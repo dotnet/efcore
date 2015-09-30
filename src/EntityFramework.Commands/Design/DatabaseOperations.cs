@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -49,8 +50,9 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
-            [CanBeNull] string tableFilters,
-            bool useFluentApiOnly,
+            [CanBeNull] List<string> schemas,
+            [CanBeNull] List<string> tables,
+            bool useDataAnnotations,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotEmpty(provider, nameof(provider));
@@ -62,7 +64,7 @@ namespace Microsoft.Data.Entity.Design
             loggerFactory.AddProvider(_loggerProvider);
 
             var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
-            var tableSelectionSet = TableSelectionSetBuilder.BuildFromString(tableFilters);
+            var tableSelectionSet = new TableSelectionSet(schemas, tables);
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = connectionString,
@@ -71,7 +73,7 @@ namespace Microsoft.Data.Entity.Design
                 ProjectRootNamespace = _rootNamespace,
                 OutputPath = outputDir,
                 TableSelectionSet = tableSelectionSet,
-                UseFluentApiOnly = useFluentApiOnly
+                UseFluentApiOnly = !useDataAnnotations
             };
 
             return generator.GenerateAsync(configuration, cancellationToken);

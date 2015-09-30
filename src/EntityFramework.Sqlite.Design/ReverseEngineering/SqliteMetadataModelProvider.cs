@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             {
                 connection.Open();
 
-                databaseInfo = _metadataReader.ReadDatabaseInfo(connection, _tableSelectionSet);
+                databaseInfo = _metadataReader.ReadDatabaseInfo(connection, _tableSelectionSet.Tables);
             }
 
             LoadEntityTypes(modelBuilder, databaseInfo);

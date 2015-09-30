@@ -357,14 +357,17 @@ Register-TabExpansion Scaffold-DbContext @{
 .PARAMETER OutputDirectory
     Specifies the directory to use to output the classes. If omitted, the top-level project directory is used.
 
-.PARAMETER ContextClassName
+.PARAMETER Context
     Specifies the name of the generated DbContext class.
 
-.PARAMETER Tables
-    Selects for which tables to generate classes. The argument is a comma-separated list of schema:table entries where either schema or table can be * to indicate 'any'.
+.PARAMETER Schemas
+    Specifies the schemas for which to generate classes.
 
-.PARAMETER FluentApi
-    Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.
+.PARAMETER Tables
+    Specifies the tables for which to generate classes.
+
+.PARAMETER DataAnnotations
+    Use DataAnnotation attributes to configure the model where possible. If omitted, the output code will use only the fluent API.
 
 .PARAMETER Project
     Specifies the project to use. If omitted, the default project is used.
@@ -387,8 +390,9 @@ function Scaffold-DbContext {
         [string] $Provider,
         [string] $OutputDirectory,
         [string] $ContextClassName,
-        [string] $Tables,
-        [switch] $FluentApi,
+        [string[]] $Schemas,
+        [string[]] $Tables,
+        [switch] $DataAnnotations,
         [string] $Project,
         [string] $StartupProject,
         [string] $Environment)
@@ -402,8 +406,9 @@ function Scaffold-DbContext {
         provider = $Provider
         outputDir = $OutputDirectory
         dbContextClassName = $ContextClassName
+        schemaFilters = $Schemas
         tableFilters = $Tables
-        useFluentApiOnly = [bool]$FluentApi
+        useDataAnnotations = [bool]$DataAnnotations
     }
 
     $artifacts | %{ $dteProject.ProjectItems.AddFromFile($_) | Out-Null }
