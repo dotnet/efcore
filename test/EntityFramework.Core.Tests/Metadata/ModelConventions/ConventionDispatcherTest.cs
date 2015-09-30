@@ -506,11 +506,71 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.NotNull(modelBuilder);
         }
 
+        [Fact]
+        public void OnPropertyNullableChanged_calls_apply_on_conventions_in_order()
+        {
+            var conventions = new ConventionSet();
+
+            var convention1 = new PropertyNullableConvention(false);
+            var convention2 = new PropertyNullableConvention(true);
+            var convention3 = new PropertyNullableConvention(false);
+
+            conventions.PropertyNullableChangedConventions.Add(convention1);
+            conventions.PropertyNullableChangedConventions.Add(convention2);
+            conventions.PropertyNullableChangedConventions.Add(convention3);
+
+            var builder = new ModelBuilder(conventions);
+
+            builder.Entity<Order>().Property(e => e.Name).IsRequired();
+
+            Assert.Equal(new bool?[] { false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            builder.Entity<Order>().Property(e => e.Name).IsRequired(false);
+
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            builder.Entity<Order>().Property(e => e.Name).IsRequired(false);
+
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+
+            builder.Entity<Order>().Property(e => e.Name).IsRequired();
+
+            Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+        }
+
+        private class PropertyNullableConvention : IPropertyNullableConvention
+        {
+            public readonly List<bool?> Calls = new List<bool?>();
+            private readonly bool _terminate;
+
+            public PropertyNullableConvention(bool terminate)
+            {
+                _terminate = terminate;
+            }
+
+            public bool Apply(InternalPropertyBuilder propertyBuilder)
+            {
+                Calls.Add(propertyBuilder.Metadata.IsNullable);
+
+                return !_terminate;
+            }
+        }
+
         private class Order
         {
             public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty("OrderId");
 
             public int OrderId { get; set; }
+
+            public string Name { get; set; }
 
             public virtual OrderDetails OrderDetails { get; set; }
         }
