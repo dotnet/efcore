@@ -605,7 +605,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             _projection.AddRange(projection);
         }
 
-        public virtual void AddCrossApply(
+        public virtual void AddLateralJoin(
             [NotNull] TableExpressionBase tableExpression,
             [NotNull] IEnumerable<Expression> projection)
         {
@@ -614,7 +614,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             tableExpression.Alias = CreateUniqueTableAlias(tableExpression.Alias);
 
-            _tables.Add(new CrossApplyExpression(tableExpression));
+            _tables.Add(new LateralJoinExpression(tableExpression));
             _projection.AddRange(projection);
         }
 

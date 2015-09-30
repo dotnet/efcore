@@ -339,15 +339,15 @@ namespace Microsoft.Data.Entity.Query.Sql
             return crossJoinExpression;
         }
 
-        public virtual Expression VisitCrossApply(CrossApplyExpression crossApplyExpression)
+        public virtual Expression VisitLateralJoin(LateralJoinExpression lateralJoinExpression)
         {
-            Check.NotNull(crossApplyExpression, nameof(crossApplyExpression));
+            Check.NotNull(lateralJoinExpression, nameof(lateralJoinExpression));
 
-            _sql.Append("CROSS APPLY ");
+            _sql.Append("CROSS JOIN LATERAL ");
 
-            Visit(crossApplyExpression.TableExpression);
+            Visit(lateralJoinExpression.TableExpression);
 
-            return crossApplyExpression;
+            return lateralJoinExpression;
         }
 
         public virtual Expression VisitCount(CountExpression countExpression)

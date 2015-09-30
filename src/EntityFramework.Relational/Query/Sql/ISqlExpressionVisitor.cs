@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         Expression VisitTable([NotNull] TableExpression tableExpression);
         Expression VisitRawSqlDerivedTable([NotNull] RawSqlDerivedTableExpression rawSqlDerivedTableExpression);
         Expression VisitCrossJoin([NotNull] CrossJoinExpression crossJoinExpression);
-        Expression VisitCrossApply([NotNull] CrossApplyExpression crossApplyExpression);
+        Expression VisitLateralJoin([NotNull] LateralJoinExpression lateralJoinExpression);
         Expression VisitInnerJoin([NotNull] InnerJoinExpression innerJoinExpression);
         Expression VisitOuterJoin([NotNull] LeftOuterJoinExpression leftOuterJoinExpression);
         Expression VisitExists([NotNull] ExistsExpression existsExpression);

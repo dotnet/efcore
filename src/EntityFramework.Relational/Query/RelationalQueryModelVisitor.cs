@@ -305,13 +305,13 @@ namespace Microsoft.Data.Entity.Query
 
                         if (correlated)
                         {
-                            if (!QueryCompilationContext.IsCrossApplySupported)
+                            if (!QueryCompilationContext.IsLateralJoinSupported)
                             {
                                 return;
                             }
 
                             previousSelectExpression
-                                .AddCrossApply(selectExpression.Tables.First(), selectExpression.Projection);
+                                .AddLateralJoin(selectExpression.Tables.First(), selectExpression.Projection);
                         }
                         else
                         {
@@ -568,7 +568,7 @@ namespace Microsoft.Data.Entity.Query
             if (subSelectExpression != null
                 && (!subSelectExpression.OrderBy.Any()
                     || subSelectExpression.Limit != null)
-                && (QueryCompilationContext.IsCrossApplySupported
+                && (QueryCompilationContext.IsLateralJoinSupported
                     || (!subSelectExpression.IsCorrelated()
                         || !(querySource is AdditionalFromClause))))
             {

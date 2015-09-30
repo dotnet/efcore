@@ -22,6 +22,17 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
         {
         }
 
+        public override Expression VisitLateralJoin(LateralJoinExpression lateralJoinExpression)
+        {
+            Check.NotNull(lateralJoinExpression, nameof(lateralJoinExpression));
+
+            Sql.Append("CROSS APPLY ");
+
+            Visit(lateralJoinExpression.TableExpression);
+
+            return lateralJoinExpression;
+        }
+
         public override Expression VisitCount(CountExpression countExpression)
         {
             Check.NotNull(countExpression, nameof(countExpression));
