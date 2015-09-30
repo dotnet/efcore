@@ -280,7 +280,6 @@
     <Compile Include="Query\IQueryCompilationContextFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\NavigationRewritingExpressionVisitor.cs" />
     <Compile Include="Query\Internal\ExpressionPrinter.cs" />
-    <Compile Include="Query\IEntityQueryProvider.cs" />
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Query\Internal\IExpressionPrinter.cs" />
     <Compile Include="Query\IQueryOptimizer.cs" />

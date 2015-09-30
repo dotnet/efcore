@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 => RemoveNavigationJoin(NavigationJoins, navigationJoin);
         }
 
-        private IEntityQueryProvider _entityQueryProvider;
+        private IAsyncQueryProvider _entityQueryProvider;
 
         public NavigationRewritingExpressionVisitor([NotNull] EntityQueryModelVisitor queryModelVisitor)
         {
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor, IEntityQueryProvider entityQueryProvider)
+            EntityQueryModelVisitor queryModelVisitor, IAsyncQueryProvider entityQueryProvider)
             : this(queryModelVisitor)
         {
             _entityQueryProvider = entityQueryProvider;
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             if (_entityQueryProvider == null)
             {
                 _entityQueryProvider
-                    = (constantExpression.Value as IQueryable)?.Provider as IEntityQueryProvider;
+                    = (constantExpression.Value as IQueryable)?.Provider as IAsyncQueryProvider;
             }
 
             return constantExpression;
@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 .GetTypeInfo().GetDeclaredMethod(nameof(_CreateEntityQueryable));
 
         [UsedImplicitly]
-        private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IEntityQueryProvider entityQueryProvider)
+        private static EntityQueryable<TResult> _CreateEntityQueryable<TResult>(IAsyncQueryProvider entityQueryProvider)
             => new EntityQueryable<TResult>(entityQueryProvider);
     }
 }

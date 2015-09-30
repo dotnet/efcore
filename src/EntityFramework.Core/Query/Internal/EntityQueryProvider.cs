@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
-    public class EntityQueryProvider : IEntityQueryProvider
+    public class EntityQueryProvider : IAsyncQueryProvider
     {
         private static readonly MethodInfo _genericCreateQueryMethod
             = typeof(EntityQueryProvider).GetRuntimeMethods()

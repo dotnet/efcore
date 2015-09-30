@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IMemoryCache>();
             VerifySingleton<ICompiledQueryCache>();
 
-            VerifyScoped<IEntityQueryProvider>();
+            VerifyScoped<IAsyncQueryProvider>();
             VerifyScoped<IQueryContextFactory>();
             VerifyScoped<IQueryCompiler>();
             VerifyScoped<IQueryCompilationContextFactory>();

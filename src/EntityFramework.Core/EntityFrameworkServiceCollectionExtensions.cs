@@ -124,7 +124,7 @@ namespace Microsoft.Framework.DependencyInjection
             return serviceCollection
                 .AddSingleton<IMemoryCache, MemoryCache>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
-                .AddScoped<IEntityQueryProvider, EntityQueryProvider>()
+                .AddScoped<IAsyncQueryProvider, EntityQueryProvider>()
                 .AddScoped<IQueryCompiler, QueryCompiler>()
                 .AddScoped<IQueryAnnotationExtractor, QueryAnnotationExtractor>()
                 .AddScoped<IQueryOptimizer, QueryOptimizer>()
