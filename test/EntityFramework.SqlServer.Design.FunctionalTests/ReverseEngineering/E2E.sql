@@ -70,6 +70,14 @@ if exists (select * from sysobjects where id = object_id('dbo.OneToOneSeparateFK
 	drop table "dbo"."OneToOneSeparateFKPrincipal"
 GO
 
+if exists (select * from sysobjects where id = object_id('dbo.OneToOneFKToUniqueKeyDependent') and sysstat & 0xf = 3)
+	drop table "dbo"."OneToOneFKToUniqueKeyDependent"
+GO
+
+if exists (select * from sysobjects where id = object_id('dbo.OneToOneFKToUniqueKeyPrincipal') and sysstat & 0xf = 3)
+	drop table "dbo"."OneToOneFKToUniqueKeyPrincipal"
+GO
+
 if exists (select * from sysobjects where id = object_id('dbo.TableWithUnmappablePrimaryKeyColumn') and sysstat & 0xf = 3)
 	drop table "dbo"."TableWithUnmappablePrimaryKeyColumn"
 GO
@@ -238,15 +246,9 @@ CREATE TABLE "OneToOneSeparateFKPrincipal" (
 	"OneToOneSeparateFKPrincipalID1" "int",
 	"OneToOneSeparateFKPrincipalID2" "int",
 	"SomeOneToOneSeparateFKPrincipalColumn" nvarchar (20) NOT NULL,
-	"OneToOneSeparateFKUniqueKey1" "int" NOT NULL,
-	"OneToOneSeparateFKUniqueKey2" "int" NOT NULL,
 	CONSTRAINT "PK_OneToOneSeparateFKPrincipal" PRIMARY KEY  CLUSTERED 
 	(
 		"OneToOneSeparateFKPrincipalID1", "OneToOneSeparateFKPrincipalID2"
-	),
-	CONSTRAINT "UK_OneToOneSeparateFKPrincipal" UNIQUE
-	(
-		"OneToOneSeparateFKUniqueKey1", "OneToOneSeparateFKUniqueKey2"
 	)
 )
 
@@ -266,11 +268,53 @@ CREATE TABLE "OneToOneSeparateFKDependent" (
 	(
 		"OneToOneSeparateFKDependentFK1", "OneToOneSeparateFKDependentFK2"
 	) REFERENCES "dbo"."OneToOneSeparateFKPrincipal" (
-		"OneToOneSeparateFKUniqueKey1", "OneToOneSeparateFKUniqueKey2"
+		"OneToOneSeparateFKPrincipalID1", "OneToOneSeparateFKPrincipalID2"
 	),
 	CONSTRAINT "UK_OneToOneSeparateFKDependent" UNIQUE
 	(
 		"OneToOneSeparateFKDependentFK1", "OneToOneSeparateFKDependentFK2"
+	)
+)
+
+GO
+
+CREATE TABLE "OneToOneFKToUniqueKeyPrincipal" (
+	"OneToOneFKToUniqueKeyPrincipalID1" "int",
+	"OneToOneFKToUniqueKeyPrincipalID2" "int",
+	"SomePrincipalColumn" nvarchar (20) NOT NULL,
+	"OneToOneFKToUniqueKeyPrincipalUniqueKey1" "int" NOT NULL,
+	"OneToOneFKToUniqueKeyPrincipalUniqueKey2" "int" NOT NULL,
+	CONSTRAINT "PK_OneToOneFKToUniqueKeyPrincipal" PRIMARY KEY CLUSTERED 
+	(
+		"OneToOneFKToUniqueKeyPrincipalID1", "OneToOneFKToUniqueKeyPrincipalID2"
+	),
+	CONSTRAINT "UK_OneToOneFKToUniqueKeyPrincipal" UNIQUE
+	(
+		"OneToOneFKToUniqueKeyPrincipalUniqueKey1", "OneToOneFKToUniqueKeyPrincipalUniqueKey2"
+	)
+)
+
+GO
+
+CREATE TABLE "OneToOneFKToUniqueKeyDependent" (
+	"OneToOneFKToUniqueKeyDependentID1" "int",
+	"OneToOneFKToUniqueKeyDependentID2" "int",
+	"SomeColumn" nvarchar (20) NOT NULL,
+	"OneToOneFKToUniqueKeyDependentFK1" "int" NULL,
+	"OneToOneFKToUniqueKeyDependentFK2" "int" NULL,
+	CONSTRAINT "PK_OneToOneFKToUniqueKeyDependent" PRIMARY KEY  CLUSTERED 
+	(
+		"OneToOneFKToUniqueKeyDependentID1", "OneToOneFKToUniqueKeyDependentID2"
+	),
+	CONSTRAINT "FK_OneToOneFKToUniqueKeyDependent" FOREIGN KEY 
+	(
+		"OneToOneFKToUniqueKeyDependentFK1", "OneToOneFKToUniqueKeyDependentFK2"
+	) REFERENCES "dbo"."OneToOneFKToUniqueKeyPrincipal" (
+		"OneToOneFKToUniqueKeyPrincipalUniqueKey1", "OneToOneFKToUniqueKeyPrincipalUniqueKey2"
+	),
+	CONSTRAINT "UK_OneToOneFKToUniqueKeyDependent" UNIQUE
+	(
+		"OneToOneFKToUniqueKeyDependentFK1", "OneToOneFKToUniqueKeyDependentFK2"
 	)
 )
 

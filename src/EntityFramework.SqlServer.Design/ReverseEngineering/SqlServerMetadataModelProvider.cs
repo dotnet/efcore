@@ -32,10 +32,10 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private Dictionary<string, ForeignKeyColumnMapping> _foreignKeyColumnMappings;
 
         // primary key, foreign key and unique constraint information constructed from database data
-        private readonly Dictionary<string, Dictionary<string, List<string>>> _constraintToColumnsMap =
-            new Dictionary<string, Dictionary<string, List<string>>>(); // 1st string is TableId, 2nd is ConstraintId, 3rd is ColumnId
-        private readonly Dictionary<string, ConstraintType> _constraintTypes =
-            new Dictionary<string, ConstraintType>();
+        private readonly Dictionary<string,
+            Dictionary<TableConstraint, SortedList<int, string>>> _tableToConstraintToColumnsMap =
+            new Dictionary<string,
+                Dictionary<TableConstraint, SortedList<int, string>>>(); // 1st string is TableId, 2nd is ColumnId
 
         // utility data constructed as we iterate over the data
         private readonly Dictionary<string, EntityType> _tableIdToEntityType = new Dictionary<string, EntityType>();
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                     var tableConstraintColumns = LoadData(
                         conn, TableConstraintColumn.Query, TableConstraintColumn.CreateFromReader, tcc => tcc.Id);
-                    CreatePrimaryForeignKeyAndUniqueMaps(tableConstraintColumns);
+                    CreateConstraintMaps(tableConstraintColumns);
                 }
                 finally
                 {
@@ -136,45 +136,38 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return data;
         }
 
-        public virtual void CreatePrimaryForeignKeyAndUniqueMaps(
+        public virtual void CreateConstraintMaps(
             [NotNull] Dictionary<string, TableConstraintColumn> tableConstraintColumns)
         {
             Check.NotNull(tableConstraintColumns, nameof(tableConstraintColumns));
 
-            var constraintToColumnsMap = new Dictionary<string, Dictionary<string, int>>();
             foreach (var tableConstraintColumn in tableConstraintColumns.Values)
             {
-                UpdateConstraintTypes(tableConstraintColumn);
-
-                // add this column to the list of columns for this constraint
-                Dictionary<string, int> columnIds;
-                if (!constraintToColumnsMap.TryGetValue(tableConstraintColumn.ConstraintId, out columnIds))
+                var constraintType = GetConstraintType(tableConstraintColumn);
+                if (constraintType == null)
                 {
-                    columnIds = new Dictionary<string, int>();
-                    constraintToColumnsMap[tableConstraintColumn.ConstraintId] = columnIds;
+                    // not a PK, FK or unique constraint
+                    continue;
                 }
 
-                if (!columnIds.ContainsKey(tableConstraintColumn.ColumnId))
+                var tableId = _tableColumns[tableConstraintColumn.ColumnId].TableId;
+                Dictionary<TableConstraint, SortedList<int, string>> constraintToColumnsMap;
+                if (!_tableToConstraintToColumnsMap.TryGetValue(tableId, out constraintToColumnsMap))
                 {
-                    columnIds.Add(tableConstraintColumn.ColumnId, tableConstraintColumn.Ordinal);
-                }
-            }
-
-            foreach (var keyValuePair in constraintToColumnsMap)
-            {
-                var constraintId = keyValuePair.Key;
-                var columnIdToOrdinalMap = keyValuePair.Value;
-                var tableId = _tableColumns[columnIdToOrdinalMap.First().Key].TableId;
-                Dictionary<string, List<string>> constraintIdToColumnsMap;
-                if (!_constraintToColumnsMap.TryGetValue(tableId, out constraintIdToColumnsMap))
-                {
-                    constraintIdToColumnsMap = new Dictionary<string, List<string>>();
-                    _constraintToColumnsMap.Add(tableId, constraintIdToColumnsMap);
+                    constraintToColumnsMap = new Dictionary<TableConstraint, SortedList<int, string>>();
+                    _tableToConstraintToColumnsMap[tableId] = constraintToColumnsMap; 
                 }
 
-                var orderedColumnIds = columnIdToOrdinalMap
-                    .OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
-                constraintIdToColumnsMap.Add(constraintId, orderedColumnIds);
+                var constraint = new TableConstraint(
+                    tableConstraintColumn.ConstraintId, constraintType.Value);
+                SortedList<int, string> sortedColumns;
+                if (!constraintToColumnsMap.TryGetValue(constraint, out sortedColumns))
+                {
+                    sortedColumns = new SortedList<int, string>();
+                    constraintToColumnsMap[constraint] = sortedColumns;
+                }
+
+                sortedColumns.Add(tableConstraintColumn.Ordinal, tableConstraintColumn.ColumnId);
             }
         }
 
@@ -254,7 +247,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public virtual void AddPrimaryAndAlternateKeysToModel()
         {
-            foreach (var keyValuePair in _constraintToColumnsMap)
+            foreach (var keyValuePair in _tableToConstraintToColumnsMap)
             {
                 var tableId = keyValuePair.Key;
                 EntityType entityType;
@@ -264,35 +257,34 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     continue;
                 }
 
-                var constraintIdToColumnIdsMap = keyValuePair.Value;
-                foreach (var entry in constraintIdToColumnIdsMap
-                    .Where(kvp => _constraintTypes[kvp.Key] == ConstraintType.PrimaryKey
-                        || _constraintTypes[kvp.Key] == ConstraintType.Unique))
+                var constraintToColumnIdsMap = keyValuePair.Value;
+                foreach (var entry in constraintToColumnIdsMap
+                    .Where(kvp => kvp.Key.ConstraintType == ConstraintType.PrimaryKey
+                        || kvp.Key.ConstraintType == ConstraintType.Unique))
                 {
-                    var constraintId = entry.Key;
-                    var constraintType = _constraintTypes[constraintId];
-                    var columnIds = entry.Value;
-                    var tuple = MatchProperties(columnIds);
+                    var constraint = entry.Key;
+                    var sortedColumnIds = entry.Value.Values.ToList();
+                    var tuple = MatchProperties(sortedColumnIds);
                     var matchingProperties = tuple.Item1;
                     var unmappedColumnIds = tuple.Item2;
-                    if (ConstraintType.PrimaryKey == constraintType)
+                    if (ConstraintType.PrimaryKey == constraint.ConstraintType)
                     {
                         if (unmappedColumnIds.Count == 0)
                         {
-                            entityType.SetPrimaryKey(matchingProperties.ToList());
+                            entityType.SetPrimaryKey(matchingProperties);
                         }
                     }
                     else
                     {
                         if (unmappedColumnIds.Count == 0)
                         {
-                            entityType.AddKey(matchingProperties.ToList());
+                            entityType.AddKey(matchingProperties);
                         }
                         else
                         {
                             Logger.LogWarning(
                                 SqlServerDesignStrings.UnableToMatchPropertiesForUniqueKey(
-                                    constraintId, unmappedColumnIds));
+                                    constraint.ConstraintId, unmappedColumnIds));
                         }
                     }
                 }
@@ -301,7 +293,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
         public virtual void AddForeignKeysToModel()
         {
-            foreach (var keyValuePair in _constraintToColumnsMap)
+            foreach (var keyValuePair in _tableToConstraintToColumnsMap)
             {
                 var tableId = keyValuePair.Key;
                 EntityType fromColumnsEntityType;
@@ -310,25 +302,24 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     // table has been filtered out by user
                     continue;
                 }
-                var constraintIdToColumnIdsMap = keyValuePair.Value;
-                foreach (var entry in constraintIdToColumnIdsMap
-                    .Where(kvp => _constraintTypes[kvp.Key] == ConstraintType.ForeignKey))
+                var constraintToColumnIdsMap = keyValuePair.Value;
+                foreach (var entry in constraintToColumnIdsMap
+                    .Where(kvp => kvp.Key.ConstraintType == ConstraintType.ForeignKey))
                 {
-                    var constraintId = entry.Key;
-                    var constraintType = _constraintTypes[constraintId];
-                    var fromColumnIds = entry.Value;
+                    var constraint = entry.Key;
+                    var fromColumnIds = entry.Value.Values.ToList();
                     var tuple = MatchProperties(fromColumnIds);
                     var unmappedColumnIds = tuple.Item2;
                     if (unmappedColumnIds.Count != 0)
                     {
                         Logger.LogWarning(SqlServerDesignStrings.UnableToMatchPropertiesForForeignKey(
-                            constraintId,
+                            constraint.ConstraintId,
                             string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnIds)));
                         continue;
                     }
 
                     var fromProperties = tuple.Item1;
-                    var toColumnIds = FindToColumns(constraintId, fromColumnIds);
+                    var toColumnIds = FindToColumns(constraint.ConstraintId, fromColumnIds);
                     if (toColumnIds == null)
                     {
                         continue;
@@ -339,7 +330,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     if (unmappedColumnIds.Count != 0)
                     {
                         Logger.LogWarning(SqlServerDesignStrings.UnableToMatchPropertiesForForeignKey(
-                            constraintId,
+                            constraint.ConstraintId,
                             string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator, unmappedColumnIds)));
                         continue;
                     }
@@ -350,7 +341,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                     if (principalKey == null)
                     {
                         Logger.LogWarning(SqlServerDesignStrings.NoKeyForColumns(
-                            constraintId,
+                            constraint.ConstraintId,
                             toEntityType.Name,
                             string.Join(CultureInfo.CurrentCulture.TextInfo.ListSeparator,
                                 toProperties.Select(p => p.Name))));
@@ -364,11 +355,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                     // If there's a primary key or unique constraint on this table which
                     // has the same columns as the FK then mark the foreign key as unique.
-                    if (_constraintToColumnsMap[tableId]
+                    if (_tableToConstraintToColumnsMap[tableId]
                         .Any(kvp =>
-                            (_constraintTypes[kvp.Key] == ConstraintType.PrimaryKey
-                            || _constraintTypes[kvp.Key] == ConstraintType.Unique)
-                            && fromColumnIds.SequenceEqual(kvp.Value)))
+                            (kvp.Key.ConstraintType == ConstraintType.PrimaryKey
+                            || kvp.Key.ConstraintType == ConstraintType.Unique)
+                            && fromColumnIds.SequenceEqual(kvp.Value.Values)))
                     {
                         foreignKey.IsUnique = true;
                     }
@@ -530,36 +521,63 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             return toColumnIds;
         }
 
-        protected virtual void UpdateConstraintTypes([NotNull] TableConstraintColumn tableConstraintColumn)
+        protected virtual ConstraintType? GetConstraintType([
+            NotNull] TableConstraintColumn tableConstraintColumn)
         {
             Check.NotNull(tableConstraintColumn, nameof(tableConstraintColumn));
 
-            ConstraintType constraintType;
-            if (!_constraintTypes.TryGetValue(
-                tableConstraintColumn.ConstraintId, out constraintType))
+            switch (tableConstraintColumn.ConstraintType)
             {
-                switch (tableConstraintColumn.ConstraintType)
-                {
-                    case "PRIMARY KEY":
-                        _constraintTypes[tableConstraintColumn.ConstraintId] = ConstraintType.PrimaryKey;
-                        break;
+                case "PRIMARY KEY":
+                    return ConstraintType.PrimaryKey;
 
-                    case "UNIQUE":
-                        _constraintTypes[tableConstraintColumn.ConstraintId] = ConstraintType.Unique;
-                        break;
+                case "UNIQUE":
+                    return ConstraintType.Unique;
 
-                    case "FOREIGN KEY":
-                        _constraintTypes[tableConstraintColumn.ConstraintId] = ConstraintType.ForeignKey;
-                        break;
-                }
+                case "FOREIGN KEY":
+                    return ConstraintType.ForeignKey;
+
+                default:
+                    return null;
             }
         }
 
-        protected enum ConstraintType
+        protected enum ConstraintType : byte
         {
             PrimaryKey = 0,
             Unique = 1,
             ForeignKey = 2
+        }
+
+        protected class TableConstraint
+        {
+            public TableConstraint(
+                [NotNull] string constraintId, ConstraintType constraintType)
+            {
+                Check.NotEmpty(constraintId, nameof(constraintId));
+
+                ConstraintId = constraintId;
+                ConstraintType = constraintType;
+            }
+
+            public string ConstraintId { get; }
+            public ConstraintType ConstraintType { get; }
+
+            public override bool Equals(object obj)
+            {
+                var otherTableConstraint = obj as TableConstraint;
+                if (otherTableConstraint == null)
+                {
+                    return false;
+                }
+
+                return ConstraintId == otherTableConstraint.ConstraintId;
+            }
+
+            public override int GetHashCode()
+            {
+                return ConstraintId.GetHashCode();
+            }
         }
     }
 }

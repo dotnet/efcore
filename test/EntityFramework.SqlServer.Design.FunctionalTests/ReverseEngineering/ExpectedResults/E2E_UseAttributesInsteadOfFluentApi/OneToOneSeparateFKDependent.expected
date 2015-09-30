@@ -16,6 +16,8 @@ namespace E2ETest.Namespace
         [Required]
         public string SomeDependentEndColumn { get; set; }
 
+        [ForeignKey("OneToOneSeparateFKDependentFK1,OneToOneSeparateFKDependentFK2")]
+        [InverseProperty("OneToOneSeparateFKDependent")]
         public virtual OneToOneSeparateFKPrincipal OneToOneSeparateFKDependentFK { get; set; }
     }
 }
