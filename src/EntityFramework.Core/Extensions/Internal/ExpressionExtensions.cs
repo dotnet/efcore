@@ -144,11 +144,9 @@ namespace System.Linq.Expressions
             return propertyInfos.ToArray();
         }
 
-        public static Expression RemoveConvert([NotNull] this Expression expression)
+        public static Expression RemoveConvert([CanBeNull] this Expression expression)
         {
-            Check.NotNull(expression, nameof(expression));
-
-            while ((expression != null)
+            while (expression != null
                    && (expression.NodeType == ExpressionType.Convert
                        || expression.NodeType == ExpressionType.ConvertChecked))
             {

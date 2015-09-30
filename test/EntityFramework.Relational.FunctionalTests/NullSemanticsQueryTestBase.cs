@@ -551,11 +551,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var actualIds = new List<int>();
             var expectedIds = new List<int>();
 
-            expectedIds.AddRange(l2oQuery(_oracleData.Set<TItem>().ToList().AsQueryable()).Select(e => e.Id).OrderBy(k => k));
+            expectedIds.AddRange(
+                l2oQuery(_oracleData.Set<TItem>().ToList().AsQueryable())
+                    .Select(e => e.Id)
+                    .OrderBy(k => k));
 
             using (var context = CreateContext(useRelationalNulls))
             {
-                actualIds.AddRange(l2eQuery(context.Set<TItem>()).Select(e => e.Id).ToList().OrderBy(k => k));
+                actualIds.AddRange(
+                    l2eQuery(context.Set<TItem>())
+                        .Select(e => e.Id)
+                        .ToList()
+                        .OrderBy(k => k));
             }
 
             if (!useRelationalNulls)

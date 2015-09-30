@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Query
                         {
                             var navigationPath
                                 = BindNavigationPathMemberExpression(
-                                    (MemberExpression)annotation.NavigationPropertyPath,
+                                    annotation.NavigationPropertyPath,
                                     (ps, _) =>
                                     {
                                         var properties = ps.ToArray();
@@ -1088,11 +1088,20 @@ namespace Microsoft.Data.Entity.Query
 
             while (memberExpression?.Expression != null)
             {
-                var entityType = Model.FindEntityType(memberExpression.Expression.Type);
+                var expression = memberExpression.Expression;
+
+                var entityType = Model.FindEntityType(expression.Type);
+
+                expression = expression.RemoveConvert();
 
                 if (entityType == null)
                 {
-                    break;
+                    entityType = Model.FindEntityType(expression.Type);
+
+                    if (entityType == null)
+                    {
+                        break;
+                    }
                 }
 
                 var property
@@ -1106,10 +1115,8 @@ namespace Microsoft.Data.Entity.Query
 
                 properties.Add(property);
 
-                querySourceReferenceExpression
-                    = memberExpression.Expression.RemoveConvert() as QuerySourceReferenceExpression;
-
-                memberExpression = memberExpression.Expression.RemoveConvert() as MemberExpression;
+                querySourceReferenceExpression = expression as QuerySourceReferenceExpression;
+                memberExpression = expression as MemberExpression;
             }
 
             return querySourceReferenceExpression != null
