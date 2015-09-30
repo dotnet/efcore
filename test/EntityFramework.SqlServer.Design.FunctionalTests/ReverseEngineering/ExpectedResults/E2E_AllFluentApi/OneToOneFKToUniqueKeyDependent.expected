@@ -1,0 +1,18 @@
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace E2ETest.Namespace
+{
+    public class OneToOneFKToUniqueKeyDependent
+    {
+        public int OneToOneFKToUniqueKeyDependentID1 { get; set; }
+        public int OneToOneFKToUniqueKeyDependentID2 { get; set; }
+        public int? OneToOneFKToUniqueKeyDependentFK1 { get; set; }
+        public int? OneToOneFKToUniqueKeyDependentFK2 { get; set; }
+        public string SomeColumn { get; set; }
+
+        public virtual OneToOneFKToUniqueKeyPrincipal OneToOneFKToUniqueKeyDependentFK { get; set; }
+    }
+}

@@ -11,11 +11,10 @@ namespace E2ETest.Namespace
     {
         public int OneToOneSeparateFKPrincipalID1 { get; set; }
         public int OneToOneSeparateFKPrincipalID2 { get; set; }
-        public int OneToOneSeparateFKUniqueKey1 { get; set; }
-        public int OneToOneSeparateFKUniqueKey2 { get; set; }
         [Required]
         public string SomeOneToOneSeparateFKPrincipalColumn { get; set; }
 
+        [InverseProperty("OneToOneSeparateFKDependentFK")]
         public virtual OneToOneSeparateFKDependent OneToOneSeparateFKDependent { get; set; }
     }
 }

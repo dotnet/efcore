@@ -70,6 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToOneFKToUniqueKeyDependent.expected" />
+    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\OneToOneFKToUniqueKeyPrincipal.expected" />
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\AllDataTypes.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -82,6 +84,8 @@
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOneDependent.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOneFKToUniqueKeyDependent.expected" />
+    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOneFKToUniqueKeyPrincipal.expected" />
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\OneToOnePrincipal.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

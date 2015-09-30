@@ -82,6 +82,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 "OneToManyDependent.expected",
                 "OneToManyPrincipal.expected",
                 "OneToOneDependent.expected",
+                "OneToOneFKToUniqueKeyDependent.expected",
+                "OneToOneFKToUniqueKeyPrincipal.expected",
                 "OneToOnePrincipal.expected",
                 "OneToOneSeparateFKDependent.expected",
                 "OneToOneSeparateFKPrincipal.expected",
