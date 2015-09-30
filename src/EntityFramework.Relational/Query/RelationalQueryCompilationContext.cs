@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Query
             return relationalQueryModelVisitor;
         }
 
-        public virtual bool IsCrossApplySupported => false;
+        public virtual bool IsLateralJoinSupported => false;
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor(EntityQueryModelVisitor parentEntityQueryModelVisitor)
         {

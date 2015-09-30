@@ -8,11 +8,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
-    public class CrossApplyExpression : TableExpressionBase
+    public class LateralJoinExpression : TableExpressionBase
     {
         private readonly TableExpressionBase _tableExpression;
 
-        public CrossApplyExpression([NotNull] TableExpressionBase tableExpression)
+        public LateralJoinExpression([NotNull] TableExpressionBase tableExpression)
             : base(
                 Check.NotNull(tableExpression, nameof(tableExpression)).QuerySource,
                 tableExpression.Alias)
@@ -29,12 +29,11 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitCrossApply(this)
+                ? specificVisitor.VisitLateralJoin(this)
                 : base.Accept(visitor);
         }
 
-        public override string ToString() => "CROSS APPLY " + _tableExpression;
-
+        public override string ToString() => "LATERAL JOIN " + _tableExpression;
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

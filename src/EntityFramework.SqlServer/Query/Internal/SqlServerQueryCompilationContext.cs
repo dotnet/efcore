@@ -28,6 +28,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
         }
 
-        public override bool IsCrossApplySupported => true;
+        public override bool IsLateralJoinSupported => true;
     }
 }
