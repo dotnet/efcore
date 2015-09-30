@@ -3,7 +3,7 @@
     "EntityFramework.Relational.Design": "7.0.0-*",
     "EntityFramework.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
-    "EntityFramework.Sqlite.FunctionalTests": "7.0.0-*",
+    "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
     "EntityFramework.Sqlite.Design": "7.0.0-*"
   },
   "commands": {

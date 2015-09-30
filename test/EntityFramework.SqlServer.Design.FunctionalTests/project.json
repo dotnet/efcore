@@ -5,7 +5,7 @@
 	"EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
     "EntityFramework.SqlServer": "7.0.0-*",
     "EntityFramework.SqlServer.Design": "7.0.0-*",
-    "EntityFramework.SqlServer.FunctionalTests": "7.0.0-*"
+    "EntityFramework.SqlServer.FunctionalTests": "1.0.0"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
