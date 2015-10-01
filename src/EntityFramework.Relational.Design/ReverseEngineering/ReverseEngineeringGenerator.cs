@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
-        private readonly ModelConfigurationFactory _modelConfigurationFactory;
+        private readonly ConfigurationFactory _modelConfigurationFactory;
         private readonly IDatabaseMetadataModelProvider _provider;
 
         public ReverseEngineeringGenerator(
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] IFileService fileService,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] IDatabaseMetadataModelProvider metadataModelProvider,
-            [NotNull] ModelConfigurationFactory modelConfigurationFactory,
+            [NotNull] ConfigurationFactory modelConfigurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
@@ -60,13 +60,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var @namespace = ConstructNamespace(configuration.ProjectRootNamespace,
                     configuration.ProjectPath, configuration.OutputPath);
 
-            var customConfiguration = new CustomConfiguration()
-            {
-                ConnectionString = configuration.ConnectionString,
-                ContextClassName = configuration.ContextClassName,
-                Namespace = @namespace,
-                UseFluentApiOnly = configuration.UseFluentApiOnly,
-            };
+            var customConfiguration = _modelConfigurationFactory
+                .CreateCustomConfiguration(
+                    configuration.ConnectionString, configuration.ContextClassName,
+                    @namespace, configuration.UseFluentApiOnly);
             var modelConfiguration = _modelConfigurationFactory
                 .CreateModelConfiguration(metadataModel, customConfiguration);
 

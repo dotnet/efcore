@@ -59,6 +59,7 @@
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
     <Compile Include="ReverseEngineering\CodeWriter.cs" />
+    <Compile Include="ReverseEngineering\ConfigurationFactory.cs" />
     <Compile Include="ReverseEngineering\Configuration\AttributeConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\CustomConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\EntityConfiguration.cs" />
@@ -92,7 +93,6 @@
     <Compile Include="ReverseEngineering\Internal\Templating\TemplateProcessingException.cs" />
     <Compile Include="ReverseEngineering\Internal\Templating\TemplateResult.cs" />
     <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
-    <Compile Include="ReverseEngineering\ModelConfigurationFactory.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineerFiles.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
