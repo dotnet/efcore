@@ -128,9 +128,19 @@ namespace Microsoft.Data.Entity.Storage
 
         private IRelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
-            _logger.BeginningTransaction(isolationLevel);
+            Check.NotNull(_logger, nameof(_logger));
 
-            Transaction = new RelationalTransaction(this, DbConnection.BeginTransaction(isolationLevel), /*transactionOwned*/ true, _logger);
+            _logger.LogVerbose(
+                RelationalLoggingEventId.BeginningTransaction,
+                isolationLevel,
+                il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
+
+            Transaction 
+                = new RelationalTransaction(
+                    this, 
+                    DbConnection.BeginTransaction(isolationLevel), 
+                     _logger,
+                    transactionOwned: true);
 
             return Transaction;
         }
@@ -155,7 +165,7 @@ namespace Microsoft.Data.Entity.Storage
 
                 Open();
 
-                Transaction = new RelationalTransaction(this, transaction, /*transactionOwned*/ false, _logger);
+                Transaction = new RelationalTransaction(this, transaction, _logger, transactionOwned: false);
             }
 
             return Transaction;
@@ -169,7 +179,10 @@ namespace Microsoft.Data.Entity.Storage
 #endif
             if (_openedCount == 0)
             {
-                _logger.OpeningConnection(ConnectionString);
+                _logger.LogVerbose(
+                    RelationalLoggingEventId.OpeningConnection,
+                    ConnectionString,
+                    RelationalStrings.RelationalLoggerOpeningConnection);
 
                 _connection.Value.Open();
             }
@@ -185,7 +198,10 @@ namespace Microsoft.Data.Entity.Storage
 #endif
             if (_openedCount == 0)
             {
-                _logger.OpeningConnection(ConnectionString);
+                _logger.LogVerbose(
+                    RelationalLoggingEventId.OpeningConnection,
+                    ConnectionString,
+                    RelationalStrings.RelationalLoggerOpeningConnection);
 
                 await _connection.Value.OpenAsync(cancellationToken);
             }
@@ -212,7 +228,10 @@ namespace Microsoft.Data.Entity.Storage
             if (_openedCount > 0
                 && --_openedCount == 0)
             {
-                _logger.ClosingConnection(ConnectionString);
+                _logger.LogVerbose(
+                    RelationalLoggingEventId.ClosingConnection,
+                    ConnectionString,
+                    RelationalStrings.RelationalLoggerClosingConnection);
 
                 _connection.Value.Close();
             }

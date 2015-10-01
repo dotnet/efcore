@@ -289,4 +289,10 @@
   <data name="ClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
   </data>
+  <data name="ParameterLoggingEnabled" xml:space="preserve">
+    <value>SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.</value>
+  </data>
+  <data name="RelationalLoggerExecutingCommand" xml:space="preserve">
+    <value>Executing DbCommand: [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{newLine}{commandText}{newLine}</value>
+  </data>
 </root>

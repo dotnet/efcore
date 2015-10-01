@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Internal
         private readonly IRelationalAnnotationProvider _relationalExtensions;
 
         public RelationalModelValidator(
-            [NotNull] ILogger<LoggingModelValidator> loggerFactory, // TODO: Fix covariance: Logging#253
+            [NotNull] ILogger<RelationalModelValidator> loggerFactory,
             [NotNull] IRelationalAnnotationProvider relationalExtensions)
             : base(loggerFactory)
         {

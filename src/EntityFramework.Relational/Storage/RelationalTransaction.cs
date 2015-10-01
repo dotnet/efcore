@@ -15,47 +15,54 @@ namespace Microsoft.Data.Entity.Storage
     public class RelationalTransaction : IRelationalTransaction
     {
         private readonly DbTransaction _transaction;
+        private readonly ILogger _logger;
         private readonly bool _transactionOwned;
+
         private bool _disposed;
 
         public RelationalTransaction(
             [NotNull] IRelationalConnection connection,
-            [NotNull] DbTransaction dbTransaction,
-            bool transactionOwned,
-            [NotNull] ILogger logger)
+            [NotNull] DbTransaction transaction,
+            [NotNull] ILogger logger,
+            bool transactionOwned)
         {
             Check.NotNull(connection, nameof(connection));
-            Check.NotNull(dbTransaction, nameof(dbTransaction));
+            Check.NotNull(transaction, nameof(transaction));
             Check.NotNull(logger, nameof(logger));
 
-            if (connection.DbConnection != dbTransaction.Connection)
+            if (connection.DbConnection != transaction.Connection)
             {
                 throw new InvalidOperationException(RelationalStrings.TransactionAssociatedWithDifferentConnection);
             }
 
             Connection = connection;
-            _transaction = dbTransaction;
-            _transactionOwned = transactionOwned;
-            Logger = logger;
-        }
 
-        protected virtual ILogger Logger { get; }
+            _transaction = transaction;
+            _logger = logger;
+            _transactionOwned = transactionOwned;
+        }
 
         public virtual IRelationalConnection Connection { get; }
 
         public virtual void Commit()
         {
-            Logger.CommittingTransaction();
+            _logger.LogVerbose(
+                RelationalLoggingEventId.CommittingTransaction,
+                () => RelationalStrings.RelationalLoggerCommittingTransaction);
 
             _transaction.Commit();
+
             ClearTransaction();
         }
 
         public virtual void Rollback()
         {
-            Logger.RollingbackTransaction();
+            _logger.LogVerbose(
+                RelationalLoggingEventId.RollingbackTransaction,
+                () => RelationalStrings.RelationalLoggerRollingbackTransaction);
 
             _transaction.Rollback();
+
             ClearTransaction();
         }
 
@@ -64,10 +71,12 @@ namespace Microsoft.Data.Entity.Storage
             if (!_disposed)
             {
                 _disposed = true;
+
                 if (_transactionOwned)
                 {
                     _transaction.Dispose();
                 }
+
                 ClearTransaction();
             }
         }

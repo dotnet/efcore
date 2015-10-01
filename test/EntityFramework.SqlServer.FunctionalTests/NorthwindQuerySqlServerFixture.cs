@@ -32,8 +32,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .BuildServiceProvider();
 
             _options = BuildOptions();
-
-            _serviceProvider.GetRequiredService<ILoggerFactory>().MinimumLevel = LogLevel.Debug;
         }
 
         protected DbContextOptions BuildOptions()
@@ -42,6 +40,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             var sqlServerDbContextOptionsBuilder
                 = optionsBuilder.UseSqlServer(_testStore.Connection.ConnectionString);
+
+            sqlServerDbContextOptionsBuilder.LogSqlParameterValues();
 
             ConfigureOptions(sqlServerDbContextOptionsBuilder);
 

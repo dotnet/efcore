@@ -11,6 +11,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Extensions.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -129,13 +131,14 @@ namespace Microsoft.Data.Entity.Query
 
                         return await _inner.MoveNext(cancellationToken);
                     }
-                    catch (Exception e)
+                    catch (Exception exception)
                     {
-                        _exceptionInterceptor._logger.LogError(
-                            new DatabaseErrorLogState(_exceptionInterceptor._contextType),
-                            e,
-                            (state, exception) =>
-                                CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, exception));
+                        _exceptionInterceptor._logger
+                            .LogError(
+                                CoreLoggingEventId.DatabaseError,
+                                () => new DatabaseErrorLogState(_exceptionInterceptor._contextType),
+                                exception,
+                                e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
 
                         throw;
                     }

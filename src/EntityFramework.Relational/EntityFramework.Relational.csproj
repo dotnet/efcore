@@ -49,15 +49,16 @@
     <Compile Include="..\Shared\AsyncEnumerableExtensions.cs">
       <Link>Extensions\AsyncEnumerableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>Extensions\LoggingExtensions.cs</Link>
-    </Compile>
+    <Compile Include="Extensions\DbCommandLogData.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
+    <Compile Include="Infrastructure\ISensitiveDataLogger.cs" />
+    <Compile Include="Infrastructure\ISensitiveDataLogger`.cs" />
     <Compile Include="Infrastructure\RelationalDbContextOptionsBuilder.cs" />
     <Compile Include="Infrastructure\RelationalEntityFrameworkServicesBuilderExtensions.cs" />
-    <Compile Include="Infrastructure\RelationalLoggingEventIds.cs" />
+    <Compile Include="Infrastructure\RelationalLoggingEventId.cs" />
     <Compile Include="Infrastructure\RelationalOptionsExtension.cs" />
     <Compile Include="Infrastructure\RelationalCommandListBuilder.cs" />
+    <Compile Include="Infrastructure\SensitiveDataLogger.cs" />
     <Compile Include="Internal\RelationalModelValidator.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder.cs" />
     <Compile Include="Metadata\Builders\DiscriminatorBuilder`.cs" />

@@ -7,7 +7,9 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Extensions.Internal;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -113,7 +115,10 @@ namespace Microsoft.Data.Entity.Storage.Internal
                     return ts;
                 });
 
-            _logger.LogInformation(rowsAffected, ra => InMemoryStrings.LogSavedChanges(ra));
+            _logger.LogInformation<object>(
+                InMemoryLoggingEventId.SavedChanges,
+                rowsAffected, 
+                InMemoryStrings.LogSavedChanges);
 
             return rowsAffected;
         }

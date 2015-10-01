@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         {
             var builder = new SqlConnectionStringBuilder { ConnectionString = ConnectionString, InitialCatalog = "master" };
 
-            // TODO use clone connection method once implimented see #1406
+            // TODO use clone connection method once implemented see #1406
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
 

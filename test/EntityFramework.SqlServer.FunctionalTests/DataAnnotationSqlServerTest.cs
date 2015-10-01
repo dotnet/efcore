@@ -97,7 +97,7 @@ INSERT INTO [BookDetail] ([BookId])
 OUTPUT INSERTED.[Id]
 VALUES (@p0);
 
-@p0:
+@p0: 
 
 SET NOCOUNT OFF;
 INSERT INTO [BookDetail] ([BookId])

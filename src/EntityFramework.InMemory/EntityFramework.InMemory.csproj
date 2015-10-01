@@ -45,8 +45,10 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Utilities\LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="Extensions\Internal\InMemoryLoggerExtensions.cs" />
     <Compile Include="Infrastructure\Internal\InMemoryModelSource.cs" />
     <Compile Include="Infrastructure\Internal\InMemoryOptionsExtension.cs" />
+    <Compile Include="Infrastructure\InMemoryLoggingEventId.cs" />
     <Compile Include="Metadata\Internal\EntityTypeNameEqualityComparer.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\InMemoryEntityQueryableExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\InMemoryEntityQueryableExpressionVisitorFactory.cs" />

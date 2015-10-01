@@ -8,6 +8,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Extensions.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -136,7 +138,10 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
-                QueryCompilationContext.Logger.LogDebug(queryModel, CoreStrings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger
+                    .LogVerbose(
+                        CoreLoggingEventId.CompilingQueryModel,
+                        () => CoreStrings.LogCompilingQueryModel(queryModel));
 
                 _blockTaskExpressions = false;
 
@@ -166,7 +171,10 @@ namespace Microsoft.Data.Entity.Query
 
             using (QueryCompilationContext.Logger.BeginScopeImpl(this))
             {
-                QueryCompilationContext.Logger.LogDebug(queryModel, CoreStrings.LogCompilingQueryModel);
+                QueryCompilationContext.Logger
+                    .LogVerbose(
+                        CoreLoggingEventId.CompilingQueryModel,
+                        () => CoreStrings.LogCompilingQueryModel(queryModel));
 
                 _blockTaskExpressions = false;
 
@@ -220,7 +228,10 @@ namespace Microsoft.Data.Entity.Query
 
             queryModel.TransformExpressions(_subQueryMemberPushDownExpressionVisitor.Visit);
 
-            QueryCompilationContext.Logger.LogDebug(queryModel, CoreStrings.LogOptimizedQueryModel);
+            QueryCompilationContext.Logger
+                .LogVerbose(
+                    CoreLoggingEventId.OptimizedQueryModel,
+                    () => CoreStrings.LogOptimizedQueryModel(queryModel));
         }
 
         protected virtual void SingleResultToSequence([NotNull] QueryModel queryModel)
@@ -333,9 +344,9 @@ namespace Microsoft.Data.Entity.Query
                                 Expression.Parameter(queryModel.SelectClause.Selector.Type));
 
                     QueryCompilationContext.Logger
-                        .LogDebug(
-                            includeSpecification.NavigationPath.Join("."),
-                            CoreStrings.LogIncludingNavigation);
+                        .LogVerbose(
+                            CoreLoggingEventId.IncludingNavigation,
+                            () => CoreStrings.LogIncludingNavigation(includeSpecification.NavigationPath.Join(".")));
 
                     IncludeNavigations(
                         includeSpecification,
@@ -404,10 +415,10 @@ namespace Microsoft.Data.Entity.Query
             if (entityTrackingInfos.Any())
             {
                 QueryCompilationContext.Logger
-                    .LogDebug(
-                        entityTrackingInfos,
-                        etis => CoreStrings.LogTrackingQuerySources(
-                            etis.Select(eti => eti.QuerySource.ItemName).Join()));
+                    .LogVerbose(
+                        CoreLoggingEventId.TrackingQuerySources,
+                        () => CoreStrings.LogTrackingQuerySources(
+                                entityTrackingInfos.Select(eti => eti.QuerySource.ItemName).Join()));
 
                 var resultItemType
                     = _expression.Type.GetSequenceType();
@@ -482,7 +493,9 @@ namespace Microsoft.Data.Entity.Query
                     .Lambda<Func<QueryContext, QueryResultScope, TResults>>(
                         _expression, QueryContextParameter, QueryResultScopeParameter);
 
-            QueryCompilationContext.Logger.LogDebug(() =>
+            QueryCompilationContext.Logger.LogVerbose(
+                CoreLoggingEventId.QueryPlan,
+                () =>
                 {
                     var queryPlan = _expressionPrinter.Print(queryExecutorExpression);
 

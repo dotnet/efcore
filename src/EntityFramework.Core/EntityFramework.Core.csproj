@@ -66,6 +66,7 @@
     <Compile Include="ChangeTracking\Internal\ValueBufferSidecar.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
     <Compile Include="DbUpdateException.cs" />
+    <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Infrastructure\ModelSource.cs" />
+    <Compile Include="Infrastructure\CoreLoggingEventId.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\Graph.cs" />

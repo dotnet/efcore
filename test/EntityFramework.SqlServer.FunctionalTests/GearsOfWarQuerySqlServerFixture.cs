@@ -52,10 +52,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override GearsOfWarContext CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection);
+
+            optionsBuilder
+                .UseSqlServer(testStore.Connection)
+                .LogSqlParameterValues();
 
             var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);
+
             context.Database.UseTransaction(testStore.Transaction);
+
             return context;
         }
     }

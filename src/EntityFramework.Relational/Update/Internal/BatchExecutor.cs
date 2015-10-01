@@ -5,22 +5,20 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Update.Internal
 {
     public class BatchExecutor : IBatchExecutor
     {
-        private readonly LazyRef<ILogger> _logger;
+        private readonly ISensitiveDataLogger _logger;
 
-        public BatchExecutor([NotNull] ILoggerFactory loggerFactory)
+        // ReSharper disable once SuggestBaseTypeForParameter
+        public BatchExecutor([NotNull] ISensitiveDataLogger<BatchExecutor> logger)
         {
-            _logger = new LazyRef<ILogger>(() => (loggerFactory.CreateLogger<BatchExecutor>()));
+            _logger = logger;
         }
-
-        protected virtual ILogger Logger => _logger.Value;
 
         public virtual int Execute(
             IEnumerable<ModificationCommandBatch> commandBatches,
@@ -38,7 +36,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    commandbatch.Execute(connection, Logger);
+                    commandbatch.Execute(connection, _logger);
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 
@@ -70,7 +68,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
                 foreach (var commandbatch in commandBatches)
                 {
-                    await commandbatch.ExecuteAsync(connection, Logger, cancellationToken);
+                    await commandbatch.ExecuteAsync(connection, _logger, cancellationToken);
                     rowsAffected += commandbatch.ModificationCommands.Count;
                 }
 

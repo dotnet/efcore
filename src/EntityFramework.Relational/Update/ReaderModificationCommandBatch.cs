@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -150,7 +151,7 @@ namespace Microsoft.Data.Entity.Update
 
         public override void Execute(
             IRelationalConnection connection,
-            ILogger logger)
+            ISensitiveDataLogger logger)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(logger, nameof(logger));
@@ -184,7 +185,7 @@ namespace Microsoft.Data.Entity.Update
 
         public override async Task ExecuteAsync(
             IRelationalConnection connection,
-            ILogger logger,
+            ISensitiveDataLogger logger,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));

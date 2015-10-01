@@ -8,8 +8,8 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
@@ -17,13 +17,13 @@ namespace Microsoft.Data.Entity.Query.Internal
     {
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
-        private readonly ILogger _logger;
+        private readonly ISensitiveDataLogger _logger;
         private readonly int? _queryIndex;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
-            [NotNull] ILogger logger,
+            [NotNull] ISensitiveDataLogger logger,
             int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;

@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(builder, nameof(builder));
 
-            builder.GetService().TryAdd(new ServiceCollection()
+            builder.GetService()
+                .TryAdd(new ServiceCollection()
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()
@@ -53,6 +54,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<CommandBatchPreparer>()
                 .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
                 .AddScoped<MigrationsSqlGenerator>()
+                .AddScoped(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>))
                 .AddScoped(p => GetProviderServices(p).ParameterNameGeneratorFactory)
                 .AddScoped(p => GetProviderServices(p).SqlStatementExecutor)
                 .AddScoped(p => GetProviderServices(p).SqlGenerator)

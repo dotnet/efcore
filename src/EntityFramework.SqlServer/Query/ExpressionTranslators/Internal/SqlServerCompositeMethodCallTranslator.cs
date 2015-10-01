@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
             new SqlServerConvertTranslator()
         };
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         public SqlServerCompositeMethodCallTranslator([NotNull] ILogger<SqlServerCompositeMethodCallTranslator> logger)
             : base(logger)
         {

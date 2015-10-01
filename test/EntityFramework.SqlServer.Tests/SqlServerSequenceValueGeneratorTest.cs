@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
@@ -14,7 +15,7 @@ using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.Logging;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests
@@ -163,7 +164,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public FakeSqlStatementExecutor(int blockSize)
                 : base(
                     new RelationalCommandBuilderFactory(new SqlServerTypeMapper()),
-                    new Logger<SqlStatementExecutor>(new LoggerFactory()))
+                    new Mock<ISensitiveDataLogger<SqlStatementExecutor>>().Object)
             {
                 _blockSize = blockSize;
                 _current = -blockSize + 1;

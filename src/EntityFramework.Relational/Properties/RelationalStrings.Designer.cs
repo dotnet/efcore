@@ -468,6 +468,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ClientEvalWarning", "expression"), expression);
         }
 
+        /// <summary>
+        /// SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.
+        /// </summary>
+        public static string ParameterLoggingEnabled
+        {
+            get { return GetString("ParameterLoggingEnabled"); }
+        }
+
+        /// <summary>
+        /// Executing DbCommand: [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{newLine}{commandText}{newLine}
+        /// </summary>
+        public static string RelationalLoggerExecutingCommand([CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerExecutingCommand", "parameters", "commandType", "commandTimeout", "newLine", "commandText"), parameters, commandType, commandTimeout, newLine, commandText);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
