@@ -274,11 +274,12 @@ namespace Microsoft.Data.Entity.Design
                 var provider = (string)args["provider"];
                 var outputDir = (string)args["outputDir"];
                 var dbContextClassName = (string)args["dbContextClassName"];
-                var tableFilters = (string)args["tableFilters"];
-                var useFluentApiOnly = (bool)args["useFluentApiOnly"];
+                var schemaFilters = (string[])args["schemaFilters"] ?? new string[0];
+                var tableFilters = (string[])args["tableFilters"] ?? new string[0];
+                var useDataAnnotations = (bool)args["useDataAnnotations"];
 
                 Execute(() => executor.ReverseEngineerImpl(provider,
-                    connectionString, outputDir, dbContextClassName, tableFilters, useFluentApiOnly));
+                    connectionString, outputDir, dbContextClassName, schemaFilters, tableFilters, useDataAnnotations));
             }
         }
 
@@ -287,14 +288,18 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] string connectionString,
             [CanBeNull] string outputDir,
             [CanBeNull] string dbContextClassName,
-            [CanBeNull] string tableFilters,
-            bool useFluentApiOnly)
+            [NotNull] string[] schemaFilters,
+            [NotNull] string[] tableFilters,
+            bool useDataAnnotations)
         {
             Check.NotNull(provider, nameof(provider));
             Check.NotNull(connectionString, nameof(connectionString));
+            Check.NotNull(schemaFilters, nameof(schemaFilters));
+            Check.NotNull(tableFilters, nameof(tableFilters));
 
             var files = _databaseOperations.Value.ReverseEngineerAsync(
-                    provider, connectionString, outputDir, dbContextClassName, tableFilters, useFluentApiOnly).Result;
+                    provider, connectionString, outputDir, dbContextClassName,
+                    schemaFilters.ToList(), tableFilters.ToList(), useDataAnnotations).Result;
 
             // NOTE: First file will be opened in VS
             yield return files.ContextFile;

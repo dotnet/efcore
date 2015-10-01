@@ -4,6 +4,7 @@
 #if DNX451 || DNXCORE50
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -120,19 +121,24 @@ namespace Microsoft.Data.Entity.Commands
                             var provider = scaffold.Argument(
                                 "[provider]",
                                 "The provider to use. For example, EntityFramework.SqlServer");
+                            var useDataAnnotations = scaffold.Option(
+                                "-a|--dataAnnotations",
+                                "Use DataAnnotation attributes to configure the model where possible. If omitted, the output code will use only the fluent API.",
+                                CommandOptionType.NoValue);
                             var dbContextClassName = scaffold.Option(
-                                "-c|--context-class-name <name>",
+                                "-c|--context <name>",
                                 "Name of the generated DbContext class.");
-                            var outputPath = scaffold.Option(
-                                "-o|--output-path <path>",
+                            var outputDir = scaffold.Option(
+                                "-o|--outputDir <path>",
                                 "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
+                            var schemaFilters = scaffold.Option(
+                                "-s|--schema <schema_name.table_name>",
+                                "Selects a schema for which to generate classes.",
+                                CommandOptionType.MultipleValue);
                             var tableFilters = scaffold.Option(
-                                "-t|--tables <filter>",
-                                "Selects for which tables to generate classes. "
-                                + "<filter> is a comma-separated list of schema:table entries where either schema or table can be * to indicate 'any'.");
-                            var useFluentApiOnly = scaffold.Option(
-                                "-u|--fluent-api",
-                                "Exclusively use fluent API to configure the model. If omitted, the output code will use attributes, where possible, instead.");
+                                "-t|--table <schema_name.table_name>",
+                                "Selects a table for which to generate classes.",
+                                CommandOptionType.MultipleValue);
                             var environment = scaffold.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -163,10 +169,11 @@ namespace Microsoft.Data.Entity.Commands
                                     return await CreateExecutor(environment.Value(), verbose.HasValue()).ReverseEngineerAsync(
                                         connection.Value,
                                         provider.Value,
-                                        outputPath.Value(),
+                                        outputDir.Value(),
                                         dbContextClassName.Value(),
-                                        tableFilters.Value(),
-                                        useFluentApiOnly.HasValue(),
+                                        schemaFilters.Values,
+                                        tableFilters.Values,
+                                        useDataAnnotations.HasValue(),
                                         _applicationShutdown.ShutdownRequested);
                                 });
                         });
@@ -451,15 +458,16 @@ namespace Microsoft.Data.Entity.Commands
                 [NotNull] string providerAssemblyName,
                 [CanBeNull] string outputDirectory,
                 [CanBeNull] string dbContextClassName,
-                [CanBeNull] string tableFilters,
-                bool useFluentApiOnly,
+                [CanBeNull] List<string> schemaFilters,
+                [CanBeNull] List<string> tableFilters,
+                bool useDataAnnotations,
                 CancellationToken cancellationToken = default(CancellationToken))
                 => ExecuteAsync(
                     async () =>
                     {
                         await _databaseOperations.Value.ReverseEngineerAsync(
                             providerAssemblyName, connectionString, outputDirectory,
-                            dbContextClassName, tableFilters, useFluentApiOnly);
+                            dbContextClassName, schemaFilters, tableFilters, useDataAnnotations);
 
                         _logger.Value.LogInformation("Done");
                     });

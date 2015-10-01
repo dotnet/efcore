@@ -21,12 +21,13 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             _typeMapper = typeMapper;
         }
 
-        public virtual DatabaseInfo ReadDatabaseInfo([NotNull] SqliteConnection connection, [CanBeNull] TableSelectionSet tableSelectionSet = null)
+        public virtual DatabaseInfo ReadDatabaseInfo(
+            [NotNull] SqliteConnection connection, [NotNull] List<string> selectedTables)
         {
             Check.NotNull(connection, nameof(connection));
 
             var databaseInfo = new DatabaseInfo();
-            GetSqliteMaster(connection, databaseInfo, tableSelectionSet ?? TableSelectionSet.InclusiveAll);
+            GetSqliteMaster(connection, databaseInfo, selectedTables);
             GetColumns(connection, databaseInfo);
             GetIndexes(connection, databaseInfo);
 
@@ -124,7 +125,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             databaseInfo.Indexes = databaseInfo.Indexes.Where(i => i.Columns.Count > 0).ToList();
         }
 
-        private void GetSqliteMaster(SqliteConnection connection, DatabaseInfo databaseInfo, TableSelectionSet tableSelectionSet)
+        private void GetSqliteMaster(SqliteConnection connection, DatabaseInfo databaseInfo, List<string> selectedTables)
         {
             var command = connection.CreateCommand();
             command.CommandText = "SELECT type, name, sql, tbl_name FROM sqlite_master";
@@ -137,9 +138,13 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                     var sql = reader.GetValue(2) as string; // can be null
                     var tableName = reader.GetString(3);
 
+                    var allowedBySelectedTables =
+                        selectedTables.Count == 0
+                        || selectedTables.Contains(name);
+
                     if (type == "table"
                         && name != "sqlite_sequence"
-                        && tableSelectionSet.Allows(TableSelection.Any, name))
+                        && allowedBySelectedTables)
                     {
                         databaseInfo.Tables.Add(new TableInfo
                         {
@@ -147,7 +152,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                             CreateStatement = sql
                         });
                     }
-                    else if (type == "index" && tableSelectionSet.Allows(TableSelection.Any, tableName))
+                    else if (type == "index" && allowedBySelectedTables)
                     {
                         databaseInfo.Indexes.Add(new IndexInfo
                         {
