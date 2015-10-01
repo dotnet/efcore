@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
-        private readonly ModelConfigurationFactory _modelConfigurationFactory;
+        private readonly ConfigurationFactory _configurationFactory;
         private readonly IDatabaseMetadataModelProvider _provider;
 
         public ReverseEngineeringGenerator(
@@ -26,19 +26,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] IFileService fileService,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] IDatabaseMetadataModelProvider metadataModelProvider,
-            [NotNull] ModelConfigurationFactory modelConfigurationFactory,
+            [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(fileService, nameof(fileService));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
             Check.NotNull(metadataModelProvider, nameof(metadataModelProvider));
-            Check.NotNull(modelConfigurationFactory, nameof(modelConfigurationFactory));
+            Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));
 
             Logger = loggerFactory.CreateCommandsLogger();
             _provider = metadataModelProvider;
-            _modelConfigurationFactory = modelConfigurationFactory;
+            _configurationFactory = configurationFactory;
             CodeWriter = codeWriter;
         }
 
@@ -60,14 +60,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var @namespace = ConstructNamespace(configuration.ProjectRootNamespace,
                     configuration.ProjectPath, configuration.OutputPath);
 
-            var customConfiguration = new CustomConfiguration()
-            {
-                ConnectionString = configuration.ConnectionString,
-                ContextClassName = configuration.ContextClassName,
-                Namespace = @namespace,
-                UseFluentApiOnly = configuration.UseFluentApiOnly,
-            };
-            var modelConfiguration = _modelConfigurationFactory
+            var customConfiguration = _configurationFactory
+                .CreateCustomConfiguration(
+                    configuration.ConnectionString, configuration.ContextClassName,
+                    @namespace, configuration.UseFluentApiOnly);
+            var modelConfiguration = _configurationFactory
                 .CreateModelConfiguration(metadataModel, customConfiguration);
 
             var dbContextClassName =

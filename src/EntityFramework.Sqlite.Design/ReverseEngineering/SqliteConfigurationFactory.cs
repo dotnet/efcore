@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Configuration;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
-    public class SqliteModelConfigurationFactory : ModelConfigurationFactory
+    public class SqliteConfigurationFactory : ConfigurationFactory
     {
-        public SqliteModelConfigurationFactory(
+        public SqliteConfigurationFactory(
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             [NotNull] IModel model, [NotNull] CustomConfiguration customConfiguration)
         {
             return new SqliteModelConfiguration(
-                model, customConfiguration, ExtensionsProvider, CSharpUtilities, ModelUtilities);
+                this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ModelUtilities);
         }
     }
 }

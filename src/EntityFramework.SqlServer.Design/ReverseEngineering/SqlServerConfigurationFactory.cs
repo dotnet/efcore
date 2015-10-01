@@ -10,9 +10,9 @@ using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuration;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
-    public class SqlServerModelConfigurationFactory : ModelConfigurationFactory
+    public class SqlServerConfigurationFactory : ConfigurationFactory
     {
-        public SqlServerModelConfigurationFactory(
+        public SqlServerConfigurationFactory(
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             [NotNull] IModel model, [NotNull] CustomConfiguration customConfiguration)
         {
             return new SqlServerModelConfiguration(
-                model, customConfiguration, ExtensionsProvider, CSharpUtilities, ModelUtilities);
+                this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ModelUtilities);
         }
     }
 }
