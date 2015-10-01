@@ -10,7 +10,7 @@ namespace EntityFramework.Microbenchmarks.Core
         public long TimeElapsed { get; set; }
         public long MemoryDelta { get; set; }
 
-        public void Aggregate(RunSummary other, MetricCollector collector)
+        public void Aggregate(RunSummary other, IMetricCollector collector)
         {
             Aggregate(other);
             TimeElapsed = collector.TimeElapsed;

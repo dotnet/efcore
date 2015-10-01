@@ -20,7 +20,7 @@ namespace EntityFramework.Microbenchmarks
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
         [BenchmarkVariation("Warm (100 instances)", false, 100)]
-        public void CreateAndDisposeUnusedContext(MetricCollector collector, bool cold, int count)
+        public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
         }
@@ -30,7 +30,7 @@ namespace EntityFramework.Microbenchmarks
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
         [BenchmarkVariation("Warm (10 instances)", false, 10)]
-        public void InitializeAndQuery_AdventureWorks(MetricCollector collector, bool cold, int count)
+        public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
         }
@@ -40,13 +40,13 @@ namespace EntityFramework.Microbenchmarks
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
         [BenchmarkVariation("Warm (10 instances)", false, 10)]
-        public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, bool cold, int count)
+        public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));
         }
 
         [Benchmark]
-        public void BuildModel_AdventureWorks(MetricCollector collector)
+        public void BuildModel_AdventureWorks(IMetricCollector collector)
         {
             collector.StartCollection();
 
@@ -91,7 +91,7 @@ namespace EntityFramework.Microbenchmarks
 
         private partial class ColdStartEnabledTests
         {
-            public void CreateAndDisposeUnusedContext(MetricCollector collector, int count)
+            public void CreateAndDisposeUnusedContext(IMetricCollector collector, int count)
             {
                 using (collector.StartCollection())
                 {
@@ -104,7 +104,7 @@ namespace EntityFramework.Microbenchmarks
                 }
             }
 
-            public void InitializeAndQuery_AdventureWorks(MetricCollector collector, int count)
+            public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, int count)
             {
                 using (collector.StartCollection())
                 {
@@ -118,7 +118,7 @@ namespace EntityFramework.Microbenchmarks
                 }
             }
 
-            public void InitializeAndSaveChanges_AdventureWorks(MetricCollector collector, int count)
+            public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, int count)
             {
                 using (collector.StartCollection())
                 {

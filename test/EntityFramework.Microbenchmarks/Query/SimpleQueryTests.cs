@@ -26,7 +26,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [BenchmarkVariation("Tracking Off", false, true)]
         [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
         [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void LoadAll(MetricCollector collector, bool tracking, bool caching)
+        public void LoadAll(IMetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -44,7 +44,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [BenchmarkVariation("Tracking Off", false, true)]
         [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
         [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void Where(MetricCollector collector, bool tracking, bool caching)
+        public void Where(IMetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -64,7 +64,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [BenchmarkVariation("Tracking Off", false, true)]
         [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
         [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void OrderBy(MetricCollector collector, bool tracking, bool caching)
+        public void OrderBy(IMetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -82,7 +82,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark]
         [BenchmarkVariation("Default", true)]
         [BenchmarkVariation("No Query Cache", false)]
-        public void Count(MetricCollector collector, bool caching)
+        public void Count(IMetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -100,7 +100,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [BenchmarkVariation("Tracking Off", false, true)]
         [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
         [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void SkipTake(MetricCollector collector, bool tracking, bool caching)
+        public void SkipTake(IMetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -119,7 +119,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark]
         [BenchmarkVariation("Default", true)]
         [BenchmarkVariation("No Query Cache", false)]
-        public void GroupBy(MetricCollector collector, bool caching)
+        public void GroupBy(IMetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -144,7 +144,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [BenchmarkVariation("Tracking Off", false, true)]
         [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
         [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void Include(MetricCollector collector, bool tracking, bool caching)
+        public void Include(IMetricCollector collector, bool tracking, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -163,7 +163,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark]
         [BenchmarkVariation("Default", true)]
         [BenchmarkVariation("No Query Cache", false)]
-        public void Projection(MetricCollector collector, bool caching)
+        public void Projection(IMetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
@@ -180,7 +180,7 @@ namespace EntityFramework.Microbenchmarks.Query
         [Benchmark]
         [BenchmarkVariation("Default", true)]
         [BenchmarkVariation("No Query Cache", false)]
-        public void ProjectionAcrossNavigation(MetricCollector collector, bool caching)
+        public void ProjectionAcrossNavigation(IMetricCollector collector, bool caching)
         {
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {

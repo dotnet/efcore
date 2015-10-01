@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ namespace EntityFramework.Microbenchmarks.Core
             {
                 TestClassFullName = TestCase.TestMethod.TestClass.Class.Name,
                 TestClass = TestCase.TestMethod.TestClass.Class.Name.Split('.').Last(),
-                TestMethod = TestCase.DisplayName,
+                TestMethod = TestCase.TestMethodName,
                 Variation = TestCase.Variation,
                 ProductReportingVersion = BenchmarkConfig.Instance.ProductReportingVersion,
                 RunStarted = DateTime.UtcNow,
@@ -83,12 +84,19 @@ namespace EntityFramework.Microbenchmarks.Core
                 runSummary.Aggregate(iterationSummary);
             }
 
-            runSummary.PopulateMetrics();
-            _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage(runSummary.ToString()));
-
-            foreach (var database in BenchmarkConfig.Instance.ResultDatabases)
+            if (runSummary.Failed != 0)
             {
-                new SqlServerBenchmarkResultProcessor(database).SaveSummary(runSummary);
+                _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage($"No valid results for {TestCase.DisplayName}. {runSummary.Failed} of {TestCase.Iterations + TestCase.WarmupIterations} iterations failed."));
+            }
+            else
+            {
+                runSummary.PopulateMetrics();
+                _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage(runSummary.ToString()));
+
+                foreach (var database in BenchmarkConfig.Instance.ResultDatabases)
+                {
+                    new SqlServerBenchmarkResultProcessor(database).SaveSummary(runSummary);
+                }
             }
 
             return runSummary;
@@ -96,7 +104,7 @@ namespace EntityFramework.Microbenchmarks.Core
 
         private XunitTestRunner CreateRunner(int iteration, int totalIterations, string variation, bool warmup)
         {
-            var name = $"{DisplayName} [Stage: {(warmup ? "Warmup" : "Collection")}] [Iteration: {iteration}/{totalIterations}] [Variation: {variation}]";
+            var name = $"{DisplayName} [Stage: {(warmup ? "Warmup" : "Collection")}] [Iteration: {iteration}/{totalIterations}]";
 
             return new XunitTestRunner(
                 new XunitTest(TestCase, name),

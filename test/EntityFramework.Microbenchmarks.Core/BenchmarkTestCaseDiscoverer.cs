@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -22,13 +21,20 @@ namespace EntityFramework.Microbenchmarks.Core
         {
             var variations = testMethod.Method
                 .GetCustomAttributes(typeof(BenchmarkVariationAttribute))
-                .ToDictionary(
-                    a => a.GetNamedArgument<string>(nameof(BenchmarkVariationAttribute.VariationName)),
-                    a => a.GetNamedArgument<object[]>(nameof(BenchmarkVariationAttribute.Data)));
+                .Select(a => new
+                    {
+                        Name = a.GetNamedArgument<string>(nameof(BenchmarkVariationAttribute.VariationName)),
+                        TestMethodArguments = a.GetNamedArgument<object[]>(nameof(BenchmarkVariationAttribute.Data))
+                    })
+                .ToList();
 
             if (!variations.Any())
             {
-                variations.Add("Default", new object[0]);
+                variations.Add(new
+                {
+                    Name = "Default",
+                    TestMethodArguments = new object[0]
+                });
             }
 
             var tests = new List<IXunitTestCase>();
@@ -39,22 +45,18 @@ namespace EntityFramework.Microbenchmarks.Core
                     tests.Add(new BenchmarkTestCase(
                         factAttribute.GetNamedArgument<int>(nameof(BenchmarkAttribute.Iterations)),
                         factAttribute.GetNamedArgument<int>(nameof(BenchmarkAttribute.WarmupIterations)),
-                        variation.Key,
+                        variation.Name,
                         _diagnosticMessageSink,
                         testMethod,
-                        variation.Value));
+                        variation.TestMethodArguments));
                 }
                 else
                 {
-                    // TODO running a single iteration is slow under DNX (see #2574)
-                    //      disabling so that we don't add 10min to build.cmd
-#if !DNX451 && !DNXCORE50
-                    var args = new[] { new MetricCollector() }
-                        .Concat(variation.Value)
-                        .ToArray();
-
-                    tests.Add(new XunitTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod, args));
-#endif
+                    tests.Add(new NonCollectingBenchmarkTestCase(
+                        variation.Name,
+                        _diagnosticMessageSink, 
+                        testMethod, 
+                        variation.TestMethodArguments));
                 }
             }
 

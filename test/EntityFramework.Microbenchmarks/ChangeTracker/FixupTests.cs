@@ -20,7 +20,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark(Iterations = 10)]
-        public void AddChildren(MetricCollector collector)
+        public void AddChildren(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -42,7 +42,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark(Iterations = 10)]
-        public void AddParents(MetricCollector collector)
+        public void AddParents(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -66,7 +66,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark(Iterations = 10)]
-        public void AttachChildren(MetricCollector collector)
+        public void AttachChildren(IMetricCollector collector)
         {
             List<Order> orders;
             using (var context = _fixture.CreateContext())
@@ -93,7 +93,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark(Iterations = 10)]
-        public void AttachParents(MetricCollector collector)
+        public void AttachParents(IMetricCollector collector)
         {
             List<Customer> customers;
             using (var context = _fixture.CreateContext())
@@ -120,7 +120,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark(Iterations = 10)]
-        public void QueryChildren(MetricCollector collector)
+        public void QueryChildren(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -137,7 +137,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         }
 
         [Benchmark(Iterations = 10)]
-        public void QueryParents(MetricCollector collector)
+        public void QueryParents(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {

@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Insert(MetricCollector collector)
+        public void Insert(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -40,7 +40,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Update(MetricCollector collector)
+        public void Update(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -61,7 +61,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Delete(MetricCollector collector)
+        public void Delete(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -82,7 +82,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         }
 
         [Benchmark]
-        public void Mixed(MetricCollector collector)
+        public void Mixed(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {

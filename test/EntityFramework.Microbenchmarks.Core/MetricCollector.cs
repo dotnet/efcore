@@ -15,7 +15,7 @@ namespace EntityFramework.Microbenchmarks.Core
     }
 #endif
 
-    public partial class MetricCollector 
+    public partial class MetricCollector : IMetricCollector
     {
         private bool _collecting;
         private readonly Scope _scope;
@@ -70,9 +70,9 @@ namespace EntityFramework.Microbenchmarks.Core
 
         private partial class Scope : IDisposable
         {
-            private readonly MetricCollector _collector;
+            private readonly IMetricCollector _collector;
 
-            public Scope(MetricCollector collector)
+            public Scope(IMetricCollector collector)
             {
                 _collector = collector;
             }

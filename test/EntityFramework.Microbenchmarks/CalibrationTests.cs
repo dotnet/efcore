@@ -10,7 +10,7 @@ namespace EntityFramework.Microbenchmarks
     public class CalibrationTests
     {
         [Benchmark]
-        public void Calibration_100ms(MetricCollector collector)
+        public void Calibration_100ms(IMetricCollector collector)
         {
             using (collector.StartCollection())
             {
@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks
         }
 
         [Benchmark]
-        public void Calibration_100ms_controlled(MetricCollector collector)
+        public void Calibration_100ms_controlled(IMetricCollector collector)
         {
 
             Thread.Sleep(100);
@@ -31,7 +31,7 @@ namespace EntityFramework.Microbenchmarks
 
 #if !DNXCORE50 && !DNX451
         [Benchmark]
-        public void ColdStartSandbox_100ms(MetricCollector collector)
+        public void ColdStartSandbox_100ms(IMetricCollector collector)
         {
             using (var sandbox = new ColdStartSandbox())
             {
@@ -42,7 +42,7 @@ namespace EntityFramework.Microbenchmarks
 
         private partial class ColdStartEnabledTests : MarshalByRefObject
         {
-            public void Sleep100ms(MetricCollector collector)
+            public void Sleep100ms(IMetricCollector collector)
             {
                 using (collector.StartCollection())
                 {

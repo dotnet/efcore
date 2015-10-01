@@ -22,7 +22,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Add(MetricCollector collector, bool autoDetectChanges)
+        public void Add(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -47,7 +47,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AddCollection(MetricCollector collector, bool autoDetectChanges)
+        public void AddCollection(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -69,7 +69,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Attach(MetricCollector collector, bool autoDetectChanges)
+        public void Attach(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -94,7 +94,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Remove(MetricCollector collector, bool autoDetectChanges)
+        public void Remove(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -116,7 +116,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void RemoveCollection(MetricCollector collector, bool autoDetectChanges)
+        public void RemoveCollection(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -135,7 +135,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void Update(MetricCollector collector, bool autoDetectChanges)
+        public void Update(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {

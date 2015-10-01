@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,9 +13,9 @@ using Xunit.Sdk;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
-    public class BenchmarkTestCase : XunitTestCase
+    public class BenchmarkTestCase : BenchmarkTestCaseBase
     {
-        private readonly IMessageSink _diagnosticMessageSink;
+        private readonly IMetricCollector _metricCollector = new MetricCollector();
 
         public BenchmarkTestCase(
                 int iterations,
@@ -22,33 +24,15 @@ namespace EntityFramework.Microbenchmarks.Core
                 IMessageSink diagnosticMessageSink,
                 ITestMethod testMethod,
                 object[] testMethodArguments)
-            : base(diagnosticMessageSink, Xunit.Sdk.TestMethodDisplay.Method, testMethod, null)
+            : base(variation, diagnosticMessageSink, testMethod, testMethodArguments)
         {
-            // Override display name to avoid getting info about TestMethodArguments in the
-            // name (this is covered by the concept of Variation for benchmarks)
-            var suppliedDisplayName = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute))
-                .First()
-                .GetNamedArgument<string>("DisplayName");
-
-            _diagnosticMessageSink = diagnosticMessageSink;
-            DisplayName = suppliedDisplayName ?? BaseDisplayName;
-            Variation = variation;
             Iterations = iterations;
             WarmupIterations = warmupIterations;
-
-            var methodArguments = new List<object> { MetricCollector };
-            if (testMethodArguments != null)
-            {
-                methodArguments.AddRange(testMethodArguments);
-            }
-
-            TestMethodArguments = methodArguments.ToArray();
         }
 
-        public string Variation { get; private set; }
-        public int Iterations { get; private set; }
-        public int WarmupIterations { get; private set; }
-        public MetricCollector MetricCollector { get; private set; } = new MetricCollector();
+        public override IMetricCollector MetricCollector => _metricCollector;
+        public int Iterations { get; protected set; }
+        public int WarmupIterations { get; protected set; }
 
         public override Task<RunSummary> RunAsync(
             IMessageSink diagnosticMessageSink,
@@ -66,7 +50,7 @@ namespace EntityFramework.Microbenchmarks.Core
                 messageBus, 
                 aggregator,
                 cancellationTokenSource,
-                _diagnosticMessageSink).RunAsync();
+                DiagnosticMessageSink).RunAsync();
         }
     }
 
