@@ -670,6 +670,24 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.False(((IIndex)secondIndexBuilder.Metadata).IsUnique);
                 Assert.Equal("V1", secondIndexBuilder.Metadata["A1"]);
             }
+
+            [Fact]
+            public virtual void Can_set_primary_key_by_convention_for_user_specified_shadow_property()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+
+                var entityBuilder = modelBuilder.Entity<EntityWithoutId>();
+
+                var entityType = (IEntityType)model.GetEntityType(typeof(EntityWithoutId));
+
+                Assert.Null(entityType.FindPrimaryKey());
+
+                entityBuilder.Property<int>("Id");
+
+                Assert.NotNull(entityType.GetPrimaryKey());
+                AssertEqual(new [] { "Id" }, entityType.GetPrimaryKey().Properties.Select(p => p.Name));
+            }
         }
     }
 }

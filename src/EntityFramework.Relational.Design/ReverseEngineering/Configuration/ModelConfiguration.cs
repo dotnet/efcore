@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 }
 
                 var conventionKeyProperties =
-                    _keyDiscoveryConvention.DiscoverKeyProperties(entityType);
+                    _keyDiscoveryConvention.DiscoverKeyProperties(entityType, entityType.Properties.ToList());
                 if (conventionKeyProperties != null
                     && key.Properties.OrderBy(p => p.Name).SequenceEqual(conventionKeyProperties.OrderBy(p => p.Name)))
                 {

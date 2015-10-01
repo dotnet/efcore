@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Xunit;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Data.Entity.Tests
@@ -14,11 +16,45 @@ namespace Microsoft.Data.Entity.Tests
     {
         public class NonGenericOneToManyType : OneToManyTestBase
         {
+            [Fact]
+            public override void Can_set_foreign_key_property_when_matching_property_added()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+                modelBuilder.Entity<PrincipalEntity>();
+
+                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
+
+                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
+
+                // Does not set foreign key property for added shadow property
+                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
         }
 
         public class NonGenericManyToOneType : ManyToOneTestBase
         {
+            [Fact]
+            public override void Can_set_foreign_key_property_when_matching_property_added()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+                modelBuilder.Entity<PrincipalEntity>();
+
+                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
+
+                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
+
+                // Does not set foreign key property for added shadow property
+                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericStringTestModelBuilder(modelBuilder);
         }
 

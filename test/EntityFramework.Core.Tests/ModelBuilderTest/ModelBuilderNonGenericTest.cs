@@ -33,11 +33,45 @@ namespace Microsoft.Data.Entity.Tests
 
         public class NonGenericOneToMany : OneToManyTestBase
         {
+            [Fact]
+            public override void Can_set_foreign_key_property_when_matching_property_added()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+                modelBuilder.Entity<PrincipalEntity>();
+
+                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
+
+                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
+
+                // Does not set foreign key property for added shadow property
+                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 
         public class NonGenericManyToOne : ManyToOneTestBase
         {
+            [Fact]
+            public override void Can_set_foreign_key_property_when_matching_property_added()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+                modelBuilder.Entity<PrincipalEntity>();
+
+                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
+
+                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
+
+                // Does not set foreign key property for added shadow property
+                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
+            }
+
             protected override TestModelBuilder CreateTestModelBuilder(ModelBuilder modelBuilder) => new NonGenericTestModelBuilder(modelBuilder);
         }
 

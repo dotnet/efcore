@@ -1520,6 +1520,22 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.Equal(DeleteBehavior.None, dependentType.GetForeignKeys().Single().DeleteBehavior);
             }
+
+            [Fact]
+            public virtual void Can_set_foreign_key_property_when_matching_property_added()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+                modelBuilder.Entity<PrincipalEntity>();
+
+                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("NavId", foreignKey.Properties.Single().Name);
+
+                modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
+
+                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                Assert.Equal("PrincipalEntityId", newForeignKey.Properties.Single().Name);
+            }
         }
     }
 }

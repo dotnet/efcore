@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
@@ -36,14 +37,39 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         {
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
             var convention = new Mock<KeyDiscoveryConvention> { CallBase = true };
-            convention.Setup(c => c.DiscoverKeyProperties(It.IsAny<EntityType>()))
-                .Returns<EntityType>(t => t.Properties.ToList());
+            convention.Setup(c => c.DiscoverKeyProperties(It.IsAny<EntityType>(), It.IsAny<IReadOnlyList<Property>>()))
+                .Returns<EntityType, IReadOnlyList<Property>>((t, properties) => t.Properties.ToList());
 
             Assert.Same(entityBuilder, convention.Object.Apply(entityBuilder));
 
             var key = entityBuilder.Metadata.FindPrimaryKey();
             Assert.NotNull(key);
             Assert.Equal(new[] { "ModifiedDate", "Name" }, key.Properties.Select(p => p.Name));
+        }
+
+        [Fact]
+        public void Primary_key_is_set_when_shadow_property_not_defined_by_convention_matches()
+        {
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
+            var propertyBuilder = entityBuilder.Property("Id", typeof(int), ConfigurationSource.DataAnnotation);
+
+            Assert.Same(propertyBuilder, new KeyDiscoveryConvention().Apply(propertyBuilder));
+
+            var key = entityBuilder.Metadata.FindPrimaryKey();
+            Assert.NotNull(key);
+            Assert.Equal(new[] { "Id" }, key.Properties.Select(p => p.Name));
+        }
+
+        [Fact]
+        public void Primary_key_is_not_set_when_shadow_property_defined_by_convention_matches()
+        {
+            var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
+            var propertyBuilder = entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
+
+            Assert.Same(propertyBuilder, new KeyDiscoveryConvention().Apply(propertyBuilder));
+
+            var key = entityBuilder.Metadata.FindPrimaryKey();
+            Assert.Null(key);
         }
 
         private class EntityWithId

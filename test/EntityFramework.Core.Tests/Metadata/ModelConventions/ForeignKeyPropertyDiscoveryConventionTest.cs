@@ -906,6 +906,96 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.True(fk.IsRequired);
         }
 
+        [Fact]
+        public void Does_nothing_if_matching_shadow_property_added()
+        {
+            var relationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                null,
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: false);
+
+            Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
+
+            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            Assert.Same(fk, DependentType.Metadata.GetForeignKeys().Single());
+            Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
+            Assert.False(fk.IsUnique);
+
+            var property = DependentType.Property("SomeNavId", typeof(int?), ConfigurationSource.Convention);
+
+            Assert.Same(property, new ForeignKeyPropertyDiscoveryConvention().Apply(property));
+            Assert.Same(fk, DependentType.Metadata.GetForeignKeys().Single());
+            Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
+            Assert.False(fk.IsUnique);
+        }
+
+        [Fact]
+        public void Sets_foreign_key_if_matching_non_shadow_property_added()
+        {
+            var relationshipBuilder = DependentType.Relationship(
+                PrincipalType,
+                DependentType,
+                "SomeNav",
+                null,
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: false);
+
+            Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
+
+            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            Assert.Same(fk, DependentType.Metadata.GetForeignKeys().Single());
+            Assert.Equal("SomeNav" + PrimaryKey.Name, fk.Properties.Single().Name);
+            Assert.False(fk.IsUnique);
+
+            var property = DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
+
+            Assert.Same(property, new ForeignKeyPropertyDiscoveryConvention().Apply(property));
+
+            var newFk = DependentType.Metadata.GetForeignKeys().Single();
+            Assert.NotSame(fk, newFk);
+            Assert.Equal(property.Metadata, newFk.Properties.Single());
+            Assert.False(newFk.IsUnique);
+        }
+
+        [Fact]
+        public void Inverts_and_sets_foreign_key_if_matching_non_shadow_property_added_on_principal_type()
+        {
+            var relationshipBuilder = DependentType.Relationship(
+                DependentType,
+                PrincipalType,
+                null,
+                "SomeNav",
+                null,
+                null,
+                ConfigurationSource.Convention,
+                isUnique: true);
+
+            var fk = (IForeignKey)relationshipBuilder.Metadata;
+            Assert.Same(fk, PrincipalType.Metadata.GetForeignKeys().Single());
+            Assert.Equal("DependentEntityKayPee1", fk.Properties.Single().Name);
+            Assert.Same(fk.DeclaringEntityType, PrincipalType.Metadata);
+            Assert.Same(fk.PrincipalEntityType, DependentType.Metadata);
+            Assert.True(fk.IsUnique);
+
+            var property = DependentType.Property(DependentEntity.SomeNavIDProperty, ConfigurationSource.Convention);
+
+            Assert.Same(property, new ForeignKeyPropertyDiscoveryConvention().Apply(property));
+
+            var newFk = DependentType.Metadata.GetForeignKeys().Single();
+            Assert.NotSame(fk, newFk);
+            Assert.Equal(property.Metadata, newFk.Properties.Single());
+            Assert.Same(newFk.DeclaringEntityType, fk.PrincipalEntityType);
+            Assert.Same(newFk.PrincipalEntityType, fk.DeclaringEntityType);
+            Assert.True(newFk.IsUnique);
+        }
+
         private static InternalModelBuilder BuildModel()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());

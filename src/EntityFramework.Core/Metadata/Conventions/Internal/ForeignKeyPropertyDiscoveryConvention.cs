@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Data.Entity.Metadata.Internal;
-using System.Diagnostics;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class ForeignKeyPropertyDiscoveryConvention : IForeignKeyConvention, INavigationConvention
+    public class ForeignKeyPropertyDiscoveryConvention : IForeignKeyConvention, INavigationConvention, IPropertyConvention
     {
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
@@ -269,5 +269,26 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder, Navigation navigation)
             => Apply(relationshipBuilder);
+
+        public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
+        {
+            if (!((IProperty)(propertyBuilder.Metadata)).IsShadowProperty)
+            {
+                var entityType = propertyBuilder.Metadata.DeclaringEntityType;
+                var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
+
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+                {
+                    var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, existingForeignKey: true, configurationSource: ConfigurationSource.Convention);
+                    Apply(relationshipBuilder);
+                }
+                foreach (var foreignKey in entityType.FindReferencingForeignKeys().ToList())
+                {
+                    var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, existingForeignKey: true, configurationSource: ConfigurationSource.Convention);
+                    Apply(relationshipBuilder);
+                }
+            }
+            return propertyBuilder;
+        }
     }
 }

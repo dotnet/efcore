@@ -60,6 +60,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .ForeignKey<BaseReferenceOnDerived>(e => e.BaseParentId)
                 .Required(false);
 
+            //TODO: See issue #3289
+            modelBuilder.Entity<DerivedReferenceOnDerived>().Property(typeof(int?), "DerivedInheritanceRelationshipEntityId");
+
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasOne(e => e.DerivedReferenceOnDerived)
+                .WithOne()
+                .ForeignKey(typeof(DerivedReferenceOnDerived), "DerivedInheritanceRelationshipEntityId")
+                .Required(false);
+
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasOne(e => e.ReferenceOnDerived)
                 .WithOne(e => e.Parent)

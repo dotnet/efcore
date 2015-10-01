@@ -284,5 +284,27 @@ namespace Microsoft.Data.Entity.Tests
             public C C { get; set; }
         }
 
+        private class EntityWithoutId
+        {
+            public string Name { get; set; }
+        }
+
+        protected class PrincipalEntity
+        {
+            public int Id { get; set; }
+
+            public List<DependentEntity> InverseNav { get; set; }
+        }
+
+        protected class DependentEntity
+        {
+            public int Id { get; set; }
+
+            [NotMapped]
+            public int PrincipalEntityId { get; set; }
+
+            public PrincipalEntity Nav { get; set; }
+        }
+
     }
 }
