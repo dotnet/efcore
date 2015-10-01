@@ -8,7 +8,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 {
     public class NavigationPropertyInitializerConfiguration
     {
-        public NavigationPropertyInitializerConfiguration([NotNull] string navPropName, [NotNull] string principalEntityTypeName)
+        public NavigationPropertyInitializerConfiguration(
+            [NotNull] string navPropName, [NotNull] string principalEntityTypeName)
         {
             Check.NotEmpty(navPropName, nameof(navPropName));
             Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));

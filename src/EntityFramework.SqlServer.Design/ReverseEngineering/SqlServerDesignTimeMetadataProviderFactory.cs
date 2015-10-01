@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 .AddSingleton<IDatabaseMetadataModelProvider, SqlServerMetadataModelProvider>()
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerLiteralUtilities>()
-                .AddSingleton<ModelConfigurationFactory, SqlServerModelConfigurationFactory>()
+                .AddSingleton<ConfigurationFactory, SqlServerModelConfigurationFactory>()
                 .AddSingleton<CodeWriter, RazorTemplateCodeWriter>();
         }
     }

@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
@@ -15,12 +16,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Configuratio
     public class SqlServerModelConfiguration : ModelConfiguration
     {
         public SqlServerModelConfiguration(
+            [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
-            : base(model, customConfiguration, extensionsProvider, cSharpUtilities, modelUtilities)
+            : base(configurationFactory, model, customConfiguration, extensionsProvider, cSharpUtilities, modelUtilities)
         {
         }
 

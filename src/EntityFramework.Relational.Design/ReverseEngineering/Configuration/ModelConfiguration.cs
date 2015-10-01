@@ -23,22 +23,26 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         protected static readonly KeyDiscoveryConvention _keyDiscoveryConvention = new KeyDiscoveryConvention();
         protected static readonly KeyConvention _keyConvention = new KeyConvention();
 
+        protected readonly ConfigurationFactory _configurationFactory;
         protected List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
         protected SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
 
         public ModelConfiguration(
+            [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
         {
+            Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(model, nameof(model));
             Check.NotNull(customConfiguration, nameof(customConfiguration));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(modelUtilities));
             Check.NotNull(modelUtilities, nameof(cSharpUtilities));
 
+            _configurationFactory = configurationFactory;
             Model = model;
             CustomConfiguration = customConfiguration;
             ExtensionsProvider = extensionsProvider;
@@ -92,7 +96,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
             foreach (var entityType in Model.EntityTypes)
             {
-                var entityConfiguration = new EntityConfiguration(this, entityType);
+                var entityConfiguration =
+                    _configurationFactory.CreateEntityConfiguration(this, entityType);
                 if (entityConfiguration.ErrorMessageAnnotation == null)
                 {
                     AddEntityPropertiesConfiguration(entityConfiguration);
@@ -109,7 +114,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual void AddConnectionStringConfiguration()
         {
             _onConfiguringConfigurations.Add(
-                new OptionsBuilderConfiguration(
+                _configurationFactory.CreateOptionsBuilderConfiguration(
                     UseMethodName
                     + "("
                     + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
@@ -122,7 +127,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
             foreach (var property in ModelUtilities.OrderedProperties(entityConfiguration.EntityType))
             {
-                var propertyConfiguration = new PropertyConfiguration(entityConfiguration, property);
+                var propertyConfiguration =
+                    _configurationFactory.CreatePropertyConfiguration(entityConfiguration, property);
                 AddPropertyConfiguration(propertyConfiguration);
                 entityConfiguration.PropertyConfigurations.Add(propertyConfiguration);
             }
@@ -157,7 +163,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     continue;
                 }
 
-                var keyFluentApi = new KeyFluentApiConfiguration("e", key.Properties);
+                var keyFluentApi = _configurationFactory
+                    .CreateKeyFluentApiConfiguration("e", key.Properties);
 
                 if(key.IsPrimaryKey())
                 {
@@ -171,7 +178,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                             entityConfiguration.GetOrAddPropertyConfiguration(
                                 entityConfiguration, key.Properties.First());
                         propertyConfiguration.AttributeConfigurations.Add(
-                            new AttributeConfiguration(nameof(KeyAttribute)));
+                            _configurationFactory.CreateAttributeConfiguration(nameof(KeyAttribute)));
                     }
                 }
 
@@ -192,15 +199,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 var delimitedSchemaName =
                     CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).Schema);
                 entityConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        true,
                         nameof(RelationalEntityTypeBuilderExtensions.ToTable),
                         delimitedTableName,
-                        delimitedSchemaName)
-                    {
-                        HasAttributeEquivalent = true
-                    });
+                        delimitedSchemaName));
                 entityConfiguration.AttributeConfigurations.Add(
-                    new AttributeConfiguration(
+                    _configurationFactory.CreateAttributeConfiguration(
                         nameof(TableAttribute),
                         delimitedTableName,
                         nameof(TableAttribute.Schema) + " = " + delimitedSchemaName));
@@ -211,14 +216,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 var delimitedTableName =
                     CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
                 entityConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        true,
                         nameof(RelationalEntityTypeBuilderExtensions.ToTable),
-                        delimitedTableName)
-                    {
-                        HasAttributeEquivalent = true
-                    });
+                        delimitedTableName));
                 entityConfiguration.AttributeConfigurations.Add(
-                    new AttributeConfiguration(
+                    _configurationFactory.CreateAttributeConfiguration(
                         nameof(TableAttribute), delimitedTableName));
             }
         }
@@ -250,12 +253,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 if (!entityKeyProperties.Contains(propertyConfiguration.Property))
                 {
                     propertyConfiguration.FluentApiConfigurations.Add(
-                        new FluentApiConfiguration(nameof(PropertyBuilder.IsRequired))
-                        {
-                            HasAttributeEquivalent = true
-                        });
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            true,
+                            nameof(PropertyBuilder.IsRequired)));
                     propertyConfiguration.AttributeConfigurations.Add(
-                        new AttributeConfiguration(nameof(RequiredAttribute)));
+                        _configurationFactory.CreateAttributeConfiguration(nameof(RequiredAttribute)));
                 }
             }
         }
@@ -271,12 +273,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     CSharpUtilities.GenerateLiteral(
                         ((Property)propertyConfiguration.Property).GetMaxLength().Value);
                 propertyConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(nameof(PropertyBuilder.HasMaxLength), maxLengthLiteral)
-                    {
-                        HasAttributeEquivalent = true
-                    });
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        true,
+                        nameof(PropertyBuilder.HasMaxLength), maxLengthLiteral));
                 propertyConfiguration.AttributeConfigurations.Add(
-                    new AttributeConfiguration(nameof(MaxLengthAttribute), maxLengthLiteral));
+                    _configurationFactory.CreateAttributeConfiguration(nameof(MaxLengthAttribute), maxLengthLiteral));
             }
         }
 
@@ -296,14 +297,18 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                         (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null)
                     {
                         propertyConfiguration.FluentApiConfigurations.Add(
-                            new FluentApiConfiguration(nameof(PropertyBuilder.ValueGeneratedOnAdd)));
+                            _configurationFactory.CreateFluentApiConfiguration(
+                                false,
+                                nameof(PropertyBuilder.ValueGeneratedOnAdd)));
                     }
 
                     break;
 
                 case ValueGenerated.OnAddOrUpdate:
                     propertyConfiguration.FluentApiConfigurations.Add(
-                        new FluentApiConfiguration(nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate)));
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            false,
+                            nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate)));
                     break;
             }
         }
@@ -330,29 +335,25 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             if (delimitedColumnName != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        true,
                         nameof(RelationalPropertyBuilderExtensions.HasColumnName),
-                        delimitedColumnName)
-                    {
-                        HasAttributeEquivalent = true
-                    });
+                        delimitedColumnName));
 
                 if (delimitedColumnTypeName == null)
                 {
                     propertyConfiguration.AttributeConfigurations.Add(
-                        new AttributeConfiguration(nameof(ColumnAttribute), delimitedColumnName));
+                        _configurationFactory.CreateAttributeConfiguration(nameof(ColumnAttribute), delimitedColumnName));
                 }
                 else
                 {
                     propertyConfiguration.FluentApiConfigurations.Add(
-                        new FluentApiConfiguration(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            true,
                             nameof(RelationalPropertyBuilderExtensions.HasColumnType),
-                            delimitedColumnTypeName)
-                        {
-                            HasAttributeEquivalent = true
-                        });
+                            delimitedColumnTypeName));
                     propertyConfiguration.AttributeConfigurations.Add(
-                        new AttributeConfiguration(
+                        _configurationFactory.CreateAttributeConfiguration(
                             nameof(ColumnAttribute),
                             new[] {
                                 delimitedColumnName,
@@ -363,7 +364,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             else if (delimitedColumnTypeName != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        false,
                         nameof(RelationalPropertyBuilderExtensions.HasColumnType),
                         delimitedColumnTypeName));
             }
@@ -377,7 +379,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             if (ExtensionsProvider.For(propertyConfiguration.Property).DefaultValue != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        false,
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValue),
                         CSharpUtilities.GenerateLiteral(
                             (dynamic)ExtensionsProvider.For(propertyConfiguration.Property).DefaultValue)));
@@ -392,7 +395,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             if (ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql != null)
             {
                 propertyConfiguration.FluentApiConfigurations.Add(
-                    new FluentApiConfiguration(
+                    _configurationFactory.CreateFluentApiConfiguration(
+                        false,
                         nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql),
                         CSharpUtilities.DelimitString(
                             ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql)));
@@ -411,35 +415,32 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 foreach (var foreignKey in otherEntityType
                     .GetForeignKeys().Where(fk => fk.PrincipalEntityType == entityConfiguration.EntityType))
                 {
+                    var referencedType = foreignKey.IsUnique
+                        ? otherEntityType.Name
+                        : "ICollection<" + otherEntityType.Name + ">";
+                    var navPropConfiguration =
+                        _configurationFactory.CreateNavigationPropertyConfiguration(
+                            referencedType,
+                            (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]);
                     if (((EntityType)otherEntityType)
                         .FindAnnotation(RelationalMetadataModelProvider.AnnotationNameEntityTypeError) != null)
                     {
-                        entityConfiguration.NavigationPropertyConfigurations.Add(
-                            new NavigationPropertyConfiguration(
-                                RelationalDesignStrings.UnableToAddNavigationProperty(otherEntityType.Name)));
+                        navPropConfiguration.ErrorAnnotation =
+                            RelationalDesignStrings.UnableToAddNavigationProperty(otherEntityType.Name);
                     }
                     else
                     {
-                        var referencedType = foreignKey.IsUnique
-                            ? otherEntityType.Name
-                            : "ICollection<" + otherEntityType.Name + ">";
-                        var navPropConfiguration =
-                            new NavigationPropertyConfiguration(
-                                referencedType,
-                                (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]);
-
                         if (foreignKey.PrincipalKey.IsPrimaryKey())
                         {
                             navPropConfiguration.AttributeConfigurations.Add(
-                            new AttributeConfiguration(
+                            _configurationFactory.CreateAttributeConfiguration(
                                 nameof(InversePropertyAttribute),
                                 CSharpUtilities.DelimitString(
                                     (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName])));
                         }
-
-                        entityConfiguration.NavigationPropertyConfigurations.Add(
-                            navPropConfiguration);
                     }
+
+                    entityConfiguration.NavigationPropertyConfigurations.Add(navPropConfiguration);
                 }
             }
 
@@ -448,19 +449,19 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 // set up the navigation property on this end of foreign keys owned by this EntityType
                 // (i.e. this EntityType is the dependent)
                 var dependentEndNavPropConfiguration =
-                    new NavigationPropertyConfiguration(
+                    _configurationFactory.CreateNavigationPropertyConfiguration(
                         foreignKey.PrincipalEntityType.Name,
                         (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName]);
 
                 if(foreignKey.PrincipalKey.IsPrimaryKey())
                 {
                     dependentEndNavPropConfiguration.AttributeConfigurations.Add(
-                        new AttributeConfiguration(
+                        _configurationFactory.CreateAttributeConfiguration(
                             nameof(ForeignKeyAttribute),
                             CSharpUtilities.DelimitString(
                                 string.Join(",", foreignKey.Properties.Select(p => p.Name)))));
                     dependentEndNavPropConfiguration.AttributeConfigurations.Add(
-                        new AttributeConfiguration(
+                        _configurationFactory.CreateAttributeConfiguration(
                             nameof(InversePropertyAttribute),
                             CSharpUtilities.DelimitString(
                                 (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName])));
@@ -475,11 +476,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     var referencedType = foreignKey.IsUnique
                         ? foreignKey.DeclaringEntityType.Name
                         : "ICollection<" + foreignKey.DeclaringEntityType.Name + ">";
-                    var principalEndNavPropConfiguration = new NavigationPropertyConfiguration(
+                    var principalEndNavPropConfiguration =
+                        _configurationFactory.CreateNavigationPropertyConfiguration(
                             referencedType,
                             (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]);
                     principalEndNavPropConfiguration.AttributeConfigurations.Add(
-                        new AttributeConfiguration(
+                        _configurationFactory.CreateAttributeConfiguration(
                             nameof(InversePropertyAttribute),
                             CSharpUtilities.DelimitString(
                                 (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName])));
@@ -513,7 +515,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                         if (!foreignKey.IsUnique)
                         {
                             entityConfiguration.NavigationPropertyInitializerConfigurations.Add(
-                                new NavigationPropertyInitializerConfiguration(
+                                _configurationFactory.CreateNavigationPropertyInitializerConfiguration(
                                     navigationPropertyName, otherEntityType.Name));
                         }
                     }
@@ -532,12 +534,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 var principalEndNavigationPropertyName =
                     (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
 
-                entityConfiguration.RelationshipConfigurations.Add(
-                    new RelationshipConfiguration(entityConfiguration, foreignKey,
-                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName)
-                    {
-                        HasAttributeEquivalent = foreignKey.PrincipalKey.IsPrimaryKey()
-                    });
+                var relationshipConfiguration = _configurationFactory.CreateRelationshipConfiguration(
+                        entityConfiguration, foreignKey,
+                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName);
+                relationshipConfiguration.HasAttributeEquivalent = foreignKey.PrincipalKey.IsPrimaryKey();
+                entityConfiguration.RelationshipConfigurations.Add(relationshipConfiguration);
             }
         }
 

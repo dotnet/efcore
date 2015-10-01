@@ -4,6 +4,7 @@
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Sqlite;
@@ -13,12 +14,13 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Configuration
     public class SqliteModelConfiguration : ModelConfiguration
     {
         public SqliteModelConfiguration(
+            [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration,
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
-            : base(model, customConfiguration, extensionsProvider, cSharpUtilities, modelUtilities)
+            : base(configurationFactory, model, customConfiguration, extensionsProvider, cSharpUtilities, modelUtilities)
         {
         }
 
