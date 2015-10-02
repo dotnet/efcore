@@ -88,6 +88,7 @@
     <Compile Include="Metadata\Internal\InternalPropertyBuilderTest.cs" />
     <Compile Include="Metadata\Internal\InternalRelationshipBuilderTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
+    <Compile Include="Metadata\ModelConventions\CascadeDeleteConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\ConventionDispatcherTest.cs" />
     <Compile Include="Metadata\ModelConventions\ForeignKeyPropertyDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConventionTest.cs" />

@@ -64,7 +64,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 _isRequiredConfigurationSource = configurationSource.Max(_isRequiredConfigurationSource);
 
+                var isChanging = Metadata.IsNullable != !isRequired;
+
                 Metadata.IsNullable = !isRequired;
+
+                if (isChanging)
+                {
+                    ModelBuilder.ConventionDispatcher.OnPropertyNullableChanged(this);
+                }
+
                 return true;
             }
 

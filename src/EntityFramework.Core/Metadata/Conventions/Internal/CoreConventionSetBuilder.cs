@@ -53,6 +53,10 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             
             conventionSet.NavigationRemovedConventions.Add(relationshipDiscoveryConvention);
 
+            var cascadeDeleteConvention = new CascadeDeleteConvention();
+            conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
+            conventionSet.PropertyNullableChangedConventions.Add(cascadeDeleteConvention);
+
             return conventionSet;
         }
     }

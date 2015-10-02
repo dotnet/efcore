@@ -206,5 +206,18 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             return propertyBuilder;
         }
+
+        public virtual InternalPropertyBuilder OnPropertyNullableChanged([NotNull] InternalPropertyBuilder propertyBuilder)
+        {
+            foreach (var propertyConvention in _conventionSet.PropertyNullableChangedConventions)
+            {
+                if (!propertyConvention.Apply(propertyBuilder))
+                {
+                    break;
+                }
+            }
+
+            return propertyBuilder;
+        }
     }
 }
