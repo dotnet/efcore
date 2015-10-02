@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .HasMany(e => e.Posts)
                 .WithOne(e => e.Blog).Metadata;
 
-            Assert.Equal(DeleteBehavior.None, fk.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Property(e => e.BlogId)
                 .IsRequired(false);
 
-            Assert.Equal(DeleteBehavior.None, fk.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var fk = modelBuilder.Entity<Blog>()
                 .HasMany(e => e.Posts)
                 .WithOne(e => e.Blog)
-                .WillCascadeOnDelete()
+                .OnDelete(DeleteBehavior.Cascade)
                 .Metadata;
 
             Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var fk = modelBuilder.Entity<Blog>()
                 .HasMany(e => e.Posts)
                 .WithOne(e => e.Blog)
-                .WillCascadeOnDelete()
+                .OnDelete(DeleteBehavior.Cascade)
                 .Metadata;
 
             modelBuilder.Entity<Post>()

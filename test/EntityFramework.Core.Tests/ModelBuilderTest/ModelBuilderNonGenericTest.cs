@@ -261,8 +261,8 @@ namespace Microsoft.Data.Entity.Tests
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
                 => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.IsRequired(isRequired));
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
-                => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.WillCascadeOnDelete(cascade));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
+                => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.OnDelete(deleteBehavior));
         }
 
         protected class NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> : TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
@@ -299,8 +299,8 @@ namespace Microsoft.Data.Entity.Tests
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
                 => Wrap(ReferenceReferenceBuilder.IsRequired(isRequired));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
-                => Wrap(ReferenceReferenceBuilder.WillCascadeOnDelete(cascade));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
+                => Wrap(ReferenceReferenceBuilder.OnDelete(deleteBehavior));
         }
     }
 }

@@ -924,7 +924,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").WillCascadeOnDelete(false);
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId");
                     }),
                 operations =>
                 {
@@ -938,13 +938,93 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal("dbo", operation.PrincipalSchema);
                     Assert.Equal("Amoeba", operation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.NoAction, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
                 });
         }
 
         [Fact]
-        public void Add_foreign_key_with_cascade_delete()
+        public void Add_optional_foreign_key()
+        {
+            Execute(
+                source => source.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int?>("ParentId");
+                    }),
+                target => target.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int?>("ParentId");
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId");
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Amoeba", operation.Table);
+                    Assert.Equal("FK_Amoeba_Amoeba_ParentId", operation.Name);
+                    Assert.Equal(new[] { "ParentId" }, operation.Columns);
+                    Assert.Equal("dbo", operation.PrincipalSchema);
+                    Assert.Equal("Amoeba", operation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
+                });
+        }
+
+        [Fact]
+        public void Add_optional_foreign_key_with_cascade_delete()
+        {
+            Execute(
+                source => source.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int?>("ParentId");
+                    }),
+                target => target.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int?>("ParentId");
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Cascade);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Amoeba", operation.Table);
+                    Assert.Equal("FK_Amoeba_Amoeba_ParentId", operation.Name);
+                    Assert.Equal(new[] { "ParentId" }, operation.Columns);
+                    Assert.Equal("dbo", operation.PrincipalSchema);
+                    Assert.Equal("Amoeba", operation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
+                });
+        }
+
+        [Fact]
+        public void Add_required_foreign_key_without_cascade_delete()
         {
             Execute(
                 source => source.Entity(
@@ -964,7 +1044,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").WillCascadeOnDelete();
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.Restrict);
                     }),
                 operations =>
                 {
@@ -978,7 +1058,47 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal("dbo", operation.PrincipalSchema);
                     Assert.Equal("Amoeba", operation.PrincipalTable);
                     Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
-                    Assert.Equal(ReferentialAction.Cascade, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.Restrict, operation.OnDelete);
+                    Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
+                });
+        }
+
+        [Fact]
+        public void Add_optional_foreign_key_wit_set_null()
+        {
+            Execute(
+                source => source.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int?>("ParentId");
+                    }),
+                target => target.Entity(
+                    "Amoeba",
+                    x =>
+                    {
+                        x.ToTable("Amoeba", "dbo");
+                        x.Property<int>("Id");
+                        x.HasKey("Id");
+                        x.Property<int?>("ParentId");
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").OnDelete(DeleteBehavior.SetNull);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
+                    Assert.Equal("dbo", operation.Schema);
+                    Assert.Equal("Amoeba", operation.Table);
+                    Assert.Equal("FK_Amoeba_Amoeba_ParentId", operation.Name);
+                    Assert.Equal(new[] { "ParentId" }, operation.Columns);
+                    Assert.Equal("dbo", operation.PrincipalSchema);
+                    Assert.Equal("Amoeba", operation.PrincipalTable);
+                    Assert.Equal(new[] { "Id" }, operation.PrincipalColumns);
+                    Assert.Equal(ReferentialAction.SetNull, operation.OnDelete);
                     Assert.Equal(ReferentialAction.NoAction, operation.OnUpdate);
                 });
         }
@@ -1119,7 +1239,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
-                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").WillCascadeOnDelete(false);
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").OnDelete(DeleteBehavior.Restrict);
                         x.Property<int>("ParentId2");
                     }),
                 target => target.Entity(
@@ -1130,7 +1250,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
-                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").WillCascadeOnDelete();
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").OnDelete(DeleteBehavior.Cascade);
                         x.Property<int>("ParentId2");
                     }),
                 operations =>

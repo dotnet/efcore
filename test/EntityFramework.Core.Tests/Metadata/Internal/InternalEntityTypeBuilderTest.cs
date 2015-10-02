@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Null(relationshipBuilder.HasPrincipalKey(new[] { shadowId.Name, Customer.UniqueProperty.Name }, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsUnique(true, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation));
-            Assert.Null(relationshipBuilder.DeleteBehavior(DeleteBehavior.None, ConfigurationSource.DataAnnotation));
+            Assert.Null(relationshipBuilder.DeleteBehavior(DeleteBehavior.Restrict, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.Invert(ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.DependentToPrincipal(null, ConfigurationSource.DataAnnotation));
             Assert.Null(relationshipBuilder.PrincipalToDependent(null, ConfigurationSource.DataAnnotation));

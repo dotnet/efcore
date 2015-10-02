@@ -263,7 +263,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true);
 
-            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true);
+            public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior);
         }
 
         public abstract class TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
@@ -289,7 +289,7 @@ namespace Microsoft.Data.Entity.Tests
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true);
 
-            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true);
+            public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior);
         }
     }
 }

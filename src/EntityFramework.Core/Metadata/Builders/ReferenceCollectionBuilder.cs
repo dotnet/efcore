@@ -125,8 +125,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public virtual ReferenceCollectionBuilder IsRequired(bool required = true)
             => new ReferenceCollectionBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit));
 
-        public virtual ReferenceCollectionBuilder WillCascadeOnDelete(bool cascade = true)
-            => new ReferenceCollectionBuilder(
-                Builder.DeleteBehavior(cascade ? DeleteBehavior.Cascade : DeleteBehavior.None, ConfigurationSource.Explicit));
+        public virtual ReferenceCollectionBuilder OnDelete(DeleteBehavior deleteBehavior)
+            => new ReferenceCollectionBuilder(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit));
     }
 }

@@ -2519,6 +2519,202 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [ConditionalFact]
+        public virtual void Optional_many_to_one_dependents_are_orphaned_in_store()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).OptionalChildren.First();
+
+                removedId = removed.Id;
+                orphanedIds = removed.Children.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.OptionalChildren).Single();
+
+                var removed = root.OptionalChildren.First(e => e.Id == removedId);
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
+
+                var orphaned = context.Optional2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                Assert.Equal(orphanedIds.Count, orphaned.Count);
+                Assert.True(orphaned.All(e => e.ParentId == null));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.OptionalChildren.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildren.Select(e => e.Id));
+
+                Assert.Empty(context.Optional1s.Where(e => e.Id == removedId));
+
+                var orphaned = context.Optional2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                Assert.Equal(orphanedIds.Count, orphaned.Count);
+                Assert.True(orphaned.All(e => e.ParentId == null));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_one_to_one_are_orphaned_in_store()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).OptionalSingle;
+
+                removedId = removed.Id;
+                orphanedId = removed.Single.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.OptionalSingle).Single();
+
+                var removed = root.OptionalSingle;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Null(root.OptionalSingle);
+
+                Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
+                Assert.Null(context.OptionalSingle2s.Single(e => e.Id == orphanedId).BackId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.OptionalSingle);
+
+                Assert.Empty(context.OptionalSingle1s.Where(e => e.Id == removedId));
+                Assert.Null(context.OptionalSingle2s.Single(e => e.Id == orphanedId).BackId);
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_many_to_one_dependents_with_alternate_key_are_orphaned_in_store()
+        {
+            int removedId;
+            List<int> orphanedIds;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).OptionalChildrenAk.First();
+
+                removedId = removed.Id;
+                orphanedIds = removed.Children.Select(e => e.Id).ToList();
+
+                Assert.Equal(2, orphanedIds.Count);
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.OptionalChildrenAk).Single();
+
+                var removed = root.OptionalChildrenAk.First(e => e.Id == removedId);
+
+                Assert.Equal(2, orphanedIds.Count);
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
+
+                var orphaned = context.OptionalAk2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                Assert.Equal(orphanedIds.Count, orphaned.Count);
+                Assert.True(orphaned.All(e => e.ParentId == null));
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Equal(1, root.OptionalChildrenAk.Count);
+                Assert.DoesNotContain(removedId, root.OptionalChildrenAk.Select(e => e.Id));
+
+                Assert.Empty(context.OptionalAk1s.Where(e => e.Id == removedId));
+
+                var orphaned = context.OptionalAk2s.Where(e => orphanedIds.Contains(e.Id)).ToList();
+                Assert.Equal(orphanedIds.Count, orphaned.Count);
+                Assert.True(orphaned.All(e => e.ParentId == null));
+            }
+        }
+
+        [ConditionalFact]
+        public virtual void Optional_one_to_one_with_alternate_key_are_orphaned_in_store()
+        {
+            int removedId;
+            int orphanedId;
+
+            using (var context = CreateContext())
+            {
+                var removed = LoadFullGraph(context).OptionalSingleAk;
+
+                removedId = removed.Id;
+                orphanedId = removed.Single.Id;
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = context.Roots.Include(e => e.OptionalSingleAk).Single();
+
+                var removed = root.OptionalSingleAk;
+
+                context.Remove(removed);
+
+                context.SaveChanges();
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                Assert.Null(root.OptionalSingleAk);
+
+                Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Null(context.OptionalSingleAk2s.Single(e => e.Id == orphanedId).BackId);
+            }
+
+            using (var context = CreateContext())
+            {
+                var root = LoadFullGraph(context);
+
+                Assert.Null(root.OptionalSingleAk);
+
+                Assert.Empty(context.OptionalSingleAk1s.Where(e => e.Id == removedId));
+                Assert.Null(context.OptionalSingleAk2s.Single(e => e.Id == orphanedId).BackId);
+            }
+        }
+
         public enum ChangeMechanism
         {
             Dependent,
@@ -3030,7 +3226,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         b.HasMany(e => e.OptionalChildren)
                             .WithOne(e => e.Parent)
-                            .HasForeignKey(e => e.ParentId);
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
                         b.HasOne(e => e.RequiredSingle)
                             .WithOne(e => e.Root)
@@ -3038,7 +3235,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                         b.HasOne(e => e.OptionalSingle)
                             .WithOne(e => e.Root)
-                            .HasForeignKey<OptionalSingle1>(e => e.RootId);
+                            .HasForeignKey<OptionalSingle1>(e => e.RootId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
                         b.HasOne(e => e.RequiredNonPkSingle)
                             .WithOne(e => e.Root)
@@ -3052,7 +3250,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.HasMany(e => e.OptionalChildrenAk)
                             .WithOne(e => e.Parent)
                             .HasPrincipalKey(e => e.AlternateId)
-                            .HasForeignKey(e => e.ParentId);
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
                         b.HasOne(e => e.RequiredSingleAk)
                             .WithOne(e => e.Root)
@@ -3062,7 +3261,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.HasOne(e => e.OptionalSingleAk)
                             .WithOne(e => e.Root)
                             .HasPrincipalKey<Root>(e => e.AlternateId)
-                            .HasForeignKey<OptionalSingleAk1>(e => e.RootId);
+                            .HasForeignKey<OptionalSingleAk1>(e => e.RootId)
+                            .OnDelete(DeleteBehavior.SetNull);
 
                         b.HasOne(e => e.RequiredNonPkSingleAk)
                             .WithOne(e => e.Root)
@@ -3078,7 +3278,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 modelBuilder.Entity<Optional1>()
                     .HasMany(e => e.Children)
                     .WithOne(e => e.Parent)
-                    .HasForeignKey(e => e.ParentId);
+                    .HasForeignKey(e => e.ParentId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
                 modelBuilder.Entity<RequiredSingle1>()
                     .HasOne(e => e.Single)
@@ -3088,7 +3289,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 modelBuilder.Entity<OptionalSingle1>()
                     .HasOne(e => e.Single)
                     .WithOne(e => e.Back)
-                    .HasForeignKey<OptionalSingle2>(e => e.BackId);
+                    .HasForeignKey<OptionalSingle2>(e => e.BackId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
                 modelBuilder.Entity<RequiredNonPkSingle1>()
                     .HasOne(e => e.Single)
@@ -3114,7 +3316,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.HasMany(e => e.Children)
                             .WithOne(e => e.Parent)
                             .HasPrincipalKey(e => e.AlternateId)
-                            .HasForeignKey(e => e.ParentId);
+                            .HasForeignKey(e => e.ParentId)
+                            .OnDelete(DeleteBehavior.SetNull);
                     });
 
                 modelBuilder.Entity<RequiredSingleAk1>(b =>
@@ -3136,7 +3339,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.HasOne(e => e.Single)
                             .WithOne(e => e.Back)
                             .HasForeignKey<OptionalSingleAk2>(e => e.BackId)
-                            .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId);
+                            .HasPrincipalKey<OptionalSingleAk1>(e => e.AlternateId)
+                            .OnDelete(DeleteBehavior.SetNull);
                     });
 
                 modelBuilder.Entity<RequiredNonPkSingleAk1>(b =>

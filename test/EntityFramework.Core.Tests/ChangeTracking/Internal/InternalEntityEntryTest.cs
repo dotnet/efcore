@@ -1441,7 +1441,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .HasOne(e => e.Second)
                 .WithOne(e => e.First)
                 .HasForeignKey<SecondDependent>(e => e.Id)
-                .WillCascadeOnDelete();
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder
                 .Entity<Root>(b =>
