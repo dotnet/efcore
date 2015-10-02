@@ -54,9 +54,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual IModel GenerateMetadataModel(
-            [NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
+            [NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
 
             _tableSelectionSet = tableSelectionSet ?? TableSelectionSet.InclusiveAll;
 
