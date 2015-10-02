@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(builder, nameof(builder));
 
-            var telemetrySource = new TelemetryListener("Microsoft.AspNet"); // copied from Hosting
+            var telemetrySource = new TelemetryListener("Microsoft.Data.Entity");
             
             builder.GetService()
                 .TryAdd(new ServiceCollection()

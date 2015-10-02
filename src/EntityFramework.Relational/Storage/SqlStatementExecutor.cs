@@ -8,8 +8,8 @@ using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Extensions;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
@@ -50,7 +50,8 @@ namespace Microsoft.Data.Entity.Storage
                     Execute<object>(
                         connection,
                         command,
-                        c => c.ExecuteNonQuery());
+                        c => c.ExecuteNonQuery(),
+                        RelationalTelemetry.ExecuteMethod.ExecuteNonQuery);
                 }
             }
             finally
@@ -77,6 +78,7 @@ namespace Microsoft.Data.Entity.Storage
                         connection,
                         command,
                         async c => await c.ExecuteNonQueryAsync(cancellationToken),
+                        RelationalTelemetry.ExecuteMethod.ExecuteNonQuery,
                         cancellationToken);
                 }
             }
@@ -96,7 +98,8 @@ namespace Microsoft.Data.Entity.Storage
             return Execute(
                 connection,
                 CreateCommand(sql),
-                c => c.ExecuteScalar());
+                c => c.ExecuteScalar(),
+                RelationalTelemetry.ExecuteMethod.ExecuteScalar);
         }
 
         public virtual Task<object> ExecuteScalarAsync(
@@ -111,6 +114,7 @@ namespace Microsoft.Data.Entity.Storage
                 connection,
                 CreateCommand(sql),
                 c => c.ExecuteScalarAsync(cancellationToken),
+                RelationalTelemetry.ExecuteMethod.ExecuteScalar,
                 cancellationToken);
         }
 
@@ -124,7 +128,8 @@ namespace Microsoft.Data.Entity.Storage
             return Execute(
                 connection,
                 CreateCommand(sql),
-                c => c.ExecuteReader());
+                c => c.ExecuteReader(),
+                RelationalTelemetry.ExecuteMethod.ExecuteReader);
         }
 
         public virtual Task<DbDataReader> ExecuteReaderAsync(
@@ -139,56 +144,124 @@ namespace Microsoft.Data.Entity.Storage
                 connection,
                 CreateCommand(sql),
                 c => c.ExecuteReaderAsync(cancellationToken),
+                RelationalTelemetry.ExecuteMethod.ExecuteReader,
                 cancellationToken);
         }
 
         protected virtual T Execute<T>(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalCommand command,
-            [NotNull] Func<DbCommand, T> action)
+            [NotNull] IRelationalConnection relationalConnection,
+            [NotNull] RelationalCommand relationalCommand,
+            [NotNull] Func<DbCommand, T> action,
+            [NotNull] string executeMethod)
         {
             // TODO Deal with suppressing transactions etc.
-            connection.Open();
+            relationalConnection.Open();
 
             try
             {
-                using (var dbCommand = command.CreateCommand(connection))
+                using (var command = relationalCommand.CreateCommand(relationalConnection))
                 {
-                    _logger.LogCommand(dbCommand);
-                    _telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteCommand", dbCommand);
+                    _logger.LogCommand(command);
 
-                    return action(dbCommand);
+                    WriteTelemetry(
+                        RelationalTelemetry.BeforeExecuteCommand,
+                        command,
+                        executeMethod);
+
+                    T result;
+
+                    try
+                    {
+                        result = action(command);
+                    }
+                    catch (Exception exception)
+                    {
+                        WriteTelemetry(
+                            RelationalTelemetry.CommandExecutionError,
+                            command,
+                            executeMethod,
+                            exception: exception);
+
+                        throw;
+                    }
+
+                    WriteTelemetry(
+                        RelationalTelemetry.AfterExecuteCommand,
+                        command,
+                        executeMethod);
+
+                    return result;
                 }
             }
             finally
             {
-                connection.Close();
+                relationalConnection.Close();
             }
         }
 
         protected virtual async Task<T> ExecuteAsync<T>(
-            [NotNull] IRelationalConnection connection,
-            [NotNull] RelationalCommand command,
+            [NotNull] IRelationalConnection relationalConnection,
+            [NotNull] RelationalCommand relationalCommand,
             [NotNull] Func<DbCommand, Task<T>> action,
+            [NotNull] string executeMethod,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            await connection.OpenAsync(cancellationToken);
+            await relationalConnection.OpenAsync(cancellationToken);
 
             try
             {
-                using (var dbCommand = command.CreateCommand(connection))
+                using (var command = relationalCommand.CreateCommand(relationalConnection))
                 {
-                    _logger.LogCommand(dbCommand);
-                    _telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteCommand", dbCommand);
+                    _logger.LogCommand(command);
 
-                    return await action(dbCommand);
+                    WriteTelemetry(
+                        RelationalTelemetry.BeforeExecuteCommand,
+                        command,
+                        executeMethod,
+                        async: true);
+
+                    T result;
+
+                    try
+                    {
+                        result = await action(command);
+                    }
+                    catch (Exception exception)
+                    {
+                        WriteTelemetry(
+                            RelationalTelemetry.CommandExecutionError,
+                            command,
+                            executeMethod,
+                            async: true,
+                            exception: exception);
+
+                        throw;
+                    }
+
+                    WriteTelemetry(
+                        RelationalTelemetry.AfterExecuteCommand,
+                        command,
+                        executeMethod,
+                        async: true);
+
+                    return result;
                 }
             }
             finally
             {
-                connection.Close();
+                relationalConnection.Close();
             }
         }
+
+        private void WriteTelemetry(
+            string name, DbCommand command, string executeMethod, bool async = false, Exception exception = null)
+            => _telemetrySource
+                .WriteCommand(
+                    name,
+                    command,
+                    executeMethod,
+                    async: async,
+                    exception: exception);
 
         private RelationalCommand CreateCommand(string sql)
             => _commandBuilderFactory.Create()

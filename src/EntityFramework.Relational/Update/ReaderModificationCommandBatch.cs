@@ -172,16 +172,35 @@ namespace Microsoft.Data.Entity.Update
 
             var commandText = GetCommandText();
 
-            using (var storeCommand = CreateStoreCommand(commandText, connection))
+            using (var command = CreateStoreCommand(commandText, connection))
             {
-                _logger.LogCommand(storeCommand);
-                _telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteReader", storeCommand);
+                _logger.LogCommand(command);
+
+                WriteTelemetry(RelationalTelemetry.BeforeExecuteCommand, command);
 
                 try
                 {
-                    using (var reader = storeCommand.ExecuteReader())
+                    DbDataReader dataReader;
+
+                    try
                     {
-                        Consume(reader);
+                        dataReader = command.ExecuteReader();
+                    }
+                    catch (Exception exception)
+                    {
+                        WriteTelemetry(
+                            RelationalTelemetry.CommandExecutionError,
+                            command,
+                            exception: exception);
+
+                        throw;
+                    }
+
+                    WriteTelemetry(RelationalTelemetry.AfterExecuteCommand, command);
+
+                    using (dataReader)
+                    {
+                        Consume(dataReader);
                     }
                 }
                 catch (DbUpdateException)
@@ -203,16 +222,36 @@ namespace Microsoft.Data.Entity.Update
 
             var commandText = GetCommandText();
 
-            using (var storeCommand = CreateStoreCommand(commandText, connection))
+            using (var command = CreateStoreCommand(commandText, connection))
             {
-                _logger.LogCommand(storeCommand);
-                _telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteReader", storeCommand);
+                _logger.LogCommand(command);
+
+                WriteTelemetry(RelationalTelemetry.BeforeExecuteCommand, command, async: true);
 
                 try
                 {
-                    using (var reader = await storeCommand.ExecuteReaderAsync(cancellationToken))
+                    DbDataReader dataReader;
+
+                    try
                     {
-                        await ConsumeAsync(reader, cancellationToken);
+                        dataReader = command.ExecuteReader();
+                    }
+                    catch (Exception exception)
+                    {
+                        WriteTelemetry(
+                            RelationalTelemetry.CommandExecutionError,
+                            command,
+                            async: true,
+                            exception: exception);
+
+                        throw;
+                    }
+
+                    WriteTelemetry(RelationalTelemetry.AfterExecuteCommand, command, async: true);
+
+                    using (dataReader)
+                    {
+                        await ConsumeAsync(dataReader, cancellationToken);
                     }
                 }
                 catch (DbUpdateException)
@@ -225,6 +264,16 @@ namespace Microsoft.Data.Entity.Update
                 }
             }
         }
+
+        private void WriteTelemetry(
+            string name, DbCommand command, bool async = false, Exception exception = null)
+            => _telemetrySource
+                .WriteCommand(
+                    name,
+                    command,
+                    RelationalTelemetry.ExecuteMethod.ExecuteReader,
+                    async: async,
+                    exception: exception);
 
         protected abstract void Consume([NotNull] DbDataReader reader);
 

@@ -9,8 +9,8 @@ using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Extensions;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.Logging;
 
@@ -73,13 +73,25 @@ namespace Microsoft.Data.Entity.Query.Internal
                                     _queryingEnumerable._relationalQueryContext.Connection,
                                     _queryingEnumerable._relationalQueryContext.ParameterValues))
                         {
-                            _queryingEnumerable._logger.LogCommand(command);
-                            _queryingEnumerable._telemetrySource.WriteCommand("Microsoft.Data.Entity.BeforeExecuteReader", command);
-
                             await _queryingEnumerable._relationalQueryContext
                                 .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
 
-                            _dataReader = await command.ExecuteReaderAsync(cancellationToken);
+                            _queryingEnumerable._logger.LogCommand(command);
+
+                            WriteTelemetry(RelationalTelemetry.BeforeExecuteCommand, command);
+
+                            try
+                            {
+                                _dataReader = await command.ExecuteReaderAsync(cancellationToken);
+                            }
+                            catch (Exception exception)
+                            {
+                                WriteTelemetry(RelationalTelemetry.CommandExecutionError, command, exception);
+
+                                throw;
+                            }
+
+                            WriteTelemetry(RelationalTelemetry.AfterExecuteCommand, command);
 
                             _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader);
                         }
@@ -105,6 +117,15 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 return false;
             }
+
+            private void WriteTelemetry(string name, DbCommand command, Exception exception = null)
+                => _queryingEnumerable._telemetrySource
+                    .WriteCommand(
+                        name,
+                        command,
+                        RelationalTelemetry.ExecuteMethod.ExecuteReader,
+                        async: true,
+                        exception: exception);
 
             public ValueBuffer Current { get; private set; }
 
