@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        protected virtual DeleteBehavior DefaultDeleteBehavior => Metadata.DeleteBehavior.None;
+        protected virtual DeleteBehavior DefaultDeleteBehavior => Metadata.DeleteBehavior.Restrict;
 
         IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
 

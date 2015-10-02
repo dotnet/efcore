@@ -168,9 +168,9 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> Required(bool required = true)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.Required(required, ConfigurationSource.Explicit));
 
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> WillCascadeOnDelete(bool cascade = true)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
-                Builder.DeleteBehavior(cascade ? DeleteBehavior.Cascade : DeleteBehavior.None, ConfigurationSource.Explicit));
+                Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }

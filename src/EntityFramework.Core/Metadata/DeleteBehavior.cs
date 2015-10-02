@@ -5,7 +5,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public enum DeleteBehavior
     {
-        None,
+        Restrict,
+        SetNull,
         Cascade
     }
 }

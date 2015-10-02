@@ -583,22 +583,22 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 = new ForeignKey(new[] { dependentProp }, principalKey, entityType, entityType);
 
             Assert.Null(foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.None, ((IForeignKey)foreignKey).DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Restrict, ((IForeignKey)foreignKey).DeleteBehavior);
 
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
 
             Assert.Equal(DeleteBehavior.Cascade, foreignKey.DeleteBehavior);
             Assert.Equal(DeleteBehavior.Cascade, ((IForeignKey)foreignKey).DeleteBehavior);
 
-            foreignKey.DeleteBehavior = DeleteBehavior.None;
+            foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
 
-            Assert.Equal(DeleteBehavior.None, foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.None, ((IForeignKey)foreignKey).DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Restrict, ((IForeignKey)foreignKey).DeleteBehavior);
 
             foreignKey.DeleteBehavior = null;
 
             Assert.Null(foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.None, ((IForeignKey)foreignKey).DeleteBehavior);
+            Assert.Equal(DeleteBehavior.Restrict, ((IForeignKey)foreignKey).DeleteBehavior);
         }
 
         [Fact]

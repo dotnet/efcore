@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             relationshipBuilder.DeleteBehavior(
                 ((IForeignKey)relationshipBuilder.Metadata).IsRequired
                     ? DeleteBehavior.Cascade
-                    : DeleteBehavior.None,
+                    : DeleteBehavior.Restrict,
                 ConfigurationSource.Convention,
                 runConventions: false);
 
