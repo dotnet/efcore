@@ -607,7 +607,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 PrincipalColumns = GetColumns(target.PrincipalKey.Properties),
                 OnDelete = target.DeleteBehavior == DeleteBehavior.Cascade
                     ? ReferentialAction.Cascade
-                    : ReferentialAction.NoAction
+                    : target.DeleteBehavior == DeleteBehavior.SetNull
+                        ? ReferentialAction.SetNull
+                        : ReferentialAction.Restrict
             };
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
 

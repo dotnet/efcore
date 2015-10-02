@@ -242,9 +242,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool required = true)
             => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(Builder.Required(required, ConfigurationSource.Explicit));
 
-        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
-            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(
-                Builder.DeleteBehavior(cascade ? DeleteBehavior.Cascade : DeleteBehavior.None, ConfigurationSource.Explicit));
+        public new virtual ReferenceReferenceBuilder<TEntity, TRelatedEntity> OnDelete(DeleteBehavior deleteBehavior)
+            => new ReferenceReferenceBuilder<TEntity, TRelatedEntity>(Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit));
 
         private InternalRelationshipBuilder Builder => this.GetService<InternalRelationshipBuilder>();
     }

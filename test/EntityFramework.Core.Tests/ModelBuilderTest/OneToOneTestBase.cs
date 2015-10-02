@@ -2690,22 +2690,28 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             [Fact]
-            public virtual void Can_turn_cascade_delete_on_and_off()
+            public virtual void Can_change_delete_behavior()
             {
                 var modelBuilder = HobNobBuilder();
                 var dependentType = (IEntityType)modelBuilder.Model.GetEntityType(typeof(Hob));
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
-                    .WillCascadeOnDelete();
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 Assert.Equal(DeleteBehavior.Cascade, dependentType.GetForeignKeys().Single().DeleteBehavior);
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
-                    .WillCascadeOnDelete(false);
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                Assert.Equal(DeleteBehavior.None, dependentType.GetForeignKeys().Single().DeleteBehavior);
+                Assert.Equal(DeleteBehavior.Restrict, dependentType.GetForeignKeys().Single().DeleteBehavior);
+
+                modelBuilder
+                    .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                Assert.Equal(DeleteBehavior.SetNull, dependentType.GetForeignKeys().Single().DeleteBehavior);
             }
         }
     }
