@@ -11,10 +11,10 @@ using System.Runtime.InteropServices;
 #if DNX451 || DNXCORE50
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Runtime.Infrastructure;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 #endif
 
-namespace Microsoft.Framework.Internal
+namespace Microsoft.Extensions.Internal
 {
     internal static class NativeLibraryLoader
     {

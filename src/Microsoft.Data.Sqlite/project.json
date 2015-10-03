@@ -1,4 +1,4 @@
-﻿{
+{
     "version": "1.0.0-*",
     "description": "SQLite implementation of the System.Data.Common provider model.",
     "frameworks": {
@@ -10,7 +10,7 @@
         "dnx451": {
             "dependencies": {
                 "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
-                "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*"
+                "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*"
             },
             "frameworkAssemblies": {
                 "System.Data": "4.0.0.0"
@@ -19,7 +19,7 @@
         "dnxcore50": {
             "dependencies": {
                 "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
-                "Microsoft.Framework.DependencyInjection.Abstractions": "1.0.0-*",
+                "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*",
                 "System.Collections": "4.0.11-*",
                 "System.ComponentModel": "4.0.1-*",
                 "System.Data.Common": "4.0.1-*",

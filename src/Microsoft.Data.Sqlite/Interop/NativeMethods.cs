@@ -7,14 +7,14 @@ using System.Runtime.InteropServices;
 using static Microsoft.Data.Sqlite.Interop.Constants;
 
 #if NET45 || DNX451 || DNXCORE50
-using Microsoft.Framework.Internal;
+using Microsoft.Extensions.Internal;
 
 #if DNX451 || DNXCORE50
 using System.IO;
 using System.Reflection;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Runtime.Infrastructure;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 #endif
 
 #endif
