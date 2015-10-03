@@ -3,7 +3,7 @@
 
 using System;
 using System.IO;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {

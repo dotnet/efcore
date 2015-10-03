@@ -9,7 +9,7 @@ using System.Threading;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 #if !DNXCORE50
 using System.Runtime.Remoting.Messaging;

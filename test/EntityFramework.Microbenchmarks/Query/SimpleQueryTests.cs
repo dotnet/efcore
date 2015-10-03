@@ -4,8 +4,8 @@
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
-using Microsoft.Framework.Caching.Memory;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 using Xunit;

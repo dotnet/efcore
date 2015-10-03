@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Tests;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Tests

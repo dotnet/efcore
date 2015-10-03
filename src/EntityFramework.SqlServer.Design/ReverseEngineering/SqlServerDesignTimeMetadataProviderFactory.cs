@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {

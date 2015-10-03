@@ -11,11 +11,11 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 
 #if DNX451 || DNXCORE50
 using Microsoft.AspNet.Hosting;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 #endif
 
 namespace Microsoft.Data.Entity.Design

@@ -8,7 +8,7 @@ using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Design.Internal
 {

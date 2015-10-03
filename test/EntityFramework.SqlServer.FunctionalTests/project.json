@@ -2,8 +2,8 @@
   "dependencies": {
     "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
     "EntityFramework.SqlServer": "7.0.0-*",
-    "Microsoft.Framework.Configuration.Json": "1.0.0-*",
-    "Microsoft.Framework.Configuration.EnvironmentVariables": "1.0.0-*"
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"

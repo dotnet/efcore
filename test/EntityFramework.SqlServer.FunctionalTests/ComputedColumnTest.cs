@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests

@@ -26,14 +26,14 @@
       "dependencies": {
         "EntityFramework.Relational.Design": "7.0.0-*",
         "Microsoft.AspNet.Hosting": "1.0.0-*",
-        "Microsoft.Framework.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
+        "Microsoft.Extensions.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
       }
     },
     "dnxcore50": {
       "dependencies": {
         "EntityFramework.Relational.Design": "7.0.0-*",
         "Microsoft.AspNet.Hosting": "1.0.0-*",
-        "Microsoft.Framework.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
+        "Microsoft.Extensions.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
       }
     },
     "uap10.0": {

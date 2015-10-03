@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Design.Internal;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
 namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering

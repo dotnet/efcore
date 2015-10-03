@@ -3,7 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {

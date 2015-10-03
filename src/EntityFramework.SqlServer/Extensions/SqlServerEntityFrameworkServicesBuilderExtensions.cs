@@ -16,11 +16,11 @@ using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
-using Microsoft.Framework.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // ReSharper disable once CheckNamespace
 
-namespace Microsoft.Framework.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SqlServerEntityFrameworkServicesBuilderExtensions
     {

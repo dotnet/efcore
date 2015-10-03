@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Infrastructure.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {

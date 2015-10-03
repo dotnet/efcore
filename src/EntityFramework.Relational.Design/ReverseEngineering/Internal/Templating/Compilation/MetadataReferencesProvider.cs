@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 #if DNX451 || DNXCORE50
 using System;
 using System.IO;
-using Microsoft.Framework.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Compilation;
 using Microsoft.Dnx.Runtime.Infrastructure;

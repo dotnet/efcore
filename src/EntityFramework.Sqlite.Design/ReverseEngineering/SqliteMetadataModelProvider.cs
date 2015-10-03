@@ -1,4 +1,4 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
-using Microsoft.Framework.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {

@@ -18,8 +18,8 @@ using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Framework.DependencyInjection;
-using Microsoft.Framework.DependencyInjection.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 // Intentionally in this namespace since this is for use by other relational providers rather than
 // by top-level app developers.
