@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.Update
     public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
 
         protected virtual StringBuilder CachedCommandText { get;[param: NotNull] set; }
@@ -29,14 +30,17 @@ namespace Microsoft.Data.Entity.Update
         protected ReaderModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
-            [NotNull] IUpdateSqlGenerator updateSqlGenerator)
+            [NotNull] IUpdateSqlGenerator updateSqlGenerator,
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
+            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _commandBuilderFactory = commandBuilderFactory;
             SqlGenerator = sqlGenerator;
             UpdateSqlGenerator = updateSqlGenerator;
+            _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
         protected virtual ISqlGenerator SqlGenerator { get; }
@@ -223,5 +227,14 @@ namespace Microsoft.Data.Entity.Update
         protected abstract Task ConsumeAsync(
             [NotNull] DbDataReader reader,
             CancellationToken cancellationToken = default(CancellationToken));
+
+        protected IRelationalValueBufferFactory CreateValueBufferFactory(IReadOnlyList<ColumnModification> columnModifications)
+            => _valueBufferFactoryFactory
+                .Create(
+                    columnModifications
+                        .Where(c => c.IsRead)
+                        .Select(c => c.Property.ClrType)
+                        .ToArray(),
+                    indexMap: null);
     }
 }

@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.Update
     /// </summary>
     public abstract class AffectedCountModificationCommandBatch : ReaderModificationCommandBatch
     {
-        private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<bool> _resultSetEnd = new List<bool>();
 
         protected AffectedCountModificationCommandBatch(
@@ -30,11 +29,8 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
-            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator)
+            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory)
         {
-            Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
-
-            _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
         // contains true if the command at the corresponding index is the last command in its result set
@@ -196,15 +192,6 @@ namespace Microsoft.Data.Entity.Update
 
             return commandIndex;
         }
-
-        private IRelationalValueBufferFactory CreateValueBufferFactory(IReadOnlyList<ColumnModification> columnModifications)
-            => _valueBufferFactoryFactory
-                .Create(
-                    columnModifications
-                        .Where(c => c.IsRead)
-                        .Select(c => c.Property.ClrType)
-                        .ToArray(),
-                    indexMap: null);
 
         protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, [NotNull] DbDataReader reader)
         {
