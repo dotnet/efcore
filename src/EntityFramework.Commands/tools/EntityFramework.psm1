@@ -352,7 +352,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Specifies the connection string of the database.
 
 .PARAMETER Provider
-    Specifies the provider to use. For example, EntityFramework.SqlServer.
+    Specifies the provider to use. For example, EntityFramework.MicrosoftSqlServer.
 
 .PARAMETER OutputDirectory
     Specifies the directory to use to output the classes. If omitted, the top-level project directory is used.

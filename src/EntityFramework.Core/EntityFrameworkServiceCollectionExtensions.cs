@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     <para>
         ///         The database you are using will also define extension methods that can be called on the returned
         ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services for the database. For example,
-        ///         when using EntityFramework.SqlServer you would call
+        ///         when using EntityFramework.MicrosoftSqlServer you would call
         ///         <c>collection.AddEntityFramework().UseSqlServer(connectionString)</c>.
         ///     </para>
         ///     <para>

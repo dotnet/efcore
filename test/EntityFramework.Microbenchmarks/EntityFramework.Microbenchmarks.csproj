@@ -59,9 +59,9 @@
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+    <ProjectReference Include="..\..\src\EntityFramework.MicrosoftSqlServer\EntityFramework.MicrosoftSqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
-      <Name>EntityFramework.SqlServer</Name>
+      <Name>EntityFramework.MicrosoftSqlServer</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>

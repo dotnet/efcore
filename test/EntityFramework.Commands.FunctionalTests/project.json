@@ -5,7 +5,7 @@
   "dependencies": {
     "EntityFramework.Commands": "7.0.0-*",
     "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-    "EntityFramework.SqlServer": "7.0.0-*",
+    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
   },

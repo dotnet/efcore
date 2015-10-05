@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity</RootNamespace>
+    <AssemblyName>EntityFramework.MicrosoftSqlServer</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\tools\Resources.cs">
+      <Link>Properties\Resources.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Infrastructure\SqlServerDbContextOptionsBuilder.cs" />
+    <Compile Include="Internal\SqlServerModelSource.cs" />
+    <Compile Include="Internal\SqlServerOptionsExtension.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerConventionSetBuilder.cs" />
+    <Compile Include="Metadata\Conventions\Internal\SqlServerValueGenerationStrategyConvention.cs" />
+    <Compile Include="Metadata\Internal\SqlServerAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\SqlServerIndexBuilderAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerInternalMetadataBuilderExtensions.cs" />
+    <Compile Include="Migrations\Internal\SqlServerHistoryRepository.cs" />
+    <Compile Include="Migrations\Internal\SqlServerMigrationsAnnotationProvider.cs" />
+    <Compile Include="Query\Expressions\Internal\RowNumberExpression.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerConvertTranslator.cs" />
+    <Compile Include="Query\Internal\SqlServerCompiledQueryCacheKeyGenerator.cs" />
+    <Compile Include="Query\Internal\SqlServerQueryCompilationContext.cs" />
+    <Compile Include="Query\Internal\SqlServerQueryCompilationContextFactory.cs" />
+    <Compile Include="Query\Internal\SqlServerQueryModelVisitor.cs" />
+    <Compile Include="Query\Internal\SqlServerQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGenerator.cs" />
+    <Compile Include="Query\Sql\Internal\SqlServerQuerySqlGeneratorFactory.cs" />
+    <Compile Include="Query\Sql\ISqlServerExpressionVisitor.cs" />
+    <Compile Include="Metadata\Internal\SqlServerKeyBuilderAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerModelBuilderAnnotations.cs" />
+    <Compile Include="Metadata\Internal\SqlServerPropertyBuilderAnnotations.cs" />
+    <Compile Include="Storage\Internal\ISqlServerConnection.cs" />
+    <Compile Include="Storage\Internal\SqlServerConnection.cs" />
+    <Compile Include="Storage\Internal\SqlServerDatabaseCreator.cs" />
+    <Compile Include="Storage\Internal\SqlServerDatabaseProviderServices.cs" />
+    <Compile Include="Storage\Internal\SqlServerMaxLengthMapping.cs" />
+    <Compile Include="Storage\Internal\SqlServerSqlGenerator.cs" />
+    <Compile Include="Storage\Internal\SqlServerTypeMapper.cs" />
+    <Compile Include="Update\Internal\ISqlServerUpdateSqlGenerator.cs" />
+    <Compile Include="Update\Internal\SqlServerModificationCommandBatch.cs" />
+    <Compile Include="Update\Internal\SqlServerModificationCommandBatchFactory.cs" />
+    <Compile Include="Update\Internal\SqlServerUpdateSqlGenerator.cs" />
+    <Compile Include="Metadata\ISqlServerIndexAnnotations.cs" />
+    <Compile Include="Metadata\ISqlServerKeyAnnotations.cs" />
+    <Compile Include="Metadata\ISqlServerModelAnnotations.cs" />
+    <Compile Include="Metadata\ISqlServerPropertyAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerIndexAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerKeyAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerAnnotationProvider.cs" />
+    <Compile Include="Metadata\SqlServerModelAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerPropertyAnnotations.cs" />
+    <Compile Include="Metadata\SqlServerValueGenerationStrategy.cs" />
+    <Compile Include="Migrations\Operations\SqlServerCreateDatabaseOperation.cs" />
+    <Compile Include="Migrations\Operations\SqlServerDropDatabaseOperation.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerDateTimeNowTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathAbsTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathCeilingTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathFloorTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathPowerTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathRoundTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerMathTruncateTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerNewGuidTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringLengthTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringReplaceTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringSubstringTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToLowerTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerStringToUpperTranslator.cs" />
+    <Compile Include="Extensions\SqlServerPropertyBuilderExtensions.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMemberTranslator.cs" />
+    <Compile Include="Query\ExpressionTranslators\Internal\SqlServerCompositeMethodCallTranslator.cs" />
+    <Compile Include="Extensions\SqlServerEntityTypeBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqlServerIndexBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqlServerKeyBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqlServerMetadataExtensions.cs" />
+    <Compile Include="Extensions\SqlServerModelBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqlServerReferenceCollectionBuilderExtensions.cs" />
+    <Compile Include="Extensions\SqlServerReferenceReferenceBuilderExtensions.cs" />
+    <Compile Include="Migrations\SqlServerMigrationsSqlGenerator.cs" />
+    <Compile Include="Extensions\SqlServerDbContextOptionsExtensions.cs" />
+    <Compile Include="Extensions\SqlServerEntityFrameworkServicesBuilderExtensions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\InternalsVisibleTo.cs.cs" />
+    <Compile Include="Properties\SqlServerStrings.Designer.cs">
+      <DependentUpon>SqlServerStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>Utilities\CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Check.cs">
+      <Link>Utilities\Check.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>Utilities\StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Utilities\SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="ValueGeneration\Internal\ISqlServerSequenceValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\Internal\ISqlServerValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\Internal\SqlServerSequenceHiLoValueGenerator.cs" />
+    <Compile Include="ValueGeneration\Internal\SqlServerSequenceValueGeneratorFactory.cs" />
+    <Compile Include="ValueGeneration\Internal\SqlServerSequenceValueGeneratorState.cs" />
+    <Compile Include="ValueGeneration\Internal\SqlServerValueGeneratorCache.cs" />
+    <Compile Include="ValueGeneration\Internal\SqlServerValueGeneratorSelector.cs" />
+    <EmbeddedResource Include="Properties\EntityFramework.MicrosoftSqlServer.rd.xml" />
+    <EmbeddedResource Include="Properties\SqlServerStrings.resx">
+      <LogicalName>EntityFramework.MicrosoftSqlServer.SqlServerStrings.resources</LogicalName>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Content Include="..\..\tools\Resources.tt">
+      <Link>Properties\Resources.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Resources.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
+    </Content>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

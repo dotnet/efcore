@@ -1,0 +1,36 @@
+{
+  "version": "7.0.0-*",
+  "description": "Microsoft SQL Server data store for Entity Framework.",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/aspnet/entityframework"
+  },
+  "compilationOptions": {
+    "warningsAsErrors": true
+  },
+  "dependencies": {
+    "EntityFramework.Relational": "7.0.0-*"
+  },
+  "compile": "..\\Shared\\*.cs",
+  "namedResource": {
+    "EntityFramework.MicrosoftSqlServer.SqlServerStrings": "Properties/SqlServerStrings.resx"
+  },
+  "resource": ["Properties/EntityFramework.MicrosoftSqlServer.rd.xml"],
+  "frameworks": {
+    "net45": { },
+    "dnxcore50": {
+      "dependencies": {
+        "System.Data.SqlClient": "4.0.0-*",
+        "System.Text.Encoding.CodePages": "4.0.1-beta-*",
+        "System.Threading.Thread": "4.0.0-*",
+        "System.Threading.ThreadPool": "4.0.10-*"
+      }
+    },
+    "dotnet": {
+      "dependencies": {
+        "System.Data.SqlClient": "4.0.0-*",
+        "System.Threading.Thread": "4.0.0-*"
+      }
+    }
+  }
+}

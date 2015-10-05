@@ -2,7 +2,7 @@
   "dependencies": {
     "EntityFramework.InMemory.FunctionalTests": "1.0.0",
     "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
-    "EntityFramework.SqlServer.FunctionalTests": "1.0.0"
+    "EntityFramework.MicrosoftSqlServer.FunctionalTests": "1.0.0"
   },
   "commands": {
     "test": "xunit.runner.aspnet"

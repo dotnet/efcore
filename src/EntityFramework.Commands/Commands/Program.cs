@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "The connection string of the database");
                             var provider = scaffold.Argument(
                                 "[provider]",
-                                "The provider to use. For example, EntityFramework.SqlServer");
+                                "The provider to use. For example, EntityFramework.MicrosoftSqlServer");
                             var dbContextClassName = scaffold.Option(
                                 "-c|--context-class-name <name>",
                                 "Name of the generated DbContext class.");

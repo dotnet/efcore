@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <Import Project="..\..\tools\EntityFramework.props" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FA789ED6-2AAC-4BAA-A4FB-B600BE2DA956}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Data.Entity.SqlServer.FunctionalTests</RootNamespace>
+    <AssemblyName>EntityFramework.MicrosoftSqlServer.FunctionalTests</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AsyncFromSqlQuerySqlServerTest.cs" />
+    <Compile Include="AsyncFromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="CommandConfigurationTest.cs" />
+    <Compile Include="CompiledQueryCacheKeyGeneratorTest.cs" />
+    <Compile Include="ComputedColumnTest.cs" />
+    <Compile Include="DataAnnotationSqlServerFixture.cs" />
+    <Compile Include="DataAnnotationSqlServerTest.cs" />
+    <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="GraphUpdatesWithIdentitySqlServerTest.cs" />
+    <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />
+    <Compile Include="InheritanceRelationshipsQuerySqlServerFixture.cs" />
+    <Compile Include="InheritanceRelationshipsQuerySqlServerTest.cs" />
+    <Compile Include="MigrationsSqlServerFixture.cs" />
+    <Compile Include="MigrationsSqlServerTest.cs" />
+    <Compile Include="NorthwindRowNumberPagingQuerySqlServerFixture.cs" />
+    <Compile Include="NorthwindSprocQuerySqlServerFixture.cs" />
+    <Compile Include="FromSqlQuerySqlServerTest.cs" />
+    <Compile Include="NavigationTest.cs" />
+    <Compile Include="InheritanceSqlServerFixture.cs" />
+    <Compile Include="InheritanceSqlServerTest.cs" />
+    <Compile Include="NullSemanticsQuerySqlServerFixture.cs" />
+    <Compile Include="NullSemanticsQuerySqlServerTest.cs" />
+    <Compile Include="BuiltInDataTypesSqlServerFixture.cs" />
+    <Compile Include="BuiltInDataTypesSqlServerTest.cs" />
+    <Compile Include="BatchingTest.cs" />
+    <Compile Include="ConnectionSpecificationTest.cs" />
+    <Compile Include="CompositeKeyEndToEndTest.cs" />
+    <Compile Include="DefaultValuesTest.cs" />
+    <Compile Include="ExistingConnectionTest.cs" />
+    <Compile Include="MappingQuerySqlServerFixture.cs" />
+    <Compile Include="MappingQuerySqlServerTest.cs" />
+    <Compile Include="ChangeTrackingSqlServerTest.cs" />
+    <Compile Include="ComplexNavigationsQuerySqlServerFixture.cs" />
+    <Compile Include="ComplexNavigationsQuerySqlServerTest.cs" />
+    <Compile Include="F1SqlServerFixture.cs" />
+    <Compile Include="QueryNavigationsSqlServerTest.cs" />
+    <Compile Include="QueryNoClientEvalSqlServerFixture.cs" />
+    <Compile Include="QueryNoClientEvalSqlServerTest.cs" />
+    <Compile Include="RowNumberPagingTest.cs" />
+    <Compile Include="SqlServerFixture.cs" />
+    <Compile Include="GearsOfWarQuerySqlServerFixture.cs" />
+    <Compile Include="GearsOfWarQuerySqlServerTest.cs" />
+    <Compile Include="GraphUpdatesSqlServerTestBase.cs" />
+    <Compile Include="IncludeAsyncSqlServerTest.cs" />
+    <Compile Include="IncludeOneToOneSqlServerTest.cs" />
+    <Compile Include="IncludeSqlServerTest.cs" />
+    <Compile Include="AsNoTrackingSqlServerTest.cs" />
+    <Compile Include="SqlServerMigrationsTest.cs" />
+    <Compile Include="NorthwindQuerySqlServerFixture.cs" />
+    <Compile Include="AsyncQuerySqlServerTest.cs" />
+    <Compile Include="NullKeysSqlServerTest.cs" />
+    <Compile Include="OneToOneQuerySqlServerFixture.cs" />
+    <Compile Include="PropertyEntrySqlServerTest.cs" />
+    <Compile Include="QueryLoggingSqlServerTest.cs" />
+    <Compile Include="QuerySqlServerTest.cs" />
+    <Compile Include="QueryBugsTest.cs" />
+    <Compile Include="OptimisticConcurrencySqlServerTest.cs" />
+    <Compile Include="SequenceEndToEndTest.cs" />
+    <Compile Include="SequentialGuidEndToEndTest.cs" />
+    <Compile Include="Utilities\DbContextOptionsBuilderExtensions.cs" />
+    <Compile Include="Utilities\SqlFileLogger.cs" />
+    <Compile Include="SqlServerConfigPatternsTest.cs" />
+    <Compile Include="SqlServerDatabaseCreationTest.cs" />
+    <Compile Include="SqlServerDatabaseCreatorTest.cs" />
+    <Compile Include="SqlServerEndToEndTest.cs" />
+    <Compile Include="SentinelGraphUpdatesSqlServerTest.cs" />
+    <Compile Include="MonsterFixupSqlServerTest.cs" />
+    <Compile Include="Utilities\SqlConnectionStringBuilderExtensions.cs" />
+    <Compile Include="Utilities\SqlServerConditionAttribute.cs" />
+    <Compile Include="Utilities\SqlServerTestStore.cs" />
+    <Compile Include="SqlServerValueGenerationScenariosTest.cs" />
+    <Compile Include="StoreGeneratedSqlServerTest.cs" />
+    <Compile Include="SqlExecutorSqlServerTest.cs" />
+    <Compile Include="TransactionSqlServerFixture.cs" />
+    <Compile Include="TransactionSqlServerTest.cs" />
+    <Compile Include="TestModels\SqlServerNorthwindContext.cs" />
+    <Compile Include="Utilities\TestEnvironment.cs" />
+    <Compile Include="Utilities\TestSqlServerModelSource.cs" />
+    <None Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
+      <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
+      <Name>EntityFramework.InMemory</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.MicrosoftSqlServer\EntityFramework.MicrosoftSqlServer.csproj">
+      <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
+      <Name>EntityFramework.MicrosoftSqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj">
+      <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
+      <Name>EntityFramework.Core.FunctionalTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
+      <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
+      <Name>EntityFramework.Relational.FunctionalTests</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Northwind.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

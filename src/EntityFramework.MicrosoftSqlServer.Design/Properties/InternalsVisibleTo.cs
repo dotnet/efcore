@@ -3,8 +3,7 @@
 
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("EntityFramework.Core.Tests")]
-[assembly: InternalsVisibleTo("EntityFramework.MicrosoftSqlServer.Tests")]
+[assembly: InternalsVisibleTo("EntityFramework.MicrosoftSqlServer.Design.Tests")]
 
 // for Moq
 

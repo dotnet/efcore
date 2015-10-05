@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A3DE8824-240C-4313-8C36-264BCCEF8B54}</ProjectGuid>
+    <ProjectGuid>{3159FABC-0C89-41FF-A279-48665CC068DC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.FunctionalTests</RootNamespace>
-    <AssemblyName>EntityFramework.CrossStore.FunctionalTests</AssemblyName>
+    <RootNamespace>Microsoft.Data.Entity.SqlServer</RootNamespace>
+    <AssemblyName>EntityFramework.MicrosoftSqlServer.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -35,21 +35,41 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
-      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
-      <Name>EntityFramework.Relational</Name>
-    </ProjectReference>
+    <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Metadata\InternalSqlServerMetadataBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\ModelConventions\SqlServerValueGenerationStrategyConventionTest.cs" />
+    <Compile Include="Metadata\SqlServerBuilderExtensionsTest.cs" />
+    <Compile Include="Metadata\SqlServerMetadataExtensionsTest.cs" />
+    <Compile Include="Migrations\SqlServerHistoryRepositoryTest.cs" />
+    <Compile Include="Migrations\SqlServerMigrationSqlGeneratorTest.cs" />
+    <Compile Include="CommandConfigurationTests.cs" />
+    <Compile Include="Migrations\SqlServerModelDifferTest.cs" />
+    <Compile Include="SqlServerDatabaseCreatorTest.cs" />
+    <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqlServerOptionsExtensionTest.cs" />
+    <Compile Include="SqlServerConnectionTest.cs" />
+    <Compile Include="SqlServerDatabaseSourceTest.cs" />
+    <Compile Include="SqlServerEntityFrameworkServicesBuilderExtensionsTest.cs" />
+    <Compile Include="SqlServerSequenceValueGeneratorTest.cs" />
+    <Compile Include="Storage\SqlServerSqlGeneratorTest.cs" />
+    <Compile Include="Update\SqlServerUpdateSqlGeneratorTest.cs" />
+    <Compile Include="SqlServerTypeMapperTest.cs" />
+    <Compile Include="Storage\SqlServerTypeMappingTest.cs" />
+    <Compile Include="SqlServerValueGeneratorCacheTest.cs" />
+    <Compile Include="SqlServerValueGeneratorSelectorTest.cs" />
+    <Compile Include="SqlServerTestHelpers.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchFactoryTest.cs" />
+    <Compile Include="Update\SqlServerModificationCommandBatchTest.cs" />
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.InMemory\EntityFramework.InMemory.csproj">
-      <Project>{BA3F5DBC-EC16-4D5A-8298-8226E6C5ACCC}</Project>
-      <Name>EntityFramework.InMemory</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.Sqlite\EntityFramework.Sqlite.csproj">
-      <Project>{e340807b-ecbb-41df-a164-23fe833c76de}</Project>
-      <Name>EntityFramework.Sqlite</Name>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75C5A774-A3F3-43EB-97D3-DBE0CF2825D8}</Project>
+      <Name>EntityFramework.Relational</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.MicrosoftSqlServer\EntityFramework.MicrosoftSqlServer.csproj">
       <Project>{04E6620B-5B41-45FE-981A-F40EB7686B0E}</Project>
@@ -59,38 +79,21 @@
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
       <Name>EntityFramework.Core.FunctionalTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.InMemory.FunctionalTests\EntityFramework.InMemory.FunctionalTests.csproj">
-      <Project>{7e1a1a1b-6d0b-4c66-8026-326efc0b4625}</Project>
-      <Name>EntityFramework.InMemory.FunctionalTests</Name>
+    <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
+      <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
+      <Name>EntityFramework.Core.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Relational.FunctionalTests\EntityFramework.Relational.FunctionalTests.csproj">
       <Project>{82fad20c-28c6-4b48-b7e4-971ac821e27a}</Project>
       <Name>EntityFramework.Relational.FunctionalTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.Sqlite.FunctionalTests\EntityFramework.Sqlite.FunctionalTests.csproj">
-      <Project>{664b4d75-6cb7-4d90-a8e1-2a201500c859}</Project>
-      <Name>EntityFramework.Sqlite.FunctionalTests</Name>
+    <ProjectReference Include="..\EntityFramework.Relational.Tests\EntityFramework.Relational.Tests.csproj">
+      <Project>{001005b3-d16f-4399-9265-a67d619652bd}</Project>
+      <Name>EntityFramework.Relational.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EntityFramework.MicrosoftSqlServer.FunctionalTests\EntityFramework.MicrosoftSqlServer.FunctionalTests.csproj">
-      <Project>{fa789ed6-2aac-4baa-a4fb-b600be2da956}</Project>
-      <Name>EntityFramework.MicrosoftSqlServer.FunctionalTests</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CrossStoreFixture.cs" />
-    <Compile Include="EndToEndTest.cs" />
-    <Compile Include="InMemoryCrossStoreFixture.cs" />
-    <Compile Include="SharedCrossStoreFixture.cs" />
-    <Compile Include="SqliteCrossStoreFixture.cs" />
-    <Compile Include="SqlServerCrossStoreFixture.cs" />
-    <Compile Include="TestModels\CrossStoreContext.cs" />
-    <Compile Include="TestModels\SimpleEntity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -66,9 +66,9 @@
       <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
       <Name>EntityFramework.Relational</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\src\EntityFramework.SqlServer\EntityFramework.SqlServer.csproj">
+    <ProjectReference Include="..\..\src\EntityFramework.MicrosoftSqlServer\EntityFramework.MicrosoftSqlServer.csproj">
       <Project>{04e6620b-5b41-45fe-981a-f40eb7686b0e}</Project>
-      <Name>EntityFramework.SqlServer</Name>
+      <Name>EntityFramework.MicrosoftSqlServer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
