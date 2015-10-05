@@ -165,6 +165,7 @@
   <ItemGroup>
     <Compile Include="ReverseEngineering\SqlServerE2EFixture.cs" />
     <Compile Include="ReverseEngineering\SqlServerE2ETests.cs" />
+    <Compile Include="SqlServerMetadataReaderTest.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

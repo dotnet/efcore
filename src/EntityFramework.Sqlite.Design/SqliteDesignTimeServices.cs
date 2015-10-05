@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
@@ -26,7 +27,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .AddSingleton<ConfigurationFactory, SqliteConfigurationFactory>()
                 .AddSingleton<CodeWriter, RazorTemplateCodeWriter>()
-                .AddSingleton<SqliteMetadataReader>();
+                .AddSingleton<IMetadataReader, SqliteMetadataReader>();
         }
     }
 }

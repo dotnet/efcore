@@ -3,41 +3,106 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Relational.Design;
+using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
-    public class SqliteMetadataReader
+    public class SqliteMetadataReader : IMetadataReader
     {
-        private readonly SqliteReverseTypeMapper _typeMapper;
+        private SqliteConnection _connection;
+        private TableSelectionSet _tableSelectionSet;
+        private SchemaInfo _schemaInfo;
+        private Dictionary<string, Table> _tables;
+        private Dictionary<string, string> _indexDefinitions;
+        private Dictionary<string, string> _tableDefinitions;
+        private Dictionary<string, Column> _tableColumns;
 
-        public SqliteMetadataReader([NotNull] SqliteReverseTypeMapper typeMapper)
+        private static string ColumnKey(Table table, string columnName) => "[" + table.Name + "].[" + columnName + "]";
+
+        private void ResetState()
         {
-            _typeMapper = typeMapper;
+            _connection = null;
+            _tableSelectionSet = null;
+            _schemaInfo = new SchemaInfo();
+            _tables = new Dictionary<string, Table>(StringComparer.OrdinalIgnoreCase);
+            _tableColumns = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
+            _tableDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            _indexDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public virtual DatabaseInfo ReadDatabaseInfo(
-            [NotNull] SqliteConnection connection, [NotNull] List<string> selectedTables)
+        public virtual SchemaInfo GetSchema([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
-            Check.NotNull(connection, nameof(connection));
+            Check.NotEmpty(connectionString, nameof(connectionString));
+            Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
 
-            var databaseInfo = new DatabaseInfo();
-            GetSqliteMaster(connection, databaseInfo, selectedTables);
-            GetColumns(connection, databaseInfo);
-            GetIndexes(connection, databaseInfo);
+            ResetState();
 
-            foreach (var table in databaseInfo.Tables)
+            using (_connection = new SqliteConnection(connectionString))
             {
-                SqliteDmlParser.ParseTableDefinition(databaseInfo, table);
-            }
+                _connection.Open();
+                _tableSelectionSet = tableSelectionSet;
 
-            GetForeignKeys(connection, databaseInfo);
-            return databaseInfo;
+                _schemaInfo.DatabaseName = _connection.DataSource;
+
+                GetSqliteMaster();
+                GetColumns();
+                GetIndexes();
+
+                foreach (var table in _schemaInfo.Tables)
+                {
+                    SqliteDmlParser.ParseTableDefinition(table, _tableDefinitions[table.Name]);
+                }
+
+                GetForeignKeys();
+                return _schemaInfo;
+            }
+        }
+
+        private void GetSqliteMaster()
+        {
+            var command = _connection.CreateCommand();
+            command.CommandText = "SELECT type, name, sql, tbl_name FROM sqlite_master ORDER BY type DESC";
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    var type = reader.GetString(0);
+                    var name = reader.GetString(1);
+                    var sql = reader.GetValue(2) as string; // can be null
+                    var tableName = reader.GetString(3);
+
+                    if (type == "table"
+                        && name != "sqlite_sequence"
+                        && _tableSelectionSet.Allows(name))
+                    {
+                        var table = new Table
+                        {
+                            Name = name
+                        };
+                        _schemaInfo.Tables.Add(table);
+                        _tables.Add(name, table);
+                        _tableDefinitions[name] = sql;
+                    }
+                    else if (type == "index"
+                             && _tables.ContainsKey(tableName))
+                    {
+                        var table = _tables[tableName];
+
+                        table.Indexes.Add(new Index
+                        {
+                            Name = name,
+                            Table = table
+                        });
+
+                        _indexDefinitions[name] = sql;
+                    }
+                }
+            }
         }
 
         private enum TableInfoColumns
@@ -50,13 +115,11 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             Pk
         }
 
-        private void GetColumns(SqliteConnection connection, DatabaseInfo databaseInfo)
+        private void GetColumns()
         {
-            databaseInfo.Columns = new List<ColumnInfo>();
-
-            foreach (var table in databaseInfo.Tables)
+            foreach (var table in _schemaInfo.Tables)
             {
-                var command = connection.CreateCommand();
+                var command = _connection.CreateCommand();
                 command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");";
 
                 using (var reader = command.ExecuteReader())
@@ -68,19 +131,19 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         var typeName = reader.GetString((int)TableInfoColumns.Type);
                         var notNull = isPk || reader.GetBoolean((int)TableInfoColumns.NotNull);
 
-                        var column = new ColumnInfo
+                        var column = new Column
                         {
-                            TableName = table.Name,
+                            Table = table,
                             Name = reader.GetString((int)TableInfoColumns.Name),
                             DataType = typeName,
-                            ClrType = _typeMapper.GetClrType(typeName, nullable: !notNull),
                             IsPrimaryKey = reader.GetBoolean((int)TableInfoColumns.Pk),
                             IsNullable = !notNull,
                             DefaultValue = reader.GetValue((int)TableInfoColumns.DefaultValue) as string,
                             Ordinal = ordinal++
                         };
 
-                        databaseInfo.Columns.Add(column);
+                        table.Columns.Add(column);
+                        _tableColumns[ColumnKey(table, column.Name)] = column;
                     }
                 }
             }
@@ -93,73 +156,40 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             Name
         }
 
-        private void GetIndexes(SqliteConnection connection, DatabaseInfo databaseInfo)
+        private void GetIndexes()
         {
-            foreach (var index in databaseInfo.Indexes)
+            foreach (var table in _schemaInfo.Tables)
             {
-                var indexInfo = connection.CreateCommand();
-                indexInfo.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
-
-                index.Columns = new List<string>();
-                using (var reader = indexInfo.ExecuteReader())
+                foreach (var index in table.Indexes)
                 {
-                    while (reader.Read())
+                    var indexInfo = _connection.CreateCommand();
+                    indexInfo.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
+
+                    index.Columns = new List<Column>();
+                    using (var reader = indexInfo.ExecuteReader())
                     {
-                        var name = reader.GetValue((int)IndexInfoColumns.Name) as string;
-                        if (!string.IsNullOrEmpty(name))
+                        while (reader.Read())
                         {
-                            index.Columns.Add(name);
+                            var columnName = reader.GetValue((int)IndexInfoColumns.Name) as string;
+                            if (string.IsNullOrEmpty(columnName))
+                            {
+                                continue;
+                            }
+
+                            var column = _tableColumns[ColumnKey(table, columnName)];
+
+                            index.Columns.Add(column);
+
+                            var sql = _indexDefinitions[index.Name];
+
+                            if (!string.IsNullOrEmpty(sql))
+                            {
+                                var uniqueKeyword = sql.IndexOf("UNIQUE", StringComparison.OrdinalIgnoreCase);
+                                var indexKeyword = sql.IndexOf("INDEX", StringComparison.OrdinalIgnoreCase);
+
+                                index.IsUnique = uniqueKeyword > 0 && uniqueKeyword < indexKeyword;
+                            }
                         }
-
-                        if (!string.IsNullOrEmpty(index.CreateStatement))
-                        {
-                            var uniqueKeyword = index.CreateStatement.IndexOf("UNIQUE", StringComparison.OrdinalIgnoreCase);
-                            var indexKeyword = index.CreateStatement.IndexOf("INDEX", StringComparison.OrdinalIgnoreCase);
-
-                            index.IsUnique = uniqueKeyword > 0 && uniqueKeyword < indexKeyword;
-                        }
-                    }
-                }
-            }
-
-            databaseInfo.Indexes = databaseInfo.Indexes.Where(i => i.Columns.Count > 0).ToList();
-        }
-
-        private void GetSqliteMaster(SqliteConnection connection, DatabaseInfo databaseInfo, List<string> selectedTables)
-        {
-            var command = connection.CreateCommand();
-            command.CommandText = "SELECT type, name, sql, tbl_name FROM sqlite_master";
-            using (var reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var type = reader.GetString(0);
-                    var name = reader.GetString(1);
-                    var sql = reader.GetValue(2) as string; // can be null
-                    var tableName = reader.GetString(3);
-
-                    var allowedBySelectedTables =
-                        selectedTables.Count == 0
-                        || selectedTables.Contains(name);
-
-                    if (type == "table"
-                        && name != "sqlite_sequence"
-                        && allowedBySelectedTables)
-                    {
-                        databaseInfo.Tables.Add(new TableInfo
-                        {
-                            Name = name,
-                            CreateStatement = sql
-                        });
-                    }
-                    else if (type == "index" && allowedBySelectedTables)
-                    {
-                        databaseInfo.Indexes.Add(new IndexInfo
-                        {
-                            Name = name,
-                            TableName = tableName,
-                            CreateStatement = sql
-                        });
                     }
                 }
             }
@@ -177,37 +207,55 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             Match
         }
 
-        private void GetForeignKeys(SqliteConnection connection, DatabaseInfo databaseInfo)
+        private void GetForeignKeys()
         {
-            foreach (var dependentTable in databaseInfo.Tables)
+            foreach (var dependentTable in _schemaInfo.Tables)
             {
-                var fkList = connection.CreateCommand();
+                var fkList = _connection.CreateCommand();
                 fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");";
 
-                var tableForeignKeys = new Dictionary<int, ForeignKeyInfo>();
+                var tableForeignKeys = new Dictionary<int, ForeignKey>();
 
                 using (var reader = fkList.ExecuteReader())
                 {
                     while (reader.Read())
                     {
                         var id = reader.GetInt32((int)ForeignKeyList.Id);
-                        var principalTable = reader.GetString((int)ForeignKeyList.Table);
-                        ForeignKeyInfo foreignKey;
+                        var principalTableName = reader.GetString((int)ForeignKeyList.Table);
+    
+                        ForeignKey foreignKey;
                         if (!tableForeignKeys.TryGetValue(id, out foreignKey))
                         {
-                            foreignKey = new ForeignKeyInfo
+                            Table principalTable;
+                            _tables.TryGetValue(principalTableName, out principalTable);
+                            foreignKey = new ForeignKey
                             {
-                                TableName = dependentTable.Name,
-                                PrincipalTableName = principalTable
+                                Table = dependentTable,
+                                PrincipalTable = principalTable
                             };
                             tableForeignKeys.Add(id, foreignKey);
                         }
-                        foreignKey.From.Add(reader.GetString((int)ForeignKeyList.From));
-                        foreignKey.To.Add(reader.GetString((int)ForeignKeyList.To));
+
+                        var fromColumnName = reader.GetString((int)ForeignKeyList.From);
+                        foreignKey.From.Add(_tableColumns[ColumnKey(dependentTable, fromColumnName)]);
+
+                        if (foreignKey.PrincipalTable != null)
+                        {
+                            var toColumnName = reader.GetString((int)ForeignKeyList.To);
+                            Column toColumn;
+                            if(!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
+                            {
+                                toColumn = new Column { Name = toColumnName };
+                            }
+                            foreignKey.To.Add(toColumn);
+                        }
                     }
                 }
 
-                databaseInfo.ForeignKeys.AddRange(tableForeignKeys.Values);
+                foreach (var foreignKey in tableForeignKeys)
+                {
+                    dependentTable.ForeignKeys.Add(foreignKey.Value);
+                }
             }
         }
     }

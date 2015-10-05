@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Model;
+using Microsoft.Data.Entity.Relational.Design.Model;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
@@ -19,9 +19,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             "FOREIGN"
         };
 
-        public static void ParseTableDefinition(DatabaseInfo databaseInfo, TableInfo table)
+        public static void ParseTableDefinition(Table table, string sql)
         {
-            var statements = ParseStatements(table.CreateStatement).ToList();
+            var statements = ParseStatements(sql).ToList();
             var i = 0;
             for (; i < statements.Count; i++)
             {
@@ -30,11 +30,11 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 {
                     break; // once we see the first constraint, stop looking for params
                 }
-                ParseColumnDefinition(databaseInfo, table, statements[i]);
+                ParseColumnDefinition(table, statements[i]);
             }
             for (; i < statements.Count; i++)
             {
-                ParseConstraints(databaseInfo, table, statements[i]);
+                ParseConstraints(table, statements[i]);
             }
         }
 
@@ -66,12 +66,10 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             return SafeSplit(statementsChunk, ',').Select(s => s.Trim());
         }
 
-        public static void ParseColumnDefinition(DatabaseInfo databaseInfo, TableInfo table, string statement)
+        public static void ParseColumnDefinition(Table table, string statement)
         {
             var paramName = UnescapeString(SafeSplit(statement, ' ').First());
-            var column = databaseInfo.Columns.FirstOrDefault(c =>
-                c.TableName.Equals(table.Name, StringComparison.OrdinalIgnoreCase)
-                && c.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase));
+            var column = table.Columns.FirstOrDefault(c => c.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase));
             if (column == null)
             {
                 return;
@@ -79,9 +77,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
             if (statement.IndexOf(" UNIQUE", StringComparison.OrdinalIgnoreCase) > 0)
             {
-                var indexInfo = databaseInfo.Indexes.FirstOrDefault(i =>
-                    i.TableName.Equals(table.Name, StringComparison.OrdinalIgnoreCase)
-                    && i.Columns.SingleOrDefault()?.Equals(column.Name, StringComparison.OrdinalIgnoreCase) == true);
+                var indexInfo = table.Indexes.FirstOrDefault(i =>
+                    i.Columns.SingleOrDefault()?.Name.Equals(column.Name, StringComparison.OrdinalIgnoreCase) == true);
 
                 if (indexInfo != null)
                 {
@@ -90,16 +87,16 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             }
         }
 
-        public static void ParseConstraints(DatabaseInfo databaseInfo, TableInfo table, string statement)
+        public static void ParseConstraints(Table table, string statement)
         {
             var constraint = statement.Split(' ', '(')[0];
             if (constraint.Equals("UNIQUE", StringComparison.OrdinalIgnoreCase))
             {
-                ParseInlineUniqueConstraint(databaseInfo, table, statement);
+                ParseInlineUniqueConstraint(table, statement);
             }
         }
 
-        public static void ParseInlineUniqueConstraint(DatabaseInfo databaseInfo, TableInfo table, string statement)
+        public static void ParseInlineUniqueConstraint(Table table, string statement)
         {
             var start = statement.IndexOf('(') + 1;
             var paramChunk = statement.Substring(start, statement.LastIndexOf(')') - start);
@@ -107,14 +104,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 .Select(UnescapeString)
                 .ToList();
 
-            var index = databaseInfo.Indexes.FirstOrDefault(i =>
+            var index = table.Indexes.FirstOrDefault(i =>
                 {
                     if (!i.Name.StartsWith("sqlite_autoindex")
-                        || !i.TableName.Equals(table.Name, StringComparison.OrdinalIgnoreCase))
+                        || !i.Table.Name.Equals(table.Name, StringComparison.OrdinalIgnoreCase))
                     {
                         return false;
                     }
-                    return columns.All(prop => i.Columns.Any(p => p.Equals(prop, StringComparison.OrdinalIgnoreCase)));
+                    return columns.All(prop => i.Columns.Any(p => p.Name.Equals(prop, StringComparison.OrdinalIgnoreCase)));
                 });
 
             if (index != null)

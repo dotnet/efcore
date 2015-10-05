@@ -2,36 +2,41 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Relational.Design;
+using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using ForeignKey = Microsoft.Data.Entity.Relational.Design.Model.ForeignKey;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
     public class SqliteMetadataModelProvider : RelationalMetadataModelProvider
     {
-        private readonly SqliteMetadataReader _metadataReader;
+        private readonly IMetadataReader _metadataReader;
+        private readonly SqliteReverseTypeMapper _typeMapper;
 
         public SqliteMetadataModelProvider(
+            [NotNull] SqliteReverseTypeMapper typeMapper,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
-            [NotNull] SqliteMetadataReader metadataReader
+            [NotNull] IMetadataReader metadataReader
             )
             : base(loggerFactory, modelUtilities, cSharpUtilities)
         {
+            Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(metadataReader, nameof(metadataReader));
 
+            _typeMapper = typeMapper;
             _metadataReader = metadataReader;
         }
 
@@ -41,39 +46,121 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 
+            var databaseInfo = _metadataReader.GetSchema(connectionString, _tableSelectionSet);
+
+            return GetModel(databaseInfo);
+        }
+
+        private IModel GetModel(SchemaInfo schemaInfo)
+        {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            DatabaseInfo databaseInfo;
-
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Open();
-
-                databaseInfo = _metadataReader.ReadDatabaseInfo(connection, _tableSelectionSet.Tables);
-            }
-
-            LoadEntityTypes(modelBuilder, databaseInfo);
-            LoadIndexes(modelBuilder, databaseInfo);
-            LoadForeignKeys(modelBuilder, databaseInfo);
+            AddEntityTypes(modelBuilder, schemaInfo);
 
             return modelBuilder.Model;
         }
 
-        private void LoadForeignKeys(ModelBuilder modelBuilder, DatabaseInfo databaseInfo)
+        private void AddEntityTypes(ModelBuilder modelBuilder, SchemaInfo schemaInfo)
         {
-            foreach (var fkInfo in databaseInfo.ForeignKeys)
+            foreach (var table in schemaInfo.Tables)
             {
-                var dependentEntityType = modelBuilder.Entity(fkInfo.TableName).Metadata;
+                modelBuilder.Entity(table.Name, builder =>
+                    {
+                        builder.ToTable(table.Name);
+
+                        AddColumns(builder, table);
+                        AddIndexes(builder, table);
+                    });
+            }
+
+            foreach (var table in schemaInfo.Tables)
+            {
+                AddForeignKeys(modelBuilder, table);
+            }
+        }
+
+        private void AddColumns(EntityTypeBuilder builder, Table table)
+        {
+            foreach (var column in table.Columns)
+            {
+                AddColumn(builder, column);
+            }
+
+            var keyProps = table.Columns
+                .Where(c => c.IsPrimaryKey)
+                .Select(c => c.Name).ToArray();
+
+            if (keyProps.Length > 0)
+            {
+                builder.HasKey(keyProps);
+            }
+            else
+            {
+                var errorMessage = SqliteDesignStrings.MissingPrimaryKey(table.Name);
+                builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
+                Logger.LogWarning(errorMessage);
+            }
+        }
+
+        private void AddColumn(EntityTypeBuilder builder, Column column)
+        {
+            // TODO log bad datatypes
+            var clrType = _typeMapper.GetClrType(column.DataType, nullable: column.IsNullable);
+            var property = builder.Property(clrType, column.Name)
+                .HasColumnName(column.Name);
+
+            // TODO don't need to add unless the ClrType and DataType are not the same
+            // but this always needs to be added for SQLite
+            if (!string.IsNullOrEmpty(column.DataType))
+            {
+                property.HasColumnType(column.DataType);
+            }
+
+            if (column.DefaultValue != null)
+            {
+                property.HasDefaultValueSql(column.DefaultValue);
+            }
+
+            if (!column.IsPrimaryKey)
+            {
+                property.IsRequired(!column.IsNullable);
+            }
+        }
+
+        private void AddIndexes(EntityTypeBuilder entity, Table table)
+        {
+            foreach (var index in table.Indexes)
+            {
+                var columns = index.Columns.Select(c => c.Name).ToArray();
+
+                entity.HasIndex(columns)
+                    .IsUnique(index.IsUnique)
+                    .HasName(index.Name);
+
+                if (index.IsUnique)
+                {
+                    entity.HasAlternateKey(columns);
+                }
+            }
+        }
+
+        private void AddForeignKeys(ModelBuilder modelBuilder, Table table)
+        {
+            foreach (var fkInfo in table.ForeignKeys)
+            {
+                if (fkInfo.PrincipalTable == null)
+                {
+                    LogFailedForeignKey(fkInfo);
+                    continue;
+                }
 
                 try
                 {
-                    var principalEntityType = modelBuilder.Model.EntityTypes.First(e => e.Name.Equals(fkInfo.PrincipalTableName, StringComparison.OrdinalIgnoreCase));
+                    var dependentEntityType = modelBuilder.Model.GetEntityType(fkInfo.Table.Name);
+                    var principalEntityType = modelBuilder.Model.GetEntityType(fkInfo.PrincipalTable.Name);
 
                     var principalProps = fkInfo.To
-                        .Select(to => principalEntityType
-                            .Properties
-                            .First(p => p.Sqlite().ColumnName.Equals(to, StringComparison.OrdinalIgnoreCase))
-                        )
+                        .Select(to => principalEntityType.GetProperty(to.Name))
                         .ToList()
                         .AsReadOnly();
 
@@ -95,9 +182,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
                     var depProps = fkInfo.From
                         .Select(
-                            @from => dependentEntityType
-                                .Properties.
-                                First(p => p.Sqlite().ColumnName.Equals(@from, StringComparison.OrdinalIgnoreCase))
+                            @from => dependentEntityType.GetProperty(from.Name)
                         )
                         .ToList()
                         .AsReadOnly();
@@ -110,84 +195,22 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         foreignKey.IsUnique = true;
                     }
                 }
-                catch (InvalidOperationException)
+                catch (Exception ex)
                 {
-                    LogFailedForeignKey(fkInfo);
+                    if (ex is ModelItemNotFoundException
+                        || ex is InvalidOperationException)
+                    {
+                        LogFailedForeignKey(fkInfo);
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
         }
 
-        private void LogFailedForeignKey(ForeignKeyInfo foreignKey)
-            => Logger.LogWarning(SqliteDesignStrings.ForeignKeyScaffoldError(foreignKey.TableName, string.Join(",", foreignKey.From)));
-
-        private void LoadIndexes(ModelBuilder modelBuilder, DatabaseInfo databaseInfo)
-        {
-            foreach (var index in databaseInfo.Indexes)
-            {
-                var columns = index.Columns.ToArray();
-                modelBuilder.Entity(index.TableName, entity =>
-                    {
-                        entity.HasIndex(columns)
-                            .IsUnique(index.IsUnique)
-                            .ForSqliteHasName(index.Name);
-
-                        if (index.IsUnique)
-                        {
-                            entity.HasAlternateKey(columns);
-                        }
-                    });
-            }
-        }
-
-        private void LoadEntityTypes(ModelBuilder modelBuilder, DatabaseInfo databaseInfo)
-        {
-            foreach (var table in databaseInfo.Tables)
-            {
-                var tableName = table.Name;
-
-                modelBuilder.Entity(tableName, builder =>
-                    {
-                        builder.ToTable(tableName);
-
-                        var keyProps = new List<string>();
-
-                        foreach (var column in databaseInfo.Columns.Where(c => c.TableName.Equals(tableName, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            var property = builder.Property(column.ClrType, column.Name)
-                                .ForSqliteHasColumnName(column.Name);
-
-                            if (!string.IsNullOrEmpty(column.DataType))
-                            {
-                                property.ForSqliteHasColumnType(column.DataType);
-                            }
-
-                            if (!string.IsNullOrEmpty(column.DefaultValue))
-                            {
-                                property.ForSqliteHasDefaultValueSql(column.DefaultValue);
-                            }
-
-                            if (column.IsPrimaryKey)
-                            {
-                                keyProps.Add(column.Name);
-                            }
-                            else
-                            {
-                                property.IsRequired(!column.IsNullable);
-                            }
-                        }
-
-                        if (keyProps.Count > 0)
-                        {
-                            builder.HasKey(keyProps.ToArray());
-                        }
-                        else
-                        {
-                            var errorMessage = SqliteDesignStrings.MissingPrimaryKey(tableName);
-                            builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
-                            Logger.LogWarning(errorMessage);
-                        }
-                    });
-            }
-        }
+        private void LogFailedForeignKey(ForeignKey foreignKey)
+            => Logger.LogWarning(SqliteDesignStrings.ForeignKeyScaffoldError(foreignKey.Table.Name, string.Join(",", foreignKey.From.Select(f => f.Name))));
     }
 }

@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
@@ -177,7 +178,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             foreach (var table in _tables.Values)
             {
-                if (!AllowedBySelections(table.SchemaName, table.TableName))
+                if (!_tableSelectionSet.Allows(table.SchemaName, table.TableName))
                 {
                     continue;
                 }
@@ -508,7 +509,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 }
 
                 var toTable = _tables[_tableColumns[foreignKeyColumnMapping.ToColumnId].TableId];
-                if (!AllowedBySelections(toTable.SchemaName, toTable.TableName))
+                if (!_tableSelectionSet.Allows(toTable.SchemaName, toTable.TableName))
                 {
                     Logger.LogWarning(SqlServerDesignStrings.ForeignKeyTargetTableWasExcluded(
                         foreignKeyConstraintId, toTable.SchemaName, toTable.TableName));
@@ -519,28 +520,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
 
             return toColumnIds;
-        }
-
-        protected virtual bool AllowedBySelections([NotNull] string schemaName, [NotNull] string tableName)
-        {
-            if (_tableSelectionSet == null
-                || (_tableSelectionSet.Schemas.Count == 0
-                && _tableSelectionSet.Tables.Count == 0))
-            {
-                return true;
-            }
-
-            if (_tableSelectionSet.Schemas.Contains(schemaName))
-            {
-                return true;
-            }
-
-            return _tableSelectionSet.Tables.Contains($"{schemaName}.{tableName}")
-                || _tableSelectionSet.Tables.Contains($"[{schemaName}].[{tableName}]")
-                || _tableSelectionSet.Tables.Contains($"{schemaName}.[{tableName}]")
-                || _tableSelectionSet.Tables.Contains($"[{schemaName}].{tableName}")
-                || _tableSelectionSet.Tables.Contains($"{tableName}")
-                || _tableSelectionSet.Tables.Contains($"[{tableName}]");
         }
 
         protected virtual ConstraintType? GetConstraintType([
