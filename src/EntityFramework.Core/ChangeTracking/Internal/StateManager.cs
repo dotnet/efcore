@@ -424,14 +424,24 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private List<InternalEntityEntry> GetEntriesToSave()
-            => Entries
+        {
+            foreach (var entry in Entries.Where(e => e.HasConceptualNull).ToList())
+            {
+                entry.HandleConceptualNulls();
+            }
+
+            foreach (var entry in Entries.Where(e => e.EntityState == EntityState.Deleted).ToList())
+            {
+                entry.CascadeDelete();
+            }
+
+            return Entries
                 .Where(e => e.EntityState == EntityState.Added
                             || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted
-                            || e.HasConceptualNull)
-                .ToList()
-                .Where(e => e.PrepareToSave())
+                            || e.EntityState == EntityState.Deleted)
+                .Select(e => e.PrepareToSave())
                 .ToList();
+        }
 
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
