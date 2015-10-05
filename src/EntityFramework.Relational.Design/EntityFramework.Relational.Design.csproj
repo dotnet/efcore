@@ -8,7 +8,7 @@
     <ProjectGuid>{7028A7E3-0AD8-4606-A922-8189C8A704E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational.Design</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Scaffolding</RootNamespace>
     <AssemblyName>EntityFramework.Relational.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -58,45 +58,45 @@
     <Compile Include="..\Shared\CodeAnnotations.cs" />
     <Compile Include="..\Shared\StringBuilderExtensions.cs" />
     <Compile Include="..\Shared\SharedTypeExtensions.cs" />
-    <Compile Include="ReverseEngineering\CodeWriter.cs" />
-    <Compile Include="ReverseEngineering\ConfigurationFactory.cs" />
-    <Compile Include="ReverseEngineering\Configuration\AttributeConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\CustomConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\EntityConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\FluentApiConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\IAttributeConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\IFluentApiConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\KeyFluentApiConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\ModelConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyInitializerConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\OptionsBuilderConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
-    <Compile Include="ReverseEngineering\DesignTimeMetadataProviderFactory.cs" />
-    <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
-    <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
-    <Compile Include="ReverseEngineering\IDesignTimeMetadataProviderFactory.cs" />
-    <Compile Include="ReverseEngineering\IFileService.cs" />
-    <Compile Include="ReverseEngineering\Internal\RazorTemplateCodeWriter.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelection.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSet.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSetBuilder.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\CompiledAssemblyResult.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\CompilationResult.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\ICompilationService.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\MetadataReferencesProvider.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\RoslynCompilationService.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\RazorReverseEngineeringBase.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\RazorTemplating.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\RazorTemplatingHost.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\TemplateProcessingException.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\TemplateResult.cs" />
-    <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineerFiles.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
-    <Compile Include="ReverseEngineering\RelationalMetadataModelProvider.cs" />
+    <Compile Include="Internal\CodeWriter.cs" />
+    <Compile Include="Internal\ConfigurationFactory.cs" />
+    <Compile Include="Internal\Configuration\AttributeConfiguration.cs" />
+    <Compile Include="Internal\Configuration\CustomConfiguration.cs" />
+    <Compile Include="Internal\Configuration\EntityConfiguration.cs" />
+    <Compile Include="Internal\Configuration\FluentApiConfiguration.cs" />
+    <Compile Include="Internal\Configuration\IAttributeConfiguration.cs" />
+    <Compile Include="Internal\Configuration\IFluentApiConfiguration.cs" />
+    <Compile Include="Internal\Configuration\KeyFluentApiConfiguration.cs" />
+    <Compile Include="Internal\Configuration\ModelConfiguration.cs" />
+    <Compile Include="Internal\Configuration\NavigationPropertyConfiguration.cs" />
+    <Compile Include="Internal\Configuration\NavigationPropertyInitializerConfiguration.cs" />
+    <Compile Include="Internal\Configuration\OptionsBuilderConfiguration.cs" />
+    <Compile Include="Internal\Configuration\PropertyConfiguration.cs" />
+    <Compile Include="Internal\Configuration\RelationshipConfiguration.cs" />
+    <Compile Include="Internal\DesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="Internal\FileSystemFileService.cs" />
+    <Compile Include="Internal\IDatabaseMetadataModelProvider.cs" />
+    <Compile Include="Internal\IDesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="Internal\IFileService.cs" />
+    <Compile Include="Internal\RazorTemplateCodeWriter.cs" />
+    <Compile Include="TableSelection.cs" />
+    <Compile Include="TableSelectionSet.cs" />
+    <Compile Include="TableSelectionSetBuilder.cs" />
+    <Compile Include="Internal\Templating\Compilation\CompiledAssemblyResult.cs" />
+    <Compile Include="Internal\Templating\Compilation\CompilationResult.cs" />
+    <Compile Include="Internal\Templating\Compilation\ICompilationService.cs" />
+    <Compile Include="Internal\Templating\Compilation\MetadataReferencesProvider.cs" />
+    <Compile Include="Internal\Templating\Compilation\RoslynCompilationService.cs" />
+    <Compile Include="Internal\Templating\RazorReverseEngineeringBase.cs" />
+    <Compile Include="Internal\Templating\RazorTemplating.cs" />
+    <Compile Include="Internal\Templating\RazorTemplatingHost.cs" />
+    <Compile Include="Internal\Templating\TemplateProcessingException.cs" />
+    <Compile Include="Internal\Templating\TemplateResult.cs" />
+    <Compile Include="Internal\MetadataModelNameMapper.cs" />
+    <Compile Include="Internal\ReverseEngineerFiles.cs" />
+    <Compile Include="ReverseEngineeringConfiguration.cs" />
+    <Compile Include="ReverseEngineeringGenerator.cs" />
+    <Compile Include="Internal\RelationalMetadataModelProvider.cs" />
     <Compile Include="Utilities\CSharpUtilities.cs" />
     <Compile Include="Utilities\ModelUtilities.cs" />
     <Compile Include="Utilities\PlatformHelper.cs" />
@@ -111,10 +111,10 @@
       <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
-    <EmbeddedResource Include="ReverseEngineering\Internal\Templates\DbContextTemplate.cshtml">
+    <EmbeddedResource Include="Internal\Templates\DbContextTemplate.cshtml">
       <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Internal.Templates.DbContextTemplate.cshtml</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="ReverseEngineering\Internal\Templates\EntityTypeTemplate.cshtml">
+    <EmbeddedResource Include="Internal\Templates\EntityTypeTemplate.cshtml">
       <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Internal.Templates.EntityTypeTemplate.cshtml</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
@@ -131,6 +131,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

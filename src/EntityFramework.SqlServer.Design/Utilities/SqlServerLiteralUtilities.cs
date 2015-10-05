@@ -8,7 +8,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
+namespace Microsoft.Data.Entity.Scaffolding.Utilities
 {
     public class SqlServerLiteralUtilities
     {

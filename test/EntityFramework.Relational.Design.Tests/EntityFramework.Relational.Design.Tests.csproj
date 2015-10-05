@@ -8,7 +8,7 @@
     <ProjectGuid>{A8B8291A-2E63-48DC-A19E-41AF9E50F22D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational.Design</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Scaffolding</RootNamespace>
     <AssemblyName>EntityFramework.Relational.Design.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -33,10 +33,10 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="NullLogger.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSetTests.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionTests.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSetBuilderTests.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
+    <Compile Include="Internal\TableSelectionSetTests.cs" />
+    <Compile Include="Internal\TableSelectionTests.cs" />
+    <Compile Include="Internal\TableSelectionSetBuilderTests.cs" />
+    <Compile Include="ReverseEngineeringConfigurationTests.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

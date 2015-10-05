@@ -7,10 +7,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
-using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
-using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.Scaffolding.FunctionalTests;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
+namespace Microsoft.Data.Entity.Scaffolding.Utilities
 {
     public static class SqlServerTypeMapping
     {
