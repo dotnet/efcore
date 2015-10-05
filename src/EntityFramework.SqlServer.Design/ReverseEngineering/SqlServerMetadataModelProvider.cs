@@ -196,7 +196,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
             foreach (var table in _tables.Values)
             {
-                if (!_tableSelectionSet.Allows(table.SchemaName, table.TableName))
+                if (!AllowedBySelections(table.SchemaName, table.TableName))
                 {
                     continue;
                 }
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             foreach (var tc in _tableColumns.Values)
             {
                 var table = _tables[tc.TableId];
-                if (!_tableSelectionSet.Allows(table.SchemaName, table.TableName))
+                if (!AllowedBySelections(table.SchemaName, table.TableName))
                 {
                     continue;
                 }
@@ -464,7 +464,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
 
             var toTable = _tables[_tableColumns[foreignKeyColumnMapping.ToColumnId].TableId];
-            if (!_tableSelectionSet.Allows(toTable.SchemaName, toTable.TableName))
+            if (!AllowedBySelections(toTable.SchemaName, toTable.TableName))
             {
                 // target property belongs to a table which was excluded by the TableSelectionSet
                 return null;
@@ -481,6 +481,28 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             }
 
             return toColumnRelationalProperty;
+        }
+
+        protected virtual bool AllowedBySelections([NotNull] string schemaName, [NotNull] string tableName)
+        {
+            if (_tableSelectionSet == null
+                || (_tableSelectionSet.Schemas.Count == 0
+                && _tableSelectionSet.Tables.Count == 0))
+            {
+                return true;
+            }
+
+            if (_tableSelectionSet.Schemas.Contains(schemaName))
+            {
+                return true;
+            }
+
+            return _tableSelectionSet.Tables.Contains($"{schemaName}.{tableName}")
+                || _tableSelectionSet.Tables.Contains($"[{schemaName}].[{tableName}]")
+                || _tableSelectionSet.Tables.Contains($"{schemaName}.[{tableName}]")
+                || _tableSelectionSet.Tables.Contains($"[{schemaName}].{tableName}")
+                || _tableSelectionSet.Tables.Contains($"{tableName}")
+                || _tableSelectionSet.Tables.Contains($"[{tableName}]");
         }
     }
 }

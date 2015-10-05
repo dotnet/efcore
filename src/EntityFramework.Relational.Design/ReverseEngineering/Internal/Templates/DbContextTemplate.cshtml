@@ -107,8 +107,10 @@
     }
 }
 @{
-    var useFluentApi = this.Model.CustomConfiguration.UseFluentApiOnly;
-    var className = this.Model.CustomConfiguration.ContextClassName ?? Model.ClassName();
+    var useFluentApi = Model.CustomConfiguration.UseFluentApiOnly;
+    var className = string.IsNullOrWhiteSpace(Model.CustomConfiguration.ContextClassName)
+        ? Model.ClassName()
+        : Model.CustomConfiguration.ContextClassName;
 }using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
