@@ -5,6 +5,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -102,12 +103,16 @@ namespace Microsoft.Data.Entity.Commands
                             var environment = list.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
+                            var json = list.Option(
+                                "--json",
+                                "Use json output");
                             var verbose = list.Option(
                                 "-v|--verbose",
                                 "Show verbose output");
                             list.HelpOption("-?|-h|--help");
                             list.OnExecute(
-                                () => CreateExecutor(environment.Value(), verbose.HasValue()).ListContexts());
+                                () => CreateExecutor(environment.Value(), verbose.HasValue()).ListContexts(
+                                    json.HasValue()));
                         });
                     dbcontext.Command(
                         "scaffold",
@@ -224,13 +229,17 @@ namespace Microsoft.Data.Entity.Commands
                             var environment = list.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
+                            var json = list.Option(
+                                "--json",
+                                "Use json output");
                             var verbose = list.Option(
                                 "-v|--verbose",
                                 "Show verbose output");
                             list.HelpOption("-?|-h|--help");
                             list.OnExecute(
                                 () => CreateExecutor(environment.Value(), verbose.HasValue()).ListMigrations(
-                                    context.Value()));
+                                    context.Value(),
+                                    json.HasValue()));
                         });
                     migration.Command(
                         "remove",
@@ -369,21 +378,54 @@ namespace Microsoft.Data.Entity.Commands
                         dnxServices));
             }
 
-            public virtual int ListContexts()
+            public virtual int ListContexts(bool json)
                 => Execute(
                     () =>
                     {
-                        var contexts = _contextOperations.Value.GetContextTypes();
-                        var any = false;
-                        foreach (var context in contexts)
+                        var contexts = _contextOperations.Value.GetContextTypes().ToList();
+                        if (json)
                         {
-                            _logger.Value.LogInformation(context.FullName);
-                            any = true;
-                        }
+                            var builder = new IndentedStringBuilder();
 
-                        if (!any)
+                            builder.AppendLine("[");
+
+                            using (builder.Indent())
+                            {
+                                for (var i = 0; i < contexts.Count; i++)
+                                {
+                                    var context = contexts[i];
+
+                                    builder
+                                        .Append("{ \"fullName\": \"")
+                                        .Append(context.FullName)
+                                        .Append("\" }");
+
+                                    if (i != contexts.Count - 1)
+                                    {
+                                        builder.Append(",");
+                                    }
+
+                                    builder.AppendLine();
+                                }
+                            }
+
+                            builder.AppendLine("]");
+
+                            _logger.Value.LogInformation(builder.ToString());
+                        }
+                        else
                         {
-                            _logger.Value.LogInformation("No DbContext was found");
+                            var any = false;
+                            foreach (var context in contexts)
+                            {
+                                _logger.Value.LogInformation(context.FullName);
+                                any = true;
+                            }
+
+                            if (!any)
+                            {
+                                _logger.Value.LogInformation("No DbContext was found");
+                            }
                         }
                     });
 
@@ -401,21 +443,64 @@ namespace Microsoft.Data.Entity.Commands
             public virtual int UpdateDatabase([CanBeNull] string migration, [CanBeNull] string context)
                 => Execute(() => _migrationsOperations.Value.UpdateDatabase(migration, context));
 
-            public virtual int ListMigrations([CanBeNull] string context)
+            public virtual int ListMigrations([CanBeNull] string context, bool json)
                 => Execute(
                     () =>
                     {
-                        var migrations = _migrationsOperations.Value.GetMigrations(context);
-                        var any = false;
-                        foreach (var migration in migrations)
+                        var migrations = _migrationsOperations.Value.GetMigrations(context).ToList();
+                        if (json)
                         {
-                            _logger.Value.LogInformation(migration.Id);
-                            any = true;
-                        }
+                            var builder = new IndentedStringBuilder();
 
-                        if (!any)
+                            builder.AppendLine("[");
+
+                            using (builder.Indent())
+                            {
+                                for (var i = 0; i < migrations.Count; i++)
+                                {
+                                    var migration = migrations[i];
+
+                                    builder.AppendLine("{");
+
+                                    using (builder.Indent())
+                                    {
+                                        builder
+                                            .Append("\"id\": \"")
+                                            .Append(migration.Id)
+                                            .AppendLine("\",")
+                                            .Append("\"name\": \"")
+                                            .Append(migration.Name)
+                                            .AppendLine("\"");
+                                    }
+
+                                    builder.Append("}");
+
+                                    if (i != migrations.Count - 1)
+                                    {
+                                        builder.Append(",");
+                                    }
+
+                                    builder.AppendLine();
+                                }
+                            }
+
+                            builder.AppendLine("]");
+
+                            _logger.Value.LogInformation(builder.ToString());
+                        }
+                        else
                         {
-                            _logger.Value.LogInformation("No migrations were found");
+                            var any = false;
+                            foreach (var migration in migrations)
+                            {
+                                _logger.Value.LogInformation(migration.Id);
+                                any = true;
+                            }
+
+                            if (!any)
+                            {
+                                _logger.Value.LogInformation("No migrations were found");
+                            }
                         }
                     });
 
