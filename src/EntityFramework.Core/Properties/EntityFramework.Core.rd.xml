@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
   <Library>
-    <Assembly Name="EntityFramework.Core" Activate="All" />
     <!-- TODO optimize this for types that actually need reflection -->
+    <Assembly Name="EntityFramework.Core" Dynamic="Required All" />
+
+    <!-- TODO https://github.com/aspnet/EntityFramework/issues/3477 -->
+    <Type Name="Microsoft.Data.Entity.DbSet{TEntity}">
+      <GenericParameter Name="TEntity" Dynamic="Required All"/>
+      <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All"/>
+    </Type>
+    
   </Library>
 </Directives>

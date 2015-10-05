@@ -415,6 +415,7 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\Internal\SharedTypeExtensions.cs</Link>
     </Compile>
+    <Compile Include="Utilities\Imply.cs" />
     <Compile Include="Update\IUpdateEntry.cs" />
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGeneratorState.cs" />
