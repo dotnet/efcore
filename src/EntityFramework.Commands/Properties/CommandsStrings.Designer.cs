@@ -252,6 +252,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("UnreferencedAssembly", "assembly", "startupProject"), assembly, startupProject);
         }
 
+        /// <summary>
+        /// Finding DbContext classes...
+        /// </summary>
+        public static string LogFindingContexts
+        {
+            get { return GetString("LogFindingContexts"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

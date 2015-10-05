@@ -207,4 +207,7 @@
   <data name="UnreferencedAssembly" xml:space="preserve">
     <value>Could not load assembly '{assembly}'. Ensure it is referenced by the startup project '{startupProject}'.</value>
   </data>
+  <data name="LogFindingContexts" xml:space="preserve">
+    <value>Finding DbContext classes...</value>
+  </data>
 </root>

@@ -64,20 +64,40 @@ namespace Microsoft.Data.Entity.Design
 
         private IDictionary<Type, Func<DbContext>> FindContextTypes()
         {
-            // TODO: Look for IDbContextFactory implementations
+            _logger.Value.LogVerbose(CommandsStrings.LogFindingContexts);
+
+            var startupAssembly = Assembly.Load(new AssemblyName(_startupAssemblyName));
             var contexts = new Dictionary<Type, Func<DbContext>>();
+
+            // Look for IDbContextFactory implementations
+            var contextFactories = startupAssembly.GetConstructibleTypes()
+                .Where(t => typeof(IDbContextFactory<DbContext>).GetTypeInfo().IsAssignableFrom(t));
+            foreach (var factory in contextFactories)
+            {
+                var manufacturedContexts =
+                    from i in factory.ImplementedInterfaces
+                    where i.GetTypeInfo().IsGenericType
+                        && i.GetGenericTypeDefinition() == typeof(IDbContextFactory<>)
+                    select i.GenericTypeArguments[0];
+                foreach (var context in manufacturedContexts)
+                {
+                    contexts.Add(
+                        context,
+                        () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory.AsType())).Create());
+                }
+            }
 
             // Look for DbContext classes registered in the service provider
             var registeredContexts = _runtimeServices.GetServices<DbContextOptions>()
                 .Select(o => o.GetType().GenericTypeArguments[0]);
-            foreach (var context in registeredContexts)
+            foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
             {
-                contexts.Add(context, () => (DbContext)_runtimeServices.GetRequiredService(context));
+                contexts.Add(
+                    context,
+                    FindContextFactory(context) ?? (() => (DbContext)_runtimeServices.GetRequiredService(context)));
             }
 
             // Look for DbContext classes in assemblies
-            var startupAssembly = Assembly.Load(new AssemblyName(_startupAssemblyName));
-
             Assembly assembly;
             try
             {
@@ -97,12 +117,29 @@ namespace Microsoft.Data.Entity.Design
                         .Select(t => t.GetTypeInfo().GetCustomAttribute<DbContextAttribute>()?.ContextType)
                         .Where(t => t != null))
                 .Distinct();
-            foreach (var context in contextTypes)
+            foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
             {
-                contexts.Add(context, () => (DbContext)Activator.CreateInstance(context));
+                contexts.Add(
+                    context,
+                    FindContextFactory(context) ?? (() => (DbContext)Activator.CreateInstance(context)));
             }
 
             return contexts;
+        }
+
+        private static Func<DbContext> FindContextFactory(Type contextType)
+        {
+            var factoryInterface = typeof(IDbContextFactory<>).MakeGenericType(contextType).GetTypeInfo();
+            var factory = contextType.GetTypeInfo().Assembly.GetConstructibleTypes()
+                .Where(t => factoryInterface.IsAssignableFrom(t))
+                .Select(t => t.AsType())
+                .FirstOrDefault();
+            if (factory == null)
+            {
+                return null;
+            }
+
+            return () => ((IDbContextFactory<DbContext>)Activator.CreateInstance(factory)).Create();
         }
 
         private KeyValuePair<Type, Func<DbContext>> FindContextType(string name)

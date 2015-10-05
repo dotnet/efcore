@@ -73,6 +73,7 @@
     <Compile Include="GraphBehavior.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
+    <Compile Include="Infrastructure\IDbContextFactory.cs" />
     <Compile Include="Infrastructure\ModelSource.cs" />
     <Compile Include="Infrastructure\CoreLoggingEventId.cs" />
     <Compile Include="Internal\DatabaseProviderSelector.cs" />

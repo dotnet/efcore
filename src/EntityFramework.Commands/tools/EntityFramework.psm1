@@ -31,6 +31,9 @@ Register-TabExpansion Use-DbContext @{
 .PARAMETER StartupProject
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, Development is used.
+
 .LINK
     about_EntityFramework
 #>
@@ -74,6 +77,9 @@ Register-TabExpansion Add-Migration @{
 
 .PARAMETER StartupProject
     Specifies the startup project to use. If omitted, the solution's startup project is used.
+
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, Development is used.
 
 .LINK
     Remove-Migration
@@ -136,6 +142,9 @@ Register-TabExpansion Update-Database @{
 
 .PARAMETER StartupProject
     Specifies the startup project to use. If omitted, the solution's startup project is used.
+
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, Development is used.
 
 .LINK
     Script-Migration
@@ -214,6 +223,9 @@ Register-TabExpansion Script-Migration @{
 .PARAMETER StartupProject
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, Development is used.
+
 .LINK
     Update-Database
     about_EntityFramework
@@ -291,6 +303,9 @@ Register-TabExpansion Remove-Migration @{
 .PARAMETER StartupProject
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, Development is used.
+
 .LINK
     Add-Migration
     about_EntityFramework
@@ -353,6 +368,12 @@ Register-TabExpansion Scaffold-DbContext @{
 
 .PARAMETER Project
     Specifies the project to use. If omitted, the default project is used.
+
+.PARAMETER StartupProject
+    Specifies the startup project to use. If omitted, the solution's startup project is used.
+
+.PARAMETER Environment
+    Specifies the environment to use. If omitted, Development is used.
 
 .LINK
     about_EntityFramework
