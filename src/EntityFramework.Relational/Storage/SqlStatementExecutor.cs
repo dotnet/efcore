@@ -176,11 +176,12 @@ namespace Microsoft.Data.Entity.Storage
                     }
                     catch (Exception exception)
                     {
-                        WriteTelemetry(
-                            RelationalTelemetry.CommandExecutionError,
-                            command,
-                            executeMethod,
-                            exception: exception);
+                        _telemetrySource
+                            .WriteCommandError(
+                                command,
+                                executeMethod,
+                                async: false,
+                                exception: exception);
 
                         throw;
                     }
@@ -228,12 +229,12 @@ namespace Microsoft.Data.Entity.Storage
                     }
                     catch (Exception exception)
                     {
-                        WriteTelemetry(
-                            RelationalTelemetry.CommandExecutionError,
-                            command,
-                            executeMethod,
-                            async: true,
-                            exception: exception);
+                        _telemetrySource
+                            .WriteCommandError(
+                                command,
+                                executeMethod,
+                                async: true,
+                                exception: exception);
 
                         throw;
                     }
@@ -254,14 +255,13 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         private void WriteTelemetry(
-            string name, DbCommand command, string executeMethod, bool async = false, Exception exception = null)
+            string name, DbCommand command, string executeMethod, bool async = false)
             => _telemetrySource
                 .WriteCommand(
                     name,
                     command,
                     executeMethod,
-                    async: async,
-                    exception: exception);
+                    async: async);
 
         private RelationalCommand CreateCommand(string sql)
             => _commandBuilderFactory.Create()

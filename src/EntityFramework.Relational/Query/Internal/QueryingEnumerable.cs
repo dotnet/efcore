@@ -82,7 +82,12 @@ namespace Microsoft.Data.Entity.Query.Internal
                             }
                             catch (Exception exception)
                             {
-                                WriteTelemetry(RelationalTelemetry.CommandExecutionError, command, exception);
+                                _queryingEnumerable._telemetrySource
+                                    .WriteCommandError(
+                                        command,
+                                        RelationalTelemetry.ExecuteMethod.ExecuteReader,
+                                        async: false,
+                                        exception: exception);
 
                                 throw;
                             }
@@ -114,14 +119,13 @@ namespace Microsoft.Data.Entity.Query.Internal
                 return false;
             }
 
-            private void WriteTelemetry(string name, DbCommand command, Exception exception = null)
+            private void WriteTelemetry(string name, DbCommand command)
                 => _queryingEnumerable._telemetrySource
                     .WriteCommand(
                         name,
                         command,
                         RelationalTelemetry.ExecuteMethod.ExecuteReader,
-                        async: false,
-                        exception: exception);
+                        async: false);
 
             public ValueBuffer Current { get; private set; }
 

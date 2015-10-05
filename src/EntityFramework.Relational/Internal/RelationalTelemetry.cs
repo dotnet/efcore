@@ -27,13 +27,32 @@ namespace Microsoft.Data.Entity.Internal
             string telemetryName,
             DbCommand command,
             string executeMethod,
-            bool async,
-            Exception exception = null)
+            bool async)
         {
             if (telemetrySource.IsEnabled(telemetryName))
             {
                 telemetrySource.WriteTelemetry(
                     telemetryName,
+                    new
+                    {
+                        Command = command,
+                        ExecuteMethod = executeMethod,
+                        IsAsync = async
+                    });
+            }
+        }
+
+        public static void WriteCommandError(
+            this TelemetrySource telemetrySource,
+            DbCommand command,
+            string executeMethod,
+            bool async,
+            Exception exception)
+        {
+            if (telemetrySource.IsEnabled(CommandExecutionError))
+            {
+                telemetrySource.WriteTelemetry(
+                    CommandExecutionError,
                     new
                     {
                         Command = command,

@@ -15,7 +15,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
-using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
 using Xunit;
@@ -148,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         private class FakeSqlGenerator : UpdateSqlGenerator
         {
             public FakeSqlGenerator()
-                :base(new RelationalSqlGenerator())
+                : base(new RelationalSqlGenerator())
             {
             }
 
@@ -272,10 +271,10 @@ namespace Microsoft.Data.Entity.Tests.Update
             command.AddEntry(entry);
 
             var mockReader = CreateDataReaderMock(new[] { "Col1" }, new List<object[]>
-                {
-                    new object[] { 42 },
-                    new object[] { 43 }
-                });
+            {
+                new object[] { 42 },
+                new object[] { 43 }
+            });
             var batch = new ModificationCommandBatchFake(mockReader.Object);
             batch.AddCommand(command);
 
@@ -339,14 +338,14 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             commandMock1.Setup(m => m.ColumnModifications).Returns(
                 new List<ColumnModification>
-                    {
-                        new ColumnModification(
-                            entry,
-                            property,
-                            property.TestProvider(),
-                            new ParameterNameGenerator(),
-                            false, true, false, false)
-                    });
+                {
+                    new ColumnModification(
+                        entry,
+                        property,
+                        property.TestProvider(),
+                        new ParameterNameGenerator(),
+                        false, true, false, false)
+                });
             batch.AddCommand(commandMock1.Object);
 
             var commandMock2 = new Mock<ModificationCommand>(
@@ -356,14 +355,14 @@ namespace Microsoft.Data.Entity.Tests.Update
                 (Func<IProperty, IRelationalPropertyAnnotations>)(p => p.TestProvider()));
             commandMock2.Setup(m => m.ColumnModifications).Returns(
                 new List<ColumnModification>
-                    {
-                        new ColumnModification(
-                            entry,
-                            property,
-                            property.TestProvider(),
-                            new ParameterNameGenerator(),
-                            false, true, false, false)
-                    });
+                {
+                    new ColumnModification(
+                        entry,
+                        property,
+                        property.TestProvider(),
+                        new ParameterNameGenerator(),
+                        false, true, false, false)
+                });
             batch.AddCommand(commandMock2.Object);
 
             var transaction = CreateMockDbTransaction();
@@ -622,12 +621,12 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null)
                 : base(
-                      new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
-                      new RelationalSqlGenerator(),
-                      sqlGenerator ?? new FakeSqlGenerator(),
-                      new TypedRelationalValueBufferFactoryFactory(),
-                      new Mock<ISensitiveDataLogger>().Object,
-                      new TelemetryListener("Fake"))
+                    new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                    new RelationalSqlGenerator(),
+                    sqlGenerator ?? new FakeSqlGenerator(),
+                    new TypedRelationalValueBufferFactoryFactory(),
+                    new Mock<ISensitiveDataLogger>().Object,
+                    new TelemetryListener("Fake"))
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
@@ -635,12 +634,12 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public ModificationCommandBatchFake(DbDataReader reader, IUpdateSqlGenerator sqlGenerator = null)
                 : base(
-                      new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
-                      new RelationalSqlGenerator(),
-                      sqlGenerator ?? new FakeSqlGenerator(),
-                      new TypedRelationalValueBufferFactoryFactory(),
-                      new Mock<ISensitiveDataLogger>().Object,
-                      new TelemetryListener("Fake"))
+                    new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                    new RelationalSqlGenerator(),
+                    sqlGenerator ?? new FakeSqlGenerator(),
+                    new TypedRelationalValueBufferFactoryFactory(),
+                    new Mock<ISensitiveDataLogger>().Object,
+                    new TelemetryListener("Fake"))
             {
                 _reader = reader;
                 ShouldAddCommand = true;
@@ -734,9 +733,9 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
-                    {
-                        { typeof(int), new RelationalTypeMapping("int", DbType.String) }
-                    };
+                {
+                    { typeof(int), new RelationalTypeMapping("int", DbType.String) }
+                };
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
                 = new Dictionary<string, RelationalTypeMapping>();
