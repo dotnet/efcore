@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.Design

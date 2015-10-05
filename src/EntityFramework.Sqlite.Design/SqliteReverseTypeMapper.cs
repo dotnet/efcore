@@ -4,7 +4,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Sqlite.Design
+namespace Microsoft.Data.Entity.Scaffolding
 {
     /// <summary>
     ///     This maps SQLite's loose type affinities to CLR types.

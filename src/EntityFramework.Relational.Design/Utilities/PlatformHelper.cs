@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Microsoft.Data.Entity.Relational.Design.Utilities
+namespace Microsoft.Data.Entity.Scaffolding.Utilities
 {
     internal static class PlatformHelper
     {

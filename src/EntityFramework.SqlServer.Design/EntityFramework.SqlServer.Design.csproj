@@ -8,7 +8,7 @@
     <ProjectGuid>{9AFDF1FA-1710-48E3-9802-7AB9DAC91B35}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.SqlServer.Design</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Scaffolding</RootNamespace>
     <AssemblyName>EntityFramework.SqlServer.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -33,6 +33,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
   </ItemGroup>
@@ -43,14 +44,14 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="ReverseEngineering\Configuration\SqlServerModelConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Model\ForeignKeyColumnMapping.cs" />
-    <Compile Include="ReverseEngineering\Model\TableColumn.cs" />
-    <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
-    <Compile Include="ReverseEngineering\Model\Table.cs" />
-    <Compile Include="ReverseEngineering\SqlServerConfigurationFactory.cs" />
-    <Compile Include="ReverseEngineering\SqlServerDesignTimeMetadataProviderFactory.cs" />
-    <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
+    <Compile Include="Internal\Configuration\SqlServerModelConfiguration.cs" />
+    <Compile Include="Internal\Model\ForeignKeyColumnMapping.cs" />
+    <Compile Include="Internal\Model\TableColumn.cs" />
+    <Compile Include="Internal\Model\TableConstraintColumn.cs" />
+    <Compile Include="Internal\Model\Table.cs" />
+    <Compile Include="Internal\SqlServerConfigurationFactory.cs" />
+    <Compile Include="Internal\SqlServerDesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="Internal\SqlServerMetadataModelProvider.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />
     <Compile Include="Utilities\SqlServerTypeMapping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

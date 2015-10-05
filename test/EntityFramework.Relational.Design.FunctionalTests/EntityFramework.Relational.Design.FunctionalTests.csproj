@@ -8,7 +8,7 @@
     <ProjectGuid>{9AD9FE9F-DEA7-4D2E-ACC3-7CDE92100CC8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational.Design.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Scaffolding.FunctionalTests</RootNamespace>
     <AssemblyName>EntityFramework.Relational.Design.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,11 +54,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReverseEngineering\E2ECompiler.cs" />
-    <Compile Include="ReverseEngineering\E2ETestBase.cs" />
-    <Compile Include="ReverseEngineering\FileSet.cs" />
-    <Compile Include="ReverseEngineering\InMemoryCommandLogger.cs" />
-    <Compile Include="ReverseEngineering\InMemoryFileService.cs" />
+    <Compile Include="E2ECompiler.cs" />
+    <Compile Include="E2ETestBase.cs" />
+    <Compile Include="FileSet.cs" />
+    <Compile Include="InMemoryCommandLogger.cs" />
+    <Compile Include="InMemoryFileService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
