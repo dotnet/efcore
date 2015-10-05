@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Update
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
 
-        protected virtual StringBuilder CachedCommandText { get;[param: NotNull] set; }
+        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
 
         protected virtual int LastCachedCommandIndex { get; set; }
 
@@ -228,10 +228,10 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] DbDataReader reader,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        protected IRelationalValueBufferFactory CreateValueBufferFactory(IReadOnlyList<ColumnModification> columnModifications)
+        protected virtual  IRelationalValueBufferFactory CreateValueBufferFactory([NotNull] IReadOnlyList<ColumnModification> columnModifications)
             => _valueBufferFactoryFactory
                 .Create(
-                    columnModifications
+                    Check.NotNull(columnModifications, nameof(columnModifications))
                         .Where(c => c.IsRead)
                         .Select(c => c.Property.ClrType)
                         .ToArray(),
