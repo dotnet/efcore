@@ -47,7 +47,6 @@ namespace Microsoft.Data.Entity.Migrations
             };
 
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly IRelationalTypeMapper _typeMapper;
         private readonly IRelationalAnnotationProvider _annotations;
 
         public MigrationsSqlGenerator(
@@ -63,11 +62,12 @@ namespace Microsoft.Data.Entity.Migrations
 
             _commandBuilderFactory = commandBuilderFactory;
             SqlGenerator = sqlGenerator;
-            _typeMapper = typeMapper;
+            TypeMapper = typeMapper;
             _annotations = annotations;
         }
 
         protected virtual ISqlGenerator SqlGenerator { get; }
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual IReadOnlyList<RelationalCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
@@ -255,7 +255,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append(" AS ")
-                    .Append(_typeMapper.GetMapping(operation.ClrType).DefaultTypeName);
+                    .Append(TypeMapper.GetMapping(operation.ClrType).DefaultTypeName);
             }
 
             builder
@@ -576,8 +576,8 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 var property = FindProperty(model, schema, table, name);
                 type = property != null
-                    ? _typeMapper.GetMapping(property).DefaultTypeName
-                    : _typeMapper.GetMapping(clrType).DefaultTypeName;
+                    ? TypeMapper.GetMapping(property).DefaultTypeName
+                    : TypeMapper.GetMapping(clrType).DefaultTypeName;
             }
 
             builder
