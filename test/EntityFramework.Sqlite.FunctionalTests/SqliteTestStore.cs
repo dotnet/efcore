@@ -45,9 +45,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             CreateShared(typeof(SqliteTestStore).Name + _name, initializeDatabase);
 
-            _connection = new SqliteConnection(CreateConnectionString(_name));
+            CreateAndOpenConnection();
 
-            _connection.Open();
             _transaction = _connection.BeginTransaction();
 
             return this;
@@ -55,11 +54,20 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         private SqliteTestStore CreateTransient(bool sharedCache)
         {
+            CreateAndOpenConnection(sharedCache);
+
+            return AsTransient();
+        }
+
+        private void CreateAndOpenConnection(bool sharedCache = false)
+        {
             _connection = new SqliteConnection(CreateConnectionString(_name, sharedCache));
 
             _connection.Open();
 
-            return AsTransient();
+            var command = _connection.CreateCommand();
+            command.CommandText = "PRAGMA foreign_keys=ON;";
+            command.ExecuteNonQuery();
         }
 
         public SqliteTestStore AsTransient()
