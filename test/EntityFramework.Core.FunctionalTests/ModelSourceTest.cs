@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Base>().Annotation("AllYourBaseAreBelongTo", "Us!");
+                modelBuilder.Entity<Base>().HasAnnotation("AllYourBaseAreBelongTo", "Us!");
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

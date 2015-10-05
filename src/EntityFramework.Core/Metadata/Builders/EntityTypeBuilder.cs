@@ -67,28 +67,28 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual EntityTypeBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+        public virtual EntityTypeBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
+            Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
             return this;
         }
 
-        public virtual EntityTypeBuilder BaseType([NotNull] string name)
+        public virtual EntityTypeBuilder HasBaseType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            return New(Builder.BaseType(name, ConfigurationSource.Explicit));
+            return New(Builder.HasBaseType(name, ConfigurationSource.Explicit));
         }
 
-        public virtual EntityTypeBuilder BaseType([NotNull] Type entityType)
+        public virtual EntityTypeBuilder HasBaseType([NotNull] Type entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return New(Builder.BaseType(entityType, ConfigurationSource.Explicit));
+            return New(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -174,11 +174,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="propertyNames"> The names of the properties that make up the index. </param>
         /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder Index([NotNull] params string[] propertyNames)
+        public virtual IndexBuilder HasIndex([NotNull] params string[] propertyNames)
         {
             Check.NotEmpty(propertyNames, nameof(propertyNames));
 
-            return new IndexBuilder(Builder.Index(propertyNames, ConfigurationSource.Explicit));
+            return new IndexBuilder(Builder.HasIndex(propertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerIndexBuilderExtensions
     {
-        public static IndexBuilder SqlServerIndexName([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string name)
+        public static IndexBuilder ForSqlServerHasName([NotNull] this IndexBuilder indexBuilder, [CanBeNull] string name)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
             return indexBuilder;
         }
 
-        public static IndexBuilder SqlServerClustered([NotNull] this IndexBuilder indexBuilder, bool clustered = true)
+        public static IndexBuilder ForSqlServerIsClustered([NotNull] this IndexBuilder indexBuilder, bool clustered = true)
         {
             Check.NotNull(indexBuilder, nameof(indexBuilder));
 

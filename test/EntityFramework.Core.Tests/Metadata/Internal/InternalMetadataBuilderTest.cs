@@ -20,12 +20,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = CreateInternalMetadataBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.Annotation("Foo", "1", ConfigurationSource.Convention));
-            Assert.True(builder.Annotation("Foo", "2", ConfigurationSource.DataAnnotation));
+            Assert.True(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
+            Assert.True(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
             Assert.Equal("2", metadata.Annotations.Single().Value);
 
-            Assert.False(builder.Annotation("Foo", "1", ConfigurationSource.Convention));
+            Assert.False(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
             Assert.Equal("2", metadata.Annotations.Single().Value);
         }
 
@@ -36,12 +36,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
-            Assert.True(builder.Annotation("Foo", "1", ConfigurationSource.DataAnnotation));
-            Assert.False(builder.Annotation("Foo", "2", ConfigurationSource.DataAnnotation));
+            Assert.True(builder.HasAnnotation("Foo", "1", ConfigurationSource.DataAnnotation));
+            Assert.False(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
             Assert.Equal("1", metadata.Annotations.Single().Value);
 
-            Assert.True(builder.Annotation("Foo", "2", ConfigurationSource.Explicit));
+            Assert.True(builder.HasAnnotation("Foo", "2", ConfigurationSource.Explicit));
             Assert.Equal("2", metadata.Annotations.Single().Value);
         }
 
@@ -52,11 +52,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata["Foo"] = "1";
 
-            Assert.False(builder.Annotation("Foo", null, ConfigurationSource.Convention));
+            Assert.False(builder.HasAnnotation("Foo", null, ConfigurationSource.Convention));
 
             Assert.Equal("1", metadata.Annotations.Single().Value);
 
-            Assert.True(builder.Annotation("Foo", null, ConfigurationSource.Explicit));
+            Assert.True(builder.HasAnnotation("Foo", null, ConfigurationSource.Explicit));
             Assert.Equal(0, metadata.Annotations.Count());
         }
     }

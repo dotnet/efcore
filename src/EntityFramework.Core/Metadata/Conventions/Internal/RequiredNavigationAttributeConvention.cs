@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 return relationshipBuilder;
             }
-            return relationshipBuilder.Required(true, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
+            return relationshipBuilder.IsRequired(true, ConfigurationSource.DataAnnotation) ?? relationshipBuilder;
         }
     }
 }

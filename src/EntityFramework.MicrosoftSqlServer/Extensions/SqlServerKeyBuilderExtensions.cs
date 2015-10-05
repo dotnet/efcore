@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerKeyBuilderExtensions
     {
-        public static KeyBuilder SqlServerKeyName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string name)
+        public static KeyBuilder ForSqlServerHasName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string name)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
             return keyBuilder;
         }
 
-        public static KeyBuilder SqlServerClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
+        public static KeyBuilder ForSqlServerIsClustered([NotNull] this KeyBuilder keyBuilder, bool clustered = true)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
 

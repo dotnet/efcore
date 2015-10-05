@@ -44,7 +44,7 @@ namespace E2ETest.Namespace
 
                 entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 });
 
-                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK).WithOne(p => p.OneToOneFKToUniqueKeyDependent).PrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 }).ForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
+                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK).WithOne(p => p.OneToOneFKToUniqueKeyDependent).HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 }).HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>

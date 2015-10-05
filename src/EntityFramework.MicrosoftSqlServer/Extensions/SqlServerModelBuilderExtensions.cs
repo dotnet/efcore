@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerModelBuilderExtensions
     {
-        public static RelationalSequenceBuilder SqlServerSequence(
+        public static RelationalSequenceBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
@@ -26,13 +26,13 @@ namespace Microsoft.Data.Entity
                 modelBuilder.Model.SqlServer().GetOrAddSequence(name, schema));
         }
 
-        public static ModelBuilder SqlServerSequence(
+        public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.SqlServerSequence(name, null, builderAction);
+            => modelBuilder.ForSqlServerHasSequence(name, null, builderAction);
 
-        public static ModelBuilder SqlServerSequence(
+        public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -43,12 +43,12 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(SqlServerSequence(modelBuilder, name, schema));
+            builderAction(ForSqlServerHasSequence(modelBuilder, name, schema));
 
             return modelBuilder;
         }
 
-        public static RelationalSequenceBuilder SqlServerSequence<T>(
+        public static RelationalSequenceBuilder ForSqlServerHasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
@@ -63,13 +63,13 @@ namespace Microsoft.Data.Entity
             return new RelationalSequenceBuilder(sequence);
         }
 
-        public static ModelBuilder SqlServerSequence<T>(
+        public static ModelBuilder ForSqlServerHasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.SqlServerSequence<T>(name, null, builderAction);
+            => modelBuilder.ForSqlServerHasSequence<T>(name, null, builderAction);
 
-        public static ModelBuilder SqlServerSequence<T>(
+        public static ModelBuilder ForSqlServerHasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -80,12 +80,12 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(SqlServerSequence<T>(modelBuilder, name, schema));
+            builderAction(ForSqlServerHasSequence<T>(modelBuilder, name, schema));
 
             return modelBuilder;
         }
 
-        public static RelationalSequenceBuilder SqlServerSequence(
+        public static RelationalSequenceBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
@@ -102,14 +102,14 @@ namespace Microsoft.Data.Entity
             return new RelationalSequenceBuilder(sequence);
         }
 
-        public static ModelBuilder SqlServerSequence(
+        public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.SqlServerSequence(clrType, name, null, builderAction);
+            => modelBuilder.ForSqlServerHasSequence(clrType, name, null, builderAction);
 
-        public static ModelBuilder SqlServerSequence(
+        public static ModelBuilder ForSqlServerHasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
@@ -122,12 +122,12 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(SqlServerSequence(modelBuilder, clrType, name, schema));
+            builderAction(ForSqlServerHasSequence(modelBuilder, clrType, name, schema));
 
             return modelBuilder;
         }
 
-        public static ModelBuilder UseSqlServerSequenceHiLo(
+        public static ModelBuilder ForSqlServerUseSequenceHiLo(
             [NotNull] this ModelBuilder modelBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity
 
             var sequence = 
                 model.SqlServer().FindSequence(name, schema) ?? 
-                modelBuilder.SqlServerSequence(name, schema).IncrementsBy(10).Metadata;
+                modelBuilder.ForSqlServerHasSequence(name, schema).IncrementsBy(10).Metadata;
 
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
             model.SqlServer().HiLoSequenceName = name;
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity
             return modelBuilder;
         }
 
-        public static ModelBuilder UseSqlServerIdentityColumns(
+        public static ModelBuilder ForSqlServerUseIdentityColumns(
             [NotNull] this ModelBuilder modelBuilder)
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));

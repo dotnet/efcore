@@ -11,13 +11,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Kiwi>().BaseType<Bird>();
-            modelBuilder.Entity<Eagle>().BaseType<Bird>();
-            modelBuilder.Entity<Bird>().BaseType<Animal>();
+            modelBuilder.Entity<Kiwi>().HasBaseType<Bird>();
+            modelBuilder.Entity<Eagle>().HasBaseType<Bird>();
+            modelBuilder.Entity<Bird>().HasBaseType<Animal>();
             modelBuilder.Entity<Animal>().HasKey(e => e.Species);
-            modelBuilder.Entity<Rose>().BaseType<Flower>();
-            modelBuilder.Entity<Daisy>().BaseType<Flower>();
-            modelBuilder.Entity<Flower>().BaseType<Plant>();
+            modelBuilder.Entity<Rose>().HasBaseType<Flower>();
+            modelBuilder.Entity<Daisy>().HasBaseType<Flower>();
+            modelBuilder.Entity<Flower>().HasBaseType<Plant>();
             modelBuilder.Entity<Plant>().HasKey(e => e.Species);
             modelBuilder.Entity<Country>();
         }

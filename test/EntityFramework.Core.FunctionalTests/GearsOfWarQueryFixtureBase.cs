@@ -20,15 +20,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     b.HasKey(g => new { g.Nickname, g.SquadId });
 
-                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).ForeignKey(g => g.CityOrBirthName).Required();
-                    b.HasOne(g => g.Tag).WithOne(t => t.Gear).ForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
-                    b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).Required(false);
+                    b.HasOne(g => g.CityOfBirth).WithMany(c => c.BornGears).HasForeignKey(g => g.CityOrBirthName).IsRequired();
+                    b.HasOne(g => g.Tag).WithOne(t => t.Gear).HasForeignKey<CogTag>(t => new { t.GearNickName, t.GearSquadId });
+                    b.HasOne(g => g.AssignedCity).WithMany(c => c.StationedGears).IsRequired(false);
                 });
 
-            modelBuilder.Entity<Officer>().BaseType<Gear>();
+            modelBuilder.Entity<Officer>().HasBaseType<Gear>();
             modelBuilder.Entity<Officer>(b =>
                 {
-                    b.HasMany(o => o.Reports).WithOne().ForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
+                    b.HasMany(o => o.Reports).WithOne().HasForeignKey(o => new { o.LeaderNickname, o.LeaderSquadId });
                 });
 
             modelBuilder.Entity<CogTag>(b =>
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Squad>(b =>
                 {
                     b.HasKey(s => s.Id);
-                    b.HasMany(s => s.Members).WithOne(g => g.Squad).ForeignKey(g => g.SquadId);
+                    b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
                 });
 
             // TODO: See issue #3282
@@ -47,8 +47,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             modelBuilder.Entity<Weapon>(b =>
                 {
-                    b.HasOne(w => w.SynergyWith).WithOne().ForeignKey<Weapon>(w => w.SynergyWithId);
-                    b.HasOne(w => w.Owner).WithMany(g => g.Weapons).ForeignKey(w => w.OwnerFullName).PrincipalKey(g => g.FullName);
+                    b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);
+                    b.HasOne(w => w.Owner).WithMany(g => g.Weapons).HasForeignKey(w => w.OwnerFullName).HasPrincipalKey(g => g.FullName);
                 });
         }
     }

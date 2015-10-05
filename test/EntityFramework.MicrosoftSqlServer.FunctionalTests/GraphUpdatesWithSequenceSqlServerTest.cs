@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.UseSqlServerSequenceHiLo(); // ensure model uses sequences
+                modelBuilder.ForSqlServerUseSequenceHiLo(); // ensure model uses sequences
                 base.OnModelCreating(modelBuilder);
             }
         }

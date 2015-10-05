@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     }
 
                     // TODO: Remove, as this is redundant
-                    invertedBuilder = invertedBuilder.ForeignKey(
+                    invertedBuilder = invertedBuilder.HasForeignKey(
                         candidatePropertiesOnPrincipal, ConfigurationSource.Convention);
                     Debug.Assert(invertedBuilder != null);
                     return invertedBuilder;
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (foreignKeyProperties != null
                 && relationshipBuilder.Metadata.DeclaringEntityType.FindForeignKey(foreignKeyProperties) == null)
             {
-                var newRelationshipBuilder = relationshipBuilder.ForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
+                var newRelationshipBuilder = relationshipBuilder.HasForeignKey(foreignKeyProperties, ConfigurationSource.Convention);
                 if (newRelationshipBuilder != null)
                 {
                     return newRelationshipBuilder;

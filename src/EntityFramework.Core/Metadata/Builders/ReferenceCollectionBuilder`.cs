@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         Configures the property(s) to use as the foreign key for this relationship.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PrincipalKey(Expression{Func{TPrincipalEntity, object}})" /> is not specified, then an
+        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" /> is not specified, then an
         ///         attempt will be made to match the data type and order of foreign key properties against the primary
         ///         key of
         ///         the principal entity type. If they do not match, new shadow state properties that form a unique
@@ -64,16 +64,16 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
         ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
-        ///         corresponding keys in <see cref="PrincipalKey(Expression{Func{TPrincipalEntity, object}})" />.
+        ///         corresponding keys in <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" />.
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> ForeignKey(
+        public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey(
             [NotNull] Expression<Func<TDependentEntity, object>> foreignKeyExpression)
         {
             Check.NotNull(foreignKeyExpression, nameof(foreignKeyExpression));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.ForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasForeignKey(foreignKeyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -92,12 +92,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> PrincipalKey(
+        public virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey(
             [NotNull] Expression<Func<TPrincipalEntity, object>> keyExpression)
         {
             Check.NotNull(keyExpression, nameof(keyExpression));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.PrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasPrincipalKey(keyExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -107,12 +107,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> Annotation([NotNull] string annotation, [NotNull] object value)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            return (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.Annotation(annotation, value);
+            return (ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PrincipalKey(string[])" /> is not specified, then an attempt will be made to match
+        ///         If <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" /> is not specified, then an attempt will be made to match
         ///         the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -137,11 +137,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
         {
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -152,11 +152,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> PrincipalKey([NotNull] params string[] keyPropertyNames)
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> HasPrincipalKey([NotNull] params string[] keyPropertyNames)
         {
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.PrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -165,8 +165,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> Required(bool required = true)
-            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.Required(required, ConfigurationSource.Explicit));
+        public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> IsRequired(bool required = true)
+            => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(Builder.IsRequired(required, ConfigurationSource.Explicit));
 
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> WillCascadeOnDelete(bool cascade = true)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(

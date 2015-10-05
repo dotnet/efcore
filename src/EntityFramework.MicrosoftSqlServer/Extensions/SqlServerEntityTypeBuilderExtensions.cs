@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerEntityTypeBuilderExtensions
     {
-        public static EntityTypeBuilder ToSqlServerTable(
+        public static EntityTypeBuilder ForSqlServerToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name)
         {
@@ -27,13 +27,13 @@ namespace Microsoft.Data.Entity
             return entityTypeBuilder;
         }
 
-        public static EntityTypeBuilder<TEntity> ToSqlServerTable<TEntity>(
+        public static EntityTypeBuilder<TEntity> ForSqlServerToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToSqlServerTable((EntityTypeBuilder)entityTypeBuilder, name);
+            => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name);
 
-        public static EntityTypeBuilder ToSqlServerTable(
+        public static EntityTypeBuilder ForSqlServerToTable(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
@@ -50,11 +50,11 @@ namespace Microsoft.Data.Entity
             return entityTypeBuilder;
         }
 
-        public static EntityTypeBuilder<TEntity> ToSqlServerTable<TEntity>(
+        public static EntityTypeBuilder<TEntity> ForSqlServerToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [CanBeNull] string name,
             [CanBeNull] string schema)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)ToSqlServerTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
+            => (EntityTypeBuilder<TEntity>)ForSqlServerToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
     }
 }

@@ -20,7 +20,7 @@ namespace E2E.Sqlite
 
                 entity.Property(e => e.UserAltId).HasColumnType("INTEGER");
 
-                entity.HasOne(d => d.UserAlt).WithMany(p => p.Comment).PrincipalKey(p => p.AltId).ForeignKey(d => d.UserAltId);
+                entity.HasOne(d => d.UserAlt).WithMany(p => p.Comment).HasPrincipalKey(p => p.AltId).HasForeignKey(d => d.UserAltId);
             });
 
             modelBuilder.Entity<User>(entity =>

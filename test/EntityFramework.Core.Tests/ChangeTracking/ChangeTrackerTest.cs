@@ -1042,21 +1042,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                 modelBuilder
                     .Entity<ProductDetailsTag>().HasOne(e => e.TagDetails).WithOne(e => e.Tag)
-                    .ForeignKey<ProductDetailsTagDetails>(e => e.Id);
+                    .HasForeignKey<ProductDetailsTagDetails>(e => e.Id);
 
                 modelBuilder
                     .Entity<ProductDetails>().HasOne(e => e.Tag).WithOne(e => e.Details)
-                    .ForeignKey<ProductDetailsTag>(e => e.Id);
+                    .HasForeignKey<ProductDetailsTag>(e => e.Id);
 
                 modelBuilder
                     .Entity<Product>().HasOne(e => e.Details).WithOne(e => e.Product)
-                    .ForeignKey<ProductDetails>(e => e.Id);
+                    .HasForeignKey<ProductDetails>(e => e.Id);
 
                 modelBuilder.Entity<OrderDetails>(b =>
                     {
                         b.HasKey(e => new { e.OrderId, e.ProductId });
-                        b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).ForeignKey(e => e.OrderId);
-                        b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).ForeignKey(e => e.ProductId);
+                        b.HasOne(e => e.Order).WithMany(e => e.OrderDetails).HasForeignKey(e => e.OrderId);
+                        b.HasOne(e => e.Product).WithMany(e => e.OrderDetails).HasForeignKey(e => e.ProductId);
                     });
             }
 

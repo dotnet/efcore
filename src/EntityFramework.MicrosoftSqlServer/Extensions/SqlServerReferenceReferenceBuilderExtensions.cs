@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerReferenceReferenceBuilderExtensions
     {
-        public static ReferenceReferenceBuilder SqlServerConstraintName(
+        public static ReferenceReferenceBuilder ForSqlServerHasConstraintName(
             [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder,
             [CanBeNull] string name)
         {
@@ -23,12 +23,12 @@ namespace Microsoft.Data.Entity
             return referenceReferenceBuilder;
         }
 
-        public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> SqlServerConstraintName<TEntity, TRelatedEntity>(
+        public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ForSqlServerHasConstraintName<TEntity, TRelatedEntity>(
             [NotNull] this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)SqlServerConstraintName(
+            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ForSqlServerHasConstraintName(
                 (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
     }
 }

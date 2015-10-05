@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqliteIndexBuilderExtensions
     {
-        public static IndexBuilder SqliteIndexName([NotNull] this IndexBuilder builder, [CanBeNull] string name)
+        public static IndexBuilder ForSqliteHasName([NotNull] this IndexBuilder builder, [CanBeNull] string name)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(name, nameof(name));

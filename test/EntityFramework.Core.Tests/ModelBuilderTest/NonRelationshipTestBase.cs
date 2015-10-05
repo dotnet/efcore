@@ -125,8 +125,8 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Customer>()
                     .HasKey(e => new { e.Id, e.Name });
 
-                keyBuilder.Annotation("A1", "V1")
-                    .Annotation("A2", "V2");
+                keyBuilder.HasAnnotation("A1", "V1")
+                    .HasAnnotation("A2", "V2");
 
                 var entity = model.GetEntityType(typeof(Customer));
 
@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityBuilder = modelBuilder
                     .Entity<Customer>()
-                    .Annotation("foo", "bar");
+                    .HasAnnotation("foo", "bar");
 
                 Assert.Equal("bar", entityBuilder.Metadata["foo"]);
             }
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var propertyBuilder = modelBuilder
                     .Entity<Customer>()
-                    .Property(c => c.Name).Annotation("foo", "bar");
+                    .Property(c => c.Name).HasAnnotation("foo", "bar");
 
                 Assert.Equal("bar", propertyBuilder.Metadata["foo"]);
             }
@@ -235,7 +235,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var propertyBuilder = modelBuilder
                     .Entity<Customer>()
-                    .Property<string>(Customer.NameProperty.Name).Annotation("foo", "bar");
+                    .Property<string>(Customer.NameProperty.Name).HasAnnotation("foo", "bar");
 
                 Assert.Equal("bar", propertyBuilder.Metadata["foo"]);
             }
@@ -609,7 +609,7 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Quarks>()
                     .Property(e => e.Up)
                     .IsRequired()
-                    .Annotation("A", "V")
+                    .HasAnnotation("A", "V")
                     .IsConcurrencyToken()
                     .ValueGeneratedNever()
                     .ValueGeneratedOnAdd()
@@ -626,7 +626,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder
                     .Entity<Customer>()
-                    .Index(ix => ix.Name);
+                    .HasIndex(ix => ix.Name);
 
                 var entityType = model.GetEntityType(typeof(Customer));
 
@@ -644,7 +644,7 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Customer>(b =>
                         {
                             b.Property<int>("Index");
-                            b.Index("Index");
+                            b.HasIndex("Index");
                         });
 
                 var entityType = model.GetEntityType(typeof(Customer));
@@ -660,8 +660,8 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
 
                 var entityBuilder = modelBuilder.Entity<Customer>();
-                var firstIndexBuilder = entityBuilder.Index(ix => ix.Id).Unique();
-                var secondIndexBuilder = entityBuilder.Index(ix => ix.Name).Annotation("A1", "V1");
+                var firstIndexBuilder = entityBuilder.HasIndex(ix => ix.Id).IsUnique();
+                var secondIndexBuilder = entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
 
                 var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
 

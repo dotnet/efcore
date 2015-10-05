@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 if (TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsSequences)) ?? true)
                 {
-                    modelBuilder.UseSqlServerSequenceHiLo();
+                    modelBuilder.ForSqlServerUseSequenceHiLo();
                 }
             }
         }

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalModelBuilderExtensions
     {
-        public static RelationalSequenceBuilder Sequence(
+        public static RelationalSequenceBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
@@ -25,13 +25,13 @@ namespace Microsoft.Data.Entity
                 modelBuilder.Model.Relational().GetOrAddSequence(name, schema));
         }
 
-        public static ModelBuilder Sequence(
+        public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.Sequence(name, null, builderAction);
+            => modelBuilder.HasSequence(name, null, builderAction);
 
-        public static ModelBuilder Sequence(
+        public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -42,12 +42,12 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(Sequence(modelBuilder, name, schema));
+            builderAction(HasSequence(modelBuilder, name, schema));
 
             return modelBuilder;
         }
 
-        public static RelationalSequenceBuilder Sequence(
+        public static RelationalSequenceBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
@@ -64,14 +64,14 @@ namespace Microsoft.Data.Entity
             return new RelationalSequenceBuilder(sequence);
         }
 
-        public static ModelBuilder Sequence(
+        public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.Sequence(clrType, name, null, builderAction);
+            => modelBuilder.HasSequence(clrType, name, null, builderAction);
 
-        public static ModelBuilder Sequence(
+        public static ModelBuilder HasSequence(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] Type clrType,
             [NotNull] string name,
@@ -84,12 +84,12 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(Sequence(modelBuilder, clrType, name, schema));
+            builderAction(HasSequence(modelBuilder, clrType, name, schema));
 
             return modelBuilder;
         }
 
-        public static RelationalSequenceBuilder Sequence<T>(
+        public static RelationalSequenceBuilder HasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema = null)
@@ -104,13 +104,13 @@ namespace Microsoft.Data.Entity
             return new RelationalSequenceBuilder(sequence);
         }
 
-        public static ModelBuilder Sequence<T>(
+        public static ModelBuilder HasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [NotNull] Action<RelationalSequenceBuilder> builderAction)
-            => modelBuilder.Sequence<T>(name, null, builderAction);
+            => modelBuilder.HasSequence<T>(name, null, builderAction);
 
-        public static ModelBuilder Sequence<T>(
+        public static ModelBuilder HasSequence<T>(
             [NotNull] this ModelBuilder modelBuilder,
             [NotNull] string name,
             [CanBeNull] string schema,
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(schema, nameof(schema));
             Check.NotNull(builderAction, nameof(builderAction));
 
-            builderAction(Sequence<T>(modelBuilder, name, schema));
+            builderAction(HasSequence<T>(modelBuilder, name, schema));
 
             return modelBuilder;
         }

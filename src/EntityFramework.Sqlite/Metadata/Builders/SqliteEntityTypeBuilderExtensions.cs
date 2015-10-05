@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqliteEntityTypeBuilderExtensions
     {
-        public static EntityTypeBuilder ToSqliteTable([NotNull] this EntityTypeBuilder builder, [CanBeNull] string name)
+        public static EntityTypeBuilder ForSqliteToTable([NotNull] this EntityTypeBuilder builder, [CanBeNull] string name)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(name, nameof(name));
@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity
             return builder;
         }
 
-        public static EntityTypeBuilder<TEntity> ToSqliteTable<TEntity>(
+        public static EntityTypeBuilder<TEntity> ForSqliteToTable<TEntity>(
             [NotNull] this EntityTypeBuilder<TEntity> builder,
             [CanBeNull] string name)
             where TEntity : class
-            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)builder).ToSqliteTable(name);
+            => (EntityTypeBuilder<TEntity>)((EntityTypeBuilder)builder).ForSqliteToTable(name);
     }
 }

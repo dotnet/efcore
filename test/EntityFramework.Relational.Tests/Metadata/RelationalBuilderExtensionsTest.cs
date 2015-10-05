@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>()
                 .HasKey(e => e.Id)
-                .Name("KeyLimePie");
+                .HasName("KeyLimePie");
 
             var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
 
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
-                .ConstraintName("LemonSupreme");
+                .HasConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
-                .ConstraintName(null);
+                .HasConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
         }
@@ -133,8 +133,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
-                .ForeignKey(e => e.CustomerId)
-                .ConstraintName("LemonSupreme");
+                .HasForeignKey(e => e.CustomerId)
+                .HasConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
-                .ConstraintName("LemonSupreme");
+                .HasConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
-                .ConstraintName(null);
+                .HasConstraintName(null);
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
         }
@@ -168,8 +168,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
-                .ForeignKey(e => e.CustomerId)
-                .ConstraintName("LemonSupreme");
+                .HasForeignKey(e => e.CustomerId)
+                .HasConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
@@ -183,8 +183,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .PrincipalKey<Order>(e => e.OrderId)
-                .ConstraintName("LemonSupreme");
+                .HasPrincipalKey<Order>(e => e.OrderId)
+                .HasConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .ConstraintName(null);
+                .HasConstraintName(null);
 
             Assert.Equal("FK_OrderDetails_Order_OrderId", foreignKey.Relational().Name);
         }
@@ -204,8 +204,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Order>().HasOne(e => e.Details).WithOne(e => e.Order)
-                .ForeignKey<OrderDetails>(e => e.Id)
-                .ConstraintName("LemonSupreme");
+                .HasForeignKey<OrderDetails>(e => e.Id)
+                .HasConstraintName("LemonSupreme");
 
             var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
@@ -219,8 +219,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Index(e => e.Id)
-                .Name("Eeeendeeex");
+                .HasIndex(e => e.Id)
+                .HasName("Eeeendeeex");
 
             var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
 
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Discriminator(b => b.Name)
+                .HasDiscriminator(b => b.Name)
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
@@ -314,7 +314,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity<Customer>()
-                .Discriminator("Name", typeof(string))
+                .HasDiscriminator("Name", typeof(string))
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Discriminator("Name", typeof(string))
+                .HasDiscriminator("Name", typeof(string))
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
@@ -350,7 +350,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer).FullName)
-                .Discriminator("Name", typeof(string))
+                .HasDiscriminator("Name", typeof(string))
                 .HasValue(typeof(Customer).FullName, "1")
                 .HasValue(typeof(SpecialCustomer).FullName, "2");
 
@@ -368,7 +368,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             modelBuilder
                 .Entity(typeof(Customer))
-                .Discriminator()
+                .HasDiscriminator()
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
@@ -439,7 +439,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.HasDefaultSchema("Tasty");
-            modelBuilder.Sequence("Snook");
+            modelBuilder.HasSequence("Snook");
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -453,7 +453,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder.HasDefaultSchema("db0");
-            modelBuilder.Sequence("Snook", "Tasty");
+            modelBuilder.HasSequence("Snook", "Tasty");
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 
@@ -466,7 +466,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Sequence("Snook");
+            modelBuilder.HasSequence("Snook");
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook");
 
@@ -489,7 +489,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         {
             var modelBuilder = CreateConventionModelBuilder();
 
-            modelBuilder.Sequence("Snook", "Tasty");
+            modelBuilder.HasSequence("Snook", "Tasty");
 
             var sequence = modelBuilder.Model.Relational().FindSequence("Snook", "Tasty");
 
@@ -513,7 +513,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence<int>("Snook")
+                .HasSequence<int>("Snook")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -530,7 +530,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence(typeof(int), "Snook")
+                .HasSequence(typeof(int), "Snook")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -547,7 +547,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence<int>("Snook", b =>
+                .HasSequence<int>("Snook", b =>
                 {
                     b.IncrementsBy(11)
                         .StartsAt(1729)
@@ -566,7 +566,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence(typeof(int), "Snook", b =>
+                .HasSequence(typeof(int), "Snook", b =>
                 {
                     b.IncrementsBy(11)
                         .StartsAt(1729)
@@ -596,7 +596,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence<int>("Snook", "Tasty")
+                .HasSequence<int>("Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -613,7 +613,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence(typeof(int), "Snook", "Tasty")
+                .HasSequence(typeof(int), "Snook", "Tasty")
                 .IncrementsBy(11)
                 .StartsAt(1729)
                 .HasMin(111)
@@ -630,7 +630,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence<int>("Snook", "Tasty", b =>
+                .HasSequence<int>("Snook", "Tasty", b =>
                 {
                     b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
                 });
@@ -646,7 +646,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var modelBuilder = CreateConventionModelBuilder();
 
             modelBuilder
-                .Sequence(typeof(int), "Snook", "Tasty", b =>
+                .HasSequence(typeof(int), "Snook", "Tasty", b =>
                 {
                     b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222);
                 });
@@ -787,21 +787,21 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 modelBuilder
                     .Entity<Customer>().HasMany(e => e.Orders)
                     .WithOne(e => e.Customer)
-                    .ConstraintName("Will"));
+                    .HasConstraintName("Will"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .HasOne(e => e.Customer)
                     .WithMany(e => e.Orders)
-                    .ConstraintName("Jay"));
+                    .HasConstraintName("Jay"));
 
             AssertIsGeneric(
                 modelBuilder
                     .Entity<Order>()
                     .HasOne(e => e.Details)
                     .WithOne(e => e.Order)
-                    .ConstraintName("Simon"));
+                    .HasConstraintName("Simon"));
         }
 
         [Fact]
@@ -812,19 +812,19 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             modelBuilder
                 .Entity<Customer>().HasMany(typeof(Order), "Orders")
                 .WithOne("Customer")
-                .ConstraintName("Will");
+                .HasConstraintName("Will");
 
             modelBuilder
                 .Entity<Order>()
                 .HasOne(e => e.Customer)
                 .WithMany(e => e.Orders)
-                .ConstraintName("Jay");
+                .HasConstraintName("Jay");
 
             modelBuilder
                 .Entity<Order>()
                 .HasOne(e => e.Details)
                 .WithOne(e => e.Order)
-                .ConstraintName("Simon");
+                .HasConstraintName("Simon");
         }
 
         private void AssertIsGeneric(EntityTypeBuilder<Customer> _)

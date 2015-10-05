@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
-                .Index(e => e.Id)
+                .HasIndex(e => e.Id)
                 .IndexBuilderExtension("V1")
                 .IndexBuilderExtension("V2");
 
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var relationshipBuilder = builder
                 .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
-                .PrincipalKey<Gunter>(e => e.Id);
+                .HasPrincipalKey<Gunter>(e => e.Id);
 
             var returnedBuilder = relationshipBuilder
                 .OneToOneBuilderExtension("V1")
@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var returnedBuilder = builder
                 .Entity<Gunter>()
-                .Index(e => e.Id)
+                .HasIndex(e => e.Id)
                 .SharedNameExtension("V1")
                 .SharedNameExtension("V2");
 
@@ -412,7 +412,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var relationshipBuilder = builder
                 .Entity<Avatar>().HasOne(e => e.Gunter).WithOne(e => e.Avatar)
-                .PrincipalKey<Gunter>(e => e.Id);
+                .HasPrincipalKey<Gunter>(e => e.Id);
 
             var returnedBuilder = relationshipBuilder
                 .SharedNameExtension("V1")
@@ -462,7 +462,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
     {
         public static ModelBuilder ModelBuilderExtension(this ModelBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Model["Metadata"] = value + ".Metadata";
             builder.Model["Model"] = value + ".Model";
 
@@ -471,7 +471,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static EntityTypeBuilder EntityBuilderExtension(this EntityTypeBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -481,7 +481,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public static EntityTypeBuilder<TEntity> GenericEntityBuilderExtension<TEntity>(this EntityTypeBuilder<TEntity> builder, string value)
             where TEntity : class
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -490,7 +490,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static KeyBuilder KeyBuilderExtension(this KeyBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -499,7 +499,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static PropertyBuilder PropertyBuilderExtension(this PropertyBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -508,7 +508,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static IndexBuilder IndexBuilderExtension(this IndexBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static ReferenceCollectionBuilder OneToManyBuilderExtension(this ReferenceCollectionBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -526,7 +526,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static ReferenceCollectionBuilder ManyToOneBuilderExtension(this ReferenceCollectionBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -535,7 +535,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static ReferenceReferenceBuilder OneToOneBuilderExtension(this ReferenceReferenceBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -544,7 +544,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static ModelBuilder SharedNameExtension(this ModelBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Model["Metadata"] = value + ".Metadata";
             builder.Model["Model"] = value + ".Model";
 
@@ -553,7 +553,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static EntityTypeBuilder SharedNameExtension(this EntityTypeBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -563,7 +563,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public static EntityTypeBuilder<TEntity> SharedNameExtension<TEntity, TBuilder>(this EntityTypeBuilder<TEntity> builder, string value)
             where TEntity : class
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -572,7 +572,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static KeyBuilder SharedNameExtension(this KeyBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -581,7 +581,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static PropertyBuilder SharedNameExtension(this PropertyBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -590,7 +590,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static IndexBuilder SharedNameExtension(this IndexBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -599,7 +599,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static ReferenceCollectionBuilder SharedNameExtension(this ReferenceCollectionBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 
@@ -608,7 +608,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
         public static ReferenceReferenceBuilder SharedNameExtension(this ReferenceReferenceBuilder builder, string value)
         {
-            builder.Annotation("Annotation", value + ".Annotation");
+            builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
             builder.GetService<Model>()["Model"] = value + ".Model";
 

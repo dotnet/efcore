@@ -18,7 +18,7 @@ namespace E2E.Sqlite
 
                 entity.Property(e => e.SelfForeignKey).HasColumnType("INTEGER");
 
-                entity.HasOne(d => d.SelfForeignKeyNavigation).WithMany(p => p.InverseSelfForeignKeyNavigation).ForeignKey(d => d.SelfForeignKey);
+                entity.HasOne(d => d.SelfForeignKeyNavigation).WithMany(p => p.InverseSelfForeignKeyNavigation).HasForeignKey(d => d.SelfForeignKey);
             });
         }
 

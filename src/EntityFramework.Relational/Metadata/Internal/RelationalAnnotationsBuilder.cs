@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public override bool SetAnnotation(string annotationName, object value)
         {
             var fullName = (ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName;
-            return EntityTypeBuilder.Annotation(fullName, value, ConfigurationSource);
+            return EntityTypeBuilder.HasAnnotation(fullName, value, ConfigurationSource);
         }
     }
 }

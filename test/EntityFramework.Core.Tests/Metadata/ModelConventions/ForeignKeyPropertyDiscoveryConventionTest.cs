@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Explicit,
                 isUnique: false)
-                .ForeignKey(new[] { fkProperty }, ConfigurationSource.Explicit);
+                .HasForeignKey(new[] { fkProperty }, ConfigurationSource.Explicit);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
 
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 null,
                 ConfigurationSource.Explicit,
                 isUnique: false)
-                .ForeignKey(new[] { fkProperty1.Metadata, fkProperty2.Metadata }, ConfigurationSource.Explicit);
+                .HasForeignKey(new[] { fkProperty1.Metadata, fkProperty2.Metadata }, ConfigurationSource.Explicit);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
 
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 PrincipalType.Metadata.GetPrimaryKey().Properties,
                 ConfigurationSource.Convention,
                 isUnique: true);
-            relationshipBuilder.Required(false, ConfigurationSource.Explicit);
+            relationshipBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
             Assert.Same(relationshipBuilder, new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder));
 

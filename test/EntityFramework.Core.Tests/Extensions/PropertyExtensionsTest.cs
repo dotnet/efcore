@@ -230,8 +230,8 @@ namespace Microsoft.Data.Entity.Tests
                     b.HasKey(e => new { e.Id1, e.Id2 });
                     b.HasOne(e => e.TagDetails)
                         .WithOne(e => e.Tag)
-                        .PrincipalKey<ProductDetailsTag>(e => e.Id2)
-                        .ForeignKey<ProductDetailsTagDetails>(e => e.Id);
+                        .HasPrincipalKey<ProductDetailsTag>(e => e.Id2)
+                        .HasForeignKey<ProductDetailsTagDetails>(e => e.Id);
                 });
 
             modelBuilder
@@ -240,24 +240,24 @@ namespace Microsoft.Data.Entity.Tests
                     b.HasKey(e => new { e.Id1, e.Id2 });
                     b.HasOne(e => e.Tag)
                         .WithOne(e => e.Details)
-                        .ForeignKey<ProductDetailsTag>(e => new { e.Id1, e.Id2 });
+                        .HasForeignKey<ProductDetailsTag>(e => new { e.Id1, e.Id2 });
                 });
 
             modelBuilder
                 .Entity<Product>()
                 .HasOne(e => e.Details)
                 .WithOne(e => e.Product)
-                .ForeignKey<ProductDetails>(e => new { e.Id1 });
+                .HasForeignKey<ProductDetails>(e => new { e.Id1 });
 
             modelBuilder.Entity<OrderDetails>(b =>
             {
                 b.HasKey(e => new { e.OrderId, e.ProductId });
                 b.HasOne(e => e.Order)
                     .WithMany(e => e.OrderDetails)
-                    .ForeignKey(e => e.OrderId);
+                    .HasForeignKey(e => e.OrderId);
                 b.HasOne(e => e.Product)
                     .WithMany(e => e.OrderDetails)
-                    .ForeignKey(e => e.ProductId);
+                    .HasForeignKey(e => e.ProductId);
             });
 
             return modelBuilder.Model;

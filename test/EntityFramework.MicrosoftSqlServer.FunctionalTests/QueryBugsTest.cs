@@ -405,8 +405,8 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
                 modelBuilder.Entity<Targaryen>(m =>
                     {
                         m.HasKey(t => t.Id);
-                        m.HasMany(t => t.Dragons).WithOne(d => d.Mother).ForeignKey(d => d.MotherId);
-                        m.HasOne(t => t.Details).WithOne(d => d.Targaryen).ForeignKey<Details>(d => d.TargaryenId);
+                        m.HasMany(t => t.Dragons).WithOne(d => d.Mother).HasForeignKey(d => d.MotherId);
+                        m.HasOne(t => t.Details).WithOne(d => d.Targaryen).HasForeignKey<Details>(d => d.TargaryenId);
                     });
             }
         }

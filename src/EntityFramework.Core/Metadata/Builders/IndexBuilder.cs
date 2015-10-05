@@ -61,12 +61,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual IndexBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+        public virtual IndexBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
+            Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="unique"> A value indicating whether this index is unique. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual IndexBuilder Unique(bool unique = true)
+        public virtual IndexBuilder IsUnique(bool unique = true)
         {
             Builder.IsUnique(unique, ConfigurationSource.Explicit);
 

@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalReferenceReferenceBuilderExtensions
     {
-        public static ReferenceReferenceBuilder ConstraintName(
+        public static ReferenceReferenceBuilder HasConstraintName(
             [NotNull] this ReferenceReferenceBuilder referenceReferenceBuilder,
             [CanBeNull] string name)
         {
@@ -21,12 +21,12 @@ namespace Microsoft.Data.Entity
             return referenceReferenceBuilder;
         }
 
-        public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> ConstraintName<TEntity, TRelatedEntity>(
+        public static ReferenceReferenceBuilder<TEntity, TRelatedEntity> HasConstraintName<TEntity, TRelatedEntity>(
             [NotNull] this ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder,
             [CanBeNull] string name)
             where TEntity : class
             where TRelatedEntity : class
-            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)ConstraintName(
+            => (ReferenceReferenceBuilder<TEntity, TRelatedEntity>)HasConstraintName(
                 (ReferenceReferenceBuilder)referenceReferenceBuilder, name);
     }
 }

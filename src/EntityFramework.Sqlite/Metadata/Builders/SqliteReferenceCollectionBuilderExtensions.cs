@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqliteReferenceCollectionBuilderExtensions
     {
-        public static ReferenceCollectionBuilder SqliteConstraintName(
+        public static ReferenceCollectionBuilder ForSqliteHasConstraintName(
             [NotNull] this ReferenceCollectionBuilder builder,
             [CanBeNull] string name)
         {
@@ -23,11 +23,11 @@ namespace Microsoft.Data.Entity
             return builder;
         }
 
-        public static ReferenceCollectionBuilder<TEntity, TReferencedEntity> SqliteConstraintName<TEntity, TReferencedEntity>(
+        public static ReferenceCollectionBuilder<TEntity, TReferencedEntity> ForSqliteHasConstraintName<TEntity, TReferencedEntity>(
             [NotNull] this ReferenceCollectionBuilder<TEntity, TReferencedEntity> builder,
             [CanBeNull] string name)
             where TEntity : class
             where TReferencedEntity : class
-            => (ReferenceCollectionBuilder<TEntity, TReferencedEntity>)((ReferenceCollectionBuilder)builder).SqliteConstraintName(name);
+            => (ReferenceCollectionBuilder<TEntity, TReferencedEntity>)((ReferenceCollectionBuilder)builder).ForSqliteHasConstraintName(name);
     }
 }

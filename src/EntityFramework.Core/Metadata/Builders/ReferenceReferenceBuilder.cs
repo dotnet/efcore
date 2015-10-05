@@ -63,12 +63,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ReferenceReferenceBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
+            Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PrincipalKey(Type, string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -99,14 +99,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder ForeignKey(
+        public virtual ReferenceReferenceBuilder HasForeignKey(
             [NotNull] Type dependentEntityType,
             [NotNull] params string[] foreignKeyPropertyNames)
         {
             Check.NotNull(dependentEntityType, nameof(dependentEntityType));
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.ForeignKey(dependentEntityType, foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(Builder.HasForeignKey(dependentEntityType, foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PrincipalKey(Type, string[])" /> is not specified, then an attempt will be made to
+        ///         If <see cref="HasPrincipalKey(System.Type,string[])" /> is not specified, then an attempt will be made to
         ///         match the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -135,14 +135,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder ForeignKey(
+        public virtual ReferenceReferenceBuilder HasForeignKey(
             [NotNull] string dependentEntityTypeName,
             [NotNull] params string[] foreignKeyPropertyNames)
         {
             Check.NotEmpty(dependentEntityTypeName, nameof(dependentEntityTypeName));
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.ForeignKey(dependentEntityTypeName, foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(Builder.HasForeignKey(dependentEntityTypeName, foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -157,14 +157,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder PrincipalKey(
+        public virtual ReferenceReferenceBuilder HasPrincipalKey(
             [NotNull] Type principalEntityType,
             [NotNull] params string[] keyPropertyNames)
         {
             Check.NotNull(principalEntityType, nameof(principalEntityType));
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.PrincipalKey(principalEntityType, keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(Builder.HasPrincipalKey(principalEntityType, keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -179,14 +179,14 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </param>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder PrincipalKey(
+        public virtual ReferenceReferenceBuilder HasPrincipalKey(
             [NotNull] string principalEntityTypeName,
             [NotNull] params string[] keyPropertyNames)
         {
             Check.NotEmpty(principalEntityTypeName, nameof(principalEntityTypeName));
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceReferenceBuilder(Builder.PrincipalKey(principalEntityTypeName, keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceReferenceBuilder(Builder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -195,8 +195,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceReferenceBuilder Required(bool required = true)
-            => new ReferenceReferenceBuilder(Builder.Required(required, ConfigurationSource.Explicit));
+        public virtual ReferenceReferenceBuilder IsRequired(bool required = true)
+            => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit));
 
         public virtual ReferenceReferenceBuilder WillCascadeOnDelete(bool cascade = true)
             => new ReferenceReferenceBuilder(

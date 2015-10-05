@@ -129,14 +129,14 @@ namespace Microsoft.Data.Entity.Tests
             protected virtual TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
                 => new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
 
-            public override TestEntityTypeBuilder<TEntity> Annotation(string annotation, object value)
-                => Wrap(EntityTypeBuilder.Annotation(annotation, value));
+            public override TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value)
+                => Wrap(EntityTypeBuilder.HasAnnotation(annotation, value));
 
             public override TestEntityTypeBuilder<TEntity> BaseEntity<TBaseEntity>()
-                => Wrap(EntityTypeBuilder.BaseType<TBaseEntity>());
+                => Wrap(EntityTypeBuilder.HasBaseType<TBaseEntity>());
 
             public override TestEntityTypeBuilder<TEntity> BaseEntity(string baseEntityTypeName)
-                => Wrap(EntityTypeBuilder.BaseType(baseEntityTypeName));
+                => Wrap(EntityTypeBuilder.HasBaseType(baseEntityTypeName));
 
             public override TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression)
                 => new TestKeyBuilder(EntityTypeBuilder.HasKey(keyExpression));
@@ -162,11 +162,11 @@ namespace Microsoft.Data.Entity.Tests
             public override TestEntityTypeBuilder<TEntity> Ignore(string propertyName)
                 => Wrap(EntityTypeBuilder.Ignore(propertyName));
 
-            public override TestIndexBuilder Index(Expression<Func<TEntity, object>> indexExpression)
-                => new TestIndexBuilder(EntityTypeBuilder.Index(indexExpression));
+            public override TestIndexBuilder HasIndex(Expression<Func<TEntity, object>> indexExpression)
+                => new TestIndexBuilder(EntityTypeBuilder.HasIndex(indexExpression));
 
-            public override TestIndexBuilder Index(params string[] propertyNames)
-                => new TestIndexBuilder(EntityTypeBuilder.Index(propertyNames));
+            public override TestIndexBuilder HasIndex(params string[] propertyNames)
+                => new TestIndexBuilder(EntityTypeBuilder.HasIndex(propertyNames));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> reference = null)
                 => new GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasOne(reference));
@@ -186,8 +186,8 @@ namespace Microsoft.Data.Entity.Tests
 
             public override Property Metadata => PropertyBuilder.Metadata;
 
-            public override TestPropertyBuilder<TProperty> Annotation(string annotation, object value)
-                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.Annotation(annotation, value));
+            public override TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object value)
+                => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasAnnotation(annotation, value));
 
             public override TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.IsRequired(isRequired));
@@ -257,23 +257,23 @@ namespace Microsoft.Data.Entity.Tests
             protected virtual GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> Wrap(ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
                 => new GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(referenceCollectionBuilder);
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> ForeignKey(Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceCollectionBuilder.ForeignKey(foreignKeyExpression));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasForeignKey(Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
+                => Wrap(ReferenceCollectionBuilder.HasForeignKey(foreignKeyExpression));
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> PrincipalKey(Expression<Func<TEntity, object>> keyExpression)
-                => Wrap(ReferenceCollectionBuilder.PrincipalKey(keyExpression));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasPrincipalKey(Expression<Func<TEntity, object>> keyExpression)
+                => Wrap(ReferenceCollectionBuilder.HasPrincipalKey(keyExpression));
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> ForeignKey(params string[] foreignKeyPropertyNames)
-                => Wrap(ReferenceCollectionBuilder.ForeignKey(foreignKeyPropertyNames));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasForeignKey(params string[] foreignKeyPropertyNames)
+                => Wrap(ReferenceCollectionBuilder.HasForeignKey(foreignKeyPropertyNames));
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> PrincipalKey(params string[] keyPropertyNames)
-                => Wrap(ReferenceCollectionBuilder.PrincipalKey(keyPropertyNames));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasPrincipalKey(params string[] keyPropertyNames)
+                => Wrap(ReferenceCollectionBuilder.HasPrincipalKey(keyPropertyNames));
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> Annotation(string annotation, object value)
-                => Wrap(ReferenceCollectionBuilder.Annotation(annotation, value));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasAnnotation(string annotation, object value)
+                => Wrap(ReferenceCollectionBuilder.HasAnnotation(annotation, value));
 
-            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
-                => Wrap(ReferenceCollectionBuilder.Required(isRequired));
+            public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
+                => Wrap(ReferenceCollectionBuilder.IsRequired(isRequired));
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
                 => Wrap(ReferenceCollectionBuilder.WillCascadeOnDelete(cascade));
@@ -295,23 +295,23 @@ namespace Microsoft.Data.Entity.Tests
             protected virtual GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
                 => new GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Annotation(string annotation, object value)
-                => Wrap(ReferenceReferenceBuilder.Annotation(annotation, value));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(string annotation, object value)
+                => Wrap(ReferenceReferenceBuilder.HasAnnotation(annotation, value));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> ForeignKey<TDependentEntity>(Expression<Func<TDependentEntity, object>> foreignKeyExpression)
-                => Wrap(ReferenceReferenceBuilder.ForeignKey(foreignKeyExpression));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey<TDependentEntity>(Expression<Func<TDependentEntity, object>> foreignKeyExpression)
+                => Wrap(ReferenceReferenceBuilder.HasForeignKey(foreignKeyExpression));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
-                => Wrap(ReferenceReferenceBuilder.PrincipalKey(keyExpression));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey<TPrincipalEntity>(Expression<Func<TPrincipalEntity, object>> keyExpression)
+                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(keyExpression));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> ForeignKey(Type dependentEntityType, params string[] foreignKeyPropertyNames)
-                => Wrap(ReferenceReferenceBuilder.ForeignKey(dependentEntityType, foreignKeyPropertyNames));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasForeignKey(Type dependentEntityType, params string[] foreignKeyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasForeignKey(dependentEntityType, foreignKeyPropertyNames));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> PrincipalKey(Type principalEntityType, params string[] keyPropertyNames)
-                => Wrap(ReferenceReferenceBuilder.PrincipalKey(principalEntityType, keyPropertyNames));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasPrincipalKey(Type principalEntityType, params string[] keyPropertyNames)
+                => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(principalEntityType, keyPropertyNames));
 
-            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> Required(bool isRequired = true)
-                => Wrap(ReferenceReferenceBuilder.Required(isRequired));
+            public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> IsRequired(bool isRequired = true)
+                => Wrap(ReferenceReferenceBuilder.IsRequired(isRequired));
 
             public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WillCascadeOnDelete(bool cascade = true)
                 => Wrap(ReferenceReferenceBuilder.WillCascadeOnDelete(cascade));

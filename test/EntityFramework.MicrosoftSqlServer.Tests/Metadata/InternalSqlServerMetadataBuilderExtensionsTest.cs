@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            var indexBuilder = entityTypeBuilder.Index(new[] { "Id" }, ConfigurationSource.Convention);
+            var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
             Assert.True(indexBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.True(indexBuilder.Metadata.SqlServer().IsClustered);
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            var relationshipBuilder = entityTypeBuilder.ForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
+            var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
             Assert.True(relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.SqlServer().Name);

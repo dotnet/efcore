@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 builder = builder.PrincipalToDependent(null, ConfigurationSource.Explicit);
             }
 
-            builder = builder.Unique(false, ConfigurationSource.Explicit);
+            builder = builder.IsUnique(false, ConfigurationSource.Explicit);
 
             return builder.PrincipalToDependent(collection, ConfigurationSource.Explicit, strictPrincipal: true);
         }
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <returns> The internal builder to further configure the relationship. </returns>
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
         {
-            var builder = Builder.Unique(true, ConfigurationSource.Explicit);
+            var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
             var foreignKey = builder.Metadata;
 
             var isSelfReferencing = foreignKey.IsSelfReferencing();

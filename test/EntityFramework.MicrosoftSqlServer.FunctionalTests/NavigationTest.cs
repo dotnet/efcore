@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.ConfigAction = modelBuilder =>
                     {
-                        modelBuilder.Entity<Person>().HasMany(p => p.Siblings).WithOne(p => p.SiblingReverse).Required(false);
-                        modelBuilder.Entity<Person>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).Required(false);
+                        modelBuilder.Entity<Person>().HasMany(p => p.Siblings).WithOne(p => p.SiblingReverse).IsRequired(false);
+                        modelBuilder.Entity<Person>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).IsRequired(false);
                         return 0;
                     };
 
@@ -41,8 +41,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 context.ConfigAction = modelBuilder =>
                     {
-                        modelBuilder.Entity<Person>().HasOne(p => p.SiblingReverse).WithMany(p => p.Siblings).Required(false);
-                        modelBuilder.Entity<Person>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).Required(false);
+                        modelBuilder.Entity<Person>().HasOne(p => p.SiblingReverse).WithMany(p => p.Siblings).IsRequired(false);
+                        modelBuilder.Entity<Person>().HasOne(p => p.Lover).WithOne(p => p.LoverReverse).IsRequired(false);
                         return 0;
                     };
 

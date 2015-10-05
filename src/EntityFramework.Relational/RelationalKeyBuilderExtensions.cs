@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalKeyBuilderExtensions
     {
-        public static KeyBuilder Name([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string name)
+        public static KeyBuilder HasName([NotNull] this KeyBuilder keyBuilder, [CanBeNull] string name)
         {
             Check.NotNull(keyBuilder, nameof(keyBuilder));
             Check.NullButNotEmpty(name, nameof(name));

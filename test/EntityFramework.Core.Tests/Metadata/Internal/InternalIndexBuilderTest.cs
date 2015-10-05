@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
 
-            return entityBuilder.Index(new[] { Customer.IdProperty, Customer.NameProperty }, ConfigurationSource.Explicit);
+            return entityBuilder.HasIndex(new[] { Customer.IdProperty, Customer.NameProperty }, ConfigurationSource.Explicit);
         }
 
         private class Customer

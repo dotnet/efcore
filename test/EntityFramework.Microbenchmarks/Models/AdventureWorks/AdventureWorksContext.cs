@@ -118,7 +118,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.HasOne(d => d.StateProvince)
                       .WithMany(p => p.Address)
-                      .ForeignKey(d => d.StateProvinceID);
+                      .HasForeignKey(d => d.StateProvinceID);
             });
 
             modelBuilder.Entity<AddressType>(entity =>
@@ -148,15 +148,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Component)
                       .WithMany(p => p.BillOfMaterials)
-                      .ForeignKey(d => d.ComponentID);
+                      .HasForeignKey(d => d.ComponentID);
 
                 entity.HasOne(d => d.ProductAssembly)
                       .WithMany(p => p.BillOfMaterialsNavigation)
-                      .ForeignKey(d => d.ProductAssemblyID);
+                      .HasForeignKey(d => d.ProductAssemblyID);
 
                 entity.HasOne(d => d.UnitMeasureCodeNavigation)
                       .WithMany(p => p.BillOfMaterials)
-                      .ForeignKey(d => d.UnitMeasureCode);
+                      .HasForeignKey(d => d.UnitMeasureCode);
             });
 
             modelBuilder.Entity<BusinessEntity>(entity =>
@@ -180,15 +180,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Address)
                       .WithMany(p => p.BusinessEntityAddress)
-                      .ForeignKey(d => d.AddressID);
+                      .HasForeignKey(d => d.AddressID);
 
                 entity.HasOne(d => d.AddressType)
                       .WithMany(p => p.BusinessEntityAddress)
-                      .ForeignKey(d => d.AddressTypeID);
+                      .HasForeignKey(d => d.AddressTypeID);
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.BusinessEntityAddress)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<BusinessEntityContact>(entity =>
@@ -203,15 +203,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.BusinessEntityContact)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.ContactType)
                       .WithMany(p => p.BusinessEntityContact)
-                      .ForeignKey(d => d.ContactTypeID);
+                      .HasForeignKey(d => d.ContactTypeID);
 
                 entity.HasOne(d => d.Person)
                       .WithMany(p => p.BusinessEntityContact)
-                      .ForeignKey(d => d.PersonID);
+                      .HasForeignKey(d => d.PersonID);
             });
 
             modelBuilder.Entity<ContactType>(entity =>
@@ -244,11 +244,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.CountryRegionCodeNavigation)
                       .WithMany(p => p.CountryRegionCurrency)
-                      .ForeignKey(d => d.CountryRegionCode);
+                      .HasForeignKey(d => d.CountryRegionCode);
 
                 entity.HasOne(d => d.CurrencyCodeNavigation)
                       .WithMany(p => p.CountryRegionCurrency)
-                      .ForeignKey(d => d.CurrencyCode);
+                      .HasForeignKey(d => d.CurrencyCode);
             });
 
             modelBuilder.Entity<CreditCard>(entity =>
@@ -294,11 +294,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.FromCurrencyCodeNavigation)
                       .WithMany(p => p.CurrencyRate)
-                      .ForeignKey(d => d.FromCurrencyCode);
+                      .HasForeignKey(d => d.FromCurrencyCode);
 
                 entity.HasOne(d => d.ToCurrencyCodeNavigation)
                       .WithMany(p => p.CurrencyRateNavigation)
-                      .ForeignKey(d => d.ToCurrencyCode);
+                      .HasForeignKey(d => d.ToCurrencyCode);
             });
 
             modelBuilder.Entity<Customer>(entity =>
@@ -315,15 +315,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Person)
                       .WithMany(p => p.Customer)
-                      .ForeignKey(d => d.PersonID);
+                      .HasForeignKey(d => d.PersonID);
 
                 entity.HasOne(d => d.Store)
                       .WithMany(p => p.Customer)
-                      .ForeignKey(d => d.StoreID);
+                      .HasForeignKey(d => d.StoreID);
 
                 entity.HasOne(d => d.Territory)
                       .WithMany(p => p.Customer)
-                      .ForeignKey(d => d.TerritoryID);
+                      .HasForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<Department>(entity =>
@@ -351,7 +351,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.EmailAddress)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<Employee>(entity =>
@@ -386,7 +386,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithOne(p => p.Employee)
-                      .ForeignKey<Employee>(d => d.BusinessEntityID);
+                      .HasForeignKey<Employee>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<EmployeeDepartmentHistory>(entity =>
@@ -399,15 +399,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.EmployeeDepartmentHistory)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.Department)
                       .WithMany(p => p.EmployeeDepartmentHistory)
-                      .ForeignKey(d => d.DepartmentID);
+                      .HasForeignKey(d => d.DepartmentID);
 
                 entity.HasOne(d => d.Shift)
                       .WithMany(p => p.EmployeeDepartmentHistory)
-                      .ForeignKey(d => d.ShiftID);
+                      .HasForeignKey(d => d.ShiftID);
             });
 
             modelBuilder.Entity<EmployeePayHistory>(entity =>
@@ -420,7 +420,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.EmployeePayHistory)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<Illustration>(entity =>
@@ -438,7 +438,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.JobCandidate)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<Location>(entity =>
@@ -470,7 +470,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.Property(e => e.rowguid).HasDefaultValueSql("newid()");
 
-                entity.HasOne(d => d.BusinessEntity).WithOne(p => p.Password).ForeignKey<Password>(d => d.BusinessEntityID);
+                entity.HasOne(d => d.BusinessEntity).WithOne(p => p.Password).HasForeignKey<Password>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<Person>(entity =>
@@ -495,7 +495,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithOne(p => p.Person)
-                      .ForeignKey<Person>(d => d.BusinessEntityID);
+                      .HasForeignKey<Person>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<PersonCreditCard>(entity =>
@@ -508,11 +508,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.PersonCreditCard)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.CreditCard)
                       .WithMany(p => p.PersonCreditCard)
-                      .ForeignKey(d => d.CreditCardID);
+                      .HasForeignKey(d => d.CreditCardID);
             });
 
             modelBuilder.Entity<PersonPhone>(entity =>
@@ -525,11 +525,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.PersonPhone)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.PhoneNumberType)
                       .WithMany(p => p.PersonPhone)
-                      .ForeignKey(d => d.PhoneNumberTypeID);
+                      .HasForeignKey(d => d.PhoneNumberTypeID);
             });
 
             modelBuilder.Entity<PhoneNumberType>(entity =>
@@ -561,19 +561,19 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.ProductModel)
                       .WithMany(p => p.Product)
-                      .ForeignKey(d => d.ProductModelID);
+                      .HasForeignKey(d => d.ProductModelID);
 
                 entity.HasOne(d => d.ProductSubcategory)
                       .WithMany(p => p.Product)
-                      .ForeignKey(d => d.ProductSubcategoryID);
+                      .HasForeignKey(d => d.ProductSubcategoryID);
 
                 entity.HasOne(d => d.SizeUnitMeasureCodeNavigation)
                       .WithMany(p => p.Product)
-                      .ForeignKey(d => d.SizeUnitMeasureCode);
+                      .HasForeignKey(d => d.SizeUnitMeasureCode);
 
                 entity.HasOne(d => d.WeightUnitMeasureCodeNavigation)
                       .WithMany(p => p.ProductNavigation)
-                      .ForeignKey(d => d.WeightUnitMeasureCode);
+                      .HasForeignKey(d => d.WeightUnitMeasureCode);
             });
 
             modelBuilder.Entity<ProductCategory>(entity =>
@@ -597,7 +597,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductCostHistory)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductDescription>(entity =>
@@ -621,7 +621,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductDocument)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductInventory>(entity =>
@@ -640,11 +640,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Location)
                       .WithMany(p => p.ProductInventory)
-                      .ForeignKey(d => d.LocationID);
+                      .HasForeignKey(d => d.LocationID);
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductInventory)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductListPriceHistory>(entity =>
@@ -657,7 +657,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductListPriceHistory)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductModel>(entity =>
@@ -681,11 +681,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Illustration)
                       .WithMany(p => p.ProductModelIllustration)
-                      .ForeignKey(d => d.IllustrationID);
+                      .HasForeignKey(d => d.IllustrationID);
 
                 entity.HasOne(d => d.ProductModel)
                       .WithMany(p => p.ProductModelIllustration)
-                      .ForeignKey(d => d.ProductModelID);
+                      .HasForeignKey(d => d.ProductModelID);
             });
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>(entity =>
@@ -698,15 +698,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Culture)
                       .WithMany(p => p.ProductModelProductDescriptionCulture)
-                      .ForeignKey(d => d.CultureID);
+                      .HasForeignKey(d => d.CultureID);
 
                 entity.HasOne(d => d.ProductDescription)
                       .WithMany(p => p.ProductModelProductDescriptionCulture)
-                      .ForeignKey(d => d.ProductDescriptionID);
+                      .HasForeignKey(d => d.ProductDescriptionID);
 
                 entity.HasOne(d => d.ProductModel)
                       .WithMany(p => p.ProductModelProductDescriptionCulture)
-                      .ForeignKey(d => d.ProductModelID);
+                      .HasForeignKey(d => d.ProductModelID);
             });
 
             modelBuilder.Entity<ProductPhoto>(entity =>
@@ -728,11 +728,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductProductPhoto)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
 
                 entity.HasOne(d => d.ProductPhoto)
                       .WithMany(p => p.ProductProductPhoto)
-                      .ForeignKey(d => d.ProductPhotoID);
+                      .HasForeignKey(d => d.ProductPhotoID);
             });
 
             modelBuilder.Entity<ProductReview>(entity =>
@@ -749,7 +749,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductReview)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<ProductSubcategory>(entity =>
@@ -764,7 +764,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.ProductCategory)
                       .WithMany(p => p.ProductSubcategory)
-                      .ForeignKey(d => d.ProductCategoryID);
+                      .HasForeignKey(d => d.ProductCategoryID);
             });
 
             modelBuilder.Entity<ProductVendor>(entity =>
@@ -779,15 +779,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.ProductVendor)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ProductVendor)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
 
                 entity.HasOne(d => d.UnitMeasureCodeNavigation)
                       .WithMany(p => p.ProductVendor)
-                      .ForeignKey(d => d.UnitMeasureCode);
+                      .HasForeignKey(d => d.UnitMeasureCode);
             });
 
             modelBuilder.Entity<PurchaseOrderDetail>(entity =>
@@ -810,11 +810,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.PurchaseOrderDetail)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
 
                 entity.HasOne(d => d.PurchaseOrder)
                       .WithMany(p => p.PurchaseOrderDetail)
-                      .ForeignKey(d => d.PurchaseOrderID);
+                      .HasForeignKey(d => d.PurchaseOrderID);
             });
 
             modelBuilder.Entity<PurchaseOrderHeader>(entity =>
@@ -841,15 +841,15 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Employee)
                       .WithMany(p => p.PurchaseOrderHeader)
-                      .ForeignKey(d => d.EmployeeID);
+                      .HasForeignKey(d => d.EmployeeID);
 
                 entity.HasOne(d => d.ShipMethod)
                       .WithMany(p => p.PurchaseOrderHeader)
-                      .ForeignKey(d => d.ShipMethodID);
+                      .HasForeignKey(d => d.ShipMethodID);
 
                 entity.HasOne(d => d.Vendor)
                       .WithMany(p => p.PurchaseOrderHeader)
-                      .ForeignKey(d => d.VendorID);
+                      .HasForeignKey(d => d.VendorID);
             });
 
             modelBuilder.Entity<SalesOrderDetail>(entity =>
@@ -870,11 +870,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.SalesOrder)
                       .WithMany(p => p.SalesOrderDetail)
-                      .ForeignKey(d => d.SalesOrderID);
+                      .HasForeignKey(d => d.SalesOrderID);
 
                 entity.HasOne(d => d.SpecialOfferProduct)
                       .WithMany(p => p.SalesOrderDetail)
-                      .ForeignKey(d => new { d.SpecialOfferID, d.ProductID });
+                      .HasForeignKey(d => new { d.SpecialOfferID, d.ProductID });
             });
 
             modelBuilder.Entity<SalesOrderHeader>(entity =>
@@ -909,35 +909,35 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BillToAddress)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.BillToAddressID);
+                      .HasForeignKey(d => d.BillToAddressID);
 
                 entity.HasOne(d => d.CreditCard)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.CreditCardID);
+                      .HasForeignKey(d => d.CreditCardID);
 
                 entity.HasOne(d => d.CurrencyRate)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.CurrencyRateID);
+                      .HasForeignKey(d => d.CurrencyRateID);
 
                 entity.HasOne(d => d.Customer)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.CustomerID);
+                      .HasForeignKey(d => d.CustomerID);
 
                 entity.HasOne(d => d.SalesPerson)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.SalesPersonID);
+                      .HasForeignKey(d => d.SalesPersonID);
 
                 entity.HasOne(d => d.ShipMethod)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.ShipMethodID);
+                      .HasForeignKey(d => d.ShipMethodID);
 
                 entity.HasOne(d => d.ShipToAddress)
                       .WithMany(p => p.SalesOrderHeaderNavigation)
-                      .ForeignKey(d => d.ShipToAddressID);
+                      .HasForeignKey(d => d.ShipToAddressID);
 
                 entity.HasOne(d => d.Territory)
                       .WithMany(p => p.SalesOrderHeader)
-                      .ForeignKey(d => d.TerritoryID);
+                      .HasForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<SalesOrderHeaderSalesReason>(entity =>
@@ -950,11 +950,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.SalesOrder)
                       .WithMany(p => p.SalesOrderHeaderSalesReason)
-                      .ForeignKey(d => d.SalesOrderID);
+                      .HasForeignKey(d => d.SalesOrderID);
 
                 entity.HasOne(d => d.SalesReason)
                       .WithMany(p => p.SalesOrderHeaderSalesReason)
-                      .ForeignKey(d => d.SalesReasonID);
+                      .HasForeignKey(d => d.SalesReasonID);
             });
 
             modelBuilder.Entity<SalesPerson>(entity =>
@@ -977,11 +977,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithOne(p => p.SalesPerson)
-                      .ForeignKey<SalesPerson>(d => d.BusinessEntityID);
+                      .HasForeignKey<SalesPerson>(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.Territory)
                       .WithMany(p => p.SalesPerson)
-                      .ForeignKey(d => d.TerritoryID);
+                      .HasForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<SalesPersonQuotaHistory>(entity =>
@@ -996,7 +996,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.SalesPersonQuotaHistory)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<SalesReason>(entity =>
@@ -1024,7 +1024,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.HasOne(d => d.StateProvince)
                       .WithMany(p => p.SalesTaxRate)
-                      .ForeignKey(d => d.StateProvinceID);
+                      .HasForeignKey(d => d.StateProvinceID);
             });
 
             modelBuilder.Entity<SalesTerritory>(entity =>
@@ -1053,7 +1053,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.CountryRegionCodeNavigation)
                       .WithMany(p => p.SalesTerritory)
-                      .ForeignKey(d => d.CountryRegionCode);
+                      .HasForeignKey(d => d.CountryRegionCode);
             });
 
             modelBuilder.Entity<SalesTerritoryHistory>(entity =>
@@ -1068,11 +1068,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithMany(p => p.SalesTerritoryHistory)
-                      .ForeignKey(d => d.BusinessEntityID);
+                      .HasForeignKey(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.Territory)
                       .WithMany(p => p.SalesTerritoryHistory)
-                      .ForeignKey(d => d.TerritoryID);
+                      .HasForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<ScrapReason>(entity =>
@@ -1120,7 +1120,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.ShoppingCartItem)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<SpecialOffer>(entity =>
@@ -1154,11 +1154,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.SpecialOfferProduct)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
 
                 entity.HasOne(d => d.SpecialOffer)
                       .WithMany(p => p.SpecialOfferProduct)
-                      .ForeignKey(d => d.SpecialOfferID);
+                      .HasForeignKey(d => d.SpecialOfferID);
             });
 
             modelBuilder.Entity<StateProvince>(entity =>
@@ -1179,11 +1179,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.HasOne(d => d.CountryRegionCodeNavigation)
                       .WithMany(p => p.StateProvince)
-                      .ForeignKey(d => d.CountryRegionCode);
+                      .HasForeignKey(d => d.CountryRegionCode);
 
                 entity.HasOne(d => d.Territory)
                       .WithMany(p => p.StateProvince)
-                      .ForeignKey(d => d.TerritoryID);
+                      .HasForeignKey(d => d.TerritoryID);
             });
 
             modelBuilder.Entity<Store>(entity =>
@@ -1200,11 +1200,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithOne(p => p.Store)
-                      .ForeignKey<Store>(d => d.BusinessEntityID);
+                      .HasForeignKey<Store>(d => d.BusinessEntityID);
 
                 entity.HasOne(d => d.SalesPerson)
                       .WithMany(p => p.Store)
-                      .ForeignKey(d => d.SalesPersonID);
+                      .HasForeignKey(d => d.SalesPersonID);
             });
 
             modelBuilder.Entity<TransactionHistory>(entity =>
@@ -1223,7 +1223,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.TransactionHistory)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
             });
 
             modelBuilder.Entity<TransactionHistoryArchive>(entity =>
@@ -1270,7 +1270,7 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.BusinessEntity)
                       .WithOne(p => p.Vendor)
-                      .ForeignKey<Vendor>(d => d.BusinessEntityID);
+                      .HasForeignKey<Vendor>(d => d.BusinessEntityID);
             });
 
             modelBuilder.Entity<WorkOrder>(entity =>
@@ -1283,11 +1283,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
 
                 entity.HasOne(d => d.Product)
                       .WithMany(p => p.WorkOrder)
-                      .ForeignKey(d => d.ProductID);
+                      .HasForeignKey(d => d.ProductID);
 
                 entity.HasOne(d => d.ScrapReason)
                       .WithMany(p => p.WorkOrder)
-                      .ForeignKey(d => d.ScrapReasonID);
+                      .HasForeignKey(d => d.ScrapReasonID);
             });
 
             modelBuilder.Entity<WorkOrderRouting>(entity =>
@@ -1302,11 +1302,11 @@ namespace EntityFramework.Microbenchmarks.Models.AdventureWorks
                 
                 entity.HasOne(d => d.Location)
                       .WithMany(p => p.WorkOrderRouting)
-                      .ForeignKey(d => d.LocationID);
+                      .HasForeignKey(d => d.LocationID);
 
                 entity.HasOne(d => d.WorkOrder)
                       .WithMany(p => p.WorkOrderRouting)
-                      .ForeignKey(d => d.WorkOrderID);
+                      .HasForeignKey(d => d.WorkOrderID);
             });
         }
     }

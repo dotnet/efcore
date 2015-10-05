@@ -1137,10 +1137,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<Product>(b =>
                 {
                     b.HasOne(e => e.AlternateProduct).WithOne(e => e.OriginalProduct)
-                        .ForeignKey<Product>(e => e.AlternateProductId);
+                        .HasForeignKey<Product>(e => e.AlternateProductId);
 
                     b.HasOne(e => e.Detail).WithOne(e => e.Product)
-                        .ForeignKey<ProductDetail>(e => e.Id);
+                        .HasForeignKey<ProductDetail>(e => e.Id);
                 });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
@@ -1151,14 +1151,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 {
                     b.HasKey(e => new { e.ProductId, e.PhotoId });
                     b.HasMany(e => e.ProductTags).WithOne(e => e.Photo)
-                        .ForeignKey(e => new { e.ProductId, e.PhotoId });
+                        .HasForeignKey(e => new { e.ProductId, e.PhotoId });
                 });
 
             builder.Entity<ProductReview>(b =>
                 {
                     b.HasKey(e => new { e.ProductId, e.ReviewId });
                     b.HasMany(e => e.ProductTags).WithOne(e => e.Review)
-                        .ForeignKey(e => new { e.ProductId, e.ReviewId });
+                        .HasForeignKey(e => new { e.ProductId, e.ReviewId });
                 });
 
             builder.Entity<ProductTag>();

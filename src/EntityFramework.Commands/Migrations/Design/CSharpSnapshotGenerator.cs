@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             {
                 stringBuilder
                     .AppendLine()
-                    .Append("b.BaseType(")
+                    .Append("b.HasBaseType(")
                     .Append(_code.Literal(baseType.Name))
                     .AppendLine(");");
             }
@@ -310,7 +310,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             stringBuilder
                 .AppendLine()
-                .Append("b.Index(")
+                .Append("b.HasIndex(")
                 .Append(string.Join(", ", index.Properties.Select(p => _code.Literal(p.Name))))
                 .Append(")");
 
@@ -320,7 +320,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".Unique()");
+                        .Append(".IsUnique()");
                 }
 
                 GenerateAnnotations(index.Annotations.ToArray(), stringBuilder);
@@ -392,7 +392,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine(".WithOne()")
-                        .Append(".ForeignKey(")
+                        .Append(".HasForeignKey(")
                         .Append(_code.Literal(foreignKey.DeclaringEntityType.Name))
                         .Append(", ")
                         .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
@@ -404,7 +404,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     {
                         stringBuilder
                             .AppendLine()
-                            .Append(".PrincipalKey(")
+                            .Append(".HasPrincipalKey(")
                             .Append(_code.Literal(foreignKey.PrincipalEntityType.Name))
                             .Append(", ")
                             .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => _code.Literal(p.Name))))
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 {
                     stringBuilder
                         .AppendLine(".WithMany()")
-                        .Append(".ForeignKey(")
+                        .Append(".HasForeignKey(")
                         .Append(string.Join(", ", foreignKey.Properties.Select(p => _code.Literal(p.Name))))
                         .Append(")");
 
@@ -425,7 +425,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     {
                         stringBuilder
                             .AppendLine()
-                            .Append(".PrincipalKey(")
+                            .Append(".HasPrincipalKey(")
                             .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => _code.Literal(p.Name))))
                             .Append(")");
                     }
@@ -463,7 +463,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
             stringBuilder
-                .Append(".Annotation(")
+                .Append(".HasAnnotation(")
                 .Append(_code.Literal(annotation.Name))
                 .Append(", ")
                 .Append(_code.UnknownLiteral(annotation.Value))

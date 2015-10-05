@@ -18,13 +18,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Metadata = metadata;
         }
 
-        public virtual bool Annotation(
+        public virtual bool HasAnnotation(
             [NotNull] string annotation, [CanBeNull] object value, ConfigurationSource configurationSource)
         {
-            return Annotation(annotation, value, configurationSource, canOverrideSameSource: true);
+            return HasAnnotation(annotation, value, configurationSource, canOverrideSameSource: true);
         }
 
-        private bool Annotation(
+        private bool HasAnnotation(
             string annotation, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
         {
             var existingValue = Metadata[annotation];
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     annotationSource = ConfigurationSource.Explicit;
                 }
 
-                Annotation(
+                HasAnnotation(
                     annotation.Name,
                     annotation.Value,
                     annotationSource,

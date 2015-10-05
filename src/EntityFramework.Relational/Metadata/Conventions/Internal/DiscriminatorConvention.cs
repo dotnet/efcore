@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 var oldBaseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(oldBaseType.Name, ConfigurationSource.Convention);
                 oldBaseTypeBuilder?.Relational(ConfigurationSource.Convention)
-                    .Discriminator(propertyInfo: null);
+                    .HasDiscriminator(propertyInfo: null);
             }
 
             var entityType = entityTypeBuilder.Metadata;
@@ -29,16 +29,16 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 if (!derivedEntityTypes.Any())
                 {
                     entityTypeBuilder.Relational(ConfigurationSource.Convention)
-                        .Discriminator(propertyInfo: null);
+                        .HasDiscriminator(propertyInfo: null);
                     return true;
                 }
 
                 discriminator = entityTypeBuilder.Relational(ConfigurationSource.Convention)
-                    .Discriminator(typeof(string));
+                    .HasDiscriminator(typeof(string));
             }
             else
             {
-                if (entityTypeBuilder.Relational(ConfigurationSource.Convention).Discriminator(propertyInfo: null) == null)
+                if (entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null) == null)
                 {
                     // TODO: log warning that the current discriminator couldn't be removed
                     return true;
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                 var rootTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(entityType.RootType().Name, ConfigurationSource.Convention);
                 discriminator = rootTypeBuilder?.Relational(ConfigurationSource.Convention)
-                    .Discriminator(typeof(string));
+                    .HasDiscriminator(typeof(string));
 
                 if (entityType.BaseType.BaseType == null)
                 {

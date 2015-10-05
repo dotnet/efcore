@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     e.Ignore(em => em.Region);
                     e.Ignore(em => em.TitleOfCourtesy);
 
-                    e.HasOne(e1 => e1.Manager).WithMany().ForeignKey(e1 => e1.ReportsTo);
+                    e.HasOne(e1 => e1.Manager).WithMany().HasForeignKey(e1 => e1.ReportsTo);
                 });
 
             modelBuilder.Entity<Product>(e =>

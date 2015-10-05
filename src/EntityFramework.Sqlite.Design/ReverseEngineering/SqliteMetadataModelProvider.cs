@@ -127,9 +127,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 var columns = index.Columns.ToArray();
                 modelBuilder.Entity(index.TableName, entity =>
                     {
-                        entity.Index(columns)
-                            .Unique(index.IsUnique)
-                            .SqliteIndexName(index.Name);
+                        entity.HasIndex(columns)
+                            .IsUnique(index.IsUnique)
+                            .ForSqliteHasName(index.Name);
 
                         if (index.IsUnique)
                         {
@@ -154,16 +154,16 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                         foreach (var column in databaseInfo.Columns.Where(c => c.TableName.Equals(tableName, StringComparison.OrdinalIgnoreCase)))
                         {
                             var property = builder.Property(column.ClrType, column.Name)
-                                .HasSqliteColumnName(column.Name);
+                                .ForSqliteHasColumnName(column.Name);
 
                             if (!string.IsNullOrEmpty(column.DataType))
                             {
-                                property.HasSqliteColumnType(column.DataType);
+                                property.ForSqliteHasColumnType(column.DataType);
                             }
 
                             if (!string.IsNullOrEmpty(column.DefaultValue))
                             {
-                                property.HasSqliteDefaultValueSql(column.DefaultValue);
+                                property.ForSqliteHasDefaultValueSql(column.DefaultValue);
                             }
 
                             if (column.IsPrimaryKey)

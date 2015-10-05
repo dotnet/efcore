@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<FullNotificationEntity>(b =>
                 {
                     b.Ignore(e => e.NotMapped);
-                    b.HasMany(e => e.RelatedCollection).WithOne(e => e.Related).ForeignKey(e => e.Fk);
+                    b.HasMany(e => e.RelatedCollection).WithOne(e => e.Related).HasForeignKey(e => e.Fk);
                 });
 
             return builder.Model;

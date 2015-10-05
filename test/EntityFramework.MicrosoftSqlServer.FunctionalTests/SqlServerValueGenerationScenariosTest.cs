@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             public class BlogContext : ContextBase
             {
                 protected override void OnModelCreating(ModelBuilder modelBuilder) 
-                    => modelBuilder.UseSqlServerSequenceHiLo();
+                    => modelBuilder.ForSqlServerUseSequenceHiLo();
             }
         }
 
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     modelBuilder
-                        .Sequence("MySequence")
+                        .HasSequence("MySequence")
                         .StartsAt(77);
 
                     modelBuilder
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
                     modelBuilder
-                        .Sequence("MySequence")
+                        .HasSequence("MySequence")
                         .StartsAt(77);
 
                     // TODO: Nested closure for Metadata
@@ -565,7 +565,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 protected override void OnModelCreating(ModelBuilder modelBuilder)
                 {
-                    modelBuilder.Sequence("MySequence");
+                    modelBuilder.HasSequence("MySequence");
 
                     modelBuilder
                         .Entity<Blog>()

@@ -199,7 +199,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                    || configurationSource.Overrides(_principalToDependentConfigurationSource.Value);
         }
 
-        public virtual InternalRelationshipBuilder Required(bool isRequired, ConfigurationSource configurationSource, bool runConventions = true)
+        public virtual InternalRelationshipBuilder IsRequired(bool isRequired, ConfigurationSource configurationSource, bool runConventions = true)
         {
             if (((IForeignKey)Metadata).IsRequired == isRequired)
             {
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public virtual InternalRelationshipBuilder Unique(bool isUnique, ConfigurationSource configurationSource, bool runConventions = true)
+        public virtual InternalRelationshipBuilder IsUnique(bool isUnique, ConfigurationSource configurationSource, bool runConventions = true)
         {
             if (((IForeignKey)Metadata).IsUnique == isUnique)
             {
@@ -577,21 +577,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 principalEntityTypeBuilder: ModelBuilder.Entity(principalEntityType.Name, ConfigurationSource.Convention));
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] IReadOnlyList<PropertyInfo> properties, ConfigurationSource configurationSource)
-            => ForeignKey(
+            => HasForeignKey(
                 ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-            => ForeignKey(
+            => HasForeignKey(
                 ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource, bool runConventions = true)
         {
             if (properties == null)
@@ -691,42 +691,42 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] Type dependentType,
             [NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
             => DependentEnd(ModelBuilder.Metadata.GetEntityType(dependentType), configurationSource)
-                ?.ForeignKey(properties, configurationSource);
+                ?.HasForeignKey(properties, configurationSource);
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] Type dependentType,
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
             => DependentEnd(ModelBuilder.Metadata.GetEntityType(dependentType), configurationSource)
-                ?.ForeignKey(propertyNames, configurationSource);
+                ?.HasForeignKey(propertyNames, configurationSource);
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] string dependentTypeName,
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
             => DependentEnd(ModelBuilder.Metadata.GetEntityType(dependentTypeName), configurationSource)
-                ?.ForeignKey(propertyNames, configurationSource);
+                ?.HasForeignKey(propertyNames, configurationSource);
 
-        public virtual InternalRelationshipBuilder PrincipalKey([NotNull] IReadOnlyList<PropertyInfo> properties,
+        public virtual InternalRelationshipBuilder HasPrincipalKey([NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
-            => PrincipalKey(
+            => HasPrincipalKey(
                 ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource)
                     .GetOrCreateProperties(properties, configurationSource),
                 configurationSource);
 
-        public virtual InternalRelationshipBuilder PrincipalKey([NotNull] IReadOnlyList<string> propertyNames,
+        public virtual InternalRelationshipBuilder HasPrincipalKey([NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
-            => PrincipalKey(
+            => HasPrincipalKey(
                 ModelBuilder.Entity(Metadata.PrincipalEntityType.Name, configurationSource)
                     .GetOrCreateProperties(propertyNames, configurationSource),
                 configurationSource);
 
-        public virtual InternalRelationshipBuilder PrincipalKey(
+        public virtual InternalRelationshipBuilder HasPrincipalKey(
             [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource, bool runConventions = true)
         {
             if (properties == null)
@@ -803,26 +803,26 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return true;
         }
 
-        public virtual InternalRelationshipBuilder PrincipalKey(
+        public virtual InternalRelationshipBuilder HasPrincipalKey(
             [NotNull] Type principalType,
             [NotNull] IReadOnlyList<PropertyInfo> properties,
             ConfigurationSource configurationSource)
             => PrincipalEnd(ModelBuilder.Metadata.GetEntityType(principalType), configurationSource)
-                ?.PrincipalKey(properties, configurationSource);
+                ?.HasPrincipalKey(properties, configurationSource);
 
-        public virtual InternalRelationshipBuilder PrincipalKey(
+        public virtual InternalRelationshipBuilder HasPrincipalKey(
             [NotNull] Type principalType,
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
             => PrincipalEnd(ModelBuilder.Metadata.GetEntityType(principalType), configurationSource)
-                ?.PrincipalKey(propertyNames, configurationSource);
+                ?.HasPrincipalKey(propertyNames, configurationSource);
 
-        public virtual InternalRelationshipBuilder PrincipalKey(
+        public virtual InternalRelationshipBuilder HasPrincipalKey(
             [NotNull] string principalTypeName,
             [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
             => PrincipalEnd(ModelBuilder.Metadata.GetEntityType(principalTypeName), configurationSource)
-                ?.PrincipalKey(propertyNames, configurationSource);
+                ?.HasPrincipalKey(propertyNames, configurationSource);
 
         private InternalRelationshipBuilder ReplaceForeignKey(
             ForeignKeyAspect aspectsConfigured,
@@ -1128,22 +1128,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (aspectsConfigured.HasFlag(ForeignKeyAspect.DependentProperties))
             {
-                newBuilder = newBuilder.ForeignKey(
+                newBuilder = newBuilder.HasForeignKey(
                     newFk.Properties, configurationSource, runConventions: false);
             }
             if (aspectsConfigured.HasFlag(ForeignKeyAspect.PrincipalKey))
             {
-                newBuilder = newBuilder.PrincipalKey(
+                newBuilder = newBuilder.HasPrincipalKey(
                     newFk.PrincipalKey.Properties, configurationSource, runConventions: false);
             }
             if (aspectsConfigured.HasFlag(ForeignKeyAspect.IsUnique))
             {
-                newBuilder = newBuilder.Unique(
+                newBuilder = newBuilder.IsUnique(
                     newFk.IsUnique.Value, configurationSource, runConventions: false);
             }
             if (aspectsConfigured.HasFlag(ForeignKeyAspect.IsRequired))
             {
-                newBuilder = newBuilder.Required(
+                newBuilder = newBuilder.IsRequired(
                     newFk.IsRequired.Value, configurationSource, runConventions: false);
             }
             if (aspectsConfigured.HasFlag(ForeignKeyAspect.DeleteBehavior))
@@ -1159,7 +1159,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     || oldBuilder._principalKeyConfigurationSource.Value.Overrides(
                         newBuilder._principalKeyConfigurationSource.Value)))
             {
-                newBuilder = newBuilder.PrincipalKey(
+                newBuilder = newBuilder.HasPrincipalKey(
                     oldBuilder.Metadata.PrincipalKey.Properties, oldBuilder._principalKeyConfigurationSource.Value, runConventions: false)
                              ?? newBuilder;
             }
@@ -1170,7 +1170,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 && (!newBuilder._foreignKeyPropertiesConfigurationSource.HasValue
                     || oldBuilder._foreignKeyPropertiesConfigurationSource.Value.Overrides(newBuilder._foreignKeyPropertiesConfigurationSource.Value)))
             {
-                newBuilder = newBuilder.ForeignKey(
+                newBuilder = newBuilder.HasForeignKey(
                     oldBuilder.Metadata.Properties, oldBuilder._foreignKeyPropertiesConfigurationSource.Value, runConventions: false)
                              ?? newBuilder;
             }
@@ -1182,7 +1182,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     || oldBuilder._isUniqueConfigurationSource.Value.Overrides(
                         newBuilder._isUniqueConfigurationSource.Value)))
             {
-                newBuilder = newBuilder.Unique(
+                newBuilder = newBuilder.IsUnique(
                     oldBuilder.Metadata.IsUnique.Value, oldBuilder._isUniqueConfigurationSource.Value, runConventions: false)
                              ?? newBuilder;
             }
@@ -1194,7 +1194,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     || oldBuilder._isRequiredConfigurationSource.Value.Overrides(
                         newBuilder._isRequiredConfigurationSource.Value)))
             {
-                newBuilder = newBuilder.Required(oldBuilder.Metadata.IsRequired.Value, oldBuilder._isRequiredConfigurationSource.Value, runConventions: false)
+                newBuilder = newBuilder.IsRequired(oldBuilder.Metadata.IsRequired.Value, oldBuilder._isRequiredConfigurationSource.Value, runConventions: false)
                              ?? newBuilder;
             }
 

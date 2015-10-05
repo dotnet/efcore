@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests
                 /*
                 pickleBuilder.BaseEntity(null);
 
-                Assert.Null(pickle.BaseType);
+                Assert.Null(pickle.HasBaseType);
                 AssertEqual(initialProperties.Select(p => p.Name), pickle.Properties.Select(p => p.Name));
                 AssertEqual(initialNavigations.Select(p => p.Name), pickle.Navigations.Select(p => p.Name));
                 AssertEqual(initialIndexes, pickle.Indexes);

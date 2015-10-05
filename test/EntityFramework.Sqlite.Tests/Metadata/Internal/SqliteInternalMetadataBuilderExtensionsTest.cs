@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            var indexBuilder = entityTypeBuilder.Index(new[] { "Id" }, ConfigurationSource.Convention);
+            var indexBuilder = entityTypeBuilder.HasIndex(new[] { "Id" }, ConfigurationSource.Convention);
 
             indexBuilder.Sqlite(ConfigurationSource.Convention).Name("Splew");
             Assert.Equal("Splew", indexBuilder.Metadata.Sqlite().Name);
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             var modelBuilder = CreateBuilder();
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Id", typeof(int), ConfigurationSource.Convention);
-            var relationshipBuilder = entityTypeBuilder.ForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
+            var relationshipBuilder = entityTypeBuilder.HasForeignKey("Splot", new[] { "Id" }, ConfigurationSource.Convention);
 
             Assert.True(relationshipBuilder.Sqlite(ConfigurationSource.Convention).Name("Splew"));
             Assert.Equal("Splew", relationshipBuilder.Metadata.Sqlite().Name);

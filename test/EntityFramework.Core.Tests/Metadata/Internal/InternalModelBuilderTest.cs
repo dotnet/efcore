@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
-            Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
+            Assert.NotNull(orderEntityTypeBuilder.HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.Convention);
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
 
-            Assert.NotNull(orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
+            Assert.NotNull(orderEntityTypeBuilder.HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit));
 
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
@@ -184,8 +184,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
-            orderEntityTypeBuilder.ForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
-            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.HasForeignKey(typeof(Customer), new[] { Order.CustomerIdProperty }, ConfigurationSource.Convention);
+            orderEntityTypeBuilder.HasForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
+            orderEntityTypeBuilder.HasForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
                 .DependentToPrincipal("Product", ConfigurationSource.Convention);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
@@ -227,7 +227,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
                 .PrimaryKey(new[] { Product.IdProperty }, ConfigurationSource.Convention);
 
             var orderEntityTypeBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
-            orderEntityTypeBuilder.ForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
+            orderEntityTypeBuilder.HasForeignKey(typeof(Product), new[] { Order.ProductIdProperty }, ConfigurationSource.Convention)
                 .PrincipalToDependent("Order", ConfigurationSource.Convention);
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));

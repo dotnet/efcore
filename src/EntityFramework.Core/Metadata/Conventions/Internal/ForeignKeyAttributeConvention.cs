@@ -56,12 +56,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 }
                 if (fkPropertyOnDependent != null)
                 {
-                    newRelationshipBuilder = relationshipBuilder.ForeignKey(new List<string> { fkPropertyOnDependent }, ConfigurationSource.DataAnnotation);
+                    newRelationshipBuilder = relationshipBuilder.HasForeignKey(new List<string> { fkPropertyOnDependent }, ConfigurationSource.DataAnnotation);
                 }
                 else
                 {
                     newRelationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.DataAnnotation)
-                        ?.ForeignKey(new List<string> { fkPropertyOnPrincipal }, ConfigurationSource.DataAnnotation);
+                        ?.HasForeignKey(new List<string> { fkPropertyOnPrincipal }, ConfigurationSource.DataAnnotation);
                 }
             }
             else
@@ -71,12 +71,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     if (fkPropertiesOnNavigation.All(p => foreignKey.DeclaringEntityType.FindProperty(p) != null)
                         || fkPropertiesOnNavigation.Any(p => foreignKey.PrincipalEntityType.FindProperty(p) == null))
                     {
-                        newRelationshipBuilder = relationshipBuilder.ForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
+                        newRelationshipBuilder = relationshipBuilder.HasForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
                     }
                     else
                     {
                         newRelationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.DataAnnotation)
-                            ?.ForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
+                            ?.HasForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
                     }
                 }
                 else
@@ -92,12 +92,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
                     if (fkPropertyOnDependent != null)
                     {
-                        newRelationshipBuilder = relationshipBuilder.ForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
+                        newRelationshipBuilder = relationshipBuilder.HasForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
                     }
                     else
                     {
                         newRelationshipBuilder = relationshipBuilder.Invert(ConfigurationSource.DataAnnotation)
-                            ?.ForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
+                            ?.HasForeignKey(fkPropertiesOnNavigation, ConfigurationSource.DataAnnotation);
                     }
                 }
             }

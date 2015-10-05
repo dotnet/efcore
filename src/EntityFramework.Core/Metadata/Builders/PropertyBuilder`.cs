@@ -40,8 +40,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual PropertyBuilder<TProperty> Annotation([NotNull] string annotation, [NotNull] object value)
-            => (PropertyBuilder<TProperty>)base.Annotation(annotation, value);
+        public new virtual PropertyBuilder<TProperty> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+            => (PropertyBuilder<TProperty>)base.HasAnnotation(annotation, value);
 
         /// <summary>
         ///     Configures whether this property must have a value assigned or whether null is a valid value.

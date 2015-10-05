@@ -1150,7 +1150,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 // TODO: Give providers an opportunity to render these as provider-specific extension methods
                 builder
                     .AppendLine()
-                    .Append(".Annotation(")
+                    .Append(".HasAnnotation(")
                     .Append(_code.Literal(annotation.Name))
                     .Append(", ")
                     .Append(_code.UnknownLiteral(annotation.Value))

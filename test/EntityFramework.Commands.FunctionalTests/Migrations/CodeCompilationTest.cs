@@ -50,7 +50,7 @@ namespace MyNamespace
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(""-- TEST"")
-                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
+                .HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -85,7 +85,7 @@ namespace MyNamespace
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
+                .HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
     }
 }
@@ -156,7 +156,7 @@ namespace MyNamespace
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
             modelBuilder
-                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
+                .HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
         }
     }
 }

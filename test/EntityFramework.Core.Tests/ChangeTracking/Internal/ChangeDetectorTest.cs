@@ -1819,27 +1819,27 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<Product>(b =>
                 {
                     b.HasOne(e => e.Tag).WithOne(e => e.Product)
-                        .PrincipalKey<Product>(e => e.TagId)
-                        .ForeignKey<ProductTag>(e => e.ProductId);
+                        .HasPrincipalKey<Product>(e => e.TagId)
+                        .HasForeignKey<ProductTag>(e => e.ProductId);
                     b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
             builder.Entity<Category>(b =>
                 {
                     b.HasMany(e => e.Products).WithOne(e => e.Category)
-                        .ForeignKey(e => e.DependentId)
-                        .PrincipalKey(e => e.PrincipalId);
+                        .HasForeignKey(e => e.DependentId)
+                        .HasPrincipalKey(e => e.PrincipalId);
                     b.Property(e => e.PrincipalId).Metadata.RequiresValueGenerator = false;
 
                     b.HasOne(e => e.Tag).WithOne(e => e.Category)
-                        .ForeignKey<CategoryTag>(e => e.CategoryId)
-                        .PrincipalKey<Category>(e => e.TagId);
+                        .HasForeignKey<CategoryTag>(e => e.CategoryId)
+                        .HasPrincipalKey<Category>(e => e.TagId);
                     b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
             builder.Entity<Person>()
                 .HasOne(e => e.Husband).WithOne(e => e.Wife)
-                .ForeignKey<Person>(e => e.HusbandId);
+                .HasForeignKey<Person>(e => e.HusbandId);
 
             return builder.Model;
         }
@@ -2044,8 +2044,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<NotifyingProduct>(b =>
                 {
                     b.HasOne(e => e.Tag).WithOne(e => e.Product)
-                        .PrincipalKey<NotifyingProduct>(e => e.TagId)
-                        .ForeignKey<NotifyingProductTag>(e => e.ProductId);
+                        .HasPrincipalKey<NotifyingProduct>(e => e.TagId)
+                        .HasForeignKey<NotifyingProductTag>(e => e.ProductId);
                     b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
@@ -2053,19 +2053,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<NotifyingCategory>(b =>
                 {
                     b.HasMany(e => e.Products).WithOne(e => e.Category)
-                        .ForeignKey(e => e.DependentId)
-                        .PrincipalKey(e => e.PrincipalId);
+                        .HasForeignKey(e => e.DependentId)
+                        .HasPrincipalKey(e => e.PrincipalId);
                     b.Property(e => e.PrincipalId).Metadata.RequiresValueGenerator = false;
 
                     b.HasOne(e => e.Tag).WithOne(e => e.Category)
-                        .ForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
-                        .PrincipalKey<NotifyingCategory>(e => e.TagId);
+                        .HasForeignKey<NotifyingCategoryTag>(e => e.CategoryId)
+                        .HasPrincipalKey<NotifyingCategory>(e => e.TagId);
                     b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
                 });
 
             builder.Entity<NotifyingPerson>()
                 .HasOne(e => e.Husband).WithOne(e => e.Wife)
-                .ForeignKey<NotifyingPerson>(e => e.HusbandId);
+                .HasForeignKey<NotifyingPerson>(e => e.HusbandId);
 
             return builder.Model;
         }
@@ -2104,7 +2104,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<ProductWithChanging>();
             builder.Entity<CategoryWithChanging>()
                 .HasMany(e => e.Products).WithOne(e => e.Category)
-                .ForeignKey(e => e.DependentId);
+                .HasForeignKey(e => e.DependentId);
 
             return builder.Model;
         }
@@ -2143,7 +2143,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<ProductWithChanged>();
             builder.Entity<CategoryWithChanged>()
                 .HasMany(e => e.Products).WithOne(e => e.Category)
-                .ForeignKey(e => e.DependentId);
+                .HasForeignKey(e => e.DependentId);
 
             return builder.Model;
         }

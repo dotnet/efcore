@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerPropertyBuilderExtensions
     {
-        public static PropertyBuilder HasSqlServerColumnName(
+        public static PropertyBuilder ForSqlServerHasColumnName(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string name)
         {
@@ -25,12 +25,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> HasSqlServerColumnName<TProperty>(
+        public static PropertyBuilder<TProperty> ForSqlServerHasColumnName<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string name)
-            => (PropertyBuilder<TProperty>)HasSqlServerColumnName((PropertyBuilder)propertyBuilder, name);
+            => (PropertyBuilder<TProperty>)ForSqlServerHasColumnName((PropertyBuilder)propertyBuilder, name);
 
-        public static PropertyBuilder HasSqlServerColumnType(
+        public static PropertyBuilder ForSqlServerHasColumnType(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string typeName)
         {
@@ -42,12 +42,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> HasSqlServerColumnType<TProperty>(
+        public static PropertyBuilder<TProperty> ForSqlServerHasColumnType<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string typeName)
-            => (PropertyBuilder<TProperty>)HasSqlServerColumnType((PropertyBuilder)propertyBuilder, typeName);
+            => (PropertyBuilder<TProperty>)ForSqlServerHasColumnType((PropertyBuilder)propertyBuilder, typeName);
 
-        public static PropertyBuilder HasSqlServerDefaultValueSql(
+        public static PropertyBuilder ForSqlServerHasDefaultValueSql(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
         {
@@ -60,12 +60,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> HasSqlServerDefaultValueSql<TProperty>(
+        public static PropertyBuilder<TProperty> ForSqlServerHasDefaultValueSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)HasSqlServerDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
+            => (PropertyBuilder<TProperty>)ForSqlServerHasDefaultValueSql((PropertyBuilder)propertyBuilder, sql);
 
-        public static PropertyBuilder HasSqlServerDefaultValue(
+        public static PropertyBuilder ForSqlServerHasDefaultValue(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] object value)
         {
@@ -76,12 +76,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> HasSqlServerDefaultValue<TProperty>(
+        public static PropertyBuilder<TProperty> ForSqlServerHasDefaultValue<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] object value)
-            => (PropertyBuilder<TProperty>)HasSqlServerDefaultValue((PropertyBuilder)propertyBuilder, value);
+            => (PropertyBuilder<TProperty>)ForSqlServerHasDefaultValue((PropertyBuilder)propertyBuilder, value);
 
-        public static PropertyBuilder HasSqlServerComputedColumnSql(
+        public static PropertyBuilder ForSqlServerHasComputedColumnSql(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string sql)
         {
@@ -94,12 +94,12 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> HasSqlServerComputedColumnSql<TProperty>(
+        public static PropertyBuilder<TProperty> ForSqlServerHasComputedColumnSql<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string sql)
-            => (PropertyBuilder<TProperty>)HasSqlServerComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
+            => (PropertyBuilder<TProperty>)ForSqlServerHasComputedColumnSql((PropertyBuilder)propertyBuilder, sql);
 
-        public static PropertyBuilder UseSqlServerSequenceHiLo(
+        public static PropertyBuilder ForSqlServerUseSequenceHiLo(
             [NotNull] this PropertyBuilder propertyBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
@@ -126,11 +126,11 @@ namespace Microsoft.Data.Entity
             return propertyBuilder;
         }
 
-        public static PropertyBuilder<TProperty> UseSqlServerSequenceHiLo<TProperty>(
+        public static PropertyBuilder<TProperty> ForSqlServerUseSequenceHiLo<TProperty>(
             [NotNull] this PropertyBuilder<TProperty> propertyBuilder,
             [CanBeNull] string name = null,
             [CanBeNull] string schema = null)
-            => (PropertyBuilder<TProperty>)UseSqlServerSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
+            => (PropertyBuilder<TProperty>)ForSqlServerUseSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
 
         public static PropertyBuilder UseSqlServerIdentityColumn(

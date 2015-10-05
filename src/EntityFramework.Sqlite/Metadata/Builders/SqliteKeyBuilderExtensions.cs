@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity
 {
     public static class SqliteKeyBuilderExtensions
     {
-        public static KeyBuilder SqliteKeyName([NotNull] this KeyBuilder builder, [CanBeNull] string name)
+        public static KeyBuilder ForSqliteHasName([NotNull] this KeyBuilder builder, [CanBeNull] string name)
         {
             Check.NotNull(builder, nameof(builder));
             Check.NullButNotEmpty(name, nameof(name));

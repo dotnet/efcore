@@ -186,19 +186,19 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 modelBuilder.Entity<WithStringKey>()
                     .HasMany(e => e.Dependents).WithOne(e => e.Principal)
-                    .ForeignKey(e => e.Fk);
+                    .HasForeignKey(e => e.Fk);
 
                 modelBuilder.Entity<WithStringFk>()
                     .HasOne<WithStringFk>()
                     .WithOne(e => e.Self)
-                    .ForeignKey<WithStringFk>(e => e.SelfFk);
+                    .HasForeignKey<WithStringFk>(e => e.SelfFk);
 
                 modelBuilder.Entity<WithIntKey>(b =>
                     {
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.HasMany(e => e.Dependents)
                             .WithOne(e => e.Principal)
-                            .ForeignKey(e => e.Fk);
+                            .HasForeignKey(e => e.Fk);
                     });
 
                 modelBuilder.Entity<WithNullableIntKey>(b =>
@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         b.Property(e => e.Id).ValueGeneratedNever();
                         b.HasMany(e => e.Dependents)
                             .WithOne(e => e.Principal)
-                            .ForeignKey(e => e.Fk);
+                            .HasForeignKey(e => e.Fk);
                     });
 
                 modelBuilder.Entity<WithIntFk>()

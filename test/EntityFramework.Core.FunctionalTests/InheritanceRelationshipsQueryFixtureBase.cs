@@ -14,15 +14,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>().BaseType<BaseInheritanceRelationshipEntity>();
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>().HasBaseType<BaseInheritanceRelationshipEntity>();
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>().HasKey(e => e.Id);
 
-            modelBuilder.Entity<NestedReferenceDerived>().BaseType<NestedReferenceBase>();
-            modelBuilder.Entity<NestedCollectionDerived>().BaseType<NestedCollectionBase>();
-            modelBuilder.Entity<DerivedReferenceOnBase>().BaseType<BaseReferenceOnBase>();
-            modelBuilder.Entity<DerivedCollectionOnBase>().BaseType<BaseCollectionOnBase>();
-            modelBuilder.Entity<DerivedReferenceOnDerived>().BaseType<BaseReferenceOnDerived>();
-            modelBuilder.Entity<DerivedCollectionOnDerived>().BaseType<BaseCollectionOnDerived>();
+            modelBuilder.Entity<NestedReferenceDerived>().HasBaseType<NestedReferenceBase>();
+            modelBuilder.Entity<NestedCollectionDerived>().HasBaseType<NestedCollectionBase>();
+            modelBuilder.Entity<DerivedReferenceOnBase>().HasBaseType<BaseReferenceOnBase>();
+            modelBuilder.Entity<DerivedCollectionOnBase>().HasBaseType<BaseCollectionOnBase>();
+            modelBuilder.Entity<DerivedReferenceOnDerived>().HasBaseType<BaseReferenceOnDerived>();
+            modelBuilder.Entity<DerivedCollectionOnDerived>().HasBaseType<BaseCollectionOnDerived>();
             modelBuilder.Entity<BaseReferenceOnBase>().HasKey(e => e.Id);
             modelBuilder.Entity<BaseReferenceOnDerived>().HasKey(e => e.Id);
             modelBuilder.Entity<BaseCollectionOnBase>().HasKey(e => e.Id);
@@ -33,32 +33,32 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasOne(e => e.BaseReferenceOnBase)
                 .WithOne(e => e.BaseParent)
-                .ForeignKey<BaseReferenceOnBase>(e => e.BaseParentId)
-                .Required(false);
+                .HasForeignKey<BaseReferenceOnBase>(e => e.BaseParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasOne(e => e.ReferenceOnBase)
                 .WithOne(e => e.Parent)
-                .ForeignKey<ReferenceOnBase>(e => e.ParentId)
-                .Required(false);
+                .HasForeignKey<ReferenceOnBase>(e => e.ParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasMany(e => e.BaseCollectionOnBase)
                 .WithOne(e => e.BaseParent)
-                .ForeignKey(e => e.BaseParentId)
-                .Required(false);
+                .HasForeignKey(e => e.BaseParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasMany(e => e.CollectionOnBase)
                 .WithOne(e => e.Parent)
-                .ForeignKey(e => e.ParentId)
-                .Required(false);
+                .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasOne(e => e.BaseReferenceOnDerived)
                 .WithOne(e => e.BaseParent)
-                .ForeignKey<BaseReferenceOnDerived>(e => e.BaseParentId)
-                .Required(false);
+                .HasForeignKey<BaseReferenceOnDerived>(e => e.BaseParentId)
+                .IsRequired(false);
 
             //TODO: See issue #3289
             modelBuilder.Entity<DerivedReferenceOnDerived>().Property(typeof(int?), "DerivedInheritanceRelationshipEntityId");
@@ -66,50 +66,50 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasOne(e => e.DerivedReferenceOnDerived)
                 .WithOne()
-                .ForeignKey(typeof(DerivedReferenceOnDerived), "DerivedInheritanceRelationshipEntityId")
-                .Required(false);
+                .HasForeignKey(typeof(DerivedReferenceOnDerived), "DerivedInheritanceRelationshipEntityId")
+                .IsRequired(false);
 
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasOne(e => e.ReferenceOnDerived)
                 .WithOne(e => e.Parent)
-                .ForeignKey<ReferenceOnDerived>(e => e.ParentId)
-                .Required(false);
+                .HasForeignKey<ReferenceOnDerived>(e => e.ParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasMany(e => e.BaseCollectionOnDerived)
                 .WithOne(e => e.BaseParent)
-                .ForeignKey(e => e.ParentId)
-                .Required(false);
+                .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasMany(e => e.CollectionOnDerived)
                 .WithOne(e => e.Parent)
-                .ForeignKey(e => e.ParentId)
-                .Required(false);
+                .HasForeignKey(e => e.ParentId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseReferenceOnBase>()
                 .HasOne(e => e.NestedReference)
                 .WithOne(e => e.ParentReference)
-                .ForeignKey<NestedReferenceBase>(e => e.ParentReferenceId)
-                .Required(false);
+                .HasForeignKey<NestedReferenceBase>(e => e.ParentReferenceId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseReferenceOnBase>()
                 .HasMany(e => e.NestedCollection)
                 .WithOne(e => e.ParentReference)
-                .ForeignKey(e => e.ParentReferenceId)
-                .Required(false);
+                .HasForeignKey(e => e.ParentReferenceId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseCollectionOnBase>()
                 .HasOne(e => e.NestedReference)
                 .WithOne(e => e.ParentCollection)
-                .ForeignKey<NestedReferenceBase>(e => e.ParentCollectionId)
-                .Required(false);
+                .HasForeignKey<NestedReferenceBase>(e => e.ParentCollectionId)
+                .IsRequired(false);
 
             modelBuilder.Entity<BaseCollectionOnBase>()
                 .HasMany(e => e.NestedCollection)
                 .WithOne(e => e.ParentCollection)
-                .ForeignKey(e => e.ParentCollectionId)
-                .Required(false);
+                .HasForeignKey(e => e.ParentCollectionId)
+                .IsRequired(false);
         }
     }
 }

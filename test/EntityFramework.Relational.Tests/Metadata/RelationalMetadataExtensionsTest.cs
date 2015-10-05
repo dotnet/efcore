@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Order>()
                 .HasOne<Customer>()
                 .WithOne()
-                .ForeignKey<Order>(e => e.CustomerId)
+                .HasForeignKey<Order>(e => e.CustomerId)
                 .Metadata;
 
             Assert.Equal("FK_Order_Customer_CustomerId", foreignKey.Relational().Name);
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
 
             var index = modelBuilder
                 .Entity<Customer>()
-                .Index(e => e.Id)
+                .HasIndex(e => e.Id)
                 .Metadata;
 
             Assert.Equal("IX_Customer_Id", index.Relational().Name);

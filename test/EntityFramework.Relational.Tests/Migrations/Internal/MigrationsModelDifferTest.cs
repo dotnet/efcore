@@ -37,8 +37,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("FK");
                         });
 
-                    modelBuilder.Entity("First").HasOne("Second").WithMany().ForeignKey("FK").PrincipalKey("ID");
-                    modelBuilder.Entity("Second").HasOne("First").WithMany().ForeignKey("FK").PrincipalKey("ID");
+                    modelBuilder.Entity("First").HasOne("Second").WithMany().HasForeignKey("FK").HasPrincipalKey("ID");
+                    modelBuilder.Entity("Second").HasOne("First").WithMany().HasForeignKey("FK").HasPrincipalKey("ID");
                 },
                 result =>
                 {
@@ -81,8 +81,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("ThirdId");
                         });
 
-                    modelBuilder.Entity("Third").HasOne("Fourth").WithMany().ForeignKey("FourthId");
-                    modelBuilder.Entity("Fourth").HasOne("Third").WithMany().ForeignKey("ThirdId");
+                    modelBuilder.Entity("Third").HasOne("Fourth").WithMany().HasForeignKey("FourthId");
+                    modelBuilder.Entity("Fourth").HasOne("Third").WithMany().HasForeignKey("ThirdId");
                 },
                 _ => { },
                 operations =>
@@ -110,8 +110,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("AltId");
                         x.HasAlternateKey("AltId");
                         x.Property<int?>("ParentAltId");
-                        x.HasOne("Node").WithMany().ForeignKey("ParentAltId");
-                        x.Index("ParentAltId");
+                        x.HasOne("Node").WithMany().HasForeignKey("ParentAltId");
+                        x.HasIndex("ParentAltId");
                     }),
                 operations =>
                 {
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").Name("PK_Dog");
+                        x.HasKey("Id").HasName("PK_Dog");
                     }),
                 target => target.Entity(
                     "Doge",
@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     {
                         x.ToTable("Dog");
                         x.Property<int>("Id");
-                        x.HasKey("Id").Name("PK_Dog");
+                        x.HasKey("Id").HasName("PK_Dog");
                     }),
                 operations => Assert.Empty(operations));
         }
@@ -765,7 +765,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("AlternateId");
-                        x.HasAlternateKey("AlternateId").Name("AK_dbo.Pelican_AlternateId");
+                        x.HasAlternateKey("AlternateId").HasName("AK_dbo.Pelican_AlternateId");
                     }),
                 operations =>
                 {
@@ -808,7 +808,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.HasKey("Id");
                         x.Property<int>("AlternateId");
                         x.Property<int>("AlternateRookId");
-                        x.HasAlternateKey("AlternateRookId").Name("AK_Rook_AlternateId");
+                        x.HasAlternateKey("AlternateRookId").HasName("AK_Rook_AlternateId");
                     }),
                 operations =>
                 {
@@ -845,7 +845,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     {
                         x.ToTable("Puffin", "dbo");
                         x.Property<int>("Id");
-                        x.HasKey("Id").Name("PK_dbo.Puffin");
+                        x.HasKey("Id").HasName("PK_dbo.Puffin");
                     }),
                 operations =>
                 {
@@ -924,7 +924,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Amoeba").WithMany().ForeignKey("ParentId").WillCascadeOnDelete(false);
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").WillCascadeOnDelete(false);
                     }),
                 operations =>
                 {
@@ -964,7 +964,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Amoeba").WithMany().ForeignKey("ParentId").WillCascadeOnDelete();
+                        x.HasOne("Amoeba").WithMany().HasForeignKey("ParentId").WillCascadeOnDelete();
                     }),
                 operations =>
                 {
@@ -995,7 +995,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Anemone").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Anemone").WithMany().HasForeignKey("ParentId");
                     }),
                 target => target.Entity(
                     "Anemone",
@@ -1029,7 +1029,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Nematode").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Nematode").WithMany().HasForeignKey("ParentId");
                     }),
                 target => target.Entity(
                     "Nematode",
@@ -1039,7 +1039,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Nematode").WithMany().ForeignKey("ParentId").ConstraintName("FK_Nematode_NematodeParent");
+                        x.HasOne("Nematode").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Nematode_NematodeParent");
                     }),
                 operations =>
                 {
@@ -1073,7 +1073,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
-                        x.HasOne("Mushroom").WithMany().ForeignKey("ParentId1");
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1");
                         x.Property<int>("ParentId2");
                     }),
                 target => target.Entity(
@@ -1085,7 +1085,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
                         x.Property<int>("ParentId2");
-                        x.HasOne("Mushroom").WithMany().ForeignKey("ParentId2").ConstraintName("FK_Mushroom_Mushroom_ParentId1");
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId2").HasConstraintName("FK_Mushroom_Mushroom_ParentId1");
                     }),
                 operations =>
                 {
@@ -1119,7 +1119,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
-                        x.HasOne("Mushroom").WithMany().ForeignKey("ParentId1").WillCascadeOnDelete(false);
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").WillCascadeOnDelete(false);
                         x.Property<int>("ParentId2");
                     }),
                 target => target.Entity(
@@ -1130,7 +1130,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId1");
-                        x.HasOne("Mushroom").WithMany().ForeignKey("ParentId1").WillCascadeOnDelete();
+                        x.HasOne("Mushroom").WithMany().HasForeignKey("ParentId1").WillCascadeOnDelete();
                         x.Property<int>("ParentId2");
                     }),
                 operations =>
@@ -1185,7 +1185,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Lion").WithMany().ForeignKey("ParentId");
+                            x.HasOne("Lion").WithMany().HasForeignKey("ParentId");
                         });
                 },
                 target =>
@@ -1214,7 +1214,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Tiger").WithMany().ForeignKey("ParentId").ConstraintName("FK_Liger_Lion_ParentId");
+                            x.HasOne("Tiger").WithMany().HasForeignKey("ParentId").HasConstraintName("FK_Liger_Lion_ParentId");
                         });
                 },
                 operations =>
@@ -1258,7 +1258,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value").Unique();
+                        x.HasIndex("Value").IsUnique();
                     }),
                 operations =>
                 {
@@ -1285,7 +1285,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value");
+                        x.HasIndex("Value");
                     }),
                 target => target.Entity(
                     "Horse",
@@ -1319,7 +1319,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value");
+                        x.HasIndex("Value");
                     }),
                 target => target.Entity(
                     "Donkey",
@@ -1329,7 +1329,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value").Name("IX_dbo.Donkey_Value");
+                        x.HasIndex("Value").HasName("IX_dbo.Donkey_Value");
                     }),
                 operations =>
                 {
@@ -1355,7 +1355,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value");
+                        x.HasIndex("Value");
                         x.Property<int>("MuleValue");
                     }),
                 target => target.Entity(
@@ -1367,7 +1367,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.HasKey("Id");
                         x.Property<int>("Value");
                         x.Property<int>("MuleValue");
-                        x.Index("MuleValue").Name("IX_Muel_Value");
+                        x.HasIndex("MuleValue").HasName("IX_Muel_Value");
                     }),
                 operations =>
                 {
@@ -1398,7 +1398,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value").Unique(false);
+                        x.HasIndex("Value").IsUnique(false);
                     }),
                 target => target.Entity(
                     "Pony",
@@ -1408,7 +1408,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value").Unique(true);
+                        x.HasIndex("Value").IsUnique(true);
                     }),
                 operations =>
                 {
@@ -1432,7 +1432,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         {
             Execute(
                 _ => { },
-                modelBuilder => modelBuilder.Sequence<int>("Tango", "dbo")
+                modelBuilder => modelBuilder.HasSequence<int>("Tango", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1458,7 +1458,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Drop_sequence()
         {
             Execute(
-                modelBuilder => modelBuilder.Sequence("Bravo", "dbo"),
+                modelBuilder => modelBuilder.HasSequence("Bravo", "dbo"),
                 _ => { },
                 operations =>
                 {
@@ -1474,8 +1474,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Rename_sequence()
         {
             Execute(
-                source => source.Sequence("Bravo", "dbo"),
-                target => target.Sequence("bravo", "dbo"),
+                source => source.HasSequence("Bravo", "dbo"),
+                target => target.HasSequence("bravo", "dbo"),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1492,8 +1492,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Move_sequence()
         {
             Execute(
-                source => source.Sequence("Charlie", "dbo"),
-                target => target.Sequence("Charlie", "odb"),
+                source => source.HasSequence("Charlie", "dbo"),
+                target => target.HasSequence("Charlie", "odb"),
                 operations =>
                 {
                     Assert.Equal(1, operations.Count);
@@ -1510,13 +1510,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Alter_sequence_increment_by()
         {
             Execute(
-                source => source.Sequence<int>("Alpha", "dbo")
+                source => source.HasSequence<int>("Alpha", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence<int>("Alpha", "dbo")
+                source => source.HasSequence<int>("Alpha", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(5)
                     .HasMin(1)
@@ -1540,13 +1540,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Alter_sequence_max_value()
         {
             Execute(
-                source => source.Sequence<int>("Echo", "dbo")
+                source => source.HasSequence<int>("Echo", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence<int>("Echo", "dbo")
+                source => source.HasSequence<int>("Echo", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1570,13 +1570,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Alter_sequence_min_value()
         {
             Execute(
-                source => source.Sequence<int>("Delta", "dbo")
+                source => source.HasSequence<int>("Delta", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence<int>("Delta", "dbo")
+                source => source.HasSequence<int>("Delta", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(5)
@@ -1600,13 +1600,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Alter_sequence_cycle()
         {
             Execute(
-                source => source.Sequence<int>("Foxtrot", "dbo")
+                source => source.HasSequence<int>("Foxtrot", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(true),
-                source => source.Sequence<int>("Foxtrot", "dbo")
+                source => source.HasSequence<int>("Foxtrot", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1630,13 +1630,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Alter_sequence_type()
         {
             Execute(
-                source => source.Sequence<int>("Hotel", "dbo")
+                source => source.HasSequence<int>("Hotel", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence<long>("Hotel", "dbo")
+                source => source.HasSequence<long>("Hotel", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1666,13 +1666,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         public void Alter_sequence_start()
         {
             Execute(
-                source => source.Sequence<int>("Golf", "dbo")
+                source => source.HasSequence<int>("Golf", "dbo")
                     .StartsAt(2)
                     .IncrementsBy(3)
                     .HasMin(1)
                     .HasMax(4)
                     .IsCyclic(),
-                source => source.Sequence<int>("Golf", "dbo")
+                source => source.HasSequence<int>("Golf", "dbo")
                     .StartsAt(5)
                     .IncrementsBy(3)
                     .HasMin(1)
@@ -1873,7 +1873,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value");
+                        x.HasIndex("Value");
                     }),
                 operations => Assert.Collection(
                     operations,
@@ -1892,7 +1892,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("Value");
-                        x.Index("Value");
+                        x.HasIndex("Value");
                     }),
                 target => target.Entity(
                     "Wolf",
@@ -1925,7 +1925,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Algae").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Algae").WithMany().HasForeignKey("ParentId");
                     }),
                 operations => Assert.Collection(
                     operations,
@@ -1944,7 +1944,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Bacteria").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Bacteria").WithMany().HasForeignKey("ParentId");
                     }),
                 target => target.Entity(
                     "Bacteria",
@@ -1987,7 +1987,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("MakerId");
-                            x.HasOne("Maker").WithMany().ForeignKey("MakerId");
+                            x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                         });
                 },
                 operations => Assert.Collection(
@@ -2016,7 +2016,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("MakerId");
-                            x.HasOne("Maker").WithMany().ForeignKey("MakerId");
+                            x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                         });
                 },
                 target => target.Entity(
@@ -2072,7 +2072,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("MakerId");
-                            x.HasOne("Maker").WithMany().ForeignKey("MakerId").PrincipalKey("AlternateId");
+                            x.HasOne("Maker").WithMany().HasForeignKey("MakerId").HasPrincipalKey("AlternateId");
                         });
                 },
                 operations => Assert.Collection(
@@ -2103,7 +2103,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("MakerId");
-                            x.HasOne("Maker").WithMany().ForeignKey("MakerId").PrincipalKey("AlternateId");
+                            x.HasOne("Maker").WithMany().HasForeignKey("MakerId").HasPrincipalKey("AlternateId");
                         });
                 },
                 target =>
@@ -2152,7 +2152,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("MakerId");
-                            x.HasOne("Maker").WithMany().ForeignKey("MakerId");
+                            x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                         });
                 },
                 operations =>
@@ -2187,7 +2187,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("MakerId");
-                            x.HasOne("Maker").WithMany().ForeignKey("MakerId");
+                            x.HasOne("Maker").WithMany().HasForeignKey("MakerId");
                         });
                 },
                 _ => { },
@@ -2270,7 +2270,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name");
-                        x.Index("Name");
+                        x.HasIndex("Name");
                     }),
                 target => target.Entity(
                     "Bee",
@@ -2279,7 +2279,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name").HasColumnName("BeeName");
-                        x.Index("Name");
+                        x.HasIndex("Name");
                     }),
                 operations =>
                 {
@@ -2331,7 +2331,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name");
-                        x.Index("Name");
+                        x.HasIndex("Name");
                     }),
                 target => target.Entity(
                     "Gnat",
@@ -2341,7 +2341,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name");
-                        x.Index("Name");
+                        x.HasIndex("Name");
                     }),
                 operations =>
                 {
@@ -2369,9 +2369,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").Name("PK_Grasshopper");
+                        x.HasKey("Id").HasName("PK_Grasshopper");
                         x.Property<string>("Name");
-                        x.HasAlternateKey("Name").Name("AK_Grasshopper_Name");
+                        x.HasAlternateKey("Name").HasName("AK_Grasshopper_Name");
                     }),
                 operations =>
                 {
@@ -2392,16 +2392,16 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name");
-                        x.Index("Name");
+                        x.HasIndex("Name");
                     }),
                 target => target.Entity(
                     "cricket",
                     x =>
                     {
                         x.Property<int>("Id");
-                        x.HasKey("Id").Name("PK_Cricket");
+                        x.HasKey("Id").HasName("PK_Cricket");
                         x.Property<string>("Name");
-                        x.Index("Name").Name("IX_Cricket_Name");
+                        x.HasIndex("Name").HasName("IX_Cricket_Name");
                     }),
                 operations =>
                 {
@@ -2422,7 +2422,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Yeast").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Yeast").WithMany().HasForeignKey("ParentId");
                     }),
                 target => target.Entity(
                     "Yeast",
@@ -2431,7 +2431,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId").HasColumnName("ParentYeastId");
-                        x.HasOne("Yeast").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Yeast").WithMany().HasForeignKey("ParentId");
                     }),
                 operations =>
                 {
@@ -2451,7 +2451,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Mucor").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Mucor").WithMany().HasForeignKey("ParentId");
                     }),
                 target => target.Entity(
                     "Mucor",
@@ -2460,7 +2460,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id").HasColumnName("MucorId");
                         x.HasKey("Id");
                         x.Property<int>("ParentId");
-                        x.HasOne("Mucor").WithMany().ForeignKey("ParentId");
+                        x.HasOne("Mucor").WithMany().HasForeignKey("ParentId");
                     }),
                 operations =>
                 {
@@ -2489,7 +2489,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Zebra").WithMany().ForeignKey("ParentId");
+                            x.HasOne("Zebra").WithMany().HasForeignKey("ParentId");
                         });
                 },
                 target =>
@@ -2509,7 +2509,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Zebra").WithMany().ForeignKey("ParentId");
+                            x.HasOne("Zebra").WithMany().HasForeignKey("ParentId");
                         });
                 },
                 operations =>
@@ -2539,7 +2539,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Jaguar").WithMany().ForeignKey("ParentId");
+                            x.HasOne("Jaguar").WithMany().HasForeignKey("ParentId");
                         });
                 },
                 target =>
@@ -2559,7 +2559,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("ParentId");
-                            x.HasOne("Jaguar").WithMany().ForeignKey("ParentId");
+                            x.HasOne("Jaguar").WithMany().HasForeignKey("ParentId");
                         });
                 },
                 operations =>
@@ -2958,7 +2958,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<string>("Name");
-                            x.Index("Name");
+                            x.HasIndex("Name");
                             x.Metadata.Relational().DiscriminatorValue = "Minnow";
                         });
                 },
@@ -3000,7 +3000,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<string>("Name");
-                            x.Index("Name");
+                            x.HasIndex("Name");
                             x.Metadata.Relational().DiscriminatorValue = "Pike";
                         });
                 },
@@ -3026,7 +3026,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<string>("Name");
-                            x.Index("Name").Name("IX_Animal_Pike_Name");
+                            x.HasIndex("Name").HasName("IX_Animal_Pike_Name");
                             x.Metadata.Relational().DiscriminatorValue = "Pike";
                         });
                 },
@@ -3068,7 +3068,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<string>("Name");
-                            x.Index("Name");
+                            x.HasIndex("Name");
                             x.Metadata.Relational().DiscriminatorValue = "Catfish";
                         });
                 },
@@ -3129,9 +3129,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("HandlerId");
-                            x.HasOne("Person").WithMany().ForeignKey("HandlerId");
+                            x.HasOne("Person").WithMany().HasForeignKey("HandlerId");
                         });
-                    modelBuilder.Entity("Wyvern").BaseType("Animal");
+                    modelBuilder.Entity("Wyvern").HasBaseType("Animal");
                 },
                 operations =>
                 {
@@ -3183,7 +3183,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<int>("HandlerId");
-                            x.HasOne("Person").WithMany().ForeignKey("HandlerId");
+                            x.HasOne("Person").WithMany().HasForeignKey("HandlerId");
                             x.Metadata.Relational().DiscriminatorValue = "Stag";
                         });
                 },
@@ -3239,7 +3239,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("PetId");
-                            x.HasOne("DomesticAnimal").WithMany().ForeignKey("PetId");
+                            x.HasOne("DomesticAnimal").WithMany().HasForeignKey("PetId");
                         });
                 },
                 operations =>
@@ -3286,7 +3286,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<int>("PreyId");
-                            x.HasOne("Animal").WithMany().ForeignKey("PreyId");
+                            x.HasOne("Animal").WithMany().HasForeignKey("PreyId");
                             x.Metadata.Relational().DiscriminatorValue = "Predator";
                         });
                 },
@@ -3326,7 +3326,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.HasKey("Id");
                             x.Property<int>("HandlerId");
                         });
-                    modelBuilder.Entity("Drakee").BaseType("Animal");
+                    modelBuilder.Entity("Drakee").HasBaseType("Animal");
                 },
                 modelBuilder =>
                 {
@@ -3344,9 +3344,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("HandlerId");
-                            x.HasOne("Person").WithMany().ForeignKey("HandlerId");
+                            x.HasOne("Person").WithMany().HasForeignKey("HandlerId");
                         });
-                    modelBuilder.Entity("Drakee").BaseType("Animal");
+                    modelBuilder.Entity("Drakee").HasBaseType("Animal");
                 },
                 operations =>
                 {
@@ -3424,7 +3424,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<int>("HunterId");
-                            x.HasOne("Person").WithMany().ForeignKey("HunterId");
+                            x.HasOne("Person").WithMany().HasForeignKey("HunterId");
                             x.Metadata.Relational().DiscriminatorValue = "GameAnimal";
                         });
                 },
@@ -3505,7 +3505,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                             x.Property<int>("TrophyId");
-                            x.HasOne("TrophyAnimal").WithMany().ForeignKey("TrophyId");
+                            x.HasOne("TrophyAnimal").WithMany().HasForeignKey("TrophyId");
                         });
                 },
                 operations =>
@@ -3553,7 +3553,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         {
                             x.Metadata.BaseType = animal;
                             x.Property<int>("RiderId");
-                            x.HasOne("Person").WithMany().ForeignKey("RiderId");
+                            x.HasOne("Person").WithMany().HasForeignKey("RiderId");
                             x.Metadata.Relational().DiscriminatorValue = "MountAnimal";
                         });
                 },

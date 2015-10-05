@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
         public void Annotations_are_added_when_conventional_model_builder_is_used_with_sequences()
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder()
-                .UseSqlServerSequenceHiLo()
+                .ForSqlServerUseSequenceHiLo()
                 .Model;
 
             var annotations = model.Annotations.OrderBy(a => a.Name);

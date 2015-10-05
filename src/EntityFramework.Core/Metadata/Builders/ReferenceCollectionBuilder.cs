@@ -62,12 +62,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder Annotation([NotNull] string annotation, [NotNull] object value)
+        public virtual ReferenceCollectionBuilder HasAnnotation([NotNull] string annotation, [NotNull] object value)
         {
             Check.NotEmpty(annotation, nameof(annotation));
             Check.NotNull(value, nameof(value));
 
-            Builder.Annotation(annotation, value, ConfigurationSource.Explicit);
+            Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
 
             return this;
         }
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///         of the entity class.
         ///     </para>
         ///     <para>
-        ///         If <see cref="PrincipalKey" /> is not specified, then an attempt will be made to match
+        ///         If <see cref="HasPrincipalKey" /> is not specified, then an attempt will be made to match
         ///         the data type and order of foreign key properties against the primary key of the principal
         ///         entity type. If they do not match, new shadow state properties that form a unique index will be
         ///         added to the principal entity type to serve as the reference key.
@@ -94,11 +94,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     The name(s) of the foreign key property(s).
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder ForeignKey([NotNull] params string[] foreignKeyPropertyNames)
+        public virtual ReferenceCollectionBuilder HasForeignKey([NotNull] params string[] foreignKeyPropertyNames)
         {
             Check.NotEmpty(foreignKeyPropertyNames, nameof(foreignKeyPropertyNames));
 
-            return new ReferenceCollectionBuilder(Builder.ForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder(Builder.HasForeignKey(foreignKeyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -109,11 +109,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="keyPropertyNames"> The name(s) of the reference key property(s). </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder PrincipalKey([NotNull] params string[] keyPropertyNames)
+        public virtual ReferenceCollectionBuilder HasPrincipalKey([NotNull] params string[] keyPropertyNames)
         {
             Check.NotEmpty(keyPropertyNames, nameof(keyPropertyNames));
 
-            return new ReferenceCollectionBuilder(Builder.PrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
+            return new ReferenceCollectionBuilder(Builder.HasPrincipalKey(keyPropertyNames, ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -122,8 +122,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="required"> A value indicating whether this is a required relationship. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public virtual ReferenceCollectionBuilder Required(bool required = true)
-            => new ReferenceCollectionBuilder(Builder.Required(required, ConfigurationSource.Explicit));
+        public virtual ReferenceCollectionBuilder IsRequired(bool required = true)
+            => new ReferenceCollectionBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit));
 
         public virtual ReferenceCollectionBuilder WillCascadeOnDelete(bool cascade = true)
             => new ReferenceCollectionBuilder(

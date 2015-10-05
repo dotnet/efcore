@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             builder.Entity<Product>(b =>
                 {
                     b.HasMany(e => e.OrderLines).WithOne(e => e.Product);
-                    b.HasOne(e => e.Detail).WithOne(e => e.Product).ForeignKey<ProductDetail>(e => e.Id);
+                    b.HasOne(e => e.Detail).WithOne(e => e.Product).HasForeignKey<ProductDetail>(e => e.Id);
                 });
 
             builder.Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);

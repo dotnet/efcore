@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Blog");
 
-            relationshipBuilder.Required(false, ConfigurationSource.Convention);
+            relationshipBuilder.IsRequired(false, ConfigurationSource.Convention);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation("Blog");
 
-            relationshipBuilder.Required(false, ConfigurationSource.Explicit);
+            relationshipBuilder.IsRequired(false, ConfigurationSource.Explicit);
 
             Assert.False(relationshipBuilder.Metadata.IsRequired);
 

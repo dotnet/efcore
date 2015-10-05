@@ -28,7 +28,7 @@ namespace E2E.Sqlite
                     .IsRequired()
                     .HasColumnType("VARCHAR");
 
-                entity.HasOne(d => d.OneToManyDependentFK).WithMany(p => p.OneToManyDependent).ForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
+                entity.HasOne(d => d.OneToManyDependentFK).WithMany(p => p.OneToManyDependent).HasForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>

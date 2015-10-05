@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
-            Assert.NotNull(builder.BaseType(typeof(Order), ConfigurationSource.Convention));
+            Assert.NotNull(builder.HasBaseType(typeof(Order), ConfigurationSource.Convention));
 
             Assert.NotNull(entityTypeBuilder);
         }

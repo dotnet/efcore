@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Migrations.Operations.Builders
 
         TOperation IAccessor<TOperation>.Service => Operation;
 
-        public virtual OperationBuilder<TOperation> Annotation(
+        public virtual OperationBuilder<TOperation> HasAnnotation(
             [NotNull] string name,
             [NotNull] object value)
         {

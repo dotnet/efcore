@@ -80,7 +80,7 @@
 
         if (!rc.ForeignKey.PrincipalKey.IsPrimaryKey())
         {
-            sb.Append(".PrincipalKey");
+            sb.Append(".HasPrincipalKey");
             if (rc.ForeignKey.IsUnique)
             {
                 // If the relationship is 1:1 need to define to which end
@@ -96,7 +96,7 @@
                 .Append(")");
         }
 
-        sb.Append(".ForeignKey");
+        sb.Append(".HasForeignKey");
         if (rc.ForeignKey.IsUnique)
         {
             // If the relationship is 1:1 need to define to which end

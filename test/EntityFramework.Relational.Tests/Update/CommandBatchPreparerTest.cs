@@ -299,7 +299,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                     b.HasKey(c => c.Id);
                     b.HasOne<FakeEntity>()
                         .WithOne()
-                        .ForeignKey<RelatedFakeEntity>(c => c.Id);
+                        .HasForeignKey<RelatedFakeEntity>(c => c.Id);
                 });
 
             return modelBuilder.Model;
@@ -320,14 +320,14 @@ namespace Microsoft.Data.Entity.Tests.Update
                     b.HasKey(c => c.Id);
                     b.HasOne<FakeEntity>()
                         .WithOne()
-                        .ForeignKey<RelatedFakeEntity>(c => c.RelatedId);
+                        .HasForeignKey<RelatedFakeEntity>(c => c.RelatedId);
                 });
 
             modelBuilder
                 .Entity<FakeEntity>()
                 .HasOne<RelatedFakeEntity>()
                 .WithOne()
-                .ForeignKey<FakeEntity>(c => c.RelatedId);
+                .HasForeignKey<FakeEntity>(c => c.RelatedId);
 
             return modelBuilder.Model;
         }

@@ -52,10 +52,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [CanBeNull]
-        public virtual DiscriminatorBuilder Discriminator() => DiscriminatorBuilder(null, null);
+        public virtual DiscriminatorBuilder HasDiscriminator() => DiscriminatorBuilder(null, null);
 
         [CanBeNull]
-        public virtual DiscriminatorBuilder Discriminator([CanBeNull] Type discriminatorType)
+        public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] Type discriminatorType)
         {
             if (discriminatorType == null)
             {
@@ -66,11 +66,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [CanBeNull]
-        public virtual DiscriminatorBuilder Discriminator([NotNull] string name, [NotNull] Type discriminatorType)
+        public virtual DiscriminatorBuilder HasDiscriminator([NotNull] string name, [NotNull] Type discriminatorType)
             => DiscriminatorBuilder(b => b.Property(name, discriminatorType, Annotations.ConfigurationSource), null);
 
         [CanBeNull]
-        public virtual DiscriminatorBuilder Discriminator([CanBeNull] PropertyInfo propertyInfo)
+        public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
             {

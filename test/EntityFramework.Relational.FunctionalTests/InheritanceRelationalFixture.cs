@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Plant>().Discriminator(p => p.Genus)
+            modelBuilder.Entity<Plant>().HasDiscriminator(p => p.Genus)
                 .HasValue<Rose>(PlantGenus.Rose)
                 .HasValue<Daisy>(PlantGenus.Daisy);
         }

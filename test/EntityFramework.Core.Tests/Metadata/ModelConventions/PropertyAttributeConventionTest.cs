@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<DerivedEntity>();
             var baseEntityType = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit).Metadata;
-            derivedEntityTypeBuilder.BaseType(baseEntityType, ConfigurationSource.Explicit);
+            derivedEntityTypeBuilder.HasBaseType(baseEntityType, ConfigurationSource.Explicit);
 
             var propertyBuilder = derivedEntityTypeBuilder.Property("Number", typeof(int), ConfigurationSource.Explicit);
 
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeKeyDerivedEntity>();
             var baseEntityTypeBuilder = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit);
-            derivedEntityTypeBuilder.BaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
+            derivedEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
 
             baseEntityTypeBuilder.PrimaryKey(new List<string> { "Id", "Name" }, ConfigurationSource.Explicit);
 

@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                     if (canBeUnique != canBeNonUnique)
                     {
-                        builder = builder.Unique(canBeUnique, configurationSource);
+                        builder = builder.IsUnique(canBeUnique, configurationSource);
                         Debug.Assert(builder != null);
                         pointsToPrincipal = builder.Metadata.DeclaringEntityType != fkOwner.Metadata;
                     }
@@ -514,33 +514,33 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => ModelBuilder?.Entity(entityType.Name, ConfigurationSource.Convention)
                 ?._ignoredMembers?.Value.Remove(memberName);
 
-        public virtual InternalEntityTypeBuilder BaseType([CanBeNull] Type baseEntityType, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder HasBaseType([CanBeNull] Type baseEntityType, ConfigurationSource configurationSource)
         {
             if (baseEntityType == null)
             {
-                return BaseType((EntityType)null, configurationSource);
+                return HasBaseType((EntityType)null, configurationSource);
             }
 
             var baseType = ModelBuilder.Entity(baseEntityType, configurationSource);
             return baseType == null
                 ? null
-                : BaseType(baseType.Metadata, configurationSource);
+                : HasBaseType(baseType.Metadata, configurationSource);
         }
 
-        public virtual InternalEntityTypeBuilder BaseType([CanBeNull] string baseEntityTypeName, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder HasBaseType([CanBeNull] string baseEntityTypeName, ConfigurationSource configurationSource)
         {
             if (baseEntityTypeName == null)
             {
-                return BaseType((EntityType)null, configurationSource);
+                return HasBaseType((EntityType)null, configurationSource);
             }
 
             var baseType = ModelBuilder.Entity(baseEntityTypeName, configurationSource);
             return baseType == null
                 ? null
-                : BaseType(baseType.Metadata, configurationSource);
+                : HasBaseType(baseType.Metadata, configurationSource);
         }
 
-        public virtual InternalEntityTypeBuilder BaseType([CanBeNull] EntityType baseEntityType, ConfigurationSource configurationSource)
+        public virtual InternalEntityTypeBuilder HasBaseType([CanBeNull] EntityType baseEntityType, ConfigurationSource configurationSource)
         {
             if (_baseTypeConfigurationSource == null)
             {
@@ -842,7 +842,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return removedConfigurationSource;
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] string principalEntityTypeName, [NotNull] IReadOnlyList<string> propertyNames,
             ConfigurationSource configurationSource)
         {
@@ -855,20 +855,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return ForeignKey(principalType, GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+            return HasForeignKey(principalType, GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
         }
 
-        public virtual InternalRelationshipBuilder ForeignKey(
+        public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] Type principalClrType, [NotNull] IReadOnlyList<PropertyInfo> clrProperties,
             ConfigurationSource configurationSource)
         {
             var principalType = ModelBuilder.Entity(principalClrType, configurationSource);
             return principalType == null
                 ? null
-                : ForeignKey(principalType, GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+                : HasForeignKey(principalType, GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
         }
 
-        private InternalRelationshipBuilder ForeignKey(InternalEntityTypeBuilder principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource)
+        private InternalRelationshipBuilder HasForeignKey(InternalEntityTypeBuilder principalType, IReadOnlyList<Property> dependentProperties, ConfigurationSource configurationSource)
             => dependentProperties == null
                 ? null
                 : Relationship(principalType, this, null, null, dependentProperties, null, configurationSource);
@@ -981,13 +981,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
-            => Index(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+        public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
 
-        public virtual InternalIndexBuilder Index([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
-            => Index(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
+        public virtual InternalIndexBuilder HasIndex([NotNull] IReadOnlyList<PropertyInfo> clrProperties, ConfigurationSource configurationSource)
+            => HasIndex(GetOrCreateProperties(clrProperties, configurationSource), configurationSource);
 
-        private InternalIndexBuilder Index(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
+        private InternalIndexBuilder HasIndex(IReadOnlyList<Property> properties, ConfigurationSource configurationSource)
         {
             if (properties == null)
             {
@@ -999,7 +999,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 && existingIndex.DeclaringEntityType != Metadata)
             {
                 return ModelBuilder.Entity(existingIndex.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .Index(properties, configurationSource);
+                    .HasIndex(properties, configurationSource);
             }
 
             // TODO: Lift indexes from derived types
@@ -1149,7 +1149,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 configurationSource: configurationSource,
                 isUnique: null,
                 strictPrincipal: false)
-                ?.Unique(true, ConfigurationSource.Convention);
+                ?.IsUnique(true, ConfigurationSource.Convention);
         }
 
         public virtual InternalRelationshipBuilder Relationship(
@@ -1375,22 +1375,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
                 if (dependentProperties != null)
                 {
-                    relationshipBuilder = relationshipBuilder.ForeignKey(
+                    relationshipBuilder = relationshipBuilder.HasForeignKey(
                         dependentProperties, configurationSource, runConventions: false);
                 }
                 if (principalProperties != null)
                 {
-                    relationshipBuilder = relationshipBuilder.PrincipalKey(
+                    relationshipBuilder = relationshipBuilder.HasPrincipalKey(
                         principalProperties, configurationSource, runConventions: false);
                 }
                 if (isUnique.HasValue)
                 {
-                    relationshipBuilder = relationshipBuilder.Unique(
+                    relationshipBuilder = relationshipBuilder.IsUnique(
                         isUnique.Value, configurationSource, runConventions: false);
                 }
                 if (isRequired.HasValue)
                 {
-                    relationshipBuilder = relationshipBuilder.Required(
+                    relationshipBuilder = relationshipBuilder.IsRequired(
                         isRequired.Value, configurationSource, runConventions: false);
                 }
                 if (deleteBehavior.HasValue)

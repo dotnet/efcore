@@ -59,15 +59,15 @@ namespace Microsoft.Data.Entity
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
         
-        public static DiscriminatorBuilder Discriminator([NotNull] this EntityTypeBuilder entityTypeBuilder)
+        public static DiscriminatorBuilder HasDiscriminator([NotNull] this EntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
             return ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
-                .Relational(ConfigurationSource.Explicit).Discriminator();
+                .Relational(ConfigurationSource.Explicit).HasDiscriminator();
         }
 
-        public static DiscriminatorBuilder Discriminator(
+        public static DiscriminatorBuilder HasDiscriminator(
             [NotNull] this EntityTypeBuilder entityTypeBuilder,
             [NotNull] string name,
             [NotNull] Type discriminatorType)
@@ -77,10 +77,10 @@ namespace Microsoft.Data.Entity
             Check.NotNull(discriminatorType, nameof(discriminatorType));
 
             return ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
-                .Relational(ConfigurationSource.Explicit).Discriminator(name, discriminatorType);
+                .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, discriminatorType);
         }
 
-        public static DiscriminatorBuilder<TDiscriminator> Discriminator<TEntity, TDiscriminator>(
+        public static DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TEntity, TDiscriminator>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] Expression<Func<TEntity, TDiscriminator>> propertyExpression)
             where TEntity : class
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
             return new DiscriminatorBuilder<TDiscriminator>(((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
-                .Relational(ConfigurationSource.Explicit).Discriminator(propertyExpression.GetPropertyAccess()));
+                .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyAccess()));
         }
     }
 }

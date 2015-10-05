@@ -1440,7 +1440,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 .Entity<FirstDependent>()
                 .HasOne(e => e.Second)
                 .WithOne(e => e.First)
-                .ForeignKey<SecondDependent>(e => e.Id)
+                .HasForeignKey<SecondDependent>(e => e.Id)
                 .WillCascadeOnDelete();
 
             modelBuilder
@@ -1450,7 +1450,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
                         b.HasOne(e => e.First)
                             .WithOne(e => e.Root)
-                            .ForeignKey<FirstDependent>(e => e.Id);
+                            .HasForeignKey<FirstDependent>(e => e.Id);
 
                     });
 

@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 modelBuilder.Entity<Parent>()
                     .HasMany(b => b.Children)
                     .WithOne(b => b.MyParent)
-                    .ForeignKey(b => b.ParentId);
+                    .HasForeignKey(b => b.ParentId);
             }
         }
 
@@ -129,8 +129,8 @@ CREATE TABLE Comment (
             {
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Comments)
-                    .PrincipalKey(p => p.AltId)
-                    .ForeignKey(d => d.UserAltId);
+                    .HasPrincipalKey(p => p.AltId)
+                    .HasForeignKey(d => d.UserAltId);
             });
 
             modelBuilder.Entity<User>(entity =>

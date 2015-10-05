@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.UseSqlServerIdentityColumns(); // ensure model uses identity
+                modelBuilder.ForSqlServerUseIdentityColumns(); // ensure model uses identity
 
                 base.OnModelCreating(modelBuilder);
             }

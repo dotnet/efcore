@@ -606,8 +606,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = builder.Model;
 
             builder.Entity<Product>().HasOne<Category>().WithOne()
-                .ForeignKey<Product>(e => e.DependentId)
-                .PrincipalKey<Category>(e => e.PrincipalId);
+                .HasForeignKey<Product>(e => e.DependentId)
+                .HasPrincipalKey<Category>(e => e.PrincipalId);
             builder.Entity<Category>();
             builder.Entity<Dogegory>();
             builder.Entity("Location", eb =>

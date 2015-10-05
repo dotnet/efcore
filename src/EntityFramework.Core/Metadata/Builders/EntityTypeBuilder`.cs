@@ -50,17 +50,17 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="annotation"> The key of the annotation to be added or updated. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The same typeBuilder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual EntityTypeBuilder<TEntity> Annotation([NotNull] string annotation, [NotNull] object value)
-            => (EntityTypeBuilder<TEntity>)base.Annotation(annotation, value);
+        public new virtual EntityTypeBuilder<TEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
+            => (EntityTypeBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
-        public new virtual EntityTypeBuilder<TEntity> BaseType([NotNull] string name)
-            => (EntityTypeBuilder<TEntity>)base.BaseType(name);
+        public new virtual EntityTypeBuilder<TEntity> HasBaseType([NotNull] string name)
+            => (EntityTypeBuilder<TEntity>)base.HasBaseType(name);
 
-        public new virtual EntityTypeBuilder<TEntity> BaseType([NotNull] Type entityType)
-            => (EntityTypeBuilder<TEntity>)base.BaseType(entityType);
+        public new virtual EntityTypeBuilder<TEntity> HasBaseType([NotNull] Type entityType)
+            => (EntityTypeBuilder<TEntity>)base.HasBaseType(entityType);
 
-        public virtual EntityTypeBuilder<TEntity> BaseType<TBaseType>()
-            => (EntityTypeBuilder<TEntity>)base.BaseType(typeof(TBaseType));
+        public virtual EntityTypeBuilder<TEntity> HasBaseType<TBaseType>()
+            => (EntityTypeBuilder<TEntity>)base.HasBaseType(typeof(TBaseType));
 
         /// <summary>
         ///     Sets the properties that make up the primary key for this entity type.
@@ -167,11 +167,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
-        public virtual IndexBuilder Index([NotNull] Expression<Func<TEntity, object>> indexExpression)
+        public virtual IndexBuilder HasIndex([NotNull] Expression<Func<TEntity, object>> indexExpression)
         {
             Check.NotNull(indexExpression, nameof(indexExpression));
 
-            return new IndexBuilder(Builder.Index(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
+            return new IndexBuilder(Builder.HasIndex(indexExpression.GetPropertyAccessList(), ConfigurationSource.Explicit));
         }
 
         /// <summary>
@@ -182,10 +182,10 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(System.Linq.Expressions.Expression{System.Func{TRelatedEntity,System.Collections.Generic.IEnumerable{TEntity}}})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithMany(Expression{Func{TRelatedEntity,IEnumerable{TEntity}}})" />
         ///         or
         ///         <see
-        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(System.Linq.Expressions.Expression{System.Func{TRelatedEntity,TEntity}})" />
+        ///             cref="ReferenceNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>
@@ -218,7 +218,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         ///     <para>
         ///         After calling this method, you should chain a call to
         ///         <see
-        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(System.Linq.Expressions.Expression{System.Func{TRelatedEntity,TEntity}})" />
+        ///             cref="CollectionNavigationBuilder{TEntity,TRelatedEntity}.WithOne(Expression{Func{TRelatedEntity,TEntity}})" />
         ///         to fully configure the relationship. Calling just this method without the chained call will not
         ///         produce a valid relationship.
         ///     </para>

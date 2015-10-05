@@ -246,7 +246,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 modelBuilder.Entity<Pegasus>(b =>
                     {
                         b.HasKey(e => e.Identifier);
-                        b.Property(e => e.Identifier).UseSqlServerSequenceHiLo();
+                        b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
                     });
             }
         }
@@ -359,7 +359,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         b.HasKey(e => e.Identifier);
                         if (_useSequence)
                         {
-                            b.Property(e => e.Identifier).UseSqlServerSequenceHiLo();
+                            b.Property(e => e.Identifier).ForSqlServerUseSequenceHiLo();
                         }
                         else
                         {
