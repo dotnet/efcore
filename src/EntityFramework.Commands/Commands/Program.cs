@@ -198,6 +198,9 @@ namespace Microsoft.Data.Entity.Commands
                             var name = add.Argument(
                                 "[name]",
                                 "The name of the migration");
+                            var outputDir = add.Option(
+                                "-o|--outputDir",
+                                "The directory (and sub-namespace) to use. If omitted, \"Migrations\" is used.");
                             var context = add.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
@@ -222,6 +225,7 @@ namespace Microsoft.Data.Entity.Commands
 
                                     return CreateExecutor(environment.Value(), verbose.HasValue()).AddMigration(
                                         name.Value,
+                                        outputDir.Value(),
                                         context.Value());
                                 });
                         });
@@ -438,11 +442,12 @@ namespace Microsoft.Data.Entity.Commands
 
             public virtual int AddMigration(
                 [NotNull] string name,
+                [CanBeNull] string outputDir,
                 [CanBeNull] string context)
                 => Execute(
                     () =>
                     {
-                        _migrationsOperations.Value.AddMigration(name, context);
+                        _migrationsOperations.Value.AddMigration(name, outputDir, context);
 
                         _logger.Value.LogInformation("Done. To undo this action, use 'ef migrations remove'");
                     });

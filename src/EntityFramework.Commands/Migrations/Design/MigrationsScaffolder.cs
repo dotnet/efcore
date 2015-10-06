@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Internal;
@@ -62,7 +65,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
         public virtual ScaffoldedMigration ScaffoldMigration(
             [NotNull] string migrationName,
-            [NotNull] string rootNamespace)
+            [NotNull] string rootNamespace,
+            [CanBeNull] string subNamespace = null)
         {
             Check.NotEmpty(migrationName, nameof(migrationName));
             Check.NotEmpty(rootNamespace, nameof(rootNamespace));
@@ -72,8 +76,48 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 throw new InvalidOperationException(CommandsStrings.DuplicateMigrationName(migrationName));
             }
 
+            var subNamespaceDefaulted = false;
+            if (string.IsNullOrEmpty(subNamespace))
+            {
+                subNamespaceDefaulted = true;
+                subNamespace = "Migrations";
+            }
+
             var lastMigration = _migrationsAssembly.Migrations.LastOrDefault();
-            var migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), rootNamespace + ".Migrations");
+
+            var migrationNamespace = rootNamespace + "." + subNamespace;
+            if (subNamespaceDefaulted)
+            {
+                migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace);
+            }
+
+            if (ContainsForeignMigrations(migrationNamespace))
+            {
+                if (subNamespaceDefaulted)
+                {
+                    var builder = new StringBuilder()
+                        .Append(rootNamespace)
+                        .Append(".Migrations.");
+
+                    if (_contextType.Name.EndsWith("Context"))
+                    {
+                        builder.Append(_contextType.Name.Substring(0, _contextType.Name.Length - 7));
+                    }
+                    else
+                    {
+                        builder
+                            .Append(_contextType.Name)
+                            .Append("Migrations");
+                    }
+
+                    migrationNamespace = builder.ToString();
+                }
+                else
+                {
+                    _logger.Value.LogWarning(CommandsStrings.ForeignMigrations(migrationNamespace));
+                }
+            }
+
             var modelSnapshot = _migrationsAssembly.ModelSnapshot;
             var lastModel = modelSnapshot?.Model;
             var upOperations = _modelDiffer.GetDifferences(lastModel, _model);
@@ -123,13 +167,13 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 migrationCode,
                 migrationId,
                 migrationMetadataCode,
-                GetSubnamespace(rootNamespace, migrationNamespace),
+                GetSubNamespace(rootNamespace, migrationNamespace),
                 modelSnapshotCode,
                 modelSnapshotName,
-                GetSubnamespace(rootNamespace, modelSnapshotNamespace));
+                GetSubNamespace(rootNamespace, modelSnapshotNamespace));
         }
 
-        protected virtual string GetSubnamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
+        protected virtual string GetSubNamespace([NotNull] string rootNamespace, [NotNull] string @namespace) =>
             @namespace == rootNamespace
                 ? string.Empty
                 : @namespace.StartsWith(rootNamespace + '.')
@@ -233,7 +277,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 if (modelSnapshotFile == null)
                 {
                     modelSnapshotFile = Path.Combine(
-                        GetDirectory(projectDir, null, GetSubnamespace(rootNamespace, modelSnapshotNamespace)),
+                        GetDirectory(projectDir, null, GetSubNamespace(rootNamespace, modelSnapshotNamespace)),
                         modelSnapshotFileName);
                 }
 
@@ -320,5 +364,15 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
         protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>
             Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
+
+        private bool ContainsForeignMigrations(string migrationsNamespace)
+            => Enumerable.Any(
+                from t in _migrationsAssembly.Assembly.GetConstructibleTypes()
+                where t.Namespace == migrationsNamespace
+                    && t.IsSubclassOf(typeof(Migration))
+                let contextTypeAttribute = t.GetCustomAttribute<DbContextAttribute>()
+                where contextTypeAttribute != null
+                    && contextTypeAttribute.ContextType != _contextType
+                select t);
     }
 }

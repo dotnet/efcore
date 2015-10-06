@@ -54,11 +54,11 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             return InvokeOperation<string>("GetContextType", new Hashtable { { "name", name } });
         }
 
-        public IEnumerable<string> AddMigration(string name, string contextType)
+        public IEnumerable<string> AddMigration(string name, string outputDir, string contextType)
         {
             return InvokeOperation<IEnumerable<string>>(
                 "AddMigration",
-                new Hashtable { { "name", name }, { "contextType", contextType } });
+                new Hashtable { { "name", name }, { "outputDir", outputDir }, { "contextType", contextType } });
         }
 
         public void UpdateDatabase(string targetMigration, string contextType)

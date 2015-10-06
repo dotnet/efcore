@@ -12,6 +12,7 @@ namespace Microsoft.Data.Entity.Migrations
     {
         IReadOnlyDictionary<string, TypeInfo> Migrations { get; }
         ModelSnapshot ModelSnapshot { get; }
+        Assembly Assembly { get; }
         string FindMigrationId([NotNull] string nameOrId);
         Migration CreateMigration([NotNull] TypeInfo migrationClass, [NotNull] string activeProvider);
     }

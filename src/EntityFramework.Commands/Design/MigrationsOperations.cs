@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Design.Internal;
@@ -60,9 +61,14 @@ namespace Microsoft.Data.Entity.Design
 
         public virtual MigrationFiles AddMigration(
             [NotNull] string name,
+            [CanBeNull] string outputDir,
             [CanBeNull] string contextType)
         {
             Check.NotEmpty(name, nameof(name));
+
+            var subNamespace = outputDir != null
+                ? string.Join(".", outputDir.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                : null;
 
             using (var context = _contextOperations.CreateContext(contextType))
             {
@@ -70,7 +76,7 @@ namespace Microsoft.Data.Entity.Design
                 EnsureServices(services);
 
                 var scaffolder = services.GetRequiredService<MigrationsScaffolder>();
-                var migration = scaffolder.ScaffoldMigration(name, _rootNamespace);
+                var migration = scaffolder.ScaffoldMigration(name, _rootNamespace, subNamespace);
                 var files = scaffolder.Save(_projectDir, migration);
 
                 return files;

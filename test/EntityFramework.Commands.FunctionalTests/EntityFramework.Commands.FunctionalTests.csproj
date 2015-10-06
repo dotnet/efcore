@@ -37,7 +37,8 @@
     <Compile Include="..\..\src\EntityFramework.Commands\Design\OperationHandlers.cs">
       <Link>OperationHandlers.cs</Link>
     </Compile>
-    <Compile Include="ExecutorTest.cs" />
+    <Compile Include="Design\Internal\ForwardingProxyTest.cs" />
+    <Compile Include="Design\OperationExecutorTest.cs" />
     <Compile Include="Migrations\CodeCompilationTest.cs" />
     <Compile Include="Migrations\ModelSnapshotTest.cs" />
     <Compile Include="Migrations\OperationCompilationTest.cs" />

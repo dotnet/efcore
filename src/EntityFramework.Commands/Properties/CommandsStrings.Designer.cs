@@ -260,6 +260,14 @@ namespace Microsoft.Data.Entity.Internal
             get { return GetString("LogFindingContexts"); }
         }
 
+        /// <summary>
+        /// The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's reccommend to put migrations for different DbContext classes into different namespaces.
+        /// </summary>
+        public static string ForeignMigrations([CanBeNull] object migrationsNamespace)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignMigrations", "migrationsNamespace"), migrationsNamespace);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

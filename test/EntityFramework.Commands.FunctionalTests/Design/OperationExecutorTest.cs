@@ -4,13 +4,14 @@
 #if NET46
 
 using System;
+using System.IO;
 using System.Linq;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Commands
+namespace Microsoft.Data.Entity.Design.Internal
 {
-    public class ExecutorTest
+    public class OperationExecutorTest
     {
         public class SimpleProjectTest : IClassFixture<SimpleProjectTest.SimpleProject>
         {
@@ -26,6 +27,21 @@ namespace Microsoft.Data.Entity.Commands
             {
                 var contextTypeName = _project.Executor.GetContextType("SimpleContext");
                 Assert.StartsWith("SimpleProject.SimpleContext, ", contextTypeName);
+            }
+
+            [Fact]
+            public void AddMigration_works_cross_domain()
+            {
+                var artifacts = _project.Executor.AddMigration("EmptyMigration", "Migrationz", "SimpleContext");
+                Assert.Equal(3, artifacts.Count());
+                Assert.True(Directory.Exists(Path.Combine(_project.TargetDir, @"Migrationz")));
+            }
+
+            [Fact]
+            public void ScriptMigration_works_cross_domain()
+            {
+                var sql = _project.Executor.ScriptMigration(null, "InitialCreate", false, "SimpleContext");
+                Assert.NotEmpty(sql);
             }
 
             [Fact]
@@ -62,6 +78,7 @@ namespace Microsoft.Data.Entity.Commands
                                     BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
                                     BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
                                     BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.CodeAnalysis.CSharp", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
@@ -90,7 +107,7 @@ namespace Microsoft.Data.Entity.Commands
                                 namespace Migrations
                                 {
                                     [DbContext(typeof(SimpleContext))]
-                                    [Migration(""201410102227260_InitialCreate"")]
+                                    [Migration(""20141010222726_InitialCreate"")]
                                     public class InitialCreate : Migration
                                     {
                                         protected override void Up(MigrationBuilder migrationBuilder)
@@ -297,6 +314,83 @@ namespace Microsoft.Data.Entity.Commands
                     var contextTypes = executor.GetContextTypes();
 
                     Assert.Equal(3, contextTypes.Count());
+                }
+            }
+        }
+
+        [Fact]
+        public void AddMigration_begins_new_namespace_when_foreign_migrations()
+        {
+            using (var directory = new TempDirectory())
+            {
+                var targetDir = directory.Path;
+                var source = new BuildSource
+                {
+                    TargetDir = targetDir,
+                    References =
+                                {
+                                    BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                    BuildReference.ByName("System.Interactive.Async", copyLocal: true),
+                                    BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
+                                    BuildReference.ByName("EntityFramework.Core", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Commands", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Relational", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.Relational.Design", copyLocal: true),
+                                    BuildReference.ByName("EntityFramework.MicrosoftSqlServer", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.CodeAnalysis", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.CodeAnalysis.CSharp", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Caching.Abstractions", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Caching.Memory", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.DependencyInjection", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.DependencyInjection.Abstractions", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
+                                    BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
+                                    BuildReference.ByName("Remotion.Linq", copyLocal: true),
+                                    BuildReference.ByName("System.Diagnostics.Tracing.Telemetry", copyLocal: true)
+                                },
+                    Sources = { @"
+                            using Microsoft.Data.Entity;
+                            using Microsoft.Data.Entity.Infrastructure;
+                            using Microsoft.Data.Entity.Migrations;
+
+                            namespace MyProject
+                            {
+                                internal class MyFirstContext : DbContext
+                                {
+                                    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                    {
+                                        optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyProject.MyFirstContext"");
+                                    }
+                                }
+
+                                internal class MySecondContext : DbContext
+                                {
+                                    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                                    {
+                                        optionsBuilder.UseSqlServer(""Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyProject.MySecondContext"");
+                                    }
+                                }
+
+                                namespace Migrations
+                                {
+                                    [DbContext(typeof(MyFirstContext))]
+                                    [Migration(""20151006140723_InitialCreate"")]
+                                    public class InitialCreate : Migration
+                                    {
+                                        protected override void Up(MigrationBuilder migrationBuilder)
+                                        {
+                                        }
+                                    }
+                                }
+                            }" }
+                };
+                var build = source.Build();
+                using (var executor = new OperationExecutorWrapper(targetDir, build.TargetName, targetDir, "MyProject"))
+                {
+                    var artifacts = executor.AddMigration("MyMigration", /*outputDir:*/ null, "MySecondContext");
+                    Assert.Equal(3, artifacts.Count());
+                    Assert.True(Directory.Exists(Path.Combine(targetDir, @"Migrations\MySecond")));
                 }
             }
         }

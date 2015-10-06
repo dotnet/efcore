@@ -90,20 +90,23 @@ namespace Microsoft.Data.Entity.Design
                 Check.NotNull(args, nameof(args));
 
                 var name = (string)args["name"];
+                var outputDir = (string)args["outputDir"];
                 var contextType = (string)args["contextType"];
 
-                Execute(() => executor.AddMigrationImpl(name, contextType));
+                Execute(() => executor.AddMigrationImpl(name, outputDir, contextType));
             }
         }
 
         private IEnumerable<string> AddMigrationImpl(
             [NotNull] string name,
+            [CanBeNull] string outputDir,
             [CanBeNull] string contextType)
         {
             Check.NotEmpty(name, nameof(name));
 
             var files = _migrationsOperations.Value.AddMigration(
                 name,
+                outputDir,
                 contextType);
 
             // NOTE: First file will be opened in VS

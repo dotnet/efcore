@@ -210,4 +210,7 @@
   <data name="LogFindingContexts" xml:space="preserve">
     <value>Finding DbContext classes...</value>
   </data>
+  <data name="ForeignMigrations" xml:space="preserve">
+    <value>The namespace '{migrationsNamespace}' contains migrations for a different DbContext. This can result in conflicting migration names. It's reccommend to put migrations for different DbContext classes into different namespaces.</value>
+  </data>
 </root>

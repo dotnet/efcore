@@ -32,7 +32,7 @@ Register-TabExpansion Use-DbContext @{
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
 .PARAMETER Environment
-    Specifies the environment to use. If omitted, Development is used.
+    Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
     about_EntityFramework
@@ -69,6 +69,9 @@ Register-TabExpansion Add-Migration @{
 .PARAMETER Name
     Specifies the name of the migration.
 
+.PARAMETER OutputDir
+    The directory (and sub-namespace) to use. If omitted, "Migrations" is used.
+
 .PARAMETER Context
     Specifies the DbContext to use. If omitted, the default DbContext is used.
 
@@ -79,7 +82,7 @@ Register-TabExpansion Add-Migration @{
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
 .PARAMETER Environment
-    Specifies the environment to use. If omitted, Development is used.
+    Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
     Remove-Migration
@@ -91,6 +94,7 @@ function Add-Migration {
     param (
         [Parameter(Position = 0, Mandatory = $true)]
         [string] $Name,
+        [string] $OutputDir,
         [string] $Context,
         [string] $Project,
         [string] $StartupProject,
@@ -103,6 +107,7 @@ function Add-Migration {
 
     $artifacts = InvokeOperation $dteStartupProject $Environment $dteProject AddMigration @{
         name = $Name
+        outputDir = $OutputDir
         contextType = $contextTypeName
     }
 
@@ -144,7 +149,7 @@ Register-TabExpansion Update-Database @{
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
 .PARAMETER Environment
-    Specifies the environment to use. If omitted, Development is used.
+    Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
     Script-Migration
@@ -224,7 +229,7 @@ Register-TabExpansion Script-Migration @{
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
 .PARAMETER Environment
-    Specifies the environment to use. If omitted, Development is used.
+    Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
     Update-Database
@@ -304,7 +309,7 @@ Register-TabExpansion Remove-Migration @{
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
 .PARAMETER Environment
-    Specifies the environment to use. If omitted, Development is used.
+    Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
     Add-Migration
@@ -376,7 +381,7 @@ Register-TabExpansion Scaffold-DbContext @{
     Specifies the startup project to use. If omitted, the solution's startup project is used.
 
 .PARAMETER Environment
-    Specifies the environment to use. If omitted, Development is used.
+    Specifies the environment to use. If omitted, "Development" is used.
 
 .LINK
     about_EntityFramework
