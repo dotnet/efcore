@@ -450,9 +450,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 {
                     property.Relational().GeneratedValueSql = defaultExpressionOrValue.DefaultExpression;
                 }
-                else if (defaultExpressionOrValue != null
-                         && defaultExpressionOrValue.DefaultValue != null)
+                else if (defaultExpressionOrValue != null)
                 {
+                    // Note: defaultExpressionOrValue.DefaultValue == null is valid
                     property.Relational().DefaultValue = defaultExpressionOrValue.DefaultValue;
                 }
                 else
