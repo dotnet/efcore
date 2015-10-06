@@ -232,7 +232,7 @@
     <value>CurrentValues are always in sync with the entity state.</value>
   </data>
   <data name="DatabaseException" xml:space="preserve">
-    <value>An error occured while running a database operation. See InnerException for details.</value>
+    <value>An error occurred while running a database operation. See InnerException for details.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
     <value>An exception occurred in the database while iterating the results of a query.{newline}{error}</value>
