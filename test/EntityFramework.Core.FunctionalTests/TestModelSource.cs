@@ -26,11 +26,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             var conventionSet = CreateConventionSet(conventionSetBuilder);
             var model = new Model();
+
+            model.SetProductVersion(ProductInfo.GetVersion());
+
             var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);
 
             _onModelCreating(modelBuilder);
+
+            modelBuilder.Validate();
 
             validator.Validate(model);
 

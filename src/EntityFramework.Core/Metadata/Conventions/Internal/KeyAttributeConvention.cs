@@ -52,10 +52,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
             var entityTypes = modelBuilder.Metadata.EntityTypes;
-            foreach (var entityType in entityTypes)
+            foreach (var entityType in entityTypes.Where(et => et.BaseType == null))
             {
                 var currentPrimaryKey = entityType.FindPrimaryKey();
-                if ((currentPrimaryKey != null) && (currentPrimaryKey.Properties.Count > 1))
+                if ((currentPrimaryKey != null)
+                    && (currentPrimaryKey.Properties.Count > 1))
                 {
                     var entityTypeBuilder = modelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
                     var newKey = entityTypeBuilder.PrimaryKey(new List<string> { currentPrimaryKey.Properties.First().Name }, ConfigurationSource.DataAnnotation);
@@ -64,6 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         throw new InvalidOperationException(CoreStrings.CompositePKWithDataAnnotation(entityType.DisplayName()));
                     }
                 }
+
             }
             return modelBuilder;
         }

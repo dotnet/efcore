@@ -193,6 +193,20 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
                 Assert.Throws<InvalidOperationException>(() => new KeyAttributeConvention().Apply(propertyBuilder)).Message);
         }
 
+        [Fact]
+        public void KeyAttribute_allows_composite_key_with_inheritence()
+        {
+            var derivedEntityTypeBuilder = CreateInternalEntityTypeBuilder<CompositeKeyDerivedEntity>();
+            var baseEntityTypeBuilder = derivedEntityTypeBuilder.ModelBuilder.Entity(typeof(BaseEntity), ConfigurationSource.Explicit);
+            derivedEntityTypeBuilder.BaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Explicit);
+
+            baseEntityTypeBuilder.PrimaryKey(new List<string> { "Id", "Name" }, ConfigurationSource.Explicit);
+
+            new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder);
+
+            Assert.Equal(2, baseEntityTypeBuilder.Metadata.GetPrimaryKey().Properties.Count);
+        }
+
         #endregion
 
         #region MaxLengthAttribute
@@ -460,12 +474,19 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         private class BaseEntity
         {
             public int Id { get; set; }
+
+            public string Name { get; set; }
         }
 
         private class DerivedEntity : BaseEntity
         {
             [Key]
             public int Number { get; set; }
+        }
+
+        private class CompositeKeyDerivedEntity : BaseEntity
+        {
+
         }
 
         private class MyContext : DbContext
