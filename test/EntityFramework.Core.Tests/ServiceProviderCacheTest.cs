@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Returns_different_provider_for_configured_services_differing_by_instance()
+        public void Returns_same_provider_for_configured_services_differing_by_instance()
         {
             var config1 = CreateOptions(b =>
                 {
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var cache = new ServiceProviderCache();
 
-            Assert.NotSame(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
+            Assert.Same(cache.GetOrAdd(config1), cache.GetOrAdd(config2));
         }
 
         [Fact]

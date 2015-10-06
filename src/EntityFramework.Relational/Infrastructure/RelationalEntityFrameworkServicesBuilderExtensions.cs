@@ -33,12 +33,10 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(builder, nameof(builder));
 
-            var telemetrySource = new TelemetryListener("Microsoft.Data.Entity");
-            
             builder.GetService()
                 .TryAdd(new ServiceCollection()
-                .AddInstance<TelemetrySource>(telemetrySource)
-                .AddInstance(telemetrySource)
+                .AddSingleton(s => new TelemetryListener("Microsoft.Data.Entity"))
+                .AddSingleton<TelemetrySource>(s => s.GetService<TelemetryListener>())
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()
