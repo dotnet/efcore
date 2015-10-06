@@ -12,42 +12,63 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
     {
         public LoggerMessages Messages = new LoggerMessages();
         private readonly ITestOutputHelper _output;
+        private static readonly bool _logToOutput = false;
 
         public InMemoryCommandLogger(string name, ITestOutputHelper output)
             : base(name)
         {
-            // _output = output;
+            _output = output;
         }
 
         public override bool IsEnabled(LogLevel logLevel) => true;
 
         protected override void WriteError(string message)
         {
-            _output?.WriteLine("[ERROR]: " + message);
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[ERROR]: " + message);
+            }
+
             Messages.Error.Add(message);
         }
 
         protected override void WriteWarning(string message)
         {
-            _output?.WriteLine("[WARN]: " + message);
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[WARN]: " + message);
+            }
+
             Messages.Warn.Add(message);
         }
 
         protected override void WriteInformation(string message)
         {
-            _output?.WriteLine("[INFO]: " + message);
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[INFO]: " + message);
+            }
+
             Messages.Info.Add(message);
         }
 
         protected override void WriteVerbose(string message)
         {
-            _output?.WriteLine("[VERBOSE]: " + message);
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[VERBOSE]: " + message);
+            }
+
             Messages.Verbose.Add(message);
         }
 
         protected override void WriteDebug(string message)
         {
-            _output?.WriteLine("[DEBUG]: " + message);
+            if (_logToOutput)
+            {
+                _output?.WriteLine("[DEBUG]: " + message);
+            }
+
             Messages.Debug.Add(message);
         }
     }
