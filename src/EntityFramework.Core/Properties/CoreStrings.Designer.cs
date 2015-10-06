@@ -933,14 +933,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// {debug} level logging is enabled. At this level, Entity Framework will log sensitive application data such as SQL parameter values. To hide this information configure {minimumLevel} to {recommendedLevel}
-        /// </summary>
-        public static string DebugLogWarning([CanBeNull] object debug, [CanBeNull] object minimumLevel, [CanBeNull] object recommendedLevel)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DebugLogWarning", "debug", "minimumLevel", "recommendedLevel"), debug, minimumLevel, recommendedLevel);
-        }
-
-        /// <summary>
         /// Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
         /// </summary>
         public static string WrongGenericPropertyType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)

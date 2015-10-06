@@ -29,13 +29,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             // advantages of the simple key don't really apply anyway.
                             if (!typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(keyType.GetTypeInfo()))
                             {
-                                var sentinel = keyProperty.SentinelValue;
-
-                                return (EntityKeyFactory)(sentinel == null
-                                    ? Activator.CreateInstance(
-                                        typeof(SimpleNullSentinelEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k)
-                                    : Activator.CreateInstance(
-                                        typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k, sentinel));
+                                return (EntityKeyFactory)(Activator.CreateInstance(
+                                    typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k));
                             }
                         }
 

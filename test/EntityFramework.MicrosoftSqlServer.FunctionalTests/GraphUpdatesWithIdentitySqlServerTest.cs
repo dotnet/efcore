@@ -14,8 +14,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             protected override string DatabaseName => "GraphIdentityUpdatesTest";
 
-            public override int IntSentinel => 0;
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.ForSqlServerUseIdentityColumns(); // ensure model uses identity

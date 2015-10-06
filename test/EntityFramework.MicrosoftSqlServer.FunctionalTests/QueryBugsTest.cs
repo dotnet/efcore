@@ -23,25 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     public class QueryBugsTest : IClassFixture<SqlServerFixture>
     {
         [Fact]
-        public void Query_when_sentinel_key_in_database_should_throw()
-        {
-            using (var testStore = SqlServerTestStore.CreateScratch())
-            {
-                testStore.ExecuteNonQuery(
-                    @"CREATE TABLE ZeroKey (Id int);
-                      INSERT ZeroKey VALUES (0)");
-
-                using (var context = new SentinelKeyContext(testStore.Connection.ConnectionString))
-                {
-                    Assert.Equal(
-                        RelationalStrings.InvalidKeyValue("ZeroKey"),
-                        Assert.Throws<InvalidOperationException>(() => context.ZeroKeys.ToList()).Message);
-                }
-            }
-        }
-
-        [Fact]
-        public void Query_when_null_sentinel_key_in_database_should_throw()
+        public void Query_when_null_key_in_database_should_throw()
         {
             using (var testStore = SqlServerTestStore.CreateScratch())
             {
@@ -49,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     @"CREATE TABLE ZeroKey (Id int);
                       INSERT ZeroKey VALUES (NULL)");
 
-                using (var context = new SentinelKeyContext(testStore.Connection.ConnectionString))
+                using (var context = new NullKeyContext(testStore.Connection.ConnectionString))
                 {
                     Assert.Equal(
                         RelationalStrings.InvalidKeyValue("ZeroKey"),
@@ -58,11 +40,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        private class SentinelKeyContext : DbContext
+        private class NullKeyContext : DbContext
         {
             private readonly string _connectionString;
 
-            public SentinelKeyContext(string connectionString)
+            public NullKeyContext(string connectionString)
             {
                 _connectionString = connectionString;
             }

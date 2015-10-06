@@ -30,6 +30,9 @@ namespace Microsoft.Data.Entity.Internal
             { typeof(ushort), "ushort" }
         };
 
+        public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value) 
+            => value == null || value.Equals(type.GetDefaultValue());
+
         public static string DisplayName([NotNull] this Type type, bool fullName = true)
         {
             var sb = new StringBuilder();

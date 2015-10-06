@@ -185,7 +185,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     foreach (var property in EntityType.GetProperties()
                         .Where(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.TemporaryOrModified)))
                     {
-                        this[property] = property.SentinelValue;
+                        this[property] = property.ClrType.GetDefaultValue();
                     }
                 }
                 var propertyCount = EntityType.GetProperties().Count();
@@ -402,7 +402,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             if (EntityState == EntityState.Added)
             {
-                var setProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyBeforeSave && !IsTemporaryOrSentinel(p));
+                var setProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyBeforeSave && !IsTemporaryOrDefault(p));
                 if (setProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyReadOnlyBeforeSave(setProperty.Name, EntityType.DisplayName()));
@@ -566,14 +566,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
                && ((EntityState == EntityState.Added
-                    && (property.StoreGeneratedAlways || IsTemporaryOrSentinel(property)))
+                    && (property.StoreGeneratedAlways || IsTemporaryOrDefault(property)))
                    || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
                        && (EntityState == EntityState.Modified
                            && (property.StoreGeneratedAlways || !IsPropertyModified(property)))));
 
-        private bool IsTemporaryOrSentinel(IProperty property) => HasTemporaryValue(property) || property.IsSentinelValue(this[property]);
+        private bool IsTemporaryOrDefault(IProperty property)
+            => HasTemporaryValue(property)
+               || property.ClrType.IsDefaultValue(this[property]);
 
-        public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.IsSentinelValue(this[p]));
+        public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
 
         [UsedImplicitly]
         private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;

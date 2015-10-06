@@ -210,35 +210,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Throws_on_attempt_to_start_tracking_entity_with_sentinel_key()
-        {
-            var stateManager = CreateStateManager(BuildModel());
-            var entity = new Category();
-
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            Assert.Equal(
-                CoreStrings.InvalidPrimaryKey(typeof(Category).FullName),
-                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
-        }
-
-        [Fact]
-        public void Throws_on_attempt_to_start_tracking_entity_with_non_default_sentinel_key()
-        {
-            var model = BuildModel();
-            model.GetEntityType(typeof(Category)).GetProperty("Id").SentinelValue = 7;
-
-            var stateManager = CreateStateManager(model);
-            var entity = new Category { Id = 7 };
-
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            Assert.Equal(
-                CoreStrings.InvalidPrimaryKey(typeof(Category).FullName),
-                Assert.Throws<InvalidOperationException>(() => stateManager.StartTracking(entry)).Message);
-        }
-
-        [Fact]
         public void Throws_on_attempt_to_start_tracking_with_wrong_manager()
         {
             var model = BuildModel();

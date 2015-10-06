@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class NoKeyGeneration : TestBase<NoKeyGeneration.BlogContext>
         {
             [Fact]
-            public void Insert_with_explicit_non_sentinel_keys()
+            public void Insert_with_explicit_non_default_keys()
             {
                 using (var context = new BlogContext())
                 {
@@ -180,45 +180,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class NoKeyGenerationChangeSentinel : TestBase<NoKeyGenerationChangeSentinel.BlogContext>
-        {
-            [Fact]
-            public void Insert_with_explicit_with_sentinel_keys()
-            {
-                using (var context = new BlogContext())
-                {
-                    context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
-
-                    context.SaveChanges();
-                }
-
-                using (var context = new BlogContext())
-                {
-                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
-
-                    Assert.Equal(0, blogs[0].Id);
-                    Assert.Equal(1, blogs[1].Id);
-                }
-            }
-
-            public class BlogContext : ContextBase
-            {
-                protected override void OnModelCreating(ModelBuilder modelBuilder)
-                {
-                    // TODO: Rename sentinel value API
-                    modelBuilder
-                        .Entity<Blog>()
-                        .Property(e => e.Id)
-                        .ValueGeneratedNever()
-                        .Metadata.SentinelValue = -1;
-                }
-            }
-        }
-
         public class NoKeyGenerationNullableKey : TestBase<NoKeyGenerationNullableKey.BlogContext>
         {
             [Fact]
-            public void Insert_with_explicit_with_sentinel_keys()
+            public void Insert_with_explicit_with_default_keys()
             {
                 using (var context = new BlogContext())
                 {
@@ -253,7 +218,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class NonKeyDefaultValue : TestBase<NonKeyDefaultValue.BlogContext>
         {
             [Fact]
-            public void Insert_with_non_key_default_value_when_sentinel()
+            public void Insert_with_non_key_default_value()
             {
                 using (var context = new BlogContext())
                 {
@@ -472,7 +437,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public class DoNothingButSpecifyKeys : TestBase<DoNothingButSpecifyKeys.BlogContext>
         {
             [Fact]
-            public void Insert_with_explicit_non_sentinel_keys()
+            public void Insert_with_explicit_non_default_keys()
             {
                 using (var context = new BlogContext())
                 {
@@ -491,10 +456,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class DoNothingButSpecifyKeysUsingSentinel : TestBase<DoNothingButSpecifyKeysUsingSentinel.BlogContext>
+        public class DoNothingButSpecifyKeysUsingDefault : TestBase<DoNothingButSpecifyKeysUsingDefault.BlogContext>
         {
             [Fact]
-            public void Insert_with_explicit_sentinel_keys()
+            public void Insert_with_explicit_default_keys()
             {
                 using (var context = new BlogContext())
                 {
@@ -513,10 +478,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
         }
 
-        public class SpecifyKeysUsingSentinel : TestBase<SpecifyKeysUsingSentinel.BlogContext>
+        public class SpecifyKeysUsingDefault : TestBase<SpecifyKeysUsingDefault.BlogContext>
         {
             [Fact]
-            public void Insert_with_explicit_sentinel_keys()
+            public void Insert_with_explicit_default_keys()
             {
                 using (var context = new BlogContext())
                 {

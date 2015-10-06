@@ -154,7 +154,6 @@
     <Compile Include="ValueGeneration\TemporaryDateTimeOffsetValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\TemporaryDateTimeValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCacheTest.cs" />
-    <Compile Include="ValueGeneration\ValueGeneratorExtensionsTest.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorFactoryTest.cs" />
     <Compile Include="ValueGeneration\TemporaryBinaryValueGeneratorTest.cs" />
     <Compile Include="ValueGeneration\TemporaryNumberValueGeneratorFactoryTest.cs" />

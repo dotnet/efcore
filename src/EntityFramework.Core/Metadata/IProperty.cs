@@ -17,6 +17,5 @@ namespace Microsoft.Data.Entity.Metadata
         int Index { get; }
         bool IsShadowProperty { get; }
         bool IsConcurrencyToken { get; }
-        object SentinelValue { get; }
     }
 }

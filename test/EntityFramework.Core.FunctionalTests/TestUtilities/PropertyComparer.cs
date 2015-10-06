@@ -41,7 +41,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
                    && x.ValueGenerated == y.ValueGenerated
                    && x.IsReadOnlyBeforeSave == y.IsReadOnlyBeforeSave
                    && x.IsReadOnlyAfterSave == y.IsReadOnlyAfterSave
-                   && x.SentinelValue == y.SentinelValue
                    && (!_compareAnnotations ||x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
         }
 

@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
@@ -38,7 +39,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (valueGenerator != null)
                 {
-                    entry[property] = valueGenerator.NextSkippingSentinel(property);
+                    entry[property] = valueGenerator.Next();
                 }
             }
         }
@@ -69,7 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                                 var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
 
                                 var principalValue = principalEntry[principalProperty];
-                                if (!principalProperty.IsSentinelValue(principalValue))
+                                if (!principalProperty.ClrType.IsDefaultValue(principalValue))
                                 {
                                     valueToPropagte = principalValue;
                                     break;

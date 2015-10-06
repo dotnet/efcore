@@ -19,19 +19,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Returns_a_null_sentinel_entity_key_factory_for_single_nullable_property()
+        public void Returns_a_simple_entity_key_factory_for_single_nullable_property()
         {
             var entityType = GetEntityType();
             var key = entityType.GetKey(entityType.GetProperty("NullableInt"));
-
-            Assert.IsType<SimpleNullSentinelEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
-        }
-
-        [Fact]
-        public void Returns_a_simple_entity_key_factory_for_single_nullable_property_with_sentinel_set()
-        {
-            var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("NullableSentinelInt"));
 
             Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
@@ -90,19 +81,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Returns_a_null_sentinel_entity_key_factory_for_single_reference_property()
+        public void Returns_a_simple_entity_key_factory_for_single_reference_property()
         {
             var entityType = GetEntityType();
             var key = entityType.GetKey(entityType.GetProperty("String"));
-
-            Assert.IsType<SimpleNullSentinelEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
-        }
-
-        [Fact]
-        public void Returns_a_simple_entity_key_factory_for_single_reference_property_with_sentinel_set()
-        {
-            var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("SentinelString"));
 
             Assert.IsType<SimpleEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
@@ -134,17 +116,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             builder.Entity<ScissorSister>(b =>
                 {
-                    b.Property(e => e.NullableSentinelInt).Metadata.SentinelValue = -1;
-                    b.Property(e => e.SentinelString).Metadata.SentinelValue = "Excellent!";
-
                     b.HasAlternateKey(e => e.NullableInt);
-                    b.HasAlternateKey(e => e.NullableSentinelInt);
                     b.HasAlternateKey(e => e.Guid1);
                     b.HasAlternateKey(e => e.Guid2);
                     b.HasAlternateKey(e => e.NullableGuid1);
                     b.HasAlternateKey(e => e.NullableGuid2);
                     b.HasAlternateKey(e => e.String);
-                    b.HasAlternateKey(e => e.SentinelString);
                     b.HasAlternateKey(e => e.ByteArray);
                     b.HasAlternateKey(e => new { e.Id, e.String });
                 });
@@ -156,9 +133,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             public int Id { get; set; }
             public int? NullableInt { get; set; }
-            public int? NullableSentinelInt { get; set; }
             public string String { get; set; }
-            public string SentinelString { get; set; }
             public Guid Guid1 { get; set; }
             public Guid Guid2 { get; set; }
             public Guid? NullableGuid1 { get; set; }

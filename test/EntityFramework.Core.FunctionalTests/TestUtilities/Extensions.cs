@@ -90,7 +90,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 clonedProperty.ValueGenerated = property.ValueGenerated;
                 clonedProperty.IsReadOnlyBeforeSave = property.IsReadOnlyBeforeSave;
                 clonedProperty.IsReadOnlyAfterSave = property.IsReadOnlyAfterSave;
-                clonedProperty.SentinelValue = property.SentinelValue;
                 property.Annotations.ForEach(annotation => clonedProperty[annotation.Name] = annotation.Value);
             }
         }

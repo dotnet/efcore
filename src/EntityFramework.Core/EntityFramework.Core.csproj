@@ -61,7 +61,7 @@
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityGraphAttacher.cs" />
-    <Compile Include="ChangeTracking\Internal\SimpleNullSentinelEntityKeyFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\SimpleEntityKeyFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ValueBufferOriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\ValueBufferSidecar.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
@@ -145,7 +145,6 @@
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\Sidecar.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleEntityKey.cs" />
-    <Compile Include="ChangeTracking\Internal\SimpleEntityKeyFactory.cs" />
     <Compile Include="ChangeTracking\Internal\StateData.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactory.cs" />
@@ -421,7 +420,6 @@
     <Compile Include="ValueGeneration\Internal\TemporaryNumberValueGenerator.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryNumberValueGeneratorFactory.cs" />
     <Compile Include="ValueGeneration\Internal\TemporaryStringValueGenerator.cs" />
-    <Compile Include="ValueGeneration\Internal\ValueGeneratorExtensions.cs" />
     <Compile Include="ValueGeneration\IValueGeneratorCache.cs" />
     <Compile Include="ValueGeneration\TemporaryGuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\ValueGeneratorCache.cs" />

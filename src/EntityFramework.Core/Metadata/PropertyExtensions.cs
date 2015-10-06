@@ -91,13 +91,6 @@ namespace Microsoft.Data.Entity.Metadata
         public static bool IsKey([NotNull] this IProperty property)
             => FindContainingKeys(property).Any();
 
-        public static bool IsSentinelValue([NotNull] this IProperty property, [CanBeNull] object value)
-        {
-            Check.NotNull(property, nameof(property));
-
-            return value == null || value.Equals(property.SentinelValue);
-        }
-
         public static IEnumerable<IEntityType> FindContainingEntityTypes([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));

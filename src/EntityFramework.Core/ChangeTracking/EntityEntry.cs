@@ -96,15 +96,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         /// <summary>
-        ///     <para>
         ///         Gets a value indicating if the key values of this entity have been assigned a value.
-        ///         False if one or more of the key properties is assigned null or <see cref="IProperty.SentinelValue" />,
+        ///         False if one or more of the key properties is assigned null or the CLR default,
         ///         otherwise true.
-        ///     </para>
-        ///     <para>
-        ///         By default <see cref="IProperty.SentinelValue" /> is set to the CLR default for the type of
-        ///         the property (i.e. null for string, 0 for int, etc.)
-        ///     </para>
         /// </summary>
         public virtual bool IsKeySet => _internalEntityEntry.IsKeySet;
     }

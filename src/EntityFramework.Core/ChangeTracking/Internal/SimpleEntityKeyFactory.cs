@@ -10,32 +10,22 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class SimpleEntityKeyFactory<TKey> : EntityKeyFactory
     {
-        private readonly TKey _sentinel;
-
-        public SimpleEntityKeyFactory([NotNull] IKey key, [CanBeNull] TKey sentinel)
+        public SimpleEntityKeyFactory([NotNull] IKey key)
             : base(key)
         {
-            _sentinel = sentinel;
         }
 
-        public override EntityKey Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
+        public override EntityKey Create(
+            IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(valueBuffer[properties[0].Index]);
 
-        public override EntityKey Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
+        public override EntityKey Create(
+            IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(propertyAccessor[properties[0]]);
 
         private EntityKey Create(object value)
-        {
-            if (value != null)
-            {
-                var typedValue = (TKey)value;
-                if (!EqualityComparer<TKey>.Default.Equals(typedValue, _sentinel))
-                {
-                    return new SimpleEntityKey<TKey>(Key, typedValue);
-                }
-            }
-
-            return EntityKey.InvalidEntityKey;
-        }
+            => value != null
+                ? new SimpleEntityKey<TKey>(Key, (TKey)value)
+                : EntityKey.InvalidEntityKey;
     }
 }

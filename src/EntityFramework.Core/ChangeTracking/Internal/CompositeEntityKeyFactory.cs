@@ -25,14 +25,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private EntityKey Create(IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
         {
             var components = new object[properties.Count];
-            var principalProperties = Key.Properties;
 
             for (var i = 0; i < properties.Count; i++)
             {
                 var value = reader(properties[i]);
 
-                if (value == null
-                    || Equals(value, principalProperties[i].SentinelValue))
+                if (value == null)
                 {
                     return EntityKey.InvalidEntityKey;
                 }

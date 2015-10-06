@@ -57,7 +57,6 @@
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />
     <Compile Include="GearsOfWarQuerySqliteTest.cs" />
     <Compile Include="GraphUpdatesSqliteTest.cs" />
-    <Compile Include="GraphUpdatesSqliteTestBase.cs" />
     <Compile Include="IncludeAsyncSqliteTest.cs" />
     <Compile Include="IncludeOneToOneSqliteTest.cs" />
     <Compile Include="IncludeSqliteTest.cs" />
@@ -79,7 +78,6 @@
     <Compile Include="QueryNoClientEvalSqliteTest.cs" />
     <Compile Include="QueryNoClientEvalSqliteFixture.cs" />
     <Compile Include="QuerySqliteTest.cs" />
-    <Compile Include="SentinelGraphUpdatesSqliteTest.cs" />
     <Compile Include="SqliteTestHelpers.cs" />
     <Compile Include="SqliteTestStore.cs" />
     <Compile Include="StoreGeneratedSqliteTest.cs" />

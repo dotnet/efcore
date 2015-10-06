@@ -92,66 +92,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         }
 
         [Fact]
-        public void Returns_null_if_any_value_in_the_entry_properties_are_the_default_sentinel()
-        {
-            var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
-
-            var entity = new Banana { P1 = 0, P2 = "Ate", P3 = new Random() };
-
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            Assert.Equal(
-                EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(
-                    type.GetPrimaryKey())
-                    .Create(type.GetPrimaryKey().Properties, entry));
-        }
-
-        [Fact]
-        public void Returns_null_if_any_value_in_the_entry_properties_are_the_set_sentinel()
-        {
-            var model = BuildModel();
-            var type = model.GetEntityType(typeof(SentinelBanana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
-
-            var entity = new SentinelBanana { P1 = 7, P2 = "Ate", P3 = new Random() };
-
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            Assert.Equal(
-                EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(
-                    type.GetPrimaryKey())
-                    .Create(type.GetPrimaryKey().Properties, entry));
-        }
-
-        [Fact]
-        public void Returns_null_if_any_value_in_the_entry_properties_are_the_default_sentinel_using_value_reader()
-        {
-            var type = BuildModel().GetEntityType(typeof(Banana));
-
-            Assert.Equal(
-                EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(
-                    type.GetPrimaryKey())
-                    .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 0, "Ate", new Random() })));
-        }
-
-        [Fact]
-        public void Returns_null_if_any_value_in_the_entry_properties_are_the_set_sentinel_using_value_reader()
-        {
-            var type = BuildModel().GetEntityType(typeof(SentinelBanana));
-
-            Assert.Equal(
-                EntityKey.InvalidEntityKey,
-                new CompositeEntityKeyFactory(
-                    type.GetPrimaryKey())
-                    .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", new Random() })));
-        }
-
-        [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_value_buffer()
         {
             var model = BuildModel();
@@ -221,33 +161,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
             entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);
 
-            entityType = model.AddEntityType(typeof(SentinelBanana));
-            property1 = entityType.AddProperty("P1", typeof(int));
-            property2 = entityType.AddProperty("P2", typeof(string));
-            property3 = entityType.AddProperty("P3", typeof(Random));
-            property4 = entityType.AddProperty("P4", typeof(int));
-            property5 = entityType.AddProperty("P5", typeof(string));
-            property6 = entityType.AddProperty("P6", typeof(Random));
-
-            entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
-            entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);
-
-            property1.SentinelValue = 7;
-
             return model;
         }
 
         private class Banana
-        {
-            public int P1 { get; set; }
-            public string P2 { get; set; }
-            public Random P3 { get; set; }
-            public int P4 { get; set; }
-            public string P5 { get; set; }
-            public Random P6 { get; set; }
-        }
-
-        private class SentinelBanana
         {
             public int P1 { get; set; }
             public string P2 { get; set; }

@@ -216,9 +216,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual object SentinelValue { get; [param: CanBeNull] set; }
-
-
         public virtual bool IsInUse
         {
             get
@@ -231,8 +228,6 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
-
-        private bool GetRequiredFlag(PropertyFlags flag) => (_flags & flag) != 0;
 
         private void SetFlag(bool? value, PropertyFlags flag)
         {
@@ -256,10 +251,6 @@ namespace Microsoft.Data.Entity.Metadata
         bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
         ValueGenerated IProperty.ValueGenerated => ValueGenerated ?? DefaultValueGenerated;
         bool IProperty.RequiresValueGenerator => RequiresValueGenerator ?? DefaultRequiresValueGenerator;
-
-        object IProperty.SentinelValue => SentinelValue == null && !((IProperty)this).ClrType.IsNullableType()
-            ? ((IProperty)this).ClrType.GetDefaultValue()
-            : SentinelValue;
 
         bool IProperty.StoreGeneratedAlways => StoreGeneratedAlways ?? DefaultStoreGeneratedAlways;
 

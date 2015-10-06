@@ -15,8 +15,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             protected override string DatabaseName => "GraphSequenceUpdatesTest";
 
-            public override int IntSentinel => 0;
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.ForSqlServerUseSequenceHiLo(); // ensure model uses sequences

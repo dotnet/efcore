@@ -39,15 +39,13 @@
     <Compile Include="ChangeTrackingInMemoryTest.cs" />
     <Compile Include="GearsOfWarQueryInMemoryTest.cs" />
     <Compile Include="InMemoryFixture.cs" />
-    <Compile Include="GraphUpdatesInMemoryTest.cs" />
     <Compile Include="InheritanceInMemoryFixture.cs" />
     <Compile Include="InMemoryTestHelpers.cs" />
     <Compile Include="GearsOfWarQueryInMemoryFixture.cs" />
     <Compile Include="NullKeysInMemoryTest.cs" />
-    <Compile Include="GraphUpdatesInMemoryTestBase.cs" />
+    <Compile Include="GraphUpdatesInMemoryTest.cs" />
     <Compile Include="InheritanceInMemoryTest.cs" />
     <Compile Include="QueryNavigationsInMemoryTest.cs" />
-    <Compile Include="SentinelGraphUpdatesInMemoryTest.cs" />
     <Compile Include="InMemoryTestStore.cs" />
     <Compile Include="BuiltInDataTypesInMemoryFixture.cs" />
     <Compile Include="BuiltInDataTypesInMemoryTest.cs" />

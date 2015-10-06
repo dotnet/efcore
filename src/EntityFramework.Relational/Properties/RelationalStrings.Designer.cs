@@ -445,7 +445,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unable to materialize an entity of type '{entityType}' because it has an invalid key value. Ensure that the key properties of the entity type have the correct sentinel value configuration.
+        /// Unable to materialize an entity of type '{entityType}' because it has an null key value.
         /// </summary>
         public static string InvalidKeyValue([CanBeNull] object entityType)
         {

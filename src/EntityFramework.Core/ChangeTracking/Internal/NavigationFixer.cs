@@ -455,7 +455,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 if (foreignKey.Properties[i].GetGenerationProperty() == null
-                    || !foreignKey.PrincipalKey.Properties[i].IsSentinelValue(principalValues[i]))
+                    || !foreignKey.PrincipalKey.Properties[i].ClrType.IsDefaultValue(principalValues[i]))
                 {
                     var dependentProperty = foreignKey.Properties[i];
                     dependentEntry[dependentProperty] = principalValues[i];

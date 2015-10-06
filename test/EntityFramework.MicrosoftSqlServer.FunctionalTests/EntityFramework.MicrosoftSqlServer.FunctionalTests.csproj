@@ -101,7 +101,6 @@
     <Compile Include="SqlServerDatabaseCreationTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
     <Compile Include="SqlServerEndToEndTest.cs" />
-    <Compile Include="SentinelGraphUpdatesSqlServerTest.cs" />
     <Compile Include="MonsterFixupSqlServerTest.cs" />
     <Compile Include="Utilities\SqlConnectionStringBuilderExtensions.cs" />
     <Compile Include="Utilities\SqlServerConditionAttribute.cs" />

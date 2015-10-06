@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_optional_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2a = new Optional2 { Id = Fixture.IntSentinel };
-            var new2b = new Optional2 { Id = Fixture.IntSentinel };
-            var new1 = new Optional1 { Id = Fixture.IntSentinel };
+            var new2a = new Optional2();
+            var new2b = new Optional2();
+            var new1 = new Optional1();
 
             if (useExistingEntities)
             {
@@ -121,10 +121,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_required_many_to_one_dependents(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel };
-            var new1 = new Required1 { Id = Fixture.IntSentinel, ParentId = Fixture.IntSentinel, Parent = newRoot };
-            var new2a = new Required2 { Id = Fixture.IntSentinel, ParentId = Fixture.IntSentinel, Parent = new1 };
-            var new2b = new Required2 { Id = Fixture.IntSentinel, ParentId = Fixture.IntSentinel, Parent = new1 };
+            var newRoot = new Root();
+            var new1 = new Required1 { Parent = newRoot };
+            var new2a = new Required2 { Parent = new1 };
+            var new2b = new Required2 { Parent = new1 };
 
             if (useExistingEntities)
             {
@@ -327,8 +327,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_changed_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new OptionalSingle2 { Id = Fixture.IntSentinel };
-            var new1 = new OptionalSingle1 { Id = Fixture.IntSentinel, Single = new2 };
+            var new2 = new OptionalSingle2();
+            var new1 = new OptionalSingle1 { Single = new2 };
 
             if (useExistingEntities)
             {
@@ -436,8 +436,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 context.SaveChanges();
             }
 
-            var new2 = new RequiredSingle2 { Id = Fixture.IntSentinel };
-            var new1 = new RequiredSingle1 { Id = Fixture.IntSentinel, Single = new2 };
+            var new2 = new RequiredSingle2();
+            var new1 = new RequiredSingle1 { Single = new2 };
 
             using (var context = CreateContext())
             {
@@ -492,9 +492,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         //[InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new RequiredNonPkSingle2 { Id = Fixture.IntSentinel, BackId = Fixture.IntSentinel };
-            var new1 = new RequiredNonPkSingle1 { Id = Fixture.IntSentinel, RootId = Fixture.IntSentinel, Single = new2 };
-            var newRoot = new Root { Id = Fixture.IntSentinel, RequiredNonPkSingle = new1 };
+            var new2 = new RequiredNonPkSingle2();
+            var new1 = new RequiredNonPkSingle1 { Single = new2 };
+            var newRoot = new Root { RequiredNonPkSingle = new1 };
 
             if (useExistingEntities)
             {
@@ -721,7 +721,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_optional_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel };
+            var newRoot = new Root();
 
             if (useExistingRoot)
             {
@@ -796,7 +796,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_required_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel };
+            var newRoot = new Root();
 
             if (useExistingRoot)
             {
@@ -845,7 +845,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_required_non_PK_one_to_one(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel };
+            var newRoot = new Root();
 
             if (useExistingRoot)
             {
@@ -920,9 +920,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_optional_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2a = new OptionalAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
-            var new2b = new OptionalAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
-            var new1 = new OptionalAk1 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
+            var new2a = new OptionalAk2 { AlternateId = Guid.NewGuid() };
+            var new2b = new OptionalAk2 { AlternateId = Guid.NewGuid() };
+            var new1 = new OptionalAk1 { AlternateId = Guid.NewGuid() };
 
             if (useExistingEntities)
             {
@@ -1008,10 +1008,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_required_many_to_one_dependents_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
-            var new1 = new RequiredAk1 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), Parent = newRoot };
-            var new2a = new RequiredAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), Parent = new1 };
-            var new2b = new RequiredAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), Parent = new1 };
+            var newRoot = new Root { AlternateId = Guid.NewGuid() };
+            var new1 = new RequiredAk1 { AlternateId = Guid.NewGuid(), Parent = newRoot };
+            var new2a = new RequiredAk2 { AlternateId = Guid.NewGuid(), Parent = new1 };
+            var new2b = new RequiredAk2 { AlternateId = Guid.NewGuid(), Parent = new1 };
 
             if (useExistingEntities)
             {
@@ -1214,8 +1214,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Save_changed_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new OptionalSingleAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
-            var new1 = new OptionalSingleAk1 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), Single = new2 };
+            var new2 = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() };
+            var new1 = new OptionalSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
 
             if (useExistingEntities)
             {
@@ -1299,9 +1299,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Save_required_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new RequiredSingleAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
-            var new1 = new RequiredSingleAk1 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), Single = new2 };
-            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
+            var new2 = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() };
+            var new1 = new RequiredSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
+            var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredSingleAk = new1 };
 
             if (useExistingEntities)
             {
@@ -1379,9 +1379,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public virtual void Save_required_non_PK_one_to_one_changed_by_reference_with_alternate_key(
             ChangeMechanism changeMechanism, bool useExistingEntities)
         {
-            var new2 = new RequiredNonPkSingleAk2 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
-            var new1 = new RequiredNonPkSingleAk1 { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), Single = new2 };
-            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid(), RequiredNonPkSingleAk = new1 };
+            var new2 = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() };
+            var new1 = new RequiredNonPkSingleAk1 { AlternateId = Guid.NewGuid(), Single = new2 };
+            var newRoot = new Root { AlternateId = Guid.NewGuid(), RequiredNonPkSingleAk = new1 };
 
             if (useExistingEntities)
             {
@@ -1608,7 +1608,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_optional_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
+            var newRoot = new Root { AlternateId = Guid.NewGuid() };
 
             if (useExistingRoot)
             {
@@ -1683,7 +1683,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_required_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
+            var newRoot = new Root { AlternateId = Guid.NewGuid() };
 
             if (useExistingRoot)
             {
@@ -1758,7 +1758,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [InlineData((int)ChangeMechanism.FK, true)]
         public virtual void Reparent_required_non_PK_one_to_one_with_alternate_key(ChangeMechanism changeMechanism, bool useExistingRoot)
         {
-            var newRoot = new Root { Id = Fixture.IntSentinel, AlternateId = Guid.NewGuid() };
+            var newRoot = new Root { AlternateId = Guid.NewGuid() };
 
             if (useExistingRoot)
             {
@@ -3375,34 +3375,27 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     .ValueGeneratedOnAdd();
             }
 
-            public abstract int IntSentinel { get; }
-
             protected virtual object CreateFullGraph()
             {
                 return new Root
                 {
-                    Id = IntSentinel,
                     AlternateId = Guid.NewGuid(),
                     RequiredChildren = new List<Required1>
                     {
                         new Required1
                         {
-                            Id = IntSentinel,
-                            ParentId = IntSentinel,
                             Children = new List<Required2>
                             {
-                                new Required2 { ParentId = IntSentinel, Id = IntSentinel },
-                                new Required2 { ParentId = IntSentinel, Id = IntSentinel }
+                                new Required2(),
+                                new Required2()
                             }
                         },
                         new Required1
                         {
-                            Id = IntSentinel,
-                            ParentId = IntSentinel,
                             Children = new List<Required2>
                             {
-                                new Required2 { ParentId = IntSentinel, Id = IntSentinel },
-                                new Required2 { ParentId = IntSentinel, Id = IntSentinel }
+                                new Required2(),
+                                new Required2()
                             }
                         }
                     },
@@ -3410,59 +3403,51 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         new Optional1
                         {
-                            Id = IntSentinel,
                             Children = new List<Optional2>
                             {
-                                new Optional2 { Id = IntSentinel },
-                                new Optional2 { Id = IntSentinel }
+                                new Optional2(),
+                                new Optional2()
                             }
                         },
                         new Optional1
                         {
-                            Id = IntSentinel,
                             Children = new List<Optional2>
                             {
-                                new Optional2 { Id = IntSentinel },
-                                new Optional2 { Id = IntSentinel }
+                                new Optional2(),
+                                new Optional2()
                             }
                         }
                     },
                     RequiredSingle = new RequiredSingle1
                     {
-                        Id = IntSentinel,
-                        Single = new RequiredSingle2 { Id = IntSentinel }
+                        Single = new RequiredSingle2()
                     },
                     OptionalSingle = new OptionalSingle1
                     {
-                        Id = IntSentinel,
-                        Single = new OptionalSingle2 { Id = IntSentinel }
+                        Single = new OptionalSingle2()
                     },
                     RequiredNonPkSingle = new RequiredNonPkSingle1
                     {
-                        Id = IntSentinel,
-                        RootId = IntSentinel,
-                        Single = new RequiredNonPkSingle2 { BackId = IntSentinel, Id = IntSentinel }
+                        Single = new RequiredNonPkSingle2()
                     },
                     RequiredChildrenAk = new List<RequiredAk1>
                     {
                         new RequiredAk1
                         {
-                            Id = IntSentinel,
                             AlternateId = Guid.NewGuid(),
                             Children = new List<RequiredAk2>
                             {
-                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                                new RequiredAk2 { AlternateId = Guid.NewGuid() },
+                                new RequiredAk2 { AlternateId = Guid.NewGuid() }
                             }
                         },
                         new RequiredAk1
                         {
-                            Id = IntSentinel,
                             AlternateId = Guid.NewGuid(),
                             Children = new List<RequiredAk2>
                             {
-                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                new RequiredAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                                new RequiredAk2 { AlternateId = Guid.NewGuid() },
+                                new RequiredAk2 { AlternateId = Guid.NewGuid() }
                             }
                         }
                     },
@@ -3470,61 +3455,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     {
                         new OptionalAk1
                         {
-                            Id = IntSentinel,
                             AlternateId = Guid.NewGuid(),
                             Children = new List<OptionalAk2>
                             {
-                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                                new OptionalAk2 { AlternateId = Guid.NewGuid() },
+                                new OptionalAk2 { AlternateId = Guid.NewGuid() }
                             }
                         },
                         new OptionalAk1
                         {
-                            Id = IntSentinel,
                             AlternateId = Guid.NewGuid(),
                             Children = new List<OptionalAk2>
                             {
-                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() },
-                                new OptionalAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                                new OptionalAk2 { AlternateId = Guid.NewGuid() },
+                                new OptionalAk2 { AlternateId = Guid.NewGuid() }
                             }
                         }
                     },
                     RequiredSingleAk = new RequiredSingleAk1
                     {
-                        Id = IntSentinel,
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                        Single = new RequiredSingleAk2 { AlternateId = Guid.NewGuid() }
                     },
                     OptionalSingleAk = new OptionalSingleAk1
                     {
-                        Id = IntSentinel,
                         AlternateId = Guid.NewGuid(),
-                        Single = new OptionalSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                        Single = new OptionalSingleAk2 { AlternateId = Guid.NewGuid() }
                     },
                     RequiredNonPkSingleAk = new RequiredNonPkSingleAk1
                     {
-                        Id = IntSentinel,
                         AlternateId = Guid.NewGuid(),
-                        Single = new RequiredNonPkSingleAk2 { Id = IntSentinel, AlternateId = Guid.NewGuid() }
+                        Single = new RequiredNonPkSingleAk2 { AlternateId = Guid.NewGuid() }
                     }
                 };
-            }
-
-            protected static void SetSentinelValues(ModelBuilder modelBuilder, int intSentinel)
-            {
-                foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
-                    .Where(p => ((IProperty)p).ClrType == typeof(int) || ((IProperty)p).ClrType == typeof(int?)))
-                {
-                    property.SentinelValue = intSentinel;
-                }
-
-                var sentinelGuid = new Guid("{71334AF2-51DE-4015-9CC1-10CE02D151BB}");
-
-                foreach (var property in modelBuilder.Model.EntityTypes.SelectMany(e => e.Properties)
-                    .Where(p => ((IProperty)p).ClrType == typeof(Guid) || ((IProperty)p).ClrType == typeof(Guid?)))
-                {
-                    property.SentinelValue = sentinelGuid;
-                }
             }
 
             protected virtual void Seed(DbContext context)
