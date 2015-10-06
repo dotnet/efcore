@@ -121,6 +121,15 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Utilities
                 };
             }
 
+            if (propertyType.IsNullableType()
+                && "NULL" == sqlServerDefaultValue)
+            {
+                return new DefaultExpressionOrValue()
+                {
+                    DefaultValue = null
+                };
+            }
+
             propertyType = propertyType.UnwrapNullableType();
 
             if (typeof(string) == propertyType)

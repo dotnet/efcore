@@ -83,6 +83,8 @@ namespace E2ETest.Namespace
                     .HasColumnType("datetime2(7)")
                     .HasDefaultValueSql("getdate()");
 
+                entity.Property(e => e.WithDateNullDefault).HasColumnType("datetime2(7)");
+
                 entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
 
                 entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");
