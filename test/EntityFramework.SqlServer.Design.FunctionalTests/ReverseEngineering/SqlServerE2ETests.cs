@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,7 @@ using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
+using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -74,7 +76,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                     }
         };
 
-        private const string _connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30";
+        // weird extenstion method call because the compiler can't disambiguate without adding a project reference
+        // ApplyConfiguration swaps out the Server if this tests are configured to run against something different that localdb.
+        private string _connectionString = SqlConnectionStringBuilderExtensions.ApplyConfiguration(
+            new SqlConnectionStringBuilder(@"Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=SqlServerReverseEngineerTestE2E;Integrated Security=True;MultipleActiveResultSets=True;Connect Timeout=30"))
+                .ConnectionString;
 
         private static readonly List<string> _expectedEntityTypeFiles = new List<string>
             {
@@ -117,7 +123,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
                 Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_UseAttributesInsteadOfFluentApi"),
-                contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir))
+                contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
+                    .Replace("{{connectionString}}", _connectionString))
             {
                 Files = (new List<string> { "AttributesContext.expected"})
                     .Concat(_expectedEntityTypeFiles).ToList()
@@ -163,7 +170,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             };
 
             var expectedFileSet = new FileSet(new FileSystemFileService(),
-                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_AllFluentApi"))
+                Path.Combine("ReverseEngineering", "ExpectedResults", "E2E_AllFluentApi"),
+                inputFile => inputFile.Replace("{{connectionString}}", _connectionString))
             {
                 Files = (new List<string> { "SqlServerReverseEngineerTestE2EContext.expected" })
                     .Concat(_expectedEntityTypeFiles).ToList()
