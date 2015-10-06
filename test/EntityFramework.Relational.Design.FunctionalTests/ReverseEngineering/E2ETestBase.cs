@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,9 +72,28 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
         protected virtual void AssertLog(LoggerMessages expected)
         {
-            Assert.Equal(expected.Warn, _logger.Messages.Warn);
-            Assert.Equal(expected.Info, _logger.Messages.Info);
-            Assert.Equal(expected.Verbose, _logger.Messages.Verbose);
+            AssertLoggerMessages(expected.Warn, _logger.Messages.Warn, "WARNING");
+            AssertLoggerMessages(expected.Error, _logger.Messages.Error, "ERROR");
+            AssertLoggerMessages(expected.Info, _logger.Messages.Info, "INFO");
+        }
+
+        protected virtual void AssertLoggerMessages(
+            List<string> expected, List<string> actual, string category)
+        {
+            try
+            {
+                Assert.Equal(expected, actual);
+            }
+            catch (EqualException e)
+            {
+                var sep = new string('=', 60);
+                _output.WriteLine($"Contents of {category} logger messages:");
+                _output.WriteLine(sep);
+                _output.WriteLine(string.Join(Environment.NewLine, actual));
+                _output.WriteLine(sep);
+
+                throw e;
+            }
         }
 
         protected virtual void AssertCompile(FileSet fileSet)
