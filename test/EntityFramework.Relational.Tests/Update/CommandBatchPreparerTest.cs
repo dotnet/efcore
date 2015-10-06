@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
@@ -369,9 +368,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                     _commandBuilderFactory,
                     _sqlGenerator,
                     _updateSqlGenerator,
-                    _valueBufferFactoryFactory,
-                    new Mock<ISensitiveDataLogger>().Object,
-                    new TelemetryListener("Fake"));
+                    _valueBufferFactoryFactory);
         }
     }
 }

@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Data;
+using System.Diagnostics.Tracing;
 using Microsoft.Data.Entity.Storage.Internal;
+using Microsoft.Data.Entity.TestUtilities;
 using Microsoft.Data.Entity.TestUtilities.FakeProvider;
 using Xunit;
 
@@ -15,6 +17,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             var builder = new SqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
+                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new TelemetryListener("Fake"),
                     new FakeRelationalTypeMapper()),
                 new RelationalSqlGenerator(),
                 new ParameterNameGeneratorFactory());
@@ -30,6 +34,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             var builder = new SqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
+                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new TelemetryListener("Fake"),
                     new FakeRelationalTypeMapper()),
                 new RelationalSqlGenerator(),
                 new ParameterNameGeneratorFactory());
@@ -45,6 +51,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             var builder = new SqlCommandBuilder(
                 new RelationalCommandBuilderFactory(
+                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new TelemetryListener("Fake"),
                     new FakeRelationalTypeMapper()),
                 new RelationalSqlGenerator(),
                 new ParameterNameGeneratorFactory());

@@ -4,13 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -21,9 +19,6 @@ namespace Microsoft.Data.Entity.Update
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
-        private readonly ISensitiveDataLogger _logger;
-#pragma warning disable 0618
-        private readonly TelemetrySource _telemetrySource;
 
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
 
@@ -35,16 +30,12 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] ISensitiveDataLogger logger,
-            [NotNull] TelemetrySource telemetrySource)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(telemetrySource, nameof(telemetrySource));
 
             _commandBuilderFactory = commandBuilderFactory;
 
@@ -52,10 +43,7 @@ namespace Microsoft.Data.Entity.Update
             UpdateSqlGenerator = updateSqlGenerator;
 
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
-            _logger = logger;
-            _telemetrySource = telemetrySource;
         }
-#pragma warning restore 0618
 
         protected virtual ISqlGenerator SqlGenerator { get; }
 
@@ -175,33 +163,9 @@ namespace Microsoft.Data.Entity.Update
 
             using (var command = CreateStoreCommand(commandText, connection))
             {
-                _logger.LogCommand(command);
-
-                WriteTelemetry(RelationalTelemetry.BeforeExecuteCommand, command);
-
                 try
                 {
-                    DbDataReader dataReader;
-
-                    try
-                    {
-                        dataReader = command.ExecuteReader();
-                    }
-                    catch (Exception exception)
-                    {
-                        _telemetrySource
-                            .WriteCommandError(
-                                command,
-                                RelationalTelemetry.ExecuteMethod.ExecuteReader,
-                                async: false,
-                                exception: exception);
-
-                        throw;
-                    }
-
-                    WriteTelemetry(RelationalTelemetry.AfterExecuteCommand, command);
-
-                    using (dataReader)
+                    using (var dataReader = command.ExecuteReader())
                     {
                         Consume(dataReader);
                     }
@@ -227,33 +191,9 @@ namespace Microsoft.Data.Entity.Update
 
             using (var command = CreateStoreCommand(commandText, connection))
             {
-                _logger.LogCommand(command);
-
-                WriteTelemetry(RelationalTelemetry.BeforeExecuteCommand, command, async: true);
-
                 try
                 {
-                    DbDataReader dataReader;
-
-                    try
-                    {
-                        dataReader = await command.ExecuteReaderAsync(cancellationToken);
-                    }
-                    catch (Exception exception)
-                    {
-                        _telemetrySource
-                            .WriteCommandError(
-                                command,
-                                RelationalTelemetry.ExecuteMethod.ExecuteReader,
-                                async: true,
-                                exception: exception);
-
-                        throw;
-                    }
-
-                    WriteTelemetry(RelationalTelemetry.AfterExecuteCommand, command, async: true);
-
-                    using (dataReader)
+                    using (var dataReader = await command.ExecuteReaderAsync(cancellationToken))
                     {
                         await ConsumeAsync(dataReader, cancellationToken);
                     }
@@ -268,14 +208,6 @@ namespace Microsoft.Data.Entity.Update
                 }
             }
         }
-
-        private void WriteTelemetry(string name, DbCommand command, bool async = false)
-            => _telemetrySource
-                .WriteCommand(
-                    name,
-                    command,
-                    RelationalTelemetry.ExecuteMethod.ExecuteReader,
-                    async: async);
 
         protected abstract void Consume([NotNull] DbDataReader reader);
 

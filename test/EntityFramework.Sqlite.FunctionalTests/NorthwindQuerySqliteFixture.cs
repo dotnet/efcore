@@ -41,7 +41,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             var optionsBuilder = new DbContextOptionsBuilder();
 
             var sqliteDbContextOptionsBuilder
-                = optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString);
+                = optionsBuilder.UseSqlite(_testStore.Connection.ConnectionString)
+                    .SuppressForeignKeyEnforcement();
 
             ConfigureOptions(sqliteDbContextOptionsBuilder);
 

@@ -10,11 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
@@ -143,19 +141,14 @@ namespace Microsoft.Data.Entity.Query
             = typeof(AsyncQueryMethodProvider).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
-#pragma warning disable 0618
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
-            ISensitiveDataLogger logger,
-            TelemetrySource telemetrySource,
             Func<ValueBuffer, T> shaper)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
                 commandBuilder,
-                logger,
-                telemetrySource,
                 queryIndex: null)
                 .Select(shaper);
 
@@ -169,16 +162,11 @@ namespace Microsoft.Data.Entity.Query
         private static IAsyncEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
-            ISensitiveDataLogger logger,
-            TelemetrySource telemetrySource,
             int? queryIndex)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
                 commandBuilder,
-                logger,
-                telemetrySource,
                 queryIndex);
-#pragma warning restore 0618
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 

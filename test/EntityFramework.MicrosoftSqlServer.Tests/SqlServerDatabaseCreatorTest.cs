@@ -157,9 +157,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         private class FakeSqlStatementExecutor : SqlStatementExecutor
         {
             public FakeSqlStatementExecutor(
-                IRelationalCommandBuilderFactory commandBuilderFactory,
-                ISensitiveDataLogger<FakeSqlStatementExecutor> logger)
-                : base(commandBuilderFactory, logger, new TelemetryListener("Fake"))
+                IRelationalCommandBuilderFactory commandBuilderFactory)
+                : base(commandBuilderFactory)
             {
             }
 

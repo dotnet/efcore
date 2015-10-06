@@ -231,6 +231,7 @@
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
     <Compile Include="Storage\RelationalDatabaseProviderServices.cs" />
+    <Compile Include="Storage\RelationalDataReader.cs" />
     <Compile Include="Storage\RelationalParameter.cs" />
     <Compile Include="Storage\RelationalSizedTypeMapping.cs" />
     <Compile Include="Storage\RelationalSqlGenerator.cs" />

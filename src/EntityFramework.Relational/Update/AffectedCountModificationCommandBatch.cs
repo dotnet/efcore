@@ -5,16 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Update
 {
@@ -26,18 +23,14 @@ namespace Microsoft.Data.Entity.Update
     {
         private readonly List<bool> _resultSetEnd = new List<bool>();
 
-#pragma warning disable 0618
         protected AffectedCountModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
-            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] ISensitiveDataLogger logger,
-            [NotNull] TelemetrySource telemetrySource)
-            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory, logger, telemetrySource)
+            [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+            : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory)
         {
         }
-#pragma warning restore 0618
 
         // contains true if the command at the corresponding index is the last command in its result set
         // the last value will not be read

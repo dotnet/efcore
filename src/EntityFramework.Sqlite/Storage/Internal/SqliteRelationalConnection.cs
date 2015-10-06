@@ -18,6 +18,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
     {
         private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly bool _enforceForeignKeys = true;
+        private int _openedCount;
 
         public SqliteRelationalConnection(
             [NotNull] ISqlCommandBuilder sqlCommandBuilder,
@@ -44,13 +45,32 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public override void Open()
         {
             base.Open();
-            EnableForeignKeys();
+
+            _openedCount++;
+
+            if (_openedCount == 1)
+            {
+                EnableForeignKeys();
+            }
         }
 
         public override async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             await base.OpenAsync(cancellationToken);
-            EnableForeignKeys();
+
+            _openedCount++;
+
+            if (_openedCount == 1)
+            {
+                EnableForeignKeys();
+            }
+        }
+
+        public override void Close()
+        {
+            base.Close();
+
+            _openedCount--;
         }
 
         private void EnableForeignKeys()
@@ -60,9 +80,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 return;
             }
 
-            _sqlCommandBuilder.Build("PRAGMA foreign_keys=ON;")
-                .CreateCommand(this)
-                .ExecuteNonQuery();
+            _sqlCommandBuilder.Build("PRAGMA foreign_keys=ON;").ExecuteNonQuery(this);
         }
     }
 }

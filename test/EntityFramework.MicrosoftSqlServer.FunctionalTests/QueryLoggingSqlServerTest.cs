@@ -42,8 +42,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
                 FROM [Customers] AS [c]
             , 
-            logger: SensitiveDataLogger`1, 
-            telemetrySource: Microsoft.Data.Entity, 
             shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                 querySource: from Customer <generated>_0 in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
                 queryContext: prm0, 
@@ -134,8 +132,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     FROM [Customers] AS [c]
                     ORDER BY [c].[CustomerID]
                 , 
-                logger: SensitiveDataLogger`1, 
-                telemetrySource: Microsoft.Data.Entity, 
                 shaper: (ValueBuffer prm2) => QueryResultScope<Customer> CreateEntity(
                     querySource: from Customer c in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
                     queryContext: prm0, 
@@ -182,8 +178,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                             ) AS [c] ON [o].[CustomerID] = [c].[CustomerID]
                             ORDER BY [c].[CustomerID]
                         , 
-                        logger: SensitiveDataLogger`1, 
-                        telemetrySource: Microsoft.Data.Entity, 
                         queryIndex: 1
                     )
                     , 

@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.TestUtilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations
@@ -22,7 +24,10 @@ namespace Microsoft.Data.Entity.Migrations
                 var typeMapper = new ConcreteRelationalTypeMapper();
 
                 return new ConcreteMigrationSqlGenerator(
-                    new RelationalCommandBuilderFactory(typeMapper),
+                    new RelationalCommandBuilderFactory(
+                        new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                        new TelemetryListener("Fake"),
+                        typeMapper),
                     new RelationalSqlGenerator(),
                     typeMapper,
                     new TestAnnotationProvider());

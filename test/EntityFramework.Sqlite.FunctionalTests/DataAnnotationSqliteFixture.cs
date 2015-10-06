@@ -54,6 +54,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
             optionsBuilder
                 .UseSqlite(testStore.Connection)
+                .SuppressForeignKeyEnforcement()
                 .LogSqlParameterValues();
 
             var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options);

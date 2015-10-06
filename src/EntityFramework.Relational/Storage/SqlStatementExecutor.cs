@@ -1,15 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
@@ -17,24 +13,13 @@ namespace Microsoft.Data.Entity.Storage
     public class SqlStatementExecutor : ISqlStatementExecutor
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-#pragma warning disable 0618
-        private readonly TelemetrySource _telemetrySource;
-        private readonly ISensitiveDataLogger _logger;
 
-        public SqlStatementExecutor(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISensitiveDataLogger<SqlStatementExecutor> logger,
-            [NotNull] TelemetrySource telemetrySource)
+        public SqlStatementExecutor([NotNull] IRelationalCommandBuilderFactory commandBuilderFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(logger, nameof(logger));
-            Check.NotNull(telemetrySource, nameof(telemetrySource));
 
             _commandBuilderFactory = commandBuilderFactory;
-            _logger = logger;
-            _telemetrySource = telemetrySource;
         }
-#pragma warning restore 0618
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,
@@ -49,11 +34,7 @@ namespace Microsoft.Data.Entity.Storage
             {
                 foreach (var command in relationalCommands)
                 {
-                    Execute<object>(
-                        connection,
-                        command,
-                        c => c.ExecuteNonQuery(),
-                        RelationalTelemetry.ExecuteMethod.ExecuteNonQuery);
+                    command.ExecuteNonQuery(connection);
                 }
             }
             finally
@@ -76,12 +57,7 @@ namespace Microsoft.Data.Entity.Storage
             {
                 foreach (var command in relationalCommands)
                 {
-                    await ExecuteAsync(
-                        connection,
-                        command,
-                        async c => await c.ExecuteNonQueryAsync(cancellationToken),
-                        RelationalTelemetry.ExecuteMethod.ExecuteNonQuery,
-                        cancellationToken);
+                    await command.ExecuteNonQueryAsync(connection, cancellationToken);
                 }
             }
             finally
@@ -97,14 +73,19 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(connection, nameof(connection));
             Check.NotEmpty(sql, nameof(sql));
 
-            return Execute(
-                connection,
-                CreateCommand(sql),
-                c => c.ExecuteScalar(),
-                RelationalTelemetry.ExecuteMethod.ExecuteScalar);
+            connection.Open();
+
+            try
+            {
+                return CreateCommand(sql).ExecuteScalar(connection);
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
-        public virtual Task<object> ExecuteScalarAsync(
+        public async virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
             string sql,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -112,12 +93,16 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(connection, nameof(connection));
             Check.NotEmpty(sql, nameof(sql));
 
-            return ExecuteAsync(
-                connection,
-                CreateCommand(sql),
-                c => c.ExecuteScalarAsync(cancellationToken),
-                RelationalTelemetry.ExecuteMethod.ExecuteScalar,
-                cancellationToken);
+            await connection.OpenAsync(cancellationToken);
+
+            try
+            {
+                return await CreateCommand(sql).ExecuteScalarAsync(connection, cancellationToken);
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
         public virtual DbDataReader ExecuteReader(
@@ -127,14 +112,19 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(connection, nameof(connection));
             Check.NotEmpty(sql, nameof(sql));
 
-            return Execute(
-                connection,
-                CreateCommand(sql),
-                c => c.ExecuteReader(),
-                RelationalTelemetry.ExecuteMethod.ExecuteReader);
+            connection.Open();
+
+            try
+            {
+                return CreateCommand(sql).ExecuteReader(connection).DbDataReader;
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
-        public virtual Task<DbDataReader> ExecuteReaderAsync(
+        public virtual async Task<DbDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
             string sql,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -142,128 +132,17 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(connection, nameof(connection));
             Check.NotEmpty(sql, nameof(sql));
 
-            return ExecuteAsync(
-                connection,
-                CreateCommand(sql),
-                c => c.ExecuteReaderAsync(cancellationToken),
-                RelationalTelemetry.ExecuteMethod.ExecuteReader,
-                cancellationToken);
-        }
-
-        protected virtual T Execute<T>(
-            [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] IRelationalCommand relationalCommand,
-            [NotNull] Func<DbCommand, T> action,
-            [NotNull] string executeMethod)
-        {
-            // TODO Deal with suppressing transactions etc.
-            relationalConnection.Open();
+            await connection.OpenAsync(cancellationToken);
 
             try
             {
-                using (var command = relationalCommand.CreateCommand(relationalConnection))
-                {
-                    _logger.LogCommand(command);
-
-                    WriteTelemetry(
-                        RelationalTelemetry.BeforeExecuteCommand,
-                        command,
-                        executeMethod);
-
-                    T result;
-
-                    try
-                    {
-                        result = action(command);
-                    }
-                    catch (Exception exception)
-                    {
-                        _telemetrySource
-                            .WriteCommandError(
-                                command,
-                                executeMethod,
-                                async: false,
-                                exception: exception);
-
-                        throw;
-                    }
-
-                    WriteTelemetry(
-                        RelationalTelemetry.AfterExecuteCommand,
-                        command,
-                        executeMethod);
-
-                    return result;
-                }
+                return (await CreateCommand(sql).ExecuteReaderAsync(connection, cancellationToken)).DbDataReader;
             }
             finally
             {
-                relationalConnection.Close();
+                connection.Close();
             }
         }
-
-        protected virtual async Task<T> ExecuteAsync<T>(
-            [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] IRelationalCommand relationalCommand,
-            [NotNull] Func<DbCommand, Task<T>> action,
-            [NotNull] string executeMethod,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            await relationalConnection.OpenAsync(cancellationToken);
-
-            try
-            {
-                using (var command = relationalCommand.CreateCommand(relationalConnection))
-                {
-                    _logger.LogCommand(command);
-
-                    WriteTelemetry(
-                        RelationalTelemetry.BeforeExecuteCommand,
-                        command,
-                        executeMethod,
-                        async: true);
-
-                    T result;
-
-                    try
-                    {
-                        result = await action(command);
-                    }
-                    catch (Exception exception)
-                    {
-                        _telemetrySource
-                            .WriteCommandError(
-                                command,
-                                executeMethod,
-                                async: true,
-                                exception: exception);
-
-                        throw;
-                    }
-
-                    WriteTelemetry(
-                        RelationalTelemetry.AfterExecuteCommand,
-                        command,
-                        executeMethod,
-                        async: true);
-
-                    return result;
-                }
-            }
-            finally
-            {
-                relationalConnection.Close();
-            }
-        }
-
-        private void WriteTelemetry(
-            string name, DbCommand command, string executeMethod, bool async = false)
-            => _telemetrySource
-                .WriteCommand(
-                    name,
-                    command,
-                    executeMethod,
-                    async: async);
 
         private IRelationalCommand CreateCommand(string sql)
             => _commandBuilderFactory.Create()

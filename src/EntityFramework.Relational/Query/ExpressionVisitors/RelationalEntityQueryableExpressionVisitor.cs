@@ -246,8 +246,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     .MakeGenericMethod(queryMethodInfo.ReturnType),
                 EntityQueryModelVisitor.QueryContextParameter,
                 Expression.Constant(_commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
-                Expression.Constant(QueryModelVisitor.QueryCompilationContext.Logger),
-                Expression.Constant(QueryModelVisitor.QueryCompilationContext.TelemetrySource),
                 Expression.Lambda(
                     Expression.Call(queryMethodInfo, queryMethodArguments),
                     _valueBufferParameter));

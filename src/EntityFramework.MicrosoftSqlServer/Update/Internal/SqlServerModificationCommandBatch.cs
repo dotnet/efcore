@@ -3,11 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
@@ -24,22 +22,17 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
 
-#pragma warning disable 0618
         public SqlServerModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
-            [NotNull] ISensitiveDataLogger logger,
-            [NotNull] TelemetrySource telemetrySource,
             [CanBeNull] int? maxBatchSize)
             : base(
                 commandBuilderFactory,
                 sqlGenerator,
                 updateSqlGenerator,
-                valueBufferFactoryFactory,
-                logger,
-                telemetrySource)
+                valueBufferFactoryFactory)
         {
             if (maxBatchSize.HasValue
                 && maxBatchSize.Value <= 0)
@@ -49,7 +42,6 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             _maxBatchSize = Math.Min(maxBatchSize ?? Int32.MaxValue, MaxRowCount);
         }
-#pragma warning restore 0618
 
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {

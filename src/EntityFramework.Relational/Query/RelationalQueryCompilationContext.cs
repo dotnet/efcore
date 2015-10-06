@@ -10,7 +10,6 @@ using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
-using System.Diagnostics.Tracing;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -19,15 +18,13 @@ namespace Microsoft.Data.Entity.Query
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
 
-#pragma warning disable 0618
         public RelationalQueryCompilationContext(
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType,
-            [NotNull] TelemetrySource telemetrySource)
+            [NotNull] Type contextType)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
@@ -36,15 +33,11 @@ namespace Microsoft.Data.Entity.Query
                 Check.NotNull(contextType, nameof(contextType)))
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
-            Check.NotNull(telemetrySource, nameof(telemetrySource));
 
             QueryMethodProvider = queryMethodProvider;
-            TelemetrySource = telemetrySource;
         }
 
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
-        public virtual TelemetrySource TelemetrySource { get; }
-#pragma warning restore 0618
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {

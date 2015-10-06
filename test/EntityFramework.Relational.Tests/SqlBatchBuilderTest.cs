@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.Tracing;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
+using Microsoft.Data.Entity.TestUtilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity
@@ -92,6 +94,8 @@ Statement3
         private RelationalCommandListBuilder CreateBuilder()
             => new RelationalCommandListBuilder(
                 new RelationalCommandBuilderFactory(
+                    new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
+                    new TelemetryListener("Fake"),
                     new TestRelationalTypeMapper()));
 
         private class TestRelationalTypeMapper : RelationalTypeMapper

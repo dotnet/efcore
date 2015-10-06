@@ -622,12 +622,13 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null)
                 : base(
-                    new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                    new RelationalCommandBuilderFactory(
+                        Mock.Of<ISensitiveDataLogger<RelationalCommandBuilderFactory>>(),
+                        new TelemetryListener("Fake"),
+                        new ConcreteTypeMapper()),
                     new RelationalSqlGenerator(),
                     sqlGenerator ?? new FakeSqlGenerator(),
-                    new TypedRelationalValueBufferFactoryFactory(),
-                    new Mock<ISensitiveDataLogger>().Object,
-                    new TelemetryListener("Fake"))
+                    new TypedRelationalValueBufferFactoryFactory())
             {
                 ShouldAddCommand = true;
                 ShouldValidateSql = true;
@@ -635,12 +636,13 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public ModificationCommandBatchFake(DbDataReader reader, IUpdateSqlGenerator sqlGenerator = null)
                 : base(
-                    new RelationalCommandBuilderFactory(new ConcreteTypeMapper()),
+                    new RelationalCommandBuilderFactory(
+                        Mock.Of<ISensitiveDataLogger<RelationalCommandBuilderFactory>>(),
+                        new TelemetryListener("Fake"),
+                        new ConcreteTypeMapper()),
                     new RelationalSqlGenerator(),
                     sqlGenerator ?? new FakeSqlGenerator(),
-                    new TypedRelationalValueBufferFactoryFactory(),
-                    new Mock<ISensitiveDataLogger>().Object,
-                    new TelemetryListener("Fake"))
+                    new TypedRelationalValueBufferFactoryFactory())
             {
                 _reader = reader;
                 ShouldAddCommand = true;

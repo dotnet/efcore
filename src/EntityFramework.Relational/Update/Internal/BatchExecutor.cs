@@ -4,22 +4,12 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Update.Internal
 {
     public class BatchExecutor : IBatchExecutor
     {
-        private readonly ISensitiveDataLogger _logger;
-
-        // ReSharper disable once SuggestBaseTypeForParameter
-        public BatchExecutor([NotNull] ISensitiveDataLogger<BatchExecutor> logger)
-        {
-            _logger = logger;
-        }
-
         public virtual int Execute(
             IEnumerable<ModificationCommandBatch> commandBatches,
             IRelationalConnection connection)
