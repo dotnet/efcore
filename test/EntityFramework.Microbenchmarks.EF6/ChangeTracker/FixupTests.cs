@@ -19,86 +19,82 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void AddChildren(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
             {
-                var customers = context.Customers.ToList();
-                Assert.Equal(100, customers.Count);
-
-                foreach (var customer in customers)
+                var orders = new Order[1000];
+                for (var i = 0; i < orders.Length; i++)
                 {
-                    var order = new Order { CustomerId = customer.CustomerId };
+                    context.Customers.Attach(new Customer { CustomerId = i + 1 });
+                    orders[i] = new Order { CustomerId = i + 1 };
+                }
 
-                    using (collector.StartCollection())
+                using (collector.StartCollection())
+                {
+                    foreach (var order in orders)
                     {
                         context.Orders.Add(order);
                     }
-
-                    Assert.Same(order, order.Customer.Orders.Single());
                 }
+
+                Assert.All(orders, o => Assert.NotNull(o.Customer));
             }
         }
 
         // Note: AddParents() not implemented because fixup to added parents 
         //       only happens during SaveChanges for EF6.x (not during Add)
 
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void AttachChildren(IMetricCollector collector)
         {
-            List<Order> orders;
             using (var context = _fixture.CreateContext())
             {
-                orders = context.Orders.ToList();
-            }
-
-            using (var context = _fixture.CreateContext())
-            {
-                var customers = context.Customers.ToList();
-                Assert.Equal(100, orders.Count);
-                Assert.Equal(100, customers.Count);
-
-                foreach (var order in orders)
+                var orders = new Order[1000];
+                for (var i = 0; i < orders.Length; i++)
                 {
-                    using (collector.StartCollection())
+                    context.Customers.Attach(new Customer { CustomerId = i + 1 });
+                    orders[i] = new Order { OrderId = i + 1, CustomerId = i + 1 };
+                }
+
+                using (collector.StartCollection())
+                {
+                    foreach (var order in orders)
                     {
                         context.Orders.Attach(order);
                     }
-
-                    Assert.Same(order, order.Customer.Orders.Single());
                 }
+
+                Assert.All(orders, o => Assert.NotNull(o.Customer));
             }
         }
 
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void AttachParents(IMetricCollector collector)
         {
-            List<Customer> customers;
             using (var context = _fixture.CreateContext())
             {
-                customers = context.Customers.ToList();
-            }
-
-            using (var context = _fixture.CreateContext())
-            {
-                var orders = context.Orders.ToList();
-                Assert.Equal(100, orders.Count);
-                Assert.Equal(100, customers.Count);
-
-                foreach (var customer in customers)
+                var customers = new Customer[1000];
+                for (var i = 0; i < customers.Length; i++)
                 {
-                    using (collector.StartCollection())
+                    customers[i] = new Customer { CustomerId = i + 1 };
+                    context.Orders.Attach(new Order { OrderId = i + 1, CustomerId = i + 1 });
+                }
+
+                using (collector.StartCollection())
+                {
+                    foreach (var customer in customers)
                     {
                         context.Customers.Attach(customer);
                     }
-
-                    Assert.Same(customer, customer.Orders.Single().Customer);
                 }
+
+                Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
             }
         }
 
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void QueryChildren(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -109,13 +105,13 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 var orders = context.Orders.ToList();
                 collector.StopCollection();
 
-                Assert.Equal(100, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(100, context.ChangeTracker.Entries<Order>().Count());
+                Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
+                Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
                 Assert.All(orders, o => Assert.NotNull(o.Customer));
             }
         }
 
-        [Benchmark(Iterations = 10)]
+        [Benchmark]
         public void QueryParents(IMetricCollector collector)
         {
             using (var context = _fixture.CreateContext())
@@ -126,8 +122,8 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
                 var customers = context.Customers.ToList();
                 collector.StopCollection();
 
-                Assert.Equal(100, context.ChangeTracker.Entries<Customer>().Count());
-                Assert.Equal(100, context.ChangeTracker.Entries<Order>().Count());
+                Assert.Equal(1000, context.ChangeTracker.Entries<Customer>().Count());
+                Assert.Equal(1000, context.ChangeTracker.Entries<Order>().Count());
                 Assert.All(customers, c => Assert.Equal(1, c.Orders.Count));
             }
         }
@@ -135,7 +131,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         public class FixupFixture : OrdersFixture
         {
             public FixupFixture()
-                : base("Perf_ChangeTracker_Fixup_EF6", 100, 100, 1, 1)
+                : base("Perf_ChangeTracker_Fixup_EF6", 0, 1000, 1, 0)
             { }
         }
     }
