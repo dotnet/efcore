@@ -5,6 +5,6 @@ namespace Microsoft.Data.Entity.Storage
 {
     public interface IRelationalCommandBuilderFactory
     {
-        RelationalCommandBuilder Create();
+        IRelationalCommandBuilder Create();
     }
 }

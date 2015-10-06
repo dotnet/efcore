@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Storage
                 GetCreateTablesCommands(),
                 cancellationToken);
 
-        protected virtual IEnumerable<RelationalCommand> GetCreateTablesCommands()
+        protected virtual IEnumerable<IRelationalCommand> GetCreateTablesCommands()
             => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);
 
         protected abstract bool HasTables();

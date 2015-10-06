@@ -7,9 +7,9 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Storage.Internal
 {
-    public class RelationalCommand
+    public class RelationalCommand : IRelationalCommand
     {
         public RelationalCommand(
             [NotNull] string commandText,

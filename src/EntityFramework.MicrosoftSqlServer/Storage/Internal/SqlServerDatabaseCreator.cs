@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private string CreateHasTablesCommand()
             => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0";
 
-        private IEnumerable<RelationalCommand> CreateCreateOperations()
+        private IEnumerable<IRelationalCommand> CreateCreateOperations()
             => _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = _connection.DbConnection.Database } });
 
         public override bool Exists()
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
         }
 
-        private IEnumerable<RelationalCommand> CreateDropCommands()
+        private IEnumerable<IRelationalCommand> CreateDropCommands()
         {
             var operations = new MigrationOperation[]
             {

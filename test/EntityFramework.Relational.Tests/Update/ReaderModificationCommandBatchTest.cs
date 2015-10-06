@@ -14,6 +14,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Update;
 using Moq;
 using Moq.Protected;
@@ -688,43 +689,34 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public int PopulateParameterCalls { get; set; }
 
-            protected override void PopulateParameters(RelationalCommandBuilder commandBuilder, ColumnModification columnModification)
+            protected override void PopulateParameters(IRelationalCommandBuilder commandBuilder, ColumnModification columnModification)
             {
                 PopulateParameterCalls++;
             }
 
-            public void PopulateParametersBase(RelationalCommandBuilder commandBuilder, ColumnModification columnModification)
+            public void PopulateParametersBase(IRelationalCommandBuilder commandBuilder, ColumnModification columnModification)
             {
                 base.PopulateParameters(commandBuilder, columnModification);
             }
         }
 
-        private class CommandBuilderFake : RelationalCommandBuilder
+        private class CommandBuilderFake : IRelationalCommandBuilder
         {
             public int AddParameterCalls { get; private set; }
 
-            public CommandBuilderFake()
-                : base(new ConcreteTypeMapper())
-            {
-            }
+            public IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
-            public override RelationalCommandBuilder AddParameter(string name, object value)
+            public IRelationalCommandBuilder AddParameter(
+                string name,
+                object value,
+                Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
+                bool? nullable)
             {
                 AddParameterCalls++;
                 return this;
             }
 
-            public override RelationalCommandBuilder AddParameter(string name, object value, Type type)
-            {
-                AddParameterCalls++;
-                return this;
-            }
-
-            public override RelationalCommandBuilder AddParameter(string name, object value, IProperty property)
-            {
-                AddParameterCalls++;
-                return this;
-            }
+            public IRelationalCommand BuildRelationalCommand() => null;
         }
 
         private class ConcreteTypeMapper : RelationalTypeMapper

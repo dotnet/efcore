@@ -163,13 +163,13 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             {
             }
 
-            public override void ExecuteNonQuery(IRelationalConnection connection, IEnumerable<RelationalCommand> relationalCommands)
+            public override void ExecuteNonQuery(IRelationalConnection connection, IEnumerable<IRelationalCommand> relationalCommands)
             {
             }
 
             public override Task ExecuteNonQueryAsync(
                 IRelationalConnection connection,
-                IEnumerable<RelationalCommand> relationalCommands,
+                IEnumerable<IRelationalCommand> relationalCommands,
                 CancellationToken cancellationToken = default(CancellationToken))
                 => Task.FromResult(0);
         }

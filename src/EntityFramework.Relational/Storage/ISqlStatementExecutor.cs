@@ -13,11 +13,11 @@ namespace Microsoft.Data.Entity.Storage
     {
         void ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
-            [NotNull] IEnumerable<RelationalCommand> relationalCommands);
+            [NotNull] IEnumerable<IRelationalCommand> relationalCommands);
 
         Task ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
-            [NotNull] IEnumerable<RelationalCommand> relationalCommands,
+            [NotNull] IEnumerable<IRelationalCommand> relationalCommands,
             CancellationToken cancellationToken = default(CancellationToken));
 
         object ExecuteScalar(

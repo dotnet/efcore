@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
         }
 
-        private IEnumerable<Func<IReadOnlyList<RelationalCommand>>> GetMigrationCommands(
+        private IEnumerable<Func<IReadOnlyList<IRelationalCommand>>> GetMigrationCommands(
             IReadOnlyList<HistoryRow> appliedMigrationEntries,
             string targetMigration = null)
         {
@@ -310,11 +310,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return builder.ToString();
         }
 
-        protected virtual IReadOnlyList<RelationalCommand> GenerateUpSql([NotNull] Migration migration)
+        protected virtual IReadOnlyList<IRelationalCommand> GenerateUpSql([NotNull] Migration migration)
         {
             Check.NotNull(migration, nameof(migration));
 
-            var commands = new List<RelationalCommand>();
+            var commands = new List<IRelationalCommand>();
             commands.AddRange(_migrationsSqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
             commands.Add(
                 _commandBuilderFactory.Create()
@@ -324,13 +324,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return commands;
         }
 
-        protected virtual IReadOnlyList<RelationalCommand> GenerateDownSql(
+        protected virtual IReadOnlyList<IRelationalCommand> GenerateDownSql(
             [NotNull] Migration migration,
             [CanBeNull] Migration previousMigration)
         {
             Check.NotNull(migration, nameof(migration));
 
-            var commands = new List<RelationalCommand>();
+            var commands = new List<IRelationalCommand>();
             commands.AddRange(_migrationsSqlGenerator.Generate(migration.DownOperations, previousMigration?.TargetModel));
             commands.Add(
                 _commandBuilderFactory.Create()
@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return commands;
         }
 
-        private void Execute(IEnumerable<RelationalCommand> relationalCommands)
+        private void Execute(IEnumerable<IRelationalCommand> relationalCommands)
         {
             using (var transaction = _connection.BeginTransaction())
             {
@@ -350,7 +350,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         }
 
         private async Task ExecuteAsync(
-            IEnumerable<RelationalCommand> relationalCommands,
+            IEnumerable<IRelationalCommand> relationalCommands,
             CancellationToken cancellationToken = default(CancellationToken))
         {
 

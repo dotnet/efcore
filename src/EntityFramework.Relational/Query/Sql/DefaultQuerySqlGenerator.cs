@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
-        private RelationalCommandBuilder _sql;
+        private IRelationalCommandBuilder _sql;
         private ParameterNameGenerator _parameterNameGenerator;
         private IDictionary<string, object> _parameterValues;
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual ParameterNameGenerator ParameterNameGenerator => _parameterNameGenerator;
 
-        public virtual RelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 .Create(SelectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
-        protected virtual RelationalCommandBuilder Sql => _sql;
+        protected virtual IRelationalCommandBuilder Sql => _sql;
 
         protected virtual string ConcatOperator => "+";
         protected virtual string TrueLiteral => "1";
@@ -262,11 +262,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         private void VisitJoin(
-            IReadOnlyList<Expression> expressions, Action<RelationalCommandBuilder> joinAction = null)
+            IReadOnlyList<Expression> expressions, Action<IRelationalCommandBuilder> joinAction = null)
             => VisitJoin(expressions, e => Visit(e), joinAction);
 
         private void VisitJoin<T>(
-            IReadOnlyList<T> items, Action<T> itemAction, Action<RelationalCommandBuilder> joinAction = null)
+            IReadOnlyList<T> items, Action<T> itemAction, Action<IRelationalCommandBuilder> joinAction = null)
         {
             joinAction = joinAction ?? (isb => isb.Append(", "));
 

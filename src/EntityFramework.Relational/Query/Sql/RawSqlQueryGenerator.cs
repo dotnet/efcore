@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             _inputParameters = parameters;
         }
 
-        public virtual RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 

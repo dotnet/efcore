@@ -209,6 +209,8 @@
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
+    <Compile Include="Storage\IRelationalCommand.cs" />
+    <Compile Include="Storage\IRelationalCommandBuilder.cs" />
     <Compile Include="Storage\IRelationalCommandBuilderFactory.cs" />
     <Compile Include="Storage\IRelationalConnection.cs" />
     <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
@@ -221,9 +223,10 @@
     <Compile Include="Storage\ISqlCommandBuilder.cs" />
     <Compile Include="Storage\ISqlGenerator.cs" />
     <Compile Include="Storage\ISqlStatementExecutor.cs" />
-    <Compile Include="Storage\RelationalCommand.cs" />
-    <Compile Include="Storage\RelationalCommandBuilder.cs" />
-    <Compile Include="Storage\RelationalCommandBuilderFactory.cs" />
+    <Compile Include="Storage\Internal\RelationalCommand.cs" />
+    <Compile Include="Storage\Internal\RelationalCommandBuilder.cs" />
+    <Compile Include="Storage\Internal\RelationalCommandBuilderFactory.cs" />
+    <Compile Include="Storage\RelationalCommandBuilderExtensions.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />

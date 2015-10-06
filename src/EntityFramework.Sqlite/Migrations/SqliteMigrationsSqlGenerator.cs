@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Migrations
         {
         }
 
-        public override IReadOnlyList<RelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
+        public override IReadOnlyList<IRelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
             => base.Generate(LiftForeignKeyOperations(operations), model);
 
         private IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)

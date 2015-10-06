@@ -4,7 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Storage
             _typeMapper = typeMapper;
         }
 
-        public virtual RelationalCommandBuilder Create()
+        public virtual IRelationalCommandBuilder Create()
             => new RelationalCommandBuilder(_typeMapper);
     }
 }

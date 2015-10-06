@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual ISqlGenerator SqlGenerator { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
 
-        public virtual IReadOnlyList<RelationalCommand> Generate(
+        public virtual IReadOnlyList<IRelationalCommand> Generate(
             IReadOnlyList<MigrationOperation> operations,
             IModel model = null)
         {

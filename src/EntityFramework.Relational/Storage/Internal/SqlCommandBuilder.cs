@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
-        public virtual RelationalCommand Build(
+        public virtual IRelationalCommand Build(
             [NotNull] string sql,
             [CanBeNull] IReadOnlyList<object> parameters = null)
         {

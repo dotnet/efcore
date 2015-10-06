@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 {
     public interface ISqlQueryGenerator
     {
-        RelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues);
+        IRelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues);
 
         IRelationalValueBufferFactory CreateValueBufferFactory(
             [NotNull] IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,

@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,
-            IEnumerable<RelationalCommand> relationalCommands)
+            IEnumerable<IRelationalCommand> relationalCommands)
         {
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(relationalCommands, nameof(relationalCommands));
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual async Task ExecuteNonQueryAsync(
             IRelationalConnection connection,
-            IEnumerable<RelationalCommand> relationalCommands,
+            IEnumerable<IRelationalCommand> relationalCommands,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             Check.NotNull(connection, nameof(connection));
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected virtual T Execute<T>(
             [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] RelationalCommand relationalCommand,
+            [NotNull] IRelationalCommand relationalCommand,
             [NotNull] Func<DbCommand, T> action,
             [NotNull] string executeMethod)
         {
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Storage
 
         protected virtual async Task<T> ExecuteAsync<T>(
             [NotNull] IRelationalConnection relationalConnection,
-            [NotNull] RelationalCommand relationalCommand,
+            [NotNull] IRelationalCommand relationalCommand,
             [NotNull] Func<DbCommand, Task<T>> action,
             [NotNull] string executeMethod,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.Storage
                     executeMethod,
                     async: async);
 
-        private RelationalCommand CreateCommand(string sql)
+        private IRelationalCommand CreateCommand(string sql)
             => _commandBuilderFactory.Create()
                 .Append(sql)
                 .BuildRelationalCommand();
