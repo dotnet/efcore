@@ -12,9 +12,9 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 {
     public class FakeRelationalTypeMapper : RelationalTypeMapper
     {
-        private static readonly RelationalTypeMapping _int = new RelationalTypeMapping("DefaultInt", DbType.Int32);
-        private static readonly RelationalTypeMapping _long = new RelationalTypeMapping("DefaultLong", DbType.Int64);
-        private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("DefaultString", DbType.String);
+        private static readonly RelationalTypeMapping _int = new RelationalTypeMapping("DefaultInt", typeof(int), DbType.Int32);
+        private static readonly RelationalTypeMapping _long = new RelationalTypeMapping("DefaultLong", typeof(long), DbType.Int64);
+        private static readonly RelationalTypeMapping _string = new RelationalTypeMapping("DefaultString", typeof(string), DbType.String);
 
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 

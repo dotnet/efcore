@@ -28,7 +28,7 @@ namespace E2ETest.Namespace
         public short smallintColumn { get; set; }
         public decimal smallmoneyColumn { get; set; }
         public string textColumn { get; set; }
-        public DateTime? timeColumn { get; set; }
+        public TimeSpan? timeColumn { get; set; }
         public byte[] timestampColumn { get; set; }
         public byte tinyintColumn { get; set; }
         public Guid? uniqueidentifierColumn { get; set; }

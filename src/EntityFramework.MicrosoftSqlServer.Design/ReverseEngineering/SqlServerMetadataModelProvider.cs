@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.Model;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -41,20 +42,24 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         // utility data constructed as we iterate over the data
         private readonly Dictionary<string, EntityType> _tableIdToEntityType = new Dictionary<string, EntityType>();
         private readonly Dictionary<string, Property> _columnIdToProperty = new Dictionary<string, Property>();
+        private readonly IRelationalTypeMapper _typeMapper;
 
         public SqlServerMetadataModelProvider(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
-            [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities)
+            [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(loggerFactory, modelUtilities, cSharpUtilities)
         {
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(sqlServerLiteralUtilities, nameof(sqlServerLiteralUtilities));
+            Check.NotNull(typeMapper, nameof(typeMapper));
 
             ExtensionsProvider = extensionsProvider;
             _sqlServerLiteralUtilities = sqlServerLiteralUtilities;
+            _typeMapper = typeMapper;
         }
 
         protected override IRelationalAnnotationProvider ExtensionsProvider { get; }
@@ -204,8 +209,18 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 
                 // If we come across a column with a SQL Server type which we can't map we will ignore it.
                 // Note: foreign key properties appear just like any other property in the relational model.
-                Type clrPropertyType;
-                if (!SqlServerTypeMapping._sqlTypeToClrTypeMap.TryGetValue(tc.DataType, out clrPropertyType))
+
+                Type clrPropertyType = null;
+                try
+                {
+                    clrPropertyType = _typeMapper.GetMapping(tc.DataType).ClrType;
+                }
+                catch (NotSupportedException)
+                {
+                    // handled by next check
+                }
+
+                if (clrPropertyType == null)
                 {
                     Logger.LogWarning(
                         SqlServerDesignStrings.CannotFindTypeMappingForColumn(tc.Id, tc.DataType));
@@ -420,7 +435,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             {
                 property.ValueGenerated = ValueGenerated.OnAdd;
 
-                if (typeof(byte) == SqlServerTypeMapping._sqlTypeToClrTypeMap[tableColumn.DataType])
+                if (typeof(byte) == _typeMapper.GetMapping(tableColumn.DataType).ClrType)
                 {
                     Logger.LogWarning(
                         SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(

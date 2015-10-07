@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
     <Compile Include="SqliteDmlParserTest.cs" />
-    <Compile Include="SqliteReverseTypeMapperTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">

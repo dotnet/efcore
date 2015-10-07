@@ -9,7 +9,9 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Data.Entity.Sqlite.Design
@@ -23,7 +25,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
                 .AddSingleton<ICompilationService, RoslynCompilationService>()
                 .AddSingleton<RazorTemplating>()
                 .AddSingleton<IDatabaseMetadataModelProvider, SqliteMetadataModelProvider>()
-                .AddSingleton<SqliteReverseTypeMapper>()
+                .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .AddSingleton<ConfigurationFactory, SqliteConfigurationFactory>()
                 .AddSingleton<CodeWriter, RazorTemplateCodeWriter>()

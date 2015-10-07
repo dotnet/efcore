@@ -287,8 +287,8 @@ namespace Microsoft.Data.Entity.Migrations
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
-                    { typeof(int), new RelationalTypeMapping("int") },
-                    { typeof(string), new RelationalTypeMapping("nvarchar(max)") }
+                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
+                    { typeof(string), new RelationalTypeMapping("nvarchar(max)", typeof(string)) }
                 };
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }

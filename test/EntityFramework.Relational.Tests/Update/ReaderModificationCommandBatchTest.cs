@@ -728,7 +728,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
-                    { typeof(int), new RelationalTypeMapping("int", DbType.String) }
+                    { typeof(int), new RelationalTypeMapping("int", typeof(int), DbType.String) }
                 };
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }

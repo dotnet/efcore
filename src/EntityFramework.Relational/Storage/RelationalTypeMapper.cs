@@ -45,6 +45,19 @@ namespace Microsoft.Data.Entity.Storage
                        : GetCustomMapping(property));
         }
 
+        public virtual RelationalTypeMapping GetMapping(string typeName)
+        {
+            Check.NotEmpty(typeName, nameof(typeName));
+
+            RelationalTypeMapping mapping;
+            if (SimpleNameMappings.TryGetValue(typeName, out mapping))
+            {
+                return mapping;
+            }
+
+            throw new NotSupportedException(RelationalStrings.UnsupportedType(typeName));
+        }
+
         public virtual RelationalTypeMapping GetMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));

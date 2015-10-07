@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 using ForeignKey = Microsoft.Data.Entity.Relational.Design.Model.ForeignKey;
@@ -22,10 +23,10 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
     public class SqliteMetadataModelProvider : RelationalMetadataModelProvider
     {
         private readonly IMetadataReader _metadataReader;
-        private readonly SqliteReverseTypeMapper _typeMapper;
+        private readonly IRelationalTypeMapper _typeMapper;
 
         public SqliteMetadataModelProvider(
-            [NotNull] SqliteReverseTypeMapper typeMapper,
+            [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
@@ -104,8 +105,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
         private void AddColumn(EntityTypeBuilder builder, Column column)
         {
-            // TODO log bad datatypes
-            var clrType = _typeMapper.GetClrType(column.DataType, nullable: column.IsNullable);
+            // TODO log bad datatypes/catch exception
+            var clrType = _typeMapper.GetMapping(column.DataType).ClrType;
+
+            if (clrType != null && column.IsNullable)
+            {
+                clrType = clrType.MakeNullable();
+            }
+
             var property = builder.Property(clrType, column.Name)
                 .HasColumnName(column.Name);
 

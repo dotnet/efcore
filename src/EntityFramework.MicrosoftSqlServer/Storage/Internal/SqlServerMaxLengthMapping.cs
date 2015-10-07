@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Data;
 using System.Data.Common;
 using JetBrains.Annotations;
@@ -11,8 +12,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
     {
         private readonly int _maxSpecificSize;
 
-        public SqlServerMaxLengthMapping([NotNull] string defaultTypeName, DbType? storeType = null)
-            : base(defaultTypeName, storeType)
+        public SqlServerMaxLengthMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, DbType? storeType = null)
+            : base(defaultTypeName, clrType, storeType)
         {
             _maxSpecificSize =
                 storeType == DbType.AnsiString

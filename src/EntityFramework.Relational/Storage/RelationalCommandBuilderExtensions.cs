@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Storage
             return commandBuilder.AddParameter(
                 name,
                 value,
-                t => t.GetMapping(value),
+                t => t.GetMappingForValue(value),
                 value?.GetType().IsNullableType());
         }
 

@@ -9,6 +9,8 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templa
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
+using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.Design
@@ -25,6 +27,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerLiteralUtilities>()
                 .AddSingleton<ConfigurationFactory, SqlServerConfigurationFactory>()
+                .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .AddSingleton<CodeWriter, RazorTemplateCodeWriter>();
         }
     }

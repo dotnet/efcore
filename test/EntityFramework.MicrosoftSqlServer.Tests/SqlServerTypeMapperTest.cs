@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
@@ -428,17 +429,34 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         [Fact]
         public void Does_default_mappings_for_values()
         {
-            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMapping("Cheese").DefaultTypeName);
-            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMapping(new byte[1]).DefaultTypeName);
-            Assert.Equal("datetime2", new SqlServerTypeMapper().GetMapping(new DateTime()).DefaultTypeName);
+            Assert.Equal("nvarchar(max)", new SqlServerTypeMapper().GetMappingForValue("Cheese").DefaultTypeName);
+            Assert.Equal("varbinary(max)", new SqlServerTypeMapper().GetMappingForValue(new byte[1]).DefaultTypeName);
+            Assert.Equal("datetime2", new SqlServerTypeMapper().GetMappingForValue(new DateTime()).DefaultTypeName);
         }
 
         [Fact]
         public void Does_default_mappings_for_null_values()
         {
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetMapping((object)null).DefaultTypeName);
-            Assert.Equal("NULL", new SqlServerTypeMapper().GetMapping(DBNull.Value).DefaultTypeName);
-            Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMapping(null, "Itz").DefaultTypeName);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue((object)null).DefaultTypeName);
+            Assert.Equal("NULL", new SqlServerTypeMapper().GetMappingForValue(DBNull.Value).DefaultTypeName);
+            Assert.Equal("NULL", RelationalTypeMapperExtensions.GetMappingForValue(null, "Itz").DefaultTypeName);
+        }
+
+        [Fact]
+        public void Throws_for_unrecognized_types()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => new SqlServerTypeMapper().GetMapping("magic"));
+            Assert.Equal(RelationalStrings.UnsupportedType("magic"), ex.Message);
+        }
+
+        [Theory]
+        [InlineData("VARCHAR", typeof(string))]
+        [InlineData("VarCHaR", typeof(string))] // case-insensitive
+        [InlineData("float", typeof(double))] // This is correct. SQL Server 'float' type maps to C# double
+        [InlineData("timestamp", typeof(byte[]))] // note: rowversion is a synonym but SQL Server stores the data type as 'timestamp'
+        public void It_finds_clr_type(string typeName, Type clrType)
+        {
+            Assert.Equal(clrType, new SqlServerTypeMapper().GetMapping(typeName).ClrType);
         }
 
         private enum LongEnum : long
