@@ -42,7 +42,8 @@ INNER JOIN (
         FROM [Level1] AS [e]
     ) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
 ) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
-ORDER BY [l0].[Id], [l0].[Id0]", Sql);
+ORDER BY [l0].[Id], [l0].[Id0]", 
+                Sql);
         }
 
         public override void Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times()
@@ -90,7 +91,8 @@ INNER JOIN (
     ) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
     INNER JOIN [Level2] AS [l1] ON [l].[OneToMany_Required_InverseId] = [l1].[Id]
 ) AS [l1] ON [l].[OneToMany_Optional_InverseId] = [l1].[Id1]
-ORDER BY [l1].[Id], [l1].[Id0], [l1].[Id1]", Sql);
+ORDER BY [l1].[Id], [l1].[Id0], [l1].[Id1]", 
+                Sql);
         }
 
         public override void Multi_level_include_with_short_circuiting()
@@ -123,7 +125,8 @@ INNER JOIN (
     LEFT JOIN [ComplexNavigationString] AS [c0] ON [x].[PlaceholderDefaultText] = [c0].[DefaultText]
 ) AS [c0] ON [c].[ComplexNavigationStringDefaultText] = [c0].[DefaultText0]
 LEFT JOIN [ComplexNavigationLanguage] AS [c1] ON [c].[LanguageName] = [c1].[Name]
-ORDER BY [c0].[DefaultText], [c0].[DefaultText0]", Sql);
+ORDER BY [c0].[DefaultText], [c0].[DefaultText0]", 
+                Sql);
         }
 
         private static string Sql => TestSqlLoggerFactory.Sql;

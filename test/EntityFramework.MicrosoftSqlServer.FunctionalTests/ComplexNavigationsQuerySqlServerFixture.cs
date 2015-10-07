@@ -41,10 +41,13 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     {
                         // TODO: Delete DB if model changed
                         context.Database.EnsureDeleted();
+
                         if (context.Database.EnsureCreated())
                         {
                             ComplexNavigationsModelInitializer.Seed(context);
                         }
+
+                        TestSqlLoggerFactory.SqlStatements.Clear();
                     }
                 });
         }
