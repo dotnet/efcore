@@ -341,6 +341,10 @@ CREATE TABLE "TableWithUnmappablePrimaryKeyColumn" (
 	) REFERENCES "dbo"."ReferredToByTableWithUnmappablePrimaryKeyColumn" (
 		"ReferredToByTableWithUnmappablePrimaryKeyColumnID"
 	),
+	CONSTRAINT "UK_TableWithUnmappablePrimaryKeyColumn" UNIQUE
+	(
+		"AnotherColumn" -- tests that RevEng can assign an alternate key on a table with a PK which cannot be mapped
+	)
 )
 
 GO
