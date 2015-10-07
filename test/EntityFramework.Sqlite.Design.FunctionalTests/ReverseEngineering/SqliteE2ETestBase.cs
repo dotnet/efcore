@@ -8,8 +8,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -410,6 +411,11 @@ CREATE TABLE Comment (
         protected abstract string DbSuffix { get; } // will be used to create different databases so tests running in parallel don't interfere
         protected abstract string ExpectedResultsParentDir { get; }
         protected abstract bool UseFluentApiOnly { get; }
-        protected override IDesignTimeMetadataProviderFactory GetFactory() => new SqliteDesignTimeMetadataProviderFactory();
+
+        protected override void ConfigureDesignTimeServices(IServiceCollection services)
+        {
+            base.ConfigureDesignTimeServices(services);
+            new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
+        }
     }
 }

@@ -49,7 +49,7 @@
     <Compile Include="ReverseEngineering\Model\TableConstraintColumn.cs" />
     <Compile Include="ReverseEngineering\Model\Table.cs" />
     <Compile Include="ReverseEngineering\SqlServerConfigurationFactory.cs" />
-    <Compile Include="ReverseEngineering\SqlServerDesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="SqlServerDesignTimeServices.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />
     <Compile Include="Utilities\SqlServerTypeMapping.cs" />

@@ -103,7 +103,27 @@ namespace Microsoft.Data.Entity.Design.Internal
 
             var service = services.GetRequiredService<TestService>();
             Assert.Equal("Alternative", service.Value);
+        }
 
+        [Fact]
+        public void ConfigureDesignTimeServices_works_on_other_types()
+        {
+            var services = new ServiceCollection();
+            var startup = new StartupInvoker(
+                typeof(StartupInvokerTest).Assembly.FullName,
+                environment: null,
+                dnxServices: null);
+
+            startup.ConfigureDesignTimeServices(typeof(NotStartup), services);
+
+            var service = services.BuildServiceProvider().GetRequiredService<TestService>();
+            Assert.Equal("NotStartup", service.Value);
+        }
+
+        private class NotStartup
+        {
+            public void ConfigureDesignTimeServices(IServiceCollection services)
+                => services.AddInstance(new TestService("NotStartup"));
         }
     }
 

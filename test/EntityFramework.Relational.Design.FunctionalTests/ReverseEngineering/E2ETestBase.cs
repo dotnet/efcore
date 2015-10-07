@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -27,7 +28,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
             var serviceCollection = new ServiceCollection()
                 .AddLogging();
-            GetFactory().AddMetadataProviderServices(serviceCollection);
+            ConfigureDesignTimeServices(serviceCollection);
             serviceCollection.AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -41,7 +42,12 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
         protected abstract E2ECompiler GetCompiler();
         protected abstract string ProviderName { get; }
-        protected abstract IDesignTimeMetadataProviderFactory GetFactory();
+
+        protected virtual void ConfigureDesignTimeServices(IServiceCollection services)
+            => services
+                .AddSingleton<ModelUtilities>()
+                .AddSingleton<ReverseEngineeringGenerator>()
+                .AddSingleton<CSharpUtilities>();
 
         protected virtual void AssertEqualFileContents(FileSet expected, FileSet actual)
         {

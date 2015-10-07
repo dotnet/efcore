@@ -73,10 +73,8 @@
     <Compile Include="ReverseEngineering\Configuration\OptionsBuilderConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
-    <Compile Include="ReverseEngineering\DesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
-    <Compile Include="ReverseEngineering\IDesignTimeMetadataProviderFactory.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
     <Compile Include="ReverseEngineering\Internal\RazorTemplateCodeWriter.cs" />
     <Compile Include="ReverseEngineering\Internal\TableSelectionSet.cs" />

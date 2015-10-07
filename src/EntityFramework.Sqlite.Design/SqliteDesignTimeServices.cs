@@ -8,15 +8,15 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
+using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
+namespace Microsoft.Data.Entity.Sqlite.Design
 {
-    public class SqliteDesignTimeMetadataProviderFactory : DesignTimeMetadataProviderFactory
+    public class SqliteDesignTimeServices
     {
-        public override void AddMetadataProviderServices([NotNull] IServiceCollection serviceCollection)
+        public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
         {
-            base.AddMetadataProviderServices(serviceCollection);
             serviceCollection
                 .AddSingleton<MetadataReferencesProvider>()
                 .AddSingleton<ICompilationService, RoslynCompilationService>()
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .AddSingleton<ConfigurationFactory, SqliteConfigurationFactory>()
                 .AddSingleton<CodeWriter, RazorTemplateCodeWriter>()
-                .AddTransient<SqliteMetadataReader>();
+                .AddSingleton<SqliteMetadataReader>();
         }
     }
 }

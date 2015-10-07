@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Design;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,14 +65,16 @@ namespace Microsoft.Data.Entity.Design.Internal
         }
 
         protected virtual void ConfigureServices([NotNull] IServiceCollection services)
-        {
-            services
+            => services
                 .AddLogging()
                 .AddSingleton<CSharpHelper>()
                 .AddSingleton<CSharpMigrationOperationGenerator>()
                 .AddSingleton<CSharpSnapshotGenerator>()
-                .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>();
-        }
+                .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
+                .AddSingleton<IFileService, FileSystemFileService>()
+                .AddSingleton<ModelUtilities>()
+                .AddSingleton<ReverseEngineeringGenerator>()
+                .AddSingleton<CSharpUtilities>();
 
         partial void ConfigureDnxServices(IServiceCollection services);
 
@@ -80,12 +83,8 @@ namespace Microsoft.Data.Entity.Design.Internal
             => services.ImportDnxServices(_dnxServices);
 #endif
 
-        private static void ConfigureProviderServices(
-            string provider,
-            IServiceCollection services,
-            bool throwOnError = false)
-            => GetProviderDesignTimeServicesBuilder(provider, throwOnError)
-                ?.AddMetadataProviderServices(services);
+        private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)
+            => _startup.ConfigureDesignTimeServices(GetProviderDesignTimeServices(provider, throwOnError), services);
 
         protected virtual void ConfigureContextServices(
             [NotNull] IServiceProvider contextServices,
@@ -105,9 +104,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         private void ConfigureUserServices(IServiceCollection services)
             => _startup.ConfigureDesignTimeServices(services);
 
-        private static IDesignTimeMetadataProviderFactory GetProviderDesignTimeServicesBuilder(
-            string provider,
-            bool throwOnError)
+        private static Type GetProviderDesignTimeServices(string provider, bool throwOnError)
         {
             Assembly providerAssembly;
             try
@@ -162,12 +159,10 @@ namespace Microsoft.Data.Entity.Design.Internal
                 providerServicesAssembly = providerAssembly;
             }
 
-            var providerServicesType = providerServicesAssembly.GetType(
+            return providerServicesAssembly.GetType(
                 providerServicesAttribute.TypeName,
                 throwOnError: true,
                 ignoreCase: false);
-
-            return (IDesignTimeMetadataProviderFactory)Activator.CreateInstance(providerServicesType);
         }
     }
 }

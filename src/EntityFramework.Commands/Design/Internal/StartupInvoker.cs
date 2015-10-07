@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Design.Internal
 {
     public class StartupInvoker
     {
-        private readonly TypeInfo _startupType;
+        private readonly Type _startupType;
         private readonly string _environment;
         private readonly IServiceProvider _dnxServices;
 
@@ -34,6 +34,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             var startupAssembly = Assembly.Load(new AssemblyName(startupAssemblyName));
             _startupType = startupAssembly.DefinedTypes.Where(t => t.Name == "Startup" + _environment)
                 .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Startup"))
+                .Select(t => t.AsType())
                 .FirstOrDefault();
 
             _dnxServices = dnxServices;
@@ -44,17 +45,21 @@ namespace Microsoft.Data.Entity.Design.Internal
             var services = ConfigureHostServices(new ServiceCollection());
 
             return Invoke(
+                    _startupType,
                     new[] { "ConfigureServices", "Configure" + _environment + "Services" },
                     services) as IServiceProvider
                 ?? services.BuildServiceProvider();
         }
 
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection services)
-            => Invoke(new[] { "ConfigureDesignTimeServices" }, services);
+            => ConfigureDesignTimeServices(_startupType, services);
 
-        private object Invoke(string[] methodNames, IServiceCollection services)
+        public virtual void ConfigureDesignTimeServices([CanBeNull] Type type, [NotNull] IServiceCollection services)
+            => Invoke(type, new[] { "ConfigureDesignTimeServices" }, services);
+
+        private object Invoke(Type type, string[] methodNames, IServiceCollection services)
         {
-            if (_startupType == null)
+            if (type == null)
             {
                 return null;
             }
@@ -62,7 +67,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             MethodInfo method = null;
             for (int i = 0; i < methodNames.Length; i++)
             {
-                method = _startupType.GetDeclaredMethod(methodNames[i]);
+                method = type.GetTypeInfo().GetDeclaredMethod(methodNames[i]);
                 if (method != null)
                 {
                     break;
@@ -74,7 +79,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             }
 
             var instance = !method.IsStatic
-                ? ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), _startupType.AsType())
+                ? ActivatorUtilities.GetServiceOrCreateInstance(GetHostServices(), type)
                 : null;
 
             var parameters = method.GetParameters();

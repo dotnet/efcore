@@ -7,16 +7,16 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation;
+using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.Design
 {
-    public class SqlServerDesignTimeMetadataProviderFactory : DesignTimeMetadataProviderFactory
+    public class SqlServerDesignTimeServices
     {
-        public override void AddMetadataProviderServices([NotNull] IServiceCollection serviceCollection)
+        public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
         {
-            base.AddMetadataProviderServices(serviceCollection);
             serviceCollection
                 .AddSingleton<MetadataReferencesProvider>()
                 .AddSingleton<ICompilationService, RoslynCompilationService>()

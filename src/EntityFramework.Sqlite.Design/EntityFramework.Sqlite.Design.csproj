@@ -58,7 +58,7 @@
     <Compile Include="ReverseEngineering\Model\ForeignKeyInfo.cs" />
     <Compile Include="ReverseEngineering\Model\IndexInfo.cs" />
     <Compile Include="ReverseEngineering\SqliteConfigurationFactory.cs" />
-    <Compile Include="ReverseEngineering\SqliteDesignTimeMetadataProviderFactory.cs" />
+    <Compile Include="SqliteDesignTimeServices.cs" />
     <Compile Include="ReverseEngineering\SqliteDmlParser.cs" />
     <Compile Include="ReverseEngineering\SqliteMetadataModelProvider.cs" />
     <Compile Include="Properties\SqliteDesignStrings.Designer.cs">

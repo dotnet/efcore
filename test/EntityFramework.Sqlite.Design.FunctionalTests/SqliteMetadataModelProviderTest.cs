@@ -10,6 +10,8 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +30,10 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging();
-            new SqliteDesignTimeMetadataProviderFactory().AddMetadataProviderServices(serviceCollection);
+            serviceCollection.AddLogging()
+                .AddSingleton<ModelUtilities>()
+                .AddSingleton<CSharpUtilities>();
+            new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
             serviceCollection.AddSingleton<IFileService, FileSystemFileService>();
 
             var serviceProvider = serviceCollection

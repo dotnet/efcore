@@ -11,8 +11,8 @@ using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
-using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,7 +21,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
     public class SqlServerE2ETests : E2ETestBase, IClassFixture<SqlServerE2EFixture>
     {
         protected override string ProviderName => "EntityFramework.MicrosoftSqlServer.Design";
-        protected override IDesignTimeMetadataProviderFactory GetFactory() => new SqlServerDesignTimeMetadataProviderFactory();
+
+        protected override void ConfigureDesignTimeServices(IServiceCollection services)
+        {
+            base.ConfigureDesignTimeServices(services);
+            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+        }
+
         public virtual string TestNamespace => "E2ETest.Namespace";
         public virtual string TestProjectDir => Path.Combine("E2ETest", "Output");
         public virtual string TestSubDir => "SubDir";
@@ -124,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 contents => contents.Replace("namespace " + TestNamespace, "namespace " + TestNamespace + "." + TestSubDir)
                     .Replace("{{connectionString}}", _connectionString))
             {
-                Files = (new List<string> { "AttributesContext.expected"})
+                Files = (new List<string> { "AttributesContext.expected" })
                     .Concat(_expectedEntityTypeFiles).ToList()
             };
 

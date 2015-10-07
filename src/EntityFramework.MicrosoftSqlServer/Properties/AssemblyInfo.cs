@@ -4,10 +4,9 @@
 using System.Reflection;
 using System.Resources;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Storage;
 
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    typeName: "Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering.SqlServerDesignTimeMetadataProviderFactory",
+    typeName: "Microsoft.Data.Entity.SqlServer.Design.SqlServerDesignTimeServices",
     assemblyName: "EntityFramework.MicrosoftSqlServer.Design")]
