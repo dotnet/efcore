@@ -115,11 +115,11 @@
         return sb.ToString();
     }
 }
-@{
-    var useFluentApi = Model.CustomConfiguration.UseFluentApiOnly;
-    var className = string.IsNullOrWhiteSpace(Model.CustomConfiguration.ContextClassName)
+@{ @* dnxcore5.0 requires we must cast explicitly *@
+    bool useFluentApi = Model.CustomConfiguration.UseFluentApiOnly;
+    string className = string.IsNullOrWhiteSpace((string)Model.CustomConfiguration.ContextClassName)
         ? Model.ClassName()
-        : Model.CustomConfiguration.ContextClassName;
+        : (string)Model.CustomConfiguration.ContextClassName;
 }using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 
