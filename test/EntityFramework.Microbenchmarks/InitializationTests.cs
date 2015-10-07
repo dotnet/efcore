@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks
 #if !DNXCORE50 && !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
-        [BenchmarkVariation("Warm (100 instances)", false, 100)]
+        [BenchmarkVariation("Warm (1000 instances)", false, 1000)]
         public void CreateAndDisposeUnusedContext(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
@@ -29,7 +29,7 @@ namespace EntityFramework.Microbenchmarks
 #if !DNXCORE50 && !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
-        [BenchmarkVariation("Warm (10 instances)", false, 10)]
+        [BenchmarkVariation("Warm (100 instances)", false, 100)]
         public void InitializeAndQuery_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
@@ -39,7 +39,7 @@ namespace EntityFramework.Microbenchmarks
 #if !DNXCORE50 && !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
-        [BenchmarkVariation("Warm (10 instances)", false, 10)]
+        [BenchmarkVariation("Warm (100 instances)", false, 100)]
         public void InitializeAndSaveChanges_AdventureWorks(IMetricCollector collector, bool cold, int count)
         {
             RunColdStartEnabledTest(cold, t => t.InitializeAndSaveChanges_AdventureWorks(collector, count));

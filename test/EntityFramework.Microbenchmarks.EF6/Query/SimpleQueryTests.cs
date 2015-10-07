@@ -18,32 +18,38 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
             _fixture = fixture;
         }
 
-        [Benchmark(Iterations = 1, WarmupIterations = 0)]
-        [BenchmarkVariation("Tracking On", true, true)]
-        [BenchmarkVariation("Tracking Off", false, true)]
-        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
-        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void LoadAll(IMetricCollector collector, bool tracking, bool caching)
+        [Benchmark]
+        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
+        [BenchmarkVariation("Tracking On, Query Cache Off (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
+        public void LoadAll(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .ApplyCaching(caching)
                     .ApplyTracking(tracking);
-                
-                collector.StartCollection();
-                var result = query.ToList();
-                collector.StopCollection();
-                Assert.Equal(1000, result.Count);
+
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
+                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true, true)]
-        [BenchmarkVariation("Tracking Off", false, true)]
-        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
-        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void Where(IMetricCollector collector, bool tracking, bool caching)
+        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
+        [BenchmarkVariation("Tracking On, Query Cache Off (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
+        public void Where(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -52,19 +58,25 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
                     .ApplyTracking(tracking)
                     .Where(p => p.Retail < 15);
 
-                collector.StartCollection();
-                var result = query.ToList();
-                collector.StopCollection();
-                Assert.Equal(500, result.Count);
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(500, query.Count());
+                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true, true)]
-        [BenchmarkVariation("Tracking Off", false, true)]
-        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
-        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void OrderBy(IMetricCollector collector, bool tracking, bool caching)
+        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
+        [BenchmarkVariation("Tracking On, Query Cache Off  (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
+        public void OrderBy(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -73,36 +85,47 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
                     .ApplyTracking(tracking)
                     .OrderBy(p => p.Retail);
 
-                collector.StartCollection();
-                var result = query.ToList();
-                collector.StopCollection();
-                Assert.Equal(1000, result.Count);
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
+                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default", true)]
-        [BenchmarkVariation("No Query Cache", false)]
-        public void Count(IMetricCollector collector, bool caching)
+        [BenchmarkVariation("Default (100 queries)", true, 100)]
+        [BenchmarkVariation("Query Cache Off (100 queries)", false, 100)]
+        public void Count(IMetricCollector collector, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
                 var query = context.Products
                     .ApplyCaching(caching);
 
-                collector.StartCollection();
-                var result = query.Count();
-                collector.StopCollection();
-                Assert.Equal(1000, result);
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.Count();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true, true)]
-        [BenchmarkVariation("Tracking Off", false, true)]
-        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
-        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void SkipTake(IMetricCollector collector, bool tracking, bool caching)
+        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off (10 queries)", false, true, 10)]
+        [BenchmarkVariation("Tracking On, Query Cache Off  (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off, Query Cache Off (10 queries)", false, false, 10)]
+        public void SkipTake(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -112,17 +135,23 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
                     .OrderBy(p => p.ProductId)
                     .Skip(500).Take(500);
 
-                collector.StartCollection();
-                var result = query.ToList();
-                collector.StopCollection();
-                Assert.Equal(500, result.Count);
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(500, query.Count());
+                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default", true)]
-        [BenchmarkVariation("No Query Cache", false)]
-        public void GroupBy(IMetricCollector collector, bool caching)
+        [BenchmarkVariation("Default (10 queries)", true, 10)]
+        [BenchmarkVariation("Query Cache Off (10 queries)", false, 10)]
+        public void GroupBy(IMetricCollector collector, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -135,20 +164,26 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
                         Products = g
                     });
 
-                collector.StartCollection();
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
                 var result = query.ToList();
-                collector.StopCollection();
                 Assert.Equal(10, result.Count);
                 Assert.All(result, g => Assert.Equal(100, g.Products.Count()));
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Tracking On", true, true)]
-        [BenchmarkVariation("Tracking Off", false, true)]
-        [BenchmarkVariation("Tracking On (No Query Cache)", true, false)]
-        [BenchmarkVariation("Tracking Off (No Query Cache)", false, false)]
-        public void Include(IMetricCollector collector, bool tracking, bool caching)
+        [BenchmarkVariation("Tracking On (1 query)", true, true, 1)]
+        [BenchmarkVariation("Tracking Off (1 query)", false, true, 1)]
+        [BenchmarkVariation("Tracking On, Query Cache Off  (1 query)", true, false, 1)]
+        [BenchmarkVariation("Tracking Off, Query Cache Off  (1 query)", false, false, 1)]
+        public void Include(IMetricCollector collector, bool tracking, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -157,18 +192,25 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
                     .ApplyTracking(tracking)
                     .Include(c => c.Orders);
 
-                collector.StartCollection();
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
                 var result = query.ToList();
-                collector.StopCollection();
                 Assert.Equal(1000, result.Count);
                 Assert.Equal(2000, result.SelectMany(c => c.Orders).Count());
+                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default", true)]
-        [BenchmarkVariation("No Query Cache", false)]
-        public void Projection(IMetricCollector collector, bool caching)
+        [BenchmarkVariation("Default (10 queries)", true, 10)]
+        [BenchmarkVariation("Query Cache Off (10 queries)", false, 10)]
+        public void Projection(IMetricCollector collector, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -176,33 +218,38 @@ namespace EntityFramework.Microbenchmarks.EF6.Query
                     .ApplyCaching(caching)
                     .Select(p => new { p.Name, p.Retail });
 
-                collector.StartCollection();
-                var result = query.ToList();
-                collector.StopCollection();
-                Assert.Equal(1000, result.Count);
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(1000, query.Count());
             }
         }
 
         [Benchmark]
-        [BenchmarkVariation("Default", true)]
-        [BenchmarkVariation("No Query Cache", false)]
-        public void ProjectionAcrossNavigation(IMetricCollector collector, bool caching)
+        [BenchmarkVariation("Default (10 queries)", true, 10)]
+        [BenchmarkVariation("Query Cache Off (10 queries)", false, 10)]
+        public void ProjectionAcrossNavigation(IMetricCollector collector, bool caching, int queriesPerIteration)
         {
             using (var context = _fixture.CreateContext())
             {
-                // TODO Use navigation for projection when supported (#325)
                 var query = context.Orders
                     .ApplyCaching(caching)
-                    .Join(
-                        context.Customers,
-                        o => o.CustomerId,
-                        c => c.CustomerId,
-                        (o, c) => new { CustomerName = c.Name, OrderDate = o.Date });
+                    .Select(o => new { CustomerName = o.Customer.Name, OrderDate = o.Date });
 
-                collector.StartCollection();
-                var result = query.ToList();
-                collector.StopCollection();
-                Assert.Equal(2000, result.Count);
+                using (collector.StartCollection())
+                {
+                    for (int i = 0; i < queriesPerIteration; i++)
+                    {
+                        query.ToList();
+                    }
+                }
+
+                Assert.Equal(2000, query.Count());
             }
         }
 

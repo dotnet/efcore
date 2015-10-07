@@ -47,7 +47,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void AddCollection(IMetricCollector collector, bool autoDetectChanges)
+        public void AddRange(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
@@ -75,9 +75,12 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = GetAllCustomersFromDatabase();
-                Assert.Equal(1000, customers.Length);
-                
+                var customers = new Customer[1000];
+                for (int i = 0; i < customers.Length; i++)
+                {
+                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
+                }
+
                 using (collector.StartCollection())
                 {
                     foreach (var customer in customers)
@@ -88,7 +91,7 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        // Note: AttachCollection() not implemented because there is no
+        // Note: AttachRange() not implemented because there is no
         //       API for bulk attach in EF6.x
 
         [Benchmark]
@@ -100,8 +103,12 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = context.Customers.ToArray();
-                Assert.Equal(1000, customers.Length);
+                var customers = new Customer[1000];
+                for (int i = 0; i < customers.Length; i++)
+                {
+                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
+                    context.Customers.Attach(customers[i]);
+                }
 
                 using (collector.StartCollection())
                 {
@@ -116,14 +123,18 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         [Benchmark]
         [BenchmarkVariation("AutoDetectChanges On", true)]
         [BenchmarkVariation("AutoDetectChanges Off", false)]
-        public void RemoveCollection(IMetricCollector collector, bool autoDetectChanges)
+        public void RemoveRange(IMetricCollector collector, bool autoDetectChanges)
         {
             using (var context = _fixture.CreateContext())
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = context.Customers.ToArray();
-                Assert.Equal(1000, customers.Length);
+                var customers = new Customer[1000];
+                for (int i = 0; i < customers.Length; i++)
+                {
+                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
+                    context.Customers.Attach(customers[i]);
+                }
 
                 using (collector.StartCollection())
                 {
@@ -141,8 +152,12 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             {
                 context.Configuration.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = GetAllCustomersFromDatabase();
-                Assert.Equal(1000, customers.Length);
+                var customers = new Customer[1000];
+                for (int i = 0; i < customers.Length; i++)
+                {
+                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
+                    context.Customers.Attach(customers[i]);
+                }
 
                 using (collector.StartCollection())
                 {
@@ -154,21 +169,13 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
             }
         }
 
-        // Note: UpdateCollection() not implemented because there is no
+        // Note: UpdateRange() not implemented because there is no
         //       API for bulk update in EF6.x
-
-        private Customer[] GetAllCustomersFromDatabase()
-        {
-            using (var context = _fixture.CreateContext())
-            {
-                return context.Customers.ToArray();
-            }
-        }
 
         public class DbSetOperationFixture : OrdersFixture
         {
             public DbSetOperationFixture()
-                : base("Perf_ChangeTracker_DbSetOperation_EF6", 0, 1000, 0, 0)
+                : base("Perf_ChangeTracker_DbSetOperation_EF6", 0, 0, 0, 0)
             { }
         }
     }

@@ -13,7 +13,7 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.Orders
         {
             _connectionString = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database={databaseName};Integrated Security=True;MultipleActiveResultSets=true;";
 
-            new OrdersSeedData().EnsureCreated(_connectionString, productCount, customerCount, ordersPerCustomer, linesPerOrder);
+            new OrdersSeedData(_connectionString, productCount, customerCount, ordersPerCustomer, linesPerOrder).EnsureCreated();
         }
 
         public OrdersContext CreateContext()
