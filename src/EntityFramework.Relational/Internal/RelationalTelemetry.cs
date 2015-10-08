@@ -35,9 +35,9 @@ namespace Microsoft.Data.Entity.Internal
                     telemetryName,
                     new
                     {
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        IsAsync = async
+                        command = command,
+                        executeMethod = executeMethod,
+                        isAsync = async
                     });
             }
         }
@@ -55,10 +55,10 @@ namespace Microsoft.Data.Entity.Internal
                     CommandExecutionError,
                     new
                     {
-                        Command = command,
-                        ExecuteMethod = executeMethod,
-                        IsAsync = async,
-                        Exception = exception
+                        command = command,
+                        executeMethod = executeMethod,
+                        isAsync = async,
+                        exception = exception
                     });
             }
         }
