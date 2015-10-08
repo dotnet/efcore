@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.Update
     {
         private readonly List<bool> _resultSetEnd = new List<bool>();
 
+#pragma warning disable 0618
         protected AffectedCountModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.Update
             : base(commandBuilderFactory, sqlGenerator, updateSqlGenerator, valueBufferFactoryFactory, logger, telemetrySource)
         {
         }
+#pragma warning restore 0618
 
         // contains true if the command at the corresponding index is the last command in its result set
         // the last value will not be read

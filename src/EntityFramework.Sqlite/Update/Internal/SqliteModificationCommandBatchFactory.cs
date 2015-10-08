@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly IUpdateSqlGenerator _updateSqlGenerator;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly ISensitiveDataLogger<SqliteModificationCommandBatchFactory> _logger;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
 
         public SqliteModificationCommandBatchFactory(
@@ -40,6 +41,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             _logger = logger;
             _telemetrySource = telemetrySource;
         }
+#pragma warning restore 0618
 
         public virtual ModificationCommandBatch Create()
             => new SingularModificationCommandBatch(

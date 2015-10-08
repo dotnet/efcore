@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly List<ModificationCommand> _bulkInsertCommands = new List<ModificationCommand>();
         private int _commandsLeftToLengthCheck = 50;
 
+#pragma warning disable 0618
         public SqlServerModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
@@ -48,6 +49,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             _maxBatchSize = Math.Min(maxBatchSize ?? Int32.MaxValue, MaxRowCount);
         }
+#pragma warning restore 0618
 
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {

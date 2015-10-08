@@ -12,6 +12,7 @@ namespace Microsoft.Data.Entity.Query
 {
     public class RelationalQueryCompilationContextFactory : QueryCompilationContextFactory
     {
+#pragma warning disable 0618
         public RelationalQueryCompilationContextFactory(
             [NotNull] ISensitiveDataLogger<RelationalQueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
@@ -28,6 +29,7 @@ namespace Microsoft.Data.Entity.Query
         }
 
         protected virtual TelemetrySource TelemetrySource { get; }
+#pragma warning restore 0618
 
         public override QueryCompilationContext Create(bool async)
             => async

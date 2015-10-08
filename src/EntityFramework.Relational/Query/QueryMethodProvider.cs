@@ -97,6 +97,7 @@ namespace Microsoft.Data.Entity.Query
             = typeof(QueryMethodProvider).GetTypeInfo()
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
+#pragma warning disable 0618
         [UsedImplicitly]
         private static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
@@ -131,6 +132,7 @@ namespace Microsoft.Data.Entity.Query
                 logger,
                 telemetrySource,
                 queryIndex);
+#pragma warning restore 0618
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 

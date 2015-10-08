@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class SqlServerQueryCompilationContextFactory : RelationalQueryCompilationContextFactory
     {
+#pragma warning disable 0618
         public SqlServerQueryCompilationContextFactory(
             [NotNull] ISensitiveDataLogger<SqlServerQueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
@@ -24,6 +25,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 Check.NotNull(telemetrySource, nameof(telemetrySource)))
         {
         }
+#pragma warning restore 0618
 
         public override QueryCompilationContext Create(bool async)
             => async
