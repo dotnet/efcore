@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Tests.Infrastructure;
 using Microsoft.Data.Entity.Tests.TestUtilities;
 using Microsoft.Extensions.Logging;
@@ -72,6 +74,16 @@ namespace Microsoft.Data.Entity.Tests
             entityC.Relational().DiscriminatorValue = 1;
 
             CreateModelValidator().Validate(model);
+        }
+
+        [Fact]
+        public virtual void Detects_duplicate_column_names()
+        {
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            modelBuilder.Entity<Product>();
+            modelBuilder.Entity<Product>().Property(b => b.Name).HasColumnName("Id");
+
+            VerifyError(RelationalStrings.DuplicateColumnName("Id", typeof(Product).FullName, "Name"), modelBuilder.Model);
         }
 
         [Fact]
@@ -150,6 +162,12 @@ namespace Microsoft.Data.Entity.Tests
 
         protected class Generic<T> : Abstract
         {
+        }
+
+        private class Product
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
 
         protected override ModelValidator CreateModelValidator()

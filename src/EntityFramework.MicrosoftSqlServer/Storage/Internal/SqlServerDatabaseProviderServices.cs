@@ -53,5 +53,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqlServerQuerySqlGeneratorFactory>();
         public override IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory => GetService<SqlServerQueryModelVisitorFactory>();
         public override ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => GetService<SqlServerCompiledQueryCacheKeyGenerator>();
+        public override IModelValidator ModelValidator => GetService<SqlServerModelValidator>();
     }
 }

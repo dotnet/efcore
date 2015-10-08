@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Infrastructure.Internal;
 using Microsoft.Data.Sqlite;
 using Xunit;
 
-namespace Microsoft.Data.Entity
+namespace Microsoft.Data.Entity.Sqlite.Tests
 {
     public class SqliteDbContextOptionsBuilderExtensionsTest
     {

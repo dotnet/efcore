@@ -40,6 +40,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<SqliteModelSource>()
                 .AddSingleton<SqliteMigrationsAnnotationProvider>()
                 .AddSingleton<SqliteConventionSetBuilder>()
+                .AddScoped<SqliteModelValidator>()
                 .AddScoped<SqliteUpdateSqlGenerator>()
                 .AddScoped<SqliteModificationCommandBatchFactory>()
                 .AddScoped<SqliteDatabaseProviderServices>()

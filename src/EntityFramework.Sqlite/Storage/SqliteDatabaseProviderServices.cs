@@ -6,6 +6,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Infrastructure.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -47,5 +48,6 @@ namespace Microsoft.Data.Entity.Storage
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqliteCompositeMemberTranslator>();
         public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<SqliteMigrationsAnnotationProvider>();
         public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqliteQuerySqlGeneratorFactory>();
+        public override IModelValidator ModelValidator => GetService<SqliteModelValidator>();
     }
 }

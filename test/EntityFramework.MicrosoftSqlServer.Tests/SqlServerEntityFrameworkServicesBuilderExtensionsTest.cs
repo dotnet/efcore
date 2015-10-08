@@ -40,6 +40,7 @@ namespace Microsoft.Data.Entity
             VerifyScoped<SqlServerHistoryRepository>();
             VerifyScoped<SqlServerCompositeMethodCallTranslator>();
             VerifyScoped<SqlServerCompositeMemberTranslator>();
+            VerifyScoped<SqlServerModelValidator>();
         }
 
         public SqlServerEntityFrameworkServicesBuilderExtensionsTest()
