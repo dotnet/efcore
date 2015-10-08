@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Internal
             public const string ExecuteNonQuery = nameof(ExecuteNonQuery);
         }
 
+#pragma warning disable 0618
         public static void WriteCommand(
             this TelemetrySource telemetrySource,
             string telemetryName,
@@ -62,5 +63,6 @@ namespace Microsoft.Data.Entity.Internal
                     });
             }
         }
+#pragma warning restore 0618
     }
 }

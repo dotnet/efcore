@@ -35,8 +35,10 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             builder.GetService()
                 .TryAdd(new ServiceCollection()
-                .AddSingleton(s => new TelemetryListener("Microsoft.Data.Entity"))
-                .AddSingleton<TelemetrySource>(s => s.GetService<TelemetryListener>())
+#pragma warning disable 0618
+                    .AddSingleton(s => new TelemetryListener("Microsoft.Data.Entity"))
+                    .AddSingleton<TelemetrySource>(s => s.GetService<TelemetryListener>())
+#pragma warning restore 0618
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()

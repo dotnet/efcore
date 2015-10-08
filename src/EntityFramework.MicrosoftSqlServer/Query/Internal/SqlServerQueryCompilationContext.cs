@@ -12,6 +12,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class SqlServerQueryCompilationContext : RelationalQueryCompilationContext
     {
+#pragma warning disable 0618
         public SqlServerQueryCompilationContext(
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
@@ -30,6 +31,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 Check.NotNull(telemetrySource, nameof(telemetrySource)))
         {
         }
+#pragma warning restore 0618
 
         public override bool IsLateralJoinSupported => true;
     }

@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly IDbContextOptions _options;
         private readonly ISensitiveDataLogger<SqlServerModificationCommandBatchFactory> _logger;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
 
         public SqlServerModificationCommandBatchFactory(
@@ -46,6 +47,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             _logger = logger;
             _telemetrySource = telemetrySource;
         }
+#pragma warning restore 0618
 
         public virtual ModificationCommandBatch Create()
         {

@@ -10,6 +10,7 @@ namespace Microsoft.Data.Entity.Update
 {
     public class SingularModificationCommandBatch : AffectedCountModificationCommandBatch
     {
+#pragma warning disable 0618
         public SingularModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
@@ -18,14 +19,15 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] TelemetrySource telemetrySource)
             : base(
-                  commandBuilderFactory, 
-                  sqlGenerator, 
-                  updateSqlGenerator, 
-                  valueBufferFactoryFactory, 
-                  logger,
-                  telemetrySource)
+                commandBuilderFactory, 
+                sqlGenerator, 
+                updateSqlGenerator, 
+                valueBufferFactoryFactory, 
+                logger,
+                telemetrySource)
         {
         }
+#pragma warning restore 0618
 
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
             => ModificationCommands.Count == 0;

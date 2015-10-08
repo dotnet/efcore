@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Query
         private readonly List<RelationalQueryModelVisitor> _relationalQueryModelVisitors
             = new List<RelationalQueryModelVisitor>();
 
+#pragma warning disable 0618
         public RelationalQueryCompilationContext(
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
@@ -43,6 +44,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IQueryMethodProvider QueryMethodProvider { get; }
         public virtual TelemetrySource TelemetrySource { get; }
+#pragma warning restore 0618
 
         public override EntityQueryModelVisitor CreateQueryModelVisitor()
         {
