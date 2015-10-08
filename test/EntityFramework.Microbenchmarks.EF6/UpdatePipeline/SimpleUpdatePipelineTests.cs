@@ -3,7 +3,6 @@
 
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.EF6.Models.Orders;
 using Xunit;
 
@@ -25,10 +24,8 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             {
                 using (context.Database.BeginTransaction())
                 {
-                    for (var i = 0; i < 1000; i++)
-                    {
-                        context.Customers.Add(new Customer { Name = "New Customer " + i });
-                    }
+                    var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
+                    context.Customers.AddRange(customers);
 
                     collector.StartCollection();
                     var records = context.SaveChanges();
@@ -48,7 +45,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
                 {
                     foreach (var customer in context.Customers)
                     {
-                        customer.Name += " Modified";
+                        customer.FirstName += " Modified";
                     }
 
                     collector.StartCollection();
@@ -67,10 +64,7 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             {
                 using (context.Database.BeginTransaction())
                 {
-                    foreach (var customer in context.Customers)
-                    {
-                        context.Customers.Remove(customer);
-                    }
+                    context.Customers.RemoveRange(context.Customers.ToList());
 
                     collector.StartCollection();
                     var records = context.SaveChanges();
@@ -88,21 +82,19 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
             {
                 using (context.Database.BeginTransaction())
                 {
-                    var customers = context.Customers.ToArray();
+                    var existingCustomers = context.Customers.ToArray();
 
-                    for (var i = 0; i < 333; i++)
-                    {
-                        context.Customers.Add(new Customer { Name = "New Customer " + i });
-                    }
+                    var newCustomers = _fixture.CreateCustomers(333, setPrimaryKeys: false);
+                    context.Customers.AddRange(newCustomers);
 
                     for (var i = 0; i < 1000; i += 3)
                     {
-                        context.Customers.Remove(customers[i]);
+                        context.Customers.Remove(existingCustomers[i]);
                     }
 
                     for (var i = 1; i < 1000; i += 3)
                     {
-                        customers[i].Name += " Modified";
+                        existingCustomers[i].FirstName += " Modified";
                     }
 
                     collector.StartCollection();

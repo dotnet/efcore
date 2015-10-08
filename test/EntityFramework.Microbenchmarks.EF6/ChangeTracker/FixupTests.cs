@@ -24,12 +24,11 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
-                var orders = new Order[1000];
-                for (var i = 0; i < orders.Length; i++)
-                {
-                    context.Customers.Attach(new Customer { CustomerId = i + 1 });
-                    orders[i] = new Order { CustomerId = i + 1 };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: false);
+                customers.ForEach(c => context.Customers.Attach(c));
+
+                Assert.All(orders, o => Assert.Null(o.Customer));
 
                 using (collector.StartCollection())
                 {
@@ -51,12 +50,11 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
-                var orders = new Order[1000];
-                for (var i = 0; i < orders.Length; i++)
-                {
-                    context.Customers.Attach(new Customer { CustomerId = i + 1 });
-                    orders[i] = new Order { OrderId = i + 1, CustomerId = i + 1 };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                customers.ForEach(c => context.Customers.Attach(c));
+
+                Assert.All(orders, o => Assert.Null(o.Customer));
 
                 using (collector.StartCollection())
                 {
@@ -75,12 +73,11 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             using (var context = _fixture.CreateContext())
             {
-                var customers = new Customer[1000];
-                for (var i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1 };
-                    context.Orders.Attach(new Order { OrderId = i + 1, CustomerId = i + 1 });
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+                var orders = _fixture.CreateOrders(customers, ordersPerCustomer: 1, setPrimaryKeys: true);
+                orders.ForEach(o => context.Orders.Attach(o));
+
+                Assert.All(customers, c => Assert.Null(c.Orders));
 
                 using (collector.StartCollection())
                 {

@@ -39,17 +39,5 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
                 sqlBuilder.MaxBatchSize(1);
             }
         }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Customer>().HasMany(c => c.Orders).WithOne(o => o.Customer)
-                .HasForeignKey(o => o.CustomerId);
-
-            modelBuilder.Entity<Order>().HasMany(o => o.OrderLines).WithOne(ol => ol.Order)
-                .HasForeignKey(ol => ol.OrderId);
-
-            modelBuilder.Entity<Product>().HasMany(p => p.OrderLines).WithOne(ol => ol.Product)
-                .HasForeignKey(ol => ol.ProductId);
-        }
     }
 }

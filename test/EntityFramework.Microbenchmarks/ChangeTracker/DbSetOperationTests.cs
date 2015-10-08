@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Xunit;
 
@@ -26,11 +25,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (var i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
 
                 using (collector.StartCollection())
                 {
@@ -51,11 +46,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (var i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: false);
 
                 using (collector.StartCollection())
                 {
@@ -74,11 +65,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (int i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
 
                 using (collector.StartCollection())
                 {
@@ -99,12 +86,8 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (int i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
-                }
-
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
+               
                 using (collector.StartCollection())
                 {
                     context.Customers.AttachRange(customers);
@@ -121,11 +104,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (int i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())
@@ -147,11 +126,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (int i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())
@@ -170,11 +145,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (int i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())
@@ -196,11 +167,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
-                var customers = new Customer[1000];
-                for (int i = 0; i < customers.Length; i++)
-                {
-                    customers[i] = new Customer { CustomerId = i + 1, Name = "Customer " + i };
-                }
+                var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
                 context.Customers.AttachRange(customers);
 
                 using (collector.StartCollection())

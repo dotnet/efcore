@@ -122,7 +122,7 @@
     <Compile Include="Models\Orders\Customer.cs" />
     <Compile Include="Models\Orders\Order.cs" />
     <Compile Include="Models\Orders\OrderLine.cs" />
-    <Compile Include="Models\Orders\OrdersSeedDataBase.cs" />
+    <Compile Include="Models\Orders\OrdersFixtureBase.cs" />
     <Compile Include="Models\Orders\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerBenchmarkResultProcessor.cs" />

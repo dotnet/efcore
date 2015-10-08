@@ -210,7 +210,16 @@ namespace EntityFramework.Microbenchmarks.Query
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
                 var query = context.Products
-                    .Select(p => new { p.Name, p.Retail });
+                    .Select(p => new
+                    {
+                        p.ProductId,
+                        p.Name,
+                        p.Description,
+                        p.SKU,
+                        p.Retail,
+                        p.CurrentPrice,
+                        p.ActualStockLevel
+                    });
 
                 using (collector.StartCollection())
                 {
@@ -232,7 +241,17 @@ namespace EntityFramework.Microbenchmarks.Query
             using (var context = _fixture.CreateContext(queryCachingEnabled: caching))
             {
                 var query = context.Orders
-                    .Select(o => new { CustomerName = o.Customer.Name, OrderDate = o.Date });
+                    .Select(o => new
+                    {
+                        CustomerTitle = o.Customer.Title,
+                        CustomerFirstName = o.Customer.FirstName,
+                        CustomerLastName = o.Customer.LastName,
+                        OrderDate = o.Date,
+                        OrderDiscount = o.OrderDiscount,
+                        OrderDiscountReason = o.DiscountReason,
+                        OrderTax = o.Tax,
+                        OrderSpecialRequests = o.SpecialRequests,
+                    });
 
                 using (collector.StartCollection())
                 {
