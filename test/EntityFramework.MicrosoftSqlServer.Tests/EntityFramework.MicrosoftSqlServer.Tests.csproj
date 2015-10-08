@@ -46,6 +46,7 @@
     <Compile Include="Migrations\SqlServerModelDifferTest.cs" />
     <Compile Include="SqlServerDatabaseCreatorTest.cs" />
     <Compile Include="SqlServerDbContextOptionsExtensionsTest.cs" />
+    <Compile Include="SqlServerModelValidatorTest.cs" />
     <Compile Include="SqlServerOptionsExtensionTest.cs" />
     <Compile Include="SqlServerConnectionTest.cs" />
     <Compile Include="SqlServerDatabaseSourceTest.cs" />

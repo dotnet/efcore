@@ -7,11 +7,11 @@ namespace Microsoft.Data.Entity.Tests
 {
     public class TestAnnotationProvider : IRelationalAnnotationProvider
     {
-        public IRelationalEntityTypeAnnotations For(IEntityType entityType) => entityType.TestProvider();
-        public IRelationalForeignKeyAnnotations For(IForeignKey foreignKey) => foreignKey.TestProvider();
-        public IRelationalIndexAnnotations For(IIndex index) => index.TestProvider();
-        public IRelationalKeyAnnotations For(IKey key) => key.TestProvider();
-        public IRelationalModelAnnotations For(IModel model) => model.TestProvider();
-        public IRelationalPropertyAnnotations For(IProperty property) => property.TestProvider();
+        public virtual IRelationalEntityTypeAnnotations For(IEntityType entityType) => entityType.TestProvider();
+        public virtual IRelationalForeignKeyAnnotations For(IForeignKey foreignKey) => foreignKey.TestProvider();
+        public virtual IRelationalIndexAnnotations For(IIndex index) => index.TestProvider();
+        public virtual IRelationalKeyAnnotations For(IKey key) => key.TestProvider();
+        public virtual IRelationalModelAnnotations For(IModel model) => model.TestProvider();
+        public virtual IRelationalPropertyAnnotations For(IProperty property) => property.TestProvider();
     }
 }

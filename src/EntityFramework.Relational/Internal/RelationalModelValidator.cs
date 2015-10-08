@@ -27,6 +27,7 @@ namespace Microsoft.Data.Entity.Internal
             base.Validate(model);
 
             EnsureDistinctTableNames(model);
+            EnsureDistinctColumnNames(model);
             ValidateInheritanceMapping(model);
         }
 
@@ -42,6 +43,22 @@ namespace Microsoft.Data.Entity.Internal
                 if (!tables.Add(name))
                 {
                     ShowError(RelationalStrings.DuplicateTableName(annotations.TableName, annotations.Schema, entityType.DisplayName()));
+                }
+            }
+        }
+
+        protected virtual void EnsureDistinctColumnNames(IModel model)
+        {
+            foreach (var entityType in model.EntityTypes)
+            {
+                var columns = new HashSet<string>();
+                foreach (var property in entityType.GetProperties())
+                {
+                    var name = _relationalExtensions.For(property).ColumnName;
+                    if (!columns.Add(name))
+                    {
+                        ShowError(RelationalStrings.DuplicateColumnName(name, entityType.Name, property.Name));
+                    }
                 }
             }
         }

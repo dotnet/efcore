@@ -295,4 +295,7 @@
   <data name="RelationalLoggerExecutingCommand" xml:space="preserve">
     <value>Executing DbCommand: [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{newLine}{commandText}{newLine}</value>
   </data>
+  <data name="DuplicateColumnName" xml:space="preserve">
+    <value>Cannot use column name '{columnName}' in entity '{entityType}' for property '{property}' since it is being used for another property.</value>
+  </data>
 </root>
