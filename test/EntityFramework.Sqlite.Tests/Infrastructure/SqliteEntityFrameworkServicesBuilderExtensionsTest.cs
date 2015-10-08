@@ -40,6 +40,7 @@ namespace Microsoft.Data.Entity
             VerifyScoped<SqliteHistoryRepository>();
             VerifyScoped<SqliteCompositeMethodCallTranslator>();
             VerifyScoped<SqliteCompositeMemberTranslator>();
+            VerifyScoped<SqliteModelValidator>();
         }
 
         public SqliteEntityFrameworkServicesBuilderExtensionsTest()

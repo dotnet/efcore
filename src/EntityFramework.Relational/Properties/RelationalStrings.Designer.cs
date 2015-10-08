@@ -484,6 +484,14 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerExecutingCommand", "parameters", "commandType", "commandTimeout", "newLine", "commandText"), parameters, commandType, commandTimeout, newLine, commandText);
         }
 
+        /// <summary>
+        /// Cannot use column name '{columnName}' in entity '{entityType}' for property '{property}' since it is being used for another property.
+        /// </summary>
+        public static string DuplicateColumnName([CanBeNull] object columnName, [CanBeNull] object entityType, [CanBeNull] object property)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnName", "columnName", "entityType", "property"), columnName, entityType, property);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);
