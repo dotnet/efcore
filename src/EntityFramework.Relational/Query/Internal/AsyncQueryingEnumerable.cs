@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly TelemetrySource _telemetrySource;
         private readonly int? _queryIndex;
 
+#pragma warning disable 0618
         public AsyncQueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
             [NotNull] CommandBuilder commandBuilder,
