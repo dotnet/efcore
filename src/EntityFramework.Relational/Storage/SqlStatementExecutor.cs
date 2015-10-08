@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Storage
     public class SqlStatementExecutor : ISqlStatementExecutor
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
         private readonly ISensitiveDataLogger _logger;
 
@@ -33,6 +34,7 @@ namespace Microsoft.Data.Entity.Storage
             _logger = logger;
             _telemetrySource = telemetrySource;
         }
+#pragma warning restore 0618
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,

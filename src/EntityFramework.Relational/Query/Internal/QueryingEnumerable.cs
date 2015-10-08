@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly RelationalQueryContext _relationalQueryContext;
         private readonly CommandBuilder _commandBuilder;
         private readonly ISensitiveDataLogger _logger;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
         private readonly int? _queryIndex;
 
@@ -36,6 +37,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             _telemetrySource = telemetrySource;
             _queryIndex = queryIndex;
         }
+#pragma warning restore 0618
 
         public virtual IEnumerator<ValueBuffer> GetEnumerator() => new Enumerator(this);
 

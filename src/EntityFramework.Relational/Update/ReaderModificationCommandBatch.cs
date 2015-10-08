@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Update
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
         private readonly ISensitiveDataLogger _logger;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
 
         private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
@@ -54,6 +55,7 @@ namespace Microsoft.Data.Entity.Update
             _logger = logger;
             _telemetrySource = telemetrySource;
         }
+#pragma warning restore 0618
 
         protected virtual ISqlGenerator SqlGenerator { get; }
 
