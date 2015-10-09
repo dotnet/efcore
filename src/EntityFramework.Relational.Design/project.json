@@ -9,7 +9,6 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.AspNet.Razor": "4.0.0-*",
     "Microsoft.CodeAnalysis.CSharp": "1.1.0-rc1-*",
     "EntityFramework.Relational": "7.0.0-*"
   },
@@ -17,7 +16,6 @@
   "namedResource": {
     "EntityFramework.Relational.Design.RelationalDesignStrings": "Properties/RelationalDesignStrings.resx"
   },
-  "resource": "ReverseEngineering/Internal/Templates/*.cshtml",
   "frameworks": {
     "net45": {
       "frameworkAssemblies": {

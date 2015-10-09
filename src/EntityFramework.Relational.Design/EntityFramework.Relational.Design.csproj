@@ -82,18 +82,10 @@
     <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
     <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
-    <Compile Include="ReverseEngineering\Internal\RazorTemplateCodeWriter.cs" />
+    <Compile Include="ReverseEngineering\Internal\DbContextWriter.cs" />
+    <Compile Include="ReverseEngineering\Internal\EntityTypeWriter.cs" />
+    <Compile Include="ReverseEngineering\Internal\StringBuilderCodeWriter.cs" />
     <Compile Include="ReverseEngineering\Internal\TableSelectionSet.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\CompiledAssemblyResult.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\CompilationResult.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\ICompilationService.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\MetadataReferencesProvider.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\Compilation\RoslynCompilationService.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\RazorReverseEngineeringBase.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\RazorTemplating.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\RazorTemplatingHost.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\TemplateProcessingException.cs" />
-    <Compile Include="ReverseEngineering\Internal\Templating\TemplateResult.cs" />
     <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineerFiles.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
@@ -101,7 +93,6 @@
     <Compile Include="ReverseEngineering\RelationalMetadataModelProvider.cs" />
     <Compile Include="Utilities\CSharpUtilities.cs" />
     <Compile Include="Utilities\ModelUtilities.cs" />
-    <Compile Include="Utilities\PlatformHelper.cs" />
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">
       <LogicalName>EntityFramework.Relational.Design.RelationalDesignStrings.resources</LogicalName>
       <SubType>Designer</SubType>
@@ -113,12 +104,6 @@
       <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
     <None Include="project.json" />
-    <EmbeddedResource Include="ReverseEngineering\Internal\Templates\DbContextTemplate.cshtml">
-      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Internal.Templates.DbContextTemplate.cshtml</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ReverseEngineering\Internal\Templates\EntityTypeTemplate.cshtml">
-      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Internal.Templates.EntityTypeTemplate.cshtml</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EntityFramework.Relational\EntityFramework.Relational.csproj">
