@@ -32,22 +32,28 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         public virtual string TestProjectDir => Path.Combine("E2ETest", "Output");
         public virtual string TestSubDir => "SubDir";
         public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
+
         public static TableSelectionSet Filter
-        {
-            get
+            => new TableSelectionSet
             {
-                var tables = new List<string> {
-                    "AllDataTypes", "PropertyConfiguration", "Test Spaces Keywords Table",
-                    "OneToManyDependent", "OneToManyPrincipal",
-                    "OneToOneDependent", "OneToOnePrincipal",
-                    "OneToOneSeparateFKDependent", "OneToOneSeparateFKPrincipal",
-                    "OneToOneFKToUniqueKeyDependent", "OneToOneFKToUniqueKeyPrincipal",
-                    "TableWithUnmappablePrimaryKeyColumn", "ReferredToByTableWithUnmappablePrimaryKeyColumn",
+                Tables =
+                {
+                    "AllDataTypes",
+                    "PropertyConfiguration",
+                    "Test Spaces Keywords Table",
+                    "OneToManyDependent",
+                    "OneToManyPrincipal",
+                    "OneToOneDependent",
+                    "OneToOnePrincipal",
+                    "OneToOneSeparateFKDependent",
+                    "OneToOneSeparateFKPrincipal",
+                    "OneToOneFKToUniqueKeyDependent",
+                    "OneToOneFKToUniqueKeyPrincipal",
+                    "TableWithUnmappablePrimaryKeyColumn",
+                    "ReferredToByTableWithUnmappablePrimaryKeyColumn",
                     "SelfReferencing"
-                };
-                return new TableSelectionSet(null, tables);
-            }
-        }
+                }
+            };
 
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
             : base(output)

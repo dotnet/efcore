@@ -181,8 +181,10 @@ CREATE TABLE [dbo].[Mountains] (
             var sql = @"CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B) REFERENCES K2 (A) );";
 
-            var selectionSet = new TableSelectionSet(null, null);
-            selectionSet.Tables.Add("K2");
+            var selectionSet = new TableSelectionSet
+            {
+                Tables = { "K2" }
+            };
 
             var dbInfo = GetDatabaseInfo(sql, selectionSet);
             var table = Assert.Single(dbInfo.Tables);

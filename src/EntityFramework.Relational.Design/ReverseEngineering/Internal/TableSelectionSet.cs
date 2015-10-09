@@ -8,7 +8,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
 {
     public class TableSelectionSet
     {
-        public static readonly TableSelectionSet InclusiveAll = new TableSelectionSet(null, null);
+        public static TableSelectionSet InclusiveAll => new TableSelectionSet();
+
+        public TableSelectionSet()
+            : this(null, null)
+        {
+        }
 
         public TableSelectionSet(
             [CanBeNull] List<string> schemas, [CanBeNull] List<string> tables)
