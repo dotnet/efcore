@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .ToList();
 
                 Assert.Equal(6, customers.Count);
-                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }
 
@@ -109,10 +109,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected AsNoTrackingTestBase(TFixture fixture)
         {

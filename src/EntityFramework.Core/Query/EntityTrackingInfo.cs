@@ -19,9 +19,7 @@ namespace Microsoft.Data.Entity.Query
         private static readonly IEnumerable<IncludedEntity> _emptyIncludedEntities
             = Enumerable.Empty<IncludedEntity>();
 
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
         private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
-        private readonly QueryCompilationContext _queryCompilationContext;
         private readonly IEntityType _entityType;
         private readonly IReadOnlyList<IProperty> _entityKeyProperties;
         private readonly EntityKeyFactory _entityKeyFactory;
@@ -43,17 +41,14 @@ namespace Microsoft.Data.Entity.Query
 
             QuerySourceReferenceExpression = querySourceReferenceExpression;
 
-            _entityType = entityType;
-            _queryCompilationContext = queryCompilationContext;
-            _entityKeyFactorySource = entityKeyFactorySource;
             _clrPropertyGetterSource = clrPropertyGetterSource;
+            _entityType = entityType;
 
             _entityKeyProperties = _entityType.GetPrimaryKey().Properties;
-
-            _entityKeyFactory = _entityKeyFactorySource.GetKeyFactory(_entityType.GetPrimaryKey());
+            _entityKeyFactory = entityKeyFactorySource.GetKeyFactory(_entityType.GetPrimaryKey());
 
             _includedNavigationPaths
-                = _queryCompilationContext
+                = queryCompilationContext
                     .GetTrackableIncludes(querySourceReferenceExpression.ReferencedQuerySource);
 
             if (_includedNavigationPaths != null)
@@ -72,7 +67,7 @@ namespace Microsoft.Data.Entity.Query
                             navigation,
                             new IncludedEntityTrackingInfo(
                                 targetEntityType,
-                                _entityKeyFactorySource.GetKeyFactory(targetKey),
+                                entityKeyFactorySource.GetKeyFactory(targetKey),
                                 targetKey.Properties));
                     }
                 }

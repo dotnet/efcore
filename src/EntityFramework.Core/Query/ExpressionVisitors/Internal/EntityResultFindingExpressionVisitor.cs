@@ -2,11 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
@@ -16,7 +14,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private readonly IModel _model;
         private readonly IEntityTrackingInfoFactory _entityTrackingInfoFactory;
         private readonly QueryCompilationContext _queryCompilationContext;
-        private readonly ISet<IQuerySource> _untrackedQuerySources;
 
         private List<EntityTrackingInfo> _entityTrackingInfos;
 
@@ -28,12 +25,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _model = model;
             _entityTrackingInfoFactory = entityTrackingInfoFactory;
             _queryCompilationContext = queryCompilationContext;
-
-            _untrackedQuerySources
-                = new HashSet<IQuerySource>(
-                    _queryCompilationContext
-                        .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
-                        .Select(qa => qa.QuerySource));
         }
 
         public virtual IReadOnlyCollection<EntityTrackingInfo> FindEntitiesInResult([NotNull] Expression expression)
@@ -48,16 +39,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         protected override Expression VisitQuerySourceReference(
             QuerySourceReferenceExpression querySourceReferenceExpression)
         {
-            if (!_untrackedQuerySources.Contains(querySourceReferenceExpression.ReferencedQuerySource))
-            {
-                var entityType = _model.FindEntityType(querySourceReferenceExpression.Type);
+            var entityType = _model.FindEntityType(querySourceReferenceExpression.Type);
 
-                if (entityType != null)
-                {
-                    _entityTrackingInfos.Add(
-                        _entityTrackingInfoFactory
-                            .Create(_queryCompilationContext, querySourceReferenceExpression, entityType));
-                }
+            if (entityType != null)
+            {
+                _entityTrackingInfos.Add(
+                    _entityTrackingInfoFactory
+                        .Create(_queryCompilationContext, querySourceReferenceExpression, entityType));
             }
 
             return querySourceReferenceExpression;

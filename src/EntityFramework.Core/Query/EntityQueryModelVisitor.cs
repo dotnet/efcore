@@ -17,7 +17,6 @@ using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -403,7 +402,10 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
-            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo)
+            if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
+                || QueryCompilationContext
+                    .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo).Any()
+                )
             {
                 return;
             }
