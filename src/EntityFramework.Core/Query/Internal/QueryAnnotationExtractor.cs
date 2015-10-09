@@ -25,23 +25,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         private static void ExtractQueryAnnotations(
             QueryModel queryModel, ICollection<QueryAnnotationBase> queryAnnotations)
         {
-            foreach (var resultOperator
-                in queryModel.ResultOperators
-                    .OfType<QueryAnnotationResultOperator>()
-                    .ToList())
-            {
-                resultOperator.Annotation.QueryModel = queryModel;
-
-                var includeAnnotation = resultOperator.Annotation as IncludeQueryAnnotation;
-
-                resultOperator.Annotation.QuerySource = includeAnnotation != null
-                    ? ExtractSourceReferenceExpression(includeAnnotation.NavigationPropertyPath).ReferencedQuerySource
-                    : queryModel.MainFromClause;
-
-                queryAnnotations.Add(resultOperator.Annotation);
-                queryModel.ResultOperators.Remove(resultOperator);
-            }
-
             queryModel.MainFromClause
                 .TransformExpressions(e =>
                     ExtractQueryAnnotations(e, queryAnnotations));
@@ -52,13 +35,32 @@ namespace Microsoft.Data.Entity.Query.Internal
                     .TransformExpressions(e =>
                         ExtractQueryAnnotations(e, queryAnnotations));
             }
+
+            foreach (var resultOperator
+                in queryModel.ResultOperators
+                    .OfType<QueryAnnotationResultOperator>()
+                    .ToList())
+            {
+                resultOperator.Annotation.QueryModel = queryModel;
+
+                var includeAnnotation = resultOperator.Annotation as IncludeQueryAnnotation;
+
+                resultOperator.Annotation.QuerySource
+                    = includeAnnotation != null
+                        ? ExtractSourceReferenceExpression(includeAnnotation.NavigationPropertyPath)
+                            .ReferencedQuerySource
+                        : queryModel.MainFromClause;
+
+                queryAnnotations.Add(resultOperator.Annotation);
+                queryModel.ResultOperators.Remove(resultOperator);
+            }
         }
 
         private static QuerySourceReferenceExpression ExtractSourceReferenceExpression(MemberExpression expression)
         {
             var expressionWithoutConvert = expression.Expression.RemoveConvert();
             return expressionWithoutConvert as QuerySourceReferenceExpression
-                ?? ExtractSourceReferenceExpression((MemberExpression)expressionWithoutConvert);
+                   ?? ExtractSourceReferenceExpression((MemberExpression)expressionWithoutConvert);
         }
 
         private static Expression ExtractQueryAnnotations(

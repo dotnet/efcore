@@ -39,13 +39,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             }
         }
 
-        public DbContext CreateContext()
-        {
-            var context = new DbContext(_serviceProvider, _options);
-
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-            return context;
-        }
+        public DbContext CreateContext() => new DbContext(_serviceProvider, _options);
     }
 }

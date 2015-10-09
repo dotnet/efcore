@@ -12,14 +12,15 @@ namespace Microsoft.Data.Entity.Query
     public class CompiledQueryCacheKeyGenerator : ICompiledQueryCacheKeyGenerator
     {
         private readonly IModel _model;
-        private readonly bool _trackQueryResults;
+        private readonly DbContext _context;
 
         public CompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] DbContext context)
         {
             Check.NotNull(model, nameof(model));
+            Check.NotNull(context, nameof(context));
 
             _model = model;
-            _trackQueryResults = context.ChangeTracker.TrackQueryResults;
+            _context = context;
         }
 
         public virtual object GenerateCacheKey(Expression query, bool async)
@@ -29,7 +30,7 @@ namespace Microsoft.Data.Entity.Query
             => new CompiledQueryCacheKey(
                 new ExpressionStringBuilder().Build(Check.NotNull(query, nameof(query))),
                 _model,
-                _trackQueryResults,
+                _context.ChangeTracker.TrackQueryResults,
                 async);
 
         protected struct CompiledQueryCacheKey

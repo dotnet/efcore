@@ -403,10 +403,19 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(queryModel, nameof(queryModel));
 
+            var lastTrackingModifier
+                = QueryCompilationContext.QueryAnnotations
+                    .OfType<QueryAnnotation>()
+                    .LastOrDefault(
+                        qa => qa.IsCallTo(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
+                              || qa.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
+
             if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
-                || !QueryCompilationContext.TrackQueryResults
-                || QueryCompilationContext
-                    .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo).Any())
+                || lastTrackingModifier
+                    ?.IsCallTo(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo) == true
+                || (!QueryCompilationContext.TrackQueryResults
+                    && lastTrackingModifier
+                        ?.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo) != true))
             {
                 return;
             }
@@ -423,9 +432,7 @@ namespace Microsoft.Data.Entity.Query
                         () => CoreStrings.LogTrackingQuerySources(
                                 entityTrackingInfos.Select(eti => eti.QuerySource.ItemName).Join()));
 
-                var resultItemType
-                    = _expression.Type.GetSequenceType();
-
+                var resultItemType = _expression.Type.GetSequenceType();
                 var resultItemTypeInfo = resultItemType.GetTypeInfo();
 
                 MethodInfo trackingMethod;

@@ -56,8 +56,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .SuppressForeignKeyEnforcement();
 
             var context = new ComplexNavigationsContext(_serviceProvider, optionsBuilder.Options);
-
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            
             context.ChangeTracker.TrackQueryResults = false;
 
             context.Database.UseTransaction(testStore.Transaction);

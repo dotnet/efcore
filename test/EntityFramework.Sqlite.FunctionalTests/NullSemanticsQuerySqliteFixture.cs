@@ -61,8 +61,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             }
 
             var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
-
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            
             context.ChangeTracker.TrackQueryResults = false;
 
             context.Database.UseTransaction(testStore.Transaction);

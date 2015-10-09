@@ -47,8 +47,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         public override GearsOfWarContext CreateContext(InMemoryTestStore _)
         {
             var context = new GearsOfWarContext(_serviceProvider, _options);
-
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            
             context.ChangeTracker.TrackQueryResults = false;
 
             return context;

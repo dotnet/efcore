@@ -36,8 +36,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         public DbContext CreateContext()
         {
             var context = new DbContext(_serviceProvider, _options);
-
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            
             context.ChangeTracker.TrackQueryResults = false;
 
             return context;

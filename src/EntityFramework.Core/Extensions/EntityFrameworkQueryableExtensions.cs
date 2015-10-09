@@ -2281,7 +2281,7 @@ namespace Microsoft.Data.Entity
 
         #endregion
 
-        #region AsNoTracking
+        #region Tracking
 
         internal static readonly MethodInfo AsNoTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
@@ -2314,6 +2314,16 @@ namespace Microsoft.Data.Entity
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
             => QueryableHelpers.CreateQuery(source, s => s.AsNoTracking());
+
+        internal static readonly MethodInfo AsTrackingMethodInfo
+            = typeof(EntityFrameworkQueryableExtensions)
+                .GetTypeInfo().GetDeclaredMethod(nameof(AsTracking));
+
+        [QueryAnnotationMethod]
+        public static IQueryable<TEntity> AsTracking<TEntity>(
+            [NotNull] this IQueryable<TEntity> source)
+            where TEntity : class
+            => QueryableHelpers.CreateQuery(source, s => s.AsTracking());
 
         #endregion
 

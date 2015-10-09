@@ -36,6 +36,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsTrackingTestBase.cs" />
     <Compile Include="AsNoTrackingTestBase.cs" />
     <Compile Include="ChangeTrackingTestBase.cs" />
     <Compile Include="ComplexNavigationsQueryFixtureBase.cs" />

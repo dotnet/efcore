@@ -31,6 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AsTrackingInMemoryTest.cs" />
     <Compile Include="DataAnnotationInMemoryFixture.cs" />
     <Compile Include="DataAnnotationInMemoryTest.cs" />
     <Compile Include="EndToEndTest.cs" />

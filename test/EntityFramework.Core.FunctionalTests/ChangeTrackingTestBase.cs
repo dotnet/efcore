@@ -201,7 +201,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        protected NorthwindContext CreateContext() => Fixture.CreateContext();
         [Fact]
         public virtual void Can_disable_and_reenable_query_result_tracking()
         {
@@ -252,6 +251,108 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var results = context.Employees.ToList();
 
                 Assert.Equal(9, results.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_disable_and_reenable_query_result_tracking_query_caching_single_context()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.True(context.ChangeTracker.TrackQueryResults);
+
+                context.ChangeTracker.TrackQueryResults = false;
+
+                var results = context.Employees.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+
+                context.ChangeTracker.TrackQueryResults = true;
+
+                results = context.Employees.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Precendence_of_tracking_modifiers()
+        {
+            using (var context = CreateContext())
+            {
+                var results = context.Employees.AsNoTracking().AsTracking().ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Precendence_of_tracking_modifiers2()
+        {
+            using (var context = CreateContext())
+            {
+                var results = context.Employees.AsTracking().AsNoTracking().ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Precendence_of_tracking_modifiers3()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().AsNoTracking()
+                       join o in context.Set<Order>().AsTracking()
+                           on c.CustomerID equals o.CustomerID
+                       where c.CustomerID == "ALFKI"
+                       select o)
+                        .ToList();
+
+                Assert.Equal(6, customers.Count);
+                Assert.Equal(6, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Precendence_of_tracking_modifiers4()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().AsTracking()
+                       join o in context.Set<Order>().AsNoTracking()
+                           on c.CustomerID equals o.CustomerID
+                       where c.CustomerID == "ALFKI"
+                       select o)
+                        .ToList();
+
+                Assert.Equal(6, customers.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Precendence_of_tracking_modifiers5()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from c in context.Set<Customer>().AsTracking()
+                       join o in context.Set<Order>()
+                           on c.CustomerID equals o.CustomerID
+                       where c.CustomerID == "ALFKI"
+                       select o)
+                        .AsNoTracking()
+                        .ToList();
+
+                Assert.Equal(6, customers.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
             }
         }

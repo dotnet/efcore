@@ -44,8 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override NorthwindContext CreateContext()
         {
             var context = new SqlServerNorthwindContext(_serviceProvider, _options);
-
-            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            
             context.ChangeTracker.TrackQueryResults = false;
 
             return context;
