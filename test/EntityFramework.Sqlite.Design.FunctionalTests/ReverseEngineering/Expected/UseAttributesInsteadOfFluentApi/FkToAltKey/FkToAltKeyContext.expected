@@ -14,22 +14,12 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<Comment>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnType("INTEGER");
-
-                entity.Property(e => e.Contents).HasColumnType("TEXT");
-
-                entity.Property(e => e.UserAltId).HasColumnType("INTEGER");
-
                 entity.HasOne(d => d.UserAlt).WithMany(p => p.Comment).HasPrincipalKey(p => p.AltId).HasForeignKey(d => d.UserAltId);
             });
 
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasAlternateKey(e => e.AltId);
-
-                entity.Property(e => e.Id).HasColumnType("INTEGER");
-
-                entity.Property(e => e.AltId).HasColumnType("INTEGER");
             });
         }
 

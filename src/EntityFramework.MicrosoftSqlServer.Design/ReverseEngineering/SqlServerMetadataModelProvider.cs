@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 if (clrPropertyType == null)
                 {
                     Logger.LogWarning(
-                        SqlServerDesignStrings.CannotFindTypeMappingForColumn(tc.Id, tc.DataType));
+                        RelationalDesignStrings.CannotFindTypeMappingForColumn(tc.Id, tc.DataType));
                     continue;
                 }
 

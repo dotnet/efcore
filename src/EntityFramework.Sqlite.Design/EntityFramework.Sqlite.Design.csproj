@@ -56,6 +56,8 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="ReverseEngineering\Configuration\SqliteModelConfiguration.cs" />
+    <Compile Include="ReverseEngineering\CSharpUniqueNamer.cs" />
+    <Compile Include="ReverseEngineering\CSharpNamer.cs" />
     <Compile Include="ReverseEngineering\SqliteConfigurationFactory.cs" />
     <Compile Include="ReverseEngineering\TableSelectionSetSqliteExtensions.cs" />
     <Compile Include="SqliteDesignTimeServices.cs" />

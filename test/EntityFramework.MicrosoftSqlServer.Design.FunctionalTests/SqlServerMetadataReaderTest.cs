@@ -67,8 +67,8 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal(new [] { "RangeId", "RangeAltId"}, fk.From.Select(c=>c.Name).ToArray());
-            Assert.Equal(new [] { "Id", "AltId"}, fk.To.Select(c=>c.Name).ToArray());
+            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.From.Select(c => c.Name).ToArray());
+            Assert.Equal(new[] { "Id", "AltId" }, fk.To.Select(c => c.Name).ToArray());
         }
 
         [Fact]
@@ -104,9 +104,12 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         {
             var sql = @"
 CREATE TABLE [dbo].[Mountains] (
-    Id int PRIMARY KEY,
+    Id int,
     Name nvarchar(100) NOT NULL,
-    Latitude decimal( 5, 2 ) DEFAULT 0.0
+    Latitude decimal( 5, 2 ) DEFAULT 0.0,
+    Created datetime2(6),
+    Sum AS Latitude + 1.0,
+    Primary Key (Name, Id)
 );";
             var dbInfo = GetDatabaseInfo(sql);
 
@@ -123,7 +126,7 @@ CREATE TABLE [dbo].[Mountains] (
                     {
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("int", id.DataType);
-                        Assert.True(id.IsPrimaryKey);
+                        Assert.Equal(2, id.PrimaryKeyOrdinal);
                         Assert.False(id.IsNullable);
                         Assert.Equal(0, id.Ordinal);
                         Assert.Null(id.DefaultValue);
@@ -132,7 +135,7 @@ CREATE TABLE [dbo].[Mountains] (
                     {
                         Assert.Equal("Name", name.Name);
                         Assert.Equal("nvarchar", name.DataType);
-                        Assert.False(name.IsPrimaryKey);
+                        Assert.Equal(1, name.PrimaryKeyOrdinal);
                         Assert.False(name.IsNullable);
                         Assert.Equal(1, name.Ordinal);
                         Assert.Null(name.DefaultValue);
@@ -142,12 +145,23 @@ CREATE TABLE [dbo].[Mountains] (
                     {
                         Assert.Equal("Latitude", lat.Name);
                         Assert.Equal("decimal", lat.DataType);
-                        Assert.False(lat.IsPrimaryKey);
+                        Assert.Null(lat.PrimaryKeyOrdinal);
                         Assert.True(lat.IsNullable);
                         Assert.Equal(2, lat.Ordinal);
                         Assert.Equal("((0.0))", lat.DefaultValue);
                         Assert.Equal(5, lat.Precision);
                         Assert.Equal(2, lat.Scale);
+                        Assert.Null(lat.MaxLength);
+                    },
+                created =>
+                    {
+                        Assert.Equal("Created", created.Name);
+                        Assert.Equal(6, created.Scale);
+                    },
+                sum =>
+                    {
+                        Assert.Equal("Sum", sum.Name);
+                        Assert.True(sum.IsComputed);
                     });
         }
 

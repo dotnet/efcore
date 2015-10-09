@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                             Table = table,
                             Name = reader.GetString((int)TableInfoColumns.Name),
                             DataType = typeName,
-                            IsPrimaryKey = reader.GetBoolean((int)TableInfoColumns.Pk),
+                            PrimaryKeyOrdinal = isPk ? reader.GetInt32((int)TableInfoColumns.Pk) : default(int?),
                             IsNullable = !notNull,
                             DefaultValue = reader.GetValue((int)TableInfoColumns.DefaultValue) as string,
                             Ordinal = ordinal++

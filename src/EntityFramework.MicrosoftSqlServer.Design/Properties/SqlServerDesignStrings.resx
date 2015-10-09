@@ -123,9 +123,6 @@
   <data name="CannotFindRelationalPropertyForColumnId" xml:space="preserve">
     <value>For foreign key ConstraintId {constraintId}, could not find relational property mapped to ToColumn {toColumnId}. Skipping generation of ForeignKey.</value>
   </data>
-  <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
-    <value>For column {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.</value>
-  </data>
   <data name="CannotInterpretSqlServerStringLiteral" xml:space="preserve">
     <value>Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.</value>
   </data>

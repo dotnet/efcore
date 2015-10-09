@@ -13,20 +13,25 @@ namespace Microsoft.Data.Entity.Storage
     {
         public static readonly RelationalTypeMapping NullMapping = new RelationalTypeMapping("NULL");
 
+        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, [CanBeNull] DbType? storeType)
+            : this(defaultTypeName, clrType)
+        {
+            StoreType = storeType;
+        }
+
+        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType)
+            : this(defaultTypeName)
+        {
+            Check.NotNull(clrType, nameof(clrType));
+
+            ClrType = clrType;
+        }
+
         private RelationalTypeMapping([NotNull] string defaultTypeName)
         {
             Check.NotEmpty(defaultTypeName, nameof(defaultTypeName));
 
             DefaultTypeName = defaultTypeName;
-        }
-
-        public RelationalTypeMapping([NotNull] string defaultTypeName, [NotNull] Type clrType, DbType? storeType = null)
-            : this(defaultTypeName)
-        {
-            Check.NotNull(clrType, nameof(clrType));
-
-            StoreType = storeType;
-            ClrType = clrType;
         }
 
         public virtual string DefaultTypeName { get; }

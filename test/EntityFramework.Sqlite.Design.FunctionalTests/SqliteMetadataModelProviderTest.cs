@@ -17,6 +17,7 @@ using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 
 namespace EntityFramework.Sqlite.Design.FunctionalTests
 {
@@ -52,7 +53,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             var entityType = GetModel(@"CREATE TABLE ""Column Types"" (
                                         col1 text,
                                         col2 unsigned big int );")
-                .GetEntityType("Column Types");
+                .GetEntityType("Column_Types");
 
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);
@@ -128,7 +129,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                 columns,
                 idx.Properties.Select(c => c.Sqlite().ColumnName).ToArray());
 
-            var props = columns.Select(c => entityType.GetProperty(c)).ToArray();
+            var props = columns.Select(c => entityType.GetProperties().First(p=>p.Sqlite().ColumnName == c)).ToArray();
             var key = entityType.FindKey(props);
 
             Assert.NotNull(key);
@@ -313,7 +314,7 @@ CREATE TABLE Gum ( A, B,
         private IModel GetModel(string createSql)
         {
             _testStore.ExecuteNonQuery(createSql);
-            return _metadataModelProvider.ConstructRelationalModel(_testStore.Connection.ConnectionString);
+            return _metadataModelProvider.GenerateMetadataModel(_testStore.Connection.ConnectionString, TableSelectionSet.InclusiveAll);
         }
     }
 

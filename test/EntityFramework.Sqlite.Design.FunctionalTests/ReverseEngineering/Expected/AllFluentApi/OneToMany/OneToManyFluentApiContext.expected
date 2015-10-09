@@ -39,9 +39,7 @@ namespace E2E.Sqlite
 
                 entity.Property(e => e.OneToManyPrincipalID2).HasColumnType("INT");
 
-                entity.Property(e => e.Other)
-                    .IsRequired()
-                    .HasColumnType("TEXT");
+                entity.Property(e => e.Other).IsRequired();
             });
         }
 

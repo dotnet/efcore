@@ -144,13 +144,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             {
                 Warn =
                         {
-                            @"For column [dbo][AllDataTypes][hierarchyidColumn]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
-                            @"For column [dbo][AllDataTypes][sql_variantColumn]. Could not find type mapping for SQL Server type sql_variant. Skipping column.",
-                            @"For column [dbo][AllDataTypes][xmlColumn]. Could not find type mapping for SQL Server type xml. Skipping column.",
-                            @"For column [dbo][AllDataTypes][geographyColumn]. Could not find type mapping for SQL Server type geography. Skipping column.",
-                            @"For column [dbo][AllDataTypes][geometryColumn]. Could not find type mapping for SQL Server type geometry. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][hierarchyidColumn] with data type hierarchyid. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][sql_variantColumn] with data type sql_variant. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][xmlColumn] with data type xml. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][geographyColumn] with data type geography. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][geometryColumn] with data type geometry. Skipping column.",
                             @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
-                            @"For column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
+                            @"Could not find type mapping for column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID] with data type hierarchyid. Skipping column.",
                             @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
                         }
             });
@@ -191,13 +191,13 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             {
                 Warn =
                         {
-                            @"For column [dbo][AllDataTypes][hierarchyidColumn]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
-                            @"For column [dbo][AllDataTypes][sql_variantColumn]. Could not find type mapping for SQL Server type sql_variant. Skipping column.",
-                            @"For column [dbo][AllDataTypes][xmlColumn]. Could not find type mapping for SQL Server type xml. Skipping column.",
-                            @"For column [dbo][AllDataTypes][geographyColumn]. Could not find type mapping for SQL Server type geography. Skipping column.",
-                            @"For column [dbo][AllDataTypes][geometryColumn]. Could not find type mapping for SQL Server type geometry. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][hierarchyidColumn] with data type hierarchyid. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][sql_variantColumn] with data type sql_variant. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][xmlColumn] with data type xml. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][geographyColumn] with data type geography. Skipping column.",
+                            @"Could not find type mapping for column [dbo][AllDataTypes][geometryColumn] with data type geometry. Skipping column.",
                             @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
-                            @"For column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID]. Could not find type mapping for SQL Server type hierarchyid. Skipping column.",
+                            @"Could not find type mapping for column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID] with data type hierarchyid. Skipping column.",
                             @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
                         }
             });

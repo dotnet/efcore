@@ -29,14 +29,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// For column {columnId}. Could not find type mapping for SQL Server type {sqlServerDataType}. Skipping column.
-        /// </summary>
-        public static string CannotFindTypeMappingForColumn([CanBeNull] object columnId, [CanBeNull] object sqlServerDataType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindTypeMappingForColumn", "columnId", "sqlServerDataType"), columnId, sqlServerDataType);
-        }
-
-        /// <summary>
         /// Unable to interpret the string {sqlServerStringLiteral} as a SQLServer string literal.
         /// </summary>
         public static string CannotInterpretSqlServerStringLiteral([CanBeNull] object sqlServerStringLiteral)

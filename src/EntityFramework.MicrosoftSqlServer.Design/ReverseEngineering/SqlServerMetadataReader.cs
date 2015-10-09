@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         private void GetTables()
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "SELECT schema_name(t.schema_id) as [schema], t.name FROM sys.tables AS t " +
+            command.CommandText = "SELECT schema_name(t.schema_id) AS [schema], t.name FROM sys.tables AS t " +
                                   $"WHERE t.name <> '{HistoryRepository.DefaultTableName}'";
             using (var reader = command.ExecuteReader())
             {
@@ -83,21 +83,32 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
         {
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT DISTINCT 
-    schema_name(t.schema_id) as [schema], 
-    t.name as [table], 
-    type_name(c.user_type_id) as [typename],
-    c.name as [column_name], 
-    c.column_id as [ordinal],
-    c.is_nullable as [nullable],
-    i.is_primary_key,
-	object_definition(c.default_object_id) as [default_sql],
-    CAST(c.precision as int) AS [precision],
-    CAST(c.scale as int) AS [scale],
-    CAST(c.max_length as int) AS [max_length],
-    c.is_identity
-FROM sys.indexes AS i
-	INNER JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+    schema_name(t.schema_id) AS [schema], 
+    t.name AS [table], 
+    type_name(c.user_type_id) AS [typename],
+    c.name AS [column_name], 
+    c.column_id AS [ordinal],
+    c.is_nullable AS [nullable],
+    CAST(ic.key_ordinal AS int) AS [primary_key_ordinal],
+	object_definition(c.default_object_id) AS [default_sql],
+    CAST(CASE WHEN c.precision <> tp.precision
+			THEN c.precision
+			ELSE null
+		END AS int) AS [precision],
+	CAST(CASE WHEN c.scale <> tp.scale
+			THEN c.scale
+			ELSE null
+		END AS int) AS [scale],
+    CAST(CASE WHEN c.max_length <> tp.max_length
+			THEN c.max_length
+			ELSE null
+		END AS int) AS [max_length],
+    c.is_identity,
+    c.is_computed
+FROM sys.index_columns ic
+	RIGHT JOIN (SELECT * FROM sys.indexes WHERE is_primary_key = 1) AS i ON i.object_id = ic.object_id AND i.index_id = ic.index_id
 	RIGHT JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
+	RIGHT JOIN sys.types tp ON tp.user_type_id = c.user_type_id
 JOIN sys.tables AS t ON t.object_id = c.object_id
 WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
 
@@ -115,16 +126,21 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     var dataTypeName = reader.GetString(2);
                     var nullable = reader.GetBoolean(5);
 
-                    var precision = reader.GetInt32(8); 
-                    // TODO make sure DateTime precision works correctly
-                    var scale = reader.GetInt32(9);
-                    var maxLength = reader.GetInt32(10);
+                    var maxLength = reader.IsDBNull(10) ? default(int?) : reader.GetInt32(10);
 
                     if (dataTypeName == "nvarchar"
                         || dataTypeName == "nchar")
                     {
                         maxLength /= 2;
                     }
+
+                    if (dataTypeName == "decimal"
+                        || dataTypeName == "numeric")
+                    {
+                        // maxlength here represents storage bytes. The server determines this, not the client.
+                        maxLength = null;
+                    }
+
                     var table = _tables[TableKey(tableName, schemaName)];
                     var column = new Column
                     {
@@ -133,12 +149,13 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         Name = reader.GetString(3),
                         Ordinal = reader.GetInt32(4) - 1,
                         IsNullable = nullable,
-                        IsPrimaryKey = !reader.IsDBNull(6) && reader.GetBoolean(6),
+                        PrimaryKeyOrdinal = reader.IsDBNull(6) ? default(int?) : reader.GetInt32(6),
                         DefaultValue = reader.IsDBNull(7) ? null : reader.GetString(7),
-                        Precision = (precision != 0) ? precision : default(int?),
-                        Scale = (scale != 0) ? scale : default(int?),
-                        MaxLength = (maxLength > 0) ? maxLength : default(int?),
-                        IsIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11)
+                        Precision = reader.IsDBNull(8) ? default(int?) : reader.GetInt32(8),
+                        Scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9),
+                        MaxLength = maxLength <= 0 ? default(int?) : maxLength,
+                        IsIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11),
+                        IsComputed = reader.GetBoolean(12)
                     };
 
                     table.Columns.Add(column);
@@ -152,7 +169,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT 
     i.name AS [index_name],
-    schema_name(t.schema_id) as [schema_name],
+    schema_name(t.schema_id) AS [schema_name],
     t.name AS [table_name],
 	i.is_unique,
     c.name AS [column_name]
@@ -201,9 +218,9 @@ ORDER BY i.name, ic.key_ordinal";
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT 
     f.name AS foreign_key_name,
-    schema_name(f.schema_id) as [schema_name],
+    schema_name(f.schema_id) AS [schema_name],
     object_name(f.parent_object_id) AS table_name,
-    object_schema_name(f.referenced_object_id) as principal_table_schema_name,
+    object_schema_name(f.referenced_object_id) AS principal_table_schema_name,
     object_name(f.referenced_object_id) AS principal_table_name,
     col_name(fc.parent_object_id, fc.parent_column_id) AS constraint_column_name,
     col_name(fc.referenced_object_id, fc.referenced_column_id) AS referenced_column_name,

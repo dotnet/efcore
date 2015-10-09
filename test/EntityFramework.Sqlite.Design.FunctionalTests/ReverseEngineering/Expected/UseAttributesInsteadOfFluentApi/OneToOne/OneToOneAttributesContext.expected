@@ -20,11 +20,6 @@ namespace E2E.Sqlite
 
                 entity.Property(e => e.PrincipalId).HasColumnType("INT");
             });
-
-            modelBuilder.Entity<Principal>(entity =>
-            {
-                entity.Property(e => e.Id).HasColumnType("INTEGER");
-            });
         }
 
         public virtual DbSet<Dependent> Dependent { get; set; }

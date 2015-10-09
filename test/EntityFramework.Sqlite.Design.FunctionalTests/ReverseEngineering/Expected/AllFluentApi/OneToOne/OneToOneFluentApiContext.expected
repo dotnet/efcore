@@ -22,11 +22,6 @@ namespace E2E.Sqlite
 
                 entity.HasOne(d => d.Principal).WithOne(p => p.Dependent).HasForeignKey<Dependent>(d => d.PrincipalId);
             });
-
-            modelBuilder.Entity<Principal>(entity =>
-            {
-                entity.Property(e => e.Id).HasColumnType("INTEGER");
-            });
         }
 
         public virtual DbSet<Dependent> Dependent { get; set; }

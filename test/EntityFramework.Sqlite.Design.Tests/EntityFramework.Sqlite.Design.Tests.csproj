@@ -42,12 +42,24 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="CSharpUniqueNamerTest.cs" />
+    <Compile Include="CSharpNamerTest.cs" />
+    <Compile Include="RelationalMetadataModelProviderTest.cs" />
     <Compile Include="SqliteDmlParserTest.cs" />
+    <Compile Include="TestLogger.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
       <Project>{7028A7E3-0AD8-4606-A922-8189C8A704E0}</Project>
       <Name>EntityFramework.Relational.Design</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Sqlite.Design\EntityFramework.Sqlite.Design.csproj">
       <Project>{2fa76686-11eb-4a4c-b3e2-1fdaf29e4a62}</Project>

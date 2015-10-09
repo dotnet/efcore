@@ -14,10 +14,6 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<SelfRef>(entity =>
             {
-                entity.Property(e => e.Id).HasColumnType("INTEGER");
-
-                entity.Property(e => e.SelfForeignKey).HasColumnType("INTEGER");
-
                 entity.HasOne(d => d.SelfForeignKeyNavigation).WithMany(p => p.InverseSelfForeignKeyNavigation).HasForeignKey(d => d.SelfForeignKey);
             });
         }

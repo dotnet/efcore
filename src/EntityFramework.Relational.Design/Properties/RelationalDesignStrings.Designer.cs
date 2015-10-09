@@ -13,6 +13,14 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.Relational.Design.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
+        /// Could not find type mapping for column {columnName} width data type {dateType}. Skipping column.
+        /// </summary>
+        public static string CannotFindTypeMappingForColumn([CanBeNull] object columnName, [CanBeNull] object dateType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("CannotFindTypeMappingForColumn", "columnName", "dateType"), columnName, dateType);
+        }
+
+        /// <summary>
         /// ConnectionString is required to generate code.
         /// </summary>
         public static string ConnectionStringRequired

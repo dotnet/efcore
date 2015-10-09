@@ -12,11 +12,13 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
-using ForeignKey = Microsoft.Data.Entity.Relational.Design.Model.ForeignKey;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
@@ -24,14 +26,15 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
     {
         private readonly IMetadataReader _metadataReader;
         private readonly IRelationalTypeMapper _typeMapper;
+        private CSharpNamer<Column> _columnNamer;
+        private CSharpUniqueNamer<Table> _tableNamer;
 
         public SqliteMetadataModelProvider(
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] ModelUtilities modelUtilities,
             [NotNull] CSharpUtilities cSharpUtilities,
-            [NotNull] IMetadataReader metadataReader
-            )
+            [NotNull] IMetadataReader metadataReader)
             : base(loggerFactory, modelUtilities, cSharpUtilities)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
@@ -43,7 +46,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
         protected override IRelationalAnnotationProvider ExtensionsProvider => new SqliteAnnotationProvider();
 
-        public override IModel ConstructRelationalModel([NotNull] string connectionString)
+        public override IModel GenerateMetadataModel([NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 
@@ -52,73 +55,93 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             return GetModel(databaseInfo);
         }
 
-        private IModel GetModel(SchemaInfo schemaInfo)
+        public override IModel ConstructRelationalModel([NotNull] string connectionString)
+        {
+            // TODO change base implementation
+            throw new NotSupportedException();
+        }
+
+        protected virtual IModel GetModel([NotNull] SchemaInfo schemaInfo)
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
+
+            _tableNamer = new CSharpUniqueNamer<Table>(t => t.Name);
+            _columnNamer = new CSharpNamer<Column>(c => c.Name);
 
             AddEntityTypes(modelBuilder, schemaInfo);
 
             return modelBuilder.Model;
         }
 
-        private void AddEntityTypes(ModelBuilder modelBuilder, SchemaInfo schemaInfo)
+        protected virtual string GetEntityTypeName([NotNull] Table table)
+           => _tableNamer.GetName(Check.NotNull(table, nameof(table)));
+
+        protected virtual string GetPropertyName([NotNull] Column column)
+           => _columnNamer.GetName(Check.NotNull(column, nameof(column)));
+
+        protected virtual void AddEntityTypes([NotNull] ModelBuilder modelBuilder, [NotNull] SchemaInfo schemaInfo)
         {
             foreach (var table in schemaInfo.Tables)
             {
-                modelBuilder.Entity(table.Name, builder =>
+                modelBuilder.Entity(GetEntityTypeName(table), builder =>
                     {
-                        builder.ToTable(table.Name);
+                        builder.ToTable(table.Name, table.SchemaName);
 
                         AddColumns(builder, table);
+                        AddPrimaryKey(builder, table);
                         AddIndexes(builder, table);
                     });
             }
 
+            // TODO can we add navigation properties inline with adding foreign keys?
             foreach (var table in schemaInfo.Tables)
             {
                 AddForeignKeys(modelBuilder, table);
             }
+
+            AddNavigationProperties(modelBuilder);
         }
 
-        private void AddColumns(EntityTypeBuilder builder, Table table)
+        protected virtual void AddColumns([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
         {
             foreach (var column in table.Columns)
             {
                 AddColumn(builder, column);
             }
-
-            var keyProps = table.Columns
-                .Where(c => c.IsPrimaryKey)
-                .Select(c => c.Name).ToArray();
-
-            if (keyProps.Length > 0)
-            {
-                builder.HasKey(keyProps);
-            }
-            else
-            {
-                var errorMessage = SqliteDesignStrings.MissingPrimaryKey(table.Name);
-                builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, errorMessage);
-                Logger.LogWarning(errorMessage);
-            }
         }
 
-        private void AddColumn(EntityTypeBuilder builder, Column column)
+        protected virtual void AddColumn([NotNull] EntityTypeBuilder builder, [NotNull] Column column)
         {
             // TODO log bad datatypes/catch exception
-            var clrType = _typeMapper.GetMapping(column.DataType).ClrType;
-
-            if (clrType != null && column.IsNullable)
+            RelationalTypeMapping mapping;
+            if (!_typeMapper.TryGetMapping(column.DataType, out mapping) || mapping?.ClrType == null)
             {
-                clrType = clrType.MakeNullable();
+                LogUnmappableColumn(column);
+                return;
             }
 
-            var property = builder.Property(clrType, column.Name)
+            var clrType = (column.IsNullable) ? mapping.ClrType.MakeNullable() : mapping.ClrType;
+
+            var property = builder.Property(clrType, GetPropertyName(column))
                 .HasColumnName(column.Name);
 
-            // TODO don't need to add unless the ClrType and DataType are not the same
-            // but this always needs to be added for SQLite
-            if (!string.IsNullOrEmpty(column.DataType))
+            if (column.MaxLength.HasValue)
+            {
+                property.HasMaxLength(column.MaxLength.Value);
+            }
+
+            if (column.IsStoreGenerated == true)
+            {
+                property.ValueGeneratedOnAdd();
+            }
+
+            if (column.IsComputed == true)
+            {
+                property.ValueGeneratedOnAddOrUpdate();
+            }
+
+            if (_typeMapper.GetMapping(property.Metadata).DefaultTypeName != column.DataType
+                && !string.IsNullOrWhiteSpace(column.DataType))
             {
                 property.HasColumnType(column.DataType);
             }
@@ -128,30 +151,59 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 property.HasDefaultValueSql(column.DefaultValue);
             }
 
-            if (!column.IsPrimaryKey)
+            if (!column.PrimaryKeyOrdinal.HasValue)
             {
                 property.IsRequired(!column.IsNullable);
             }
         }
 
-        private void AddIndexes(EntityTypeBuilder entity, Table table)
+        protected virtual void AddPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
+        {
+            var keyProps = table.Columns
+                .Where(c => c.PrimaryKeyOrdinal.HasValue)
+                .OrderBy(c => c.PrimaryKeyOrdinal)
+                .Select(GetPropertyName)
+                .ToArray();
+
+            if (keyProps.Length > 0)
+            {
+                builder.HasKey(keyProps);
+            }
+            else
+            {
+                var errorMessage = SqliteDesignStrings.MissingPrimaryKey(table.Name);
+                Logger.LogWarning(errorMessage);
+
+                builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, RelationalDesignStrings.UnableToGenerateEntityType(builder.Metadata.DisplayName(), errorMessage));
+
+            }
+        }
+
+        protected virtual void AddIndexes([NotNull] EntityTypeBuilder entity, [NotNull] Table table)
         {
             foreach (var index in table.Indexes)
             {
-                var columns = index.Columns.Select(c => c.Name).ToArray();
+                var properties = index.Columns.Select(GetPropertyName).ToArray();
 
-                entity.HasIndex(columns)
-                    .IsUnique(index.IsUnique)
-                    .HasName(index.Name);
+                var indexBuilder = entity.HasIndex(properties).IsUnique(index.IsUnique);
+
+                if (!string.IsNullOrEmpty(index.Name))
+                {
+                    indexBuilder.HasName(index.Name);
+                }
 
                 if (index.IsUnique)
                 {
-                    entity.HasAlternateKey(columns);
+                    var keyBuilder = entity.HasAlternateKey(properties);
+                    if (!string.IsNullOrEmpty(index.Name))
+                    {
+                        keyBuilder.HasName(index.Name);
+                    }
                 }
             }
         }
 
-        private void AddForeignKeys(ModelBuilder modelBuilder, Table table)
+        protected virtual void AddForeignKeys([NotNull] ModelBuilder modelBuilder, [NotNull] Table table)
         {
             foreach (var fkInfo in table.ForeignKeys)
             {
@@ -163,11 +215,12 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 
                 try
                 {
-                    var dependentEntityType = modelBuilder.Model.GetEntityType(fkInfo.Table.Name);
-                    var principalEntityType = modelBuilder.Model.GetEntityType(fkInfo.PrincipalTable.Name);
+                    var dependentEntityType = modelBuilder.Model.GetEntityType(GetEntityTypeName(fkInfo.Table));
+                    var principalEntityType = modelBuilder.Model.GetEntityType(GetEntityTypeName(fkInfo.PrincipalTable));
 
                     var principalProps = fkInfo.To
-                        .Select(to => principalEntityType.GetProperty(to.Name))
+                        .Select(GetPropertyName)
+                        .Select(to => principalEntityType.GetProperty(to))
                         .ToList()
                         .AsReadOnly();
 
@@ -188,19 +241,14 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                     }
 
                     var depProps = fkInfo.From
-                        .Select(
-                            @from => dependentEntityType.GetProperty(from.Name)
-                        )
+                        .Select(GetPropertyName)
+                        .Select(@from => dependentEntityType.GetProperty(@from))
                         .ToList()
                         .AsReadOnly();
 
                     var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
 
-                    if (dependentEntityType.FindIndex(depProps)?.IsUnique == true
-                        || dependentEntityType.GetKeys().Any(k => k.Properties.All(p => depProps.Contains(p))))
-                    {
-                        foreignKey.IsUnique = true;
-                    }
+                    foreignKey.IsUnique = dependentEntityType.FindKey(depProps) != null;
                 }
                 catch (Exception ex)
                 {
@@ -217,7 +265,71 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             }
         }
 
-        private void LogFailedForeignKey(ForeignKey foreignKey)
-            => Logger.LogWarning(SqliteDesignStrings.ForeignKeyScaffoldError(foreignKey.Table.Name, string.Join(",", foreignKey.From.Select(f => f.Name))));
+        protected virtual void AddNavigationProperties([NotNull] ModelBuilder modelBuilder)
+        {
+            // TODO perf cleanup can we do this in 1 loop instead of 2?
+
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+
+            var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
+            foreach (var entityType in modelBuilder.Model.EntityTypes)
+            {
+                var existingIdentifiers = new List<string>();
+                entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
+                existingIdentifiers.Add(entityType.Name);
+                existingIdentifiers.AddRange(
+                    ModelUtilities.OrderedProperties(entityType).Select(p => p.Name));
+            }
+
+            foreach (var entityType in modelBuilder.Model.EntityTypes)
+            {
+                var dependentEndExistingIdentifiers = entityTypeToExistingIdentifiers[entityType];
+                foreach (var foreignKey in entityType.GetForeignKeys().Cast<Metadata.ForeignKey>())
+                {
+                    // set up the name of the navigation property on the dependent end of the foreign key
+                    var dependentEndNavigationPropertyCandidateName =
+                        ModelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
+                    var dependentEndNavigationPropertyName =
+                        CSharpUtilities.GenerateCSharpIdentifier(
+                            dependentEndNavigationPropertyCandidateName,
+                            dependentEndExistingIdentifiers,
+                            NavigationUniquifier);
+                    foreignKey.AddAnnotation(
+                        AnnotationNameDependentEndNavPropName,
+                        dependentEndNavigationPropertyName);
+                    dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
+
+                    // set up the name of the navigation property on the principal end of the foreign key
+                    var principalEndExistingIdentifiers =
+                        entityTypeToExistingIdentifiers[foreignKey.PrincipalEntityType];
+                    var principalEndNavigationPropertyCandidateName =
+                        foreignKey.IsSelfReferencing()
+                            ? string.Format(
+                                CultureInfo.CurrentCulture,
+                                SelfReferencingPrincipalEndNavigationNamePattern,
+                                dependentEndNavigationPropertyName)
+                            : ModelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
+                    var principalEndNavigationPropertyName =
+                        CSharpUtilities.GenerateCSharpIdentifier(
+                            principalEndNavigationPropertyCandidateName,
+                            principalEndExistingIdentifiers,
+                            NavigationUniquifier);
+                    foreignKey.AddAnnotation(
+                        AnnotationNamePrincipalEndNavPropName,
+                        principalEndNavigationPropertyName);
+                    principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
+                }
+            }
+        }
+
+        protected virtual void LogFailedForeignKey([NotNull] Relational.Design.Model.ForeignKey foreignKey)
+            => Logger.LogWarning(
+                SqliteDesignStrings.ForeignKeyScaffoldError(
+                    foreignKey.Table?.Name, string.Join(",", foreignKey.From.Select(f => f.Name))));
+
+        protected virtual void LogUnmappableColumn([NotNull] Column column)
+            => Logger.LogWarning(
+                RelationalDesignStrings.CannotFindTypeMappingForColumn(
+                    $"{column.Table?.Name}.{column.Name}", column.DataType));
     }
 }
