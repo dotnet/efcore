@@ -30,13 +30,15 @@ namespace Microsoft.Data.Entity.Query.Internal
                     RequiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
-                    ContextType)
+                    ContextType,
+                    TrackQueryResults)
                 : new SqlServerQueryCompilationContext(
                     (ISensitiveDataLogger)Logger,
                     EntityQueryModelVisitorFactory,
                     RequiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
-                    ContextType);
+                    ContextType,
+                    TrackQueryResults);
     }
 }

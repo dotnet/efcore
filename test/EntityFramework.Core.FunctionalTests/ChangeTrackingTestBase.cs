@@ -202,6 +202,61 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
+        [Fact]
+        public virtual void Can_disable_and_reenable_query_result_tracking()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.True(context.ChangeTracker.TrackQueryResults);
+
+                var query = context.Employees.OrderBy(e => e.EmployeeID);
+
+                var results = query.Take(1).ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                context.ChangeTracker.TrackQueryResults = false;
+
+                results = query.Skip(1).Take(1).ToList();
+
+                Assert.Equal(1, results.Count);
+                Assert.Equal(1, context.ChangeTracker.Entries().Count());
+
+                context.ChangeTracker.TrackQueryResults = true;
+
+                results = query.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        [Fact]
+        public virtual void Can_disable_and_reenable_query_result_tracking_query_caching()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.True(context.ChangeTracker.TrackQueryResults);
+
+                var results = context.Employees.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(9, context.ChangeTracker.Entries().Count());
+            }
+
+            using (var context = CreateContext())
+            {
+                context.ChangeTracker.TrackQueryResults = false;
+
+                var results = context.Employees.ToList();
+
+                Assert.Equal(9, results.Count);
+                Assert.Equal(0, context.ChangeTracker.Entries().Count());
+            }
+        }
+
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected ChangeTrackingTestBase(TFixture fixture)
         {

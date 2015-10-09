@@ -66,6 +66,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public virtual bool AutoDetectChangesEnabled { get; set; } = true;
 
+        public virtual bool TrackQueryResults { get; set; } = true;
+
         /// <summary>
         ///     Gets an <see cref="EntityEntry" /> for each entity being tracked by the context.
         ///     The entries provide access to change tracking information and operations for each entity.

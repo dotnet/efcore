@@ -33,6 +33,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 resultOperator.Annotation.QueryModel = queryModel;
 
                 var includeAnnotation = resultOperator.Annotation as IncludeQueryAnnotation;
+
                 resultOperator.Annotation.QuerySource = includeAnnotation != null
                     ? ExtractSourceReferenceExpression(includeAnnotation.NavigationPropertyPath).ReferencedQuerySource
                     : queryModel.MainFromClause;

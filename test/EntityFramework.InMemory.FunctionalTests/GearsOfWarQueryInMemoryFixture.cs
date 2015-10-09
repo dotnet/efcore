@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var context = new GearsOfWarContext(_serviceProvider, _options);
 
             context.ChangeTracker.AutoDetectChangesEnabled = false;
+            context.ChangeTracker.TrackQueryResults = false;
 
             return context;
         }

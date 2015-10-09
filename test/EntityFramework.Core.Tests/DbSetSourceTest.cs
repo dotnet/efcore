@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests
 {
-    public class DbSetySourceTest
+    public class DbSetSourceTest
     {
         [Fact]
         public void Can_create_new_generic_DbSet()

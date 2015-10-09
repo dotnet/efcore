@@ -24,13 +24,15 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType)
+            [NotNull] Type contextType,
+            bool trackQueryResults)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
-                Check.NotNull(contextType, nameof(contextType)))
+                Check.NotNull(contextType, nameof(contextType)),
+                trackQueryResults)
         {
             Check.NotNull(queryMethodProvider, nameof(queryMethodProvider));
 

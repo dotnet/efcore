@@ -32,25 +32,25 @@ namespace Microsoft.Data.Entity.Query
         private static readonly INodeTypeProvider _nodeTypeProvider = CreateNodeTypeProvider();
         private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter = new EvaluatableExpressionFilter();
 
-        private readonly IQueryContextFactory _contextFactory;
-        private readonly ICompiledQueryCache _cache;
-        private readonly ICompiledQueryCacheKeyGenerator _cacheKeyGenerator;
+        private readonly IQueryContextFactory _queryContextFactory;
+        private readonly ICompiledQueryCache _compiledQueryCache;
+        private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
 
         public QueryCompiler(
-            [NotNull] IQueryContextFactory contextFactory,
-            [NotNull] ICompiledQueryCache cache,
-            [NotNull] ICompiledQueryCacheKeyGenerator cacheKeyGenerator,
+            [NotNull] IQueryContextFactory queryContextFactory,
+            [NotNull] ICompiledQueryCache compiledQueryCache,
+            [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database)
         {
-            Check.NotNull(contextFactory, nameof(contextFactory));
-            Check.NotNull(cache, nameof(cache));
-            Check.NotNull(cacheKeyGenerator, nameof(cacheKeyGenerator));
+            Check.NotNull(queryContextFactory, nameof(queryContextFactory));
+            Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
+            Check.NotNull(compiledQueryCacheKeyGenerator, nameof(compiledQueryCacheKeyGenerator));
             Check.NotNull(database, nameof(database));
 
-            _contextFactory = contextFactory;
-            _cache = cache;
-            _cacheKeyGenerator = cacheKeyGenerator;
+            _queryContextFactory = queryContextFactory;
+            _compiledQueryCache = compiledQueryCache;
+            _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
             _database = database;
         }
 
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(query, nameof(query));
 
-            var queryContext = _contextFactory.Create();
+            var queryContext = _queryContextFactory.Create();
 
             query = Preprocess(query, queryContext);
 
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(query, nameof(query));
 
-            var queryContext = _contextFactory.Create();
+            var queryContext = _queryContextFactory.Create();
 
             query = Preprocess(query, queryContext);
 
@@ -82,14 +82,13 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(query, nameof(query));
 
-            var queryContext = _contextFactory.Create();
+            var queryContext = _queryContextFactory.Create();
 
             queryContext.CancellationToken = cancellationToken;
 
             query = Preprocess(query, queryContext);
 
-            return CompileAsyncQuery<TResult>(query)(queryContext)
-                .First(cancellationToken);
+            return CompileAsyncQuery<TResult>(query)(queryContext).First(cancellationToken);
         }
 
         protected virtual Expression Preprocess([NotNull] Expression query, [NotNull] QueryContext queryContext)
@@ -107,45 +106,49 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(query, nameof(query));
 
-            return _cache.GetOrAddQuery(_cacheKeyGenerator.GenerateCacheKey(query, async: false), () =>
-                {
-                    var queryModel = CreateQueryParser().GetParsedQuery(query);
+            return _compiledQueryCache
+                .GetOrAddQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
+                    () =>
+                        {
+                            var queryModel = CreateQueryParser().GetParsedQuery(query);
 
-                    var resultItemType
-                        = (queryModel.GetOutputDataInfo() as StreamedSequenceInfo)?.ResultItemType ?? typeof(TResult);
+                            var resultItemType
+                                = (queryModel.GetOutputDataInfo() as StreamedSequenceInfo)?.ResultItemType ?? typeof(TResult);
 
-                    if (resultItemType == typeof(TResult))
-                    {
-                        var compiledQuery = _database.CompileQuery<TResult>(queryModel);
+                            if (resultItemType == typeof(TResult))
+                            {
+                                var compiledQuery = _database.CompileQuery<TResult>(queryModel);
 
-                        return qc => compiledQuery(qc).First();
-                    }
+                                return qc => compiledQuery(qc).First();
+                            }
 
-                    try
-                    {
-                        return (Func<QueryContext, TResult>)CompileQueryMethod
-                            .MakeGenericMethod(resultItemType)
-                            .Invoke(_database, new object[] { queryModel });
-                    }
-                    catch (TargetInvocationException e)
-                    {
-                        ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+                            try
+                            {
+                                return (Func<QueryContext, TResult>)CompileQueryMethod
+                                    .MakeGenericMethod(resultItemType)
+                                    .Invoke(_database, new object[] { queryModel });
+                            }
+                            catch (TargetInvocationException e)
+                            {
+                                ExceptionDispatchInfo.Capture(e.InnerException).Throw();
 
-                        throw;
-                    }
-                });
+                                throw;
+                            }
+                        });
         }
 
         protected virtual Func<QueryContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TResult>([NotNull] Expression query)
         {
             Check.NotNull(query, nameof(query));
 
-            return _cache.GetOrAddAsyncQuery(_cacheKeyGenerator.GenerateCacheKey(query, async: true), () =>
-                {
-                    var queryModel = CreateQueryParser().GetParsedQuery(query);
+            return _compiledQueryCache
+                .GetOrAddAsyncQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
+                    () =>
+                        {
+                            var queryModel = CreateQueryParser().GetParsedQuery(query);
 
-                    return _database.CompileAsyncQuery<TResult>(queryModel);
-                });
+                            return _database.CompileAsyncQuery<TResult>(queryModel);
+                        });
         }
 
         private static QueryParser CreateQueryParser()
@@ -153,10 +156,10 @@ namespace Microsoft.Data.Entity.Query
                 new ExpressionTreeParser(
                     _nodeTypeProvider,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
-                        {
-                            new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
-                            new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
-                        })));
+                    {
+                        new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
+                        new TransformingExpressionTreeProcessor(ExpressionTransformerRegistry.CreateDefault())
+                    })));
 
         private class EvaluatableExpressionFilter : EvaluatableExpressionFilterBase
         {
@@ -188,10 +191,10 @@ namespace Microsoft.Data.Entity.Query
 
             var innerProviders
                 = new INodeTypeProvider[]
-                    {
-                        methodInfoBasedNodeTypeRegistry,
-                        MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
-                    };
+                {
+                    methodInfoBasedNodeTypeRegistry,
+                    MethodNameBasedNodeTypeRegistry.CreateFromRelinqAssembly()
+                };
 
             return new CompoundNodeTypeProvider(innerProviders);
         }

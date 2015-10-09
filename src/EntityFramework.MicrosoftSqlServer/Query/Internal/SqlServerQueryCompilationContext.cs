@@ -17,14 +17,16 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOpeartorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
-            [NotNull] Type contextType)
+            [NotNull] Type contextType,
+            bool trackQueryResults)
             : base(
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
                 Check.NotNull(linqOpeartorProvider, nameof(linqOpeartorProvider)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
-                Check.NotNull(contextType, nameof(contextType)))
+                Check.NotNull(contextType, nameof(contextType)),
+                trackQueryResults)
         {
         }
 

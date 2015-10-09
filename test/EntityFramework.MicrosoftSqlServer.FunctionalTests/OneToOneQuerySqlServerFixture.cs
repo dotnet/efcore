@@ -41,8 +41,11 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         public DbContext CreateContext()
         {
-            return new DbContext(_serviceProvider, _options);
-        }
+            var context = new DbContext(_serviceProvider, _options);
 
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+
+            return context;
+        }
     }
 }

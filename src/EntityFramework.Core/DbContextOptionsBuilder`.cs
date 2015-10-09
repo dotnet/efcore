@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity
 
         public new virtual DbContextOptions<TContext> Options => (DbContextOptions<TContext>)base.Options;
 
-        public new virtual DbContextOptionsBuilder<TContext> UseModel([NotNull] IModel model) => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
+        public new virtual DbContextOptionsBuilder<TContext> UseModel([NotNull] IModel model) 
+            => (DbContextOptionsBuilder<TContext>)base.UseModel(model);
     }
 }

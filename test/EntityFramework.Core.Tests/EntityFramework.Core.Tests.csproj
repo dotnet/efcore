@@ -65,7 +65,7 @@
     <Compile Include="DbContextTest.cs" />
     <Compile Include="DbSetInitializerTest.cs" />
     <Compile Include="DbSetTest.cs" />
-    <Compile Include="DbSetySourceTest.cs" />
+    <Compile Include="DbSetSourceTest.cs" />
     <Compile Include="DbContextOptionsTest.cs" />
     <Compile Include="EFTest.cs" />
     <Compile Include="EntitySetFinderTest.cs" />

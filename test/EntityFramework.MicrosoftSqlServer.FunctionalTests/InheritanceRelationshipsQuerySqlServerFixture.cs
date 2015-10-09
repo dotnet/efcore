@@ -55,7 +55,12 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             optionsBuilder.UseSqlServer(testStore.Connection);
 
             var context = new InheritanceRelationshipsContext(_serviceProvider, optionsBuilder.Options);
+
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            context.ChangeTracker.TrackQueryResults = false;
+
             context.Database.UseTransaction(testStore.Transaction);
+
             return context;
         }
     }

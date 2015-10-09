@@ -12,12 +12,14 @@ namespace Microsoft.Data.Entity.Query
     public class CompiledQueryCacheKeyGenerator : ICompiledQueryCacheKeyGenerator
     {
         private readonly IModel _model;
+        private readonly bool _trackQueryResults;
 
-        public CompiledQueryCacheKeyGenerator([NotNull] IModel model)
+        public CompiledQueryCacheKeyGenerator([NotNull] IModel model, [NotNull] DbContext context)
         {
             Check.NotNull(model, nameof(model));
 
             _model = model;
+            _trackQueryResults = context.ChangeTracker.TrackQueryResults;
         }
 
         public virtual object GenerateCacheKey(Expression query, bool async)
@@ -27,18 +29,22 @@ namespace Microsoft.Data.Entity.Query
             => new CompiledQueryCacheKey(
                 new ExpressionStringBuilder().Build(Check.NotNull(query, nameof(query))),
                 _model,
+                _trackQueryResults,
                 async);
 
         protected struct CompiledQueryCacheKey
         {
             private readonly string _query;
             private readonly IModel _model;
+            private readonly bool _trackQueryResults;
             private readonly bool _async;
 
-            public CompiledQueryCacheKey([NotNull] string query, [NotNull] IModel model, bool async)
+            public CompiledQueryCacheKey(
+                [NotNull] string query, [NotNull] IModel model, bool trackQueryResults, bool async)
             {
                 _query = query;
                 _model = model;
+                _trackQueryResults = trackQueryResults;
                 _async = async;
             }
 
@@ -49,6 +55,7 @@ namespace Microsoft.Data.Entity.Query
             private bool Equals(CompiledQueryCacheKey other)
                 => string.Equals(_query, other._query)
                    && _model.Equals(other._model)
+                   && _trackQueryResults == other._trackQueryResults
                    && _async == other._async;
 
             public override int GetHashCode()
@@ -57,6 +64,7 @@ namespace Microsoft.Data.Entity.Query
                 {
                     var hashCode = _query.GetHashCode();
                     hashCode = (hashCode * 397) ^ _model.GetHashCode();
+                    hashCode = (hashCode * 397) ^ _trackQueryResults.GetHashCode();
                     hashCode = (hashCode * 397) ^ _async.GetHashCode();
                     return hashCode;
                 }

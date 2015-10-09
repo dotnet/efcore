@@ -96,6 +96,7 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             Model = model;
+
             _queryOptimizer = queryOptimizer;
             _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
             _subQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
@@ -403,9 +404,9 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(queryModel, nameof(queryModel));
 
             if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
+                || !QueryCompilationContext.TrackQueryResults
                 || QueryCompilationContext
-                    .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo).Any()
-                )
+                    .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo).Any())
             {
                 return;
             }

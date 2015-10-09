@@ -3,13 +3,12 @@
 
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class MappingQueryFixtureBase
     {
-        protected abstract string DatabaseSchema { get;  }
+        protected abstract string DatabaseSchema { get; }
 
         protected Model CreateModel()
         {

@@ -1,9 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Inheritance;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {
@@ -27,34 +25,34 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected void SeedData(InheritanceContext context)
         {
             var kiwi = new Kiwi
-                {
-                    Species = "Apteryx haastii",
-                    Name = "Great spotted kiwi",
-                    IsFlightless = true,
-                    FoundOn = Island.South
-                };
+            {
+                Species = "Apteryx haastii",
+                Name = "Great spotted kiwi",
+                IsFlightless = true,
+                FoundOn = Island.South
+            };
 
             var eagle = new Eagle
-                {
-                    Species = "Aquila chrysaetos canadensis",
-                    Name = "American golden eagle",
-                    Group = EagleGroup.Booted
-                };
+            {
+                Species = "Aquila chrysaetos canadensis",
+                Name = "American golden eagle",
+                Group = EagleGroup.Booted
+            };
 
             eagle.Prey.Add(kiwi);
 
             var rose = new Rose
-                {
-                    Species = "Rosa canina",
-                    Name = "Dog-rose",
-                    HasThorns = true
-                };
+            {
+                Species = "Rosa canina",
+                Name = "Dog-rose",
+                HasThorns = true
+            };
 
             var daisy = new Daisy
-                {
-                    Species = "Bellis perennis",
-                    Name = "Common daisy"
-                };
+            {
+                Species = "Bellis perennis",
+                Name = "Common daisy"
+            };
 
             var nz = new Country { Id = 1, Name = "New Zealand" };
 

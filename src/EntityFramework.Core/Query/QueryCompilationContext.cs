@@ -30,7 +30,8 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
             [NotNull] ILinqOperatorProvider linqOperatorProvider,
-            [NotNull] Type contextType)
+            [NotNull] Type contextType,
+            bool trackQueryResults)
         {
             Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory));
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
@@ -44,13 +45,14 @@ namespace Microsoft.Data.Entity.Query
 
             LinqOperatorProvider = linqOperatorProvider;
             ContextType = contextType;
+            TrackQueryResults = trackQueryResults;
         }
 
-        public virtual Type ContextType { get; }
-
         public virtual ILogger Logger { get; }
-
         public virtual ILinqOperatorProvider LinqOperatorProvider { get; }
+
+        public virtual Type ContextType { get; }
+        public virtual bool TrackQueryResults { get; }
 
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 

@@ -12,22 +12,23 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class SqlServerCompiledQueryCacheKeyGenerator : RelationalCompiledQueryCacheKeyGenerator
     {
-        private readonly IDbContextOptions _dbContextOptions;
+        private readonly IDbContextOptions _contextOptions;
 
         public SqlServerCompiledQueryCacheKeyGenerator(
             [NotNull] IModel model,
-            [NotNull] IDbContextOptions dbContextOptions)
-            : base(model, dbContextOptions)
+            [NotNull] DbContext context,
+            [NotNull] IDbContextOptions contextOptions)
+            : base(model, context, contextOptions)
         {
-            Check.NotNull(dbContextOptions, nameof(dbContextOptions));
+            Check.NotNull(contextOptions, nameof(contextOptions));
 
-            _dbContextOptions = dbContextOptions;
+            _contextOptions = contextOptions;
         }
 
         public override object GenerateCacheKey(Expression query, bool async)
             => new SqlServerCompiledQueryCacheKey(
                 GenerateCacheKeyCore(query, async),
-                _dbContextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
+                _contextOptions.FindExtension<SqlServerOptionsExtension>()?.RowNumberPaging ?? false);
 
         private struct SqlServerCompiledQueryCacheKey
         {

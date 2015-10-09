@@ -32,13 +32,15 @@ namespace Microsoft.Data.Entity.Query
                     RequiresMaterializationExpressionVisitorFactory,
                     new AsyncLinqOperatorProvider(),
                     new AsyncQueryMethodProvider(),
-                    ContextType)
+                    ContextType,
+                    TrackQueryResults)
                 : new RelationalQueryCompilationContext(
                     (ISensitiveDataLogger)Logger,
                     EntityQueryModelVisitorFactory,
                     RequiresMaterializationExpressionVisitorFactory,
                     new LinqOperatorProvider(),
                     new QueryMethodProvider(),
-                    ContextType);
+                    ContextType,
+                    TrackQueryResults);
     }
 }

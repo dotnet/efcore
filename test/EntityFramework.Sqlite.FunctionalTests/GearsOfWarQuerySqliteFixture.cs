@@ -55,7 +55,12 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
             optionsBuilder.UseSqlite(testStore.Connection);
 
             var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);
+
+            context.ChangeTracker.AutoDetectChangesEnabled = false;
+            context.ChangeTracker.TrackQueryResults = false;
+
             context.Database.UseTransaction(testStore.Transaction);
+
             return context;
         }
     }

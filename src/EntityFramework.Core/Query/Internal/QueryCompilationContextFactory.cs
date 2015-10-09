@@ -37,6 +37,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         protected virtual IRequiresMaterializationExpressionVisitorFactory RequiresMaterializationExpressionVisitorFactory { get; }
 
         protected virtual Type ContextType => _context.GetType();
+        protected virtual bool TrackQueryResults => _context.ChangeTracker.TrackQueryResults;
 
         public virtual QueryCompilationContext Create(bool async)
             => new QueryCompilationContext(
@@ -44,6 +45,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,
                 async ? (ILinqOperatorProvider)new AsyncLinqOperatorProvider() : new LinqOperatorProvider(),
-                ContextType);
+                ContextType,
+                TrackQueryResults);
     }
 }

@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         private static void LogInformation<TState>(
-            this ISensitiveDataLogger logger, RelationalLoggingEventId eventId, Func<TState> state, Func<TState, string> formatter)
+            this ILogger logger, RelationalLoggingEventId eventId, Func<TState> state, Func<TState, string> formatter)
         {
             if (logger.IsEnabled(LogLevel.Information))
             {
