@@ -19,6 +19,7 @@ namespace EntityFramework.Microbenchmarks.Core
             ,[MachineName]
             ,[ProductReportingVersion]
             ,[Framework]
+            ,[Architecture]
             ,[CustomData]
             ,[RunStarted]
             ,[WarmupIterations]
@@ -41,6 +42,7 @@ namespace EntityFramework.Microbenchmarks.Core
            ,@MachineName
            ,@ProductReportingVersion
            ,@Framework
+           ,@Architecture
            ,@CustomData
            ,@RunStarted
            ,@WarmupIterations
@@ -67,6 +69,7 @@ namespace EntityFramework.Microbenchmarks.Core
 		[MachineName] [nvarchar](max) NULL,
 		[ProductReportingVersion] [nvarchar](max) NULL,
 		[Framework] [nvarchar](max) NULL,
+		[Architecture] [nvarchar](max) NULL,
 		[CustomData] [nvarchar](max) NULL,
 		[RunStarted] [datetime2](7) NOT NULL,
 		[WarmupIterations] [int] NOT NULL,
@@ -80,7 +83,9 @@ namespace EntityFramework.Microbenchmarks.Core
 		[MemoryDeltaPercentile90] [bigint] NOT NULL,
 		[MemoryDeltaPercentile95] [bigint] NOT NULL,
 		[MemoryDeltaPercentile99] [bigint] NOT NULL,
-		[MemoryDeltaStandardDeviation] [float] NOT NULL)";
+		[MemoryDeltaStandardDeviation] [float] NOT NULL)
+ELSE IF NOT EXISTS (SELECT * FROM syscolumns WHERE name = 'Architecture')
+	ALTER TABLE [dbo].[Runs] ADD [Architecture] nvarchar(max) NULL";
 
         public SqlServerBenchmarkResultProcessor(string connectionString)
         {
@@ -115,6 +120,7 @@ namespace EntityFramework.Microbenchmarks.Core
             cmd.Parameters.AddWithValue("@MachineName", summary.MachineName);
             cmd.Parameters.AddWithValue("@ProductReportingVersion", summary.ProductReportingVersion);
             cmd.Parameters.AddWithValue("@Framework", summary.Framework);
+            cmd.Parameters.AddWithValue("@Architecture", summary.Architecture);
             cmd.Parameters.Add("@CustomData", SqlDbType.NVarChar).Value = (object)summary.CustomData ?? DBNull.Value;
             cmd.Parameters.AddWithValue("@RunStarted", summary.RunStarted);
             cmd.Parameters.AddWithValue("@WarmupIterations", summary.WarmupIterations);

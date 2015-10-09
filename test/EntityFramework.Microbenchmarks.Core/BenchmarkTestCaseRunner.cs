@@ -64,6 +64,7 @@ namespace EntityFramework.Microbenchmarks.Core
                 RunStarted = DateTime.UtcNow,
                 MachineName = _machineName,
                 Framework = _framework,
+                Architecture = IntPtr.Size > 4 ? "x64" : "x86",
                 WarmupIterations = TestCase.WarmupIterations,
                 Iterations = TestCase.Iterations,
                 CustomData = BenchmarkConfig.Instance.CustomData
@@ -95,7 +96,15 @@ namespace EntityFramework.Microbenchmarks.Core
 
                 foreach (var database in BenchmarkConfig.Instance.ResultDatabases)
                 {
-                    new SqlServerBenchmarkResultProcessor(database).SaveSummary(runSummary);
+                    try
+                    {
+                        new SqlServerBenchmarkResultProcessor(database).SaveSummary(runSummary);
+                    }
+                    catch (Exception ex)
+                    {
+                        _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage($"Failed to save results to {database}{Environment.NewLine} {ex.ToString()}"));
+                        throw;
+                    }
                 }
             }
 
