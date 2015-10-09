@@ -129,6 +129,28 @@ ORDER BY [c0].[DefaultText], [c0].[DefaultText0]",
                 Sql);
         }
 
+        public override void Join_navigation_on_inner_selector_translated_to_FK()
+        {
+            base.Join_navigation_on_inner_selector_translated_to_FK();
+
+            Assert.Equal(
+                @"SELECT [e1].[Id], [e2].[Id]
+FROM [Level1] AS [e1]
+INNER JOIN [Level2] AS [e2] ON [e1].[Id] = [e2].[OneToOne_Optional_PK_InverseId]",
+                Sql);
+        }
+
+        public override void Join_navigation_on_outer_selector_translated_to_FK()
+        {
+            base.Join_navigation_on_outer_selector_translated_to_FK();
+
+            Assert.Equal(
+                @"SELECT [e2].[Id], [e1].[Id]
+FROM [Level2] AS [e2]
+INNER JOIN [Level1] AS [e1] ON [e2].[OneToOne_Optional_PK_InverseId] = [e1].[Id]",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }
