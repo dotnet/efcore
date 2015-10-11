@@ -1,17 +1,18 @@
 ﻿{
-    "dependencies": {
-        "Microsoft.Data.Sqlite": "1.0.0-*",
-        "xunit": "2.1.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-    },
-    "commands": {
-        "test": "xunit.runner.aspnet"
-    },
-    "frameworks": {
-        "dnx451": { },
-        "dnxcore50": {
-          "System.IO.FileSystem": " 4.0.0-*",
-          "System.Threading.Thread": "4.0.0-*"
-        }
+  "dependencies": {
+    "Microsoft.AspNet.Testing": "1.0.0-*",
+    "Microsoft.Data.Sqlite": "1.0.0-*",
+    "xunit": "2.1.0-*",
+    "xunit.runner.aspnet": "2.0.0-aspnet-*"
+  },
+  "commands": {
+    "test": "xunit.runner.aspnet"
+  },
+  "frameworks": {
+    "dnx451": { },
+    "dnxcore50": {
+      "System.IO.FileSystem": " 4.0.0-*",
+      "System.Threading.Thread": "4.0.0-*"
     }
+  }
 }

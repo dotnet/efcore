@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNet.Testing.xunit;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -36,7 +37,7 @@ namespace Microsoft.Data.Sqlite
         public void It_takes_last_alias_specified()
         {
             var builder = new SqliteConnectionStringBuilder("Filename=ignore me.db; Data Source=and me too.db; DataSource=this_one.db");
-            
+
             Assert.Equal("this_one.db", builder.DataSource);
         }
 
@@ -174,13 +175,19 @@ namespace Microsoft.Data.Sqlite
             Assert.False(new SqliteConnectionStringBuilder().ShouldSerialize("Invalid"));
         }
 
-        [Fact]
+        [ConditionalFact]
+        [FrameworkSkipCondition(
+            RuntimeFrameworks.Mono,
+            SkipReason = "Test fails with Mono 4.0.4. Build rarely reaches testing with Mono 4.2.1")]
         public void ShouldSerialize_returns_false_when_unset()
         {
             Assert.False(new SqliteConnectionStringBuilder().ShouldSerialize("Data Source"));
         }
 
-        [Fact]
+        [ConditionalFact]
+        [FrameworkSkipCondition(
+            RuntimeFrameworks.Mono,
+            SkipReason = "Test fails with Mono 4.0.4. Build rarely reaches testing with Mono 4.2.1")]
         public void ShouldSerialize_returns_true_when_set()
         {
             var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
