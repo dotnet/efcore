@@ -75,6 +75,54 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Sql);
         }
 
+        public override void From_sql_queryable_with_multiple_stored_procedures()
+        {
+            base.From_sql_queryable_with_multiple_stored_procedures();
+
+            Assert.StartsWith(
+                @"[dbo].[Ten Most Expensive Products]
+
+[dbo].[Ten Most Expensive Products]
+
+[dbo].[Ten Most Expensive Products]",
+                Sql);
+        }
+
+        public override void From_sql_queryable_stored_procedure_and_select()
+        {
+            base.From_sql_queryable_stored_procedure_and_select();
+
+            Assert.StartsWith(
+                @"[dbo].[Ten Most Expensive Products]
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitsInStock]
+FROM (
+    SELECT * FROM Products
+) AS [p]
+
+SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitsInStock]
+FROM (
+    SELECT * FROM Products
+) AS [p]",
+                Sql);
+        }
+
+        public override void From_sql_queryable_select_and_stored_procedure()
+        {
+            base.From_sql_queryable_select_and_stored_procedure();
+
+            Assert.StartsWith(
+                @"SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitsInStock]
+FROM (
+    SELECT * FROM Products
+) AS [p]
+
+[dbo].[Ten Most Expensive Products]
+
+[dbo].[Ten Most Expensive Products]",
+                Sql);
+        }
+
         public FromSqlSprocQuerySqlServerTest(NorthwindSprocQuerySqlServerFixture fixture)
             : base(fixture)
         {

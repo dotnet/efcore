@@ -152,6 +152,55 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void From_sql_queryable_with_multiple_stored_procedures()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from a in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
+                       from b in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
+                       where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
+                       select new { a, b })
+                       .ToArray();
+
+                Assert.Equal(10, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_stored_procedure_and_select()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from mep in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
+                       from p in context.Set<Product>().FromSql("SELECT * FROM Products")
+                       where mep.TenMostExpensiveProducts == p.ProductName
+                       select new { mep, p })
+                        .ToArray();
+
+                Assert.Equal(10, actual.Length);
+            }
+        }
+
+        [Fact]
+        public virtual void From_sql_queryable_select_and_stored_procedure()
+        {
+            using (var context = CreateContext())
+            {
+                var actual
+                    = (from p in context.Set<Product>().FromSql("SELECT * FROM Products")
+                       from mep in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
+                       where mep.TenMostExpensiveProducts == p.ProductName
+                       select new { mep, p })
+                        .ToArray();
+
+                Assert.Equal(10, actual.Length);
+            }
+        }
+
+
         protected NorthwindContext CreateContext()
         {
             return Fixture.CreateContext();
