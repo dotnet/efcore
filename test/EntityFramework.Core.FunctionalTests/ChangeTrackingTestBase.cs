@@ -16,6 +16,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var customer = context.Customers.First();
+
+                Assert.NotEqual(customer.Phone, "425-882-8080");
+
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
                 var originalPhoneNumber = customer.Phone;
 
@@ -73,15 +76,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customer = context.Customers.First();
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
-                var originalPhoneNumber = customer.Phone;
+
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
                 Assert.NotEqual(customer.Phone, "425-882-8080");
-
-                var property = firstTrackedEntity.Property(c => c.Phone);
                 Assert.NotEqual("425-882-8080", firstTrackedEntity.Property(c => c.Phone).OriginalValue);
 
                 customer.Phone = "425-882-8080";
                 context.ChangeTracker.DetectChanges();
+
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
 
                 context.Attach(customer, behavior: GraphBehavior.SingleObject);
@@ -100,13 +102,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customer = context.Customers.First();
                 var firstTrackedEntity = context.ChangeTracker.Entries<Customer>().Single();
+
                 Assert.Equal(EntityState.Unchanged, firstTrackedEntity.State);
                 Assert.NotEqual(customer.Phone, "425-882-8080");
-
                 Assert.NotEqual("425-882-8080", firstTrackedEntity.Property(c => c.Phone).OriginalValue);
 
                 customer.Phone = "425-882-8080";
                 context.ChangeTracker.DetectChanges();
+
                 Assert.Equal(EntityState.Modified, firstTrackedEntity.State);
 
                 context.Customers.Attach(customer, behavior: GraphBehavior.SingleObject);
@@ -130,21 +133,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var trackedEntity0 = context.ChangeTracker.Entries<Customer>().First();
                 var trackedEntity1 = context.ChangeTracker.Entries<Customer>().Skip(1).First();
-                var originalPhoneNumber0 = customer0.Phone;
-                var originalPhoneNumber1 = customer1.Phone;
+
                 Assert.Equal(EntityState.Unchanged, trackedEntity0.State);
                 Assert.Equal(EntityState.Unchanged, trackedEntity1.State);
                 Assert.NotEqual(customer0.Phone, "425-882-8080");
                 Assert.NotEqual(customer1.Phone, "425-882-8080");
-
-                var property0 = trackedEntity0.Property(c => c.Phone);
-                var property1 = trackedEntity1.Property(c => c.Phone);
                 Assert.NotEqual("425-882-8080", trackedEntity0.Property(c => c.Phone).OriginalValue);
                 Assert.NotEqual("425-882-8080", trackedEntity1.Property(c => c.Phone).OriginalValue);
 
                 customer0.Phone = "425-882-8080";
                 customer1.Phone = "425-882-8080";
                 context.ChangeTracker.DetectChanges();
+
                 Assert.Equal(EntityState.Modified, trackedEntity0.State);
                 Assert.Equal(EntityState.Modified, trackedEntity1.State);
 
@@ -173,21 +173,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 var trackedEntity0 = context.ChangeTracker.Entries<Customer>().First();
                 var trackedEntity1 = context.ChangeTracker.Entries<Customer>().Skip(1).First();
-                var originalPhoneNumber0 = customer0.Phone;
-                var originalPhoneNumber1 = customer1.Phone;
+
                 Assert.Equal(EntityState.Unchanged, trackedEntity0.State);
                 Assert.Equal(EntityState.Unchanged, trackedEntity1.State);
                 Assert.NotEqual(customer0.Phone, "425-882-8080");
                 Assert.NotEqual(customer1.Phone, "425-882-8080");
-
-                var property0 = trackedEntity0.Property(c => c.Phone);
-                var property1 = trackedEntity1.Property(c => c.Phone);
                 Assert.NotEqual("425-882-8080", trackedEntity0.Property(c => c.Phone).OriginalValue);
                 Assert.NotEqual("425-882-8080", trackedEntity1.Property(c => c.Phone).OriginalValue);
 
                 customer0.Phone = "425-882-8080";
                 customer1.Phone = "425-882-8080";
                 context.ChangeTracker.DetectChanges();
+
                 Assert.Equal(EntityState.Modified, trackedEntity0.State);
                 Assert.Equal(EntityState.Modified, trackedEntity1.State);
 
@@ -204,10 +201,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected ChangeTrackingTestBase(TFixture fixture)
         {

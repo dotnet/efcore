@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             public virtual IEnumerator<object[]> GetEnumerator()
                 => _rows.HasValue
-                    ? _rows.Value.Values.GetEnumerator()
+                    ? _rows.Value.Values.Select(os => os.ToArray()).GetEnumerator()
                     : Enumerable.Empty<object[]>().GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

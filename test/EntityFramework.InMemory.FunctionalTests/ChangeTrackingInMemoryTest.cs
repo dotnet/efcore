@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.InMemory.FunctionalTests;
 
 namespace Microsoft.Data.Entity.InMemory.Tests
 {
-    internal class ChangeTrackingInMemoryTest : ChangeTrackingTestBase<NorthwindQueryInMemoryFixture>
+    public class ChangeTrackingInMemoryTest : ChangeTrackingTestBase<NorthwindQueryInMemoryFixture>
     {
         public ChangeTrackingInMemoryTest(NorthwindQueryInMemoryFixture fixture)
             : base(fixture)
