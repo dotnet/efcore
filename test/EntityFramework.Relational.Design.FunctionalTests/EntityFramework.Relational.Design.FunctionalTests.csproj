@@ -54,6 +54,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Compilation\CompilationResult.cs" />
+    <Compile Include="Compilation\CompiledAssemblyResult.cs" />
+    <Compile Include="Compilation\MetadataReferencesProvider.cs" />
+    <Compile Include="Compilation\RoslynCompilationService.cs" />
     <Compile Include="ReverseEngineering\E2ECompiler.cs" />
     <Compile Include="ReverseEngineering\E2ETestBase.cs" />
     <Compile Include="ReverseEngineering\FileSet.cs" />
@@ -63,5 +67,6 @@
   <ItemGroup>
     <None Include="project.json" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

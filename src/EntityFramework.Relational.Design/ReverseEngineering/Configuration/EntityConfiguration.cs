@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual string ErrorMessageAnnotation
             => (string)EntityType[RelationalMetadataModelProvider.AnnotationNameEntityTypeError];
 
-        public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] Property property)
+        public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));
 

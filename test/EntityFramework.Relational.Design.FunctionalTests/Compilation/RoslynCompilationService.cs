@@ -1,27 +1,22 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
-using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation
+namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
 {
-    public class RoslynCompilationService : ICompilationService
+    public class RoslynCompilationService
     {
         public virtual CompilationResult Compile(
-            [NotNull] IEnumerable<string> contents, [NotNull] List<MetadataReference> references)
+            IEnumerable<string> contents, List<MetadataReference> references)
         {
-            Check.NotNull(contents, nameof(contents));
-            Check.NotNull(references, nameof(references));
-
             var syntaxTrees = contents
                 .Select(content => CSharpSyntaxTree.ParseText(content));
 
@@ -44,16 +39,14 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
         }
 
         public static CompiledAssemblyResult GetAssemblyFromCompilation(
-            [NotNull] CSharpCompilation compilation)
+            CSharpCompilation compilation)
         {
-            Check.NotNull(compilation, nameof(compilation));
-
             EmitResult result;
             using (var ms = new MemoryStream())
             {
                 using (var pdb = new MemoryStream())
                 {
-                    if (PlatformHelper.IsMono)
+                    if (_isMono.Value)
                     {
                         result = compilation.Emit(ms, pdbStream: null);
                     }
@@ -73,7 +66,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
                     }
 
                     Assembly assembly;
-                    if (PlatformHelper.IsMono)
+                    if (_isMono.Value)
                     {
                         var assemblyLoadMethod = typeof(Assembly).GetTypeInfo().GetDeclaredMethods("Load")
                             .First(
@@ -103,11 +96,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
             }
         }
 
-        private static bool IsError([NotNull] Diagnostic diagnostic)
+        private static bool IsError(Diagnostic diagnostic)
         {
-            Check.NotNull(diagnostic, nameof(diagnostic));
-
             return diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error;
         }
+
+        private static readonly Lazy<bool> _isMono = new Lazy<bool>(() => Type.GetType("Mono.Runtime") != null);
     }
 }

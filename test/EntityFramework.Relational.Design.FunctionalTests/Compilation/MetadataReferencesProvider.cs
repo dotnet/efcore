@@ -3,9 +3,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using JetBrains.Annotations;
 using Microsoft.CodeAnalysis;
-using Microsoft.Data.Entity.Utilities;
 
 #if DNX451 || DNXCORE50
 using System;
@@ -18,7 +16,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
 
-namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Templating.Compilation
+namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
 {
     public class MetadataReferencesProvider
     {
@@ -60,13 +58,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
             AddReferenceFromName("EntityFramework.Relational.Design");
         }
 
-        public virtual void Add([NotNull] MetadataReference reference)
-            => _references.Add(Check.NotNull(reference, nameof(reference)));
+        public virtual void Add(MetadataReference reference)
+            => _references.Add(reference);
 
-        public virtual void AddReferenceFromName([NotNull] string name)
+        public virtual void AddReferenceFromName(string name)
         {
-            Check.NotEmpty(name, nameof(name));
-
             if (!_isInitialized)
             {
                 InitializeReferences();
@@ -96,7 +92,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal.Te
                 }
             }
 
-            throw new InvalidOperationException(RelationalDesignStrings.UnableToCreateMetadataReference(name));
+            throw new InvalidOperationException("Unable to create metadata reference from name: " + name);
 #else
             _references.Add(MetadataReference.CreateFromFile(Assembly.Load(name).Location));
 #endif
