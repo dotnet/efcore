@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
     public class RelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
     {
         private readonly ISensitiveDataLogger _logger;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
         private readonly IRelationalTypeMapper _typeMapper;
 
@@ -27,6 +28,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             _telemetrySource = telemetrySource;
             _typeMapper = typeMapper;
         }
+#pragma warning restore 0618
 
         public virtual IRelationalCommandBuilder Create()
             => new RelationalCommandBuilder(

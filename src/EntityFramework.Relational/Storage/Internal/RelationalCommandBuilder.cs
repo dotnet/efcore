@@ -14,6 +14,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
         private readonly ISensitiveDataLogger _logger;
+#pragma warning disable 0618
         private readonly TelemetrySource _telemetrySource;
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly List<RelationalParameter> _parameters = new List<RelationalParameter>();
@@ -31,6 +32,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             _telemetrySource = telemetrySource;
             _typeMapper = typeMapper;
         }
+#pragma warning restore 0618
 
         public virtual IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
