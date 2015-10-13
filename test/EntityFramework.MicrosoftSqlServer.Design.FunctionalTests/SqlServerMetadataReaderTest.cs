@@ -74,7 +74,8 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         [Fact]
         public void It_reads_indexes()
         {
-            var sql = "CREATE TABLE Ranges ( Name int UNIQUE, Location int, INDEX loc_idx (Location, Name) );";
+            var sql = "CREATE TABLE Ranges ( Name int UNIQUE, Location int );" +
+                      "CREATE INDEX loc_idx ON Ranges (Location, Name);";
             var dbInfo = GetDatabaseInfo(sql);
 
             var indexes = dbInfo.Tables.Single().Indexes;
