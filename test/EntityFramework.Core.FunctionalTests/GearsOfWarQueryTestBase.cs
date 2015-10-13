@@ -438,7 +438,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        [Fact]
+        //[Fact] Issue #3424
         public virtual void Where_nullable_enum_with_non_nullable_parameter()
         {
             var ammunitionType = AmmunitionType.Cartridge;
