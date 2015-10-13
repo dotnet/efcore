@@ -12,6 +12,7 @@ namespace E2ETest.Namespace
         public int? OneToManyDependentFK1 { get; set; }
         public int? OneToManyDependentFK2 { get; set; }
         [Required]
+        [MaxLength(20)]
         public string SomeDependentEndColumn { get; set; }
 
         [ForeignKey("OneToManyDependentFK1,OneToManyDependentFK2")]

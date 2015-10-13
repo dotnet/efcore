@@ -10,6 +10,7 @@ namespace E2ETest.Namespace
         public int OneToOneSeparateFKPrincipalID1 { get; set; }
         public int OneToOneSeparateFKPrincipalID2 { get; set; }
         [Required]
+        [MaxLength(20)]
         public string SomeOneToOneSeparateFKPrincipalColumn { get; set; }
 
         [InverseProperty("OneToOneSeparateFKDependentFK")]

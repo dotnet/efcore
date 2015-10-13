@@ -5,7 +5,7 @@ using System;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Tests
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringConfigurationTests
     {

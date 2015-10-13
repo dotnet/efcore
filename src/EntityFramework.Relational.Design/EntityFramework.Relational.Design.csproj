@@ -47,6 +47,9 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="Model\ModelExtensions.cs" />
+    <Compile Include="ReverseEngineering\CSharpNamer.cs" />
+    <Compile Include="ReverseEngineering\CSharpUniqueNamer.cs" />
     <Compile Include="ReverseEngineering\IMetadataReader.cs" />
     <Compile Include="Model\Column.cs" />
     <Compile Include="Model\SchemaInfo.cs" />
@@ -80,7 +83,7 @@
     <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
-    <Compile Include="ReverseEngineering\IDatabaseMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\MetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
     <Compile Include="ReverseEngineering\Internal\DbContextWriter.cs" />
     <Compile Include="ReverseEngineering\Internal\EntityTypeWriter.cs" />

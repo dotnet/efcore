@@ -4,7 +4,7 @@
 using System.Reflection;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 
-namespace Microsoft.Data.Entity.Relational.Design.Tests
+namespace Microsoft.Data.Entity.Relational.Design
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {

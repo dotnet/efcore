@@ -13,10 +13,6 @@
     "EntityFramework.Sqlite": "7.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "EntityFramework.Sqlite.Design.SqliteDesignStrings": "Properties/SqliteDesignStrings.resx"
-  },
-  "resource": "ReverseEngineering/Templates/*.cshtml",
   "frameworks": {
     "net45": { 
       "frameworkAssemblies": {

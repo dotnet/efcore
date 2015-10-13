@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
@@ -17,7 +18,6 @@ using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 
 namespace EntityFramework.Sqlite.Design.FunctionalTests
 {
@@ -25,7 +25,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
     {
         private readonly SqliteMetadataModelProvider _metadataModelProvider;
         private readonly SqliteTestStore _testStore;
-        private TestLogger _logger;
+        private readonly TestLogger _logger;
 
         public SqliteMetadataModelProviderTest()
         {
@@ -44,7 +44,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
 
             _metadataModelProvider = serviceProvider
-                .GetService<IDatabaseMetadataModelProvider>() as SqliteMetadataModelProvider;
+                .GetService<MetadataModelProvider>() as SqliteMetadataModelProvider;
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                 columns,
                 idx.Properties.Select(c => c.Sqlite().ColumnName).ToArray());
 
-            var props = columns.Select(c => entityType.GetProperties().First(p=>p.Sqlite().ColumnName == c)).ToArray();
+            var props = columns.Select(c => entityType.GetProperties().First(p => p.Sqlite().ColumnName == c)).ToArray();
             var key = entityType.FindKey(props);
 
             Assert.NotNull(key);
@@ -234,7 +234,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Warning: " + SqliteDesignStrings.ForeignKeyScaffoldError("Children", "ParentId"), _logger.FullLog);
+            Assert.Contains("Warning: " + RelationalDesignStrings.ForeignKeyScaffoldError("Children(ParentId)"), _logger.FullLog);
         }
 
         [Fact]
@@ -314,7 +314,7 @@ CREATE TABLE Gum ( A, B,
         private IModel GetModel(string createSql)
         {
             _testStore.ExecuteNonQuery(createSql);
-            return _metadataModelProvider.GenerateMetadataModel(_testStore.Connection.ConnectionString, TableSelectionSet.InclusiveAll);
+            return _metadataModelProvider.GetModel(_testStore.Connection.ConnectionString, TableSelectionSet.InclusiveAll);
         }
     }
 

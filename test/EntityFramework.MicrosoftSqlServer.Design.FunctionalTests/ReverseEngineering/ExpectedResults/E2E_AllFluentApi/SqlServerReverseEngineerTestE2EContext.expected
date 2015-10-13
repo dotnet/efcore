@@ -14,20 +14,66 @@ namespace E2ETest.Namespace
         {
             modelBuilder.Entity<AllDataTypes>(entity =>
             {
-                entity.Property(e => e.datetime2Column).HasColumnType("datetime2(7)");
+                entity.Property(e => e.binaryColumn)
+                    .HasMaxLength(1)
+                    .HasColumnType("binary");
 
-                entity.Property(e => e.decimalColumn).HasColumnType("decimal(18, 0)");
+                entity.Property(e => e.charColumn)
+                    .HasMaxLength(1)
+                    .HasColumnType("char");
 
-                entity.Property(e => e.numericColumn).HasColumnType("numeric(18, 0)");
+                entity.Property(e => e.dateColumn).HasColumnType("date");
 
-                entity.Property(e => e.timestampColumn).ValueGeneratedOnAddOrUpdate();
+                entity.Property(e => e.datetime24Column).HasColumnType("datetime2(4)");
+
+                entity.Property(e => e.datetimeColumn).HasColumnType("datetime");
+
+                entity.Property(e => e.datetimeoffset5Column).HasColumnType("datetimeoffset(5)");
+
+                entity.Property(e => e.decimalColumn).HasColumnType("decimal");
+
+                entity.Property(e => e.imageColumn).HasColumnType("image");
+
+                entity.Property(e => e.moneyColumn).HasColumnType("money");
+
+                entity.Property(e => e.ncharColumn)
+                    .HasMaxLength(1)
+                    .HasColumnType("nchar");
+
+                entity.Property(e => e.ntextColumn).HasColumnType("ntext");
+
+                entity.Property(e => e.numericColumn).HasColumnType("numeric");
+
+                entity.Property(e => e.nvarcharColumn).HasMaxLength(1);
+
+                entity.Property(e => e.smalldatetimeColumn).HasColumnType("smalldatetime");
+
+                entity.Property(e => e.smallmoneyColumn).HasColumnType("smallmoney");
+
+                entity.Property(e => e.textColumn).HasColumnType("text");
+
+                entity.Property(e => e.time4Column).HasColumnType("time(4)");
+
+                entity.Property(e => e.timestampColumn)
+                    .HasColumnType("timestamp")
+                    .ValueGeneratedOnAddOrUpdate();
+
+                entity.Property(e => e.varbinaryColumn)
+                    .HasMaxLength(1)
+                    .HasColumnType("varbinary");
+
+                entity.Property(e => e.varcharColumn)
+                    .HasMaxLength(1)
+                    .HasColumnType("varchar");
             });
 
             modelBuilder.Entity<OneToManyDependent>(entity =>
             {
                 entity.HasKey(e => new { e.OneToManyDependentID1, e.OneToManyDependentID2 });
 
-                entity.Property(e => e.SomeDependentEndColumn).IsRequired();
+                entity.Property(e => e.SomeDependentEndColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
 
                 entity.HasOne(d => d.OneToManyDependentFK).WithMany(p => p.OneToManyDependent).HasForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
             });
@@ -36,14 +82,18 @@ namespace E2ETest.Namespace
             {
                 entity.HasKey(e => new { e.OneToManyPrincipalID1, e.OneToManyPrincipalID2 });
 
-                entity.Property(e => e.Other).IsRequired();
+                entity.Property(e => e.Other)
+                    .IsRequired()
+                    .HasMaxLength(20);
             });
 
             modelBuilder.Entity<OneToOneDependent>(entity =>
             {
                 entity.HasKey(e => new { e.OneToOneDependentID1, e.OneToOneDependentID2 });
 
-                entity.Property(e => e.SomeDependentEndColumn).IsRequired();
+                entity.Property(e => e.SomeDependentEndColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
 
                 entity.HasOne(d => d.OneToOneDependentNavigation).WithOne(p => p.OneToOneDependent).HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 });
             });
@@ -54,7 +104,9 @@ namespace E2ETest.Namespace
 
                 entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 });
 
-                entity.Property(e => e.SomeColumn).IsRequired();
+                entity.Property(e => e.SomeColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
 
                 entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK).WithOne(p => p.OneToOneFKToUniqueKeyDependent).HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 }).HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
             });
@@ -65,14 +117,18 @@ namespace E2ETest.Namespace
 
                 entity.HasAlternateKey(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 });
 
-                entity.Property(e => e.SomePrincipalColumn).IsRequired();
+                entity.Property(e => e.SomePrincipalColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
             });
 
             modelBuilder.Entity<OneToOnePrincipal>(entity =>
             {
                 entity.HasKey(e => new { e.OneToOnePrincipalID1, e.OneToOnePrincipalID2 });
 
-                entity.Property(e => e.SomeOneToOnePrincipalColumn).IsRequired();
+                entity.Property(e => e.SomeOneToOnePrincipalColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
             });
 
             modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
@@ -81,7 +137,9 @@ namespace E2ETest.Namespace
 
                 entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
 
-                entity.Property(e => e.SomeDependentEndColumn).IsRequired();
+                entity.Property(e => e.SomeDependentEndColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
 
                 entity.HasOne(d => d.OneToOneSeparateFKDependentFK).WithOne(p => p.OneToOneSeparateFKDependent).HasForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
             });
@@ -90,7 +148,9 @@ namespace E2ETest.Namespace
             {
                 entity.HasKey(e => new { e.OneToOneSeparateFKPrincipalID1, e.OneToOneSeparateFKPrincipalID2 });
 
-                entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn).IsRequired();
+                entity.Property(e => e.SomeOneToOneSeparateFKPrincipalColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
             });
 
             modelBuilder.Entity<PropertyConfiguration>(entity =>
@@ -99,28 +159,33 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.RowversionColumn)
                     .IsRequired()
+                    .HasColumnType("timestamp")
                     .ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
 
-                entity.Property(e => e.WithDateDefaultExpression)
-                    .HasColumnType("datetime2(7)")
-                    .HasDefaultValueSql("getdate()");
-
-                entity.Property(e => e.WithDateNullDefault).HasColumnType("datetime2(7)");
+                entity.Property(e => e.WithDateDefaultExpression).HasDefaultValueSql("getdate()");
 
                 entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
 
                 entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");
 
-                entity.Property(e => e.WithMoneyDefaultValue).HasDefaultValue(0.00m);
+                entity.Property(e => e.WithMoneyDefaultValue)
+                    .HasColumnType("money")
+                    .HasDefaultValue(0.00m);
+
+                entity.Property(e => e.WithVarcharNullDefaultValue)
+                    .HasMaxLength(1)
+                    .HasColumnType("varchar");
             });
 
             modelBuilder.Entity<ReferredToByTableWithUnmappablePrimaryKeyColumn>(entity =>
             {
                 entity.Property(e => e.ReferredToByTableWithUnmappablePrimaryKeyColumnID).ValueGeneratedNever();
 
-                entity.Property(e => e.AColumn).IsRequired();
+                entity.Property(e => e.AColumn)
+                    .IsRequired()
+                    .HasMaxLength(20);
 
                 entity.Property(e => e.ValueGeneratedOnAddColumn).ValueGeneratedOnAdd();
             });
@@ -129,9 +194,13 @@ namespace E2ETest.Namespace
             {
                 entity.Property(e => e.SelfReferencingID).ValueGeneratedNever();
 
-                entity.Property(e => e.Description).IsRequired();
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(100);
 
-                entity.Property(e => e.Name).IsRequired();
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(20);
 
                 entity.HasOne(d => d.SelfReferenceFKNavigation).WithMany(p => p.InverseSelfReferenceFKNavigation).HasForeignKey(d => d.SelfReferenceFK);
             });

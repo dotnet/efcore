@@ -1,10 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Relational.Design.Model;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Xunit;
 
-namespace Microsoft.Data.Entity.Sqlite.Design
+namespace Microsoft.Data.Entity.Relational.Design
 {
     public class CSharpNamerTest
     {

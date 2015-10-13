@@ -12,6 +12,7 @@ namespace E2ETest.Namespace
         public int OneToOneFKToUniqueKeyPrincipalUniqueKey1 { get; set; }
         public int OneToOneFKToUniqueKeyPrincipalUniqueKey2 { get; set; }
         [Required]
+        [MaxLength(20)]
         public string SomePrincipalColumn { get; set; }
 
         public virtual OneToOneFKToUniqueKeyDependent OneToOneFKToUniqueKeyDependent { get; set; }

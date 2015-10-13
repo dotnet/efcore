@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.Model;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;

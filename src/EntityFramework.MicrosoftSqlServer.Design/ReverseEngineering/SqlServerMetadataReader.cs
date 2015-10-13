@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.Model;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -251,20 +251,27 @@ INNER JOIN sys.foreign_key_columns AS fc
                         var principalSchemaTableName = reader.GetString(3);
                         var principalTableName = reader.GetString(4);
                         var table = _tables[TableKey(tableName, schemaName)];
+                        Table principalTable;
+                        _tables.TryGetValue(TableKey(principalTableName, principalSchemaTableName), out principalTable);
+
                         fkInfo = new ForeignKey
                         {
                             Table = table,
-                            PrincipalTable = _tables[TableKey(principalTableName, principalSchemaTableName)]
+                            PrincipalTable = principalTable
                         };
+
                         table.ForeignKeys.Add(fkInfo);
                     }
                     var fromColumnName = reader.GetString(5);
                     var fromColumn = _tableColumns[ColumnKey(fkInfo.Table, fromColumnName)];
                     fkInfo.From.Add(fromColumn);
 
-                    var toColumnName = reader.GetString(6);
-                    var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
-                    fkInfo.To.Add(toColumn);
+                    if (fkInfo.PrincipalTable != null)
+                    {
+                        var toColumnName = reader.GetString(6);
+                        var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
+                        fkInfo.To.Add(toColumn);
+                    }
                 }
             }
         }

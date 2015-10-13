@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 
-namespace Microsoft.Data.Entity.Relational.Design
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public interface IMetadataReader
     {

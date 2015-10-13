@@ -42,11 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
-    <Compile Include="CSharpUniqueNamerTest.cs" />
-    <Compile Include="CSharpNamerTest.cs" />
-    <Compile Include="RelationalMetadataModelProviderTest.cs" />
     <Compile Include="SqliteDmlParserTest.cs" />
-    <Compile Include="TestLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
