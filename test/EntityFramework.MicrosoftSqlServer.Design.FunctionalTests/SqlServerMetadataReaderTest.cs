@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 
-namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
 {
     public class SqlServerMetadataReaderTest : IDisposable
     {

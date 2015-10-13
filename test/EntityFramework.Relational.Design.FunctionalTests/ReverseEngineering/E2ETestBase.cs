@@ -88,9 +88,14 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         {
             try
             {
-                Assert.Equal(expected, actual);
+                foreach (var message in expected)
+                {
+                    Assert.Contains(message, actual);
+                }
+                
+                Assert.Equal(expected.Count, actual.Count);
             }
-            catch (EqualException e)
+            catch (EqualException)
             {
                 var sep = new string('=', 60);
                 _output.WriteLine($"Contents of {category} logger messages:");
@@ -98,7 +103,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
                 _output.WriteLine(string.Join(Environment.NewLine, actual));
                 _output.WriteLine(sep);
 
-                throw e;
+                throw;
             }
         }
 
