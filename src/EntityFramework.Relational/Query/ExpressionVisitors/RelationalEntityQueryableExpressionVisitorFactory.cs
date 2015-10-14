@@ -44,8 +44,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         public virtual ExpressionVisitor Create(
-            [NotNull] EntityQueryModelVisitor queryModelVisitor,
-            [NotNull] IQuerySource querySource)
+            EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new RelationalEntityQueryableExpressionVisitor(
                 _model,
                 _keyValueFactorySource,
@@ -54,6 +53,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 _commandBuilderFactory,
                 _relationalAnnotationProvider,
                 (RelationalQueryModelVisitor)Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
-                Check.NotNull(querySource, nameof(querySource)));
+                querySource);
     }
 }

@@ -164,9 +164,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<RelatedEntitiesLoader> relatedEntitiesLoaders,
             bool queryStateManager)
-        {
-            Include(entity, navigationPath, relatedEntitiesLoaders, 0, queryStateManager);
-        }
+            => Include(entity, navigationPath, relatedEntitiesLoaders, 0, queryStateManager);
 
         private void Include(
             object entity,
@@ -277,7 +275,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory), async (eli, ct) =>
+                await relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
+                    .Select(async (eli, ct) =>
                     {
                         var keyValue
                             = keyValueFactory

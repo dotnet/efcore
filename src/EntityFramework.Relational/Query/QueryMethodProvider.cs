@@ -11,61 +11,43 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
-using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
     public class QueryMethodProvider : IQueryMethodProvider
     {
-        public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
+        public virtual MethodInfo ShapedQueryMethod => _shapedQueryMethodInfo;
 
-        private static readonly MethodInfo _groupJoinMethodInfo
-            = typeof(QueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
+        private static readonly MethodInfo _shapedQueryMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        private static IEnumerable<QueryResultScope> _GroupJoin<TResult>(
-            IEnumerable<QueryResultScope> source,
-            Func<QueryResultScope, IEnumerable<QueryResultScope<TResult>>, QueryResultScope<IEnumerable<TResult>>> resultSelector)
-        {
-            using (var sourceEnumerator = source.GetEnumerator())
-            {
-                var hasRows = sourceEnumerator.MoveNext();
+        private static IEnumerable<T> _ShapedQuery<T>(
+            QueryContext queryContext,
+            CommandBuilder commandBuilder,
+            Func<ValueBuffer, T> shaper)
+            => new QueryingEnumerable(
+                (RelationalQueryContext)queryContext,
+                commandBuilder,
+                queryIndex: null)
+                .Select(shaper); // TODO: Pass shaper to underlying enumerable
 
-                while (hasRows)
-                {
-                    var outerQueryResultScope = sourceEnumerator.Current;
+        public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
-                    var innerQueryResultScopes = new List<QueryResultScope<TResult>>();
+        private static readonly MethodInfo _queryMethodInfo
+            = typeof(QueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(_Query));
 
-                    if (sourceEnumerator.Current.UntypedResult == null)
-                    {
-                        hasRows = sourceEnumerator.MoveNext();
-                    }
-                    else
-                    {
-                        var parentScope = sourceEnumerator.Current.ParentScope;
-
-                        while (hasRows)
-                        {
-                            innerQueryResultScopes.Add((QueryResultScope<TResult>)sourceEnumerator.Current);
-
-                            hasRows = sourceEnumerator.MoveNext();
-
-                            if (hasRows
-                                && !ReferenceEquals(
-                                    parentScope.UntypedResult,
-                                    sourceEnumerator.Current.ParentScope.UntypedResult))
-                            {
-                                break;
-                            }
-                        }
-                    }
-
-                    yield return resultSelector(outerQueryResultScope, innerQueryResultScopes);
-                }
-            }
-        }
+        [UsedImplicitly]
+        private static IEnumerable<ValueBuffer> _Query(
+            QueryContext queryContext,
+            CommandBuilder commandBuilder,
+            int? queryIndex)
+            => new QueryingEnumerable(
+                ((RelationalQueryContext)queryContext),
+                commandBuilder,
+                queryIndex);
 
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
 
@@ -89,38 +71,74 @@ namespace Microsoft.Data.Entity.Query
             return default(TResult);
         }
 
-        public virtual MethodInfo ShapedQueryMethod => _shapedQueryMethodInfo;
+        public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
 
-        private static readonly MethodInfo _shapedQueryMethodInfo
-            = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_ShapedQuery));
-
-        [UsedImplicitly]
-        private static IEnumerable<T> _ShapedQuery<T>(
-            QueryContext queryContext,
-            CommandBuilder commandBuilder,
-            Func<ValueBuffer, T> shaper)
-            => new QueryingEnumerable(
-                (RelationalQueryContext)queryContext,
-                commandBuilder,
-                queryIndex: null)
-                .Select(shaper);
-
-        public virtual MethodInfo QueryMethod => _queryMethodInfo;
-
-        private static readonly MethodInfo _queryMethodInfo
-            = typeof(QueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(_Query));
+        private static readonly MethodInfo _groupJoinMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        private static IEnumerable<ValueBuffer> _Query(
-            QueryContext queryContext,
-            CommandBuilder commandBuilder,
-            int? queryIndex)
-            => new QueryingEnumerable(
-                ((RelationalQueryContext)queryContext),
-                commandBuilder,
-                queryIndex);
+        private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+            IEnumerable<ValueBuffer> source,
+            Func<ValueBuffer, TOuter> outerFactory,
+            Func<ValueBuffer, TInner> innerFactory,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
+        {
+            using (var sourceEnumerator = source.GetEnumerator())
+            {
+                var comparer = EqualityComparer<TKey>.Default;
+                var hasNext = sourceEnumerator.MoveNext();
+
+                while (hasNext)
+                {
+                    var outer = outerFactory(sourceEnumerator.Current);
+                    var inner = innerFactory(sourceEnumerator.Current);
+                    var inners = new List<TInner>();
+
+                    if (inner == null)
+                    {
+                        yield return resultSelector(outer, inners);
+
+                        hasNext = sourceEnumerator.MoveNext();
+                    }
+                    else
+                    {
+                        var currentGroupKey = innerKeySelector(inner);
+
+                        inners.Add(inner);
+
+                        while (true)
+                        {
+                            hasNext = sourceEnumerator.MoveNext();
+
+                            if (!hasNext)
+                            {
+                                break;
+                            }
+
+                            inner = innerFactory(sourceEnumerator.Current);
+
+                            if (inner == null)
+                            {
+                                break;
+                            }
+
+                            var innerKey = innerKeySelector(inner);
+
+                            if (!comparer.Equals(currentGroupKey, innerKey))
+                            {
+                                break;
+                            }
+
+                            inners.Add(inner);
+                        }
+
+                        yield return resultSelector(outer, inners);
+                    }
+                }
+            }
+        }
 
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 
@@ -132,11 +150,10 @@ namespace Microsoft.Data.Entity.Query
         private static IEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IEnumerable<T> innerResults,
-            IQuerySource querySource,
+            Func<T, object> entityAccessor,
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<Func<IIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories,
             bool querySourceRequiresTracking)
-            where T : QueryResultScope
         {
             queryContext.BeginIncludeScope();
 
@@ -151,16 +168,16 @@ namespace Microsoft.Data.Entity.Query
                     .ToArray();
 
             return innerResults
-                .Select(qss =>
+                .Select(r =>
                     {
                         queryContext.QueryBuffer
                             .Include(
-                                qss.GetResult(querySource),
+                                entityAccessor == null ? r : entityAccessor(r), // TODO: Compile time?
                                 navigationPath,
                                 relatedEntitiesLoaders,
                                 querySourceRequiresTracking);
 
-                        return qss;
+                        return r;
                     })
                 .Finally(() =>
                     {
@@ -172,8 +189,6 @@ namespace Microsoft.Data.Entity.Query
                         queryContext.EndIncludeScope();
                     });
         }
-
-        public virtual Type IncludeRelatedValuesFactoryType => typeof(Func<IIncludeRelatedValuesStrategy>);
 
         public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod 
             => _createReferenceIncludeStrategyMethodInfo;
@@ -258,5 +273,7 @@ namespace Microsoft.Data.Entity.Query
 
             public void Dispose() => _includeCollectionIterator.Dispose();
         }
+
+        public virtual Type IncludeRelatedValuesFactoryType => typeof(Func<IIncludeRelatedValuesStrategy>);
     }
 }

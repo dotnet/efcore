@@ -48,5 +48,7 @@ namespace Microsoft.Data.Entity.Query
 
         MethodInfo GetAggregateMethod([NotNull] string methodName, [NotNull] Type elementType);
         Expression AdjustSequenceType([NotNull] Expression expression);
+
+        Type MakeSequenceType([NotNull] Type elementType);
     }
 }

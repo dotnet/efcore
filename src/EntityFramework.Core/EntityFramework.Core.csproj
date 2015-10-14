@@ -339,7 +339,6 @@
     <Compile Include="Metadata\PropertyExtensions.cs" />
     <Compile Include="Query\IResultOperatorHandler.cs" />
     <Compile Include="Query\QueryCompilationContext.cs" />
-    <Compile Include="Query\QueryResultScope`.cs" />
     <Compile Include="Query\ResultOperatorHandler.cs" />
     <Compile Include="Internal\ServiceProviderCache.cs" />
     <Compile Include="ChangeTracking\ChangeTracker.cs" />
@@ -399,7 +398,6 @@
     <Compile Include="Query\ILinqOperatorProvider.cs" />
     <Compile Include="Query\LinqOperatorProvider.cs" />
     <Compile Include="Query\QueryContext.cs" />
-    <Compile Include="Query\QueryResultScope.cs" />
     <Compile Include="Query\TaskResultAsyncEnumerable.cs" />
     <Compile Include="Storage\Database.cs" />
     <Compile Include="Storage\IDatabaseCreator.cs" />

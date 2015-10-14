@@ -19,21 +19,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private readonly IModel _model;
         private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IMaterializerFactory _materializerFactory;
-
-        private IQuerySource _querySource;
+        private readonly IQuerySource _querySource;
 
         public InMemoryEntityQueryableExpressionVisitor(
             [NotNull] IModel model,
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
-            [NotNull] IQuerySource querySource)
+            [CanBeNull] IQuerySource querySource)
             : base(Check.NotNull(entityQueryModelVisitor, nameof(entityQueryModelVisitor)))
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
-            Check.NotNull(querySource, nameof(querySource));
 
             _model = model;
             _keyValueFactorySource = keyValueFactorySource;
@@ -41,7 +39,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _querySource = querySource;
         }
 
-        private new InMemoryQueryModelVisitor QueryModelVisitor => (InMemoryQueryModelVisitor)base.QueryModelVisitor;
+        private new InMemoryQueryModelVisitor QueryModelVisitor 
+            => (InMemoryQueryModelVisitor)base.QueryModelVisitor;
 
         protected override Expression VisitEntityQueryable(Type elementType)
         {

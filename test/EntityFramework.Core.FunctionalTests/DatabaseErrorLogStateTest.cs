@@ -10,6 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable StringStartsWithIsCultureSpecific
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public class DatabaseErrorLogStateTest
@@ -192,10 +196,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
             }
 
-            public ILogger CreateLogger(string name)
-            {
-                return Logger;
-            }
+            public ILogger CreateLogger(string name) => Logger;
 
             public void Dispose()
             {
@@ -203,10 +204,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             public class TestLogger : ILogger
             {
-                public IDisposable BeginScopeImpl(object state)
-                {
-                    return NullScope.Instance;
-                }
+                public IDisposable BeginScopeImpl(object state) => NullScope.Instance;
 
                 public void Log(LogLevel logLevel, int eventId, object state, Exception exception, Func<object, Exception, string> formatter)
                 {
@@ -219,19 +217,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     }
                 }
 
-                public bool IsEnabled(LogLevel logLevel)
-                {
-                    return true;
-                }
+                public bool IsEnabled(LogLevel logLevel) => true;
 
-                public IDisposable BeginScope(object state)
-                {
-                    throw new NotImplementedException();
-                }
-
-                public DatabaseErrorLogState LastDatabaseErrorState { get; set; }
-                public Exception LastDatabaseErrorException { get; set; }
-                public Func<object, Exception, string> LastDatabaseErrorFormatter { get; set; }
+                public DatabaseErrorLogState LastDatabaseErrorState { get; private set; }
+                public Exception LastDatabaseErrorException { get; private set; }
+                public Func<object, Exception, string> LastDatabaseErrorFormatter { get; private set; }
             }
         }
     }

@@ -23,15 +23,15 @@ namespace Microsoft.Data.Entity.Query.Internal
             _entityMaterializerSource = entityMaterializerSource;
         }
 
-        public virtual Expression CreateMaterializer([NotNull] IEntityType entityType)
+        public virtual Expression CreateMaterializer(IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
             var entityTypeParameter
-                = Expression.Parameter(typeof(IEntityType));
+                = Expression.Parameter(typeof(IEntityType), "entityType");
 
             var valueBufferParameter
-                = Expression.Parameter(typeof(ValueBuffer));
+                = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToArray();

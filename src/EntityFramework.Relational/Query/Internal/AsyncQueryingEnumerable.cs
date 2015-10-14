@@ -46,8 +46,6 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
             {
-                Debug.Assert(!_disposed);
-
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (_buffer == null)
@@ -97,6 +95,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             public async Task BufferAllAsync(CancellationToken cancellationToken)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (_buffer == null)
                 {
                     _buffer = new Queue<ValueBuffer>();

@@ -10,11 +10,15 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Extensions.Internal;
+using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -36,22 +40,30 @@ namespace Microsoft.Data.Entity.Query
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
+        private readonly ILogger _logger;
+        private readonly Type _contextType;
 
         public QueryCompiler(
             [NotNull] IQueryContextFactory queryContextFactory,
             [NotNull] ICompiledQueryCache compiledQueryCache,
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
-            [NotNull] IDatabase database)
+            [NotNull] IDatabase database,
+            [NotNull] ILogger<QueryCompiler> logger,
+            [NotNull] DbContext context)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
             Check.NotNull(compiledQueryCache, nameof(compiledQueryCache));
             Check.NotNull(compiledQueryCacheKeyGenerator, nameof(compiledQueryCacheKeyGenerator));
             Check.NotNull(database, nameof(database));
+            Check.NotNull(logger, nameof(logger));
+            Check.NotNull(context, nameof(context));
 
             _queryContextFactory = queryContextFactory;
             _compiledQueryCache = compiledQueryCache;
             _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
             _database = database;
+            _logger = logger;
+            _contextType = context.GetType();
         }
 
         protected virtual IDatabase Database => _database;
@@ -88,7 +100,21 @@ namespace Microsoft.Data.Entity.Query
 
             query = Preprocess(query, queryContext);
 
-            return CompileAsyncQuery<TResult>(query)(queryContext).First(cancellationToken);
+            try
+            {
+                return CompileAsyncQuery<TResult>(query)(queryContext).First(cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                _logger
+                    .LogError(
+                        CoreLoggingEventId.DatabaseError,
+                        () => new DatabaseErrorLogState(_contextType),
+                        exception,
+                        e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+
+                throw;
+            }
         }
 
         protected virtual Expression Preprocess([NotNull] Expression query, [NotNull] QueryContext queryContext)
@@ -113,13 +139,32 @@ namespace Microsoft.Data.Entity.Query
                             var queryModel = CreateQueryParser().GetParsedQuery(query);
 
                             var resultItemType
-                                = (queryModel.GetOutputDataInfo() as StreamedSequenceInfo)?.ResultItemType ?? typeof(TResult);
+                                = (queryModel.GetOutputDataInfo()
+                                    as StreamedSequenceInfo)?.ResultItemType
+                                  ?? typeof(TResult);
 
                             if (resultItemType == typeof(TResult))
                             {
                                 var compiledQuery = _database.CompileQuery<TResult>(queryModel);
 
-                                return qc => compiledQuery(qc).First();
+                                return qc =>
+                                    {
+                                        try
+                                        {
+                                            return compiledQuery(qc).First();
+                                        }
+                                        catch (Exception exception)
+                                        {
+                                            _logger
+                                                .LogError(
+                                                    CoreLoggingEventId.DatabaseError,
+                                                    () => new DatabaseErrorLogState(_contextType),
+                                                    exception,
+                                                    e => CoreStrings.LogExceptionDuringQueryIteration(Environment.NewLine, e));
+
+                                            throw;
+                                        }
+                                    };
                             }
 
                             try

@@ -138,8 +138,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                 innerBodyClauseMapping
                     .AddMapping(innerMainFromClause, new QuerySourceReferenceExpression(fromClause));
 
-                queryModel.TransformExpressions(ex =>
-                    ReferenceReplacingExpressionVisitor.ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
+                queryModel.TransformExpressions(
+                    ex => ReferenceReplacingExpressionVisitor
+                        .ReplaceClauseReferences(ex, innerBodyClauseMapping, false));
 
                 foreach (var queryAnnotation
                     in _queryAnnotations

@@ -86,20 +86,21 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<T> _InterceptExceptions<T>(
-            Func<IAsyncEnumerable<T>> source, Type contextType, ILogger logger)
+            IAsyncEnumerable<T> source, Type contextType, ILogger logger)
             => new ExceptionInterceptor<T>(source, contextType, logger);
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
         private sealed class ExceptionInterceptor<T> : IAsyncEnumerable<T>
         {
-            private readonly Func<IAsyncEnumerable<T>> _innerFactory;
+            private readonly IAsyncEnumerable<T> _innerAsyncEnumerable;
             private readonly Type _contextType;
             private readonly ILogger _logger;
 
-            public ExceptionInterceptor(Func<IAsyncEnumerable<T>> innerFactory, Type contextType, ILogger logger)
+            public ExceptionInterceptor(
+                IAsyncEnumerable<T> innerAsyncEnumerable, Type contextType, ILogger logger)
             {
-                _innerFactory = innerFactory;
+                _innerAsyncEnumerable = innerAsyncEnumerable;
                 _contextType = contextType;
                 _logger = logger;
             }
@@ -110,26 +111,21 @@ namespace Microsoft.Data.Entity.Query
             private sealed class EnumeratorExceptionInterceptor : IAsyncEnumerator<T>
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
-
-                private IAsyncEnumerator<T> _inner;
+                private readonly IAsyncEnumerator<T> _innerEnumerator;
 
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
+                    _innerEnumerator = _exceptionInterceptor._innerAsyncEnumerable.GetEnumerator();
                 }
 
-                public T Current => _inner.Current;
+                public T Current => _innerEnumerator.Current;
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
                     try
                     {
-                        if (_inner == null)
-                        {
-                            _inner = _exceptionInterceptor._innerFactory().GetEnumerator();
-                        }
-
-                        return await _inner.MoveNext(cancellationToken);
+                        return await _innerEnumerator.MoveNext(cancellationToken);
                     }
                     catch (Exception exception)
                     {
@@ -144,7 +140,7 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
 
-                public void Dispose() => _inner?.Dispose();
+                public void Dispose() => _innerEnumerator.Dispose();
             }
         }
 
@@ -308,9 +304,11 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_SelectMany));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TResult> _SelectMany<TSource, TResult>(
-            IAsyncEnumerable<TSource> source, Func<TSource, IAsyncEnumerable<TResult>> selector)
-            => source.SelectMany(selector);
+        private static IAsyncEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, IAsyncEnumerable<TCollection>> collectionSelector,
+            Func<TSource, TCollection, TResult> resultSelector)
+            => source.SelectMany(collectionSelector, resultSelector);
 
         public virtual MethodInfo SelectMany => _selectMany;
 
@@ -486,6 +484,10 @@ namespace Microsoft.Data.Entity.Query
 
             return expression;
         }
+
+        public virtual Type MakeSequenceType(Type elementType)
+            => typeof(IAsyncEnumerable<>)
+                .MakeGenericType(Check.NotNull(elementType, nameof(elementType)));
 
         private static readonly MethodInfo _toAsyncEnumerable
             = typeof(AsyncLinqOperatorProvider)

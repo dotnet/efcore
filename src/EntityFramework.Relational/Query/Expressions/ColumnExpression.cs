@@ -19,15 +19,15 @@ namespace Microsoft.Data.Entity.Query.Expressions
             [NotNull] string name,
             [NotNull] IProperty property,
             [NotNull] TableExpressionBase tableExpression)
-            :this(name, Check.NotNull(property, nameof(property)).ClrType, tableExpression)
+            : this(name, Check.NotNull(property, nameof(property)).ClrType, tableExpression)
         {
             _property = property;
         }
 
         public ColumnExpression(
-         [NotNull] string name,
-         [NotNull] Type type,
-         [NotNull] TableExpressionBase tableExpression)
+            [NotNull] string name,
+            [NotNull] Type type,
+            [NotNull] TableExpressionBase tableExpression)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(type, nameof(type));
@@ -94,8 +94,6 @@ namespace Microsoft.Data.Entity.Query.Expressions
             }
         }
 
-        // TODO: Get provider-specific name
-        // Issue #871 
         public override string ToString() => _tableExpression.Alias + "." + Name;
     }
 }

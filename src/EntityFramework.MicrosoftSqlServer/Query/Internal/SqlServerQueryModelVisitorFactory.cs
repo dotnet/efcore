@@ -32,8 +32,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
-            [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
-            [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
+            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
             : base(
                 model,
@@ -55,8 +54,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 includeExpressionVisitorFactory,
                 sqlTranslatingExpressionVisitorFactory,
                 compositePredicateExpressionVisitorFactory,
-                queryFlatteningExpressionVisitorFactory,
-                shapedQueryFindingExpressionVisitorFactory,
+                queryFlattenerFactory,
                 contextOptions)
         {
         }
@@ -85,8 +83,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                     IncludeExpressionVisitorFactory,
                     SqlTranslatingExpressionVisitorFactory,
                     CompositePredicateExpressionVisitorFactory,
-                    QueryFlatteningExpressionVisitorFactory,
-                    ShapedQueryFindingExpressionVisitorFactory,
+                    QueryFlattenerFactory,
                     ContextOptions,
                     (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                     (SqlServerQueryModelVisitor)parentEntityQueryModelVisitor);

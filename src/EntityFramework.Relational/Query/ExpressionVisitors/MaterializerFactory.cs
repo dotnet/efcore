@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(projectionAdder, nameof(projectionAdder));
 
             var valueBufferParameter
-                = Expression.Parameter(typeof(ValueBuffer));
+                = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
             var concreteEntityTypes
                 = entityType.GetConcreteTypesInHierarchy().ToArray();

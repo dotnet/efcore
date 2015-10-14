@@ -32,13 +32,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         public virtual ExpressionVisitor Create(
-            [NotNull] EntityQueryModelVisitor queryModelVisitor,
-            [NotNull] IQuerySource querySource)
+            EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new InMemoryEntityQueryableExpressionVisitor(
                 _model,
                 _keyValueFactorySource,
                 _materializerFactory,
                 Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
-                Check.NotNull(querySource, nameof(querySource)));
+                querySource);
     }
 }

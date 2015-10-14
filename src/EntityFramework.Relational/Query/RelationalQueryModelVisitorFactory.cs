@@ -33,8 +33,7 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
-            [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
-            [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
+            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
             : base(
                 model,
@@ -57,16 +56,14 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory));
             Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory));
             Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory));
-            Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory));
-            Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(shapedQueryFindingExpressionVisitorFactory));
+            Check.NotNull(queryFlattenerFactory, nameof(queryFlattenerFactory));
             Check.NotNull(contextOptions, nameof(contextOptions));
 
             RelationalAnnotationProvider = relationalAnnotationProvider;
             IncludeExpressionVisitorFactory = includeExpressionVisitorFactory;
             SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             CompositePredicateExpressionVisitorFactory = compositePredicateExpressionVisitorFactory;
-            QueryFlatteningExpressionVisitorFactory = queryFlatteningExpressionVisitorFactory;
-            ShapedQueryFindingExpressionVisitorFactory = shapedQueryFindingExpressionVisitorFactory;
+            QueryFlattenerFactory = queryFlattenerFactory;
             ContextOptions = contextOptions;
         }
 
@@ -74,8 +71,7 @@ namespace Microsoft.Data.Entity.Query
         protected virtual IIncludeExpressionVisitorFactory IncludeExpressionVisitorFactory { get; }
         protected virtual ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
         protected virtual ICompositePredicateExpressionVisitorFactory CompositePredicateExpressionVisitorFactory { get; }
-        protected virtual IQueryFlatteningExpressionVisitorFactory QueryFlatteningExpressionVisitorFactory { get; }
-        protected virtual IShapedQueryFindingExpressionVisitorFactory ShapedQueryFindingExpressionVisitorFactory { get; }
+        protected virtual IQueryFlattenerFactory QueryFlattenerFactory { get; }
         protected virtual IDbContextOptions ContextOptions { get; }
 
         public override EntityQueryModelVisitor Create(
@@ -101,8 +97,7 @@ namespace Microsoft.Data.Entity.Query
                 IncludeExpressionVisitorFactory,
                 SqlTranslatingExpressionVisitorFactory,
                 CompositePredicateExpressionVisitorFactory,
-                QueryFlatteningExpressionVisitorFactory,
-                ShapedQueryFindingExpressionVisitorFactory,
+                QueryFlattenerFactory,
                 ContextOptions,
                 (RelationalQueryCompilationContext)Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 (RelationalQueryModelVisitor)parentEntityQueryModelVisitor);

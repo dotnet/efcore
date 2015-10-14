@@ -42,8 +42,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] IIncludeExpressionVisitorFactory includeExpressionVisitorFactory,
             [NotNull] ISqlTranslatingExpressionVisitorFactory sqlTranslatingExpressionVisitorFactory,
             [NotNull] ICompositePredicateExpressionVisitorFactory compositePredicateExpressionVisitorFactory,
-            [NotNull] IQueryFlatteningExpressionVisitorFactory queryFlatteningExpressionVisitorFactory,
-            [NotNull] IShapedQueryFindingExpressionVisitorFactory shapedQueryFindingExpressionVisitorFactory,
+            [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions,
             [NotNull] RelationalQueryCompilationContext queryCompilationContext,
             // ReSharper disable once SuggestBaseTypeForParameter
@@ -68,8 +67,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 Check.NotNull(includeExpressionVisitorFactory, nameof(includeExpressionVisitorFactory)),
                 Check.NotNull(sqlTranslatingExpressionVisitorFactory, nameof(sqlTranslatingExpressionVisitorFactory)),
                 Check.NotNull(compositePredicateExpressionVisitorFactory, nameof(compositePredicateExpressionVisitorFactory)),
-                Check.NotNull(queryFlatteningExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory)),
-                Check.NotNull(shapedQueryFindingExpressionVisitorFactory, nameof(queryFlatteningExpressionVisitorFactory)),
+                Check.NotNull(queryFlattenerFactory, nameof(queryFlattenerFactory)),
                 Check.NotNull(contextOptions, nameof(contextOptions)),
                 Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
                 parentQueryModelVisitor)

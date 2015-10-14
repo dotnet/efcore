@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
-            [NotNull] ILinqOperatorProvider linqOpeartorProvider,
+            [NotNull] ILinqOperatorProvider linqOperatorProvider,
             [NotNull] IQueryMethodProvider queryMethodProvider,
             [NotNull] Type contextType,
             bool trackQueryResults)
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 Check.NotNull(logger, nameof(logger)),
                 Check.NotNull(entityQueryModelVisitorFactory, nameof(entityQueryModelVisitorFactory)),
                 Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory)),
-                Check.NotNull(linqOpeartorProvider, nameof(linqOpeartorProvider)),
+                Check.NotNull(linqOperatorProvider, nameof(linqOperatorProvider)),
                 Check.NotNull(queryMethodProvider, nameof(queryMethodProvider)),
                 Check.NotNull(contextType, nameof(contextType)),
                 trackQueryResults)

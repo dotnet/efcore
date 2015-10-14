@@ -60,6 +60,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 public async Task<bool> MoveNext(CancellationToken cancellationToken)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+
                     if (_relatedValuesEnumerable._iterator._moveNextPending)
                     {
                         _relatedValuesEnumerable._iterator._hasRemainingRows

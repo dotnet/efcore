@@ -41,10 +41,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         public virtual ExpressionVisitor Create(
-            [NotNull] IQuerySource querySource,
-            [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] RelationalQueryCompilationContext queryCompilationContext,
-            [NotNull] IReadOnlyList<int> queryIndexes,
+            IQuerySource querySource,
+            IReadOnlyList<INavigation> navigationPath,
+            RelationalQueryCompilationContext relationalQueryCompilationContext,
+            IReadOnlyList<int> queryIndexes,
             bool querySourceRequiresTracking)
             => new IncludeExpressionVisitor(
                 _selectExpressionFactory,
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 _sqlQueryGeneratorFactory,
                 Check.NotNull(querySource, nameof(querySource)),
                 Check.NotNull(navigationPath, nameof(navigationPath)),
-                Check.NotNull(queryCompilationContext, nameof(queryCompilationContext)),
+                Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext)),
                 Check.NotNull(queryIndexes, nameof(queryIndexes)),
                 querySourceRequiresTracking);
     }

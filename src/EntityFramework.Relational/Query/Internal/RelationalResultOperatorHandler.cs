@@ -35,6 +35,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 SelectExpression selectExpression)
             {
                 _resultOperatorHandler = resultOperatorHandler;
+
                 Model = model;
                 RelationalAnnotationProvider = relationalAnnotationProvider;
                 SqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
@@ -46,21 +47,13 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
 
             public IModel Model { get; }
-
             public IRelationalAnnotationProvider RelationalAnnotationProvider { get; }
-
             public ISqlTranslatingExpressionVisitorFactory SqlTranslatingExpressionVisitorFactory { get; }
-
             public ISelectExpressionFactory SelectExpressionFactory { get; }
-
             public ResultOperatorBase ResultOperator { get; }
-
             public SelectExpression SelectExpression { get; }
-
             public QueryModel QueryModel { get; }
-
             public RelationalQueryModelVisitor QueryModelVisitor { get; }
-
             public Expression EvalOnServer => QueryModelVisitor.Expression;
 
             public Expression EvalOnClient(bool requiresClientResultOperator = true)
@@ -74,24 +67,24 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private static readonly Dictionary<Type, Func<HandlerContext, Expression>>
             _resultHandlers = new Dictionary<Type, Func<HandlerContext, Expression>>
-                {
-                    { typeof(AllResultOperator), HandleAll },
-                    { typeof(AnyResultOperator), HandleAny },
-                    { typeof(CastResultOperator), HandleCast },
-                    { typeof(ContainsResultOperator), HandleContains },
-                    { typeof(CountResultOperator), HandleCount },
-                    { typeof(LongCountResultOperator), HandleLongCount },
-                    { typeof(DistinctResultOperator), HandleDistinct },
-                    { typeof(FirstResultOperator), HandleFirst },
-                    { typeof(LastResultOperator), HandleLast },
-                    { typeof(MaxResultOperator), HandleMax },
-                    { typeof(MinResultOperator), HandleMin },
-                    { typeof(OfTypeResultOperator), HandleOfType },
-                    { typeof(SingleResultOperator), HandleSingle },
-                    { typeof(SkipResultOperator), HandleSkip },
-                    { typeof(SumResultOperator), HandleSum },
-                    { typeof(TakeResultOperator), HandleTake }
-                };
+            {
+                { typeof(AllResultOperator), HandleAll },
+                { typeof(AnyResultOperator), HandleAny },
+                { typeof(CastResultOperator), HandleCast },
+                { typeof(ContainsResultOperator), HandleContains },
+                { typeof(CountResultOperator), HandleCount },
+                { typeof(LongCountResultOperator), HandleLongCount },
+                { typeof(DistinctResultOperator), HandleDistinct },
+                { typeof(FirstResultOperator), HandleFirst },
+                { typeof(LastResultOperator), HandleLast },
+                { typeof(MaxResultOperator), HandleMax },
+                { typeof(MinResultOperator), HandleMin },
+                { typeof(OfTypeResultOperator), HandleOfType },
+                { typeof(SingleResultOperator), HandleSingle },
+                { typeof(SkipResultOperator), HandleSkip },
+                { typeof(SumResultOperator), HandleSum },
+                { typeof(TakeResultOperator), HandleTake }
+            };
 
         private readonly IModel _model;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
@@ -138,9 +131,12 @@ namespace Microsoft.Data.Entity.Query.Internal
                     selectExpression);
 
             Func<HandlerContext, Expression> resultHandler;
-            if (relationalQueryModelVisitor.RequiresClientFilter
-                || relationalQueryModelVisitor.RequiresClientResultOperator
+            if (relationalQueryModelVisitor.RequiresClientEval
                 || relationalQueryModelVisitor.RequiresClientSelectMany
+                || relationalQueryModelVisitor.RequiresClientJoin
+                || relationalQueryModelVisitor.RequiresClientFilter
+                || relationalQueryModelVisitor.RequiresClientOrderBy
+                || relationalQueryModelVisitor.RequiresClientResultOperator
                 || !_resultHandlers.TryGetValue(resultOperator.GetType(), out resultHandler)
                 || selectExpression == null)
             {
@@ -359,10 +355,10 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (concreteEntityTypes.Length != 1
                 || concreteEntityTypes[0].RootType() != concreteEntityTypes[0])
             {
-                var relationalMetadataExtensionProvider 
+                var relationalMetadataExtensionProvider
                     = handlerContext.RelationalAnnotationProvider;
 
-                var discriminatorProperty 
+                var discriminatorProperty
                     = relationalMetadataExtensionProvider.For(concreteEntityTypes[0]).DiscriminatorProperty;
 
                 var projectionIndex

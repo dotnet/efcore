@@ -66,6 +66,9 @@ namespace Microsoft.Data.Entity.Query
             AllResultOperator allResultOperator,
             QueryModel queryModel)
         {
+            var sequenceType
+                = entityQueryModelVisitor.Expression.Type.GetSequenceType();
+
             var predicate
                 = entityQueryModelVisitor
                     .ReplaceClauseReferences(
@@ -74,18 +77,15 @@ namespace Microsoft.Data.Entity.Query
 
             return CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.All
-                    .MakeGenericMethod(typeof(QueryResultScope)),
-                entityQueryModelVisitor.CreateScope(
-                    entityQueryModelVisitor.Expression,
-                    entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
-                    queryModel.MainFromClause),
-                Expression.Lambda(predicate, EntityQueryModelVisitor.QueryResultScopeParameter));
+                    .MakeGenericMethod(sequenceType),
+                entityQueryModelVisitor.Expression,
+                Expression.Lambda(predicate, entityQueryModelVisitor.CurrentParameter));
         }
 
         private static Expression HandleAny(EntityQueryModelVisitor entityQueryModelVisitor)
             => CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.Any
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleAverage(EntityQueryModelVisitor entityQueryModelVisitor)
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Query
         private static Expression HandleCount(EntityQueryModelVisitor entityQueryModelVisitor)
             => CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider
-                    .Count.MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .Count.MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleContains(
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Query
 
             return CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.Contains
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression,
                 item);
         }
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Query
             {
                 return Expression.Call(
                     entityQueryModelVisitor.LinqOperatorProvider.DefaultIfEmpty
-                        .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                        .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                     entityQueryModelVisitor.Expression);
             }
 
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Query
 
             return Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.DefaultIfEmptyArg
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression,
                 optionalDefaultValue);
         }
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Query
         private static Expression HandleDistinct(EntityQueryModelVisitor entityQueryModelVisitor)
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Distinct
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleFirst(
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.FirstOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.First)
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleGroup(
@@ -180,6 +180,9 @@ namespace Microsoft.Data.Entity.Query
             GroupResultOperator groupResultOperator,
             QueryModel queryModel)
         {
+            var sequenceType
+                = entityQueryModelVisitor.Expression.Type.GetSequenceType();
+
             var keySelector
                 = entityQueryModelVisitor
                     .ReplaceClauseReferences(
@@ -192,18 +195,24 @@ namespace Microsoft.Data.Entity.Query
                         groupResultOperator.ElementSelector,
                         queryModel.MainFromClause);
 
-            return Expression.Call(
-                entityQueryModelVisitor.LinqOperatorProvider.GroupBy
-                    .MakeGenericMethod(
-                        typeof(QueryResultScope),
-                        keySelector.Type,
-                        elementSelector.Type),
-                entityQueryModelVisitor.CreateScope(
+            var expression
+                = Expression.Call(
+                    entityQueryModelVisitor.LinqOperatorProvider.GroupBy
+                        .MakeGenericMethod(
+                            sequenceType,
+                            keySelector.Type,
+                            elementSelector.Type),
                     entityQueryModelVisitor.Expression,
-                    entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType,
-                    queryModel.MainFromClause),
-                Expression.Lambda(keySelector, EntityQueryModelVisitor.QueryResultScopeParameter),
-                Expression.Lambda(elementSelector, EntityQueryModelVisitor.QueryResultScopeParameter));
+                    Expression.Lambda(keySelector, entityQueryModelVisitor.CurrentParameter),
+                    Expression.Lambda(elementSelector, entityQueryModelVisitor.CurrentParameter));
+
+            entityQueryModelVisitor.CurrentParameter
+                = Expression.Parameter(sequenceType, groupResultOperator.ItemName);
+
+            entityQueryModelVisitor
+                .AddOrUpdateMapping(groupResultOperator, entityQueryModelVisitor.CurrentParameter);
+
+            return expression;
         }
 
         private static Expression HandleLast(
@@ -212,13 +221,13 @@ namespace Microsoft.Data.Entity.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.LastOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Last)
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleLongCount(EntityQueryModelVisitor entityQueryModelVisitor)
             => CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.LongCount
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleMin(EntityQueryModelVisitor entityQueryModelVisitor)
@@ -241,14 +250,14 @@ namespace Microsoft.Data.Entity.Query
                 (choiceResultOperator.ReturnDefaultWhenEmpty
                     ? entityQueryModelVisitor.LinqOperatorProvider.SingleOrDefault
                     : entityQueryModelVisitor.LinqOperatorProvider.Single)
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static Expression HandleSkip(
             EntityQueryModelVisitor entityQueryModelVisitor, SkipResultOperator skipResultOperator)
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Skip
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression, skipResultOperator.Count);
 
         private static Expression HandleSum(EntityQueryModelVisitor entityQueryModelVisitor)
@@ -258,14 +267,14 @@ namespace Microsoft.Data.Entity.Query
             EntityQueryModelVisitor entityQueryModelVisitor, TakeResultOperator takeResultOperator)
             => Expression.Call(
                 entityQueryModelVisitor.LinqOperatorProvider.Take
-                    .MakeGenericMethod(entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    .MakeGenericMethod(entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression, takeResultOperator.Count);
 
         private static Expression HandleAggregate(EntityQueryModelVisitor entityQueryModelVisitor, string methodName)
             => CallWithPossibleCancellationToken(
                 entityQueryModelVisitor.LinqOperatorProvider.GetAggregateMethod(
                     methodName,
-                    entityQueryModelVisitor.StreamedSequenceInfo.ResultItemType),
+                    entityQueryModelVisitor.Expression.Type.GetSequenceType()),
                 entityQueryModelVisitor.Expression);
 
         private static readonly PropertyInfo _cancellationTokenProperty

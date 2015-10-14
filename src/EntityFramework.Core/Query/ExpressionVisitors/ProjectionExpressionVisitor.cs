@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,16 +26,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
 
             var subExpression = queryModelVisitor.Expression;
-
-            var resultItemType
-                = queryModelVisitor.StreamedSequenceInfo?.ResultItemType
-                  ?? subExpression.Type;
-
-            if (queryModelVisitor.StreamedSequenceInfo == null)
-            {
-                return subExpression;
-            }
-
+            
             if (subExpression.Type != subQueryExpression.Type)
             {
                 var subQueryExpressionTypeInfo = subQueryExpression.Type.GetTypeInfo();
@@ -44,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     subExpression
                         = Expression.Call(
                             QueryModelVisitor.LinqOperatorProvider.ToQueryable
-                                .MakeGenericMethod(resultItemType),
+                                .MakeGenericMethod(subQueryExpression.Type.GetSequenceType()),
                             subExpression);
                 }
                 else if (subQueryExpressionTypeInfo.IsGenericType)
@@ -56,7 +48,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         subExpression
                             = Expression.Call(
                                 QueryModelVisitor.LinqOperatorProvider.ToOrdered
-                                    .MakeGenericMethod(resultItemType),
+                                    .MakeGenericMethod(subQueryExpression.Type.GetSequenceType()),
                                 subExpression);
                     }
                     else if (genericTypeDefinition == typeof(IEnumerable<>))
@@ -64,7 +56,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         subExpression
                             = Expression.Call(
                                 QueryModelVisitor.LinqOperatorProvider.ToEnumerable
-                                    .MakeGenericMethod(resultItemType),
+                                    .MakeGenericMethod(subQueryExpression.Type.GetSequenceType()),
                                 subExpression);
                     }
                 }

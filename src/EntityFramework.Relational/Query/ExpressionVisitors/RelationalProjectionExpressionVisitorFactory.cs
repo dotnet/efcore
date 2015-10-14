@@ -26,8 +26,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         public virtual ExpressionVisitor Create(
-            [NotNull] EntityQueryModelVisitor queryModelVisitor,
-            [NotNull] IQuerySource querySource)
+            EntityQueryModelVisitor queryModelVisitor, IQuerySource querySource)
             => new RelationalProjectionExpressionVisitor(
                 _sqlTranslatingExpressionVisitorFactory,
                 _entityMaterializerSource,

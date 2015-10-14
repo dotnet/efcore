@@ -106,13 +106,11 @@
     <Compile Include="Query\ExpressionVisitors\IIncludeExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IMaterializerFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IncludeExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\IQueryFlatteningExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\IShapedQueryFindingExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\IQueryFlattenerFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\ISqlTranslatingExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\QueryFlatteningExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\QueryFlattenerFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalProjectionExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalEntityQueryableExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\ShapedQueryFindingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ICommandBuilderFactory.cs" />
     <Compile Include="Query\Expressions\StringCompareExpression.cs" />
@@ -216,7 +214,6 @@
     <Compile Include="Migrations\MigrationsSqlGenerator.cs" />
     <Compile Include="Migrations\Internal\MigrationsModelDiffer.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
-    <Compile Include="Query\ExpressionVisitors\ShapedQueryFindingExpressionVisitor.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
@@ -280,7 +277,7 @@
     <Compile Include="Query\ExpressionVisitors\MaterializerFactory.cs" />
     <Compile Include="Query\IAsyncIncludeRelatedValuesStrategy.cs" />
     <Compile Include="Query\IIncludeRelatedValuesStrategy.cs" />
-    <Compile Include="Query\ExpressionVisitors\QueryFlatteningExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\QueryFlattener.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\CountExpression.cs" />
     <Compile Include="Query\Expressions\ExistsExpression.cs" />

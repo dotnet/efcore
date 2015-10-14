@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     {
         private readonly ISqlTranslatingExpressionVisitorFactory _sqlTranslatingExpressionVisitorFactory;
         private readonly IEntityMaterializerSource _entityMaterializerSource;
-        private readonly RelationalQueryModelVisitor _queryModelVisitor;
         private readonly IQuerySource _querySource;
 
         public RelationalProjectionExpressionVisitor(
@@ -34,7 +33,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             _sqlTranslatingExpressionVisitorFactory = sqlTranslatingExpressionVisitorFactory;
             _entityMaterializerSource = entityMaterializerSource;
-            _queryModelVisitor = queryModelVisitor;
             _querySource = querySource;
         }
 
@@ -155,30 +153,31 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                 aliasExpression.SourceExpression = expression;
                             }
 
-                            var valueBufferExpression
-                                = QueryResultScope.GetResult(
-                                    EntityQueryModelVisitor.QueryResultScopeParameter,
-                                    _querySource,
-                                    typeof(ValueBuffer));
+                            var targetExpression
+                                = QueryModelVisitor.QueryCompilationContext.QuerySourceMapping
+                                    .GetExpression(_querySource);
 
-                            var readValueExpression
-                                = _entityMaterializerSource
-                                    .CreateReadValueCallExpression(valueBufferExpression, index);
-
-                            var outputDataInfo
-                                = (expression as SubQueryExpression)?.QueryModel
-                                    .GetOutputDataInfo();
-
-                            if (outputDataInfo is StreamedScalarValueInfo)
+                            if (targetExpression.Type == typeof(ValueBuffer))
                             {
-                                // Compensate for possible nulls
-                                readValueExpression
-                                    = Expression.Coalesce(
-                                        readValueExpression,
-                                        Expression.Default(expression.Type));
-                            }
+                                var readValueExpression
+                                    = _entityMaterializerSource
+                                        .CreateReadValueCallExpression(targetExpression, index);
 
-                            return Expression.Convert(readValueExpression, expression.Type);
+                                var outputDataInfo
+                                    = (expression as SubQueryExpression)?.QueryModel
+                                        .GetOutputDataInfo();
+
+                                if (outputDataInfo is StreamedScalarValueInfo)
+                                {
+                                    // Compensate for possible nulls
+                                    readValueExpression
+                                        = Expression.Coalesce(
+                                            readValueExpression,
+                                            Expression.Default(expression.Type));
+                                }
+
+                                return Expression.Convert(readValueExpression, expression.Type);
+                            }
                         }
                     }
                 }

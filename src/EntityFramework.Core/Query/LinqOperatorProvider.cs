@@ -21,14 +21,6 @@ namespace Microsoft.Data.Entity.Query
 {
     public class LinqOperatorProvider : ILinqOperatorProvider
     {
-        [UsedImplicitly]
-        private static IEnumerable<TResult> UnwrapResults<TResult>(
-            IEnumerable<QueryResultScope<TResult>> results)
-        {
-            // ReSharper disable once MergeConditionalExpression
-            return results.Select(qss => qss != null ? qss.Result : default(TResult));
-        }
-
         public virtual MethodInfo ToEnumerable => _toEnumerable;
 
         private static readonly MethodInfo _toEnumerable
@@ -74,20 +66,21 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IEnumerable<T> _InterceptExceptions<T>(
-            Func<IEnumerable<T>> source, Type contextType, ILogger logger)
+            IEnumerable<T> source, Type contextType, ILogger logger)
             => new ExceptionInterceptor<T>(source, contextType, logger);
 
         public virtual MethodInfo InterceptExceptions => _interceptExceptions;
 
         private sealed class ExceptionInterceptor<T> : IEnumerable<T>
         {
-            private readonly Func<IEnumerable<T>> _innerFactory;
+            private readonly IEnumerable<T> _innerEnumerable;
             private readonly Type _contextType;
             private readonly ILogger _logger;
 
-            public ExceptionInterceptor(Func<IEnumerable<T>> innerFactory, Type contextType, ILogger logger)
+            public ExceptionInterceptor(
+                IEnumerable<T> innerEnumerable, Type contextType, ILogger logger)
             {
-                _innerFactory = innerFactory;
+                _innerEnumerable = innerEnumerable;
                 _contextType = contextType;
                 _logger = logger;
             }
@@ -100,28 +93,23 @@ namespace Microsoft.Data.Entity.Query
             private sealed class EnumeratorExceptionInterceptor : IEnumerator<T>
             {
                 private readonly ExceptionInterceptor<T> _exceptionInterceptor;
-
-                private IEnumerator<T> _inner;
+                private readonly IEnumerator<T> _innerEnumerator;
 
                 public EnumeratorExceptionInterceptor(ExceptionInterceptor<T> exceptionInterceptor)
                 {
                     _exceptionInterceptor = exceptionInterceptor;
+                    _innerEnumerator = _exceptionInterceptor._innerEnumerable.GetEnumerator();
                 }
 
-                public T Current => _inner.Current;
+                public T Current => _innerEnumerator.Current;
 
-                object IEnumerator.Current => _inner.Current;
+                object IEnumerator.Current => _innerEnumerator.Current;
 
                 public bool MoveNext()
                 {
                     try
                     {
-                        if (_inner == null)
-                        {
-                            _inner = _exceptionInterceptor._innerFactory().GetEnumerator();
-                        }
-
-                        return _inner.MoveNext();
+                        return _innerEnumerator.MoveNext();
                     }
                     catch (Exception exception)
                     {
@@ -136,9 +124,8 @@ namespace Microsoft.Data.Entity.Query
                     }
                 }
 
-                public void Reset() => _inner?.Reset();
-
-                public void Dispose() => _inner?.Dispose();
+                public void Reset() => _innerEnumerator?.Reset();
+                public void Dispose() => _innerEnumerator?.Dispose();
             }
         }
 
@@ -271,9 +258,11 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_SelectMany));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _SelectMany<TSource, TResult>(
-            IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
-            => source.SelectMany(selector);
+        private static IEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
+            IEnumerable<TSource> source,
+            Func<TSource, IEnumerable<TCollection>> collectionSelector,
+            Func<TSource, TCollection, TResult> resultSelector)
+            => source.SelectMany(collectionSelector, resultSelector);
 
         public virtual MethodInfo SelectMany => _selectMany;
 
@@ -422,6 +411,10 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual Expression AdjustSequenceType(Expression expression) => expression;
+
+        public virtual Type MakeSequenceType(Type elementType)
+            => typeof(IEnumerable<>)
+                .MakeGenericType(Check.NotNull(elementType, nameof(elementType)));
 
         private static MethodInfo GetMethod(string name, int parameterCount = 0)
             => GetMethods(name, parameterCount).Single();

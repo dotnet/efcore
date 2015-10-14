@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class RelationalEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
         private static readonly ParameterExpression _valueBufferParameter
-            = Expression.Parameter(typeof(ValueBuffer));
+            = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
 
         private readonly IModel _model;
         private readonly IKeyValueFactorySource _keyValueFactorySource;
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] ICommandBuilderFactory commandBuilderFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
-            [NotNull] IQuerySource querySource)
+            [CanBeNull] IQuerySource querySource)
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
             Check.NotNull(model, nameof(model));
@@ -50,7 +50,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-            Check.NotNull(querySource, nameof(querySource));
 
             _model = model;
             _keyValueFactorySource = keyValueFactorySource;
@@ -71,7 +70,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
 
-            QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
+            if (_querySource != null)
+            {
+                QueryModelVisitor.RegisterSubQueryVisitor(_querySource, queryModelVisitor);
+            }
 
             return queryModelVisitor.Expression;
         }
@@ -183,13 +185,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var queryMethodArguments
                 = new List<Expression>
-                    {
-                        Expression.Constant(_querySource),
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        EntityQueryModelVisitor.QueryResultScopeParameter,
-                        _valueBufferParameter,
-                        Expression.Constant(0)
-                    };
+                {
+                    Expression.Constant(_querySource),
+                    _valueBufferParameter,
+                    Expression.Constant(0)
+                };
 
             if (QueryModelVisitor.QueryCompilationContext
                 .QuerySourceRequiresMaterialization(_querySource)
@@ -216,14 +216,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 queryMethodArguments.AddRange(
                     new[]
-                        {
-                            Expression.Constant(entityType),
-                            Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
-                            Expression.Constant(keyFactory),
-                            Expression.Constant(entityType.GetPrimaryKey().Properties),
-                            materializer,
-                            Expression.Constant(false)
-                        });
+                    {
+                        EntityQueryModelVisitor.QueryContextParameter,
+                        Expression.Constant(entityType),
+                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
+                        Expression.Constant(keyFactory),
+                        Expression.Constant(entityType.GetPrimaryKey().Properties),
+                        materializer,
+                        Expression.Constant(false)
+                    });
             }
 
             Func<ISqlQueryGenerator> sqlQueryGeneratorFunc;
@@ -241,7 +242,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
 
             return Expression.Call(
-                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider
+                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
                     .ShapedQueryMethod
                     .MakeGenericMethod(queryMethodInfo.ReturnType),
                 EntityQueryModelVisitor.QueryContextParameter,
@@ -251,33 +252,35 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     _valueBufferParameter));
         }
 
+        public static bool IsCreateMethod([NotNull] MethodCallExpression methodCallExpression)
+        {
+            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+
+            return ReferenceEquals(methodCallExpression.Method, CreateValueBufferMethodInfo)
+                   || methodCallExpression.Method.MethodIsClosedFormOf(CreateEntityMethodInfo);
+        }
+
         public static readonly MethodInfo CreateValueBufferMethodInfo
             = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateValueBuffer));
 
         [UsedImplicitly]
-        private static QueryResultScope<ValueBuffer> CreateValueBuffer(
+        private static ValueBuffer CreateValueBuffer(
             IQuerySource querySource,
-            QueryContext queryContext,
-            QueryResultScope parentQueryResultScope,
             ValueBuffer valueBuffer,
             int valueBufferOffset)
-            => new QueryResultScope<ValueBuffer>(
-                querySource,
-                valueBuffer.WithOffset(valueBufferOffset),
-                parentQueryResultScope);
+            => valueBuffer.WithOffset(valueBufferOffset);
 
         public static readonly MethodInfo CreateEntityMethodInfo
             = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
                 .GetDeclaredMethod(nameof(CreateEntity));
 
         [UsedImplicitly]
-        private static QueryResultScope<TEntity> CreateEntity<TEntity>(
+        private static TEntity CreateEntity<TEntity>(
             IQuerySource querySource,
-            QueryContext queryContext,
-            QueryResultScope parentQueryResultScope,
             ValueBuffer valueBuffer,
             int valueBufferOffset,
+            QueryContext queryContext,
             IEntityType entityType,
             bool queryStateManager,
             KeyValueFactory keyValueFactory,
@@ -297,7 +300,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             {
                 if (!allowNullResult)
                 {
-                    throw new InvalidOperationException(RelationalStrings.InvalidKeyValue(entityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.InvalidKeyValue(entityType.DisplayName()));
                 }
             }
             else
@@ -311,7 +315,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             queryStateManager);
             }
 
-            return new QueryResultScope<TEntity>(querySource, entity, parentQueryResultScope);
+            return entity;
         }
     }
 }

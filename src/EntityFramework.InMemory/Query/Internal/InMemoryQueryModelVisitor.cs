@@ -72,8 +72,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             Check.NotNull(resultType, nameof(resultType));
             Check.NotNull(accessorLambda, nameof(accessorLambda));
 
-            var primaryKeyParameter = Expression.Parameter(typeof(IKeyValue));
-            var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<ValueBuffer, IKeyValue>));
+            var primaryKeyParameter = Expression.Parameter(typeof(IKeyValue), "entityKey");
+            var relatedKeyFactoryParameter = Expression.Parameter(typeof(Func<ValueBuffer, IKeyValue>), "relatedKeyFactory");
             var navigationPath = includeSpecification.NavigationPath;
 
             Expression
@@ -83,12 +83,12 @@ namespace Microsoft.Data.Entity.Query.Internal
                     Expression,
                     Expression.Constant(navigationPath),
                     accessorLambda,
-                    System.Linq.Expressions.Expression.NewArrayInit(
+                    Expression.NewArrayInit(
                         typeof(RelatedEntitiesLoader),
                         navigationPath.Select(
                             n =>
                                 {
-                                    var targetType = NavigationExtensions.GetTargetType((INavigation)n);
+                                    var targetType = n.GetTargetType();
 
                                     var materializer
                                         = _materializerFactory

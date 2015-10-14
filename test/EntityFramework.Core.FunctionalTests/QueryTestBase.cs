@@ -73,6 +73,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 cs => cs.OrderBy(c => c.CustomerID).Select(c => c.City).Take(10),
                 assertOrder: true);
         }
+        
+        [Fact]
+        public virtual void Take_subquery_projection()
+        {
+            AssertQuery<Customer>(
+                cs => cs.OrderBy(c => c.CustomerID).Take(2).Select(c => c.City),
+                assertOrder: true);
+        }
 
         [Fact]
         public virtual void Skip()
@@ -1923,7 +1931,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     from e1 in es
                     from e2 in es
                     from e3 in es
-                    select new { e2, e3, e1 },
+                    from e4 in es
+                    select new { e2, e3, e1, e4 },
                 entryCount: 9);
         }
 
@@ -3808,6 +3817,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 join o in os on c.CustomerID equals o.CustomerID into orders
                 from o in orders
                 select o);
+        }
+
+        [Fact]
+        public virtual void GroupJoin_simple2()
+        {
+            AssertQuery<Customer, Order>((cs, os) =>
+                from c in cs
+                join o in os on c.CustomerID equals o.CustomerID into orders
+                from o in orders
+                select c);
         }
 
         [Fact]

@@ -98,11 +98,9 @@ namespace Microsoft.Data.Entity.Query
         }
 
         public virtual ValueBuffer GetIncludeValueBuffer(int queryIndex)
-        {
-            return queryIndex == 0
+            => queryIndex == 0
                 ? _activeQueries[_activeIncludeQueryOffset + queryIndex].Current
                 : _activeIncludeQueries[queryIndex - 1].Current;
-        }
 
         public virtual void BeginIncludeScope() => _activeIncludeQueryOffset = _activeQueries.Count;
 

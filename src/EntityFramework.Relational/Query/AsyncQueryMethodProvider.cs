@@ -13,128 +13,11 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
-using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query
 {
     public class AsyncQueryMethodProvider : IQueryMethodProvider
     {
-        public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
-
-        private static readonly MethodInfo _groupJoinMethodInfo
-            = typeof(AsyncQueryMethodProvider)
-                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
-
-        [UsedImplicitly]
-        private static IAsyncEnumerable<QueryResultScope> _GroupJoin<TResult>(
-            IAsyncEnumerable<QueryResultScope> source,
-            Func<QueryResultScope, IAsyncEnumerable<QueryResultScope<TResult>>, QueryResultScope<IAsyncEnumerable<TResult>>> resultSelector)
-            => new GroupJoinAsyncEnumerable<TResult>(source, resultSelector);
-
-        private class GroupJoinAsyncEnumerable<TResult> : IAsyncEnumerable<QueryResultScope>
-        {
-            private readonly IAsyncEnumerable<QueryResultScope> _source;
-            private readonly Func<QueryResultScope, IAsyncEnumerable<QueryResultScope<TResult>>, QueryResultScope<IAsyncEnumerable<TResult>>> _resultSelector;
-
-            public GroupJoinAsyncEnumerable(
-                IAsyncEnumerable<QueryResultScope> source,
-                Func<QueryResultScope, IAsyncEnumerable<QueryResultScope<TResult>>, QueryResultScope<IAsyncEnumerable<TResult>>> resultSelector)
-            {
-                _source = source;
-                _resultSelector = resultSelector;
-            }
-
-            public IAsyncEnumerator<QueryResultScope> GetEnumerator() => new GroupJoinAsyncEnumerator(this);
-
-            private class GroupJoinAsyncEnumerator : IAsyncEnumerator<QueryResultScope>
-            {
-                private readonly GroupJoinAsyncEnumerable<TResult> _groupJoinAsyncEnumerable;
-
-                private IAsyncEnumerator<QueryResultScope> _sourceEnumerator;
-                private bool _hasRows;
-
-                public GroupJoinAsyncEnumerator(GroupJoinAsyncEnumerable<TResult> groupJoinAsyncEnumerable)
-                {
-                    _groupJoinAsyncEnumerable = groupJoinAsyncEnumerable;
-                }
-
-                public async Task<bool> MoveNext(CancellationToken cancellationToken)
-                {
-                    if (_sourceEnumerator == null)
-                    {
-                        _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
-                        _hasRows = await _sourceEnumerator.MoveNext();
-                    }
-
-                    if (_hasRows)
-                    {
-                        var outerQueryResultScope = _sourceEnumerator.Current;
-
-                        var innerQueryResultScopes = new List<QueryResultScope<TResult>>();
-
-                        if (_sourceEnumerator.Current.UntypedResult == null)
-                        {
-                            _hasRows = await _sourceEnumerator.MoveNext();
-                        }
-                        else
-                        {
-                            var parentScope = _sourceEnumerator.Current.ParentScope;
-
-                            while (_hasRows)
-                            {
-                                innerQueryResultScopes.Add((QueryResultScope<TResult>)_sourceEnumerator.Current);
-
-                                _hasRows = await _sourceEnumerator.MoveNext();
-
-                                if (_hasRows
-                                    && !ReferenceEquals(
-                                        parentScope.UntypedResult,
-                                        _sourceEnumerator.Current.ParentScope.UntypedResult))
-                                {
-                                    break;
-                                }
-                            }
-                        }
-
-                        Current
-                            = _groupJoinAsyncEnumerable._resultSelector(
-                                outerQueryResultScope, AsyncLinqOperatorProvider.ToAsyncEnumerable(innerQueryResultScopes));
-
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                public QueryResultScope Current { get; private set; }
-
-                public void Dispose() => _sourceEnumerator?.Dispose();
-            }
-        }
-
-        public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
-
-        private static readonly MethodInfo _getResultMethodInfo
-            = typeof(AsyncQueryMethodProvider).GetTypeInfo()
-                .GetDeclaredMethod(nameof(GetResult));
-
-        [UsedImplicitly]
-        private static async Task<TResult> GetResult<TResult>(
-            IAsyncEnumerable<ValueBuffer> valueBuffers, CancellationToken cancellationToken)
-        {
-            using (var enumerator = valueBuffers.GetEnumerator())
-            {
-                if (await enumerator.MoveNext(cancellationToken))
-                {
-                    return enumerator.Current[0] == null
-                        ? default(TResult)
-                        : (TResult)enumerator.Current[0];
-                }
-            }
-
-            return default(TResult);
-        }
-
         public virtual MethodInfo ShapedQueryMethod => _shapedQueryMethodInfo;
 
         private static readonly MethodInfo _shapedQueryMethodInfo
@@ -147,10 +30,10 @@ namespace Microsoft.Data.Entity.Query
             CommandBuilder commandBuilder,
             Func<ValueBuffer, T> shaper)
             => new AsyncQueryingEnumerable(
-                ((RelationalQueryContext)queryContext),
+                (RelationalQueryContext)queryContext,
                 commandBuilder,
                 queryIndex: null)
-                .Select(shaper);
+                .Select(shaper); // TODO: Pass shaper to underlying enumerable
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
@@ -168,6 +51,163 @@ namespace Microsoft.Data.Entity.Query
                 commandBuilder,
                 queryIndex);
 
+        public virtual MethodInfo GetResultMethod => _getResultMethodInfo;
+
+        private static readonly MethodInfo _getResultMethodInfo
+            = typeof(AsyncQueryMethodProvider).GetTypeInfo()
+                .GetDeclaredMethod(nameof(GetResult));
+
+        [UsedImplicitly]
+        private static async Task<TResult> GetResult<TResult>(
+            IAsyncEnumerable<ValueBuffer> valueBuffers, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            using (var enumerator = valueBuffers.GetEnumerator())
+            {
+                if (await enumerator.MoveNext(cancellationToken))
+                {
+                    return enumerator.Current[0] == null
+                        ? default(TResult)
+                        : (TResult)enumerator.Current[0];
+                }
+            }
+
+            return default(TResult);
+        }
+
+        public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
+
+        private static readonly MethodInfo _groupJoinMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+            IAsyncEnumerable<ValueBuffer> source,
+            Func<ValueBuffer, TOuter> outerFactory,
+            Func<ValueBuffer, TInner> innerFactory,
+            Func<TInner, TKey> innerKeySelector,
+            Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+            => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
+                source,
+                outerFactory,
+                innerFactory,
+                innerKeySelector,
+                resultSelector);
+
+        private class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
+        {
+            private readonly IAsyncEnumerable<ValueBuffer> _source;
+            private readonly Func<ValueBuffer, TOuter> _outerFactory;
+            private readonly Func<ValueBuffer, TInner> _innerFactory;
+            private readonly Func<TInner, TKey> _innerKeySelector;
+            private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
+
+            public GroupJoinAsyncEnumerable(
+                IAsyncEnumerable<ValueBuffer> source,
+                Func<ValueBuffer, TOuter> outerFactory,
+                Func<ValueBuffer, TInner> innerFactory,
+                Func<TInner, TKey> innerKeySelector,
+                Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
+            {
+                _source = source;
+                _outerFactory = outerFactory;
+                _innerFactory = innerFactory;
+                _innerKeySelector = innerKeySelector;
+                _resultSelector = resultSelector;
+            }
+
+            public IAsyncEnumerator<TResult> GetEnumerator() => new GroupJoinAsyncEnumerator(this);
+
+            private class GroupJoinAsyncEnumerator : IAsyncEnumerator<TResult>
+            {
+                private readonly GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> _groupJoinAsyncEnumerable;
+                private readonly IEqualityComparer<TKey> _comparer;
+
+                private IAsyncEnumerator<ValueBuffer> _sourceEnumerator;
+                private bool _hasNext;
+
+                public GroupJoinAsyncEnumerator(
+                    GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> groupJoinAsyncEnumerable)
+                {
+                    _groupJoinAsyncEnumerable = groupJoinAsyncEnumerable;
+                    _comparer = EqualityComparer<TKey>.Default;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_sourceEnumerator == null)
+                    {
+                        _sourceEnumerator = _groupJoinAsyncEnumerable._source.GetEnumerator();
+                        _hasNext = await _sourceEnumerator.MoveNext();
+                    }
+
+                    if (_hasNext)
+                    {
+                        var outer = _groupJoinAsyncEnumerable._outerFactory(_sourceEnumerator.Current);
+                        var inner = _groupJoinAsyncEnumerable._innerFactory(_sourceEnumerator.Current);
+                        var inners = new List<TInner>();
+
+                        if (inner == null)
+                        {
+                            Current
+                                = _groupJoinAsyncEnumerable._resultSelector(
+                                    outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
+
+                            _hasNext = await _sourceEnumerator.MoveNext();
+
+                            return true;
+                        }
+
+                        var currentGroupKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
+
+                        inners.Add(inner);
+
+                        while (true)
+                        {
+                            _hasNext = await _sourceEnumerator.MoveNext();
+
+                            if (!_hasNext)
+                            {
+                                break;
+                            }
+
+                            inner = _groupJoinAsyncEnumerable._innerFactory(_sourceEnumerator.Current);
+
+                            if (inner == null)
+                            {
+                                break;
+                            }
+
+                            var innerKey = _groupJoinAsyncEnumerable._innerKeySelector(inner);
+
+                            if (!_comparer.Equals(currentGroupKey, innerKey))
+                            {
+                                break;
+                            }
+
+                            inners.Add(inner);
+                        }
+
+                        Current
+                            = _groupJoinAsyncEnumerable._resultSelector(
+                                outer, AsyncLinqOperatorProvider.ToAsyncEnumerable(inners));
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public TResult Current { get; private set; }
+
+                public void Dispose() => _sourceEnumerator?.Dispose();
+            }
+        }
+
         public virtual MethodInfo IncludeMethod => _includeMethodInfo;
 
         private static readonly MethodInfo _includeMethodInfo
@@ -178,11 +218,10 @@ namespace Microsoft.Data.Entity.Query
         private static IAsyncEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<T> innerResults,
-            IQuerySource querySource,
+            Func<T, object> entityAccessor,
             IReadOnlyList<INavigation> navigationPath,
             IReadOnlyList<Func<IAsyncIncludeRelatedValuesStrategy>> includeRelatedValuesStrategyFactories,
             bool querySourceRequiresTracking)
-            where T : QueryResultScope
         {
             queryContext.BeginIncludeScope();
 
@@ -196,32 +235,30 @@ namespace Microsoft.Data.Entity.Query
                     .Select<IAsyncIncludeRelatedValuesStrategy, AsyncRelatedEntitiesLoader>(s => s.GetRelatedValues)
                     .ToArray();
 
-            return
-                innerResults.Select(
-                    async (queryResultScope, cancellationToken) =>
+            return innerResults
+                .Select(
+                    async (result, cancellationToken) =>
                         {
                             await queryContext.QueryBuffer
                                 .IncludeAsync(
-                                    queryResultScope.GetResult(querySource),
+                                    entityAccessor == null ? result : entityAccessor(result), // TODO: Compile time?
                                     navigationPath,
                                     relatedValueBuffers,
                                     cancellationToken,
                                     querySourceRequiresTracking);
 
-                            return queryResultScope;
+                            return result;
                         })
-                    .Finally(() =>
+                .Finally(() =>
+                    {
+                        foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
                         {
-                            foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
-                            {
-                                includeRelatedValuesStrategy.Dispose();
-                            }
+                            includeRelatedValuesStrategy.Dispose();
+                        }
 
-                            queryContext.EndIncludeScope();
-                        });
+                        queryContext.EndIncludeScope();
+                    });
         }
-
-        public virtual Type IncludeRelatedValuesFactoryType => typeof(Func<IAsyncIncludeRelatedValuesStrategy>);
 
         public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod
             => _createReferenceIncludeStrategyMethodInfo;
@@ -289,6 +326,8 @@ namespace Microsoft.Data.Entity.Query
 
                     public Task<bool> MoveNext(CancellationToken cancellationToken)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         var hasNext = _hasNext;
 
                         if (hasNext)
@@ -347,5 +386,7 @@ namespace Microsoft.Data.Entity.Query
 
             public void Dispose() => _includeCollectionIterator.Dispose();
         }
+
+        public virtual Type IncludeRelatedValuesFactoryType => typeof(Func<IAsyncIncludeRelatedValuesStrategy>);
     }
 }

@@ -68,13 +68,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (expression.Method.MethodIsClosedFormOf(RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo)
+            if (expression.Method.MethodIsClosedFormOf(
+                RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo)
                 && ((ConstantExpression)expression.Arguments[0]).Value == _querySource)
             {
                 _foundCreateEntityForQuerySource = true;
             }
 
-            if (expression.Method.MethodIsClosedFormOf(_queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
+            if (expression.Method.MethodIsClosedFormOf(
+                _queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
                 _foundCreateEntityForQuerySource = false;
 
@@ -82,13 +84,30 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 if (_foundCreateEntityForQuerySource)
                 {
+                    var resultType = expression.Method.GetGenericArguments()[0];
+
+                    var memberExpression
+                        = _queryCompilationContext.QuerySourceMapping
+                            .GetExpression(_querySource) as MemberExpression;
+
+                    var entityAccessor
+                        = memberExpression == null
+                            ? (Expression)
+                                Expression
+                                    .Default(typeof(Func<,>)
+                                        .MakeGenericType(resultType, typeof(object)))
+                            : Expression
+                                .Lambda(
+                                    memberExpression,
+                                    (ParameterExpression)memberExpression.Expression);
+
                     return
                         Expression.Call(
                             _queryCompilationContext.QueryMethodProvider.IncludeMethod
-                                .MakeGenericMethod(expression.Method.GetGenericArguments()[0]),
+                                .MakeGenericMethod(resultType),
                             Expression.Convert(expression.Arguments[0], typeof(RelationalQueryContext)),
                             expression,
-                            Expression.Constant(_querySource),
+                            entityAccessor,
                             Expression.Constant(_navigationPath),
                             Expression.NewArrayInit(
                                 _queryCompilationContext.QueryMethodProvider.IncludeRelatedValuesFactoryType,
@@ -270,7 +289,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
         }
 
-        private JoinExpressionBase AdjustJoinExpression(SelectExpression selectExpression, JoinExpressionBase joinExpression)
+        private JoinExpressionBase AdjustJoinExpression(
+            SelectExpression selectExpression, JoinExpressionBase joinExpression)
         {
             var subquery = new SelectExpression(_sqlQueryGeneratorFactory, joinExpression.Alias);
             subquery.AddTable(joinExpression.TableExpression);
@@ -342,10 +362,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 var foreignKeyProperty = navigation.ForeignKey.Properties[i];
 
                 var foreignKeyColumnExpression
-                    = BuildColumnExpression(targetTableProjections, targetTableExpression, foreignKeyProperty, querySource);
+                    = BuildColumnExpression(
+                        targetTableProjections, targetTableExpression, foreignKeyProperty, querySource);
 
                 var primaryKeyColumnExpression
-                    = BuildColumnExpression(joinTableProjections, joinExpression, principalKeyProperty, querySource);
+                    = BuildColumnExpression(
+                        joinTableProjections, joinExpression, principalKeyProperty, querySource);
 
                 var primaryKeyExpression = primaryKeyColumnExpression;
 
