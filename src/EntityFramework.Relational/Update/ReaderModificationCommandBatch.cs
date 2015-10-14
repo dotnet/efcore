@@ -118,66 +118,60 @@ namespace Microsoft.Data.Entity.Update
             LastCachedCommandIndex = commandPosition;
         }
 
-        protected virtual DbCommand CreateStoreCommand(
-            [NotNull] string commandText,
-            [NotNull] IRelationalConnection connection)
+        protected virtual IRelationalCommand CreateStoreCommand()
         {
             var commandBuilder = _commandBuilderFactory
                 .Create()
-                .Append(commandText);
+                .Append(GetCommandText());
 
             foreach (var columnModification in ModificationCommands.SelectMany(t => t.ColumnModifications))
             {
-                PopulateParameters(commandBuilder, columnModification);
+                if (columnModification.ParameterName != null)
+                {
+                    commandBuilder.AddParameter(
+                        SqlGenerator.GenerateParameterName(columnModification.ParameterName),
+                        columnModification.Value,
+                        columnModification.Property);
+                }
+
+                if (columnModification.OriginalParameterName != null)
+                {
+                    commandBuilder.AddParameter(
+                        SqlGenerator.GenerateParameterName(columnModification.OriginalParameterName),
+                        columnModification.OriginalValue,
+                        columnModification.Property);
+                }
             }
 
-            return commandBuilder.BuildRelationalCommand().CreateCommand(connection);
-        }
-
-        protected virtual void PopulateParameters(
-            [NotNull] IRelationalCommandBuilder commandBuilder,
-            [NotNull] ColumnModification columnModification)
-        {
-            if (columnModification.ParameterName != null)
-            {
-                commandBuilder.AddParameter(
-                    SqlGenerator.GenerateParameterName(columnModification.ParameterName),
-                    columnModification.Value,
-                    columnModification.Property);
-            }
-
-            if (columnModification.OriginalParameterName != null)
-            {
-                commandBuilder.AddParameter(
-                    SqlGenerator.GenerateParameterName(columnModification.OriginalParameterName),
-                    columnModification.OriginalValue,
-                    columnModification.Property);
-            }
+            return commandBuilder.BuildRelationalCommand();
         }
 
         public override void Execute(IRelationalConnection connection)
         {
             Check.NotNull(connection, nameof(connection));
 
-            var commandText = GetCommandText();
+            var command = CreateStoreCommand();
 
-            using (var command = CreateStoreCommand(commandText, connection))
+            connection.Open();
+
+            try
             {
-                try
+                using (var dataReader = command.ExecuteReader(connection))
                 {
-                    using (var dataReader = command.ExecuteReader())
-                    {
-                        Consume(dataReader);
-                    }
+                    Consume(dataReader.DbDataReader);
                 }
-                catch (DbUpdateException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
-                }
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+            }
+            finally
+            {
+                connection.Close();
             }
         }
 
@@ -187,25 +181,28 @@ namespace Microsoft.Data.Entity.Update
         {
             Check.NotNull(connection, nameof(connection));
 
-            var commandText = GetCommandText();
+            var command = CreateStoreCommand();
 
-            using (var command = CreateStoreCommand(commandText, connection))
+            await connection.OpenAsync();
+
+            try
             {
-                try
+                using (var dataReader = await command.ExecuteReaderAsync(connection, cancellationToken))
                 {
-                    using (var dataReader = await command.ExecuteReaderAsync(cancellationToken))
-                    {
-                        await ConsumeAsync(dataReader, cancellationToken);
-                    }
+                    await ConsumeAsync(dataReader.DbDataReader, cancellationToken);
                 }
-                catch (DbUpdateException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
-                }
+            }
+            catch (DbUpdateException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+            }
+            finally
+            {
+                connection.Close();
             }
         }
 

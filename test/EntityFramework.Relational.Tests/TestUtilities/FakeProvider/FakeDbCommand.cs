@@ -13,6 +13,10 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
     {
         private FakeCommandExecutor _commandExecutor;
 
+        public FakeDbCommand()
+        {
+        }
+
         public FakeDbCommand(
             FakeDbConnection connection,
             FakeCommandExecutor commandExecutor)
