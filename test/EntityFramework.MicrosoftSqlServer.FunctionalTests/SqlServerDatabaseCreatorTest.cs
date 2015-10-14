@@ -82,8 +82,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var creator = GetDatabaseCreator(testDatabase);
 
                 var errorNumber = async
-                    ? (await Assert.ThrowsAsync<SqlException>(() => ((TestDatabaseCreator)creator).HasTablesAsync())).Number
-                    : Assert.Throws<SqlException>(() => ((TestDatabaseCreator)creator).HasTables()).Number;
+                    ? (await Assert.ThrowsAsync<SqlException>(() => ((TestDatabaseCreator)creator).HasTablesAsyncBase())).Number
+                    : Assert.Throws<SqlException>(() => ((TestDatabaseCreator)creator).HasTablesBase()).Number;
 
                 if (errorNumber != 233) // skip if no-process transient failure
                 {
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             {
                 var creator = GetDatabaseCreator(testDatabase);
 
-                Assert.False(async ? await ((TestDatabaseCreator)creator).HasTablesAsync() : ((TestDatabaseCreator)creator).HasTables());
+                Assert.False(async ? await ((TestDatabaseCreator)creator).HasTablesAsyncBase() : ((TestDatabaseCreator)creator).HasTablesBase());
             }
         }
 
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 var creator = GetDatabaseCreator(testDatabase);
 
-                Assert.True(async ? await ((TestDatabaseCreator)creator).HasTablesAsync() : ((TestDatabaseCreator)creator).HasTables());
+                Assert.True(async ? await ((TestDatabaseCreator)creator).HasTablesAsyncBase() : ((TestDatabaseCreator)creator).HasTablesBase());
             }
         }
 
@@ -408,15 +408,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 ISqlServerConnection connection,
                 IMigrationsModelDiffer modelDiffer,
                 IMigrationsSqlGenerator sqlGenerator,
-                ISqlStatementExecutor statementExecutor,
-                IModel model)
-                : base(connection, modelDiffer, sqlGenerator, statementExecutor, model)
+                IModel model,
+                ISqlCommandBuilder sqlCommandBuilder)
+                : base(connection, modelDiffer, sqlGenerator, model, sqlCommandBuilder)
             {
             }
 
-            public new bool HasTables() => base.HasTables();
+            public bool HasTablesBase() => base.HasTables();
 
-            public new Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public Task<bool> HasTablesAsyncBase(CancellationToken cancellationToken = default(CancellationToken))
                 => base.HasTablesAsync(cancellationToken);
         }
     }

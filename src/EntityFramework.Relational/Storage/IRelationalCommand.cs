@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -15,24 +14,31 @@ namespace Microsoft.Data.Entity.Storage
 
         IReadOnlyList<RelationalParameter> Parameters { get; }
 
-        void ExecuteNonQuery([NotNull] IRelationalConnection connection);
+        void ExecuteNonQuery(
+            [NotNull] IRelationalConnection connection,
+            bool manageConnection = true);
 
         Task ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default(CancellationToken),
+            bool manageConnection = true);
 
-        object ExecuteScalar([NotNull] IRelationalConnection connection);
+        object ExecuteScalar(
+            [NotNull] IRelationalConnection connection,
+            bool manageConnection = true);
 
         Task<object> ExecuteScalarAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken));
+            CancellationToken cancellationToken = default(CancellationToken),
+            bool manageConnection = true);
 
-        RelationalDataReader ExecuteReader([NotNull] IRelationalConnection connection);
+        RelationalDataReader ExecuteReader(
+            [NotNull] IRelationalConnection connection,
+            bool manageConnection = true);
 
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        DbCommand CreateCommand([NotNull] IRelationalConnection connection);
+            CancellationToken cancellationToken = default(CancellationToken),
+            bool manageConnection = true);
     }
 }

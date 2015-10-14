@@ -152,8 +152,6 @@ namespace Microsoft.Data.Entity.Update
 
             var command = CreateStoreCommand();
 
-            connection.Open();
-
             try
             {
                 using (var dataReader = command.ExecuteReader(connection))
@@ -169,10 +167,6 @@ namespace Microsoft.Data.Entity.Update
             {
                 throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
             }
-            finally
-            {
-                connection.Close();
-            }
         }
 
         public override async Task ExecuteAsync(
@@ -182,8 +176,6 @@ namespace Microsoft.Data.Entity.Update
             Check.NotNull(connection, nameof(connection));
 
             var command = CreateStoreCommand();
-
-            await connection.OpenAsync();
 
             try
             {
@@ -199,10 +191,6 @@ namespace Microsoft.Data.Entity.Update
             catch (Exception ex)
             {
                 throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
-            }
-            finally
-            {
-                connection.Close();
             }
         }
 

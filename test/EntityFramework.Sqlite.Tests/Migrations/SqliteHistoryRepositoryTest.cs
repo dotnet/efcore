@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             return new SqliteHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<ISqlStatementExecutor>(),
+                Mock.Of<ISqlCommandBuilder>(),
                 Mock.Of<IRelationalConnection>(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>

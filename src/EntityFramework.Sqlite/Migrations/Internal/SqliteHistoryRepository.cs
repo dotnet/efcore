@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
     {
         public SqliteHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] ISqlStatementExecutor executor,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] IRelationalConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [NotNull] ISqlGenerator sqlGenerator)
             : base(
                 databaseCreator,
-                executor,
+                sqlCommandBuilder,
                 connection,
                 options,
                 modelDiffer,

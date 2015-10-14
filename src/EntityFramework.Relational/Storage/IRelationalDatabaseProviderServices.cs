@@ -23,7 +23,6 @@ namespace Microsoft.Data.Entity.Storage
         IRelationalValueBufferFactoryFactory ValueBufferFactoryFactory { get; }
         IRelationalDatabaseCreator RelationalDatabaseCreator { get; }
         IRelationalAnnotationProvider AnnotationProvider { get; }
-        ISqlStatementExecutor SqlStatementExecutor { get; }
         IMethodCallTranslator CompositeMethodCallTranslator { get; }
         IMemberTranslator CompositeMemberTranslator { get; }
         IExpressionFragmentTranslator CompositeExpressionFragmentTranslator { get; }

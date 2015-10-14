@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Internal;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -37,11 +36,9 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<MigrationsModelDiffer>();
             VerifyScoped<RelationalValueGeneratorSelector>();
             VerifyScoped<RelationalSqlExecutor>();
-            VerifyScoped<SqlStatementExecutor>();
             VerifyScoped<CommandBatchPreparer>();
             VerifyScoped<RelationalModelValidator>();
 
-            VerifyScoped<ISqlStatementExecutor>();
             VerifyScoped<IMethodCallTranslator>();
             VerifyScoped<IMemberTranslator>();
             VerifyScoped<IExpressionFragmentTranslator>();

@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Tests;
@@ -63,7 +64,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<ISqlStatementExecutor, FakeSqlStatementExecutor>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -102,7 +103,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         {
             var customServices = new ServiceCollection()
                 .AddScoped<ISqlServerConnection, FakeSqlServerConnection>()
-                .AddScoped<ISqlStatementExecutor, FakeSqlStatementExecutor>();
+                .AddScoped<IRelationalCommandBuilderFactory, FakeRelationalCommandBuilderFactory>();
 
             var contextServices = SqlServerTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -125,9 +126,14 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private class FakeSqlServerConnection : SqlServerConnection
         {
+            private IDbContextOptions _options;
+            private ILoggerFactory _loggerFactory;
+
             public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
                 : base(options, new Logger<SqlServerConnection>(loggerFactory))
             {
+                _options = options;
+                _loggerFactory = loggerFactory;
             }
 
             public int ErrorNumber { get; set; }
@@ -151,25 +157,68 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 return Task.FromResult(0);
             }
+
+            public override ISqlServerConnection CreateMasterConnection()
+            {
+                return new FakeSqlServerConnection(_options, _loggerFactory);
+            }
         }
 
-        private class FakeSqlStatementExecutor : SqlStatementExecutor
+        private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
-            public FakeSqlStatementExecutor(
-                IRelationalCommandBuilderFactory commandBuilderFactory)
-                : base(commandBuilderFactory)
+            public IRelationalCommandBuilder Create()
+            {
+                return new FakeRelationalCommandBuilder();
+            }
+        }
+
+        private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
+        {
+            public IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
+
+            public IRelationalCommandBuilder AddParameter(string name, object value, Func<IRelationalTypeMapper, RelationalTypeMapping> mapType, bool? nullable)
+            {
+                throw new NotImplementedException();
+            }
+
+            public IRelationalCommand BuildRelationalCommand()
+            {
+                return new FakeRelationalCommand();
+            }
+        }
+
+        private class FakeRelationalCommand : IRelationalCommand
+        {
+            public string CommandText { get; }
+
+            public IReadOnlyList<RelationalParameter> Parameters { get; }
+
+            public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
             {
             }
 
-            public override void ExecuteNonQuery(IRelationalConnection connection, IEnumerable<IRelationalCommand> relationalCommands)
-            {
-            }
-
-            public override Task ExecuteNonQueryAsync(
-                IRelationalConnection connection,
-                IEnumerable<IRelationalCommand> relationalCommands,
-                CancellationToken cancellationToken = default(CancellationToken))
+            public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
                 => Task.FromResult(0);
+
+            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            {
+                throw new NotImplementedException();
+            }
+
+            public object ExecuteScalar(IRelationalConnection connection, bool manageConnection = true)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         private static SqlException CreateSqlException(int number)

@@ -12,45 +12,34 @@ namespace Microsoft.Data.Entity.Infrastructure
     public class RelationalSqlExecutor
     {
         private readonly ISqlCommandBuilder _sqlCommandBuilder;
-        private readonly ISqlStatementExecutor _statementExecutor;
         private readonly IRelationalConnection _connection;
 
         public RelationalSqlExecutor(
             [NotNull] ISqlCommandBuilder sqlCommandBuilder,
-            [NotNull] ISqlStatementExecutor statementExecutor,
             [NotNull] IRelationalConnection connection)
         {
             Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
-            Check.NotNull(statementExecutor, nameof(statementExecutor));
             Check.NotNull(connection, nameof(connection));
 
             _sqlCommandBuilder = sqlCommandBuilder;
-            _statementExecutor = statementExecutor;
             _connection = connection;
         }
 
         public virtual void ExecuteSqlCommand([NotNull] string sql, [NotNull] params object[] parameters)
-        => _statementExecutor.ExecuteNonQuery(
-            _connection,
-            new[]
-            {
-                _sqlCommandBuilder.Build(
+            => _sqlCommandBuilder
+                .Build(
                     Check.NotNull(sql, nameof(sql)),
                     Check.NotNull(parameters, nameof(parameters)))
-            });
+                .ExecuteNonQuery(_connection);
 
         public virtual async Task ExecuteSqlCommandAsync(
             [NotNull] string sql,
             CancellationToken cancellationToken = default(CancellationToken),
             [NotNull] params object[] parameters)
-            => await _statementExecutor.ExecuteNonQueryAsync(
-                _connection,
-                new[]
-                {
-                    _sqlCommandBuilder.Build(
-                        Check.NotNull(sql, nameof(sql)),
-                        Check.NotNull(parameters, nameof(parameters)))
-                },
-                cancellationToken);
+            => await _sqlCommandBuilder
+                .Build(
+                    Check.NotNull(sql, nameof(sql)),
+                    Check.NotNull(parameters, nameof(parameters)))
+                .ExecuteNonQueryAsync(_connection, cancellationToken);
     }
 }

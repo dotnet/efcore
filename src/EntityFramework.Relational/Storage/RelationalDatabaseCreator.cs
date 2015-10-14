@@ -20,25 +20,21 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] IModel model,
             [NotNull] IRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
-            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] ISqlStatementExecutor sqlStatementExecutor)
+            [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(sqlStatementExecutor, nameof(sqlStatementExecutor));
 
             Model = model;
             Connection = connection;
-            SqlStatementExecutor = sqlStatementExecutor;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
         }
 
         protected virtual IModel Model { get; }
         protected virtual IRelationalConnection Connection { get; }
-        protected virtual ISqlStatementExecutor SqlStatementExecutor { get; }
 
         public abstract bool Exists();
 
@@ -72,15 +68,10 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public virtual void CreateTables()
-            => SqlStatementExecutor.ExecuteNonQuery(
-                Connection,
-                GetCreateTablesCommands());
+            => GetCreateTablesCommands().ExecuteNonQuery(Connection);
 
-        public virtual Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => SqlStatementExecutor.ExecuteNonQueryAsync(
-                Connection,
-                GetCreateTablesCommands(),
-                cancellationToken);
+        public virtual async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => await GetCreateTablesCommands().ExecuteNonQueryAsync(Connection, cancellationToken);
 
         protected virtual IEnumerable<IRelationalCommand> GetCreateTablesCommands()
             => _migrationsSqlGenerator.Generate(_modelDiffer.GetDifferences(null, Model), Model);

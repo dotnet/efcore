@@ -10,18 +10,21 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalDataReader : IDisposable
     {
+        private readonly IRelationalConnection _connection;
         private readonly DbCommand _command;
         private readonly DbDataReader _reader;
 
         private bool _disposed;
 
         public RelationalDataReader(
+            [CanBeNull] IRelationalConnection connection,
             [NotNull] DbCommand command,
             [NotNull] DbDataReader reader)
         {
             Check.NotNull(command, nameof(command));
             Check.NotNull(reader, nameof(reader));
 
+            _connection = connection;
             _command = command;
             _reader = reader;
         }
@@ -34,6 +37,7 @@ namespace Microsoft.Data.Entity.Storage
             {
                 _reader.Dispose();
                 _command.Dispose();
+                _connection?.Close();
 
                 _disposed = true;
             }

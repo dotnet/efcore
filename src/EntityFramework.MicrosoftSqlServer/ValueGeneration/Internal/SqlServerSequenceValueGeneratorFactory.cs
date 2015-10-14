@@ -14,17 +14,17 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
-        private readonly ISqlStatementExecutor _executor;
+        private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
 
         public SqlServerSequenceValueGeneratorFactory(
-            [NotNull] ISqlStatementExecutor executor,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
         {
-            Check.NotNull(executor, nameof(executor));
+            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
-            _executor = executor;
+            _sqlCommandBuilder = sqlCommandBuilder;
             _sqlGenerator = sqlGenerator;
         }
 
@@ -38,47 +38,47 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 
             if (type == typeof(long))
             {
-                return new SqlServerSequenceHiLoValueGenerator<long>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<long>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(int))
             {
-                return new SqlServerSequenceHiLoValueGenerator<int>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<int>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(short))
             {
-                return new SqlServerSequenceHiLoValueGenerator<short>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<short>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(byte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<byte>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<byte>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(char))
             {
-                return new SqlServerSequenceHiLoValueGenerator<char>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<char>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(ulong))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ulong>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<ulong>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(uint))
             {
-                return new SqlServerSequenceHiLoValueGenerator<uint>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<uint>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(ushort))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ushort>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<ushort>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(sbyte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<sbyte>(_executor, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<sbyte>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(

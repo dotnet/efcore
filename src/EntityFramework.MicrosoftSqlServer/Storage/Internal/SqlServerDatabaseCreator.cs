@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
@@ -16,24 +17,29 @@ namespace Microsoft.Data.Entity.Storage.Internal
     {
         private readonly ISqlServerConnection _connection;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
+        private readonly ISqlCommandBuilder _sqlCommandBuilder;
 
         public SqlServerDatabaseCreator(
             [NotNull] ISqlServerConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] ISqlStatementExecutor statementExecutor,
-            [NotNull] IModel model)
-            : base(model, connection, modelDiffer, migrationsSqlGenerator, statementExecutor)
+            [NotNull] IModel model,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder)
+            : base(model, connection, modelDiffer, migrationsSqlGenerator)
         {
+            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
+
             _connection = connection;
             _migrationsSqlGenerator = migrationsSqlGenerator;
+            _sqlCommandBuilder = sqlCommandBuilder;
         }
 
         public override void Create()
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                SqlStatementExecutor.ExecuteNonQuery(masterConnection, CreateCreateOperations());
+                CreateCreateOperations().ExecuteNonQuery(masterConnection);
+
                 ClearPool();
             }
 
@@ -44,8 +50,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
         {
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await SqlStatementExecutor
-                    .ExecuteNonQueryAsync(masterConnection, CreateCreateOperations(), cancellationToken);
+                await CreateCreateOperations().ExecuteNonQueryAsync(masterConnection, cancellationToken);
+
                 ClearPool();
             }
 
@@ -53,14 +59,14 @@ namespace Microsoft.Data.Entity.Storage.Internal
         }
 
         protected override bool HasTables()
-            => (int)SqlStatementExecutor.ExecuteScalar(_connection, CreateHasTablesCommand()) != 0;
+            => (int)CreateHasTablesCommand().ExecuteScalar(_connection) != 0;
 
         protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => (int)(await SqlStatementExecutor
-                .ExecuteScalarAsync(_connection, CreateHasTablesCommand(), cancellationToken)) != 0;
+            => (int)(await CreateHasTablesCommand().ExecuteScalarAsync(_connection, cancellationToken)) != 0;
 
-        private string CreateHasTablesCommand()
-            => "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0";
+        private IRelationalCommand CreateHasTablesCommand()
+            => _sqlCommandBuilder
+                .Build("IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE') SELECT 1 ELSE SELECT 0");
 
         private IEnumerable<IRelationalCommand> CreateCreateOperations()
             => _migrationsSqlGenerator.Generate(new[] { new SqlServerCreateDatabaseOperation { Name = _connection.DbConnection.Database } });
@@ -161,8 +167,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                SqlStatementExecutor
-                    .ExecuteNonQuery(masterConnection, CreateDropCommands());
+                CreateDropCommands().ExecuteNonQuery(masterConnection);
             }
         }
 
@@ -172,7 +177,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             using (var masterConnection = _connection.CreateMasterConnection())
             {
-                await SqlStatementExecutor.ExecuteNonQueryAsync(masterConnection, CreateDropCommands(), cancellationToken);
+                await CreateDropCommands().ExecuteNonQueryAsync(masterConnection, cancellationToken);
             }
         }
 

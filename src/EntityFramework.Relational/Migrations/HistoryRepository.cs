@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations
         public const string DefaultTableName = "__EFMigrationsHistory";
 
         private readonly IRelationalDatabaseCreator _databaseCreator;
-        private readonly ISqlStatementExecutor _executor;
+        private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly IRelationalConnection _connection;
         private readonly IMigrationsModelDiffer _modelDiffer;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Migrations
 
         public HistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] ISqlStatementExecutor executor,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] IRelationalConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Migrations
             [NotNull] ISqlGenerator sqlGenerator)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
-            Check.NotNull(executor, nameof(executor));
+            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(options, nameof(options));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
-            _executor = executor;
+            _sqlCommandBuilder = sqlCommandBuilder;
             _connection = connection;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
@@ -90,11 +90,14 @@ namespace Microsoft.Data.Entity.Migrations
         protected abstract string ExistsSql { get; }
 
         public virtual bool Exists()
-            => _databaseCreator.Exists() && InterpretExistsResult(_executor.ExecuteScalar(_connection, ExistsSql));
+            => _databaseCreator.Exists()
+                && InterpretExistsResult(
+                    _sqlCommandBuilder.Build(ExistsSql).ExecuteScalar(_connection));
 
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             => await _databaseCreator.ExistsAsync(cancellationToken)
-                && InterpretExistsResult(await _executor.ExecuteScalarAsync(_connection, ExistsSql, cancellationToken));
+                && InterpretExistsResult(
+                    await _sqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(_connection, cancellationToken));
 
         /// <returns>true if the table exists; otherwise, false.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
@@ -127,20 +130,14 @@ namespace Microsoft.Data.Entity.Migrations
 
             if (Exists())
             {
-                _connection.Open();
-                try
+                var command = _sqlCommandBuilder.Build(GetAppliedMigrationsSql);
+
+                using (var reader = command.ExecuteReader(_connection))
                 {
-                    using (var reader = _executor.ExecuteReader(_connection, GetAppliedMigrationsSql))
+                    while (reader.DbDataReader.Read())
                     {
-                        while (reader.Read())
-                        {
-                            rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
-                        }
+                        rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                     }
-                }
-                finally
-                {
-                    _connection.Close();
                 }
             }
 
@@ -154,20 +151,14 @@ namespace Microsoft.Data.Entity.Migrations
 
             if (await ExistsAsync(cancellationToken))
             {
-                await _connection.OpenAsync(cancellationToken);
-                try
+                var command = _sqlCommandBuilder.Build(GetAppliedMigrationsSql);
+
+                using (var reader = await command.ExecuteReaderAsync(_connection))
                 {
-                    using (var reader = await _executor.ExecuteReaderAsync(_connection, GetAppliedMigrationsSql, cancellationToken))
+                    while (await reader.DbDataReader.ReadAsync(cancellationToken))
                     {
-                        while (await reader.ReadAsync(cancellationToken))
-                        {
-                            rows.Add(new HistoryRow(reader.GetString(0), reader.GetString(1)));
-                        }
+                        rows.Add(new HistoryRow(reader.DbDataReader.GetString(0), reader.DbDataReader.GetString(1)));
                     }
-                }
-                finally
-                {
-                    _connection.Close();
                 }
             }
 

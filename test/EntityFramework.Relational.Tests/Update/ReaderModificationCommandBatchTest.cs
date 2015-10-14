@@ -676,36 +676,31 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public IReadOnlyList<RelationalParameter> Parameters { get; }
 
-            public void ExecuteNonQuery(IRelationalConnection connection)
+            public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+            public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public object ExecuteScalar(IRelationalConnection connection)
+            public object ExecuteScalar(IRelationalConnection connection, bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken))
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection)
-                => new RelationalDataReader(new FakeDbCommand(), _reader);
+            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true)
+                => new RelationalDataReader(null, new FakeDbCommand(), _reader);
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken))
-                => Task.FromResult(new RelationalDataReader(new FakeDbCommand(), _reader));
-
-            public DbCommand CreateCommand(IRelationalConnection connection)
-            {
-                throw new NotImplementedException();
-            }
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+                => Task.FromResult(new RelationalDataReader(null, new FakeDbCommand(), _reader));
         }
 
         private const string ConnectionString = "Fake Connection String";

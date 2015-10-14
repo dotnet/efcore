@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             return new SqlServerHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<ISqlStatementExecutor>(),
+                Mock.Of<ISqlCommandBuilder>(),
                 Mock.Of<ISqlServerConnection>(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>

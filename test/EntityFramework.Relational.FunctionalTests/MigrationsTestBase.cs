@@ -208,7 +208,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             var generator = services.GetRequiredService<IMigrationsSqlGenerator>();
             var connection = services.GetRequiredService<IRelationalConnection>();
-            var executor = services.GetRequiredService<ISqlStatementExecutor>();
             var providerServices = services.GetRequiredService<IDatabaseProviderServices>();
 
             var migrationBuilder = new MigrationBuilder(providerServices.InvariantName);
@@ -219,7 +218,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var transaction = await connection.BeginTransactionAsync())
             {
-                await executor.ExecuteNonQueryAsync(connection, commands);
+                await commands.ExecuteNonQueryAsync(connection);
                 transaction.Commit();
             }
         }

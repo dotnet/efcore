@@ -139,8 +139,10 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(FakeDbParameter.DefaultDbType, parameter.DbType);
         }
 
-        [Fact]
-        public void Can_ExecuteNonQuery()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_ExecuteNonQuery(bool manageConnection)
         {
             var executeNonQueryCount = 0;
             var disposeCount = -1;
@@ -167,7 +169,11 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteNonQuery Command",
                 new RelationalParameter[0]);
 
-            relationalCommand.ExecuteNonQuery(fakeConnection);
+            relationalCommand.ExecuteNonQuery(fakeConnection, manageConnection: manageConnection);
+
+            var expectedCount = manageConnection ? 1 : 0;
+            Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
+            Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
             // Durring command execution
             Assert.Equal(1, executeNonQueryCount);
@@ -177,8 +183,10 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
-        public virtual async Task Can_ExecuteNonQueryAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual async Task Can_ExecuteNonQueryAsync(bool manageConnection)
         {
             var executeNonQueryCount = 0;
             var disposeCount = -1;
@@ -205,7 +213,11 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteNonQuery Command",
                 new RelationalParameter[0]);
 
-            await relationalCommand.ExecuteNonQueryAsync(fakeConnection);
+            await relationalCommand.ExecuteNonQueryAsync(fakeConnection, manageConnection: manageConnection);
+
+            var expectedCount = manageConnection ? 1 : 0;
+            Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
+            Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
             // Durring command execution
             Assert.Equal(1, executeNonQueryCount);
@@ -215,8 +227,10 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
-        public void Can_ExecuteScalar()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_ExecuteScalar(bool manageConnection)
         {
             var executeScalarCount = 0;
             var disposeCount = -1;
@@ -243,9 +257,13 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteScalar Command",
                 new RelationalParameter[0]);
 
-            var result = (string)relationalCommand.ExecuteScalar(fakeConnection);
+            var result = (string)relationalCommand.ExecuteScalar(fakeConnection, manageConnection: manageConnection);
 
             Assert.Equal("ExecuteScalar Result", result);
+
+            var expectedCount = manageConnection ? 1 : 0;
+            Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
+            Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
             // Durring command execution
             Assert.Equal(1, executeScalarCount);
@@ -255,8 +273,10 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
-        public async Task Can_ExecuteScalarAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_ExecuteScalarAsync(bool manageConnection)
         {
             var executeScalarCount = 0;
             var disposeCount = -1;
@@ -283,9 +303,13 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteScalar Command",
                 new RelationalParameter[0]);
 
-            var result = (string)await relationalCommand.ExecuteScalarAsync(fakeConnection);
+            var result = (string)await relationalCommand.ExecuteScalarAsync(fakeConnection, manageConnection: manageConnection);
 
             Assert.Equal("ExecuteScalar Result", result);
+
+            var expectedCount = manageConnection ? 1 : 0;
+            Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
+            Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
 
             // Durring command execution
             Assert.Equal(1, executeScalarCount);
@@ -295,8 +319,10 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
         }
 
-        [Fact]
-        public void Can_ExecuteReader()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_ExecuteReader(bool manageConnection)
         {
             var executeReaderCount = 0;
             var disposeCount = -1;
@@ -325,9 +351,13 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteReader Command",
                 new RelationalParameter[0]);
 
-            var result = relationalCommand.ExecuteReader(fakeConnection);
+            var result = relationalCommand.ExecuteReader(fakeConnection, manageConnection: manageConnection);
 
             Assert.Same(dbDataReader, result.DbDataReader);
+            Assert.Equal(0, fakeDbConnection.CloseCount);
+
+            var expectedCount = manageConnection ? 1 : 0;
+            Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
 
             // Durring command execution
             Assert.Equal(1, executeReaderCount);
@@ -341,10 +371,13 @@ namespace Microsoft.Data.Entity.Storage
             result.Dispose();
             Assert.Equal(1, dbDataReader.DisposeCount);
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
+            Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
         }
 
-        [Fact]
-        public async Task Can_ExecuteReaderAsync()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task Can_ExecuteReaderAsync(bool manageConnection)
         {
             var executeReaderCount = 0;
             var disposeCount = -1;
@@ -373,9 +406,13 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteReader Command",
                 new RelationalParameter[0]);
 
-            var result = await relationalCommand.ExecuteReaderAsync(fakeConnection);
+            var result = await relationalCommand.ExecuteReaderAsync(fakeConnection, manageConnection: manageConnection);
 
             Assert.Same(dbDataReader, result.DbDataReader);
+            Assert.Equal(0, fakeDbConnection.CloseCount);
+
+            var expectedCount = manageConnection ? 1 : 0;
+            Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
 
             // Durring command execution
             Assert.Equal(1, executeReaderCount);
@@ -389,96 +426,190 @@ namespace Microsoft.Data.Entity.Storage
             result.Dispose();
             Assert.Equal(1, dbDataReader.DisposeCount);
             Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
-        }
-
-        [Fact]
-        public void ExecuteReader_disposes_command_on_exception()
-        {
-            var fakeDbConnection = new FakeDbConnection(
-                ConnectionString,
-                new FakeCommandExecutor(
-                    executeReader: (c, b) =>
-                    {
-                        throw new DbUpdateException("ExecuteReader Exception", new InvalidOperationException());
-                    }));
-
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
-
-            var options = CreateOptions(optionsExtension);
-
-            var fakeConnection = new FakeRelationalConnection(options);
-
-            var relationalCommand = new RelationalCommand(
-                new FakeSensitiveDataLogger<RelationalCommand>(),
-                new DiagnosticListener("Fake"),
-                "ExecuteReader Command",
-                new RelationalParameter[0]);
-
-            Assert.Throws<DbUpdateException>(() => relationalCommand.ExecuteReader(fakeConnection));
-            Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
-        }
-
-        [Fact]
-        public async Task ExecuteReaderAsync_disposes_command_on_exception()
-        {
-            var fakeDbConnection = new FakeDbConnection(
-                ConnectionString,
-                new FakeCommandExecutor(
-                    executeReaderAsync: (c, b, ct) =>
-                    {
-                        throw new DbUpdateException("ExecuteReader Exception", new InvalidOperationException());
-                    }));
-
-            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
-
-            var options = CreateOptions(optionsExtension);
-
-            var fakeConnection = new FakeRelationalConnection(options);
-
-            var relationalCommand = new RelationalCommand(
-                new FakeSensitiveDataLogger<RelationalCommand>(),
-                new DiagnosticListener("Fake"),
-                "ExecuteReader Command",
-                new RelationalParameter[0]);
-
-            await Assert.ThrowsAsync<DbUpdateException>(() => relationalCommand.ExecuteReaderAsync(fakeConnection));
-            Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
+            Assert.Equal(expectedCount, fakeDbConnection.CloseCount);
         }
 
         public static TheoryData CommandActions
             => new TheoryData<Delegate, string, bool>
                 {
                     {
-                        new Action<RelationalCommand, IRelationalConnection>( (command, connection) => command.ExecuteNonQuery(connection)),
+                        new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteNonQuery(connection, manageConnection: manage)),
                         RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                         false
                     },
                     {
-                        new Action<RelationalCommand, IRelationalConnection>( (command, connection) => command.ExecuteScalar(connection)),
+                        new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteScalar(connection, manageConnection: manage)),
                         RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                         false
                     },
                     {
-                        new Action<RelationalCommand, IRelationalConnection>( (command, connection) => command.ExecuteReader(connection)),
+                        new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteReader(connection, manageConnection: manage)),
                         RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                         false
                     },
                     {
-                        new Func<RelationalCommand, IRelationalConnection, Task>( (command, connection) => command.ExecuteNonQueryAsync(connection)),
+                        new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteNonQueryAsync(connection, manageConnection: manage)),
                         RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                         true
                     },
                     {
-                        new Func<RelationalCommand, IRelationalConnection, Task>( (command, connection) => command.ExecuteScalarAsync(connection)),
+                        new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteScalarAsync(connection, manageConnection: manage)),
                         RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                         true
                     },
                     {
-                        new Func<RelationalCommand, IRelationalConnection, Task>( (command, connection) => command.ExecuteReaderAsync(connection)),
+                        new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteReaderAsync(connection, manageConnection: manage)),
                         RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                         true
                     }
                 };
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Disposes_command_on_exception(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var exception = new InvalidOperationException();
+
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor(
+                    (c) => { throw exception; },
+                    (c) => { throw exception; },
+                    (c, cb) => { throw exception; },
+                    (c, ct) => { throw exception; },
+                    (c, ct) => { throw exception; },
+                    (c, cb, ct) => { throw exception; }));
+
+            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+
+            var options = CreateOptions(optionsExtension);
+
+            var fakeConnection = new FakeRelationalConnection(options);
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "ExecuteReader Command",
+                new RelationalParameter[0]);
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async ()
+                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection));
+            }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(()
+                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection));
+            }
+
+            Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Closes_managed_connections_on_exception(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var exception = new InvalidOperationException();
+
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor(
+                    (c) => { throw exception; },
+                    (c) => { throw exception; },
+                    (c, cb) => { throw exception; },
+                    (c, ct) => { throw exception; },
+                    (c, ct) => { throw exception; },
+                    (c, cb, ct) => { throw exception; }));
+
+            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+
+            var options = CreateOptions(optionsExtension);
+
+            var fakeConnection = new FakeRelationalConnection(options);
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "ExecuteReader Command",
+                new RelationalParameter[0]);
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async ()
+                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection));
+
+                Assert.Equal(1, fakeDbConnection.OpenAsyncCount);
+            }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(()
+                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection));
+
+                Assert.Equal(1, fakeDbConnection.OpenCount);
+            }
+
+            Assert.Equal(1, fakeDbConnection.CloseCount);
+        }
+
+        [Theory]
+        [MemberData(nameof(CommandActions))]
+        public async Task Does_not_close_unmanaged_connections_on_exception(
+            Delegate commandDelegate,
+            string telemetryName,
+            bool async)
+        {
+            var exception = new InvalidOperationException();
+
+            var fakeDbConnection = new FakeDbConnection(
+                ConnectionString,
+                new FakeCommandExecutor(
+                    (c) => { throw exception; },
+                    (c) => { throw exception; },
+                    (c, cb) => { throw exception; },
+                    (c, ct) => { throw exception; },
+                    (c, ct) => { throw exception; },
+                    (c, cb, ct) => { throw exception; }));
+
+            var optionsExtension = new FakeRelationalOptionsExtension { Connection = fakeDbConnection };
+
+            var options = CreateOptions(optionsExtension);
+
+            var fakeConnection = new FakeRelationalConnection(options);
+
+            var relationalCommand = new RelationalCommand(
+                new FakeSensitiveDataLogger<RelationalCommand>(),
+                new DiagnosticListener("Fake"),
+                "ExecuteReader Command",
+                new RelationalParameter[0]);
+
+            if (async)
+            {
+                await Assert.ThrowsAsync<InvalidOperationException>(
+                    async ()
+                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, false, fakeConnection));
+
+                Assert.Equal(0, fakeDbConnection.OpenAsyncCount);
+            }
+            else
+            {
+                Assert.Throws<InvalidOperationException>(()
+                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, false, fakeConnection));
+
+                Assert.Equal(0, fakeDbConnection.OpenCount);
+            }
+
+            Assert.Equal(0, fakeDbConnection.CloseCount);
+        }
+
 
         [Theory]
         [MemberData(nameof(CommandActions))]
@@ -506,11 +637,11 @@ namespace Microsoft.Data.Entity.Storage
 
             if (async)
             {
-                await ((Func<RelationalCommand, IRelationalConnection, Task>)commandDelegate)(relationalCommand, fakeConnection);
+                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection);
+                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
 
             Assert.Equal(1, log.Count);
@@ -554,11 +685,11 @@ Command Text
 
             if (async)
             {
-                await ((Func<RelationalCommand, IRelationalConnection, Task>)commandDelegate)(relationalCommand, fakeConnection);
+                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection);
+                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
 
             Assert.Equal(2, log.Count);
@@ -607,11 +738,11 @@ Command Text
 
             if (async)
             {
-                await ((Func<RelationalCommand, IRelationalConnection, Task>)commandDelegate)(relationalCommand, fakeConnection);
+                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection);
+                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
 
             Assert.Equal(2, log.Count);
@@ -655,11 +786,11 @@ Command Text
 
             if (async)
             {
-                await ((Func<RelationalCommand, IRelationalConnection, Task>)commandDelegate)(relationalCommand, fakeConnection);
+                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
             else
             {
-                ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection);
+                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
             }
 
             Assert.Equal(2, diagnostic.Count);
@@ -721,12 +852,12 @@ Command Text
             {
                 await Assert.ThrowsAsync<InvalidOperationException>(
                     async ()
-                        => await ((Func<RelationalCommand, IRelationalConnection, Task>)commandDelegate)(relationalCommand, fakeConnection));
+                        => await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection));
             }
             else
             {
                 Assert.Throws<InvalidOperationException>(()
-                    => ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection));
+                    => ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection));
             }
 
             Assert.Equal(2, diagnostic.Count);

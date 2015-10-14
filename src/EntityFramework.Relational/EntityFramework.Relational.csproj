@@ -230,11 +230,11 @@
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\ISqlCommandBuilder.cs" />
     <Compile Include="Storage\ISqlGenerator.cs" />
-    <Compile Include="Storage\ISqlStatementExecutor.cs" />
     <Compile Include="Storage\Internal\RelationalCommand.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilder.cs" />
     <Compile Include="Storage\Internal\RelationalCommandBuilderFactory.cs" />
     <Compile Include="Storage\RelationalCommandBuilderExtensions.cs" />
+    <Compile Include="Storage\RelationalCommandExtensions.cs" />
     <Compile Include="Storage\RelationalConnection.cs" />
     <Compile Include="Storage\RelationalDatabase.cs" />
     <Compile Include="Storage\RelationalDatabaseCreator.cs" />
@@ -248,7 +248,6 @@
     <Compile Include="Storage\RelationalTypeMapperExtensions.cs" />
     <Compile Include="Storage\RelationalTypeMapping.cs" />
     <Compile Include="Storage\Internal\SqlCommandBuilder.cs" />
-    <Compile Include="Storage\SqlStatementExecutor.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Storage\UntypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />

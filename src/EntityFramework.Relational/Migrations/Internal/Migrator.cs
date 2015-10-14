@@ -21,8 +21,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         private readonly IHistoryRepository _historyRepository;
         private readonly IRelationalDatabaseCreator _databaseCreator;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlStatementExecutor _executor;
+        private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly IRelationalConnection _connection;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly ILogger _logger;
@@ -33,8 +32,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlStatementExecutor executor,
+            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] IRelationalConnection connection,
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] ILogger<Migrator> logger,
@@ -44,8 +42,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(databaseCreator, nameof(databaseCreator));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(executor, nameof(executor));
+            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(logger, nameof(logger));
@@ -55,8 +52,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             _historyRepository = historyRepository;
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
             _migrationsSqlGenerator = migrationsSqlGenerator;
-            _commandBuilderFactory = commandBuilderFactory;
-            _executor = executor;
+            _sqlCommandBuilder = sqlCommandBuilder;
+            _sqlCommandBuilder = sqlCommandBuilder;
             _connection = connection;
             _sqlGenerator = sqlGenerator;
             _logger = logger;
@@ -75,9 +72,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     _databaseCreator.Create();
                 }
 
-                var command = _commandBuilderFactory.Create()
-                    .Append(_historyRepository.GetCreateScript())
-                    .BuildRelationalCommand();
+                var command = _sqlCommandBuilder.Build(_historyRepository.GetCreateScript());
 
                 Execute(new[] { command });
             }
@@ -103,9 +98,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     await _databaseCreator.CreateAsync(cancellationToken);
                 }
 
-                var command = _commandBuilderFactory.Create()
-                    .Append(_historyRepository.GetCreateScript())
-                    .BuildRelationalCommand();
+                var command = _sqlCommandBuilder.Build(_historyRepository.GetCreateScript());
 
                 await ExecuteAsync(
                     new[] { command },
@@ -317,9 +310,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var commands = new List<IRelationalCommand>();
             commands.AddRange(_migrationsSqlGenerator.Generate(migration.UpOperations, migration.TargetModel));
             commands.Add(
-                _commandBuilderFactory.Create()
-                    .Append(_historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion())))
-                    .BuildRelationalCommand());
+                _sqlCommandBuilder.Build(_historyRepository.GetInsertScript(new HistoryRow(migration.GetId(), ProductInfo.GetVersion()))));
 
             return commands;
         }
@@ -333,9 +324,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             var commands = new List<IRelationalCommand>();
             commands.AddRange(_migrationsSqlGenerator.Generate(migration.DownOperations, previousMigration?.TargetModel));
             commands.Add(
-                _commandBuilderFactory.Create()
-                    .Append(_historyRepository.GetDeleteScript(migration.GetId()))
-                    .BuildRelationalCommand());
+                _sqlCommandBuilder.Build(_historyRepository.GetDeleteScript(migration.GetId())));
 
             return commands;
         }
@@ -344,7 +333,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         {
             using (var transaction = _connection.BeginTransaction())
             {
-                _executor.ExecuteNonQuery(_connection, relationalCommands);
+                relationalCommands.ExecuteNonQuery(_connection);
+
                 transaction.Commit();
             }
         }
@@ -356,7 +346,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             using (var transaction = await _connection.BeginTransactionAsync(cancellationToken))
             {
-                await _executor.ExecuteNonQueryAsync(_connection, relationalCommands, cancellationToken);
+                await relationalCommands.ExecuteNonQueryAsync(_connection, cancellationToken);
                 transaction.Commit();
             }
         }
