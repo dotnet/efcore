@@ -597,6 +597,21 @@ ORDER BY [ct].[GearNickName], [ct].[GearSquadId]",
                 Sql);
         }
 
+        public override void Join_navigation_translated_to_subquery_composite_key()
+        {
+            base.Join_navigation_translated_to_subquery_composite_key();
+
+            Assert.Equal(
+                @"SELECT [g].[FullName], [t].[Note]
+FROM [Gear] AS [g]
+INNER JOIN [CogTag] AS [t] ON [g].[FullName] = (
+    SELECT TOP(1) [subQuery0].[FullName]
+    FROM [Gear] AS [subQuery0]
+    WHERE ([subQuery0].[Nickname] = [t].[GearNickName]) AND ([subQuery0].[SquadId] = [t].[GearSquadId])
+)",
+                Sql);
+        }
+
         public GearsOfWarQuerySqlServerTest(GearsOfWarQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {

@@ -129,6 +129,116 @@ ORDER BY [c0].[DefaultText], [c0].[DefaultText0]",
                 Sql);
         }
 
+        public override void Join_navigation_translated_to_FK()
+        {
+            base.Join_navigation_translated_to_FK();
+
+            Assert.Equal(
+                @"SELECT [e1].[Id], [e2].[Id]
+FROM [Level1] AS [e1]
+INNER JOIN [Level2] AS [e2] ON [e1].[Id] = [e2].[OneToOne_Optional_PK_InverseId]", Sql);
+        }
+
+        public override void Join_navigation_in_outer_selector_translated_to_extra_join()
+        {
+            base.Join_navigation_in_outer_selector_translated_to_extra_join();
+
+            Assert.Equal(
+                @"SELECT [e1].[Id], [e2].[Id]
+FROM [Level1] AS [e1]
+INNER JOIN [Level2] AS [e1.OneToOne_Optional_FK] ON [e1].[Id] = [e1.OneToOne_Optional_FK].[Level1_Optional_Id]
+INNER JOIN [Level2] AS [e2] ON [e1.OneToOne_Optional_FK].[Id] = [e2].[Id]",
+                Sql);
+        }
+
+        public override void Join_navigation_in_outer_selector_translated_to_extra_join_nested()
+        {
+            base.Join_navigation_in_outer_selector_translated_to_extra_join_nested();
+
+            Assert.Equal(
+                @"SELECT [e1].[Id], [e3].[Id]
+FROM [Level1] AS [e1]
+INNER JOIN [Level2] AS [e1.OneToOne_Required_FK] ON [e1].[Id] = [e1.OneToOne_Required_FK].[Level1_Required_Id]
+INNER JOIN [Level3] AS [e1.OneToOne_Required_FK.OneToOne_Optional_FK] ON [e1.OneToOne_Required_FK].[Id] = [e1.OneToOne_Required_FK.OneToOne_Optional_FK].[Level2_Optional_Id]
+INNER JOIN [Level3] AS [e3] ON [e1.OneToOne_Required_FK.OneToOne_Optional_FK].[Id] = [e3].[Id]",
+                Sql);
+        }
+
+
+        public override void Join_navigation_in_inner_selector_translated_to_subquery()
+        {
+            base.Join_navigation_in_inner_selector_translated_to_subquery();
+
+            Assert.Equal(
+                @"SELECT [e2].[Id], [e1].[Id]
+FROM [Level2] AS [e2]
+INNER JOIN [Level1] AS [e1] ON [e2].[Id] = (
+    SELECT TOP(1) [subQuery0].[Id]
+    FROM [Level2] AS [subQuery0]
+    WHERE [subQuery0].[Level1_Optional_Id] = [e1].[Id]
+)",
+                Sql);
+        }
+
+        public override void Join_navigation_translated_to_subquery_non_key_join()
+        {
+            base.Join_navigation_translated_to_subquery_non_key_join();
+
+            Assert.Equal(
+                @"SELECT [e2].[Id], [e2].[Name], [e1].[Id], [e1].[Name]
+FROM [Level2] AS [e2]
+INNER JOIN [Level1] AS [e1] ON [e2].[Name] = (
+    SELECT TOP(1) [subQuery0].[Name]
+    FROM [Level2] AS [subQuery0]
+    WHERE [subQuery0].[Level1_Optional_Id] = [e1].[Id]
+)",
+                Sql);
+        }
+
+        public override void Join_navigation_translated_to_subquery_self_ref()
+        {
+            base.Join_navigation_translated_to_subquery_self_ref();
+
+            Assert.Equal(
+                @"SELECT [e1].[Id], [e2].[Id]
+FROM [Level1] AS [e1]
+INNER JOIN [Level1] AS [e2] ON [e1].[Id] = [e2].[OneToMany_Optional_Self_InverseId]",
+                Sql);
+        }
+
+        public override void Join_navigation_translated_to_subquery_nested()
+        {
+            base.Join_navigation_translated_to_subquery_nested();
+
+            Assert.Equal(
+                @"SELECT [e3].[Id], [e1].[Id]
+FROM [Level3] AS [e3]
+INNER JOIN [Level1] AS [e1] ON [e3].[Id] = (
+    SELECT TOP(1) [subQuery0.OneToOne_Optional_FK].[Id]
+    FROM [Level2] AS [subQuery0]
+    INNER JOIN [Level3] AS [subQuery0.OneToOne_Optional_FK] ON [subQuery0].[Id] = [subQuery0.OneToOne_Optional_FK].[Level2_Optional_Id]
+    WHERE [subQuery0].[Level1_Required_Id] = [e1].[Id]
+)",
+                Sql);
+        }
+
+        public override void Join_navigation_translated_to_subquery_deeply_nested_non_key_join()
+        {
+            base.Join_navigation_translated_to_subquery_deeply_nested_non_key_join();
+
+            Assert.Equal(
+                @"SELECT [e4].[Id], [e4].[Name], [e1].[Id], [e1].[Name]
+FROM [Level4] AS [e4]
+INNER JOIN [Level1] AS [e1] ON [e4].[Name] = (
+    SELECT TOP(1) [subQuery0.OneToOne_Optional_FK.OneToOne_Required_PK].[Name]
+    FROM [Level2] AS [subQuery0]
+    INNER JOIN [Level3] AS [subQuery0.OneToOne_Optional_FK] ON [subQuery0].[Id] = [subQuery0.OneToOne_Optional_FK].[Level2_Optional_Id]
+    INNER JOIN [Level4] AS [subQuery0.OneToOne_Optional_FK.OneToOne_Required_PK] ON [subQuery0.OneToOne_Optional_FK].[Id] = [subQuery0.OneToOne_Optional_FK.OneToOne_Required_PK].[Id]
+    WHERE [subQuery0].[Level1_Required_Id] = [e1].[Id]
+)",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }

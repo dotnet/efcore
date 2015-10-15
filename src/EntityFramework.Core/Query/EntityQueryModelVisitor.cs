@@ -678,9 +678,12 @@ namespace Microsoft.Data.Entity.Query
             {
                 innerElementType = innerSequenceType.GetTypeInfo().GenericTypeArguments[0];
 
-                querySourceMapping.AddMapping(
-                    joinClause,
-                    QueryResultScope.GetResult(innerItemParameter, joinClause, innerElementType));
+                if (!querySourceMapping.ContainsMapping(joinClause))
+                {
+                    querySourceMapping.AddMapping(
+                        joinClause,
+                        QueryResultScope.GetResult(innerItemParameter, joinClause, innerElementType));
+                }
             }
             else
             {

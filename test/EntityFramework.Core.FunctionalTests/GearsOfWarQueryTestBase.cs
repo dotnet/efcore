@@ -629,6 +629,39 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Join_navigation_translated_to_subquery_composite_key()
+        {
+            List<Gear> gears;
+            List<CogTag> tags;
+            using (var context = CreateContext())
+            {
+                gears = context.Gears.ToList();
+                tags = context.Tags.Include(e => e.Gear).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from g in context.Gears
+                            join t in context.Tags on g.FullName equals t.Gear.FullName
+                            select new { g.FullName, t.Note };
+
+                var result = query.ToList();
+
+                var expected = (from g in gears
+                                join t in tags on g.FullName equals t.Gear?.FullName
+                                select new { g.FullName, t.Note }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
         protected GearsOfWarContext CreateContext() => Fixture.CreateContext(TestStore);
 
         protected GearsOfWarQueryTestBase(TFixture fixture)
