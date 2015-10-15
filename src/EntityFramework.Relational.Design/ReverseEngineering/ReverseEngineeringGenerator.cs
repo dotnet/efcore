@@ -71,14 +71,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 ? modelConfiguration.ClassName()
                 : customConfiguration.ContextClassName;
 
-            CheckOutputFiles(configuration.ProjectPath,
-                configuration.OutputPath, dbContextClassName, metadataModel);
-
-            var outputPath = configuration.OutputPath == null
+            var outputPath = string.IsNullOrEmpty(configuration.OutputPath)
                 ? configuration.ProjectPath
                 : (Path.IsPathRooted(configuration.OutputPath)
                     ? configuration.OutputPath
                     : Path.Combine(configuration.ProjectPath, configuration.OutputPath));
+
+            CheckOutputFiles(outputPath, dbContextClassName, metadataModel);
 
             return CodeWriter.WriteCodeAsync(
                 modelConfiguration, outputPath, dbContextClassName, cancellationToken);
@@ -102,18 +101,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         }
 
         public virtual void CheckOutputFiles(
-            [NotNull] string projectPath,
-            [CanBeNull] string relativeOutputPath,
+            [NotNull] string outputPath,
             [NotNull] string dbContextClassName,
             [NotNull] IModel metadataModel)
         {
-            Check.NotEmpty(projectPath, nameof(projectPath));
+            Check.NotEmpty(outputPath, nameof(outputPath));
             Check.NotEmpty(dbContextClassName, nameof(dbContextClassName));
             Check.NotNull(metadataModel, nameof(metadataModel));
-
-            var outputPath = relativeOutputPath == null
-                ? projectPath
-                : Path.Combine(projectPath, relativeOutputPath);
 
             var readOnlyFiles = CodeWriter.GetReadOnlyFilePaths(
                 outputPath, dbContextClassName, metadataModel.EntityTypes);
@@ -127,17 +121,34 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         private static char[] directorySeparatorChars = new char[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };
 
-        private string ConstructNamespace(string rootNamespace, string projectPath, string relativePath)
+        private string ConstructNamespace(string rootNamespace, string projectPath, string outputPath)
         {
-            if (string.IsNullOrEmpty(relativePath))
+            if (string.IsNullOrEmpty(outputPath)
+                || Path.IsPathRooted(outputPath))
             {
+                // outputPath is empty or is not relative - so just use root namespace
+                return rootNamespace;
+            }
+
+            // strip off any directory separator chars at end of project path
+            for (var projectPathLastChar = projectPath.Last();
+                directorySeparatorChars.Contains(projectPathLastChar);
+                projectPathLastChar = projectPath.Last())
+            {
+                projectPath = projectPath.Substring(0, projectPath.Length - 1);
+            }
+
+            var canonicalizedProjectPath = Path.GetFullPath(projectPath);
+            var canonicalizedOutputPath = Path.GetFullPath(Path.Combine(projectPath, outputPath));
+            if (!canonicalizedOutputPath.StartsWith(canonicalizedProjectPath))
+            {
+                // canonicalizedOutputPath is outside of project - so just use root namespace
                 return rootNamespace;
             }
 
             var @namespace = rootNamespace;
-            var projectPathPrefixLength = Path.GetFullPath(projectPath).Count();
-            var canonicalizedRelativePath = Path.GetFullPath(Path.Combine(projectPath, relativePath))
-                .Substring(projectPathPrefixLength + 1);
+            var canonicalizedRelativePath = canonicalizedOutputPath
+                .Substring(canonicalizedProjectPath.Count() + 1);
             foreach (var pathPart in canonicalizedRelativePath
                 .Split(directorySeparatorChars, StringSplitOptions.RemoveEmptyEntries))
             {
