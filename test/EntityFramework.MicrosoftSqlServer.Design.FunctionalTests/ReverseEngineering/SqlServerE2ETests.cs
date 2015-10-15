@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             {
                 ConnectionString = _connectionString,
                 ContextClassName = "AttributesContext",
-                ProjectPath = TestProjectDir,
+                ProjectPath = TestProjectDir + Path.DirectorySeparatorChar, // tests that ending DirectorySeparatorChar does not affect namespace
                 ProjectRootNamespace = TestNamespace,
                 OutputPath = TestSubDir,
                 TableSelectionSet = Filter,
