@@ -228,5 +228,35 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
             }
         }
+
+        [Fact]
+        public virtual void Join_navigation_on_inner_selector_translated_to_FK()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e2 in context.LevelTwo on e1.Id equals e2.OneToOne_Optional_PK_Inverse.Id
+                            select new { Id1 = e1.Id, Id2 = e2.Id };
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_on_outer_selector_translated_to_FK()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from e2 in context.LevelTwo
+                            join e1 in context.LevelOne on e2.OneToOne_Optional_PK_Inverse.Id equals e1.Id
+                            select new { Id2 = e2.Id, Id1 = e1.Id };
+
+                var result = query.ToList();
+
+                Assert.Equal(5, result.Count);
+            }
+        }
     }
 }

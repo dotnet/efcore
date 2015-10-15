@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -236,6 +237,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                             if (navigations.Any())
                             {
+                                if (navigations.Count == 1 && navigations[0].PointsToPrincipal())
+                                {
+                                    var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(memberExpression, navigations[0]);
+                                    if (foreignKeyMemberAccess != null)
+                                    {
+                                        return foreignKeyMemberAccess;
+                                    }
+                                }
+
                                 var outerQuerySourceReferenceExpression = new QuerySourceReferenceExpression(qs);
 
                                 var innerQuerySourceReferenceExpression
@@ -249,6 +259,29 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             return default(Expression);
                         })
                 ?? base.VisitMember(memberExpression);
+        }
+
+        private Expression CreateForeignKeyMemberAccess(MemberExpression memberExpression, INavigation navigation)
+        {
+            var principalKey = navigation.ForeignKey.PrincipalKey;
+            if (principalKey.Properties.Count == 1)
+            {
+                var principalKeyProperty = principalKey.Properties[0];
+                if (principalKeyProperty.Name == memberExpression.Member.Name)
+                {
+                    Debug.Assert(navigation.ForeignKey.Properties.Count == 1);
+
+                    var foreignKeyProperty = navigation.ForeignKey.Properties[0];
+                    var declaringExpression = ((MemberExpression)memberExpression.Expression).Expression;
+                    var foreignKeyPropertyExpression = CreateKeyAccessExpression(declaringExpression, navigation.ForeignKey.Properties);
+
+                    return foreignKeyPropertyExpression.Type != principalKeyProperty.ClrType
+                        ? Expression.Convert(foreignKeyPropertyExpression, principalKeyProperty.ClrType)
+                        : foreignKeyPropertyExpression;
+                }
+            }
+
+            return null;
         }
 
         private Expression CreateJoinsForNavigations(
