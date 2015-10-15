@@ -42,9 +42,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     b.HasMany(s => s.Members).WithOne(g => g.Squad).HasForeignKey(g => g.SquadId);
                 });
 
-            // TODO: See issue #3282
-            modelBuilder.Entity<Gear>().Property(g => g.SquadId).Metadata.RequiresValueGenerator = null;
-
             modelBuilder.Entity<Weapon>(b =>
                 {
                     b.HasOne(w => w.SynergyWith).WithOne().HasForeignKey<Weapon>(w => w.SynergyWithId);

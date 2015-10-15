@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
     {
         public override ValueGenerator Create(IProperty property)
         {
-            var type = property.ClrType.UnwrapNullableType();
+            var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             if (type == typeof(long))
             {

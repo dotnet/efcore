@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
         {
             Check.NotNull(property, nameof(property));
 
-            var type = property.ClrType.UnwrapNullableType();
+            var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             if (type == typeof(long))
             {

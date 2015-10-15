@@ -178,6 +178,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
 
                 Metadata.ValueGenerated = valueGenerated;
+
+                if (Metadata.IsKey())
+                {
+                    UseValueGenerator(
+                        valueGenerated == Entity.Metadata.ValueGenerated.OnAdd
+                            ? true
+                            : (bool?)null,
+                        ConfigurationSource.Convention);
+                }
+
                 return true;
             }
 

@@ -73,7 +73,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var propertyBuilders = InternalEntityTypeBuilder.GetPropertyBuilders(
                 entityTypeBuilder.ModelBuilder,
                 properties.Where(property =>
-                    !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)),
+                    !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)
+                    && ((IProperty)property).ValueGenerated == ValueGenerated.OnAdd),
                 ConfigurationSource.Convention);
             foreach (var propertyBuilder in propertyBuilders)
             {
@@ -117,11 +118,15 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         }
 
         private void SetIdentity(InternalEntityTypeBuilder entityTypeBuilder, Property property)
-            => entityTypeBuilder.Property(
+        {
+            var propertyBuilder = entityTypeBuilder.Property(
                 property.Name,
                 ((IProperty)property).ClrType,
-                ConfigurationSource.Convention)
-                ?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+                ConfigurationSource.Convention);
+
+            propertyBuilder?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
+            propertyBuilder?.UseValueGenerator(true, ConfigurationSource.Convention);
+        }
 
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
