@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An error occured while running a database operation. See InnerException for details.
+        /// An error occurred while running a database operation. See InnerException for details.
         /// </summary>
         public static string DatabaseException
         {
@@ -1178,6 +1178,30 @@ namespace Microsoft.Data.Entity.Internal
         public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
+        }
+
+        /// <summary>
+        /// The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.
+        /// </summary>
+        public static string NavigationNotAdded([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNotAdded", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.
+        /// </summary>
+        public static string PropertyNotAdded([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotAdded", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.
+        /// </summary>
+        public static string PropertyNotMapped([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotMapped", "property", "entityType"), property, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

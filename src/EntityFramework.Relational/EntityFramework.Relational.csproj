@@ -54,6 +54,12 @@
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
     <Compile Include="Internal\RelationalTelemetry.cs" />
+    <Compile Include="..\Shared\LoggingExtensions.cs">
+      <Link>Extensions\LoggingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
+      <Link>Extensions\PropertyInfoExtensions.cs</Link>
+    </Compile>
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger`.cs" />
@@ -69,6 +75,11 @@
     <Compile Include="Metadata\Conventions\Internal\DiscriminatorConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalColumnAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalConventionSetBuilder.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalPropertyMappingValidationConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalRelationshipDiscoveryConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalForeignKeyAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalInversePropertyAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalPropertyDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationalTableAttributeConvention.cs" />
     <Compile Include="Metadata\Internal\RelationalForeignKeyBuilderAnnotations.cs" />
     <Compile Include="Metadata\Internal\RelationalIndexBuilderAnnotations.cs" />

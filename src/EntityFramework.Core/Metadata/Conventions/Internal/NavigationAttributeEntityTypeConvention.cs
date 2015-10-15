@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
-                    var entityClrType = navigationPropertyInfo.FindCandidateNavigationPropertyType();
+                    var entityClrType = FindCandidateNavigationPropertyType(navigationPropertyInfo);
                     if (entityClrType == null)
                     {
                         continue;
@@ -44,6 +44,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 }
             }
             return entityTypeBuilder;
+        }
+
+        public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            return propertyInfo.FindCandidateNavigationPropertyType(clrType => clrType.IsPrimitive());
         }
 
         public abstract InternalEntityTypeBuilder Apply([NotNull] InternalEntityTypeBuilder entityTypeBuilder, [NotNull] PropertyInfo navigationPropertyInfo, [NotNull] TAttribute attribute);

@@ -555,4 +555,13 @@
   <data name="ConflictingProperty" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
+  <data name="NavigationNotAdded" xml:space="preserve">
+    <value>The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.</value>
+  </data>
+  <data name="PropertyNotAdded" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.</value>
+  </data>
+  <data name="PropertyNotMapped" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.</value>
+  </data>
 </root>

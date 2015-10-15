@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity
             VerifySingleton<SqliteTypeMapper>();
             VerifySingleton<SqliteModelSource>();
             VerifySingleton<SqliteMigrationsAnnotationProvider>();
-            VerifySingleton<SqliteConventionSetBuilder>();
 
             // SQLite scoped
+            VerifyScoped<SqliteConventionSetBuilder>();
             VerifyScoped<SqliteUpdateSqlGenerator>();
             VerifyScoped<SqliteModificationCommandBatchFactory>();
             VerifyScoped<SqliteDatabaseProviderServices>();

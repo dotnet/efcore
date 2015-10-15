@@ -55,6 +55,9 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Extensions\Internal\LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\PropertyInfoExtensions.cs">
+      <Link>Extensions\Internal\PropertyInfoExtensions.cs</Link>
+    </Compile>
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\EntityGraphNodeBase.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
@@ -69,7 +72,6 @@
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />
     <Compile Include="Extensions\Internal\ExpressionExtensions.cs" />
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
-    <Compile Include="Extensions\Internal\PropertyInfoExtensions.cs" />
     <Compile Include="GraphBehavior.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeNavigationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeEntityTypeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NotMappedMemberAttributeConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\PropertyMappingValidationConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RequiredNavigationAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\TimestampAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\StringLengthAttributeConvention.cs" />

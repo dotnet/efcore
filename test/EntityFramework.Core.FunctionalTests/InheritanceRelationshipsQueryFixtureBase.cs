@@ -81,6 +81,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .HasForeignKey(e => e.ParentId)
                 .IsRequired(false);
 
+            //TODO: See issue #3289
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasMany(e => e.DerivedCollectionOnDerived)
+                .WithOne()
+                .IsRequired(false);
+
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasMany(e => e.CollectionOnDerived)
                 .WithOne(e => e.Parent)

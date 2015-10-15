@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {
-                    var entityClrType = navigationPropertyInfo.FindCandidateNavigationPropertyType();
+                    var entityClrType = FindCandidateNavigationPropertyType(navigationPropertyInfo);
                     if (entityClrType == null
                         || !entityTypeBuilder.CanAddNavigation(navigationPropertyInfo.Name, ConfigurationSource.Convention))
                     {
@@ -59,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         new Tuple<List<PropertyInfo>, List<PropertyInfo>>(navigations, reverseNavigations);
                     foreach (var reversePropertyInfo in targetEntityTypeBuilder.Metadata.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                     {
-                        var reverseEntityClrType = reversePropertyInfo.FindCandidateNavigationPropertyType();
+                        var reverseEntityClrType = FindCandidateNavigationPropertyType(reversePropertyInfo);
                         if (reverseEntityClrType == null
                             || !targetEntityTypeBuilder.CanAddNavigation(reversePropertyInfo.Name, ConfigurationSource.Convention)
                             || entityType.ClrType != reverseEntityClrType
@@ -93,7 +94,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     foreach (var navigationCandidate in navigationCandidates)
                     {
                         var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(
-                            navigationCandidate.FindCandidateNavigationPropertyType(), ConfigurationSource.Convention);
+                            FindCandidateNavigationPropertyType(navigationCandidate), ConfigurationSource.Convention);
                         targetEntityTypeBuilder.Relationship(
                             entityTypeBuilder,
                             reverseNavigationCandidates.SingleOrDefault(),
@@ -104,6 +105,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
 
             return entityTypeBuilder;
+        }
+
+        public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            return propertyInfo.FindCandidateNavigationPropertyType(clrType => clrType.IsPrimitive());
         }
 
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, string ignoredMemberName)

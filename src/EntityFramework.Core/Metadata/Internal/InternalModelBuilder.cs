@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -64,8 +65,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ConventionDispatcher.OnEntityTypeAdded(entityTypeBuilder);
         }
 
-        private bool IsIgnored(string name, ConfigurationSource configurationSource)
+        public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
         {
+            Check.NotEmpty(name, nameof(name));
+
             if (configurationSource == ConfigurationSource.Explicit)
             {
                 return false;

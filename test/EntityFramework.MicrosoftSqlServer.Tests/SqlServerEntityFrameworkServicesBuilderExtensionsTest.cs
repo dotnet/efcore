@@ -21,7 +21,6 @@ namespace Microsoft.Data.Entity
             base.Services_wire_up_correctly();
 
             // SQL Server dingletones
-            VerifySingleton<SqlServerConventionSetBuilder>();
             VerifySingleton<ISqlServerValueGeneratorCache>();
             VerifySingleton<SqlServerTypeMapper>();
             VerifySingleton<SqlServerModelSource>();
@@ -29,6 +28,7 @@ namespace Microsoft.Data.Entity
             VerifySingleton<SqlServerMigrationsAnnotationProvider>();
 
             // SQL Server scoped
+            VerifyScoped<SqlServerConventionSetBuilder>();
             VerifyScoped<ISqlServerUpdateSqlGenerator>();
             VerifyScoped<ISqlServerSequenceValueGeneratorFactory>();
             VerifyScoped<SqlServerModificationCommandBatchFactory>();
