@@ -229,7 +229,8 @@ ORDER BY i.name, ic.key_ordinal";
     update_referential_action_desc
 FROM sys.foreign_keys AS f
 INNER JOIN sys.foreign_key_columns AS fc 
-   ON f.object_id = fc.constraint_object_id";
+   ON f.object_id = fc.constraint_object_id
+ORDER BY f.name, fc.constraint_column_id";
             using (var reader = command.ExecuteReader())
             {
                 var lastFkName = "";
