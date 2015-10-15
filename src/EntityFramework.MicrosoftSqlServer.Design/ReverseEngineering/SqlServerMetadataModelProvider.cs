@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
     public class SqlServerMetadataModelProvider : RelationalMetadataModelProvider
     {
-        private readonly IMetadataReader _metadataReader;
         private readonly SqlServerLiteralUtilities _sqlServerLiteralUtilities;
 
         private const int DefaultDateTimePrecision = 7;
@@ -29,22 +28,11 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IMetadataReader metadataReader,
             [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities)
-            : base(loggerFactory, typeMapper)
+            : base(loggerFactory, typeMapper, metadataReader)
         {
-            Check.NotNull(metadataReader, nameof(metadataReader));
             Check.NotNull(sqlServerLiteralUtilities, nameof(sqlServerLiteralUtilities));
 
-            _metadataReader = metadataReader;
             _sqlServerLiteralUtilities = sqlServerLiteralUtilities;
-        }
-
-        public override IModel GetModel([NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
-        {
-            Check.NotEmpty(connectionString, nameof(connectionString));
-
-            var schemaInfo = _metadataReader.GetSchema(connectionString, tableSelectionSet ?? TableSelectionSet.InclusiveAll);
-
-            return GetModel(schemaInfo);
         }
 
         protected override PropertyBuilder AddColumn([NotNull] EntityTypeBuilder builder, [NotNull] Column column)
@@ -54,12 +42,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             AddSqlServerTypeMapping(column, propertyBuilder);
 
             AddSqlServerDefaultValue(column, propertyBuilder);
-
-            if (column.DataType == "timestamp")
-            {
-                // synonym for rowversion
-                propertyBuilder.ValueGeneratedOnAddOrUpdate();
-            }
 
             return propertyBuilder;
         }

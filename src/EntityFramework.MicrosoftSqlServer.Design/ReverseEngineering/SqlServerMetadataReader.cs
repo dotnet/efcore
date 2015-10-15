@@ -155,7 +155,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         Scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9),
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
                         IsIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11),
-                        IsComputed = reader.GetBoolean(12)
+                        IsComputed = reader.GetBoolean(12) || dataTypeName == "timestamp"
                     };
 
                     table.Columns.Add(column);

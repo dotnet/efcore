@@ -110,6 +110,7 @@ CREATE TABLE [dbo].[Mountains] (
     Latitude decimal( 5, 2 ) DEFAULT 0.0,
     Created datetime2(6),
     Sum AS Latitude + 1.0,
+    Modified rowversion,
     Primary Key (Name, Id)
 );";
             var dbInfo = GetDatabaseInfo(sql);
@@ -163,6 +164,12 @@ CREATE TABLE [dbo].[Mountains] (
                     {
                         Assert.Equal("Sum", sum.Name);
                         Assert.True(sum.IsComputed);
+                    },
+                modified =>
+                    {
+                        Assert.Equal("Modified", modified.Name);
+                        Assert.True(modified.IsComputed);
+                        Assert.Equal("timestamp", modified.DataType); // intentional - testing the alias
                     });
         }
 

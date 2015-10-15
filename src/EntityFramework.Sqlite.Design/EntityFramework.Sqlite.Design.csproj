@@ -54,7 +54,6 @@
     <Compile Include="ReverseEngineering\TableSelectionSetSqliteExtensions.cs" />
     <Compile Include="SqliteDesignTimeServices.cs" />
     <Compile Include="ReverseEngineering\SqliteDmlParser.cs" />
-    <Compile Include="ReverseEngineering\SqliteMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\SqliteMetadataReader.cs" />
     <None Include="project.json" />
   </ItemGroup>

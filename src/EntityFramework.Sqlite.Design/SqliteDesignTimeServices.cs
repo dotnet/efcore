@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddSingleton<MetadataModelProvider, SqliteMetadataModelProvider>()
+                .AddSingleton<MetadataModelProvider, RelationalMetadataModelProvider>()
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
                 .AddSingleton<ConfigurationFactory, SqliteConfigurationFactory>()

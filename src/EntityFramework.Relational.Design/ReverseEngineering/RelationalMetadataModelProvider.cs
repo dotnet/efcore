@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Relational.Design.Model;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
@@ -18,7 +19,7 @@ using Index = Microsoft.Data.Entity.Relational.Design.Model.Index;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public abstract class RelationalMetadataModelProvider : MetadataModelProvider
+    public class RelationalMetadataModelProvider : MetadataModelProvider
     {
         internal static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
         {
@@ -30,18 +31,31 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         private readonly Table _nullTable = new Table { };
         private CSharpUniqueNamer<Table> _tableNamer;
         private readonly IRelationalTypeMapper _typeMapper;
+        private readonly IMetadataReader _metadataReader;
 
-        protected RelationalMetadataModelProvider(
+        public RelationalMetadataModelProvider(
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IRelationalTypeMapper typeMapper)
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IMetadataReader metadataReader)
             : base(loggerFactory)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(metadataReader, nameof(metadataReader));
 
             _typeMapper = typeMapper;
+            _metadataReader = metadataReader;
         }
 
-        protected virtual IModel GetModel([NotNull] SchemaInfo schemaInfo)
+        public override IModel GetModel([NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
+        {
+            Check.NotEmpty(connectionString, nameof(connectionString));
+
+            var schemaInfo = _metadataReader.GetSchema(connectionString, tableSelectionSet ?? TableSelectionSet.InclusiveAll);
+
+            return GetModelFromSchema(schemaInfo);
+        }
+
+        protected virtual IModel GetModelFromSchema([NotNull] SchemaInfo schemaInfo)
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 

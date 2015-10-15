@@ -13,7 +13,6 @@ using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Sqlite.Design;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
 {
     public class SqliteMetadataModelProviderTest
     {
-        private readonly SqliteMetadataModelProvider _metadataModelProvider;
+        private readonly RelationalMetadataModelProvider _metadataModelProvider;
         private readonly SqliteTestStore _testStore;
         private readonly TestLogger _logger;
 
@@ -44,7 +43,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
 
             _metadataModelProvider = serviceProvider
-                .GetService<MetadataModelProvider>() as SqliteMetadataModelProvider;
+                .GetService<MetadataModelProvider>() as RelationalMetadataModelProvider;
         }
 
         [Fact]

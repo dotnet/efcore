@@ -558,18 +558,22 @@ namespace Microsoft.Data.Entity.Relational.Design
 
     public class FakeMetadataModelProvider : RelationalMetadataModelProvider
     {
-        public new IModel GetModel(SchemaInfo schemaInfo) => base.GetModel(schemaInfo);
-
-        public override IModel GetModel([NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
-        {
-            throw new NotImplementedException();
-        }
+        public IModel GetModel(SchemaInfo schemaInfo) => base.GetModelFromSchema(schemaInfo);
 
         public FakeMetadataModelProvider(
             [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory,
-                new TestTypeMapper())
+                new TestTypeMapper(),
+                new FakeMetadataReader())
         {
+        }
+    }
+
+    public class FakeMetadataReader : IMetadataReader
+    {
+        public virtual SchemaInfo GetSchema([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
+        {
+            throw new NotImplementedException();
         }
     }
 
