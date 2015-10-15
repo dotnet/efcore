@@ -56,6 +56,7 @@
         }
     },
     "packInclude": {
-        "runtimes/": "runtimes/**"
+        "runtimes/": "runtimes/**",
+        "runtimes/win/native/x86/": "runtimes/win/native/x86/*"
     }
 }
