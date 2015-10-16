@@ -11,14 +11,14 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class EntityTrackingInfoFactory : IEntityTrackingInfoFactory
     {
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
 
         public EntityTrackingInfoFactory(
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource)
         {
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
             _clrPropertyGetterSource = clrPropertyGetterSource;
         }
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             IEntityType entityType)
         {
             var trackingInfo = new EntityTrackingInfo(
-                _entityKeyFactorySource,
+                _keyValueFactorySource,
                 _clrPropertyGetterSource,
                 queryCompilationContext,
                 querySourceReferenceExpression,

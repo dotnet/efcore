@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 
@@ -74,7 +75,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
         }
 
-        public virtual int ExecuteTransaction(IEnumerable<InternalEntityEntry> entries)
+        public virtual int ExecuteTransaction(IEnumerable<IUpdateEntry> entries)
         {
             Check.NotNull(entries, nameof(entries));
 
@@ -132,9 +133,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public class InMemoryTable : IEnumerable<object[]>
         {
-            private readonly ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>> _rows
-                = new ThreadSafeLazyRef<ImmutableDictionary<EntityKey, object[]>>(
-                    () => ImmutableDictionary<EntityKey, object[]>.Empty);
+            private readonly ThreadSafeLazyRef<ImmutableDictionary<IKeyValue, object[]>> _rows
+                = new ThreadSafeLazyRef<ImmutableDictionary<IKeyValue, object[]>>(
+                    () => ImmutableDictionary<IKeyValue, object[]>.Empty);
 
             public InMemoryTable([NotNull] IEntityType entityType)
             {
@@ -145,20 +146,23 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             public virtual IEntityType EntityType { get; private set; }
 
-            internal void Create(InternalEntityEntry entry)
+            internal void Create(IUpdateEntry entry)
             {
-                _rows.ExchangeValue(rs => rs.Add(entry.GetPrimaryKeyValue(), entry.GetValueBuffer()));
+                _rows.ExchangeValue(rs => rs.Add(entry.GetPrimaryKeyValue(), CreateValueBuffer(entry)));
             }
 
-            internal void Delete(InternalEntityEntry entry)
+            internal void Delete(IUpdateEntry entry)
             {
                 _rows.ExchangeValue(rs => rs.Remove(entry.GetPrimaryKeyValue()));
             }
 
-            internal void Update(InternalEntityEntry entry)
+            internal void Update(IUpdateEntry entry)
             {
-                _rows.ExchangeValue(rs => rs.SetItem(entry.GetPrimaryKeyValue(), entry.GetValueBuffer()));
+                _rows.ExchangeValue(rs => rs.SetItem(entry.GetPrimaryKeyValue(), CreateValueBuffer(entry)));
             }
+
+            private static object[] CreateValueBuffer(IUpdateEntry entry) 
+                => entry.EntityType.GetProperties().Select(p => entry[p]).ToArray();
 
             public virtual IEnumerator<object[]> GetEnumerator()
                 => _rows.HasValue

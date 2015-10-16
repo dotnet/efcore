@@ -6,13 +6,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract partial class InternalEntityEntry : IPropertyAccessor
+    public abstract partial class InternalEntityEntry : IPropertyAccessor, IUpdateEntry
     {
         private StateData _stateData;
         private Sidecar[] _sidecars;
@@ -201,7 +203,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual EntityState EntityState => _stateData.EntityState;
 
-        public virtual bool IsPropertyModified([NotNull] IProperty property)
+        public virtual bool IsModified(IProperty property)
             => _stateData.EntityState == EntityState.Modified
                && _stateData.IsPropertyFlagged(property.Index, PropertyFlag.TemporaryOrModified);
 
@@ -281,6 +283,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             MetadataServices.WriteValue(Entity, propertyBase, value);
         }
 
+        public virtual object GetOriginalValue(IProperty property) => OriginalValues[property];
+
+        public virtual IKeyValue GetPrimaryKeyValue(bool originalValue = false)
+            => (originalValue ? OriginalValues : (IPropertyAccessor)this).GetPrimaryKeyValue();
+
+        public virtual IKeyValue GetPrincipalKeyValue(IForeignKey foreignKey, bool originalValue = false)
+            => (originalValue ? OriginalValues : (IPropertyAccessor)this).GetPrincipalKeyValue(foreignKey);
+
+        public virtual IKeyValue GetDependentKeyValue(IForeignKey foreignKey, bool originalValue = false)
+            => (originalValue ? OriginalValues : (IPropertyAccessor)this).GetDependentKeyValue(foreignKey);
+
         public virtual object this[IPropertyBase propertyBase]
         {
             get
@@ -354,13 +367,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        [NotNull]
-        public virtual EntityKey CreateKey(
+        public virtual IKeyValue CreateKey(
             [NotNull] IKey key,
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyAccessor) => MetadataServices.CreateKey(key, properties, propertyAccessor);
-
-        public virtual object[] GetValueBuffer() => EntityType.GetProperties().Select(p => this[p]).ToArray();
 
         public virtual void AcceptChanges()
         {
@@ -410,7 +420,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else if (EntityState == EntityState.Modified)
             {
-                var modifiedProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyAfterSave && IsPropertyModified(p));
+                var modifiedProperty = EntityType.GetProperties().FirstOrDefault(p => p.IsReadOnlyAfterSave && IsModified(p));
                 if (modifiedProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyReadOnlyAfterSave(modifiedProperty.Name, EntityType.DisplayName()));
@@ -563,13 +573,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual bool StoreMustGenerateValue([NotNull] IProperty property)
+        public virtual bool IsStoreGenerated(IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
                && ((EntityState == EntityState.Added
                     && (property.StoreGeneratedAlways || IsTemporaryOrDefault(property)))
                    || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
                        && (EntityState == EntityState.Modified
-                           && (property.StoreGeneratedAlways || !IsPropertyModified(property)))));
+                           && (property.StoreGeneratedAlways || !IsModified(property)))));
 
         private bool IsTemporaryOrDefault(IProperty property)
             => HasTemporaryValue(property)
@@ -581,5 +591,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;
 
         InternalEntityEntry IPropertyAccessor.InternalEntityEntry => this;
+
+        public virtual EntityEntry ToEntityEntry() => new EntityEntry(StateManager.Context, this);
     }
 }

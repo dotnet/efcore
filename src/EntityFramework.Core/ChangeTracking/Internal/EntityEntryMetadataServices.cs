@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly IOriginalValuesFactory _originalValuesFactory;
         private readonly IRelationshipsSnapshotFactory _relationshipsSnapshotFactory;
         private readonly IStoreGeneratedValuesFactory _storeGeneratedValuesFactory;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
 
         public EntityEntryMetadataServices(
             [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
@@ -23,14 +24,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IOriginalValuesFactory originalValuesFactory,
             [NotNull] IRelationshipsSnapshotFactory relationshipsSnapshotFactory,
             [NotNull] IStoreGeneratedValuesFactory storeGeneratedValuesFactory,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource)
+            [NotNull] IKeyValueFactorySource keyValueFactorySource)
         {
             _getterSource = getterSource;
             _setterSource = setterSource;
             _originalValuesFactory = originalValuesFactory;
             _relationshipsSnapshotFactory = relationshipsSnapshotFactory;
             _storeGeneratedValuesFactory = storeGeneratedValuesFactory;
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
         }
 
         public virtual object ReadValue(object entity, IPropertyBase propertyBase)
@@ -48,8 +49,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual Sidecar CreateStoreGeneratedValues(InternalEntityEntry entry, IReadOnlyList<IProperty> properties)
             => _storeGeneratedValuesFactory.Create(entry, properties);
 
-        public virtual EntityKey CreateKey(IKey key, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
-            => _entityKeyFactorySource
+        public virtual IKeyValue CreateKey(IKey key, IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
+            => _keyValueFactorySource
                 .GetKeyFactory(key)
                 .Create(properties, propertyAccessor);
     }

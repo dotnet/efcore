@@ -9,12 +9,12 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class EntityKeyFactorySource : IEntityKeyFactorySource
+    public class KeyValueFactorySource : IKeyValueFactorySource
     {
-        private readonly ThreadSafeDictionaryCache<IKey, EntityKeyFactory> _cache
-            = new ThreadSafeDictionaryCache<IKey, EntityKeyFactory>(ReferenceEqualityComparer.Instance);
+        private readonly ThreadSafeDictionaryCache<IKey, KeyValueFactory> _cache
+            = new ThreadSafeDictionaryCache<IKey, KeyValueFactory>(ReferenceEqualityComparer.Instance);
 
-        public virtual EntityKeyFactory GetKeyFactory(IKey key)
+        public virtual KeyValueFactory GetKeyFactory(IKey key)
             => _cache.GetOrAdd(
                 key,
                 k =>
@@ -29,12 +29,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             // advantages of the simple key don't really apply anyway.
                             if (!typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(keyType.GetTypeInfo()))
                             {
-                                return (EntityKeyFactory)(Activator.CreateInstance(
-                                    typeof(SimpleEntityKeyFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k));
+                                return (KeyValueFactory)(Activator.CreateInstance(
+                                    typeof(SimpleKeyValueFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k));
                             }
                         }
 
-                        return new CompositeEntityKeyFactory(k);
+                        return new CompositeKeyValueFactory(k);
                     });
     }
 }

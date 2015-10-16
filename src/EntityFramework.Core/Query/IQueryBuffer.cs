@@ -7,22 +7,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query
 {
     public delegate IEnumerable<EntityLoadInfo> RelatedEntitiesLoader(
-        EntityKey primaryKey, Func<ValueBuffer, EntityKey> foreignKeyFactory);
+        IKeyValue primaryKeyValue, Func<ValueBuffer, IKeyValue> foreignKeyFactory);
 
     public delegate IAsyncEnumerable<EntityLoadInfo> AsyncRelatedEntitiesLoader(
-        EntityKey primaryKey, Func<ValueBuffer, EntityKey> foreignKeyFactory);
+        IKeyValue primaryKeyValue, Func<ValueBuffer, IKeyValue> foreignKeyFactory);
 
     public interface IQueryBuffer
     {
         object GetEntity(
             [NotNull] IEntityType entityType,
-            [NotNull] EntityKey entityKey,
+            [NotNull] IKeyValue keyValue,
             EntityLoadInfo entityLoadInfo,
             bool queryStateManager);
 

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -23,11 +24,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly Dictionary<object, WeakReference<InternalEntityEntry>> _detachedEntityReferenceMap
             = new Dictionary<object, WeakReference<InternalEntityEntry>>(ReferenceEqualityComparer.Instance);
 
-        private readonly Dictionary<EntityKey, InternalEntityEntry> _identityMap
-            = new Dictionary<EntityKey, InternalEntityEntry>();
+        private readonly Dictionary<IKeyValue, InternalEntityEntry> _identityMap
+            = new Dictionary<IKeyValue, InternalEntityEntry>();
 
-        private readonly Dictionary<IForeignKey, Dictionary<EntityKey, HashSet<InternalEntityEntry>>> _dependentsMap
-            = new Dictionary<IForeignKey, Dictionary<EntityKey, HashSet<InternalEntityEntry>>>();
+        private readonly Dictionary<IForeignKey, Dictionary<IKeyValue, HashSet<InternalEntityEntry>>> _dependentsMap
+            = new Dictionary<IForeignKey, Dictionary<IKeyValue, HashSet<InternalEntityEntry>>>();
 
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
@@ -40,7 +41,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IInternalEntityEntryNotifier notifier,
             [NotNull] IValueGenerationManager valueGeneration,
             [NotNull] IModel model,
-            [NotNull] IDatabase database)
+            [NotNull] IDatabase database,
+            [NotNull] DbContext context)
         {
             _factory = factory;
             _subscriber = subscriber;
@@ -48,6 +50,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             ValueGeneration = valueGeneration;
             _model = model;
             _database = database;
+            Context = context;
         }
 
         public virtual IInternalEntityEntryNotifier Notify { get; }
@@ -94,14 +97,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual InternalEntityEntry StartTracking(
-            IEntityType entityType, EntityKey entityKey, object entity, ValueBuffer valueBuffer)
+            IEntityType entityType, IKeyValue keyValue, object entity, ValueBuffer valueBuffer)
         {
-            if (entityKey == EntityKey.InvalidEntityKey)
+            if (keyValue == KeyValue.InvalidKeyValue)
             {
                 throw new InvalidOperationException(CoreStrings.InvalidPrimaryKey(entityType.DisplayName()));
             }
 
-            var existingEntry = TryGetEntry(entityKey);
+            var existingEntry = TryGetEntry(keyValue);
             if (existingEntry != null)
             {
                 if (existingEntry.Entity != entity)
@@ -114,7 +117,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer), valueBuffer);
 
-            AddToIdentityMap(entityType, entityKey, newEntry);
+            AddToIdentityMap(entityType, keyValue, newEntry);
 
             _entityReferenceMap[entity] = newEntry;
             _detachedEntityReferenceMap.Remove(entity);
@@ -124,14 +127,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return newEntry;
         }
 
-        private void AddToIdentityMap(IEntityType entityType, EntityKey entityKey, InternalEntityEntry newEntry)
+        private void AddToIdentityMap(IEntityType entityType, IKeyValue keyValue, InternalEntityEntry newEntry)
         {
-            _identityMap.Add(entityKey, newEntry);
-            foreach (var key in entityType.GetKeys().Where(k => k != entityKey.Key))
+            _identityMap.Add(keyValue, newEntry);
+            foreach (var key in entityType.GetKeys().Where(k => k != keyValue.Key))
             {
                 var principalKeyValue = newEntry.GetPrincipalKeyValue(key);
 
-                if (principalKeyValue != EntityKey.InvalidEntityKey)
+                if (principalKeyValue != KeyValue.InvalidKeyValue)
                 {
                     _identityMap[principalKeyValue] = newEntry;
                 }
@@ -140,15 +143,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
                 var dependentKey = newEntry.GetDependentKeyValue(foreignKey);
-                if (dependentKey == EntityKey.InvalidEntityKey)
+                if (dependentKey == KeyValue.InvalidKeyValue)
                 {
                     continue;
                 }
 
-                Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+                Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
                 if (!_dependentsMap.TryGetValue(foreignKey, out fkMap))
                 {
-                    fkMap = new Dictionary<EntityKey, HashSet<InternalEntityEntry>>();
+                    fkMap = new Dictionary<IKeyValue, HashSet<InternalEntityEntry>>();
                     _dependentsMap[foreignKey] = fkMap;
                 }
 
@@ -163,10 +166,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual InternalEntityEntry TryGetEntry(EntityKey keyValue)
+        public virtual InternalEntityEntry TryGetEntry(IKeyValue keyValueValue)
         {
             InternalEntityEntry entry;
-            _identityMap.TryGetValue(keyValue, out entry);
+            _identityMap.TryGetValue(keyValueValue, out entry);
             return entry;
         }
 
@@ -253,9 +256,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var dependentKey = entry.GetDependentKeyValue(foreignKey);
 
-                Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+                Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
                 HashSet<InternalEntityEntry> dependents;
-                if (dependentKey != EntityKey.InvalidEntityKey
+                if (dependentKey != KeyValue.InvalidKeyValue
                     && _dependentsMap.TryGetValue(foreignKey, out fkMap)
                     && fkMap.TryGetValue(dependentKey, out dependents))
                 {
@@ -277,7 +280,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
         {
             var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
-            if (dependentKeyValue == EntityKey.InvalidEntityKey)
+            if (dependentKeyValue == KeyValue.InvalidKeyValue)
             {
                 return null;
             }
@@ -288,7 +291,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             return principalEntry;
         }
 
-        public virtual void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey, IKey principalKey)
+        public virtual void UpdateIdentityMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IKey principalKey)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -297,7 +300,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var newKey = GetKeyValueChecked(principalKey, entry);
 
-            if (oldKey.Equals(newKey))
+            if (oldKeyValue.Equals(newKey))
             {
                 return;
             }
@@ -309,15 +312,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 throw new InvalidOperationException(CoreStrings.IdentityConflict(entry.EntityType.Name));
             }
 
-            _identityMap.Remove(oldKey);
+            _identityMap.Remove(oldKeyValue);
 
-            if (newKey != EntityKey.InvalidEntityKey)
+            if (newKey != KeyValue.InvalidKeyValue)
             {
                 _identityMap[newKey] = entry;
             }
         }
 
-        public virtual void UpdateDependentMap(InternalEntityEntry entry, EntityKey oldKey, IForeignKey foreignKey)
+        public virtual void UpdateDependentMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IForeignKey foreignKey)
         {
             if (entry.EntityState == EntityState.Detached)
             {
@@ -326,28 +329,28 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var newKey = entry.GetDependentKeyValue(foreignKey);
 
-            if (oldKey.Equals(newKey))
+            if (oldKeyValue.Equals(newKey))
             {
                 return;
             }
 
-            Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+            Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
             if (_dependentsMap.TryGetValue(foreignKey, out fkMap))
             {
                 HashSet<InternalEntityEntry> dependents;
 
-                if (oldKey != EntityKey.InvalidEntityKey
-                    && fkMap.TryGetValue(oldKey, out dependents))
+                if (oldKeyValue != KeyValue.InvalidKeyValue
+                    && fkMap.TryGetValue(oldKeyValue, out dependents))
                 {
                     dependents.Remove(entry);
 
                     if (dependents.Count == 0)
                     {
-                        fkMap.Remove(oldKey);
+                        fkMap.Remove(oldKeyValue);
                     }
                 }
 
-                if (newKey == EntityKey.InvalidEntityKey)
+                if (newKey == KeyValue.InvalidKeyValue)
                 {
                     if (fkMap.Count == 0)
                     {
@@ -367,11 +370,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        private EntityKey GetKeyValueChecked(IKey key, InternalEntityEntry entry)
+        private IKeyValue GetKeyValueChecked(IKey key, InternalEntityEntry entry)
         {
             var keyValue = entry.GetPrincipalKeyValue(key);
 
-            if (keyValue == EntityKey.InvalidEntityKey)
+            if (keyValue == KeyValue.InvalidKeyValue)
             {
                 // TODO: Check message text here
                 throw new InvalidOperationException(CoreStrings.InvalidPrimaryKey(entry.EntityType.Name));
@@ -384,9 +387,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var keyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
-            Dictionary<EntityKey, HashSet<InternalEntityEntry>> fkMap;
+            Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
             HashSet<InternalEntityEntry> dependents;
-            return keyValue != EntityKey.InvalidEntityKey
+            return keyValue != KeyValue.InvalidKeyValue
                    && _dependentsMap.TryGetValue(foreignKey, out fkMap)
                    && fkMap.TryGetValue(keyValue, out dependents)
                 ? dependents
@@ -492,7 +495,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             AcceptAllChanges(changedEntries);
         }
 
-        private void AcceptAllChanges(IReadOnlyList<InternalEntityEntry> changedEntries)
+        private static void AcceptAllChanges(IReadOnlyList<InternalEntityEntry> changedEntries)
         {
             foreach (var entry in changedEntries)
             {
@@ -500,5 +503,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 entry.AcceptChanges();
             }
         }
+
+        public virtual DbContext Context { get; }
     }
 }

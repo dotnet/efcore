@@ -36,52 +36,6 @@ namespace Microsoft.Data.Entity.Tests.Update
         }
 
         [Fact]
-        public void Get_OriginalValue_delegates_to_OriginalValues_if_possible()
-        {
-            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
-            var originalValuesMock = new Mock<Sidecar>(internalEntryMock.Object);
-            originalValuesMock.Setup(m => m.CanStoreValue(It.IsAny<IPropertyBase>())).Returns(true);
-            internalEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
-            var columnModification = new ColumnModification(
-                internalEntryMock.Object,
-                new Mock<IProperty>().Object,
-                new Mock<IRelationalPropertyAnnotations>().Object,
-                new ParameterNameGenerator(),
-                isRead: false,
-                isWrite: false,
-                isKey: false,
-                isCondition: false);
-
-            var value = columnModification.OriginalValue;
-
-            originalValuesMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
-            internalEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Never);
-        }
-
-        [Fact]
-        public void Get_OriginalValue_delegates_to_Entry_if_OriginalValues_if_unavailable()
-        {
-            var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());
-            var originalValuesMock = new Mock<Sidecar>(internalEntryMock.Object);
-            originalValuesMock.Setup(m => m.CanStoreValue(It.IsAny<IPropertyBase>())).Returns(false);
-            internalEntryMock.Setup(m => m.OriginalValues).Returns(originalValuesMock.Object);
-            var columnModification = new ColumnModification(
-                internalEntryMock.Object,
-                new Mock<IProperty>().Object,
-                new Mock<IRelationalPropertyAnnotations>().Object,
-                new ParameterNameGenerator(),
-                isRead: false,
-                isWrite: false,
-                isKey: false,
-                isCondition: false);
-
-            var value = columnModification.OriginalValue;
-
-            internalEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
-            originalValuesMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Never);
-        }
-
-        [Fact]
         public void Get_Value_delegates_to_Entry()
         {
             var internalEntryMock = CreateInternalEntryMock(Mock.Of<IProperty>());

@@ -110,15 +110,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var idProperty = entityType.GetProperty("Id");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
-            var entry = CreateInternalEntry(configuration, entityType, new ValueBuffer(new object[] { 1, "Kool" }));
+            var entry = CreateInternalEntry(
+                configuration, 
+                entityType, 
+                new FullNotificationEntity { Id = 1, Name = "Kool" }, 
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             Assert.Equal(
                 CoreStrings.OriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
 
-            Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty]).Message);
+            Assert.Equal(1, entry.OriginalValues[idProperty]);
         }
 
         [Fact]

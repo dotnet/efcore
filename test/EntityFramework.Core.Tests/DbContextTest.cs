@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -217,12 +218,12 @@ namespace Microsoft.Data.Entity.Tests
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
 
-            public void UpdateIdentityMap(InternalEntityEntry entry, EntityKey oldKey, IKey principalKey)
+            public void UpdateIdentityMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IKey principalKey)
             {
                 throw new NotImplementedException();
             }
 
-            public void UpdateDependentMap(InternalEntityEntry entry, EntityKey oldKey, IForeignKey foreignKey)
+            public void UpdateDependentMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
             }
@@ -259,12 +260,12 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry StartTracking(IEntityType entityType, EntityKey entityKey, object entity, ValueBuffer valueBuffer)
+            public InternalEntityEntry StartTracking(IEntityType entityType, IKeyValue keyValue, object entity, ValueBuffer valueBuffer)
             {
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry TryGetEntry(EntityKey keyValue)
+            public InternalEntityEntry TryGetEntry(IKeyValue keyValueValue)
             {
                 throw new NotImplementedException();
             }
@@ -299,6 +300,11 @@ namespace Microsoft.Data.Entity.Tests
             public InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
             {
                 throw new NotImplementedException();
+            }
+
+            public DbContext Context
+            {
+                get { throw new NotImplementedException(); }
             }
         }
 
@@ -1631,10 +1637,10 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void SaveChanges_only_passes_dirty_entries_to_Database()
         {
-            var passedEntries = new List<InternalEntityEntry>();
+            var passedEntries = new List<IUpdateEntry>();
             var database = new Mock<IDatabase>();
-            database.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<InternalEntityEntry>>()))
-                .Callback<IEnumerable<InternalEntityEntry>>(passedEntries.AddRange)
+            database.Setup(s => s.SaveChanges(It.IsAny<IReadOnlyList<IUpdateEntry>>()))
+                .Callback<IEnumerable<IUpdateEntry>>(passedEntries.AddRange)
                 .Returns(3);
 
             var valueGenMock = new Mock<IValueGeneratorSelector>();
@@ -1679,10 +1685,10 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public async Task SaveChangesAsync_only_passes_dirty_entries_to_Database()
         {
-            var passedEntries = new List<InternalEntityEntry>();
+            var passedEntries = new List<IUpdateEntry>();
             var database = new Mock<IDatabase>();
-            database.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<InternalEntityEntry>>(), It.IsAny<CancellationToken>()))
-                .Callback<IEnumerable<InternalEntityEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
+            database.Setup(s => s.SaveChangesAsync(It.IsAny<IReadOnlyList<IUpdateEntry>>(), It.IsAny<CancellationToken>()))
+                .Callback<IEnumerable<IUpdateEntry>, CancellationToken>((e, c) => passedEntries.AddRange(e))
                 .Returns(Task.FromResult(3));
 
             var valueGenMock = new Mock<IValueGeneratorSelector>();
@@ -1729,7 +1735,7 @@ namespace Microsoft.Data.Entity.Tests
         {
             using (var context = new EarlyLearningCenter())
             {
-                Assert.IsType<EntityKeyFactorySource>(context.GetService<IEntityKeyFactorySource>());
+                Assert.IsType<KeyValueFactorySource>(context.GetService<IKeyValueFactorySource>());
             }
         }
 

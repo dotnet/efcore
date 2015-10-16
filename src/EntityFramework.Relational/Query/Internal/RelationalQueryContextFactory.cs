@@ -14,11 +14,11 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] IRelationalConnection connection)
-            : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource)
+            : base(stateManager, keyValueFactorySource, collectionAccessorSource, propertySetterSource)
         {
             _connection = connection;
         }

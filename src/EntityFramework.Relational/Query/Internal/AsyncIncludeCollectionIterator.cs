@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query.Internal
@@ -25,23 +26,23 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public virtual IAsyncEnumerable<ValueBuffer> GetRelatedValues(
-            [NotNull] EntityKey primaryKey,
-            [NotNull] Func<ValueBuffer, EntityKey> relatedKeyFactory)
-            => new RelatedValuesEnumerable(this, primaryKey, relatedKeyFactory);
+            [NotNull] IKeyValue primaryKeyValue,
+            [NotNull] Func<ValueBuffer, IKeyValue> relatedKeyFactory)
+            => new RelatedValuesEnumerable(this, primaryKeyValue, relatedKeyFactory);
 
         private sealed class RelatedValuesEnumerable : IAsyncEnumerable<ValueBuffer>
         {
             private readonly AsyncIncludeCollectionIterator _iterator;
-            private readonly EntityKey _primaryKey;
-            private readonly Func<ValueBuffer, EntityKey> _relatedKeyFactory;
+            private readonly IKeyValue _primaryKeyValue;
+            private readonly Func<ValueBuffer, IKeyValue> _relatedKeyFactory;
 
             public RelatedValuesEnumerable(
                 AsyncIncludeCollectionIterator iterator,
-                EntityKey primaryKey,
-                Func<ValueBuffer, EntityKey> relatedKeyFactory)
+                IKeyValue primaryKeyValue,
+                Func<ValueBuffer, IKeyValue> relatedKeyFactory)
             {
                 _iterator = iterator;
-                _primaryKey = primaryKey;
+                _primaryKeyValue = primaryKeyValue;
                 _relatedKeyFactory = relatedKeyFactory;
             }
 
@@ -71,7 +72,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                     if (_relatedValuesEnumerable._iterator._hasRemainingRows
                         && _relatedValuesEnumerable._relatedKeyFactory(
                             _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current)
-                            .Equals(_relatedValuesEnumerable._primaryKey))
+                            .Equals(_relatedValuesEnumerable._primaryKeyValue))
                     {
                         Current = _relatedValuesEnumerable._iterator._relatedValuesEnumerator.Current;
 

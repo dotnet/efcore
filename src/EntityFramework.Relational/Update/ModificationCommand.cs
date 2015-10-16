@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Update
         private readonly Func<IProperty, IRelationalPropertyAnnotations> _getPropertyExtensions;
         private readonly ParameterNameGenerator _parameterNameGenerator;
 
-        private readonly List<InternalEntityEntry> _entries = new List<InternalEntityEntry>();
+        private readonly List<IUpdateEntry> _entries = new List<IUpdateEntry>();
 
         private readonly LazyRef<IReadOnlyList<ColumnModification>> _columnModifications
             = new LazyRef<IReadOnlyList<ColumnModification>>(() => new ColumnModification[0]);
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Update
 
         public virtual string Schema { get; }
 
-        public virtual IReadOnlyList<InternalEntityEntry> Entries => _entries;
+        public virtual IReadOnlyList<IUpdateEntry> Entries => _entries;
 
         public virtual EntityState EntityState => _entries.FirstOrDefault()?.EntityState ?? EntityState.Detached;
 
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Update
             }
         }
 
-        public virtual void AddEntry([NotNull] InternalEntityEntry entry)
+        public virtual void AddEntry([NotNull] IUpdateEntry entry)
         {
             Check.NotNull(entry, nameof(entry));
 
@@ -99,8 +99,8 @@ namespace Microsoft.Data.Entity.Update
                 {
                     var isKey = property.IsPrimaryKey();
                     var isCondition = !adding && (isKey || property.IsConcurrencyToken);
-                    var readValue = entry.StoreMustGenerateValue(property);
-                    var writeValue = !readValue && (adding || entry.IsPropertyModified(property));
+                    var readValue = entry.IsStoreGenerated(property);
+                    var writeValue = !readValue && (adding || entry.IsModified(property));
 
                     if (readValue
                         || writeValue

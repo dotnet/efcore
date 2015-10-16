@@ -2,19 +2,20 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public abstract class EntityKey
+    public abstract class KeyValue : IKeyValue
     {
-        public static readonly EntityKey InvalidEntityKey = new InvalidEntityKeySentinel();
+        public static readonly KeyValue InvalidKeyValue = new InvalidKeyValueSentinel();
 
-        private EntityKey()
+        private KeyValue()
         {
         }
 
-        protected EntityKey([NotNull] IKey key)
+        protected KeyValue([NotNull] IKey key)
         {
             Key = key;
         }
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected abstract object GetValue();
 
-        private sealed class InvalidEntityKeySentinel : EntityKey
+        private sealed class InvalidKeyValueSentinel : KeyValue
         {
             protected override object GetValue() => null;
 

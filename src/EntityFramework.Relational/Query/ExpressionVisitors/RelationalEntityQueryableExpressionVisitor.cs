@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             = Expression.Parameter(typeof(ValueBuffer));
 
         private readonly IModel _model;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly ICommandBuilderFactory _commandBuilderFactory;
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         public RelationalEntityQueryableExpressionVisitor(
             [NotNull] IModel model,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] ICommandBuilderFactory commandBuilderFactory,
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             : base(Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)))
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(querySource, nameof(querySource));
 
             _model = model;
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
             _commandBuilderFactory = commandBuilderFactory;
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     = CreateEntityMethodInfo.MakeGenericMethod(elementType);
 
                 var keyFactory
-                    = _entityKeyFactorySource
+                    = _keyValueFactorySource
                         .GetKeyFactory(entityType.GetPrimaryKey());
 
                 queryMethodArguments.AddRange(
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             int valueBufferOffset,
             IEntityType entityType,
             bool queryStateManager,
-            EntityKeyFactory entityKeyFactory,
+            KeyValueFactory keyValueFactory,
             IReadOnlyList<IProperty> keyProperties,
             Func<ValueBuffer, object> materializer,
             bool allowNullResult)
@@ -288,12 +288,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
 
-            var entityKey
-                = entityKeyFactory.Create(keyProperties, valueBuffer);
+            var keyValue
+                = keyValueFactory.Create(keyProperties, valueBuffer);
 
             TEntity entity = null;
 
-            if (entityKey == EntityKey.InvalidEntityKey)
+            if (keyValue == KeyValue.InvalidKeyValue)
             {
                 if (!allowNullResult)
                 {
@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     = (TEntity)queryContext.QueryBuffer
                         .GetEntity(
                             entityType,
-                            entityKey,
+                            keyValue,
                             new EntityLoadInfo(valueBuffer, materializer),
                             queryStateManager);
             }

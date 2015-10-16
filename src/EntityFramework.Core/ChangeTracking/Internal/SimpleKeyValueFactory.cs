@@ -3,29 +3,30 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class SimpleEntityKeyFactory<TKey> : EntityKeyFactory
+    public class SimpleKeyValueFactory<TKey> : KeyValueFactory
     {
-        public SimpleEntityKeyFactory([NotNull] IKey key)
+        public SimpleKeyValueFactory([NotNull] IKey key)
             : base(key)
         {
         }
 
-        public override EntityKey Create(
+        public override IKeyValue Create(
             IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(valueBuffer[properties[0].Index]);
 
-        public override EntityKey Create(
+        public override IKeyValue Create(
             IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(propertyAccessor[properties[0]]);
 
-        private EntityKey Create(object value)
+        private KeyValue Create(object value)
             => value != null
-                ? new SimpleEntityKey<TKey>(Key, (TKey)value)
-                : EntityKey.InvalidEntityKey;
+                ? new SimpleKeyValue<TKey>(Key, (TKey)value)
+                : KeyValue.InvalidKeyValue;
     }
 }

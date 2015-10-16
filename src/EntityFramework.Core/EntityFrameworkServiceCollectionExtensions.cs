@@ -73,7 +73,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetInitializer, DbSetInitializer>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
-                .AddSingleton<IEntityKeyFactorySource, EntityKeyFactorySource>()
+                .AddSingleton<IKeyValueFactorySource, KeyValueFactorySource>()
                 .AddSingleton<IClrAccessorSource<IClrPropertyGetter>, ClrPropertyGetterSource>()
                 .AddSingleton<IClrAccessorSource<IClrPropertySetter>, ClrPropertySetterSource>()
                 .AddSingleton<IClrCollectionAccessorSource, ClrCollectionAccessorSource>()

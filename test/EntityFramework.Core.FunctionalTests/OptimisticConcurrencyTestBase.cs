@@ -35,12 +35,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-        public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
-        {
-            internalEntry.ReloadAsync(context).Wait();
-        }
+        public static void SetValues(this EntityEntry entry, Dictionary<IProperty, object> values)
+            => entry.GetService().SetValues(values);
 
-        public static Task ReloadAsync(this InternalEntityEntry internalEntry, DbContext context)
+        public static void SetOriginalValues(this EntityEntry entry, Dictionary<IProperty, object> values)
+            => entry.GetService().SetOriginalValues(values);
+
+        public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
         {
             if (internalEntry.EntityState == EntityState.Detached)
             {
@@ -63,18 +64,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 internalEntry.SetOriginalValues(storeValues);
                 internalEntry.SetEntityState(EntityState.Unchanged);
             }
-            return Task.FromResult(false);
         }
 
         public static void Reload(this EntityEntry entityEntry, DbContext context)
-        {
-            entityEntry.GetService().Reload(context);
-        }
-
-        public static Task ReloadAsync(this EntityEntry entityEntry, DbContext context)
-        {
-            return entityEntry.GetService().ReloadAsync(context);
-        }
+            => entityEntry.GetService().Reload(context);
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
         {
@@ -98,6 +91,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             return null;
         }
+
+        public static Dictionary<IProperty, object> GetDatabaseValues(this EntityEntry entry, DbContext context)
+            => entry.GetService().GetDatabaseValues(context);
 
         private static Dictionary<IProperty, object> GetValues(this Driver driver, IEntityType entityType)
         {
@@ -181,7 +177,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var storeValues = driverEntry.GetDatabaseValues(c);
                         driverEntry.SetValues(storeValues);
                         driverEntry.SetOriginalValues(storeValues);
-                        driverEntry.SetEntityState(EntityState.Unchanged);
+                        driverEntry.State = EntityState.Unchanged;
                     });
         }
 
@@ -406,15 +402,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 c =>
                     c.Teams.Add(
                         new Team
+                        {
+                            Id = -1,
+                            Name = "Wubbsy Racing",
+                            Chassis = new Chassis
                             {
-                                Id = -1,
-                                Name = "Wubbsy Racing",
-                                Chassis = new Chassis
-                                    {
-                                        TeamId = -1,
-                                        Name = "Wubbsy"
-                                    }
-                            }),
+                                TeamId = -1,
+                                Name = "Wubbsy"
+                            }
+                        }),
                 (c, ex) => Assert.IsType<DbUpdateException>(ex),
                 null);
         }
@@ -465,7 +461,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         var entry = ex.Entries.Single();
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
 
-                        entry.SetEntityState(EntityState.Unchanged);
+                        entry.State = EntityState.Unchanged;
                         var storeValues = entry.GetDatabaseValues(c);
                         entry.SetOriginalValues(storeValues);
                         entry.SetValues(storeValues);
@@ -505,7 +501,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         Assert.IsAssignableFrom<Driver>(entry.Entity);
                         var storeValues = entry.GetDatabaseValues(c);
                         Assert.Null(storeValues);
-                        entry.SetEntityState(EntityState.Detached);
+                        entry.State = EntityState.Detached;
                     },
                 c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
         }
@@ -521,10 +517,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var entry = context.Drivers.Add(
                     new Driver
-                        {
-                            Name = "Larry David",
-                            TeamId = Team.Ferrari
-                        });
+                    {
+                        Name = "Larry David",
+                        TeamId = Team.Ferrari
+                    });
 
                 Assert.Equal("Can't reload an added entity",
                     Assert.Throws<InvalidOperationException>(() => entry.Reload(context)).Message);
@@ -538,10 +534,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var entry = context.Drivers.Add(
                     new Driver
-                        {
-                            Name = "Larry David",
-                            TeamId = Team.Ferrari
-                        });
+                    {
+                        Name = "Larry David",
+                        TeamId = Team.Ferrari
+                    });
                 entry.State = EntityState.Detached;
 
                 Assert.Equal("Can't reload an unknown entity",
@@ -583,93 +579,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         #endregion
 
-        #region Tests for calling ReloadAsync on an entity in various states
-
-        // TODO: Reload
-
-        [Fact]
-        public virtual async Task Calling_ReloadAsync_on_an_Added_entity_throws()
-        {
-            using (var context = CreateF1Context())
-            {
-                var entry = context.Drivers.Add(
-                    new Driver
-                        {
-                            Name = "Larry David",
-                            TeamId = Team.Ferrari
-                        });
-
-                Assert.Equal("Can't reload an added entity",
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
-            }
-        }
-
-        [Fact]
-        public virtual async Task Calling_ReloadAsync_on_a_detached_entity_throws()
-        {
-            using (var context = CreateF1Context())
-            {
-                var entry = context.Drivers.Add(
-                    new Driver
-                        {
-                            Name = "Larry David",
-                            TeamId = Team.Ferrari
-                        });
-                entry.State = EntityState.Detached;
-
-                Assert.Equal("Can't reload an unknown entity",
-                    (await Assert.ThrowsAsync<InvalidOperationException>(() => entry.ReloadAsync(context))).Message);
-            }
-        }
-
-        [Fact]
-        public virtual Task Calling_ReloadAsync_on_a_Unchanged_entity_makes_the_entity_unchanged()
-        {
-            return TestReloadAsyncPositive(EntityState.Unchanged);
-        }
-
-        [Fact]
-        public virtual Task Calling_ReloadAsync_on_a_Modified_entity_makes_the_entity_unchanged()
-        {
-            return TestReloadAsyncPositive(EntityState.Modified);
-        }
-
-        [Fact]
-        public virtual Task Calling_ReloadAsync_on_a_Deleted_entity_makes_the_entity_unchanged()
-        {
-            return TestReloadAsyncPositive(EntityState.Deleted);
-        }
-
-        private async Task TestReloadAsyncPositive(EntityState state)
-        {
-            using (var context = CreateF1Context())
-            {
-                var larry = context.Drivers.Single(d => d.Name == "Jenson Button");
-                var entry = context.Entry(larry);
-                entry.State = state;
-
-                await entry.ReloadAsync(context);
-
-                Assert.Equal(EntityState.Unchanged, entry.State);
-            }
-        }
-
-        #endregion
-
         #region Helpers
 
         private const int StorePodiums = 20;
         private const int ClientPodiums = 30;
 
-        protected virtual void ResolveConcurrencyTokens(InternalEntityEntry internalEntry)
+        protected virtual void ResolveConcurrencyTokens(EntityEntry entry)
         {
             // default do nothing. Allow provider-specific entry reset
         }
 
-        protected F1Context CreateF1Context()
-        {
-            return Fixture.CreateContext(TestStore);
-        }
+        protected F1Context CreateF1Context() => Fixture.CreateContext(TestStore);
 
         protected OptimisticConcurrencyTestBase(TFixture fixture)
         {
@@ -678,10 +598,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             TestStore = Fixture.CreateTestStore();
         }
 
-        public void Dispose()
-        {
-            TestStore.Dispose();
-        }
+        public void Dispose() => TestStore.Dispose();
 
         protected TFixture Fixture { get; }
 

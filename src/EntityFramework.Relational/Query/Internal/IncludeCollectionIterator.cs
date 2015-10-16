@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query.Internal
@@ -22,8 +23,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public virtual IEnumerable<ValueBuffer> GetRelatedValues(
-            [NotNull] EntityKey primaryKey,
-            [NotNull] Func<ValueBuffer, EntityKey> relatedKeyFactory)
+            [NotNull] IKeyValue primaryKeyValue,
+            [NotNull] Func<ValueBuffer, IKeyValue> relatedKeyFactory)
         {
             if (!_initialized)
             {
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
 
             while (_hasRemainingRows
-                   && relatedKeyFactory(_relatedValuesEnumerator.Current).Equals(primaryKey))
+                   && relatedKeyFactory(_relatedValuesEnumerator.Current).Equals(primaryKeyValue))
             {
                 yield return _relatedValuesEnumerator.Current;
 

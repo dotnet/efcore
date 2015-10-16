@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
@@ -22,6 +23,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         IEnumerable<InMemoryStore.InMemoryTable> GetTables([NotNull] IEntityType entityType);
 
-        int ExecuteTransaction([NotNull] IEnumerable<InternalEntityEntry> entries);
+        int ExecuteTransaction([NotNull] IEnumerable<IUpdateEntry> entries);
     }
 }

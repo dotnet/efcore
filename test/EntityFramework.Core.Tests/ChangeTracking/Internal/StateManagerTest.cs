@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.GetEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var entityKey = new SimpleEntityKey<int>(categoryType.GetPrimaryKey(), 77);
+            var entityKey = new SimpleKeyValue<int>(categoryType.GetPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
             stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var category = new Category { Id = 77 };
-            var entityKey = new SimpleEntityKey<int>(categoryType.GetPrimaryKey(), 77);
+            var entityKey = new SimpleKeyValue<int>(categoryType.GetPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
             var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer);
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 CoreStrings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, EntityKey.InvalidEntityKey, new Category { Id = 0 }, valueBuffer)).Message);
+                    () => stateManager.StartTracking(categoryType, KeyValue.InvalidKeyValue, new Category { Id = 0 }, valueBuffer)).Message);
         }
 
         [Fact]

@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 valueBufferOffset: 0, 
                 entityType: FunctionalTests.TestModels.Northwind.Customer, 
                 queryStateManager: True, 
-                entityKeyFactory: SimpleEntityKeyFactory`1, 
+                keyValueFactory: SimpleKeyValueFactory`1, 
                 keyProperties: List<Property> { Customer.CustomerID, }, 
                 materializer: (ValueBuffer prm3) => 
                 {
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     valueBufferOffset: 0, 
                     entityType: FunctionalTests.TestModels.Northwind.Customer, 
                     queryStateManager: True, 
-                    entityKeyFactory: SimpleEntityKeyFactory`1, 
+                    keyValueFactory: SimpleKeyValueFactory`1, 
                     keyProperties: List<Property> { Customer.CustomerID, }, 
                     materializer: (ValueBuffer prm3) => 
                     {

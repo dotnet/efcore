@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -15,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         Sidecar CreateRelationshipSnapshot([NotNull] InternalEntityEntry entry);
         Sidecar CreateStoreGeneratedValues([NotNull] InternalEntityEntry entry, [NotNull] IReadOnlyList<IProperty> properties);
 
-        EntityKey CreateKey(
+        IKeyValue CreateKey(
             [NotNull] IKey key,
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyAccessor);

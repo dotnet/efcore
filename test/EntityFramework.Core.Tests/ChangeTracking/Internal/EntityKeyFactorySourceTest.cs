@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var key = GetEntityType().GetPrimaryKey();
 
-            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
+            Assert.IsType<SimpleKeyValueFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityType = GetEntityType();
             var key = entityType.GetKey(entityType.GetProperty("NullableInt"));
 
-            Assert.IsType<SimpleEntityKeyFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
+            Assert.IsType<SimpleKeyValueFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityType = GetEntityType();
             var key = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
 
-            Assert.IsType<CompositeEntityKeyFactory>(
+            Assert.IsType<CompositeKeyValueFactory>(
                 CreateKeyFactorySource().GetKeyFactory(key));
         }
 
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityType = GetEntityType();
             var key = entityType.GetKey(entityType.GetProperty("String"));
 
-            Assert.IsType<SimpleEntityKeyFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
+            Assert.IsType<SimpleKeyValueFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityType = GetEntityType();
             var key = entityType.GetKey(entityType.GetProperty("ByteArray"));
 
-            Assert.IsType<CompositeEntityKeyFactory>(CreateKeyFactorySource().GetKeyFactory(key));
+            Assert.IsType<CompositeKeyValueFactory>(CreateKeyFactorySource().GetKeyFactory(key));
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Same(factorySource.GetKeyFactory(key), factorySource.GetKeyFactory(key));
         }
 
-        private static IEntityKeyFactorySource CreateKeyFactorySource() => new EntityKeyFactorySource();
+        private static IKeyValueFactorySource CreateKeyFactorySource() => new KeyValueFactorySource();
 
         private static IEntityType GetEntityType()
         {

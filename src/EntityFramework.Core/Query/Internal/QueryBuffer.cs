@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -22,12 +23,12 @@ namespace Microsoft.Data.Entity.Query.Internal
         private const int IdentityMapGarbageCollectionThreshold = 500;
 
         private readonly IStateManager _stateManager;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IClrCollectionAccessorSource _clrCollectionAccessorSource;
         private readonly IClrAccessorSource<IClrPropertySetter> _clrPropertySetterSource;
 
-        private readonly Dictionary<EntityKey, WeakReference<object>> _identityMap
-            = new Dictionary<EntityKey, WeakReference<object>>();
+        private readonly Dictionary<IKeyValue, WeakReference<object>> _identityMap
+            = new Dictionary<IKeyValue, WeakReference<object>>();
 
         private readonly ConditionalWeakTable<object, object> _valueBuffers
             = new ConditionalWeakTable<object, object>();
@@ -36,27 +37,27 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public QueryBuffer(
             [NotNull] IStateManager stateManager,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IClrCollectionAccessorSource clrCollectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> clrPropertySetterSource)
         {
             _stateManager = stateManager;
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
             _clrCollectionAccessorSource = clrCollectionAccessorSource;
             _clrPropertySetterSource = clrPropertySetterSource;
         }
 
         public virtual object GetEntity(
             IEntityType entityType,
-            EntityKey entityKey,
+            IKeyValue keyValue,
             EntityLoadInfo entityLoadInfo,
             bool queryStateManager)
         {
             // hot path
             Debug.Assert(entityType != null);
-            Debug.Assert(entityKey != null);
+            Debug.Assert(keyValue != null);
 
-            if (entityKey == EntityKey.InvalidEntityKey)
+            if (keyValue == KeyValue.InvalidKeyValue)
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidEntityKeyOnQuery(entityType.DisplayName()));
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             if (queryStateManager)
             {
-                var entry = _stateManager.TryGetEntry(entityKey);
+                var entry = _stateManager.TryGetEntry(keyValue);
 
                 if (entry != null)
                 {
@@ -75,7 +76,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             object entity;
 
             WeakReference<object> weakReference;
-            if (!_identityMap.TryGetValue(entityKey, out weakReference)
+            if (!_identityMap.TryGetValue(keyValue, out weakReference)
                 || !weakReference.TryGetTarget(out entity))
             {
                 entity = entityLoadInfo.Materialize();
@@ -88,7 +89,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 {
                     GarbageCollectIdentityMap();
 
-                    _identityMap.Add(entityKey, new WeakReference<object>(entity));
+                    _identityMap.Add(keyValue, new WeakReference<object>(entity));
                 }
 
                 _valueBuffers.Add(entity, entityLoadInfo.ValueBuffer);
@@ -101,7 +102,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             if (++_identityMapGarbageCollectionIterations == IdentityMapGarbageCollectionThreshold)
             {
-                var deadEntries = new List<EntityKey>();
+                var deadEntries = new List<IKeyValue>();
 
                 foreach (var entry in _identityMap)
                 {
@@ -112,9 +113,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                     }
                 }
 
-                foreach (var entityKey in deadEntries)
+                foreach (var keyValue in deadEntries)
                 {
-                    _identityMap.Remove(entityKey);
+                    _identityMap.Remove(keyValue);
                 }
 
                 _identityMapGarbageCollectionIterations = 0;
@@ -180,42 +181,42 @@ namespace Microsoft.Data.Entity.Query.Internal
                 return;
             }
 
-            EntityKey primaryKey;
-            Func<ValueBuffer, EntityKey> relatedKeyFactory;
+            IKeyValue primaryKeyValue;
+            Func<ValueBuffer, IKeyValue> relatedKeyFactory;
 
             var targetEntityType
                 = IncludeCore(
                     entity,
                     navigationPath[currentNavigationIndex],
-                    out primaryKey,
+                    out primaryKeyValue,
                     out relatedKeyFactory);
 
             var keyProperties
                 = targetEntityType.GetPrimaryKey().Properties;
 
-            var entityKeyFactory
-                = _entityKeyFactorySource
+            var keyValueFactory
+                = _keyValueFactorySource
                     .GetKeyFactory(targetEntityType.GetPrimaryKey());
 
             LoadNavigationProperties(
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory)
+                relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
                     .Select(eli =>
                         {
-                            var entityKey
-                                = entityKeyFactory
+                            var keyValue
+                                = keyValueFactory
                                     .Create(keyProperties, eli.ValueBuffer);
 
                             object targetEntity = null;
 
-                            if (entityKey != EntityKey.InvalidEntityKey)
+                            if (keyValue != KeyValue.InvalidKeyValue)
                             {
                                 targetEntity
                                     = GetEntity(
                                         targetEntityType,
-                                        entityKey,
+                                        keyValue,
                                         eli,
                                         queryStateManager);
                             }
@@ -255,41 +256,41 @@ namespace Microsoft.Data.Entity.Query.Internal
                 return;
             }
 
-            EntityKey primaryKey;
-            Func<ValueBuffer, EntityKey> relatedKeyFactory;
+            IKeyValue primaryKeyValue;
+            Func<ValueBuffer, IKeyValue> relatedKeyFactory;
 
             var targetEntityType
                 = IncludeCore(
                     entity,
                     navigationPath[currentNavigationIndex],
-                    out primaryKey,
+                    out primaryKeyValue,
                     out relatedKeyFactory);
 
             var keyProperties
                 = targetEntityType.GetPrimaryKey().Properties;
 
-            var entityKeyFactory
-                = _entityKeyFactorySource
+            var keyValueFactory
+                = _keyValueFactorySource
                     .GetKeyFactory(targetEntityType.GetPrimaryKey());
 
             LoadNavigationProperties(
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKey, relatedKeyFactory), async (eli, ct) =>
+                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory), async (eli, ct) =>
                     {
-                        var entityKey
-                            = entityKeyFactory
+                        var keyValue
+                            = keyValueFactory
                                 .Create(keyProperties, eli.ValueBuffer);
 
                         object targetEntity = null;
 
-                        if (entityKey != EntityKey.InvalidEntityKey)
+                        if (keyValue != KeyValue.InvalidKeyValue)
                         {
                             targetEntity
                                 = GetEntity(
                                     targetEntityType,
-                                    entityKey,
+                                    keyValue,
                                     eli,
                                     queryStateManager);
                         }
@@ -311,11 +312,11 @@ namespace Microsoft.Data.Entity.Query.Internal
         private IEntityType IncludeCore(
             object entity,
             INavigation navigation,
-            out EntityKey primaryKey,
-            out Func<ValueBuffer, EntityKey> relatedKeyFactory)
+            out IKeyValue primaryKeyValue,
+            out Func<ValueBuffer, IKeyValue> relatedKeyFactory)
         {
             var keyFactory
-                = _entityKeyFactorySource
+                = _keyValueFactorySource
                     .GetKeyFactory(navigation.ForeignKey.PrincipalKey);
 
             var targetEntityType = navigation.GetTargetType();
@@ -327,14 +328,14 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 Debug.Assert(entry != null);
 
-                primaryKey
+                primaryKeyValue
                     = navigation.PointsToPrincipal()
                         ? entry.GetDependentKeyValue(navigation.ForeignKey)
                         : entry.GetPrimaryKeyValue();
             }
             else
             {
-                primaryKey
+                primaryKeyValue
                     = navigation.PointsToPrincipal()
                         ? keyFactory
                             .Create(

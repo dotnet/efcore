@@ -19,8 +19,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             IInternalEntityEntryNotifier notifier,
             IValueGenerationManager valueGeneration,
             IModel model,
-            IDatabase database)
-            : base(factory, subscriber, notifier, valueGeneration, model, database)
+            IDatabase database,
+            DbContext context)
+            : base(factory, subscriber, notifier, valueGeneration, model, database, context)
         {
         }
 

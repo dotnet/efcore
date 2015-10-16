@@ -14,27 +14,27 @@ namespace Microsoft.Data.Entity.Query
         private readonly IStateManager _stateManager;
         private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IClrAccessorSource<IClrPropertySetter> _propertySetterSource;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
 
         protected QueryContextFactory(
             [NotNull] IStateManager stateManager,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource)
         {
             Check.NotNull(stateManager, nameof(stateManager));
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(collectionAccessorSource, nameof(collectionAccessorSource));
             Check.NotNull(propertySetterSource, nameof(propertySetterSource));
 
             _stateManager = stateManager;
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
             _collectionAccessorSource = collectionAccessorSource;
             _propertySetterSource = propertySetterSource;
         }
 
         protected virtual IQueryBuffer CreateQueryBuffer()
-            => new QueryBuffer(_stateManager, _entityKeyFactorySource, _collectionAccessorSource, _propertySetterSource);
+            => new QueryBuffer(_stateManager, _keyValueFactorySource, _collectionAccessorSource, _propertySetterSource);
 
         public abstract QueryContext Create();
     }

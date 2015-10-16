@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(type.GetPrimaryKey().Properties, entry);
 
             Assert.Equal(7, key.Value);
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7, P2 = 8 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, entry);
 
             Assert.Equal(8, key.Value);
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7, P2 = null };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            Assert.Equal(EntityKey.InvalidEntityKey, new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            Assert.Equal(KeyValue.InvalidKeyValue, new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, entry));
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7, P2 = 0 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (SimpleEntityKey<int?>)new SimpleEntityKeyFactory<int?>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int?>)new SimpleKeyValueFactory<int?>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, entry);
 
             Assert.Equal(0, key.Value);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var type = BuildModel().GetEntityType(typeof(Banana));
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate" }));
 
             Assert.Equal(7, key.Value);
@@ -89,7 +89,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var type = BuildModel().GetEntityType(typeof(Banana));
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, 8 }));
 
             Assert.Equal(8, key.Value);
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var type = BuildModel().GetEntityType(typeof(Kiwi));
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<string>)new SimpleKeyValueFactory<string>(type.GetPrimaryKey())
                 .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { "7", "Ate" }));
 
             Assert.Equal("7", key.Value);
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var type = BuildModel().GetEntityType(typeof(Kiwi));
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<string>)new SimpleKeyValueFactory<string>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { "7", "Ate" }));
 
             Assert.Equal("Ate", key.Value);
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var type = BuildModel().GetEntityType(typeof(Banana));
 
-            var key = (SimpleEntityKey<int?>)new SimpleEntityKeyFactory<int?>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int?>)new SimpleKeyValueFactory<int?>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, new ValueBuffer(new object[] { 7, 0 }));
 
             Assert.Equal(0, key.Value);
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var type = BuildModel().GetEntityType(typeof(Banana));
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P1") }, new ValueBuffer(new object[] { 0, 8 }));
 
             Assert.Equal(0, key.Value);
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.GetProperty("P2")] = "Eaten";
 
-            var key = (SimpleEntityKey<string>)new SimpleEntityKeyFactory<string>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<string>)new SimpleKeyValueFactory<string>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, sidecar);
 
             Assert.Equal("Eaten", key.Value);
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var sidecar = new RelationshipsSnapshot(entry);
 
-            var key = (SimpleEntityKey<int>)new SimpleEntityKeyFactory<int>(type.GetPrimaryKey())
+            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.GetPrimaryKey())
                 .Create(new[] { type.GetProperty("P2") }, sidecar);
 
             Assert.Equal(8, key.Value);

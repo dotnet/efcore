@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public class RelationalEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {
         private readonly IModel _model;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
         private readonly ICommandBuilderFactory _commandBuilderFactory;
@@ -22,21 +22,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         public RelationalEntityQueryableExpressionVisitorFactory(
             [NotNull] IModel model,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] ICommandBuilderFactory commandBuilderFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
             _model = model;
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
             _commandBuilderFactory = commandBuilderFactory;
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] IQuerySource querySource)
             => new RelationalEntityQueryableExpressionVisitor(
                 _model,
-                _entityKeyFactorySource,
+                _keyValueFactorySource,
                 _selectExpressionFactory,
                 _materializerFactory,
                 _commandBuilderFactory,

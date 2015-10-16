@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity
 {
@@ -11,7 +12,7 @@ namespace Microsoft.Data.Entity
     {
         public DbUpdateConcurrencyException(
             [NotNull] string message,
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            [NotNull] IReadOnlyList<IUpdateEntry> entries)
             : base(message, entries)
         {
         }

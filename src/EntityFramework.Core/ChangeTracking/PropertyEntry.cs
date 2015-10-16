@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public virtual bool IsModified
         {
-            get { return _internalEntry.IsPropertyModified(Metadata); }
+            get { return _internalEntry.IsModified(Metadata); }
             set { _internalEntry.SetPropertyModified(Metadata, value); }
         }
 

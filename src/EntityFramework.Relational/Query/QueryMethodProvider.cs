@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -209,7 +210,7 @@ namespace Microsoft.Data.Entity.Query
                 _materializer = materializer;
             }
 
-            public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(IKeyValue keyValue, Func<ValueBuffer, IKeyValue> keyFactory)
             {
                 var valueBuffer = _queryContext.GetIncludeValueBuffer(_queryIndex).WithOffset(_valueBufferOffset);
 
@@ -247,11 +248,11 @@ namespace Microsoft.Data.Entity.Query
                     = new IncludeCollectionIterator(relatedValueBuffers.GetEnumerator());
             }
 
-            public IEnumerable<EntityLoadInfo> GetRelatedValues(EntityKey key, Func<ValueBuffer, EntityKey> keyFactory)
+            public IEnumerable<EntityLoadInfo> GetRelatedValues(IKeyValue keyValue, Func<ValueBuffer, IKeyValue> keyFactory)
             {
                 return
                     _includeCollectionIterator
-                        .GetRelatedValues(key, keyFactory)
+                        .GetRelatedValues(keyValue, keyFactory)
                         .Select(vr => new EntityLoadInfo(vr, _materializer));
             }
 

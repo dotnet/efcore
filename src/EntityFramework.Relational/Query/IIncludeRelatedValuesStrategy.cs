@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query
@@ -12,6 +13,6 @@ namespace Microsoft.Data.Entity.Query
     public interface IIncludeRelatedValuesStrategy : IDisposable
     {
         IEnumerable<EntityLoadInfo> GetRelatedValues(
-            [NotNull] EntityKey key, [NotNull] Func<ValueBuffer, EntityKey> keyFactory);
+            [NotNull] IKeyValue keyValue, [NotNull] Func<ValueBuffer, IKeyValue> keyFactory);
     }
 }

@@ -4,25 +4,26 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class CompositeEntityKeyFactory : EntityKeyFactory
+    public class CompositeKeyValueFactory : KeyValueFactory
     {
-        public CompositeEntityKeyFactory([NotNull] IKey key)
+        public CompositeKeyValueFactory([NotNull] IKey key)
             : base(key)
         {
         }
 
-        public override EntityKey Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
+        public override IKeyValue Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(properties, p => valueBuffer[p.Index]);
 
-        public override EntityKey Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
+        public override IKeyValue Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(properties, p => propertyAccessor[p]);
 
-        private EntityKey Create(IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
+        private KeyValue Create(IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
         {
             var components = new object[properties.Count];
 
@@ -32,13 +33,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (value == null)
                 {
-                    return EntityKey.InvalidEntityKey;
+                    return KeyValue.InvalidKeyValue;
                 }
 
                 components[i] = value;
             }
 
-            return new CompositeEntityKey(Key, components);
+            return new CompositeKeyValue(Key, components);
         }
     }
 }

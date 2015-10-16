@@ -10,11 +10,11 @@ using Microsoft.Data.Entity.Metadata;
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class CompositeEntityKey : EntityKey
+    public class CompositeKeyValue : KeyValue
     {
         private readonly object[] _keyValueParts;
 
-        public CompositeEntityKey([NotNull] IKey key, [NotNull] object[] keyValueParts)
+        public CompositeKeyValue([NotNull] IKey key, [NotNull] object[] keyValueParts)
             : base(key)
         {
             _keyValueParts = keyValueParts;
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         protected override object GetValue() => _keyValueParts;
 
-        private bool Equals(CompositeEntityKey other)
+        private bool Equals(CompositeKeyValue other)
         {
             if (Key != other.Key)
             {
@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             return ReferenceEquals(this, obj)
                    || obj.GetType() == GetType()
-                   && Equals((CompositeEntityKey)obj);
+                   && Equals((CompositeKeyValue)obj);
         }
 
         public override int GetHashCode()

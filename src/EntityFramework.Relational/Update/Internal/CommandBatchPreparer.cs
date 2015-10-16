@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -30,7 +31,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             _annotationProvider = annotations;
         }
 
-        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<InternalEntityEntry> entries)
+        public virtual IEnumerable<ModificationCommandBatch> BatchCommands(IReadOnlyList<IUpdateEntry> entries)
         {
             var commands = CreateModificationCommands(entries);
             var sortedCommandSets = TopologicalSort(commands);
@@ -55,7 +56,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
         }
 
-        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<InternalEntityEntry> entries)
+        protected virtual IEnumerable<ModificationCommand> CreateModificationCommands([NotNull] IReadOnlyList<IUpdateEntry> entries)
         {
             var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             // TODO: Handle multiple state entries that update the same row
@@ -98,9 +99,9 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         // Builds a map from foreign key values to list of modification commands, with an entry for every command
         // that may need to precede some other command involving that foreign key value.
-        private Dictionary<KeyValue, List<ModificationCommand>> CreateKeyValuePredecessorMap(Graph<ModificationCommand> commandGraph)
+        private Dictionary<KeyValueIndex, List<ModificationCommand>> CreateKeyValuePredecessorMap(Graph<ModificationCommand> commandGraph)
         {
-            var predecessorsMap = new Dictionary<KeyValue, List<ModificationCommand>>(new KeyValueComparer());
+            var predecessorsMap = new Dictionary<KeyValueIndex, List<ModificationCommand>>(new KeyValueIndexComparer());
             foreach (var command in commandGraph.Vertices)
             {
                 if (command.EntityState == EntityState.Modified
@@ -121,7 +122,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                             {
                                 var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Current);
 
-                                if (principalKeyValue.Key != EntityKey.InvalidEntityKey)
+                                if (principalKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
@@ -152,9 +153,9 @@ namespace Microsoft.Data.Entity.Update.Internal
                             if (command.EntityState == EntityState.Deleted
                                 || foreignKeyValueColumnModifications.Any())
                             {
-                                var dependentKeyValue = CreateDependentKeyValue(entry.OriginalValues, foreignKey, ValueType.Original);
+                                var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Original);
 
-                                if (dependentKeyValue.Key != EntityKey.InvalidEntityKey)
+                                if (dependentKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -174,7 +175,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
         private void AddForeignKeyEdges(
             Multigraph<ModificationCommand, IForeignKey> commandGraph,
-            Dictionary<KeyValue, List<ModificationCommand>> predecessorsMap)
+            Dictionary<KeyValueIndex, List<ModificationCommand>> predecessorsMap)
         {
             foreach (var command in commandGraph.Vertices)
             {
@@ -187,7 +188,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                         {
                             var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Current);
 
-                            if (dependentKeyValue.Key != EntityKey.InvalidEntityKey)
+                            if (dependentKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
                             {
                                 List<ModificationCommand> predecessorCommands;
                                 if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -212,9 +213,9 @@ namespace Microsoft.Data.Entity.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.FindReferencingForeignKeys())
                         {
-                            var principalKeyValue = CreatePrincipalKeyValue(entry.OriginalValues, foreignKey, ValueType.Original);
+                            var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Original);
 
-                            if (principalKeyValue.Key != EntityKey.InvalidEntityKey)
+                            if (principalKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
                             {
                                 List<ModificationCommand> predecessorCommands;
                                 if (predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
@@ -234,11 +235,11 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
         }
 
-        private KeyValue CreatePrincipalKeyValue(IPropertyAccessor propertyAccessor, IForeignKey foreignKey, ValueType valueType)
-            => new KeyValue(foreignKey, propertyAccessor.GetPrincipalKeyValue(foreignKey), valueType);
+        private KeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueType valueType)
+            => new KeyValueIndex(foreignKey, entry.GetPrincipalKeyValue(foreignKey, valueType == ValueType.Original), valueType);
 
-        private KeyValue CreateDependentKeyValue(IPropertyAccessor propertyAccessor, IForeignKey foreignKey, ValueType valueType)
-            => new KeyValue(foreignKey, propertyAccessor.GetDependentKeyValue(foreignKey), valueType);
+        private KeyValueIndex CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueType valueType)
+            => new KeyValueIndex(foreignKey, entry.GetDependentKeyValue(foreignKey, valueType == ValueType.Original), valueType);
 
         private enum ValueType
         {
@@ -246,33 +247,33 @@ namespace Microsoft.Data.Entity.Update.Internal
             Current
         }
 
-        private struct KeyValue
+        private struct KeyValueIndex
         {
-            public KeyValue([NotNull] IForeignKey foreignKey, EntityKey keyValue, ValueType valueType)
+            public KeyValueIndex([NotNull] IForeignKey foreignKey, IKeyValue keyValueValue, ValueType valueType)
             {
                 ForeignKey = foreignKey;
-                Key = keyValue;
+                KeyValue = keyValueValue;
                 ValueType = valueType;
             }
 
             internal readonly IForeignKey ForeignKey;
 
-            internal readonly EntityKey Key;
+            internal readonly IKeyValue KeyValue;
 
             internal readonly ValueType ValueType;
         }
 
-        private class KeyValueComparer : IEqualityComparer<KeyValue>
+        private class KeyValueIndexComparer : IEqualityComparer<KeyValueIndex>
         {
-            public bool Equals(KeyValue x, KeyValue y)
+            public bool Equals(KeyValueIndex x, KeyValueIndex y)
                 => x.ValueType == y.ValueType
                    && x.ForeignKey == y.ForeignKey
-                   && x.Key.Equals(y.Key);
+                   && x.KeyValue.Equals(y.KeyValue);
 
-            public int GetHashCode(KeyValue obj)
+            public int GetHashCode(KeyValueIndex obj)
                 => (((obj.ValueType.GetHashCode() * 397)
                      ^ obj.ForeignKey.GetHashCode()) * 397)
-                   ^ obj.Key.GetHashCode();
+                   ^ obj.KeyValue.GetHashCode();
         }
     }
 }

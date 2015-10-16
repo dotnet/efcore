@@ -3,23 +3,28 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.ChangeTracking;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
     public class DbUpdateException : Exception
     {
+        private readonly LazyRef<IReadOnlyList<EntityEntry>> _entries;
+
         public DbUpdateException([NotNull] string message, [CanBeNull] Exception innerException)
             : base(message, innerException)
         {
-            Entries = new List<InternalEntityEntry>();
+            _entries = new LazyRef<IReadOnlyList<EntityEntry>>(() => new List<EntityEntry>());
         }
 
         public DbUpdateException(
             [NotNull] string message,
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            [NotNull] IReadOnlyList<IUpdateEntry> entries)
             : this(message, null, entries)
         {
         }
@@ -27,14 +32,14 @@ namespace Microsoft.Data.Entity
         public DbUpdateException(
             [NotNull] string message,
             [CanBeNull] Exception innerException,
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries)
+            [NotNull] IReadOnlyList<IUpdateEntry> entries)
             : base(message, innerException)
         {
             Check.NotEmpty(entries, nameof(entries));
 
-            Entries = entries;
+            _entries = new LazyRef<IReadOnlyList<EntityEntry>>(() => entries.Select(e => e.ToEntityEntry()).ToList());
         }
 
-        public virtual IReadOnlyList<InternalEntityEntry> Entries { get; }
+        public virtual IReadOnlyList<EntityEntry> Entries => _entries.Value;
     }
 }

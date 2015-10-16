@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Update
         private readonly LazyRef<string> _outputParameterName;
 
         public ColumnModification(
-            [NotNull] InternalEntityEntry entry,
+            [NotNull] IUpdateEntry entry,
             [NotNull] IProperty property,
             [NotNull] IRelationalPropertyAnnotations propertyAnnotations,
             [NotNull] ParameterNameGenerator parameterNameGenerator,
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Update
             IsCondition = isCondition;
         }
 
-        public virtual InternalEntityEntry Entry { get; }
+        public virtual IUpdateEntry Entry { get; }
 
         public virtual IProperty Property { get; }
 
@@ -74,8 +74,7 @@ namespace Microsoft.Data.Entity.Update
 
         public virtual string ColumnName { get; }
 
-        public virtual object OriginalValue
-            => Entry.OriginalValues.CanStoreValue(Property) ? Entry.OriginalValues[Property] : Value;
+        public virtual object OriginalValue => Entry.GetOriginalValue(Property);
 
         public virtual object Value
         {

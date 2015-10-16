@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -22,18 +23,18 @@ namespace Microsoft.Data.Entity.Query
         private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
         private readonly IEntityType _entityType;
         private readonly IReadOnlyList<IProperty> _entityKeyProperties;
-        private readonly EntityKeyFactory _entityKeyFactory;
+        private readonly KeyValueFactory _keyValueFactory;
         private readonly IReadOnlyList<IReadOnlyList<INavigation>> _includedNavigationPaths;
         private readonly IDictionary<INavigation, IncludedEntityTrackingInfo> _includedEntityTrackingInfos;
 
         public EntityTrackingInfo(
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QuerySourceReferenceExpression querySourceReferenceExpression,
             [NotNull] IEntityType entityType)
         {
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
             Check.NotNull(entityType, nameof(entityType));
@@ -45,7 +46,7 @@ namespace Microsoft.Data.Entity.Query
             _entityType = entityType;
 
             _entityKeyProperties = _entityType.GetPrimaryKey().Properties;
-            _entityKeyFactory = entityKeyFactorySource.GetKeyFactory(_entityType.GetPrimaryKey());
+            _keyValueFactory = keyValueFactorySource.GetKeyFactory(_entityType.GetPrimaryKey());
 
             _includedNavigationPaths
                 = queryCompilationContext
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Entity.Query
                             navigation,
                             new IncludedEntityTrackingInfo(
                                 targetEntityType,
-                                entityKeyFactorySource.GetKeyFactory(targetKey),
+                                keyValueFactorySource.GetKeyFactory(targetKey),
                                 targetKey.Properties));
                     }
                 }
@@ -85,7 +86,7 @@ namespace Microsoft.Data.Entity.Query
 
             stateManager.StartTracking(
                 _entityType,
-                _entityKeyFactory.Create(_entityKeyProperties, valueBuffer),
+                _keyValueFactory.Create(_entityKeyProperties, valueBuffer),
                 entity,
                 valueBuffer);
         }
@@ -94,25 +95,25 @@ namespace Microsoft.Data.Entity.Query
         {
             public IncludedEntityTrackingInfo(
                 [NotNull] IEntityType entityType,
-                [NotNull] EntityKeyFactory entityKeyFactory,
+                [NotNull] KeyValueFactory keyValueFactory,
                 [NotNull] IReadOnlyList<IProperty> entityKeyProperties)
             {
                 Check.NotNull(entityType, nameof(entityType));
-                Check.NotNull(entityKeyFactory, nameof(entityKeyFactory));
+                Check.NotNull(keyValueFactory, nameof(keyValueFactory));
                 Check.NotNull(entityKeyProperties, nameof(entityKeyProperties));
 
                 EntityType = entityType;
-                EntityKeyFactory = entityKeyFactory;
+                KeyValueFactory = keyValueFactory;
                 EntityKeyProperties = entityKeyProperties;
             }
 
             public virtual IEntityType EntityType { get; }
 
-            private EntityKeyFactory EntityKeyFactory { get; }
+            private KeyValueFactory KeyValueFactory { get; }
             private IReadOnlyList<IProperty> EntityKeyProperties { get; }
 
-            public virtual EntityKey CreateEntityKey(ValueBuffer valueBuffer)
-                => EntityKeyFactory.Create(EntityKeyProperties, valueBuffer);
+            public virtual IKeyValue CreateKeyValue(ValueBuffer valueBuffer)
+                => KeyValueFactory.Create(EntityKeyProperties, valueBuffer);
         }
 
         public struct IncludedEntity
@@ -137,7 +138,7 @@ namespace Microsoft.Data.Entity.Query
 
                 stateManager.StartTracking(
                     IncludedEntityTrackingInfo.EntityType,
-                    IncludedEntityTrackingInfo.CreateEntityKey(valueBuffer),
+                    IncludedEntityTrackingInfo.CreateKeyValue(valueBuffer),
                     Entity,
                     valueBuffer);
             }

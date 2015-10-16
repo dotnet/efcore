@@ -22,7 +22,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public override bool CanStoreValue(IPropertyBase property) => Index(property) != -1;
 
-        protected override object ReadValue(IPropertyBase property) => _values[IndexChecked(property)];
+        protected override object ReadValue(IPropertyBase property)
+        {
+            var index = Index(property);
+            return index != -1 ? _values[index] : null;
+        }
 
         protected override void WriteValue(IPropertyBase property, object value) => _values[IndexChecked(property)] = value;
 

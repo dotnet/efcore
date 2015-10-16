@@ -3,25 +3,26 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public abstract class EntityKeyFactory
+    public abstract class KeyValueFactory
     {
-        protected EntityKeyFactory([NotNull] IKey key)
+        protected KeyValueFactory([NotNull] IKey key)
         {
             Key = key;
         }
 
         public virtual IKey Key { get; }
 
-        public abstract EntityKey Create(
+        public abstract IKeyValue Create(
             [NotNull] IReadOnlyList<IProperty> properties,
             ValueBuffer valueBuffer);
 
-        public abstract EntityKey Create(
+        public abstract IKeyValue Create(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IPropertyAccessor propertyAccessor);
     }

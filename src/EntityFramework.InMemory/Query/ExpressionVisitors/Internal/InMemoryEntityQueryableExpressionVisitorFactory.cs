@@ -14,20 +14,20 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     public class InMemoryEntityQueryableExpressionVisitorFactory : IEntityQueryableExpressionVisitorFactory
     {
         private readonly IModel _model;
-        private readonly IEntityKeyFactorySource _entityKeyFactorySource;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IMaterializerFactory _materializerFactory;
 
         public InMemoryEntityQueryableExpressionVisitorFactory(
             [NotNull] IModel model,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IMaterializerFactory materializerFactory)
         {
             Check.NotNull(model, nameof(model));
-            Check.NotNull(entityKeyFactorySource, nameof(entityKeyFactorySource));
+            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
 
             _model = model;
-            _entityKeyFactorySource = entityKeyFactorySource;
+            _keyValueFactorySource = keyValueFactorySource;
             _materializerFactory = materializerFactory;
         }
 
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             [NotNull] IQuerySource querySource)
             => new InMemoryEntityQueryableExpressionVisitor(
                 _model,
-                _entityKeyFactorySource,
+                _keyValueFactorySource,
                 _materializerFactory,
                 Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
                 Check.NotNull(querySource, nameof(querySource)));

@@ -15,11 +15,11 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
-            [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] IInMemoryDatabase database)
-            : base(stateManager, entityKeyFactorySource, collectionAccessorSource, propertySetterSource)
+            : base(stateManager, keyValueFactorySource, collectionAccessorSource, propertySetterSource)
         {
             Check.NotNull(database, nameof(database));
 

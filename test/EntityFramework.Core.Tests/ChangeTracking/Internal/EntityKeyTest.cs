@@ -12,12 +12,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Value_property_calls_template_method()
         {
-            Assert.Equal("Kake", new ConcreteKey(null).Value);
+            Assert.Equal("Kake", new ConcreteKeyValue(null).Value);
         }
 
-        public class ConcreteKey : EntityKey
+        public class ConcreteKeyValue : KeyValue
         {
-            public ConcreteKey(IKey key)
+            public ConcreteKeyValue(IKey key)
                 : base(key)
             {
             }

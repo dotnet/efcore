@@ -8,16 +8,17 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Update;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Storage
 {
     public interface IDatabase
     {
-        int SaveChanges([NotNull] IReadOnlyList<InternalEntityEntry> entries);
+        int SaveChanges([NotNull] IReadOnlyList<IUpdateEntry> entries);
 
         Task<int> SaveChangesAsync(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entries,
+            [NotNull] IReadOnlyList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken));
 
         Func<QueryContext, IEnumerable<TResult>> CompileQuery<TResult>([NotNull] QueryModel queryModel);

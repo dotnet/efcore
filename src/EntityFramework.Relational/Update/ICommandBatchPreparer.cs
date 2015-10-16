@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Update
 {
     public interface ICommandBatchPreparer
     {
-        IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<InternalEntityEntry> entries);
+        IEnumerable<ModificationCommandBatch> BatchCommands([NotNull] IReadOnlyList<IUpdateEntry> entries);
     }
 }

@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.Properties.Single()] = 42;
 
             var keyValue = sidecar.GetDependentKeyValue(foreignKey);
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
 
@@ -319,7 +319,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.PrincipalKey.Properties.Single()] = 42;
 
             var keyValue = sidecar.GetPrincipalKeyValue(foreignKey);
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
 
@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[IdProperty] = 42;
 
             var keyValue = sidecar.GetPrimaryKeyValue();
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
 
@@ -346,7 +346,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.Properties[0]] = 77;
             sidecar[foreignKey.Properties[1]] = "CheeseAndOnion";
 
-            var keyValue = (CompositeEntityKey)sidecar.GetDependentKeyValue(foreignKey);
+            var keyValue = (CompositeKeyValue)sidecar.GetDependentKeyValue(foreignKey);
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
         }
@@ -362,7 +362,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.PrincipalKey.Properties[0]] = 77;
             sidecar[foreignKey.PrincipalKey.Properties[1]] = "PrawnCocktail";
 
-            var keyValue = (CompositeEntityKey)sidecar.GetPrincipalKeyValue(foreignKey);
+            var keyValue = (CompositeKeyValue)sidecar.GetPrincipalKeyValue(foreignKey);
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("PrawnCocktail", keyValue.Value[1]);
         }

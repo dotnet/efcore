@@ -10,13 +10,13 @@ using Microsoft.Data.Entity.Metadata;
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SimpleEntityKey<TKey> : EntityKey
+    public class SimpleKeyValue<TKey> : KeyValue
     {
         private static readonly IEqualityComparer _equalityComparer = EqualityComparer<TKey>.Default;
 
         private readonly TKey _keyValue;
 
-        public SimpleEntityKey([NotNull] IKey key, [CanBeNull] TKey keyValue)
+        public SimpleKeyValue([NotNull] IKey key, [CanBeNull] TKey keyValue)
             : base(key)
         {
             _keyValue = keyValue;
@@ -30,9 +30,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => !ReferenceEquals(null, obj)
                && (ReferenceEquals(this, obj)
                    || (obj.GetType() == GetType()
-                       && Equals((SimpleEntityKey<TKey>)obj)));
+                       && Equals((SimpleKeyValue<TKey>)obj)));
 
-        private bool Equals(SimpleEntityKey<TKey> other)
+        private bool Equals(SimpleKeyValue<TKey> other)
             => Key == other.Key
                && _equalityComparer.Equals(_keyValue, other._keyValue);
 

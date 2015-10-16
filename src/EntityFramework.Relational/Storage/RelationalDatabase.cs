@@ -35,14 +35,14 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public override int SaveChanges(
-            IReadOnlyList<InternalEntityEntry> entries)
+            IReadOnlyList<IUpdateEntry> entries)
             => _batchExecutor.Execute(
                 _batchPreparer.BatchCommands(
                     Check.NotNull(entries, nameof(entries))),
                 _connection);
 
         public override Task<int> SaveChangesAsync(
-            IReadOnlyList<InternalEntityEntry> entries,
+            IReadOnlyList<IUpdateEntry> entries,
             CancellationToken cancellationToken = default(CancellationToken))
             => _batchExecutor.ExecuteAsync(
                 _batchPreparer.BatchCommands(

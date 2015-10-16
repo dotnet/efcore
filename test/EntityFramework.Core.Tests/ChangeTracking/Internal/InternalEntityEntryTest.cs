@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -88,24 +89,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
             entry[keyProperty] = 1;
 
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Modified);
 
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.True(entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Unchanged, true);
 
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.SetPropertyModified(nonKeyProperty);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.True(entry.IsModified(nonKeyProperty));
         }
 
         [Fact]
@@ -155,15 +156,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry.SetEntityState(EntityState.Modified);
 
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Unchanged, true);
 
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.SetPropertyModified(nonKeyProperty);
 
-            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+            Assert.True(entry.IsModified(nonKeyProperty));
 
             Assert.Equal(
                 CoreStrings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
@@ -173,7 +174,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry[nonKeyProperty] = "Beanjilly";
 
-            Assert.True(entry.IsPropertyModified(nonKeyProperty));
+            Assert.True(entry.IsModified(nonKeyProperty));
 
             Assert.Equal(
                 CoreStrings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
@@ -194,18 +195,18 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             entry.SetEntityState(EntityState.Modified);
 
-            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsModified(keyProperty));
 
             entry.SetEntityState(EntityState.Unchanged, true);
 
-            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsModified(keyProperty));
 
             Assert.Equal(
                 CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
                 Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsModified(keyProperty));
 
             Assert.Equal(
                 CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
@@ -213,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.False(entry.IsPropertyModified(keyProperty));
+            Assert.False(entry.IsModified(keyProperty));
         }
 
         [Fact]
@@ -230,30 +231,30 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Added);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.MarkAsTemporary(keyProperty);
 
             Assert.True(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.MarkAsTemporary(nonKeyProperty);
             entry.MarkAsTemporary(keyProperty, isTemporary: false);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.True(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry[nonKeyProperty] = "I Am A Real Person!";
 
@@ -261,23 +262,23 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.MarkAsTemporary(keyProperty);
             entry.MarkAsTemporary(nonKeyProperty);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
 
             entry.SetEntityState(EntityState.Added);
 
             Assert.False(entry.HasTemporaryValue(keyProperty));
             Assert.False(entry.HasTemporaryValue(nonKeyProperty));
-            Assert.False(entry.IsPropertyModified(keyProperty));
-            Assert.False(entry.IsPropertyModified(nonKeyProperty));
+            Assert.False(entry.IsModified(keyProperty));
+            Assert.False(entry.IsModified(nonKeyProperty));
         }
 
         [Theory]
@@ -471,7 +472,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperty] = 77;
 
             var keyValue = entry.GetPrimaryKeyValue();
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
             Assert.Same(entityType.GetPrimaryKey(), keyValue.Key);
         }
@@ -488,7 +489,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperties[0]] = 77;
             entry[keyProperties[1]] = "SmokeyBacon";
 
-            var keyValue = (CompositeEntityKey)entry.GetPrimaryKeyValue();
+            var keyValue = (CompositeKeyValue)entry.GetPrimaryKeyValue();
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("SmokeyBacon", keyValue.Value[1]);
             Assert.Same(entityType.GetPrimaryKey(), keyValue.Key);
@@ -508,7 +509,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.RelationshipsSnapshot[fkProperty] = 78;
 
             var keyValue = entry.GetDependentKeyValue(fk);
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
             Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
@@ -527,7 +528,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.RelationshipsSnapshot[fkProperty] = 78;
 
             var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(fk);
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
             Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
@@ -545,7 +546,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fkProperty] = 77;
 
             var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(fk);
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
             Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
@@ -565,7 +566,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fkProperty] = 79;
 
             var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(entityType.GetForeignKeys().Single());
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(79, keyValue.Value);
         }
 
@@ -584,7 +585,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fkProperty] = 77;
 
             var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(entityType.GetForeignKeys().Single());
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
         }
 
@@ -602,7 +603,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fk = dependentType.GetForeignKeys().Single();
             var keyValue = entry.GetPrincipalKeyValue(fk);
-            Assert.IsType<SimpleEntityKey<int>>(keyValue);
+            Assert.IsType<SimpleKeyValue<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
             Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
         }
@@ -619,7 +620,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fk.Properties[0]] = 77;
             entry[fk.Properties[1]] = "CheeseAndOnion";
 
-            var keyValue = (CompositeEntityKey)entry.GetDependentKeyValue(fk);
+            var keyValue = (CompositeKeyValue)entry.GetDependentKeyValue(fk);
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
             Assert.Same(fk.PrincipalEntityType.GetPrimaryKey(), keyValue.Key);
@@ -638,7 +639,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperties[0]] = 77;
             entry[keyProperties[1]] = "PrawnCocktail";
 
-            var keyValue = (CompositeEntityKey)entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single());
+            var keyValue = (CompositeKeyValue)entry.GetPrincipalKeyValue(dependentType.GetForeignKeys().Single());
             Assert.Equal(77, keyValue.Value[0]);
             Assert.Equal("PrawnCocktail", keyValue.Value[1]);
             Assert.Same(principalType.GetPrimaryKey(), keyValue.Key);
@@ -659,7 +660,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var fk = dependentType.GetForeignKeys().Single();
             var keyValue = entry.GetPrincipalKeyValue(fk);
-            Assert.Same(EntityKey.InvalidEntityKey, keyValue);
+            Assert.Same(KeyValue.InvalidKeyValue, keyValue);
             Assert.Null(keyValue.Key);
         }
 
@@ -730,8 +731,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperty] = 77;
             entry[nonKeyProperty] = "Magic Tree House";
 
-            Assert.Equal(new object[] { 77, "Magic Tree House" }, entry.GetValueBuffer());
+            Assert.Equal(new object[] { 77, "Magic Tree House" }, CreateValueBuffer(entry));
         }
+
+        private static object[] CreateValueBuffer(IUpdateEntry entry)
+            => entry.EntityType.GetProperties().Select(p => entry[p]).ToArray();
 
         [Fact]
         public void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
@@ -888,21 +892,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.False(entry.IsPropertyModified(idProperty));
-            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.False(entry.IsModified(idProperty));
+            Assert.False(entry.IsModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
             entry[idProperty] = 1;
             entry[nameProperty] = "Kool";
 
-            Assert.False(entry.IsPropertyModified(idProperty));
-            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.False(entry.IsModified(idProperty));
+            Assert.False(entry.IsModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
             entry[nameProperty] = "Beans";
 
-            Assert.False(entry.IsPropertyModified(idProperty));
-            Assert.True(entry.IsPropertyModified(nameProperty));
+            Assert.False(entry.IsModified(idProperty));
+            Assert.True(entry.IsModified(nameProperty));
             Assert.Equal(EntityState.Modified, entry.EntityState);
         }
 
@@ -917,25 +921,25 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.False(entry.IsModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
             entity.Name = "Kool";
 
-            Assert.False(entry.IsPropertyModified(nameProperty));
+            Assert.False(entry.IsModified(nameProperty));
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
             entity.Name = "Beans";
 
             if (needsDetectChanges)
             {
-                Assert.False(entry.IsPropertyModified(nameProperty));
+                Assert.False(entry.IsModified(nameProperty));
                 Assert.Equal(EntityState.Unchanged, entry.EntityState);
 
                 configuration.GetRequiredService<IChangeDetector>().DetectChanges(entry);
             }
 
-            Assert.True(entry.IsPropertyModified(nameProperty));
+            Assert.True(entry.IsModified(nameProperty));
             Assert.Equal(EntityState.Modified, entry.EntityState);
         }
 

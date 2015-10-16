@@ -247,9 +247,9 @@ namespace Microsoft.Data.Entity.Update
             return commandIndex;
         }
 
-        private IReadOnlyList<InternalEntityEntry> AggregateEntries(int endIndex, int commandCount)
+        private IReadOnlyList<IUpdateEntry> AggregateEntries(int endIndex, int commandCount)
         {
-            var entries = new List<InternalEntityEntry>();
+            var entries = new List<IUpdateEntry>();
             for (var i = endIndex - commandCount; i < endIndex; i++)
             {
                 entries.AddRange(ModificationCommands[i].Entries);
