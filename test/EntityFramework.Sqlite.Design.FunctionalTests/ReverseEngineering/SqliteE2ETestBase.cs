@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Sqlite.Design;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,8 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 AssertLog(new LoggerMessages());
@@ -99,7 +101,8 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 AssertLog(new LoggerMessages());
@@ -146,7 +149,8 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 AssertLog(new LoggerMessages());
@@ -187,7 +191,8 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 AssertLog(new LoggerMessages());
@@ -221,9 +226,10 @@ CREATE TABLE Users_Groups (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
-                var errorMessage = SqliteDesignStrings.MissingPrimaryKey("Alicia");
+                var errorMessage = RelationalDesignStrings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
@@ -254,15 +260,16 @@ CREATE TABLE Principal ( Id INT);");
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 var expectedLog = new LoggerMessages
                 {
                     Warn =
                     {
-                        SqliteDesignStrings.MissingPrimaryKey("Principal"),
-                        SqliteDesignStrings.ForeignKeyScaffoldError("Dependent", "PrincipalId")
+                        RelationalDesignStrings.MissingPrimaryKey("Principal"),
+                        RelationalDesignStrings.ForeignKeyScaffoldError("Dependent(PrincipalId)")
                     }
                 };
                 AssertLog(expectedLog);
@@ -320,7 +327,8 @@ CREATE TABLE String (
                     ConnectionString = testStore.Connection.ConnectionString,
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 AssertLog(new LoggerMessages());
@@ -357,7 +365,8 @@ CREATE TABLE Comment (
                     ContextClassName = "FkToAltKeyContext",
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
-                    UseFluentApiOnly = UseFluentApiOnly
+                    UseFluentApiOnly = UseFluentApiOnly,
+                    TableSelectionSet = TableSelectionSet.InclusiveAll
                 });
 
                 AssertLog(new LoggerMessages());

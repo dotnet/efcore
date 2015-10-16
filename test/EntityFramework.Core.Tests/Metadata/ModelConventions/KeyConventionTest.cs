@@ -31,12 +31,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         #region RequiresValueGenerator
 
         [Fact]
-        public void RequiresValueGenerator_flag_is_set_for_key_properties()
+        public void RequiresValueGenerator_flag_is_set_for_key_properties_that_use_value_generation()
         {
             var modelBuilder = CreateInternalModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "Id", "Name" };
+
+            entityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             var keyBuilder = entityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
@@ -44,10 +48,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var keyProperties = keyBuilder.Metadata.Properties;
 
             Assert.NotNull(keyProperties[0].RequiresValueGenerator);
-            Assert.NotNull(keyProperties[1].RequiresValueGenerator);
+            Assert.Null(keyProperties[1].RequiresValueGenerator);
 
-            Assert.True(keyProperties[0].RequiresValueGenerator.Value);
-            Assert.True(keyProperties[1].RequiresValueGenerator.Value);
+            Assert.True(((IProperty)keyProperties[0]).RequiresValueGenerator);
+            Assert.False(((IProperty)keyProperties[1]).RequiresValueGenerator);
         }
 
         [Fact]
@@ -59,6 +63,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
+
+            referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
@@ -82,6 +90,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
+
+            referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
@@ -106,6 +118,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "Id", "SampleEntityId" };
+
+            referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
@@ -127,6 +143,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "Id" };
+
+            entityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).UseValueGenerator(false, ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.HasKey(properties, ConfigurationSource.Convention);
@@ -147,6 +167,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
+
+            referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             var keyBuilder = referencedEntityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
@@ -172,6 +196,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
             var properties = new List<string> { "SampleEntityId" };
+
+            referencedEntityBuilder.Property(properties[0], ConfigurationSource.Convention)
+                .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
+
             var keyBuilder = referencedEntityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
@@ -411,7 +439,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
 
-            Assert.Equal(CoreStrings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}",typeof(ReferencedEntity).FullName),
+            Assert.Equal(CoreStrings.ReferencedShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}", "{'Foo'}", typeof(ReferencedEntity).FullName),
                 Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
         }
 

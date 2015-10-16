@@ -487,12 +487,15 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 {
                     context.AddRange(new Blog { Id = 0, Name = "One Unicorn" }, new Blog { Id = 1, Name = "Two Unicorns" });
 
-                    // The property 'Id' on entity type 'Blog' has a temporary value while attempting to change
-                    // the entity's state to 'Unchanged'. Either set a permanent value explicitly or ensure
-                    // that the database is configured to generate values for this property.
-                    Assert.Equal(
-                        CoreStrings.TempValuePersists("Id", "Blog", "Unchanged"),
-                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
+                    context.SaveChanges();
+                }
+
+                using (var context = new BlogContext())
+                {
+                    var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+
+                    Assert.Equal(0, blogs[0].Id);
+                    Assert.Equal(1, blogs[1].Id);
                 }
             }
 

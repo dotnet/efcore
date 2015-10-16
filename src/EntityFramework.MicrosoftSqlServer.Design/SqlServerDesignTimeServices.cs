@@ -18,11 +18,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddSingleton<IDatabaseMetadataModelProvider, SqlServerMetadataModelProvider>()
+                .AddSingleton<MetadataModelProvider, SqlServerMetadataModelProvider>()
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerLiteralUtilities>()
                 .AddSingleton<ConfigurationFactory, SqlServerConfigurationFactory>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
+                .AddSingleton<IMetadataReader, SqlServerMetadataReader>()
                 .AddSingleton<DbContextWriter>()
                 .AddSingleton<EntityTypeWriter>()
                 .AddSingleton<CodeWriter, StringBuilderCodeWriter>();

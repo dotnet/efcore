@@ -9,6 +9,7 @@ namespace E2ETest.Namespace
     {
         public int ReferredToByTableWithUnmappablePrimaryKeyColumnID { get; set; }
         [Required]
+        [MaxLength(20)]
         public string AColumn { get; set; }
         public int ValueGeneratedOnAddColumn { get; set; }
 

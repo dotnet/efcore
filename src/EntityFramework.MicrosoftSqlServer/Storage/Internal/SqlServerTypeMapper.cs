@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings
             => _simpleNameMappings;
 
-        public override RelationalTypeMapping GetMapping(Type clrType)
+        public override RelationalTypeMapping FindMapping(Type clrType)
         {
             Check.NotNull(clrType, nameof(clrType));
 
@@ -124,10 +124,10 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 ? _nvarcharmax
                 : (clrType == typeof(byte[])
                     ? _varbinarymax
-                    : base.GetMapping(clrType));
+                    : base.FindMapping(clrType));
         }
 
-        protected override RelationalTypeMapping GetCustomMapping(IProperty property)
+        protected override RelationalTypeMapping FindCustomMapping(IProperty property)
         {
             Check.NotNull(property, nameof(property));
 
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                     ? GetByteArrayMapping(property, 8000,
                         maxLength => new SqlServerMaxLengthMapping("varbinary(" + maxLength + ")", typeof(byte[]), DbType.Binary),
                         _varbinarymax, _varbinarymax, _varbinary900, _rowversion)
-                    : base.GetCustomMapping(property);
+                    : null;
         }
     }
 }

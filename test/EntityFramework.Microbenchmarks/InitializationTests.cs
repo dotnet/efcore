@@ -9,6 +9,7 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.Storage.Internal;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks
@@ -50,7 +51,7 @@ namespace EntityFramework.Microbenchmarks
         {
             collector.StartCollection();
 
-            var conventions = new SqlServerConventionSetBuilder()
+            var conventions = new SqlServerConventionSetBuilder(new SqlServerTypeMapper())
                 .AddConventions(new CoreConventionSetBuilder().CreateConventionSet());
 
             var builder = new ModelBuilder(conventions);

@@ -294,7 +294,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     // KeyConvention assumes ValueGeneratedOnAdd() so there is no need to add it.
                     if (_keyConvention.FindValueGeneratedOnAddProperty(
                         new List<Property> { (Property)propertyConfiguration.Property },
-                        (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null)
+                        (EntityType)propertyConfiguration.EntityConfiguration.EntityType) == null
+                        && ExtensionsProvider.For(propertyConfiguration.Property).GeneratedValueSql == null)
                     {
                         propertyConfiguration.FluentApiConfigurations.Add(
                             _configurationFactory.CreateFluentApiConfiguration(

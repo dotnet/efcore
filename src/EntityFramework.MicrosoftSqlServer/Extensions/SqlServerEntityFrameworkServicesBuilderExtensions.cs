@@ -34,7 +34,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .Singleton<IDatabaseProvider, DatabaseProvider<SqlServerDatabaseProviderServices, SqlServerOptionsExtension>>());
 
             service.TryAdd(new ServiceCollection()
-                .AddSingleton<SqlServerConventionSetBuilder>()
                 .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                 .AddSingleton<SqlServerTypeMapper>()
                 .AddSingleton<SqlServerSqlGenerator>()
@@ -42,6 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerMigrationsAnnotationProvider>()
                 .AddScoped<SqlServerModelValidator>()
+                .AddScoped<SqlServerConventionSetBuilder>()
                 .AddScoped<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                 .AddScoped<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
                 .AddScoped<SqlServerModificationCommandBatchFactory>()

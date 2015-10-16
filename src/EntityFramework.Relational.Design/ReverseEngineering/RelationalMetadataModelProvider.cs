@@ -1,285 +1,317 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
+using ForeignKey = Microsoft.Data.Entity.Relational.Design.Model.ForeignKey;
+using Index = Microsoft.Data.Entity.Relational.Design.Model.Index;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public abstract class RelationalMetadataModelProvider : IDatabaseMetadataModelProvider
+    public class RelationalMetadataModelProvider : MetadataModelProvider
     {
-        public static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
+        internal static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
         {
             CoreAnnotationNames.OriginalValueIndexAnnotation,
             CoreAnnotationNames.ShadowIndexAnnotation
         };
 
-        public const string AnnotationPrefix = nameof(RelationalMetadataModelProvider) + ":";
-        public const string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
-        public const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
-        public const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
+        private Dictionary<Table, CSharpUniqueNamer<Column>> _columnNamers;
+        private readonly Table _nullTable = new Table { };
+        private CSharpUniqueNamer<Table> _tableNamer;
+        private readonly IRelationalTypeMapper _typeMapper;
+        private readonly IMetadataReader _metadataReader;
 
-        public const string NavigationNameUniquifyingPattern = "{0}Navigation";
-        public const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
-
-        private readonly Dictionary<EntityType, EntityType> _relationalToCodeGenEntityTypeMap =
-            new Dictionary<EntityType, EntityType>();
-        private readonly Dictionary<Property, Property> _relationalToCodeGenPropertyMap =
-            new Dictionary<Property, Property>();
-
-        public virtual ILogger Logger { get; }
-        public virtual CSharpUtilities CSharpUtilities { get; }
-        public virtual ModelUtilities ModelUtilities { get; }
-
-        protected abstract IRelationalAnnotationProvider ExtensionsProvider { get; }
-        protected TableSelectionSet _tableSelectionSet = TableSelectionSet.InclusiveAll;
-
-        protected RelationalMetadataModelProvider([NotNull] ILoggerFactory loggerFactory,
-            [NotNull] ModelUtilities modelUtilities, [NotNull] CSharpUtilities cSharpUtilities)
+        public RelationalMetadataModelProvider(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] IRelationalTypeMapper typeMapper,
+            [NotNull] IMetadataReader metadataReader)
+            : base(loggerFactory)
         {
-            Check.NotNull(loggerFactory, nameof(loggerFactory));
-            Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(metadataReader, nameof(metadataReader));
 
-            Logger = loggerFactory.CreateCommandsLogger();
-            CSharpUtilities = cSharpUtilities;
-            ModelUtilities = modelUtilities;
+            _typeMapper = typeMapper;
+            _metadataReader = metadataReader;
         }
 
-        public virtual IModel GenerateMetadataModel(
-            [NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
+        public override IModel GetModel([NotNull] string connectionString, [CanBeNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
 
-            _tableSelectionSet = tableSelectionSet ?? TableSelectionSet.InclusiveAll;
+            var schemaInfo = _metadataReader.GetSchema(connectionString, tableSelectionSet ?? TableSelectionSet.InclusiveAll);
 
-            var relationalModel = ConstructRelationalModel(connectionString);
-
-            var nameMapper = GetNameMapper(relationalModel);
-
-            var codeGenModel = ConstructCodeGenModel(relationalModel, nameMapper);
-            return codeGenModel;
+            return GetModelFromSchema(schemaInfo);
         }
 
-        public virtual MetadataModelNameMapper GetNameMapper([NotNull] IModel relationalModel)
+        protected virtual IModel GetModelFromSchema([NotNull] SchemaInfo schemaInfo)
         {
-            Check.NotNull(relationalModel, nameof(relationalModel));
+            var modelBuilder = new ModelBuilder(new ConventionSet());
 
-            return new MetadataModelNameMapper(
-                relationalModel,
-                entity => ExtensionsProvider.For(entity).TableName,
-                property => ExtensionsProvider.For(property).ColumnName);
+            _tableNamer = new CSharpUniqueNamer<Table>(t => t.Name);
+            _columnNamers = new Dictionary<Table, CSharpUniqueNamer<Column>>();
+
+            AddEntityTypes(modelBuilder, schemaInfo);
+
+            return modelBuilder.Model;
         }
 
-        /// <summary>
-        /// Constructs an <see cref="IModel" /> directly representing the database consisting
-        /// of <see cref="EntityType" />, <see cref="Property" />, <see cref="Key" /> and
-        /// <see cref="ForeignKey" /> objects.
-        /// This class expects that the EntityType will have the names of the underlying schema
-        /// and table name as annotations on that EntityType. Similarly for the ColumnName annotation
-        /// on each Property. The model does not contain <see cref="Navigation" /> objects as
-        /// adding Navigations requires that the underlying EntityType have an underlying
-        /// CLR type which is not possible here. Instead they will be constructed from the ForeignKeys.
-        /// Errors generating EntityTypes can be attached to those EntityTypes using an
-        /// annotation of name <see cref="RelationalMetadataModelProvider.AnnotationNameEntityTypeError"/>.
-        /// Such EntityTypes will have files generated for them but the file will only contain
-        /// the error message as a comment.
-        /// </summary>
-        public abstract IModel ConstructRelationalModel([NotNull] string connectionString);
+        protected virtual string GetEntityTypeName([NotNull] Table table)
+            => _tableNamer.GetName(Check.NotNull(table, nameof(table)));
 
-        //TODO: investigate doing this as a builder pattern
-        public virtual IModel ConstructCodeGenModel(
-            [NotNull] IModel relationalModel, [NotNull] MetadataModelNameMapper nameMapper)
+        protected virtual string GetPropertyName([NotNull] Column column)
         {
-            Check.NotNull(relationalModel, nameof(relationalModel));
-            Check.NotNull(nameMapper, nameof(nameMapper));
+            var table = column.Table ?? _nullTable;
 
-            var codeGenModel = new Metadata.Model();
-            foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
+            if (!_columnNamers.ContainsKey(table))
             {
-                var codeGenEntityType = codeGenModel
-                    .AddEntityType(nameMapper.EntityTypeToClassNameMap[relationalEntityType]);
-                _relationalToCodeGenEntityTypeMap[relationalEntityType] = codeGenEntityType;
-                codeGenEntityType.Relational().TableName = ExtensionsProvider.For(relationalEntityType).TableName;
-                codeGenEntityType.Relational().Schema = ExtensionsProvider.For(relationalEntityType).Schema;
-                var errorMessage = relationalEntityType[AnnotationNameEntityTypeError];
-                if (errorMessage != null)
-                {
-                    codeGenEntityType.AddAnnotation(AnnotationNameEntityTypeError,
-                        RelationalDesignStrings.UnableToGenerateEntityType(codeGenEntityType.Name, errorMessage));
-                }
+                _columnNamers.Add(table, new CSharpUniqueNamer<Column>(c => c.Name));
+            }
 
-                foreach (var relationalProperty in relationalEntityType.Properties)
-                {
-                    var codeGenProperty = codeGenEntityType.AddProperty(
-                        nameMapper.PropertyToPropertyNameMap[relationalProperty],
-                        ((IProperty)relationalProperty).ClrType);
-                    _relationalToCodeGenPropertyMap[relationalProperty] = codeGenProperty;
-                    CopyPropertyFacets(relationalProperty, codeGenProperty);
-                }
+            return _columnNamers[table].GetName(column);
+        }
 
-
-                foreach(var key in relationalEntityType.GetKeys())
-                {
-                    var props = key.Properties
-                            .Select(p => _relationalToCodeGenPropertyMap[p])
-                            .ToList();
-                    Key codeGenKey;
-                    if (key.IsPrimaryKey())
+        protected virtual ModelBuilder AddEntityTypes([NotNull] ModelBuilder modelBuilder, [NotNull] SchemaInfo schemaInfo)
+        {
+            foreach (var table in schemaInfo.Tables)
+            {
+                modelBuilder.Entity(GetEntityTypeName(table), builder =>
                     {
-                        codeGenKey = codeGenEntityType.SetPrimaryKey(props);
+                        builder.ToTable(table.Name, table.SchemaName);
+
+                        AddColumns(builder, table);
+                        AddPrimaryKey(builder, table);
+                        AddIndexes(builder, table);
+                    });
+            }
+
+            // TODO can we add navigation properties inline with adding foreign keys?
+            foreach (var table in schemaInfo.Tables)
+            {
+                AddForeignKeys(modelBuilder, table);
+            }
+
+            AddNavigationProperties(modelBuilder.Model);
+            return modelBuilder;
+        }
+
+        protected virtual EntityTypeBuilder AddColumns([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
+        {
+            foreach (var column in table.Columns)
+            {
+                try
+                {
+                    AddColumn(builder, column);
+                }
+                catch (NotSupportedException)
+                {
+                    LogUnmappableColumn(column);
+                }
+            }
+            return builder;
+        }
+
+        protected virtual PropertyBuilder AddColumn([NotNull] EntityTypeBuilder builder, [NotNull] Column column)
+        {
+            RelationalTypeMapping mapping;
+
+            if (!_typeMapper.TryGetMapping(column.DataType, out mapping)
+                || mapping.ClrType == null)
+            {
+                throw new NotSupportedException();
+            }
+
+            var clrType = (column.IsNullable) ? mapping.ClrType.MakeNullable() : mapping.ClrType;
+
+            var property = builder.Property(clrType, GetPropertyName(column));
+
+            if (_typeMapper.GetMapping(property.Metadata).DefaultTypeName != column.DataType
+                && !string.IsNullOrWhiteSpace(column.DataType))
+            {
+                property.HasColumnType(column.DataType);
+            }
+
+            property.HasColumnName(column.Name);
+
+            if (column.MaxLength.HasValue)
+            {
+                property.HasMaxLength(column.MaxLength.Value);
+            }
+
+            if (column.IsStoreGenerated == true)
+            {
+                property.ValueGeneratedOnAdd();
+            }
+
+            if (column.IsComputed == true)
+            {
+                property.ValueGeneratedOnAddOrUpdate();
+            }
+
+            if (column.DefaultValue != null)
+            {
+                property.HasDefaultValueSql(column.DefaultValue);
+            }
+
+            if (!column.PrimaryKeyOrdinal.HasValue)
+            {
+                property.IsRequired(!column.IsNullable);
+            }
+
+            return property;
+        }
+
+        protected virtual EntityTypeBuilder AddPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
+        {
+            var keyProps = table.Columns
+                .Where(c => c.PrimaryKeyOrdinal.HasValue)
+                .OrderBy(c => c.PrimaryKeyOrdinal)
+                .Select(GetPropertyName)
+                .ToArray();
+
+            if (keyProps.Length > 0)
+            {
+                try
+                {
+                    builder.HasKey(keyProps);
+                    return builder;
+                }
+                catch (ModelItemNotFoundException)
+                {
+                    // swallow. Handled by logging
+                }
+            }
+
+            var errorMessage = RelationalDesignStrings.MissingPrimaryKey(table.DisplayName());
+            Logger.LogWarning(errorMessage);
+
+            builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, RelationalDesignStrings.UnableToGenerateEntityType(builder.Metadata.DisplayName(), errorMessage));
+
+            return builder;
+        }
+
+        protected virtual EntityTypeBuilder AddIndexes([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
+        {
+            foreach (var index in table.Indexes)
+            {
+                try
+                {
+                    AddIndex(builder, index);
+                }
+                catch (ModelItemNotFoundException)
+                {
+                    Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndex(index.Name));
+                }
+            }
+
+            return builder;
+        }
+
+        private IndexBuilder AddIndex(EntityTypeBuilder builder, Index index)
+        {
+            var properties = index.Columns.Select(GetPropertyName).ToArray();
+
+            var indexBuilder = builder.HasIndex(properties).IsUnique(index.IsUnique);
+
+            if (!string.IsNullOrEmpty(index.Name))
+            {
+                indexBuilder.HasName(index.Name);
+            }
+
+            if (index.IsUnique)
+            {
+                var keyBuilder = builder.HasAlternateKey(properties);
+                if (!string.IsNullOrEmpty(index.Name))
+                {
+                    keyBuilder.HasName(index.Name);
+                }
+            }
+
+            return indexBuilder;
+        }
+
+        protected virtual ModelBuilder AddForeignKeys([NotNull] ModelBuilder modelBuilder, [NotNull] Table table)
+        {
+            foreach (var fkInfo in table.ForeignKeys)
+            {
+                if (fkInfo.PrincipalTable == null)
+                {
+                    LogFailedForeignKey(fkInfo);
+                    continue;
+                }
+
+                try
+                {
+                    var dependentEntityType = modelBuilder.Model.GetEntityType(GetEntityTypeName(fkInfo.Table));
+                    var principalEntityType = modelBuilder.Model.GetEntityType(GetEntityTypeName(fkInfo.PrincipalTable));
+
+                    var principalProps = fkInfo.To
+                        .Select(GetPropertyName)
+                        .Select(to => principalEntityType.GetProperty(to))
+                        .ToList()
+                        .AsReadOnly();
+
+                    var principalKey = principalEntityType.FindKey(principalProps);
+                    if (principalKey == null)
+                    {
+                        var index = principalEntityType.FindIndex(principalProps);
+                        if (index != null
+                            && index.IsUnique == true)
+                        {
+                            principalKey = principalEntityType.AddKey(principalProps);
+                        }
+                        else
+                        {
+                            LogFailedForeignKey(fkInfo);
+                            continue;
+                        }
+                    }
+
+                    var depProps = fkInfo.From
+                        .Select(GetPropertyName)
+                        .Select(@from => dependentEntityType.GetProperty(@from))
+                        .ToList()
+                        .AsReadOnly();
+
+                    var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
+
+                    foreignKey.IsUnique = dependentEntityType.FindKey(depProps) != null;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ModelItemNotFoundException
+                        || ex is InvalidOperationException)
+                    {
+                        LogFailedForeignKey(fkInfo);
                     }
                     else
                     {
-                        codeGenKey = codeGenEntityType.AddKey(props);
+                        throw;
                     }
-
-                    key.Annotations.Select(a => codeGenKey.AddAnnotation(a.Name, a.Value));
-                }
-
-            } // end of loop over all relational EntityTypes
-
-            AddForeignKeysToCodeGenModel(relationalModel, codeGenModel);
-
-            return codeGenModel;
-        }
-
-        public virtual void AddForeignKeysToCodeGenModel([NotNull] IModel relationalModel, [NotNull] IModel codeGenModel)
-        {
-            Check.NotNull(codeGenModel, nameof(codeGenModel));
-
-            foreach (var relationalEntityType in relationalModel.EntityTypes.Cast<EntityType>())
-            {
-                var codeGenEntityType = _relationalToCodeGenEntityTypeMap[relationalEntityType];
-                foreach (var relationalForeignKey in relationalEntityType.GetForeignKeys())
-                {
-                    var foreignKeyCodeGenProperties =
-                        relationalForeignKey
-                        .Properties
-                        .Select(relationalProperty =>
-                        {
-                            Property codeGenProperty;
-                            return _relationalToCodeGenPropertyMap
-                                    .TryGetValue(relationalProperty, out codeGenProperty)
-                                    ? codeGenProperty
-                                    : null;
-                        })
-                        .ToList();
-                    
-                    var principalCodeGenEntityType =
-                        _relationalToCodeGenEntityTypeMap[relationalForeignKey.PrincipalEntityType];
-                    var principalCodeGenKeyProperties = relationalForeignKey
-                        .PrincipalKey
-                        .Properties
-                        .Select(p => _relationalToCodeGenPropertyMap[p]).ToList().AsReadOnly();
-                    var principal = principalCodeGenEntityType.GetKey(principalCodeGenKeyProperties);
-
-                    var codeGenForeignKey = codeGenEntityType
-                        .GetOrAddForeignKey(foreignKeyCodeGenProperties, principal, principalCodeGenEntityType);
-                    codeGenForeignKey.IsUnique = relationalForeignKey.IsUnique;
                 }
             }
 
-            AddDependentAndPrincipalNavigationPropertyAnnotations(codeGenModel);
+            return modelBuilder;
         }
 
-        private void AddDependentAndPrincipalNavigationPropertyAnnotations([NotNull] IModel codeGenModel)
-        {
-            Check.NotNull(codeGenModel, nameof(codeGenModel));
+        protected virtual void LogFailedForeignKey([NotNull] ForeignKey foreignKey)
+            => Logger.LogWarning(
+                RelationalDesignStrings.ForeignKeyScaffoldError(foreignKey.DisplayName()));
 
-            var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
-            foreach (var entityType in codeGenModel.EntityTypes)
-            {
-                var existingIdentifiers = new List<string>();
-                entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
-                existingIdentifiers.Add(entityType.Name);
-                existingIdentifiers.AddRange(
-                    ModelUtilities.OrderedProperties(entityType).Select(p => p.Name));
-            }
-
-            foreach (var entityType in codeGenModel.EntityTypes)
-            {
-                var dependentEndExistingIdentifiers = entityTypeToExistingIdentifiers[entityType];
-                foreach (var foreignKey in entityType.GetForeignKeys().Cast<ForeignKey>())
-                {
-                    // set up the name of the navigation property on the dependent end of the foreign key
-                    var dependentEndNavigationPropertyCandidateName =
-                        ModelUtilities.GetDependentEndCandidateNavigationPropertyName(foreignKey);
-                    var dependentEndNavigationPropertyName =
-                        CSharpUtilities.GenerateCSharpIdentifier(
-                            dependentEndNavigationPropertyCandidateName,
-                            dependentEndExistingIdentifiers,
-                            NavigationUniquifier);
-                    foreignKey.AddAnnotation(
-                        AnnotationNameDependentEndNavPropName,
-                        dependentEndNavigationPropertyName);
-                    dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
-
-                    // set up the name of the navigation property on the principal end of the foreign key
-                    var principalEndExistingIdentifiers =
-                        entityTypeToExistingIdentifiers[foreignKey.PrincipalEntityType];
-                    var principalEndNavigationPropertyCandidateName =
-                        foreignKey.IsSelfReferencing()
-                            ? string.Format(
-                                CultureInfo.CurrentCulture,
-                                SelfReferencingPrincipalEndNavigationNamePattern,
-                                dependentEndNavigationPropertyName)
-                            : ModelUtilities.GetPrincipalEndCandidateNavigationPropertyName(foreignKey);
-                    var principalEndNavigationPropertyName =
-                        CSharpUtilities.GenerateCSharpIdentifier(
-                            principalEndNavigationPropertyCandidateName,
-                            principalEndExistingIdentifiers,
-                            NavigationUniquifier);
-                    foreignKey.AddAnnotation(
-                        AnnotationNamePrincipalEndNavPropName,
-                        principalEndNavigationPropertyName);
-                    principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
-                }
-            }
-        }
-
-        public virtual string NavigationUniquifier(
-            [NotNull] string proposedIdentifier, [CanBeNull] ICollection<string> existingIdentifiers)
-        {
-            if (existingIdentifiers == null
-                || !existingIdentifiers.Contains(proposedIdentifier))
-            {
-                return proposedIdentifier;
-            }
-
-            var finalIdentifier =
-                string.Format(CultureInfo.CurrentCulture, NavigationNameUniquifyingPattern, proposedIdentifier);
-            var suffix = 1;
-            while (existingIdentifiers.Contains(finalIdentifier))
-            {
-                finalIdentifier = proposedIdentifier + suffix;
-                suffix++;
-            }
-
-            return finalIdentifier;
-        }
-
-        public virtual void CopyPropertyFacets(
-            [NotNull] Property relationalProperty, [NotNull] Property codeGenProperty)
-        {
-            Check.NotNull(relationalProperty, nameof(relationalProperty));
-            Check.NotNull(codeGenProperty, nameof(codeGenProperty));
-
-            foreach (var annotation in
-                relationalProperty.Annotations.Where(a => !IgnoredAnnotations.Contains(a.Name)))
-            {
-                codeGenProperty.AddAnnotation(annotation.Name, annotation.Value);
-            }
-
-            codeGenProperty.IsNullable = relationalProperty.IsNullable;
-            codeGenProperty.ValueGenerated = relationalProperty.ValueGenerated;
-        }
+        protected virtual void LogUnmappableColumn([NotNull] Column column)
+            => Logger.LogWarning(
+                RelationalDesignStrings.CannotFindTypeMappingForColumn(
+                    column.DisplayName(), column.DataType));
     }
 }

@@ -1,24 +1,29 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
+namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class CSharpUniqueNamer<T> : CSharpNamer<T>
     {
-        private HashSet<string> _usedNames = new HashSet<string>();
+        private readonly HashSet<string> _usedNames = new HashSet<string>();
 
         public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter)
-            :base(nameGetter)
+            : base(nameGetter)
         {
         }
 
-        protected override string GenerateName([NotNull] T item)
+        public override string GetName([NotNull] T item)
         {
-            var input = base.GenerateName(item);
+            if (NameCache.ContainsKey(item))
+            {
+                return base.GetName(item);
+            }
+
+            var input = base.GetName(item);
             var name = input;
             var suffix = 1;
 
@@ -28,6 +33,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             }
 
             _usedNames.Add(name);
+            NameCache[item] = name;
+
             return name;
         }
     }

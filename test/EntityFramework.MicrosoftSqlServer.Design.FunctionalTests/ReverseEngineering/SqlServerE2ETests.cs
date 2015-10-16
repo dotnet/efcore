@@ -15,6 +15,7 @@ using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineering
 {
@@ -144,14 +145,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             {
                 Warn =
                         {
-                            @"Could not find type mapping for column [dbo][AllDataTypes][hierarchyidColumn] with data type hierarchyid. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][sql_variantColumn] with data type sql_variant. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][xmlColumn] with data type xml. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][geographyColumn] with data type geography. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][geometryColumn] with data type geometry. Skipping column.",
-                            @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
-                            @"Could not find type mapping for column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID] with data type hierarchyid. Skipping column.",
-                            @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
+                            SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID","tinyint"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                            RelationalDesignStrings.MissingPrimaryKey("dbo.TableWithUnmappablePrimaryKeyColumn")
                         }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
@@ -191,14 +192,14 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             {
                 Warn =
                         {
-                            @"Could not find type mapping for column [dbo][AllDataTypes][hierarchyidColumn] with data type hierarchyid. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][sql_variantColumn] with data type sql_variant. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][xmlColumn] with data type xml. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][geographyColumn] with data type geography. Skipping column.",
-                            @"Could not find type mapping for column [dbo][AllDataTypes][geometryColumn] with data type geometry. Skipping column.",
-                            @"For column [dbo][PropertyConfiguration][PropertyConfigurationID]. This column is set up as an Identity column, but the SQL Server data type is tinyint. This will be mapped to CLR type byte which does not allow the SqlServerValueGenerationStrategy.IdentityColumn setting. Generating a matching Property but ignoring the Identity setting.",
-                            @"Could not find type mapping for column [dbo][TableWithUnmappablePrimaryKeyColumn][TableWithUnmappablePrimaryKeyColumnID] with data type hierarchyid. Skipping column.",
-                            @"Unable to identify any primary key columns in the underlying SQL Server table [dbo].[TableWithUnmappablePrimaryKeyColumn]."
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geographyColumn", "geography"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.geometryColumn", "geometry"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.hierarchyidColumn", "hierarchyid"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.sql_variantColumn", "sql_variant"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
+                            SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID","tinyint"),
+                            RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
+                            RelationalDesignStrings.MissingPrimaryKey("dbo.TableWithUnmappablePrimaryKeyColumn")
                         }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);

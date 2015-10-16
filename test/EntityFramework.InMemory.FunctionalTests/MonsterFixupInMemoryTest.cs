@@ -41,5 +41,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.SeedUsingFKs();
             }
         }
+
+        public override void OnModelCreating<TMessage, TProductPhoto, TProductReview>(ModelBuilder builder)
+        {
+            base.OnModelCreating<TMessage, TProductPhoto, TProductReview>(builder);
+
+            builder.Entity<TMessage>().Property(e => e.MessageId).ValueGeneratedOnAdd();
+            builder.Entity<TProductPhoto>().Property(e => e.PhotoId).ValueGeneratedOnAdd();
+            builder.Entity<TProductReview>().Property(e => e.ReviewId).ValueGeneratedOnAdd();
+        }
     }
 }

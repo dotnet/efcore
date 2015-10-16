@@ -18,13 +18,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     public class ReverseEngineeringGenerator
     {
         private readonly ConfigurationFactory _configurationFactory;
-        private readonly IDatabaseMetadataModelProvider _provider;
+        private readonly MetadataModelProvider _provider;
 
         public ReverseEngineeringGenerator(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IFileService fileService,
             [NotNull] ModelUtilities modelUtilities,
-            [NotNull] IDatabaseMetadataModelProvider metadataModelProvider,
+            [NotNull] MetadataModelProvider metadataModelProvider,
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            var metadataModel = _provider.GenerateMetadataModel(
+            var metadataModel = _provider.GetModel(
                 configuration.ConnectionString, configuration.TableSelectionSet);
             if (metadataModel == null)
             {

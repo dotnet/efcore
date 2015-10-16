@@ -11,8 +11,10 @@ namespace E2ETest.Namespace
         public bool bitColumn { get; set; }
         public string charColumn { get; set; }
         public DateTime dateColumn { get; set; }
+        public DateTime? datetime24Column { get; set; }
         public DateTime? datetime2Column { get; set; }
         public DateTime? datetimeColumn { get; set; }
+        public DateTimeOffset? datetimeoffset5Column { get; set; }
         public DateTimeOffset? datetimeoffsetColumn { get; set; }
         public decimal decimalColumn { get; set; }
         public double floatColumn { get; set; }
@@ -28,6 +30,7 @@ namespace E2ETest.Namespace
         public short smallintColumn { get; set; }
         public decimal smallmoneyColumn { get; set; }
         public string textColumn { get; set; }
+        public TimeSpan? time4Column { get; set; }
         public TimeSpan? timeColumn { get; set; }
         public byte[] timestampColumn { get; set; }
         public byte tinyintColumn { get; set; }

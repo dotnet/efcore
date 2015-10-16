@@ -95,6 +95,7 @@
     <Compile Include="Metadata\ModelConventions\EntityTypeAttributeConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\NavigationAttributeConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\PropertyAttributeConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\PropertyMappingValidationConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\RelationshipDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\NavigationExtensionsTest.cs" />
     <Compile Include="Extensions\QueryableExtensionsTest.cs" />

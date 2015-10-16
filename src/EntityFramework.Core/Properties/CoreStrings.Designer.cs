@@ -317,7 +317,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An error occured while running a database operation. See InnerException for details.
+        /// An error occurred while running a database operation. See InnerException for details.
         /// </summary>
         public static string DatabaseException
         {
@@ -837,30 +837,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The property '{property}' on entity type '{entityType}' has value generation on add enabled and it is included in the foreign key {foreignKey}. Foreign key properties should not have value generation on add enabled unless they are part of a cycle where they are the only properties with value generation on add enabled.
-        /// </summary>
-        public static string ForeignKeyValueGenerationOnAdd([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object foreignKey)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyValueGenerationOnAdd", "property", "entityType", "foreignKey"), property, entityType, foreignKey);
-        }
-
-        /// <summary>
-        /// The root principal property found by following to foreign key chain starting on entity type '{entityType}' with {firstForeignKey} is '{firstEntityType}'.'{firstRootProperty}', which is different from the root principal property found by following to foreign key chain starting with {secondForeignKey} - '{secondEntityType}'.'{secondRootProperty}'
-        /// </summary>
-        public static string MultipleRootPrincipals([CanBeNull] object entityType, [CanBeNull] object firstForeignKey, [CanBeNull] object firstEntityType, [CanBeNull] object firstRootProperty, [CanBeNull] object secondForeignKey, [CanBeNull] object secondEntityType, [CanBeNull] object secondRootProperty)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleRootPrincipals", "entityType", "firstForeignKey", "firstEntityType", "firstRootProperty", "secondForeignKey", "secondEntityType", "secondRootProperty"), entityType, firstForeignKey, firstEntityType, firstRootProperty, secondForeignKey, secondEntityType, secondRootProperty);
-        }
-
-        /// <summary>
-        /// The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is referenced by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.
-        /// </summary>
-        public static string PrincipalKeyNoValueGenerationOnAdd([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PrincipalKeyNoValueGenerationOnAdd", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
         /// An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
         /// </summary>
         public static string ExpressionParameterizationException([CanBeNull] object expression)
@@ -1178,6 +1154,30 @@ namespace Microsoft.Data.Entity.Internal
         public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
+        }
+
+        /// <summary>
+        /// The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.
+        /// </summary>
+        public static string NavigationNotAdded([CanBeNull] object navigation, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNotAdded", "navigation", "entityType"), navigation, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.
+        /// </summary>
+        public static string PropertyNotAdded([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotAdded", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.
+        /// </summary>
+        public static string PropertyNotMapped([CanBeNull] object property, [CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotMapped", "property", "entityType"), property, entityType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiConsistencyTest.cs" />
+    <Compile Include="Metadata\Conventions\Internal\RelationalPropertyMappingValidationConventionTest.cs" />
     <Compile Include="Metadata\Conventions\Internal\DiscriminatorConventionTest.cs" />
     <Compile Include="Metadata\InternalRelationalMetadataBuilderExtensionsTest.cs" />
     <Compile Include="Metadata\RelationalEntityTypeAttributeConventionTest.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Storage\RelationalSqlGeneratorTest.cs" />
     <Compile Include="Storage\SqlCommandBuilderTest.cs" />
     <Compile Include="Storage\SqlGeneratorTestBase.cs" />
+    <Compile Include="TestRelationalTypeMapper.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeRelationalTypeMapper.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeCommandExecutor.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeDbCommand.cs">

@@ -238,6 +238,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Entity<ProductDetails>(b =>
                 {
                     b.HasKey(e => new { e.Id1, e.Id2 });
+                    b.Property(e => e.Id2).ValueGeneratedOnAdd();
                     b.HasOne(e => e.Tag)
                         .WithOne(e => e.Details)
                         .HasForeignKey<ProductDetailsTag>(e => new { e.Id1, e.Id2 });

@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.Model;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -155,7 +155,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         Scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9),
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
                         IsIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11),
-                        IsComputed = reader.GetBoolean(12)
+                        IsComputed = reader.GetBoolean(12) || dataTypeName == "timestamp"
                     };
 
                     table.Columns.Add(column);
@@ -229,7 +229,8 @@ ORDER BY i.name, ic.key_ordinal";
     update_referential_action_desc
 FROM sys.foreign_keys AS f
 INNER JOIN sys.foreign_key_columns AS fc 
-   ON f.object_id = fc.constraint_object_id";
+   ON f.object_id = fc.constraint_object_id
+ORDER BY f.name, fc.constraint_column_id";
             using (var reader = command.ExecuteReader())
             {
                 var lastFkName = "";
@@ -251,20 +252,27 @@ INNER JOIN sys.foreign_key_columns AS fc
                         var principalSchemaTableName = reader.GetString(3);
                         var principalTableName = reader.GetString(4);
                         var table = _tables[TableKey(tableName, schemaName)];
+                        Table principalTable;
+                        _tables.TryGetValue(TableKey(principalTableName, principalSchemaTableName), out principalTable);
+
                         fkInfo = new ForeignKey
                         {
                             Table = table,
-                            PrincipalTable = _tables[TableKey(principalTableName, principalSchemaTableName)]
+                            PrincipalTable = principalTable
                         };
+
                         table.ForeignKeys.Add(fkInfo);
                     }
                     var fromColumnName = reader.GetString(5);
                     var fromColumn = _tableColumns[ColumnKey(fkInfo.Table, fromColumnName)];
                     fkInfo.From.Add(fromColumn);
 
-                    var toColumnName = reader.GetString(6);
-                    var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
-                    fkInfo.To.Add(toColumn);
+                    if (fkInfo.PrincipalTable != null)
+                    {
+                        var toColumnName = reader.GetString(6);
+                        var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
+                        fkInfo.To.Add(toColumn);
+                    }
                 }
             }
         }

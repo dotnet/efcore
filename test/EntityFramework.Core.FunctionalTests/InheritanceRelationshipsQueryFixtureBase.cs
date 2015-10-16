@@ -30,6 +30,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<NestedReferenceBase>().HasKey(e => e.Id);
             modelBuilder.Entity<NestedCollectionBase>().HasKey(e => e.Id);
 
+            // Issue #3282
+            modelBuilder.Entity<BaseReferenceOnBase>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<BaseReferenceOnDerived>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<BaseCollectionOnBase>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<BaseCollectionOnDerived>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<NestedReferenceBase>().Property(e => e.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<NestedCollectionBase>().Property(e => e.Id).ValueGeneratedOnAdd();
+
             modelBuilder.Entity<BaseInheritanceRelationshipEntity>()
                 .HasOne(e => e.BaseReferenceOnBase)
                 .WithOne(e => e.BaseParent)
@@ -81,6 +89,12 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .HasForeignKey(e => e.ParentId)
                 .IsRequired(false);
 
+            //TODO: See issue #3289
+            modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
+                .HasMany(e => e.DerivedCollectionOnDerived)
+                .WithOne()
+                .IsRequired(false);
+
             modelBuilder.Entity<DerivedInheritanceRelationshipEntity>()
                 .HasMany(e => e.CollectionOnDerived)
                 .WithOne(e => e.Parent)
@@ -110,10 +124,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .WithOne(e => e.ParentCollection)
                 .HasForeignKey(e => e.ParentCollectionId)
                 .IsRequired(false);
-
-            // #3282
-            modelBuilder.Entity<BaseCollectionOnBase>().Property(e => e.BaseParentId).Metadata.RequiresValueGenerator = false;
-            modelBuilder.Entity<BaseReferenceOnBase>().Property(e => e.BaseParentId).Metadata.RequiresValueGenerator = false;
         }
     }
 }

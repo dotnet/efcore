@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            var targetType = navigationPropertyInfo.FindCandidateNavigationPropertyType();
+            var targetType = FindCandidateNavigationPropertyType(navigationPropertyInfo);
             var targetEntityTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(targetType, ConfigurationSource.DataAnnotation);
             if (targetEntityTypeBuilder == null)
             {
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var inverseNavigationPropertyInfo = targetType.GetRuntimeProperties().FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
 
             if (inverseNavigationPropertyInfo == null
-                || inverseNavigationPropertyInfo.FindCandidateNavigationPropertyType() != entityTypeBuilder.Metadata.ClrType)
+                || FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo) != entityTypeBuilder.Metadata.ClrType)
             {
                 throw new InvalidOperationException(
                     CoreStrings.InvalidNavigationWithInverseProperty(navigationPropertyInfo.Name, entityTypeBuilder.Metadata.Name, attribute.Property, targetType.FullName));

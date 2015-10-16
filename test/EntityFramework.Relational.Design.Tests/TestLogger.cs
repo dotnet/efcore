@@ -5,7 +5,7 @@ using System;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace Microsoft.Data.Entity.Sqlite.Design
+namespace Microsoft.Data.Entity.Relational.Design
 {
     public class TestLoggerFactory : LoggerFactory
     {

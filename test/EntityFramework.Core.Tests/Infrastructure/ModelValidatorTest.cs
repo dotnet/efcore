@@ -65,36 +65,6 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         }
 
         [Fact]
-        public virtual void Detects_self_referencing_properties()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA = CreateKey(entityA);
-
-            CreateForeignKey(keyA, keyA);
-
-            VerifyError(CoreStrings.CircularDependency("'A' {'P0'} -> 'A' {'P0'}"), model);
-        }
-
-        [Fact]
-        public virtual void Detects_foreign_key_cycles()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA = CreateKey(entityA);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            var keyB = CreateKey(entityB);
-
-            CreateForeignKey(keyA, keyB);
-            CreateForeignKey(keyB, keyA);
-
-            VerifyError(CoreStrings.CircularDependency("'A' {'P0'} -> 'B' {'P0'}, 'B' {'P0'} -> 'A' {'P0'}"), model);
-        }
-
-        [Fact]
         public virtual void Passes_on_escapable_foreign_key_cycles()
         {
             var model = new Model();
@@ -151,101 +121,6 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             keyA.Properties[0].RequiresValueGenerator = true;
 
             Validate(model);
-        }
-
-        [Fact]
-        public virtual void Detects_foreign_key_cycle_with_two_GenerateOnAdd()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA = CreateKey(entityA);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            var keyB = CreateKey(entityB);
-
-            CreateForeignKey(keyA, keyB);
-            CreateForeignKey(keyB, keyA);
-
-            keyA.Properties[0].RequiresValueGenerator = true;
-            keyB.Properties[0].RequiresValueGenerator = true;
-
-            VerifyError(CoreStrings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
-        }
-
-        [Fact]
-        public virtual void Detects_GenerateOnAdd_on_foreign_key_properties()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA = CreateKey(entityA);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            var keyB = CreateKey(entityB);
-
-            CreateForeignKey(keyA, keyB);
-
-            keyA.Properties[0].RequiresValueGenerator = true;
-
-            VerifyError(CoreStrings.ForeignKeyValueGenerationOnAdd("P0", "A", "{'P0'}"), model);
-        }
-
-        [Fact]
-        public virtual void Detects_GenerateOnAdd_on_referenced_foreign_key_properties()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA1 = CreateKey(entityA);
-            var keyA2 = CreateKey(entityA);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            var keyB = CreateKey(entityB);
-
-            CreateForeignKey(keyA1, keyB);
-            CreateForeignKey(keyB, keyA2);
-
-            keyB.Properties[0].RequiresValueGenerator = true;
-
-            VerifyError(CoreStrings.ForeignKeyValueGenerationOnAdd("P0", "B", "{'P0'}"), model);
-        }
-
-        [Fact]
-        public virtual void Detects_GenerateOnAdd_not_set_on_principal_key_properties()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA = CreateKey(entityA);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            var keyB = CreateKey(entityB);
-
-            CreateForeignKey(keyA, keyB);
-
-            keyB.Properties[0].RequiresValueGenerator = false;
-
-            VerifyError(CoreStrings.PrincipalKeyNoValueGenerationOnAdd("P0", "B"), model);
-        }
-
-        [Fact]
-        public virtual void Detects_multiple_root_principal_properties()
-        {
-            var model = new Model();
-            var entityA = model.AddEntityType(typeof(A));
-            SetPrimaryKey(entityA);
-            var keyA1 = CreateKey(entityA);
-            var keyA2 = CreateKey(entityA, startingPropertyIndex: 0, propertyCount: 2);
-            var entityB = model.AddEntityType(typeof(B));
-            SetPrimaryKey(entityB);
-            var keyB1 = CreateKey(entityB);
-            var keyB2 = CreateKey(entityB, startingPropertyIndex: 1, propertyCount: 2);
-
-            CreateForeignKey(keyA1, keyB1);
-            CreateForeignKey(keyA2, keyB2);
-
-            VerifyWarning(CoreStrings.MultipleRootPrincipals("A", "{'P0'}", "B", "P0", "{'P0', 'P1'}", "B", "P1"), model);
         }
 
         [Fact]

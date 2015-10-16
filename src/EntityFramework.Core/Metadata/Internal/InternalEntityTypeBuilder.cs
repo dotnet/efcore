@@ -273,6 +273,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
         {
+            Check.NotEmpty(name, nameof(name));
+
             if (configurationSource == ConfigurationSource.Explicit)
             {
                 return false;

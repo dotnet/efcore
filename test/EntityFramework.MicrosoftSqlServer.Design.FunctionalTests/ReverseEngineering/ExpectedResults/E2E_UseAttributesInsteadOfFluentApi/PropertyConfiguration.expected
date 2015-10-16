@@ -19,6 +19,7 @@ namespace E2ETest.Namespace
         public Guid WithGuidDefaultExpression { get; set; }
         public decimal WithMoneyDefaultValue { get; set; }
         public short? WithNullDefaultValue { get; set; }
+        [MaxLength(1)]
         public string WithVarcharNullDefaultValue { get; set; }
     }
 }

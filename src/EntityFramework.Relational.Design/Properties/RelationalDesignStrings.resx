@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotFindTypeMappingForColumn" xml:space="preserve">
-    <value>Could not find type mapping for column {columnName} with data type {dateType}. Skipping column.</value>
+    <value>Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.</value>
   </data>
   <data name="ConnectionStringRequired" xml:space="preserve">
     <value>ConnectionString is required to generate code.</value>
@@ -131,6 +131,12 @@
   </data>
   <data name="ErrorRunningEntityTypeTemplate" xml:space="preserve">
     <value>There was an error running the EntityType template. Message: {errorMessage}</value>
+  </data>
+  <data name="ForeignKeyScaffoldError" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. One of the referenced properties or the referenced table could not be found.</value>
+  </data>
+  <data name="MissingPrimaryKey" xml:space="preserve">
+    <value>Unable to identify the primary key for table '{tableName}'.</value>
   </data>
   <data name="ProjectPathRequired" xml:space="preserve">
     <value>ProjectPath is required to generate code.</value>
@@ -158,5 +164,8 @@
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate EntityType {entityTypeName}. {errorMessage}</value>
+  </data>
+  <data name="UnableToScaffoldIndex" xml:space="preserve">
+    <value>Unable to scaffold the index '{indexName}' because one of the properties it contains could not be scaffolded.</value>
   </data>
 </root>

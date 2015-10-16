@@ -1821,7 +1821,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.HasOne(e => e.Tag).WithOne(e => e.Product)
                         .HasPrincipalKey<Product>(e => e.TagId)
                         .HasForeignKey<ProductTag>(e => e.ProductId);
-                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
+                    b.Property(e => e.TagId).ValueGeneratedNever();
                 });
 
             builder.Entity<Category>(b =>
@@ -1829,12 +1829,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.HasMany(e => e.Products).WithOne(e => e.Category)
                         .HasForeignKey(e => e.DependentId)
                         .HasPrincipalKey(e => e.PrincipalId);
-                    b.Property(e => e.PrincipalId).Metadata.RequiresValueGenerator = false;
+                    b.Property(e => e.PrincipalId).ValueGeneratedNever();
 
                     b.HasOne(e => e.Tag).WithOne(e => e.Category)
                         .HasForeignKey<CategoryTag>(e => e.CategoryId)
                         .HasPrincipalKey<Category>(e => e.TagId);
-                    b.Property(e => e.TagId).Metadata.RequiresValueGenerator = false;
+                    b.Property(e => e.TagId).ValueGeneratedNever();
                 });
 
             builder.Entity<Person>()

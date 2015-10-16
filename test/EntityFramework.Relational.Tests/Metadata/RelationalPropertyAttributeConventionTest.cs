@@ -2,9 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Storage;
+using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata
@@ -14,7 +17,8 @@ namespace Microsoft.Data.Entity.Metadata
         [Fact]
         public void ColumnAttribute_sets_column_name_and_type_with_conventional_builder()
         {
-            var modelBuilder = new ModelBuilder(new TestConventionalSetBuilder().AddConventions(new CoreConventionSetBuilder().CreateConventionSet()));
+            var typeMapperMock = new Mock<IRelationalTypeMapper>();
+            var modelBuilder = new ModelBuilder(new TestConventionalSetBuilder(typeMapperMock.Object).AddConventions(new CoreConventionSetBuilder().CreateConventionSet()));
 
             var entityBuilder = modelBuilder.Entity<A>();
 
@@ -74,6 +78,10 @@ namespace Microsoft.Data.Entity.Metadata
 
         private class TestConventionalSetBuilder : RelationalConventionSetBuilder
         {
+            public TestConventionalSetBuilder([NotNull] IRelationalTypeMapper typeMapper)
+                : base(typeMapper)
+            {
+            }
         }
     }
 }

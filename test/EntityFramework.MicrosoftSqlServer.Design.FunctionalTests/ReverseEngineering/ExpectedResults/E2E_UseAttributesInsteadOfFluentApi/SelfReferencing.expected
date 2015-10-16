@@ -9,8 +9,10 @@ namespace E2ETest.Namespace
     {
         public int SelfReferencingID { get; set; }
         [Required]
+        [MaxLength(100)]
         public string Description { get; set; }
         [Required]
+        [MaxLength(20)]
         public string Name { get; set; }
         public int? SelfReferenceFK { get; set; }
 

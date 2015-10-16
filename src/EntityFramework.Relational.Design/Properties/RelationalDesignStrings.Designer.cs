@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.Relational.Design.RelationalDesignStrings", typeof(RelationalDesignStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// Could not find type mapping for column {columnName} width data type {dateType}. Skipping column.
+        /// Could not find type mapping for column '{columnName}' with data type '{dateType}'. Skipping column.
         /// </summary>
         public static string CannotFindTypeMappingForColumn([CanBeNull] object columnName, [CanBeNull] object dateType)
         {
@@ -50,6 +50,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string ErrorRunningEntityTypeTemplate([CanBeNull] object errorMessage)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ErrorRunningEntityTypeTemplate", "errorMessage"), errorMessage);
+        }
+
+        /// <summary>
+        /// Could not scaffold the foreign key '{foreignKeyName}'. One of the referenced properties or the referenced table could not be found.
+        /// </summary>
+        public static string ForeignKeyScaffoldError([CanBeNull] object foreignKeyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldError", "foreignKeyName"), foreignKeyName);
+        }
+
+        /// <summary>
+        /// Unable to identify the primary key for table '{tableName}'.
+        /// </summary>
+        public static string MissingPrimaryKey([CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MissingPrimaryKey", "tableName"), tableName);
         }
 
         /// <summary>
@@ -122,6 +138,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string UnableToGenerateEntityType([CanBeNull] object entityTypeName, [CanBeNull] object errorMessage)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToGenerateEntityType", "entityTypeName", "errorMessage"), entityTypeName, errorMessage);
+        }
+
+        /// <summary>
+        /// Unable to scaffold the index '{indexName}' because one of the properties it contains could not be scaffolded.
+        /// </summary>
+        public static string UnableToScaffoldIndex([CanBeNull] object indexName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToScaffoldIndex", "indexName"), indexName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

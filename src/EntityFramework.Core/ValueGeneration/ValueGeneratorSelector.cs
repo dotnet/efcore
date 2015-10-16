@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            var propertyType = property.ClrType.UnwrapNullableType();
+            var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
 
             if (propertyType == typeof(Guid))
             {

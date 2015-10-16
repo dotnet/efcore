@@ -426,15 +426,6 @@
   <data name="ShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties}.</value>
   </data>
-  <data name="ForeignKeyValueGenerationOnAdd" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' has value generation on add enabled and it is included in the foreign key {foreignKey}. Foreign key properties should not have value generation on add enabled unless they are part of a cycle where they are the only properties with value generation on add enabled.</value>
-  </data>
-  <data name="MultipleRootPrincipals" xml:space="preserve">
-    <value>The root principal property found by following to foreign key chain starting on entity type '{entityType}' with {firstForeignKey} is '{firstEntityType}'.'{firstRootProperty}', which is different from the root principal property found by following to foreign key chain starting with {secondForeignKey} - '{secondEntityType}'.'{secondRootProperty}'</value>
-  </data>
-  <data name="PrincipalKeyNoValueGenerationOnAdd" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' does not have value generation on add enabled and it is referenced by at least one foreign key. Properties referenced by foreign keys should have value generation on add enabled.</value>
-  </data>
   <data name="ExpressionParameterizationException" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
   </data>
@@ -554,5 +545,14 @@
   </data>
   <data name="ConflictingProperty" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="NavigationNotAdded" xml:space="preserve">
+    <value>The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.</value>
+  </data>
+  <data name="PropertyNotAdded" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has not been added to the model or ignored.</value>
+  </data>
+  <data name="PropertyNotMapped" xml:space="preserve">
+    <value>The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.</value>
   </data>
 </root>

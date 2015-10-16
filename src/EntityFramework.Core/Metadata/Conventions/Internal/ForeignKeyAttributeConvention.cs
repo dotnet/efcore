@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -164,7 +165,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var candidateProperties = new List<string>();
             foreach (var propertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
             {
-                var targetType = propertyInfo.FindCandidateNavigationPropertyType();
+                var targetType = FindCandidateNavigationPropertyType(propertyInfo);
                 if (targetType != null)
                 {
                     continue;
@@ -194,6 +195,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
 
             return candidateProperties.FirstOrDefault();
+        }
+
+        public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            return propertyInfo.FindCandidateNavigationPropertyType(clrType => clrType.IsPrimitive());
         }
 
         private IReadOnlyList<string> FindCandidateDependentPropertiesThroughNavigation(InternalRelationshipBuilder relationshipBuilder, bool pointsToPrincipal)

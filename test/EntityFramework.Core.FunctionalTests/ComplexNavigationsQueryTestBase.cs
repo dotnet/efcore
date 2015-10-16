@@ -228,5 +228,269 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
             }
         }
+
+        [Fact]
+        public virtual void Join_navigation_translated_to_FK()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.ToList();
+                levelTwos = context.LevelTwo.Include(e => e.OneToOne_Optional_PK_Inverse).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e2 in context.LevelTwo on e1.Id equals e2.OneToOne_Optional_PK_Inverse.Id
+                            select new { Id1 = e1.Id, Id2 = e2.Id };
+
+                var result = query.ToList();
+
+                var expected = (from l1 in levelOnes
+                                join l2 in levelTwos on l1.Id equals l2.OneToOne_Optional_PK_Inverse?.Id
+                                select new { Id1 = l1.Id, Id2 = l2.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_in_outer_selector_translated_to_extra_join()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Optional_FK).ToList();
+                levelTwos = context.LevelTwo.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e2 in context.LevelTwo on e1.OneToOne_Optional_FK.Id equals e2.Id
+                            select new { Id1 = e1.Id, Id2 = e2.Id };
+
+                var result = query.ToList();
+
+                var expected = (from e1 in levelOnes
+                                join e2 in levelTwos on e1.OneToOne_Optional_FK?.Id equals e2.Id
+                                select new { Id1 = e1.Id, Id2 = e2.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_in_outer_selector_translated_to_extra_join_nested()
+        {
+            List<Level1> levelOnes;
+            List<Level3> levelThrees;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK).ToList();
+                levelThrees = context.LevelThree.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e3 in context.LevelThree on e1.OneToOne_Required_FK.OneToOne_Optional_FK.Id equals e3.Id
+                            select new { Id1 = e1.Id, Id3 = e3.Id };
+
+                var result = query.ToList();
+
+                var expected = (from e1 in levelOnes
+                                join e3 in levelThrees on e1.OneToOne_Required_FK?.OneToOne_Optional_FK?.Id equals e3.Id
+                                select new { Id1 = e1.Id, Id3 = e3.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_in_inner_selector_translated_to_subquery()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Optional_FK).ToList();
+                levelTwos = context.LevelTwo.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e2 in context.LevelTwo
+                            join e1 in context.LevelOne on e2.Id equals e1.OneToOne_Optional_FK.Id
+                            select new { Id2 = e2.Id, Id1 = e1.Id };
+
+                var result = query.ToList();
+
+                var expected = (from e2 in levelTwos
+                                join e1 in levelOnes on e2.Id equals e1.OneToOne_Optional_FK?.Id
+                                select new { Id2 = e2.Id, Id1 = e1.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_translated_to_subquery_non_key_join()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Optional_FK).ToList();
+                levelTwos = context.LevelTwo.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e2 in context.LevelTwo
+                            join e1 in context.LevelOne on e2.Name equals e1.OneToOne_Optional_FK.Name
+                            select new { Id2 = e2.Id, Name2 = e2.Name, Id1 = e1.Id, Name1 = e1.Name };
+
+                var result = query.ToList();
+
+                var expected = (from e2 in levelTwos
+                                join e1 in levelOnes on e2.Name equals e1.OneToOne_Optional_FK?.Name
+                                select new { Id2 = e2.Id, Name2 = e2.Name, Id1 = e1.Id, Name1 = e1.Name }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_translated_to_subquery_self_ref()
+        {
+            List<Level1> levelOnes1;
+            List<Level1> levelOnes2;
+            using (var context = CreateContext())
+            {
+                levelOnes1 = context.LevelOne.ToList();
+                levelOnes2 = context.LevelOne.Include(e => e.OneToMany_Optional_Self_Inverse).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e1 in context.LevelOne
+                            join e2 in context.LevelOne on e1.Id equals e2.OneToMany_Optional_Self_Inverse.Id
+                            select new { Id1 = e1.Id, Id2 = e2.Id };
+
+                var result = query.ToList();
+
+                var expected = (from e1 in levelOnes1
+                                join e2 in levelOnes2 on e1.Id equals e2.OneToMany_Optional_Self_Inverse?.Id
+                                select new { Id1 = e1.Id, Id2 = e2.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_translated_to_subquery_nested()
+        {
+            List<Level1> levelOnes;
+            List<Level3> levelThrees;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK).ToList();
+                levelThrees = context.LevelThree.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e3 in context.LevelThree
+                            join e1 in context.LevelOne on e3.Id equals e1.OneToOne_Required_FK.OneToOne_Optional_FK.Id
+                            select new { Id3 = e3.Id, Id1 = e1.Id };
+
+                var result = query.ToList();
+
+                var expected = (from e3 in levelThrees
+                                join e1 in levelOnes on e3.Id equals e1?.OneToOne_Required_FK.OneToOne_Optional_FK?.Id
+                                select new { Id3 = e3.Id, Id1 = e1.Id }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Join_navigation_translated_to_subquery_deeply_nested_non_key_join()
+        {
+            List<Level1> levelOnes;
+            List<Level4> levelFours;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne.Include(e => e.OneToOne_Required_FK.OneToOne_Optional_FK.OneToOne_Required_PK).ToList();
+                levelFours = context.LevelFour.ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = from e4 in context.LevelFour
+                            join e1 in context.LevelOne on e4.Name equals e1.OneToOne_Required_FK.OneToOne_Optional_FK.OneToOne_Required_PK.Name
+                            select new { Id4 = e4.Id, Name4 = e4.Name, Id1 = e1.Id, Name1 = e1.Name };
+
+                var result = query.ToList();
+
+                var expected = (from e4 in levelFours
+                                join e1 in levelOnes on e4.Name equals e1?.OneToOne_Required_FK.OneToOne_Optional_FK?.OneToOne_Required_PK?.Name
+                                select new { Id4 = e4.Id, Name4 = e4.Name, Id1 = e1.Id, Name1 = e1.Name }).ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    Assert.True(expected.Contains(resultItem));
+                }
+            }
+        }
     }
 }

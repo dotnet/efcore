@@ -7,7 +7,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Update.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -35,47 +34,49 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
             Check.NotNull(generatorState, nameof(generatorState));
             Check.NotNull(connection, nameof(connection));
 
-            if (property.ClrType.UnwrapNullableType() == typeof(long))
+            var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+
+            if (type == typeof(long))
             {
                 return new SqlServerSequenceHiLoValueGenerator<long>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(int))
+            if (type == typeof(int))
             {
                 return new SqlServerSequenceHiLoValueGenerator<int>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(short))
+            if (type == typeof(short))
             {
                 return new SqlServerSequenceHiLoValueGenerator<short>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(byte))
+            if (type == typeof(byte))
             {
                 return new SqlServerSequenceHiLoValueGenerator<byte>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(char))
+            if (type == typeof(char))
             {
                 return new SqlServerSequenceHiLoValueGenerator<char>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(ulong))
+            if (type == typeof(ulong))
             {
                 return new SqlServerSequenceHiLoValueGenerator<ulong>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(uint))
+            if (type == typeof(uint))
             {
                 return new SqlServerSequenceHiLoValueGenerator<uint>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(ushort))
+            if (type == typeof(ushort))
             {
                 return new SqlServerSequenceHiLoValueGenerator<ushort>(_executor, _sqlGenerator, generatorState, connection);
             }
 
-            if (property.ClrType.UnwrapNullableType() == typeof(sbyte))
+            if (type == typeof(sbyte))
             {
                 return new SqlServerSequenceHiLoValueGenerator<sbyte>(_executor, _sqlGenerator, generatorState, connection);
             }
