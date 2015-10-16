@@ -20,6 +20,7 @@ namespace Microsoft.Data.Entity.Storage
         private readonly LazyRef<DbConnection> _connection;
         private readonly bool _connectionOwned;
         private int _openedCount;
+        private bool _openedInternally;
         private int? _commandTimeout;
         private readonly ILogger _logger;
 #if NET45
@@ -46,7 +47,6 @@ namespace Microsoft.Data.Entity.Storage
 
                 _connection = new LazyRef<DbConnection>(() => relationalOptions.Connection);
                 _connectionOwned = false;
-                _openedCount = relationalOptions.Connection.State == ConnectionState.Open ? 1 : 0;
             }
             else if (!string.IsNullOrWhiteSpace(relationalOptions.ConnectionString))
             {
@@ -135,10 +135,10 @@ namespace Microsoft.Data.Entity.Storage
                 isolationLevel,
                 il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
 
-            Transaction 
+            Transaction
                 = new RelationalTransaction(
-                    this, 
-                    DbConnection.BeginTransaction(isolationLevel), 
+                    this,
+                    DbConnection.BeginTransaction(isolationLevel),
                      _logger,
                     transactionOwned: true);
 
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Storage
             CheckForAmbientTransactions();
 
 #endif
-            if (_openedCount == 0)
+            if (_openedCount == 0 && _connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.OpeningConnection,
@@ -185,6 +185,7 @@ namespace Microsoft.Data.Entity.Storage
                     RelationalStrings.RelationalLoggerOpeningConnection);
 
                 _connection.Value.Open();
+                _openedInternally = true;
             }
 
             _openedCount++;
@@ -196,7 +197,7 @@ namespace Microsoft.Data.Entity.Storage
             CheckForAmbientTransactions();
 
 #endif
-            if (_openedCount == 0)
+            if (_openedCount == 0 && _connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.OpeningConnection,
@@ -204,6 +205,7 @@ namespace Microsoft.Data.Entity.Storage
                     RelationalStrings.RelationalLoggerOpeningConnection);
 
                 await _connection.Value.OpenAsync(cancellationToken);
+                _openedInternally = true;
             }
 
             _openedCount++;
@@ -226,7 +228,8 @@ namespace Microsoft.Data.Entity.Storage
             // as open is never erroneously closed without placing undue burdon on users of the connection.
 
             if (_openedCount > 0
-                && --_openedCount == 0)
+                && --_openedCount == 0
+                && _openedInternally)
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.ClosingConnection,
@@ -234,6 +237,7 @@ namespace Microsoft.Data.Entity.Storage
                     RelationalStrings.RelationalLoggerClosingConnection);
 
                 _connection.Value.Close();
+                _openedInternally = false;
             }
         }
 

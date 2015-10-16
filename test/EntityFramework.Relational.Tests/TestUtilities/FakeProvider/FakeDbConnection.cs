@@ -27,6 +27,9 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
             _state = state;
         }
 
+        public void SetState(ConnectionState state)
+            => _state = state;
+
         public override ConnectionState State => _state;
 
         public IReadOnlyList<FakeDbCommand> DbCommands => _dbCommands;
