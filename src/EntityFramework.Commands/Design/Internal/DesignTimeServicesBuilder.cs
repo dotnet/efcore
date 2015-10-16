@@ -72,7 +72,9 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddSingleton<CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
                 .AddSingleton<IFileService, FileSystemFileService>()
-                .AddSingleton<ReverseEngineeringGenerator>();
+                .AddSingleton<ModelUtilities>()
+                .AddSingleton<ReverseEngineeringGenerator>()
+                .AddSingleton<CSharpUtilities>();
 
         partial void ConfigureDnxServices(IServiceCollection services);
 
