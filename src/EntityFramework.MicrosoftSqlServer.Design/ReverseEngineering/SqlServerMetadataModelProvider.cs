@@ -1,14 +1,16 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Metadata;
 using Microsoft.Data.Entity.SqlServer.Design.Utilities;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -44,6 +46,36 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             AddSqlServerDefaultValue(column, propertyBuilder);
 
             return propertyBuilder;
+        }
+
+        protected override EntityTypeBuilder AddPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
+        {
+            base.AddPrimaryKey(builder, table);
+
+            // If this property is the single integer primary key on the EntityType then
+            // KeyConvention assumes ValueGeneratedOnAdd(). If the underlying column does
+            // not have Identity set then we need to set to ValueGeneratedNever() to
+            // override this behavior.
+
+            // TODO use KeyConvention directly to detect when it will be applied
+            var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
+            if (pkColumns.Count != 1 || pkColumns[0].IsIdentity == true)
+            {
+                return builder;
+            }
+
+            // TODO 
+            var property = builder.Metadata.FindProperty(GetPropertyName(pkColumns[0]));
+            var propertyType = property?.ClrType?.UnwrapNullableType();
+
+            if (propertyType?.IsInteger() == true
+                || propertyType == typeof(Guid))
+            {
+                property.ValueGenerated = ValueGenerated.Never;
+                property.RelationalDesign().ExplicitValueGeneratedNever = true;
+            }
+
+            return builder;
         }
 
         private PropertyBuilder AddSqlServerTypeMapping(Column column, PropertyBuilder propertyBuilder)

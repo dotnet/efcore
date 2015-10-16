@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Metadata;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
@@ -15,10 +16,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public abstract class MetadataModelProvider
     {
-        internal const string AnnotationPrefix = nameof(MetadataModelProvider) + ":";
-        internal const string AnnotationNameDependentEndNavPropName = AnnotationPrefix + "DependentEndNavPropName";
-        internal const string AnnotationNamePrincipalEndNavPropName = AnnotationPrefix + "PrincipalEndNavPropName";
-        internal const string AnnotationNameEntityTypeError = AnnotationPrefix + "EntityTypeError";
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
@@ -62,9 +59,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                             dependentEndNavigationPropertyCandidateName,
                             dependentEndExistingIdentifiers,
                             NavigationUniquifier);
-                    (foreignKey as ForeignKey)?.AddAnnotation(
-                        AnnotationNameDependentEndNavPropName,
-                        dependentEndNavigationPropertyName);
+                    foreignKey.RelationalDesign().DependentEndNavPropName = dependentEndNavigationPropertyName;
                     dependentEndExistingIdentifiers.Add(dependentEndNavigationPropertyName);
 
                     // set up the name of the navigation property on the principal end of the foreign key
@@ -82,9 +77,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                             principalEndNavigationPropertyCandidateName,
                             principalEndExistingIdentifiers,
                             NavigationUniquifier);
-                    (foreignKey as ForeignKey)?.AddAnnotation(
-                        AnnotationNamePrincipalEndNavPropName,
-                        principalEndNavigationPropertyName);
+                    foreignKey.RelationalDesign().PrincipalEndNavPropName = principalEndNavigationPropertyName;
                     principalEndExistingIdentifiers.Add(principalEndNavigationPropertyName);
                 }
             }

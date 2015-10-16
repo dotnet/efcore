@@ -13,5 +13,6 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<ISequence> Sequences { get; }
 
         string DefaultSchema { get; }
+        string DatabaseName { get; }
     }
 }

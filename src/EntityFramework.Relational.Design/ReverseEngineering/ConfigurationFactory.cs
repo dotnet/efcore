@@ -10,17 +10,22 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
-    public abstract class ConfigurationFactory
+    public class ConfigurationFactory
     {
+        private readonly IMethodNameProvider _methodNameProvider;
+
         public ConfigurationFactory(
+            [NotNull] IMethodNameProvider methodNameProvider,
             [NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
         {
+            Check.NotNull(methodNameProvider, nameof(methodNameProvider));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
 
+            _methodNameProvider = methodNameProvider;
             ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
             ModelUtilities = modelUtilities;
@@ -30,9 +35,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         protected virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
         protected virtual ModelUtilities ModelUtilities { get;[param: NotNull] private set; }
 
-        public abstract ModelConfiguration CreateModelConfiguration(
+        public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
-            [NotNull] CustomConfiguration customConfiguration);
+            [NotNull] CustomConfiguration customConfiguration) 
+            => new ModelConfiguration(this, model, customConfiguration, _methodNameProvider, ExtensionsProvider, CSharpUtilities, ModelUtilities);
 
         public virtual CustomConfiguration CreateCustomConfiguration(
             [NotNull] string connectionString, [CanBeNull] string contextClassName,

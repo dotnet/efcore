@@ -105,8 +105,6 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<PropertyConfiguration>(entity =>
             {
-                entity.Property(e => e.PropertyConfigurationID).ValueGeneratedNever();
-
                 entity.Property(e => e.RowversionColumn)
                     .HasColumnType("timestamp")
                     .ValueGeneratedOnAddOrUpdate();

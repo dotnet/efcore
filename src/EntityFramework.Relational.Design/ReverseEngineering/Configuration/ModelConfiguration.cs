@@ -11,12 +11,14 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Metadata;
 using Microsoft.Data.Entity.Relational.Design.Utilities;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
 {
-    public abstract class ModelConfiguration
+    public class ModelConfiguration
     {
         protected const string DbContextSuffix = "Context";
         protected const string DefaultDbContextName = "Model" + DbContextSuffix;
@@ -26,17 +28,20 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         protected readonly ConfigurationFactory _configurationFactory;
         protected List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
         protected SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
+        private readonly IMethodNameProvider _methodNameProvider;
 
         public ModelConfiguration(
-            [NotNull] ConfigurationFactory configurationFactory,
-            [NotNull] IModel model,
-            [NotNull] CustomConfiguration customConfiguration,
-            [NotNull] IRelationalAnnotationProvider extensionsProvider,
-            [NotNull] CSharpUtilities cSharpUtilities,
+            [NotNull] ConfigurationFactory configurationFactory, 
+            [NotNull] IModel model, 
+            [NotNull] CustomConfiguration customConfiguration, 
+            [NotNull] IMethodNameProvider methodNameProvider, 
+            [NotNull] IRelationalAnnotationProvider extensionsProvider, 
+            [NotNull] CSharpUtilities cSharpUtilities, 
             [NotNull] ModelUtilities modelUtilities)
         {
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(model, nameof(model));
+            Check.NotNull(methodNameProvider, nameof(methodNameProvider));
             Check.NotNull(customConfiguration, nameof(customConfiguration));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(modelUtilities));
@@ -44,6 +49,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
             _configurationFactory = configurationFactory;
             Model = model;
+            _methodNameProvider = methodNameProvider;
             CustomConfiguration = customConfiguration;
             ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
@@ -55,10 +61,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
         public virtual ModelUtilities ModelUtilities { get;[param: NotNull] private set; }
         public virtual CustomConfiguration CustomConfiguration { get;[param: NotNull] set; }
+        public virtual string ClassName()
+        {
+            var annotatedName = ExtensionsProvider.For(Model).DatabaseName;
+            if (!string.IsNullOrEmpty(annotatedName))
+            {
+                return CSharpUtilities.GenerateCSharpIdentifier(annotatedName + DbContextSuffix, null);
+            }
 
-        public abstract string UseMethodName { get; } // "UseSqlServer" for SqlServer, "UseSqlite" for Sqlite etc
-        public virtual string DefaultSchemaName { get; } // e.g. "dbo for SqlServer. Leave null if there is no concept of a default schema.
-        public virtual string ClassName() => DefaultDbContextName;
+            return DefaultDbContextName;
+        }
+
         public virtual string Namespace() => CustomConfiguration.Namespace;
 
         public virtual List<OptionsBuilderConfiguration> OnConfiguringConfigurations
@@ -115,7 +128,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         {
             _onConfiguringConfigurations.Add(
                 _configurationFactory.CreateOptionsBuilderConfiguration(
-                    UseMethodName
+                    _methodNameProvider.DbOptionBuilderExtension
                     + "("
                     + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
                     + ")"));
@@ -192,7 +205,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
 
             var entityType = entityConfiguration.EntityType;
             if (ExtensionsProvider.For(entityType).Schema != null
-                && ExtensionsProvider.For(entityType).Schema != DefaultSchemaName)
+                && ExtensionsProvider.For(entityType).Schema != ExtensionsProvider.For(Model).DefaultSchema)
             {
                 var delimitedTableName =
                     CSharpUtilities.DelimitString(ExtensionsProvider.For(entityType).TableName);
@@ -311,6 +324,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                             /* hasAttributeEquivalent */ false,
                             nameof(PropertyBuilder.ValueGeneratedOnAddOrUpdate)));
                     break;
+
+                case ValueGenerated.Never:
+                    // used to prevent conventions from altering the value generated value
+                    if (propertyConfiguration.Property.RelationalDesign().ExplicitValueGeneratedNever == true)
+                    {
+                        propertyConfiguration.FluentApiConfigurations.Add(
+                            _configurationFactory.CreateFluentApiConfiguration(
+                                /* hasAttributeEquivalent */ false,
+                                nameof(PropertyBuilder.ValueGeneratedNever)));
+                    }
+                    break;
             }
         }
 
@@ -422,9 +446,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     var navPropConfiguration =
                         _configurationFactory.CreateNavigationPropertyConfiguration(
                             referencedType,
-                            (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]);
-                    if (((EntityType)otherEntityType)
-                        .FindAnnotation(RelationalMetadataModelProvider.AnnotationNameEntityTypeError) != null)
+                            foreignKey.RelationalDesign().PrincipalEndNavPropName);
+                    if (otherEntityType.RelationalDesign().EntityTypeError != null)
                     {
                         navPropConfiguration.ErrorAnnotation =
                             RelationalDesignStrings.UnableToAddNavigationProperty(otherEntityType.Name);
@@ -437,7 +460,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                             _configurationFactory.CreateAttributeConfiguration(
                                 nameof(InversePropertyAttribute),
                                 CSharpUtilities.DelimitString(
-                                    (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName])));
+                                    foreignKey.RelationalDesign().DependentEndNavPropName)));
                         }
                     }
 
@@ -452,7 +475,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 var dependentEndNavPropConfiguration =
                     _configurationFactory.CreateNavigationPropertyConfiguration(
                         foreignKey.PrincipalEntityType.Name,
-                        (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName]);
+                        foreignKey.RelationalDesign().DependentEndNavPropName);
 
                 if(foreignKey.PrincipalKey.IsPrimaryKey())
                 {
@@ -465,7 +488,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                         _configurationFactory.CreateAttributeConfiguration(
                             nameof(InversePropertyAttribute),
                             CSharpUtilities.DelimitString(
-                                (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName])));
+                                foreignKey.RelationalDesign().PrincipalEndNavPropName)));
                 }
 
                 entityConfiguration.NavigationPropertyConfigurations.Add(
@@ -480,12 +503,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     var principalEndNavPropConfiguration =
                         _configurationFactory.CreateNavigationPropertyConfiguration(
                             referencedType,
-                            (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName]);
+                            foreignKey.RelationalDesign().PrincipalEndNavPropName);
                     principalEndNavPropConfiguration.AttributeConfigurations.Add(
                         _configurationFactory.CreateAttributeConfiguration(
                             nameof(InversePropertyAttribute),
                             CSharpUtilities.DelimitString(
-                                (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName])));
+                                foreignKey.RelationalDesign().DependentEndNavPropName)));
                     entityConfiguration.NavigationPropertyConfigurations.Add(
                         principalEndNavPropConfiguration);
                 }
@@ -509,9 +532,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                     .GetForeignKeys().Where(fk => fk.PrincipalEntityType == entityConfiguration.EntityType))
                 {
                     var navigationPropertyName =
-                        (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
-                    if (((EntityType)otherEntityType)
-                        .FindAnnotation(RelationalMetadataModelProvider.AnnotationNameEntityTypeError) == null)
+                        foreignKey.RelationalDesign().PrincipalEndNavPropName;
+                    if (otherEntityType.RelationalDesign().EntityTypeError == null)
                     {
                         if (!foreignKey.IsUnique)
                         {
@@ -531,9 +553,9 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
             {
                 var dependentEndNavigationPropertyName =
-                    (string)foreignKey[RelationalMetadataModelProvider.AnnotationNameDependentEndNavPropName];
+                    foreignKey.RelationalDesign().DependentEndNavPropName;
                 var principalEndNavigationPropertyName =
-                    (string)foreignKey[RelationalMetadataModelProvider.AnnotationNamePrincipalEndNavPropName];
+                    foreignKey.RelationalDesign().PrincipalEndNavPropName;
 
                 var relationshipConfiguration = _configurationFactory.CreateRelationshipConfiguration(
                         entityConfiguration, foreignKey,
@@ -547,8 +569,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         // do not configure EntityTypes for which we had an error when generating
         public virtual IEnumerable<EntityConfiguration> OrderedEntityConfigurations() =>
             EntityConfigurations
-                .Where(ec => ((EntityType)ec.EntityType).FindAnnotation(
-                    RelationalMetadataModelProvider.AnnotationNameEntityTypeError) == null);
+                .Where(ec => ec.EntityType.RelationalDesign().EntityTypeError == null);
 
         public virtual EntityConfiguration GetEntityConfiguration([NotNull] EntityType entityType)
         {

@@ -83,6 +83,11 @@
     <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
     <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
+    <Compile Include="ReverseEngineering\IMethodNameProvider.cs" />
+    <Compile Include="ReverseEngineering\Metadata\RelationalDesignEntityTypeAnnotations.cs" />
+    <Compile Include="ReverseEngineering\Metadata\RelationalDesignMetadataExtensions.cs" />
+    <Compile Include="ReverseEngineering\Metadata\RelationalDesignPropertyAnnotations.cs" />
+    <Compile Include="ReverseEngineering\Metadata\RelationalDesignForeignKeyAnnotations.cs" />
     <Compile Include="ReverseEngineering\MetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\IFileService.cs" />
     <Compile Include="ReverseEngineering\Internal\DbContextWriter.cs" />
@@ -94,6 +99,7 @@
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
     <Compile Include="ReverseEngineering\RelationalMetadataModelProvider.cs" />
+    <Compile Include="ReverseEngineering\Metadata\RelationalDesignAnnotationNames.cs" />
     <Compile Include="Utilities\CSharpUtilities.cs" />
     <Compile Include="Utilities\ModelUtilities.cs" />
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">

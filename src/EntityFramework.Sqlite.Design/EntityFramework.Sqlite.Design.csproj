@@ -49,12 +49,11 @@
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="ReverseEngineering\Configuration\SqliteModelConfiguration.cs" />
-    <Compile Include="ReverseEngineering\SqliteConfigurationFactory.cs" />
     <Compile Include="ReverseEngineering\TableSelectionSetSqliteExtensions.cs" />
     <Compile Include="SqliteDesignTimeServices.cs" />
     <Compile Include="ReverseEngineering\SqliteDmlParser.cs" />
     <Compile Include="ReverseEngineering\SqliteMetadataReader.cs" />
+    <Compile Include="SqliteMethodNameProvider.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

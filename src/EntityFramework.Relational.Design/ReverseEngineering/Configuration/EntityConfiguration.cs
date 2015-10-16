@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configuration
@@ -34,7 +36,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual List<RelationshipConfiguration> RelationshipConfigurations { get; } = new List<RelationshipConfiguration>();
 
         public virtual string ErrorMessageAnnotation
-            => (string)EntityType[RelationalMetadataModelProvider.AnnotationNameEntityTypeError];
+            => EntityType.RelationalDesign().EntityTypeError;
 
         public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] IProperty property)
         {

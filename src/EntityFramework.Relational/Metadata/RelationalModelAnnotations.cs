@@ -59,5 +59,14 @@ namespace Microsoft.Data.Entity.Metadata
             }
             [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DefaultSchema, Check.NullButNotEmpty(value, nameof(value))); }
         }
+
+        public virtual string DatabaseName
+        {
+            get
+            {
+                return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DatabaseName);
+            }
+            [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DatabaseName, Check.NullButNotEmpty(value, nameof(value))); }
+        }
     }
 }

@@ -11,6 +11,9 @@ namespace Microsoft.Data.Entity.Relational.Design.Model
         [CanBeNull]
         public virtual string DatabaseName { get; [param: CanBeNull] set; }
 
+        [CanBeNull]
+        public virtual string DefaultSchemaName { get; [param: CanBeNull] set; }
+
         public virtual IList<Table> Tables { get; [param: NotNull] set; } = new List<Table>();
     }
 }

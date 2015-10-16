@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         };
 
         private Dictionary<Table, CSharpUniqueNamer<Column>> _columnNamers;
-        private readonly Table _nullTable = new Table { };
+        private readonly Table _nullTable = new Table();
         private CSharpUniqueNamer<Table> _tableNamer;
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly IMetadataReader _metadataReader;
@@ -63,6 +64,16 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             _columnNamers = new Dictionary<Table, CSharpUniqueNamer<Column>>();
 
             AddEntityTypes(modelBuilder, schemaInfo);
+
+            if (!string.IsNullOrEmpty(schemaInfo.DefaultSchemaName))
+            {
+                modelBuilder.HasDefaultSchema(schemaInfo.DefaultSchemaName);
+            }
+
+            if (!string.IsNullOrEmpty(schemaInfo.DatabaseName))
+            {
+                modelBuilder.Model.Relational().DatabaseName = schemaInfo.DatabaseName;
+            }
 
             return modelBuilder.Model;
         }
@@ -196,7 +207,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             var errorMessage = RelationalDesignStrings.MissingPrimaryKey(table.DisplayName());
             Logger.LogWarning(errorMessage);
 
-            builder.Metadata.AddAnnotation(AnnotationNameEntityTypeError, RelationalDesignStrings.UnableToGenerateEntityType(builder.Metadata.DisplayName(), errorMessage));
+            builder.Metadata.RelationalDesign().EntityTypeError = RelationalDesignStrings.UnableToGenerateEntityType(builder.Metadata.DisplayName(), errorMessage);
 
             return builder;
         }

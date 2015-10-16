@@ -366,6 +366,24 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
+        public void Can_get_and_set_database_name_on_model()
+        {
+            var modelBuilder = new ModelBuilder(new ConventionSet());
+            var model = modelBuilder.Model;
+            var extensions = model.Relational();
+
+            Assert.Null(extensions.DefaultSchema);
+
+            extensions.DatabaseName = "Northwind";
+
+            Assert.Equal("Northwind", extensions.DatabaseName);
+
+            extensions.DatabaseName = null;
+
+            Assert.Null(extensions.DatabaseName);
+        }
+
+        [Fact]
         public void Can_get_and_set_sequence()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());

@@ -45,7 +45,9 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
                 _connection.Open();
                 _tableSelectionSet = tableSelectionSet;
 
-                _schemaInfo.DatabaseName = _connection.DataSource;
+                _schemaInfo.DatabaseName = _connection.Database;
+                 // TODO actually load per-user
+                _schemaInfo.DefaultSchemaName = "dbo";
 
                 GetTables();
                 GetColumns();

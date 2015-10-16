@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
@@ -21,12 +20,15 @@ namespace Microsoft.Data.Entity.Sqlite.Design
             serviceCollection
                 .AddSingleton<MetadataModelProvider, RelationalMetadataModelProvider>()
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
+                .AddSingleton<IMetadataReader, SqliteMetadataReader>()
+                .AddSingleton<IMethodNameProvider, SqliteMethodNameProvider>()
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
-                .AddSingleton<ConfigurationFactory, SqliteConfigurationFactory>()
+
+                // TODO move to commands
+                .AddSingleton<ConfigurationFactory>()
                 .AddSingleton<DbContextWriter>()
                 .AddSingleton<EntityTypeWriter>()
-                .AddSingleton<CodeWriter, StringBuilderCodeWriter>()
-                .AddSingleton<IMetadataReader, SqliteMetadataReader>();
+                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
         }
     }
 }

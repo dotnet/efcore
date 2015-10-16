@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Relational.Design;
 using Microsoft.Data.Entity.Relational.Design.Model;
@@ -48,7 +49,17 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 _connection.Open();
                 _tableSelectionSet = tableSelectionSet;
 
-                _schemaInfo.DatabaseName = _connection.DataSource;
+                string databaseName = null;
+                try
+                {
+                    databaseName = Path.GetFileNameWithoutExtension(_connection.DataSource);
+                }
+                catch (ArgumentException)
+                {
+                    // graceful fallback
+                }
+
+                _schemaInfo.DatabaseName = !string.IsNullOrEmpty(databaseName) ? databaseName : _connection.DataSource;
 
                 GetSqliteMaster();
                 GetColumns();

@@ -21,9 +21,12 @@ namespace Microsoft.Data.Entity.SqlServer.Design
                 .AddSingleton<MetadataModelProvider, SqlServerMetadataModelProvider>()
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerLiteralUtilities>()
-                .AddSingleton<ConfigurationFactory, SqlServerConfigurationFactory>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .AddSingleton<IMetadataReader, SqlServerMetadataReader>()
+                .AddSingleton<IMethodNameProvider, SqlServerMethodNameProvider>()
+
+                // TODO move to commands
+                .AddSingleton<ConfigurationFactory>()
                 .AddSingleton<DbContextWriter>()
                 .AddSingleton<EntityTypeWriter>()
                 .AddSingleton<CodeWriter, StringBuilderCodeWriter>();

@@ -43,12 +43,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
-    <Compile Include="ReverseEngineering\Configuration\SqlServerModelConfiguration.cs" />
-    <Compile Include="ReverseEngineering\SqlServerConfigurationFactory.cs" />
     <Compile Include="ReverseEngineering\TableSelectionSetExtensions.cs" />
     <Compile Include="SqlServerDesignTimeServices.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataModelProvider.cs" />
     <Compile Include="ReverseEngineering\SqlServerMetadataReader.cs" />
+    <Compile Include="SqlServerMethodNameProvider.cs" />
     <Compile Include="Utilities\SqlServerLiteralUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />

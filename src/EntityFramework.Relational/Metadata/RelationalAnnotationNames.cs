@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Metadata
         public const string GeneratedValueSql = "GeneratedValueSql";
         public const string DefaultValue = "DefaultValue";
         public const string DefaultValueType = "DefaultValueType";
+        public const string DatabaseName = "DatabaseName";
         public const string TableName = "TableName";
         public const string Schema = "Schema";
         public const string DefaultSchema = "DefaultSchema";
