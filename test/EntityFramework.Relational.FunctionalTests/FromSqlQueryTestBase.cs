@@ -197,6 +197,22 @@ FROM ""Customers""")
         }
 
         [Fact]
+        public virtual void From_sql_queryable_with_null_parameter()
+        {
+            int? reportsTo = null;
+
+            using (var context = CreateContext())
+            {
+                var actual = context.Set<Employee>()
+                    .FromSql(@"SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = {0} OR (""ReportsTo"" IS NULL AND {0} IS NULL)",
+                        reportsTo)
+                    .ToArray();
+
+                Assert.Equal(1, actual.Length);
+            }
+        }
+
+        [Fact]
         public virtual void From_sql_queryable_with_parameters_and_closure()
         {
             var city = "London";
