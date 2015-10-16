@@ -1,15 +1,15 @@
 {
-  "dependencies": {
-    "EntityFramework.InMemory.FunctionalTests": "1.0.0",
-    "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
-    "EntityFramework.SqlServer.FunctionalTests": "1.0.0"
-  },
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
-  "frameworks": {
-    "net46": { },
-    "dnx451": { },
-    "dnxcore50": { }
-  }
+    "dependencies": {
+        "EntityFramework.InMemory.FunctionalTests": "1.0.0",
+        "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
+        "EntityFramework.SqlServer.FunctionalTests": "1.0.0"
+    },
+    "commands": {
+        "test": "xunit.runner.aspnet"
+    },
+    "frameworks": {
+        "net46": {},
+        "dnx451": {},
+        "dnxcore50": {}
+    }
 }

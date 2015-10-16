@@ -1,23 +1,23 @@
 {
-  "dependencies": {
-    "EntityFramework.SqlServer": "7.0.0-*",
-    "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
-    "Microsoft.Framework.Configuration.Json": "1.0.0-*"
-  },
-  "commands": {
-    "test": "xunit.runner.aspnet"
-  },
-  "frameworks": {
-    "net46": { },
-    "dnxcore50": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
+    "dependencies": {
+        "EntityFramework.SqlServer": "7.0.0-beta8",
+        "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
+        "Microsoft.Framework.Configuration.Json": "1.0.0-beta8"
     },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
+    "commands": {
+        "test": "xunit.runner.aspnet"
+    },
+    "frameworks": {
+        "net46": {},
+        "dnxcore50": {
+            "dependencies": {
+                "xunit.runner.aspnet": "2.0.0-aspnet-beta8"
+            }
+        },
+        "dnx451": {
+            "dependencies": {
+                "xunit.runner.aspnet": "2.0.0-aspnet-beta8"
+            }
+        }
     }
-  }
 }

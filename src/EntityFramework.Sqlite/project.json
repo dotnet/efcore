@@ -1,34 +1,36 @@
 {
-  "version": "7.0.0-*",
-  "description": "SQLite data store for Entity Framework.",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/aspnet/entityframework"
-  },
-  "compilationOptions": {
-    "warningsAsErrors": true
-  },
-  "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*",
-    "Microsoft.Data.Sqlite": "1.0.0-*"
-  },
-  "compile": "..\\Shared\\*.cs",
-  "namedResource": {
-    "EntityFramework.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
-  },
-  "resource": ["Properties/EntityFramework.Sqlite.rd.xml"],
-  "frameworks": {
-    "net45": { },
-    "dnxcore50": {
-      "dependencies": {
-        "System.IO.FileSystem": "4.0.1-beta-*",
-        "Microsoft.CSharp": "4.0.1-beta-*"
-      }
+    "version": "7.0.0-beta8",
+    "description": "SQLite data store for Entity Framework.",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/aspnet/entityframework"
     },
-    "dotnet": {
-      "dependencies": {
-        "System.IO.FileSystem": "4.0.0"
-      }
+    "compilationOptions": {
+        "warningsAsErrors": true
+    },
+    "dependencies": {
+        "EntityFramework.Relational": "7.0.0-beta8",
+        "Microsoft.Data.Sqlite": "1.0.0-beta8"
+    },
+    "compile": "..\\Shared\\*.cs",
+    "namedResource": {
+        "EntityFramework.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
+    },
+    "resource": [
+        "Properties/EntityFramework.Sqlite.rd.xml"
+    ],
+    "frameworks": {
+        "net45": {},
+        "dnxcore50": {
+            "dependencies": {
+                "System.IO.FileSystem": "4.0.1-beta-23409",
+                "Microsoft.CSharp": "4.0.1-beta-23409"
+            }
+        },
+        "dotnet": {
+            "dependencies": {
+                "System.IO.FileSystem": "4.0.1-beta-23409"
+            }
+        }
     }
-  }
 }
