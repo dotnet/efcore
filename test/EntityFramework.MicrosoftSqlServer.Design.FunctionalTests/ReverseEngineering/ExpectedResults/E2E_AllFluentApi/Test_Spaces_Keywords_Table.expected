@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public class Test_Spaces_Keywords_Table
+    public partial class Test_Spaces_Keywords_Table
     {
         public int Test_Spaces_Keywords_TableID { get; set; }
         public int? @AtSymbolAtStartOfColumn { get; set; }

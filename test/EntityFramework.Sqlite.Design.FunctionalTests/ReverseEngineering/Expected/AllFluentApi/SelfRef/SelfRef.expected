@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2E.Sqlite
 {
-    public class SelfRef
+    public partial class SelfRef
     {
         public long Id { get; set; }
         public long? SelfForeignKey { get; set; }

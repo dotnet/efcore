@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public class SelfReferencing
+    public partial class SelfReferencing
     {
         public int SelfReferencingID { get; set; }
         [Required]

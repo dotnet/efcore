@@ -23,14 +23,12 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
         public ReverseEngineeringGenerator(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IFileService fileService,
-            [NotNull] ModelUtilities modelUtilities,
             [NotNull] MetadataModelProvider metadataModelProvider,
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(fileService, nameof(fileService));
-            Check.NotNull(modelUtilities, nameof(modelUtilities));
             Check.NotNull(metadataModelProvider, nameof(metadataModelProvider));
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));

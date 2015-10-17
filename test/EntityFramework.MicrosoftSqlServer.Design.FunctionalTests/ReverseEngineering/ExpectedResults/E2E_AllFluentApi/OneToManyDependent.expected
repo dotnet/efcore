@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public class OneToManyDependent
+    public partial class OneToManyDependent
     {
         public int OneToManyDependentID1 { get; set; }
         public int OneToManyDependentID2 { get; set; }

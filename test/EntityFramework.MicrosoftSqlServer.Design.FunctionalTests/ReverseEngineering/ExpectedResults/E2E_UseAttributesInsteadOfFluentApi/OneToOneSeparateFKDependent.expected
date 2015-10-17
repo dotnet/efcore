@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace E2ETest.Namespace
 {
-    public class OneToOneSeparateFKDependent
+    public partial class OneToOneSeparateFKDependent
     {
         public int OneToOneSeparateFKDependentID1 { get; set; }
         public int OneToOneSeparateFKDependentID2 { get; set; }

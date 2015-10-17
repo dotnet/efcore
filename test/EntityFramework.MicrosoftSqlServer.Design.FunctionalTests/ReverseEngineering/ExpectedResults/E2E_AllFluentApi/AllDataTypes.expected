@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public class AllDataTypes
+    public partial class AllDataTypes
     {
         public int AllDataTypesID { get; set; }
         public long bigintColumn { get; set; }
