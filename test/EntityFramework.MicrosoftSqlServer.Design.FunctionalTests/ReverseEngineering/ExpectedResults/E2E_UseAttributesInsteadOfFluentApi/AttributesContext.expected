@@ -76,7 +76,10 @@ namespace E2ETest.Namespace
 
                 entity.HasIndex(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 }).HasName("UK_OneToOneFKToUniqueKeyDependent").IsUnique();
 
-                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK).WithOne(p => p.OneToOneFKToUniqueKeyDependent).HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 }).HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
+                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK)
+                    .WithOne(p => p.OneToOneFKToUniqueKeyDependent)
+                    .HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
+                    .HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>

@@ -13,6 +13,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
     public class DbContextWriter
     {
+        private const string EntityLambdaIdentifier = "entity";
+
         private ModelUtilities ModelUtilities { get; }
         private IndentedStringBuilder _sb;
         private ModelConfiguration _model;
@@ -109,7 +111,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     }
                     first = false;
 
-                    _sb.AppendLine("modelBuilder.Entity<" + entityConfig.EntityType.Name + ">(entity =>");
+                    _sb.AppendLine("modelBuilder.Entity<"
+                        + entityConfig.EntityType.Name + ">("
+                        + EntityLambdaIdentifier + " =>");
                     _sb.AppendLine("{");
                     using (_sb.Indent())
                     {
@@ -137,7 +141,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     _sb.AppendLine();
                 }
                 _foundFirstFluentApiForEntity = true;
-                _sb.AppendLine("entity." + entityFluentApi.FluentApi + ";");
+                _sb.AppendLine(EntityLambdaIdentifier + "." + entityFluentApi.FluentApi + ";");
             }
         }
 
@@ -161,12 +165,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 {
                     foreach (var line in propertyConfigurationLines)
                     {
-                        _sb.AppendLine("entity.Property(e => e." + propertyConfig.Property.Name + ")" + line + ";");
+                        _sb.AppendLine(EntityLambdaIdentifier
+                            + ".Property(e => e." + propertyConfig.Property.Name + ")" + line + ";");
                     }
                 }
                 else
                 {
-                    _sb.AppendLine("entity.Property(e => e." + propertyConfig.Property.Name + ")");
+                    _sb.AppendLine(EntityLambdaIdentifier
+                        + ".Property(e => e." + propertyConfig.Property.Name + ")");
                     using (_sb.Indent())
                     {
                         var lineCount = 0;
@@ -196,10 +202,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     _sb.AppendLine();
                 }
                 _foundFirstFluentApiForEntity = true;
-                _sb.AppendLine("entity."
-                    + ModelUtilities.LayoutRelationshipConfigurationLine(
-                        relationshipConfig, "d", "p")
-                    + ";");
+                ModelUtilities.LayoutRelationshipConfigurationLines(
+                    _sb, EntityLambdaIdentifier, relationshipConfig, "d", "p");
             }
         }
 

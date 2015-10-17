@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Scaffolding.Internal.Configuration;
@@ -131,88 +132,96 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             return lines;
         }
 
-        public virtual string LayoutRelationshipConfigurationLine(
+        public virtual void LayoutRelationshipConfigurationLines(
+            [NotNull] IndentedStringBuilder sb,
+            [NotNull] string entityLambdaIdentifier,
             [NotNull] RelationshipConfiguration rc,
             [NotNull] string dependentEndLambdaIdentifier,
             [NotNull] string principalEndLambdaIdentifier)
         {
+            Check.NotNull(sb, nameof(sb));
+            Check.NotEmpty(entityLambdaIdentifier, nameof(entityLambdaIdentifier));
             Check.NotNull(rc, nameof(rc));
             Check.NotEmpty(dependentEndLambdaIdentifier, nameof(dependentEndLambdaIdentifier));
             Check.NotEmpty(principalEndLambdaIdentifier, nameof(principalEndLambdaIdentifier));
 
-            var sb = new StringBuilder();
-            sb.Append("HasOne(");
+            sb.Append(entityLambdaIdentifier);
+            sb.Append(".HasOne(");
             sb.Append(dependentEndLambdaIdentifier);
             sb.Append(" => ");
             sb.Append(dependentEndLambdaIdentifier);
             sb.Append(".");
             sb.Append(rc.DependentEndNavigationPropertyName);
-            sb.Append(")");
+            sb.AppendLine(")");
 
-            if (rc.ForeignKey.IsUnique)
+            using (sb.Indent())
             {
-                sb.Append(".WithOne(");
-            }
-            else
-            {
-                sb.Append(".WithMany(");
-            }
-            if (!string.IsNullOrEmpty(rc.PrincipalEndNavigationPropertyName))
-            {
-                sb.Append(principalEndLambdaIdentifier);
-                sb.Append(" => ");
-                sb.Append(principalEndLambdaIdentifier);
-                sb.Append(".");
-                sb.Append(rc.PrincipalEndNavigationPropertyName);
-            }
-            sb.Append(")");
+                if (rc.ForeignKey.IsUnique)
+                {
+                    sb.Append(".WithOne(");
+                }
+                else
+                {
+                    sb.Append(".WithMany(");
+                }
+                if (!string.IsNullOrEmpty(rc.PrincipalEndNavigationPropertyName))
+                {
+                    sb.Append(principalEndLambdaIdentifier);
+                    sb.Append(" => ");
+                    sb.Append(principalEndLambdaIdentifier);
+                    sb.Append(".");
+                    sb.Append(rc.PrincipalEndNavigationPropertyName);
+                }
+                sb.AppendLine(")");
 
-            if (!rc.ForeignKey.PrincipalKey.IsPrimaryKey())
-            {
-                sb.Append(".HasPrincipalKey");
+                if (!rc.ForeignKey.PrincipalKey.IsPrimaryKey())
+                {
+                    sb.Append(".HasPrincipalKey");
+                    if (rc.ForeignKey.IsUnique)
+                    {
+                        // If the relationship is 1:1 need to define to which end
+                        // the PrincipalKey properties belong.
+                        sb.Append("<");
+                        sb.Append(rc.ForeignKey.PrincipalEntityType.DisplayName());
+                        sb.Append(">");
+                    }
+                    sb.Append("(")
+                        .Append(principalEndLambdaIdentifier)
+                        .Append(" => ")
+                        .Append(GenerateLambdaToKey(rc.ForeignKey.PrincipalKey.Properties, principalEndLambdaIdentifier))
+                        .AppendLine(")");
+                }
+
+                sb.Append(".HasForeignKey");
                 if (rc.ForeignKey.IsUnique)
                 {
                     // If the relationship is 1:1 need to define to which end
-                    // the PrincipalKey properties belong.
+                    // the ForeignKey properties belong.
                     sb.Append("<");
-                    sb.Append(rc.ForeignKey.PrincipalEntityType.DisplayName());
+                    sb.Append(rc.EntityConfiguration.EntityType.DisplayName());
                     sb.Append(">");
                 }
-                sb.Append("(")
-                    .Append(principalEndLambdaIdentifier)
-                    .Append(" => ")
-                    .Append(GenerateLambdaToKey(rc.ForeignKey.PrincipalKey.Properties, principalEndLambdaIdentifier))
-                    .Append(")");
-            }
 
-            sb.Append(".HasForeignKey");
-            if (rc.ForeignKey.IsUnique)
-            {
-                // If the relationship is 1:1 need to define to which end
-                // the ForeignKey properties belong.
-                sb.Append("<");
-                sb.Append(rc.EntityConfiguration.EntityType.DisplayName());
-                sb.Append(">");
-            }
-
-            sb.Append("(");
-            sb.Append(dependentEndLambdaIdentifier);
-            sb.Append(" => ");
-            sb.Append(GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
-            sb.Append(")");
-
-            var defaultOnDeleteAction = rc.ForeignKey.IsRequired
-                ? DeleteBehavior.Cascade
-                : DeleteBehavior.Restrict;
-
-            if (rc.OnDeleteAction != defaultOnDeleteAction)
-            {
-                sb.Append(".OnDelete(");
-                sb.Append(CSharpUtilities.Instance.GenerateLiteral(rc.OnDeleteAction));
+                sb.Append("(");
+                sb.Append(dependentEndLambdaIdentifier);
+                sb.Append(" => ");
+                sb.Append(GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
                 sb.Append(")");
-            }
 
-            return sb.ToString();
+                var defaultOnDeleteAction = rc.ForeignKey.IsRequired
+                    ? DeleteBehavior.Cascade
+                    : DeleteBehavior.Restrict;
+
+                if (rc.OnDeleteAction != defaultOnDeleteAction)
+                {
+                    sb.AppendLine();
+                    sb.Append(".OnDelete(");
+                    sb.Append(CSharpUtilities.Instance.GenerateLiteral(rc.OnDeleteAction));
+                    sb.Append(")");
+                }
+
+                sb.AppendLine(";");
+            }
         }
 
         private string FindCommonPrefix(IEnumerable<string> stringsEnumerable)

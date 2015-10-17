@@ -20,7 +20,10 @@ namespace E2E.Sqlite
 
                 entity.Property(e => e.PrincipalId).HasColumnType("INT");
 
-                entity.HasOne(d => d.Principal).WithOne(p => p.Dependent).HasForeignKey<Dependent>(d => d.PrincipalId).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(d => d.Principal)
+                    .WithOne(p => p.Dependent)
+                    .HasForeignKey<Dependent>(d => d.PrincipalId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
 

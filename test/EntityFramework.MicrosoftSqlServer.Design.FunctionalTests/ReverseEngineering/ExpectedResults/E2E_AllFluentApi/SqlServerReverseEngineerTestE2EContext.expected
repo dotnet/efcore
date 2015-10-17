@@ -75,7 +75,9 @@ namespace E2ETest.Namespace
                     .IsRequired()
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.OneToManyDependentFK).WithMany(p => p.OneToManyDependent).HasForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
+                entity.HasOne(d => d.OneToManyDependentFK)
+                    .WithMany(p => p.OneToManyDependent)
+                    .HasForeignKey(d => new { d.OneToManyDependentFK1, d.OneToManyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToManyPrincipal>(entity =>
@@ -95,7 +97,10 @@ namespace E2ETest.Namespace
                     .IsRequired()
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.OneToOneDependentNavigation).WithOne(p => p.OneToOneDependent).HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 }).OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(d => d.OneToOneDependentNavigation)
+                    .WithOne(p => p.OneToOneDependent)
+                    .HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 })
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyDependent>(entity =>
@@ -108,7 +113,10 @@ namespace E2ETest.Namespace
                     .IsRequired()
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK).WithOne(p => p.OneToOneFKToUniqueKeyDependent).HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 }).HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
+                entity.HasOne(d => d.OneToOneFKToUniqueKeyDependentFK)
+                    .WithOne(p => p.OneToOneFKToUniqueKeyDependent)
+                    .HasPrincipalKey<OneToOneFKToUniqueKeyPrincipal>(p => new { p.OneToOneFKToUniqueKeyPrincipalUniqueKey1, p.OneToOneFKToUniqueKeyPrincipalUniqueKey2 })
+                    .HasForeignKey<OneToOneFKToUniqueKeyDependent>(d => new { d.OneToOneFKToUniqueKeyDependentFK1, d.OneToOneFKToUniqueKeyDependentFK2 });
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>
@@ -141,7 +149,9 @@ namespace E2ETest.Namespace
                     .IsRequired()
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.OneToOneSeparateFKDependentFK).WithOne(p => p.OneToOneSeparateFKDependent).HasForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
+                entity.HasOne(d => d.OneToOneSeparateFKDependentFK)
+                    .WithOne(p => p.OneToOneSeparateFKDependent)
+                    .HasForeignKey<OneToOneSeparateFKDependent>(d => new { d.OneToOneSeparateFKDependentFK1, d.OneToOneSeparateFKDependentFK2 });
             });
 
             modelBuilder.Entity<OneToOneSeparateFKPrincipal>(entity =>
@@ -204,7 +214,9 @@ namespace E2ETest.Namespace
                     .IsRequired()
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.SelfReferenceFKNavigation).WithMany(p => p.InverseSelfReferenceFKNavigation).HasForeignKey(d => d.SelfReferenceFK);
+                entity.HasOne(d => d.SelfReferenceFKNavigation)
+                    .WithMany(p => p.InverseSelfReferenceFKNavigation)
+                    .HasForeignKey(d => d.SelfReferenceFK);
             });
 
             modelBuilder.Entity<Test_Spaces_Keywords_Table>(entity =>
