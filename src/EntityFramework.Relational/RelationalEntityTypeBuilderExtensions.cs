@@ -80,6 +80,17 @@ namespace Microsoft.Data.Entity
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, discriminatorType);
         }
 
+        public static DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TDiscriminator>(
+            [NotNull] this EntityTypeBuilder entityTypeBuilder,
+            [NotNull] string name)
+        {
+            Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
+            Check.NotEmpty(name, nameof(name));
+
+            return new DiscriminatorBuilder<TDiscriminator>(((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+                .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, typeof(TDiscriminator)));
+        }
+
         public static DiscriminatorBuilder<TDiscriminator> HasDiscriminator<TEntity, TDiscriminator>(
             [NotNull] this EntityTypeBuilder<TEntity> entityTypeBuilder,
             [NotNull] Expression<Func<TEntity, TDiscriminator>> propertyExpression)

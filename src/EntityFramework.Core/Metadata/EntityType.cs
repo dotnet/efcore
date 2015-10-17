@@ -621,8 +621,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
             => FindNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
-
-        [NotNull]
+        
         public virtual Navigation GetNavigation([NotNull] string name)
             => (Navigation)((IEntityType)this).GetNavigation(name);
 
@@ -768,8 +767,7 @@ namespace Microsoft.Data.Entity.Metadata
         #endregion
 
         #region Properties
-
-        [NotNull]
+        
         public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
@@ -790,16 +788,14 @@ namespace Microsoft.Data.Entity.Metadata
             property.IsShadowProperty = false;
             return property;
         }
-
-        [NotNull]
+        
         public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType)
         {
             var property = AddProperty(name);
             property.ClrType = propertyType;
             return property;
         }
-
-        [NotNull]
+        
         public virtual Property AddProperty([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
@@ -841,20 +837,17 @@ namespace Microsoft.Data.Entity.Metadata
 
             return AddProperty(propertyInfo);
         }
-
-        [NotNull]
+        
         public virtual Property GetOrAddProperty([NotNull] string name)
             => FindProperty(name) ?? AddProperty(name);
-
-        [NotNull]
+        
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
             return GetProperty(propertyInfo.Name);
         }
-
-        [NotNull]
+        
         public virtual Property GetProperty([NotNull] string propertyName)
             => (Property)((IEntityType)this).GetProperty(propertyName);
 

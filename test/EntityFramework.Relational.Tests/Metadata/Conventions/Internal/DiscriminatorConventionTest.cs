@@ -80,6 +80,26 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         }
 
         [Fact]
+        public void Uses_explicit_discriminator_if_compatible()
+        {
+            var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
+
+            var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.DataAnnotation);
+            entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.DataAnnotation);
+            baseTypeBuilder.Relational(ConfigurationSource.Explicit).HasDiscriminator("T", typeof(string));
+
+            Assert.True(new DiscriminatorConvention().Apply(entityTypeBuilder, oldBaseType: null));
+
+            var discriminator = entityTypeBuilder.Metadata.Relational().DiscriminatorProperty;
+            Assert.NotNull(discriminator);
+            Assert.Same(discriminator, baseTypeBuilder.Metadata.Relational().DiscriminatorProperty);
+            Assert.Equal("T", discriminator.Name);
+            Assert.Equal(typeof(string), discriminator.ClrType);
+            Assert.Equal(typeof(EntityBase).Name, baseTypeBuilder.Metadata.Relational().DiscriminatorValue);
+            Assert.Equal(typeof(Entity).Name, entityTypeBuilder.Metadata.Relational().DiscriminatorValue);
+        }
+
+        [Fact]
         public void Does_nothing_if_explicit_discriminator_is_not_compatible()
         {
             var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();

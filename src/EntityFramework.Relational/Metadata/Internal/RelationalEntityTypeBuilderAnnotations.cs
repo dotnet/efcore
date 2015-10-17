@@ -50,11 +50,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return true;
         }
-
-        [CanBeNull]
+        
         public virtual DiscriminatorBuilder HasDiscriminator() => DiscriminatorBuilder(null, null);
-
-        [CanBeNull]
+        
         public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] Type discriminatorType)
         {
             if (discriminatorType == null)
@@ -62,14 +60,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return RemoveDiscriminator();
             }
 
-            return DiscriminatorBuilder(null, discriminatorType);
+            return DiscriminatorProperty != null
+                   && DiscriminatorProperty.ClrType == discriminatorType
+                ? DiscriminatorBuilder(null, null)
+                : DiscriminatorBuilder(null, discriminatorType);
         }
-
-        [CanBeNull]
+        
         public virtual DiscriminatorBuilder HasDiscriminator([NotNull] string name, [NotNull] Type discriminatorType)
-            => DiscriminatorBuilder(b => b.Property(name, discriminatorType, Annotations.ConfigurationSource), null);
-
-        [CanBeNull]
+            => DiscriminatorProperty != null
+               && DiscriminatorProperty.Name == name
+               && DiscriminatorProperty.ClrType == discriminatorType
+                ? DiscriminatorBuilder(null, null)
+                : DiscriminatorBuilder(b => b.Property(name, discriminatorType, Annotations.ConfigurationSource), null);
+        
         public virtual DiscriminatorBuilder HasDiscriminator([CanBeNull] PropertyInfo propertyInfo)
         {
             if (propertyInfo == null)
@@ -77,7 +80,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return RemoveDiscriminator();
             }
 
-            return DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);
+            return DiscriminatorProperty != null
+                   && DiscriminatorProperty.Name == propertyInfo.Name
+                   && DiscriminatorProperty.ClrType == propertyInfo.PropertyType
+                ? DiscriminatorBuilder(null, null)
+                : DiscriminatorBuilder(b => b.Property(propertyInfo, Annotations.ConfigurationSource), null);
         }
 
         private DiscriminatorBuilder RemoveDiscriminator()
@@ -160,8 +167,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            var discriminatorSet = SetDiscriminatorProperty(propertyBuilder.Metadata);
-            Debug.Assert(discriminatorSet);
+            if (discriminatorProperty == null
+                || createProperty != null)
+            {
+                var discriminatorSet = SetDiscriminatorProperty(propertyBuilder.Metadata);
+                Debug.Assert(discriminatorSet);
+            }
 
             propertyBuilder.IsRequired(true, configurationSource);
             //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);// #2132

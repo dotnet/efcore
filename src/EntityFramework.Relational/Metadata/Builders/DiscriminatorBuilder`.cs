@@ -18,6 +18,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
         private DiscriminatorBuilder Builder { get; }
 
+        public virtual DiscriminatorBuilder<TDiscriminator> HasValue([CanBeNull] TDiscriminator value)
+        {
+            var builder = Builder.HasValue(value);
+            return builder == null ? null : new DiscriminatorBuilder<TDiscriminator>(builder);
+        }
+
         public virtual DiscriminatorBuilder<TDiscriminator> HasValue<TEntity>([CanBeNull] TDiscriminator value)
             => HasValue(typeof(TEntity), value);
 

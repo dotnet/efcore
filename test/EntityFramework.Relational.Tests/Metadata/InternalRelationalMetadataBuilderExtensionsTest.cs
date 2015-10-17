@@ -271,9 +271,8 @@ namespace Microsoft.Data.Entity.Metadata
                 .Metadata.Relational().DiscriminatorValue);
             Assert.Equal(6, typeBuilder.ModelBuilder.Entity("Splod", ConfigurationSource.Convention)
                 .Metadata.Relational().DiscriminatorValue);
-
-            Assert.Null(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((Type)null));
-            Assert.NotNull(typeBuilder.Relational(ConfigurationSource.DataAnnotation).HasDiscriminator((Type)null));
+            
+            Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((Type)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
             Assert.Empty(typeBuilder.Metadata.Properties);

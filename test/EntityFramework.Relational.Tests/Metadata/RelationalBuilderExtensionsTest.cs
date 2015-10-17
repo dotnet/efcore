@@ -308,6 +308,29 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
+        public void Can_set_discriminator_value_using_property_expression_separately()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasDiscriminator(b => b.Name)
+                .HasValue("1");
+
+            modelBuilder
+                .Entity<SpecialCustomer>()
+                .HasBaseType<Customer>()
+                .HasDiscriminator(b => b.Name)
+                .HasValue("2");
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
+            Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
+            Assert.Equal("1", entityType.Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+        }
+
+        [Fact]
         public void Can_set_discriminator_value_using_property_name()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -326,6 +349,29 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         }
 
         [Fact]
+        public void Can_set_discriminator_value_using_property_name_separately()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity<Customer>()
+                .HasDiscriminator<string>("Name")
+                .HasValue("1");
+
+            modelBuilder
+                .Entity<SpecialCustomer>()
+                .HasBaseType<Customer>()
+                .HasDiscriminator<string>("Name")
+                .HasValue("2");
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
+            Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
+            Assert.Equal("1", entityType.Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+        }
+
+        [Fact]
         public void Can_set_discriminator_value_non_generic()
         {
             var modelBuilder = CreateConventionModelBuilder();
@@ -334,6 +380,29 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity(typeof(Customer))
                 .HasDiscriminator("Name", typeof(string))
                 .HasValue(typeof(Customer), "1")
+                .HasValue(typeof(SpecialCustomer), "2");
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
+            Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
+            Assert.Equal("1", entityType.Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+        }
+
+        [Fact]
+        public void Can_set_discriminator_value_non_generic_separately()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasDiscriminator("Name", typeof(string))
+                .HasValue(typeof(Customer), "1");
+
+            modelBuilder
+                .Entity(typeof(SpecialCustomer))
+                .HasBaseType(typeof(Customer))
+                .HasDiscriminator("Name", typeof(string))
                 .HasValue(typeof(SpecialCustomer), "2");
 
             var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
@@ -379,6 +448,27 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
+        [Fact]
+        public void Can_set_default_discriminator_value_separately()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder
+                .Entity(typeof(Customer))
+                .HasDiscriminator()
+                .HasValue("1");
+
+            modelBuilder
+                .Entity(typeof(SpecialCustomer))
+                .HasDiscriminator()
+                .HasValue("2");
+
+            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            Assert.Equal("Discriminator", entityType.Relational().DiscriminatorProperty.Name);
+            Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
+            Assert.Equal("1", entityType.Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+        }
 
         [Fact]
         public void Can_set_schema_on_model()
