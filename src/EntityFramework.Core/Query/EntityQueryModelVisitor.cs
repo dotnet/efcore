@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Query
             Expression navigationPropertyPath)
         {
             var boundChainedNavigations = new List<INavigation>();
-            var navigationType = navigationPropertyPath.Type.TryGetElementType(typeof(ICollection<>)) ??
+            var navigationType = navigationPropertyPath.Type.TryGetElementType(typeof (ICollection<>)) ??
                                  navigationPropertyPath.Type;
             if (chainedNavigationProperties != null)
             {
@@ -375,7 +375,9 @@ namespace Microsoft.Data.Entity.Query
                     var propertyInfo in
                         chainedNavigationProperties)
                 {
-                    var navigation = Model.FindEntityType(navigationType)?.FindNavigation(propertyInfo.Name);
+                    var navigation =
+                        Model.FindEntityType(propertyInfo.DeclaringType)?.FindNavigation(propertyInfo.Name) ??
+                        Model.FindEntityType(navigationType)?.FindNavigation(propertyInfo.Name);
                     if (navigation == null)
                     {
                         return null;
@@ -383,7 +385,7 @@ namespace Microsoft.Data.Entity.Query
 
                     boundChainedNavigations.Add(navigation);
 
-                    navigationType = propertyInfo.PropertyType.TryGetElementType(typeof(ICollection<>)) ??
+                    navigationType = propertyInfo.PropertyType.TryGetElementType(typeof (ICollection<>)) ??
                                      propertyInfo.PropertyType;
                 }
             }
