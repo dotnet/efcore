@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.Query
                     var navigation = Model.FindEntityType(navigationType)?.FindNavigation(propertyInfo.Name);
                     if (navigation == null)
                     {
-                        throw new Exception($"Cannot find navigation {propertyInfo}.");
+                        return null;
                     }
 
                     boundChainedNavigations.Add(navigation);
