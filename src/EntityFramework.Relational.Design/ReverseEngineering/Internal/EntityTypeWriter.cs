@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal
         public virtual void AddClass()
         {
             AddAttributes(_entity.AttributeConfigurations);
-            _sb.AppendLine("public class " + _entity.EntityType.Name);
+            _sb.AppendLine("public partial class " + _entity.EntityType.Name);
             _sb.AppendLine("{");
             using (_sb.Indent())
             {

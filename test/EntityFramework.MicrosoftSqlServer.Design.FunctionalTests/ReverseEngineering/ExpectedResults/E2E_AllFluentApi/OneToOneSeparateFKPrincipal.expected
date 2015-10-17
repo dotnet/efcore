@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public class OneToOneSeparateFKPrincipal
+    public partial class OneToOneSeparateFKPrincipal
     {
         public int OneToOneSeparateFKPrincipalID1 { get; set; }
         public int OneToOneSeparateFKPrincipalID2 { get; set; }

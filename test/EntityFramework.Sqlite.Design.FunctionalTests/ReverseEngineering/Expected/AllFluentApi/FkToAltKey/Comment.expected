@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2E.Sqlite
 {
-    public class Comment
+    public partial class Comment
     {
         public long Id { get; set; }
         public string Contents { get; set; }

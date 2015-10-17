@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace E2ETest.Namespace
 {
-    public class ReferredToByTableWithUnmappablePrimaryKeyColumn
+    public partial class ReferredToByTableWithUnmappablePrimaryKeyColumn
     {
         public int ReferredToByTableWithUnmappablePrimaryKeyColumnID { get; set; }
         public string AColumn { get; set; }
