@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Query
 
                                         return BindChainedNavigations(
                                             navigations,
-                                            annotation.ChainedNavigationProperties)
+                                            annotation.ChainedNavigationProperties, annotation.NavigationPropertyPath)
                                             .ToArray();
                                     });
 
@@ -363,24 +363,28 @@ namespace Microsoft.Data.Entity.Query
         }
 
         private IEnumerable<INavigation> BindChainedNavigations(
-            IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties)
+            IEnumerable<INavigation> boundNavigations, IReadOnlyList<PropertyInfo> chainedNavigationProperties,
+            Expression navigationPropertyPath)
         {
             var boundChainedNavigations = new List<INavigation>();
-
+            var navigationType = navigationPropertyPath.Type.TryGetElementType(typeof(ICollection<>)) ??
+                                 navigationPropertyPath.Type;
             if (chainedNavigationProperties != null)
             {
                 foreach (
-                    var navigation in
-                        from propertyInfo in chainedNavigationProperties
-                        let entityType = Model.FindEntityType(propertyInfo.DeclaringType)
-                        select entityType?.FindNavigation(propertyInfo.Name))
+                    var propertyInfo in
+                        chainedNavigationProperties)
                 {
+                    var navigation = Model.FindEntityType(navigationType)?.FindNavigation(propertyInfo.Name);
                     if (navigation == null)
                     {
-                        return null;
+                        throw new Exception($"Cannot find navigation {propertyInfo}.");
                     }
 
                     boundChainedNavigations.Add(navigation);
+
+                    navigationType = propertyInfo.PropertyType.TryGetElementType(typeof(ICollection<>)) ??
+                                     propertyInfo.PropertyType;
                 }
             }
 
