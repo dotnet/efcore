@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity
     ///         You can use <see cref="ModelBuilder" /> to construct a model for a context by overriding
     ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> or creating a <see cref="Model" />
     ///         externally
-    ///         and setting is on a <see cref="DbContextOptions" /> instance that is passed to the context
+    ///         and setting it on a <see cref="DbContextOptions" /> instance that is passed to the context
     ///         constructor.
     ///     </para>
     /// </summary>
