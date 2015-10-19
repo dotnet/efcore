@@ -298,4 +298,7 @@
   <data name="DuplicateColumnName" xml:space="preserve">
     <value>Cannot use column name '{columnName}' in entity '{entityType}' for property '{property}' since it is being used for another property.</value>
   </data>
+  <data name="NoActiveTransaction" xml:space="preserve">
+    <value>The connection does not have any active transactions.</value>
+  </data>
 </root>

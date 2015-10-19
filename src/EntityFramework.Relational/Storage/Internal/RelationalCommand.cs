@@ -328,9 +328,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             command.CommandText = CommandText;
 
-            if (connection.Transaction != null)
+            if (connection.CurrentTransaction != null)
             {
-                command.Transaction = connection.Transaction.GetInfrastructure();
+                command.Transaction = connection.CurrentTransaction.GetDbTransaction();
             }
 
             if (connection.CommandTimeout != null)

@@ -20,11 +20,11 @@ namespace Microsoft.Data.Entity.Tests.Update
             mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<IRelationalTransaction>();
+            var transactionMock = new Mock<IDbContextTransaction>();
 
-            IRelationalTransaction currentTransaction = null;
+            IDbContextTransaction currentTransaction = null;
             mockRelationalConnection.Setup(m => m.BeginTransaction()).Returns(() => currentTransaction = transactionMock.Object);
-            mockRelationalConnection.Setup(m => m.Transaction).Returns(() => currentTransaction);
+            mockRelationalConnection.Setup(m => m.CurrentTransaction).Returns(() => currentTransaction);
 
             var cancellationToken = new CancellationTokenSource().Token;
 
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.Tests.Update
             mockModificationCommandBatch.Setup(m => m.ModificationCommands.Count).Returns(1);
 
             var mockRelationalConnection = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<IRelationalTransaction>();
-            mockRelationalConnection.Setup(m => m.Transaction).Returns(transactionMock.Object);
+            var transactionMock = new Mock<IDbContextTransaction>();
+            mockRelationalConnection.Setup(m => m.CurrentTransaction).Returns(transactionMock.Object);
 
             var cancellationToken = new CancellationTokenSource().Token;
 

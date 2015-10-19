@@ -12,9 +12,13 @@ namespace Microsoft.Data.Entity
 {
     public static class InMemoryDbContextOptionsExtensions
     {
-        public static void UseInMemoryDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder)
-            => ((IDbContextOptionsBuilderInfrastructure)Check.NotNull(optionsBuilder, nameof(optionsBuilder)))
-                .AddOrUpdateExtension(
-                    new InMemoryOptionsExtension());
+        public static InMemoryDbContextOptionsBuilder UseInMemoryDatabase([NotNull] this DbContextOptionsBuilder optionsBuilder)
+        {
+            Check.NotNull(optionsBuilder, nameof(optionsBuilder));
+
+            ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(new InMemoryOptionsExtension());
+
+            return new InMemoryDbContextOptionsBuilder(optionsBuilder);
+        }
     }
 }

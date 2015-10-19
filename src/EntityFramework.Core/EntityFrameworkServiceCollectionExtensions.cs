@@ -3,7 +3,6 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -18,7 +17,6 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 // ReSharper disable once CheckNamespace
@@ -116,6 +114,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped(p => GetContextServices(p).ContextOptions)
                 .AddScoped(p => GetContextServices(p).DatabaseProviderServices)
                 .AddScoped(p => GetProviderServices(p).Database)
+                .AddScoped(p => GetProviderServices(p).TransactionManager)
                 .AddScoped(p => GetProviderServices(p).ValueGeneratorSelector)
                 .AddScoped(p => GetProviderServices(p).Creator)
                 .AddScoped(p => GetProviderServices(p).ConventionSetBuilder)

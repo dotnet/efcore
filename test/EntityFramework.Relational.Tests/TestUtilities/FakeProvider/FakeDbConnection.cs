@@ -16,6 +16,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         private ConnectionState _state;
         private readonly List<FakeDbCommand> _dbCommands = new List<FakeDbCommand>();
+        private readonly List<FakeDbTransaction> _dbTransactions = new List<FakeDbTransaction>();
 
         public FakeDbConnection(
             string connectionString,
@@ -98,9 +99,15 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
             return command;
         }
 
+        public IReadOnlyList<FakeDbTransaction> DbTransactions => _dbTransactions;
+
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            return new FakeDbTransaction(this);
+            var transaction =  new FakeDbTransaction(this, isolationLevel);
+
+            _dbTransactions.Add(transaction);
+
+            return transaction;
         }
 
         public int DisposeCount { get; private set; }

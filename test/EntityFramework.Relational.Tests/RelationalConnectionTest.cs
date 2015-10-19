@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.TestUtilities.FakeProvider;
 using Xunit;
 
@@ -342,6 +343,188 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
+        public void Connection_is_opened_and_closed_by_using_transaction()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                var transaction = connection.BeginTransaction();
+
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
+
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(0, dbConnection.CloseCount);
+                Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
+
+                transaction.Dispose();
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(1, dbConnection.CloseCount);
+            }
+        }
+
+        [Fact]
+        public async Task Connection_is_opened_and_closed_by_using_transaction_async()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                var transaction = await connection.BeginTransactionAsync();
+
+                Assert.Equal(1, connection.DbConnections.Count);
+                var dbConnection = connection.DbConnections[0];
+
+                Assert.Equal(1, dbConnection.DbTransactions.Count);
+                var dbTransaction = dbConnection.DbTransactions[0];
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(0, dbConnection.CloseCount);
+                Assert.Equal(IsolationLevel.Unspecified, dbTransaction.IsolationLevel);
+
+                transaction.Dispose();
+
+                Assert.Equal(1, dbConnection.OpenCount);
+                Assert.Equal(1, dbConnection.CloseCount);
+            }
+        }
+
+        [Fact]
+        public void Transaction_can_begin_with_isolation_level()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                using (var transaction = connection.BeginTransaction(IsolationLevel.Chaos))
+                {
+                    Assert.Equal(1, connection.DbConnections.Count);
+                    var dbConnection = connection.DbConnections[0];
+
+                    Assert.Equal(1, dbConnection.DbTransactions.Count);
+                    var dbTransaction = dbConnection.DbTransactions[0];
+
+                    Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task Transaction_can_begin_with_isolation_level_async()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                using (var transaction = await connection.BeginTransactionAsync(IsolationLevel.Chaos))
+                {
+                    Assert.Equal(1, connection.DbConnections.Count);
+                    var dbConnection = connection.DbConnections[0];
+
+                    Assert.Equal(1, dbConnection.DbTransactions.Count);
+                    var dbTransaction = dbConnection.DbTransactions[0];
+
+                    Assert.Equal(IsolationLevel.Chaos, dbTransaction.IsolationLevel);
+                }
+            }
+        }
+
+        [Fact]
+        public void Current_transaction_is_disposed_when_connection_is_disposed()
+        {
+            var connection = new FakeRelationalConnection(
+                CreateOptions(
+                    new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" }));
+
+            Assert.Equal(0, connection.DbConnections.Count);
+
+            var transaction = connection.BeginTransaction();
+
+            Assert.Equal(1, connection.DbConnections.Count);
+            var dbConnection = connection.DbConnections[0];
+
+            Assert.Equal(1, dbConnection.DbTransactions.Count);
+            var dbTransaction = dbConnection.DbTransactions[0];
+
+            connection.Dispose();
+
+            Assert.Equal(1, dbTransaction.DisposeCount);
+            Assert.Null(connection.CurrentTransaction);
+        }
+
+        [Fact]
+        public void Can_use_existing_transaction()
+        {
+            var dbConnection = new FakeDbConnection("Database=FrodoLives");
+
+            var dbTransaction = dbConnection.BeginTransaction(IsolationLevel.Unspecified);
+
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { Connection = dbConnection })))
+            {
+                using (connection.UseTransaction(dbTransaction))
+                {
+                    Assert.Equal(dbTransaction, connection.CurrentTransaction.GetDbTransaction());
+                }
+            }
+        }
+
+        [Fact]
+        public void Commit_calls_commit_on_DbTransaction()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    Assert.Equal(1, connection.DbConnections.Count);
+                    var dbConnection = connection.DbConnections[0];
+
+                    Assert.Equal(1, dbConnection.DbTransactions.Count);
+                    var dbTransaction = dbConnection.DbTransactions[0];
+
+                    connection.CommitTransaction();
+
+                    Assert.Equal(1, dbTransaction.CommitCount);
+                }
+            }
+        }
+
+        [Fact]
+        public void Rollback_calls_rollback_on_DbTransaction()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                using (var transaction = connection.BeginTransaction())
+                {
+                    Assert.Equal(1, connection.DbConnections.Count);
+                    var dbConnection = connection.DbConnections[0];
+
+                    Assert.Equal(1, dbConnection.DbTransactions.Count);
+                    var dbTransaction = dbConnection.DbTransactions[0];
+
+                    connection.RollbackTransaction();
+
+                    Assert.Equal(1, dbTransaction.RollbackCount);
+                }
+            }
+        }
+
+        [Fact]
         public void Can_create_new_connection_with_CommandTimeout()
         {
             using (var connection = new FakeRelationalConnection(
@@ -421,6 +604,36 @@ namespace Microsoft.Data.Entity.Tests
                         Connection = new FakeDbConnection("Database=FrodoLives"),
                         ConnectionString = "Database=FrodoLives"
                     }))).Message);
+        }
+
+        [Fact]
+        public void Throws_when_commit_is_called_without_active_transaction()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                Assert.Equal(
+                    RelationalStrings.NoActiveTransaction,
+                    Assert.Throws<InvalidOperationException>(
+                        () => connection.CommitTransaction()).Message);
+            }
+        }
+
+        [Fact]
+        public void Throws_when_rollback_is_called_without_active_transaction()
+        {
+            using (var connection = new FakeRelationalConnection(
+                CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" })))
+            {
+                Assert.Equal(0, connection.DbConnections.Count);
+
+                Assert.Equal(
+                    RelationalStrings.NoActiveTransaction,
+                    Assert.Throws<InvalidOperationException>(
+                        () => connection.RollbackTransaction()).Message);
+            }
         }
 
         private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)

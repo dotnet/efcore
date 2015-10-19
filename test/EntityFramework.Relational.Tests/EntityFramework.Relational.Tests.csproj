@@ -52,6 +52,7 @@
     <Compile Include="Migrations\MigrationSqlGeneratorTest.cs" />
     <Compile Include="Migrations\MigrationSqlGeneratorTestBase.cs" />
     <Compile Include="Storage\RelationalCommandTest.cs" />
+    <Compile Include="Storage\RelationalTransactionExtensionsTest.cs" />
     <Compile Include="Storage\RelationalTypeMappingTest.cs" />
     <Compile Include="Metadata\RelationalBuilderExtensionsTest.cs" />
     <Compile Include="RelationalConnectionTest.cs" />
