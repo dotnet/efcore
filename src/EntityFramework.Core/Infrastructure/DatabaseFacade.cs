@@ -85,6 +85,38 @@ namespace Microsoft.Data.Entity.Infrastructure
             => this.GetService<IDatabaseCreator>().EnsureDeletedAsync(cancellationToken);
 
         /// <summary>
+        ///     Starts a new transaction.
+        /// </summary>
+        /// <returns>
+        ///     A <see cref="IDbContextTransaction"/> that represents the started transaction.
+        /// </returns>
+        public virtual IDbContextTransaction BeginTransaction()
+            => this.GetService<IDbContextTransactionManager>().BeginTransaction();
+
+        /// <summary>
+        ///     Asynchronously starts a new transaction.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>
+        ///     A task that represents the asynchronus transaction initialization. The task result contains a <see cref="IDbContextTransaction"/>
+        ///     that represents the started transaction.
+        /// </returns>
+        public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => this.GetService<IDbContextTransactionManager>().BeginTransactionAsync(cancellationToken);
+
+        /// <summary>
+        ///     Applies the outstanding operations in the current transaction to the database.
+        /// </summary>
+        public virtual void CommitTransaction()
+            => this.GetService<IDbContextTransactionManager>().CommitTransaction();
+
+        /// <summary>
+        ///     Discards the outstanding operations in the current transaction.
+        /// </summary>
+        public virtual void RollbackTransaction()
+            => this.GetService<IDbContextTransactionManager>().RollbackTransaction();
+
+        /// <summary>
         ///     <para>
         ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
         ///     </para>

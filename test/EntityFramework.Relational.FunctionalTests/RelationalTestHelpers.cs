@@ -18,6 +18,6 @@ namespace Microsoft.Data.Entity.Tests
             => builder.AddInMemoryDatabase().AddRelational();
 
         protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseInMemoryDatabase();
+            => optionsBuilder.UseInMemoryDatabase().IgnoreTransactions();
     }
 }

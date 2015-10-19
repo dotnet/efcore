@@ -356,6 +356,7 @@
     <Compile Include="Query\Internal\IQueryBuffer.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />
     <Compile Include="Storage\DatabaseProviderServices.cs" />
+    <Compile Include="Storage\IDbContextTransactionManager.cs" />
     <Compile Include="Storage\IDatabase.cs" />
     <Compile Include="Extensions\EntityTypeExtensions.cs" />
     <Compile Include="Metadata\IIndex.cs" />
@@ -402,6 +403,7 @@
     <Compile Include="Metadata\INavigation.cs" />
     <Compile Include="Metadata\IProperty.cs" />
     <Compile Include="Metadata\IPropertyBase.cs" />
+    <Compile Include="Storage\IDbContextTransaction.cs" />
     <Compile Include="Storage\ValueBuffer.cs" />
     <Compile Include="Metadata\Internal\Key.cs" />
     <Compile Include="Metadata\Internal\MemberMapper.cs" />

@@ -29,6 +29,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Transactions are not supported by the in-memory store. To suppress this Exception call IgnoreTransactions() when overriding DbContext.OnConfiguring.
+        /// </summary>
+        public static string TransactionsNotSupported
+        {
+            get { return GetString("TransactionsNotSupported"); }
+        }
+
+        /// <summary>
         /// In-Memory-specific methods can only be used when the context is using an In-Memory database.
         /// </summary>
         public static string InMemoryNotInUse
