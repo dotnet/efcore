@@ -557,9 +557,13 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 var principalEndNavigationPropertyName =
                     foreignKey.RelationalDesign().PrincipalEndNavPropName;
 
-                var relationshipConfiguration = _configurationFactory.CreateRelationshipConfiguration(
-                        entityConfiguration, foreignKey,
-                        dependentEndNavigationPropertyName, principalEndNavigationPropertyName);
+                var relationshipConfiguration = _configurationFactory
+                    .CreateRelationshipConfiguration(
+                        entityConfiguration,
+                        foreignKey,
+                        dependentEndNavigationPropertyName,
+                        principalEndNavigationPropertyName,
+                        foreignKey.DeleteBehavior);
                 relationshipConfiguration.HasAttributeEquivalent = foreignKey.PrincipalKey.IsPrimaryKey();
                 entityConfiguration.RelationshipConfigurations.Add(relationshipConfiguration);
             }

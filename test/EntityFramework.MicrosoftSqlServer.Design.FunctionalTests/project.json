@@ -1,8 +1,9 @@
 {
   "dependencies": {
     "EntityFramework.Commands": "7.0.0-*",
+    "EntityFramework.Relational": "7.0.0-*",
     "EntityFramework.Relational.Design": "7.0.0-*",
-	"EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
+    "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
     "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
     "EntityFramework.MicrosoftSqlServer.Design": "7.0.0-*",
     "EntityFramework.MicrosoftSqlServer.FunctionalTests": "1.0.0"

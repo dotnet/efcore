@@ -275,7 +275,33 @@ ORDER BY f.name, fc.constraint_column_id";
                         var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
                         fkInfo.To.Add(toColumn);
                     }
+
+                    fkInfo.OnDelete = ConvertToReferentialAction(reader.GetString(8));
                 }
+            }
+        }
+
+        private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
+        {
+            switch (onDeleteAction.ToUpperInvariant())
+            {
+                case "RESTRICT":
+                    return ReferentialAction.Restrict;
+
+                case "CASCADE":
+                    return ReferentialAction.Cascade;
+
+                case "SET_NULL":
+                    return ReferentialAction.SetNull;
+
+                case "SET_DEFAULT":
+                    return ReferentialAction.SetDefault;
+
+                case "NO_ACTION":
+                    return ReferentialAction.NoAction;
+
+                default:
+                    return null;
             }
         }
     }

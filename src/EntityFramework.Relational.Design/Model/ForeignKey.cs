@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Migrations;
 
 namespace Microsoft.Data.Entity.Relational.Design.Model
 {
@@ -20,8 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Design.Model
         [NotNull]
         public virtual string Name { get; [param: CanBeNull] set; }
 
-        // TODO https://github.com/aspnet/EntityFramework/issues/3330
-        //public virtual ReferentialAction OnDelete { get; [param: NotNull] set; }
+        public virtual ReferentialAction? OnDelete { get; [param: NotNull] set; }
 
         // TODO foreign key triggers
         //public virtual ReferentialAction OnUpdate { get; [param: NotNull] set; }
