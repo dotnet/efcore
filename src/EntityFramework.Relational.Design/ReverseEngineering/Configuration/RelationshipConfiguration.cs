@@ -13,7 +13,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             [NotNull] EntityConfiguration entityConfiguration,
             [NotNull] IForeignKey foreignKey,
             [NotNull] string dependentEndNavigationPropertyName,
-            [NotNull] string principalEndNavigationPropertyName)
+            [NotNull] string principalEndNavigationPropertyName,
+            DeleteBehavior onDeleteAction)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -24,6 +25,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
             ForeignKey = foreignKey;
             DependentEndNavigationPropertyName = dependentEndNavigationPropertyName;
             PrincipalEndNavigationPropertyName = principalEndNavigationPropertyName;
+            OnDeleteAction = onDeleteAction;
         }
 
         public virtual bool HasAttributeEquivalent { get; set; } = true;
@@ -31,5 +33,6 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
         public virtual IForeignKey ForeignKey { get; }
         public virtual string DependentEndNavigationPropertyName { get; }
         public virtual string PrincipalEndNavigationPropertyName { get; }
+        public virtual DeleteBehavior OnDeleteAction { get; }
     }
 }

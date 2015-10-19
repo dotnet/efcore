@@ -200,6 +200,17 @@ namespace Microsoft.Data.Entity.Relational.Design.Utilities
             sb.Append(GenerateLambdaToKey(rc.ForeignKey.Properties, dependentEndLambdaIdentifier));
             sb.Append(")");
 
+            var defaultOnDeleteAction = rc.ForeignKey.IsRequired
+                ? DeleteBehavior.Cascade
+                : DeleteBehavior.Restrict;
+
+            if (rc.OnDeleteAction != defaultOnDeleteAction)
+            {
+                sb.Append(".OnDelete(");
+                sb.Append(CSharpUtilities.Instance.GenerateLiteral(rc.OnDeleteAction));
+                sb.Append(")");
+            }
+
             return sb.ToString();
         }
 

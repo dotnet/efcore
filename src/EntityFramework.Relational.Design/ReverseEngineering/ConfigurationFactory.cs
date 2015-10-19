@@ -64,7 +64,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             [NotNull] EntityConfiguration entityConfiguration,
             [NotNull] IForeignKey foreignKey,
             [NotNull] string dependentEndNavigationPropertyName,
-            [NotNull] string principalEndNavigationPropertyName)
+            [NotNull] string principalEndNavigationPropertyName,
+            DeleteBehavior onDeleteAction)
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -75,7 +76,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 entityConfiguration,
                 foreignKey,
                 dependentEndNavigationPropertyName,
-                principalEndNavigationPropertyName);
+                principalEndNavigationPropertyName,
+                onDeleteAction);
         }
 
         public virtual PropertyConfiguration CreatePropertyConfiguration(
