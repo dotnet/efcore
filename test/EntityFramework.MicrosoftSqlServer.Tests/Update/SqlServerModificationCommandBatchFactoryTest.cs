@@ -1,7 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.TestUtilities;
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                    new TelemetryListener("Fake"),
+                    new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper()),
                 new SqlServerSqlGenerator(),
                 new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
             var factory = new SqlServerModificationCommandBatchFactory(
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                    new TelemetryListener("Fake"),
+                    new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper()),
                 new SqlServerSqlGenerator(),
                 new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),

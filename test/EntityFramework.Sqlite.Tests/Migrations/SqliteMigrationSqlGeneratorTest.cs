@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Migrations
                 return new SqliteMigrationsSqlGenerator(
                     new RelationalCommandBuilderFactory(
                         new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                        new TelemetryListener("Fake"),
+                        new DiagnosticListener("Fake"),
                         typeMapper),
                     new SqliteSqlGenerator(),
                     typeMapper,

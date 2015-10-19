@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,28 +16,26 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class RelationalCommand : IRelationalCommand
     {
-#pragma warning disable 0618
         public RelationalCommand(
             [NotNull] ISensitiveDataLogger logger,
-            [NotNull] TelemetrySource telemetrySource,
+            [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] string commandText,
             [NotNull] IReadOnlyList<RelationalParameter> parameters)
         {
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(telemetrySource, nameof(telemetrySource));
+            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
             Check.NotNull(commandText, nameof(commandText));
             Check.NotNull(parameters, nameof(parameters));
 
             Logger = logger;
-            TelemetrySource = telemetrySource;
+            DiagnosticSource = diagnosticSource;
             CommandText = commandText;
             Parameters = parameters;
         }
 
         protected virtual ISensitiveDataLogger Logger { get; }
 
-        protected virtual TelemetrySource TelemetrySource { get; }
-#pragma warning restore 0618
+        protected virtual DiagnosticSource DiagnosticSource { get; }
 
         public virtual string CommandText { get; }
 
@@ -54,7 +52,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         return c.ExecuteNonQuery();
                     }
                 },
-                RelationalTelemetry.ExecuteMethod.ExecuteNonQuery);
+                RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery);
 
         public virtual async Task ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
@@ -68,7 +66,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         return await c.ExecuteNonQueryAsync(ct);
                     }
                 },
-                RelationalTelemetry.ExecuteMethod.ExecuteNonQuery,
+                RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                 cancellationToken);
 
         public virtual object ExecuteScalar([NotNull] IRelationalConnection connection)
@@ -81,7 +79,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         return c.ExecuteScalar();
                     }
                 },
-                RelationalTelemetry.ExecuteMethod.ExecuteScalar);
+                RelationalDiagnostics.ExecuteMethod.ExecuteScalar);
 
         public virtual async Task<object> ExecuteScalarAsync(
             [NotNull] IRelationalConnection connection,
@@ -95,7 +93,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         return await c.ExecuteScalarAsync(ct);
                     }
                 },
-                RelationalTelemetry.ExecuteMethod.ExecuteScalar,
+                RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                 cancellationToken);
 
         public virtual RelationalDataReader ExecuteReader([NotNull] IRelationalConnection connection)
@@ -113,7 +111,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         throw;
                     }
                 },
-                RelationalTelemetry.ExecuteMethod.ExecuteReader);
+                RelationalDiagnostics.ExecuteMethod.ExecuteReader);
 
         public virtual async Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
@@ -132,7 +130,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         throw;
                     }
                 },
-                RelationalTelemetry.ExecuteMethod.ExecuteReader,
+                RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                 cancellationToken);
 
         protected virtual T Execute<T>(
@@ -142,8 +140,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
         {
             var dbCommand = CreateCommand(connection);
 
-            WriteTelemetry(
-                RelationalTelemetry.BeforeExecuteCommand,
+            WriteDiagnostic(
+                RelationalDiagnostics.BeforeExecuteCommand,
                 dbCommand,
                 executeMethod);
 
@@ -155,7 +153,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
             catch (Exception exception)
             {
-                TelemetrySource
+                DiagnosticSource
                     .WriteCommandError(
                         dbCommand,
                         executeMethod,
@@ -165,8 +163,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 throw;
             }
 
-            WriteTelemetry(
-                RelationalTelemetry.AfterExecuteCommand,
+            WriteDiagnostic(
+                RelationalDiagnostics.AfterExecuteCommand,
                 dbCommand,
                 executeMethod);
 
@@ -181,8 +179,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
         {
             var dbCommand = CreateCommand(connection);
 
-            WriteTelemetry(
-                RelationalTelemetry.BeforeExecuteCommand,
+            WriteDiagnostic(
+                RelationalDiagnostics.BeforeExecuteCommand,
                 dbCommand,
                 executeMethod,
                 async: true);
@@ -195,7 +193,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
             catch (Exception exception)
             {
-                TelemetrySource
+                DiagnosticSource
                     .WriteCommandError(
                         dbCommand,
                         executeMethod,
@@ -205,8 +203,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 throw;
             }
 
-            WriteTelemetry(
-                RelationalTelemetry.AfterExecuteCommand,
+            WriteDiagnostic(
+                RelationalDiagnostics.AfterExecuteCommand,
                 dbCommand,
                 executeMethod,
                 async: true);
@@ -214,12 +212,12 @@ namespace Microsoft.Data.Entity.Storage.Internal
             return result;
         }
 
-        private void WriteTelemetry(
+        private void WriteDiagnostic(
             string name,
             DbCommand command,
             string executeMethod,
             bool async = false)
-            => TelemetrySource.WriteCommand(
+            => DiagnosticSource.WriteCommand(
                 name,
                 command,
                 executeMethod,

@@ -70,6 +70,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                         References =
                                 {
                                     BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                    BuildReference.ByName("System.Diagnostics", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -86,8 +87,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
-                                    BuildReference.ByName("Remotion.Linq", copyLocal: true),
-                                    BuildReference.ByName("System.Diagnostics.Tracing.Telemetry", copyLocal: true)
+                                    BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                         Sources = { @"
                             using Microsoft.Data.Entity;
@@ -148,6 +148,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                     References =
                             {
                                 BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                BuildReference.ByName("System.Diagnostics", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -163,8 +164,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                 BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                                 BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
-                                BuildReference.ByName("Remotion.Linq", copyLocal: true),
-                                BuildReference.ByName("System.Diagnostics.Tracing.Telemetry", copyLocal: true)
+                                BuildReference.ByName("Remotion.Linq", copyLocal: true)
                             },
                     Sources = { @"
                         using Microsoft.Data.Entity;
@@ -330,6 +330,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                     References =
                                 {
                                     BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
+                                    BuildReference.ByName("System.Diagnostics", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -346,8 +347,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                                     BuildReference.ByName("Microsoft.Extensions.Logging", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.Logging.Abstractions", copyLocal: true),
                                     BuildReference.ByName("Microsoft.Extensions.OptionsModel", copyLocal: true),
-                                    BuildReference.ByName("Remotion.Linq", copyLocal: true),
-                                    BuildReference.ByName("System.Diagnostics.Tracing.Telemetry", copyLocal: true)
+                                    BuildReference.ByName("Remotion.Linq", copyLocal: true)
                                 },
                     Sources = { @"
                             using Microsoft.Data.Entity;

@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Migrations;
@@ -35,10 +35,8 @@ namespace Microsoft.Data.Entity.Infrastructure
 
             builder.GetService()
                 .TryAdd(new ServiceCollection()
-#pragma warning disable 0618
-                    .AddSingleton(s => new TelemetryListener("Microsoft.Data.Entity"))
-                    .AddSingleton<TelemetrySource>(s => s.GetService<TelemetryListener>())
-#pragma warning restore 0618
+                .AddSingleton(s => new DiagnosticListener("Microsoft.Data.Entity"))
+                .AddSingleton<DiagnosticSource>(s => s.GetService<DiagnosticListener>())
                 .AddSingleton<ParameterNameGeneratorFactory>()
                 .AddSingleton<IComparer<ModificationCommand>, ModificationCommandComparer>()
                 .AddSingleton<IMigrationsIdGenerator, MigrationsIdGenerator>()

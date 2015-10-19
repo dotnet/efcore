@@ -80,7 +80,7 @@
     <Compile Include="TestUtilities\FakeProvider\FakeRelationalConnection.cs" />
     <Compile Include="TestUtilities\FakeProvider\FakeRelationalOptionsExtension.cs" />
     <Compile Include="TestUtilities\FakeSensitiveDataLogger`.cs" />
-    <Compile Include="TestUtilities\ListTelemetrySource.cs" />
+    <Compile Include="TestUtilities\ListDiagnosticSource.cs" />
     <Compile Include="Update\UpdateSqlGeneratorTest.cs" />
     <Compile Include="Update\UpdateSqlGeneratorTestBase.cs" />
     <Compile Include="Storage\RelationalTypeMapperTest.cs" />

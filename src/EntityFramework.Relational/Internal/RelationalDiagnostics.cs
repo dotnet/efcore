@@ -3,11 +3,11 @@
 
 using System;
 using System.Data.Common;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 
 namespace Microsoft.Data.Entity.Internal
 {
-    internal static class RelationalTelemetry
+    internal static class RelationalDiagnostics
     {
         private const string NamePrefix = "Microsoft.Data.Entity.";
 
@@ -22,18 +22,17 @@ namespace Microsoft.Data.Entity.Internal
             public const string ExecuteNonQuery = nameof(ExecuteNonQuery);
         }
 
-#pragma warning disable 0618
         public static void WriteCommand(
-            this TelemetrySource telemetrySource,
-            string telemetryName,
+            this DiagnosticSource diagnosticSource,
+            string diagnosticName,
             DbCommand command,
             string executeMethod,
             bool async)
         {
-            if (telemetrySource.IsEnabled(telemetryName))
+            if (diagnosticSource.IsEnabled(diagnosticName))
             {
-                telemetrySource.WriteTelemetry(
-                    telemetryName,
+                diagnosticSource.Write(
+                    diagnosticName,
                     new
                     {
                         Command = command,
@@ -44,15 +43,15 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         public static void WriteCommandError(
-            this TelemetrySource telemetrySource,
+            this DiagnosticSource diagnosticSource,
             DbCommand command,
             string executeMethod,
             bool async,
             Exception exception)
         {
-            if (telemetrySource.IsEnabled(CommandExecutionError))
+            if (diagnosticSource.IsEnabled(CommandExecutionError))
             {
-                telemetrySource.WriteTelemetry(
+                diagnosticSource.Write(
                     CommandExecutionError,
                     new
                     {
@@ -63,6 +62,5 @@ namespace Microsoft.Data.Entity.Internal
                     });
             }
         }
-#pragma warning restore 0618
     }
 }

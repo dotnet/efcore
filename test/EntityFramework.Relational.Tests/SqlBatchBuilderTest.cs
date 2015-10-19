@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
@@ -95,7 +95,7 @@ Statement3
             => new RelationalCommandListBuilder(
                 new RelationalCommandBuilderFactory(
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                    new TelemetryListener("Fake"),
+                    new DiagnosticListener("Fake"),
                     new TestRelationalTypeMapper()));
 
         private class TestRelationalTypeMapper : RelationalTypeMapper

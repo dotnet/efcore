@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "CommandText",
                 new RelationalParameter[0]);
 
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "CommandText",
                 new RelationalParameter[0]);
 
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "CommandText",
                 new RelationalParameter[0]);
 
@@ -100,7 +100,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "CommandText",
                 new[]
                 {
@@ -163,7 +163,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteNonQuery Command",
                 new RelationalParameter[0]);
 
@@ -201,7 +201,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteNonQuery Command",
                 new RelationalParameter[0]);
 
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteScalar Command",
                 new RelationalParameter[0]);
 
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteScalar Command",
                 new RelationalParameter[0]);
 
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteReader Command",
                 new RelationalParameter[0]);
 
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteReader Command",
                 new RelationalParameter[0]);
 
@@ -410,7 +410,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteReader Command",
                 new RelationalParameter[0]);
 
@@ -437,7 +437,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var relationalCommand = new RelationalCommand(
                 new FakeSensitiveDataLogger<RelationalCommand>(),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "ExecuteReader Command",
                 new RelationalParameter[0]);
 
@@ -450,32 +450,32 @@ namespace Microsoft.Data.Entity.Storage
                 {
                     {
                         new Action<RelationalCommand, IRelationalConnection>( (command, connection) => command.ExecuteNonQuery(connection)),
-                        RelationalTelemetry.ExecuteMethod.ExecuteNonQuery,
+                        RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                         false
                     },
                     {
                         new Action<RelationalCommand, IRelationalConnection>( (command, connection) => command.ExecuteScalar(connection)),
-                        RelationalTelemetry.ExecuteMethod.ExecuteScalar,
+                        RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                         false
                     },
                     {
                         new Action<RelationalCommand, IRelationalConnection>( (command, connection) => command.ExecuteReader(connection)),
-                        RelationalTelemetry.ExecuteMethod.ExecuteReader,
+                        RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                         false
                     },
                     {
                         new Func<RelationalCommand, IRelationalConnection, Task>( (command, connection) => command.ExecuteNonQueryAsync(connection)),
-                        RelationalTelemetry.ExecuteMethod.ExecuteNonQuery,
+                        RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                         true
                     },
                     {
                         new Func<RelationalCommand, IRelationalConnection, Task>( (command, connection) => command.ExecuteScalarAsync(connection)),
-                        RelationalTelemetry.ExecuteMethod.ExecuteScalar,
+                        RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                         true
                     },
                     {
                         new Func<RelationalCommand, IRelationalConnection, Task>( (command, connection) => command.ExecuteReaderAsync(connection)),
-                        RelationalTelemetry.ExecuteMethod.ExecuteReader,
+                        RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                         true
                     }
                 };
@@ -484,7 +484,7 @@ namespace Microsoft.Data.Entity.Storage
         [MemberData(nameof(CommandActions))]
         public async Task Logs_commands_without_parameter_values(
             Delegate commandDelegate,
-            string telemetryName,
+            string diagnosticName,
             bool async)
         {
             var options = CreateOptions();
@@ -497,7 +497,7 @@ namespace Microsoft.Data.Entity.Storage
                 new SensitiveDataLogger<RelationalCommand>(
                     new ListLogger<RelationalCommand>(log),
                     options),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "Command Text",
                 new[]
                 {
@@ -527,7 +527,7 @@ Command Text
         [MemberData(nameof(CommandActions))]
         public async Task Logs_commands_parameter_values(
             Delegate commandDelegate,
-            string telemetryName,
+            string diagnosticName,
             bool async)
         {
             var optionsExtension = new FakeRelationalOptionsExtension
@@ -547,7 +547,7 @@ Command Text
                 new SensitiveDataLogger<RelationalCommand>(
                     new ListLogger<RelationalCommand>(log),
                     options),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "Command Text",
                 new[]
                 {
@@ -582,7 +582,7 @@ Command Text
         [MemberData(nameof(CommandActions))]
         public async Task Logs_commands_parameter_values_and_warnings(
             Delegate commandDelegate,
-            string telemetryName,
+            string diagnosticName,
             bool async)
         {
             var optionsExtension = new FakeRelationalOptionsExtension
@@ -601,7 +601,7 @@ Command Text
                 new SensitiveDataLogger<RelationalCommand>(
                     new ListLogger<RelationalCommand>(log),
                     options),
-                new TelemetryListener("Fake"),
+                new DiagnosticListener("Fake"),
                 "Command Text",
                 new[]
                 {
@@ -634,22 +634,22 @@ Command Text
 
         [Theory]
         [MemberData(nameof(CommandActions))]
-        public async Task Reports_command_telemetry(
+        public async Task Reports_command_diagnostic(
             Delegate commandDelegate,
-            string telemetryName,
+            string diagnosticName,
             bool async)
         {
             var options = CreateOptions();
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var telemetry = new List<Tuple<string, object>>();
+            var diagnostic = new List<Tuple<string, object>>();
 
             var relationalCommand = new RelationalCommand(
                 new SensitiveDataLogger<RelationalCommand>(
                     new FakeSensitiveDataLogger<RelationalCommand>(),
                     options),
-                new ListTelemetrySource(telemetry),
+                new ListDiagnosticSource(diagnostic),
                 "Command Text",
                 new[]
                 {
@@ -665,18 +665,18 @@ Command Text
                 ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection);
             }
 
-            Assert.Equal(2, telemetry.Count);
-            Assert.Equal(RelationalTelemetry.BeforeExecuteCommand, telemetry[0].Item1);
-            Assert.Equal(RelationalTelemetry.AfterExecuteCommand, telemetry[1].Item1);
+            Assert.Equal(2, diagnostic.Count);
+            Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
+            Assert.Equal(RelationalDiagnostics.AfterExecuteCommand, diagnostic[1].Item1);
 
-            dynamic beforeData = telemetry[0].Item2;
-            dynamic afterData = telemetry[1].Item2;
+            dynamic beforeData = diagnostic[0].Item2;
+            dynamic afterData = diagnostic[1].Item2;
 
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
 
-            Assert.Equal(telemetryName, beforeData.ExecuteMethod);
-            Assert.Equal(telemetryName, afterData.ExecuteMethod);
+            Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
+            Assert.Equal(diagnosticName, afterData.ExecuteMethod);
 
             Assert.Equal(async, beforeData.IsAsync);
             Assert.Equal(async, afterData.IsAsync);
@@ -684,9 +684,9 @@ Command Text
 
         [Theory]
         [MemberData(nameof(CommandActions))]
-        public async Task Reports_command_telemetry_on_exception(
+        public async Task Reports_command_diagnostic_on_exception(
             Delegate commandDelegate,
-            string telemetryName,
+            string diagnosticName,
             bool async)
         {
             var exception = new InvalidOperationException();
@@ -707,13 +707,13 @@ Command Text
 
             var fakeConnection = new FakeRelationalConnection(options);
 
-            var telemetry = new List<Tuple<string, object>>();
+            var diagnostic = new List<Tuple<string, object>>();
 
             var relationalCommand = new RelationalCommand(
                 new SensitiveDataLogger<RelationalCommand>(
                     new FakeSensitiveDataLogger<RelationalCommand>(),
                     options),
-                new ListTelemetrySource(telemetry),
+                new ListDiagnosticSource(diagnostic),
                 "Command Text",
                 new[]
                 {
@@ -732,18 +732,18 @@ Command Text
                     => ((Action<RelationalCommand, IRelationalConnection>)commandDelegate)(relationalCommand, fakeConnection));
             }
 
-            Assert.Equal(2, telemetry.Count);
-            Assert.Equal(RelationalTelemetry.BeforeExecuteCommand, telemetry[0].Item1);
-            Assert.Equal(RelationalTelemetry.CommandExecutionError, telemetry[1].Item1);
+            Assert.Equal(2, diagnostic.Count);
+            Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
+            Assert.Equal(RelationalDiagnostics.CommandExecutionError, diagnostic[1].Item1);
 
-            dynamic beforeData = telemetry[0].Item2;
-            dynamic afterData = telemetry[1].Item2;
+            dynamic beforeData = diagnostic[0].Item2;
+            dynamic afterData = diagnostic[1].Item2;
 
             Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
             Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
 
-            Assert.Equal(telemetryName, beforeData.ExecuteMethod);
-            Assert.Equal(telemetryName, afterData.ExecuteMethod);
+            Assert.Equal(diagnosticName, beforeData.ExecuteMethod);
+            Assert.Equal(diagnosticName, afterData.ExecuteMethod);
 
             Assert.Equal(async, beforeData.IsAsync);
             Assert.Equal(async, afterData.IsAsync);

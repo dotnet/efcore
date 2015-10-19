@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -14,25 +14,23 @@ namespace Microsoft.Data.Entity.Storage.Internal
     public class RelationalCommandBuilder : IRelationalCommandBuilder
     {
         private readonly ISensitiveDataLogger _logger;
-#pragma warning disable 0618
-        private readonly TelemetrySource _telemetrySource;
+        private readonly DiagnosticSource _diagnosticSource;
         private readonly IRelationalTypeMapper _typeMapper;
         private readonly List<RelationalParameter> _parameters = new List<RelationalParameter>();
 
         public RelationalCommandBuilder(
             [NotNull] ISensitiveDataLogger logger,
-            [NotNull] TelemetrySource telemetrySource,
+            [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(logger, nameof(logger));
-            Check.NotNull(telemetrySource, nameof(telemetrySource));
+            Check.NotNull(diagnosticSource, nameof(diagnosticSource));
             Check.NotNull(typeMapper, nameof(typeMapper));
 
             _logger = logger;
-            _telemetrySource = telemetrySource;
+            _diagnosticSource = diagnosticSource;
             _typeMapper = typeMapper;
         }
-#pragma warning restore 0618
 
         public virtual IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
@@ -58,7 +56,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public virtual IRelationalCommand BuildRelationalCommand()
                 => new RelationalCommand(
                     _logger,
-                    _telemetrySource,
+                    _diagnosticSource,
                     CommandTextBuilder.ToString(),
                     _parameters);
 

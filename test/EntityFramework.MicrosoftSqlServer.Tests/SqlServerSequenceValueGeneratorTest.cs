@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -165,7 +165,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 : base(
                     new RelationalCommandBuilderFactory(
                         new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                        new TelemetryListener("Fake"),
+                        new DiagnosticListener("Fake"),
                         new SqlServerTypeMapper()))
             {
                 _blockSize = blockSize;

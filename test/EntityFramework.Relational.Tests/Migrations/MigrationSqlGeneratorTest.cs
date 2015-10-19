@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Tracing;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Migrations
                 return new ConcreteMigrationSqlGenerator(
                     new RelationalCommandBuilderFactory(
                         new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
-                        new TelemetryListener("Fake"),
+                        new DiagnosticListener("Fake"),
                         typeMapper),
                     new RelationalSqlGenerator(),
                     typeMapper,
