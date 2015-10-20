@@ -3,6 +3,6 @@
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
   <Library>
     <!-- TODO optimize this for types that actually need reflection -->
-    <Assembly Name="EntityFramework.Sqlite" Activate="All" />
+    <Assembly Name="EntityFramework.Sqlite" Dynamic="Required All" />
   </Library>
 </Directives>
