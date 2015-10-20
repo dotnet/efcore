@@ -113,8 +113,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var optionsBuilder = new DbContextOptionsBuilder();
 
                 optionsBuilder
-                    .UseSqlServer(testDatabase.Connection.ConnectionString)
-                    .LogSqlParameterValues();
+                    .EnableSensitiveDataLogging()
+                    .UseSqlServer(testDatabase.Connection.ConnectionString);
 
                 using (var db = new BloggingContext(_fixture.ServiceProvider, optionsBuilder.Options))
                 {

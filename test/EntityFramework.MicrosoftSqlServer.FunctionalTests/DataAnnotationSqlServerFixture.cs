@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override DataAnnotationContext CreateContext(SqlServerTestStore testStore)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(testStore.Connection).LogSqlParameterValues();
+            optionsBuilder.EnableSensitiveDataLogging().UseSqlServer(testStore.Connection);
 
             var context = new DataAnnotationContext(_serviceProvider, optionsBuilder.Options);
             context.Database.UseTransaction(testStore.Transaction);

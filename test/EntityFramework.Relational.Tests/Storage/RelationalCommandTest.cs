@@ -532,12 +532,10 @@ Command Text
         {
             var optionsExtension = new FakeRelationalOptionsExtension
             {
-                ConnectionString = ConnectionString,
-                LogSqlParameterValues = true,
-                LogSqlParameterValuesWarned = false
+                ConnectionString = ConnectionString
             };
 
-            var options = CreateOptions(optionsExtension);
+            var options = CreateOptions(optionsExtension, logParameters: true);
 
             var fakeConnection = new FakeRelationalConnection(options);
 
@@ -587,11 +585,10 @@ Command Text
         {
             var optionsExtension = new FakeRelationalOptionsExtension
             {
-                ConnectionString = ConnectionString,
-                LogSqlParameterValues = true
+                ConnectionString = ConnectionString
             };
 
-            var options = CreateOptions(optionsExtension);
+            var options = CreateOptions(optionsExtension, logParameters: true);
 
             var fakeConnection = new FakeRelationalConnection(options);
 
@@ -756,9 +753,15 @@ Command Text
         private static FakeRelationalConnection CreateConnection(IDbContextOptions options = null)
             => new FakeRelationalConnection(options ?? CreateOptions());
 
-        public static IDbContextOptions CreateOptions(FakeRelationalOptionsExtension optionsExtension = null)
+        public static IDbContextOptions CreateOptions(
+            FakeRelationalOptionsExtension optionsExtension = null, bool logParameters = false)
         {
             var optionsBuilder = new DbContextOptionsBuilder();
+
+            if (logParameters)
+            {
+                optionsBuilder.EnableSensitiveDataLogging();
+            }
 
             ((IDbContextOptionsBuilderInfrastructure)optionsBuilder)
                 .AddOrUpdateExtension(optionsExtension ?? new FakeRelationalOptionsExtension { ConnectionString = ConnectionString });

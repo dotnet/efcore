@@ -242,8 +242,8 @@ LEFT JOIN [Customer] AS [c] ON ([o].[CustomerFirstName] = [c].[FirstName]) AND (
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
-                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"))
-                    .LogSqlParameterValues();
+                    .EnableSensitiveDataLogging()
+                    .UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro925"));
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {

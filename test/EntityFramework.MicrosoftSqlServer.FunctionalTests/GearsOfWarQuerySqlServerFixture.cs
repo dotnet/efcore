@@ -54,8 +54,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var optionsBuilder = new DbContextOptionsBuilder();
 
             optionsBuilder
-                .UseSqlServer(testStore.Connection)
-                .LogSqlParameterValues();
+                .EnableSensitiveDataLogging()
+                .UseSqlServer(testStore.Connection);
 
             var context = new GearsOfWarContext(_serviceProvider, optionsBuilder.Options);
             

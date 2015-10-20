@@ -12,16 +12,16 @@ namespace Microsoft.Data.Entity.Infrastructure
     public class SensitiveDataLogger<T> : ISensitiveDataLogger<T>
     {
         private readonly ILogger<T> _logger;
-        private readonly RelationalOptionsExtension _relationalOptionsExtension;
+        private readonly CoreOptionsExtension _coreOptionsExtension;
 
         public SensitiveDataLogger(
             [NotNull] ILogger<T> logger, [CanBeNull] IDbContextOptions contextOptions)
         {
             _logger = logger;
 
-            _relationalOptionsExtension
+            _coreOptionsExtension
                 = contextOptions?.Extensions
-                    .OfType<RelationalOptionsExtension>()
+                    .OfType<CoreOptionsExtension>()
                     .FirstOrDefault();
         }
 
@@ -29,20 +29,20 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             get
             {
-                if (_relationalOptionsExtension == null)
+                if (_coreOptionsExtension == null)
                 {
                     return false;
                 }
 
-                if (_relationalOptionsExtension.LogSqlParameterValues
-                    && !_relationalOptionsExtension.LogSqlParameterValuesWarned)
+                if (_coreOptionsExtension.IsSensitiveDataLoggingEnabled
+                    && !_coreOptionsExtension.SensitiveDataLoggingWarned)
                 {
                     _logger.LogWarning(RelationalStrings.ParameterLoggingEnabled);
 
-                    _relationalOptionsExtension.LogSqlParameterValuesWarned = true;
+                    _coreOptionsExtension.SensitiveDataLoggingWarned = true;
                 }
 
-                return _relationalOptionsExtension.LogSqlParameterValues;
+                return _coreOptionsExtension.IsSensitiveDataLoggingEnabled;
             }
         }
 

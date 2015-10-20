@@ -21,6 +21,17 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
+        public void Sensitive_data_logging_can_be_set_explicitly_in_options()
+        {
+            var model = new Model();
+
+            var optionsBuilder = new DbContextOptionsBuilder().UseModel(model).EnableSensitiveDataLogging();
+
+            Assert.Same(model, optionsBuilder.Options.FindExtension<CoreOptionsExtension>().Model);
+            Assert.True(optionsBuilder.Options.FindExtension<CoreOptionsExtension>().IsSensitiveDataLoggingEnabled);
+        }
+
+        [Fact]
         public void Extensions_can_be_added_to_options()
         {
             var optionsBuilder = new DbContextOptionsBuilder();

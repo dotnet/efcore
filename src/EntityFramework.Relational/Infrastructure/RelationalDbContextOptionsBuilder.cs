@@ -53,9 +53,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         public virtual TBuilder DisableQueryClientEvaluation()
             => SetOption(e => e.IsQueryClientEvaluationEnabled = false);
         
-        public virtual TBuilder LogSqlParameterValues()
-            => SetOption(e => e.LogSqlParameterValues = true);
-
         protected virtual TBuilder SetOption([NotNull] Action<TExtension> setAction)
         {
             Check.NotNull(setAction, nameof(setAction));

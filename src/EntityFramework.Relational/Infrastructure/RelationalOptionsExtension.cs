@@ -18,7 +18,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         private int? _maxBatchSize;
         private bool _useRelationalNulls;
         private bool _queryClientEvaluationEnabled = true;
-        private bool _logSqlParameterValues;
         private bool? _throwOnAmbientTransaction;
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
@@ -40,7 +39,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             _maxBatchSize = copyFrom._maxBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
             _queryClientEvaluationEnabled = copyFrom._queryClientEvaluationEnabled;
-            _logSqlParameterValues = copyFrom._logSqlParameterValues;
             _throwOnAmbientTransaction = copyFrom._throwOnAmbientTransaction;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
@@ -114,14 +112,6 @@ namespace Microsoft.Data.Entity.Infrastructure
             get { return _queryClientEvaluationEnabled; }
             set { _queryClientEvaluationEnabled = value; }
         }
-
-        public virtual bool LogSqlParameterValues
-        {
-            get { return _logSqlParameterValues; }
-            set { _logSqlParameterValues = value; }
-        }
-
-        internal bool LogSqlParameterValuesWarned { get; set; }
 
         public virtual bool? ThrowOnAmbientTransaction
         {

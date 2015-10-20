@@ -54,9 +54,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         {
             var optionsBuilder = new DbContextOptionsBuilder();
 
-            var sqlServerOptions = optionsBuilder.UseSqlServer(testStore.Connection);
-
-            sqlServerOptions.LogSqlParameterValues();
+            var sqlServerOptions
+                = optionsBuilder
+                    .EnableSensitiveDataLogging()
+                    .UseSqlServer(testStore.Connection);
 
             if (useRelationalNulls)
             {
