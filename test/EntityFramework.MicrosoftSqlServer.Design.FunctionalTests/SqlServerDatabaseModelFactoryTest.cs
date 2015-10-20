@@ -110,7 +110,7 @@ CREATE TABLE [dbo].[Mountains] (
     Id int,
     Name nvarchar(100) NOT NULL,
     Latitude decimal( 5, 2 ) DEFAULT 0.0,
-    Created datetime2(6),
+    Created datetime2(6) DEFAULT('October 20, 2015 11am'),
     Sum AS Latitude + 1.0,
     Modified rowversion,
     Primary Key (Name, Id)
@@ -161,6 +161,7 @@ CREATE TABLE [dbo].[Mountains] (
                     {
                         Assert.Equal("Created", created.Name);
                         Assert.Equal(6, created.Scale);
+                        Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
                     },
                 sum =>
                     {
