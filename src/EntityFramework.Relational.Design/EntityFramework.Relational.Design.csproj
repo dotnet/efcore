@@ -90,6 +90,7 @@
     <Compile Include="ReverseEngineering\Internal\StringBuilderCodeWriter.cs" />
     <Compile Include="ReverseEngineering\Internal\TableSelectionSet.cs" />
     <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
+    <Compile Include="ReverseEngineering\RelationalMetadataReader.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineerFiles.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />

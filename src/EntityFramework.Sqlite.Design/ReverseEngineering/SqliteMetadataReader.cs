@@ -13,7 +13,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
-    public class SqliteMetadataReader : IMetadataReader
+    public class SqliteMetadataReader : RelationalMetadataReader
     {
         private SqliteConnection _connection;
         private TableSelectionSet _tableSelectionSet;
@@ -36,7 +36,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             _indexDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public virtual SchemaInfo GetSchema([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
+        public override SchemaInfo GetSchema(
+            [NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
@@ -250,6 +251,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                             }
                             foreignKey.To.Add(toColumn);
                         }
+
+                        foreignKey.OnDelete = ConvertToReferentialAction(
+                            reader.GetString((int)ForeignKeyList.OnDelete));
                     }
                 }
 
