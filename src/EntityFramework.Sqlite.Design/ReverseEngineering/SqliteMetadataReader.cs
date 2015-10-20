@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Design;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
@@ -13,7 +13,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
 {
-    public class SqliteMetadataReader : RelationalMetadataReader
+    public class SqliteMetadataReader : IMetadataReader
     {
         private SqliteConnection _connection;
         private TableSelectionSet _tableSelectionSet;
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             _indexDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public override SchemaInfo GetSchema(
+        public virtual SchemaInfo GetSchema(
             [NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -261,6 +261,30 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 {
                     dependentTable.ForeignKeys.Add(foreignKey.Value);
                 }
+            }
+        }
+
+        private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
+        {
+            switch (onDeleteAction.ToUpperInvariant())
+            {
+                case "RESTRICT":
+                    return ReferentialAction.Restrict;
+
+                case "CASCADE":
+                    return ReferentialAction.Cascade;
+
+                case "SET_NULL":
+                    return ReferentialAction.SetNull;
+
+                case "SET_DEFAULT":
+                    return ReferentialAction.SetDefault;
+
+                case "NO_ACTION":
+                    return ReferentialAction.NoAction;
+
+                default:
+                    return null;
             }
         }
     }

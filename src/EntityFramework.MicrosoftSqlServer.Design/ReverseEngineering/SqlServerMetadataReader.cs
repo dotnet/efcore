@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
 {
-    public class SqlServerMetadataReader : RelationalMetadataReader
+    public class SqlServerMetadataReader : IMetadataReader
     {
         private SqlConnection _connection;
         private TableSelectionSet _tableSelectionSet;
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering
             _tableColumns = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public override SchemaInfo GetSchema(string connectionString, TableSelectionSet tableSelectionSet)
+        public virtual SchemaInfo GetSchema(string connectionString, TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
@@ -276,6 +276,30 @@ ORDER BY f.name, fc.constraint_column_id";
 
                     fkInfo.OnDelete = ConvertToReferentialAction(reader.GetString(8));
                 }
+            }
+        }
+
+        private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
+        {
+            switch (onDeleteAction.ToUpperInvariant())
+            {
+                case "RESTRICT":
+                    return ReferentialAction.Restrict;
+
+                case "CASCADE":
+                    return ReferentialAction.Cascade;
+
+                case "SET_NULL":
+                    return ReferentialAction.SetNull;
+
+                case "SET_DEFAULT":
+                    return ReferentialAction.SetDefault;
+
+                case "NO_ACTION":
+                    return ReferentialAction.NoAction;
+
+                default:
+                    return null;
             }
         }
     }
