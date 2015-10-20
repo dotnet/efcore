@@ -164,6 +164,8 @@ namespace E2ETest.Namespace
 
                 entity.Property(e => e.WithDateDefaultExpression).HasDefaultValueSql("getdate()");
 
+                entity.Property(e => e.WithDateFixedDefault).HasDefaultValueSql("'October 20, 2015 11am'");
+
                 entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
 
                 entity.Property(e => e.WithGuidDefaultExpression).HasDefaultValueSql("newsequentialid()");

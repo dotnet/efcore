@@ -139,6 +139,7 @@ GO
 CREATE TABLE "dbo"."PropertyConfiguration" (
 	"PropertyConfigurationID" "tinyint" IDENTITY(1, 1) PRIMARY KEY, -- tests error message about tinyint identity columns
 	"WithDateDefaultExpression" "datetime2" NOT NULL DEFAULT (getdate()),
+	"WithDateFixedDefault" "datetime2" NOT NULL DEFAULT ('October 20, 2015 11am'),
 	"WithDateNullDefault" "datetime2" NULL DEFAULT (NULL),
 	"WithGuidDefaultExpression" "uniqueidentifier" NOT NULL DEFAULT (newsequentialid()),
 	"WithVarcharNullDefaultValue" "varchar" NULL DEFAULT (NULL),

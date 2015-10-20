@@ -132,6 +132,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             propertyType = propertyType.UnwrapNullableType();
 
+            if (typeof(DateTime) == propertyType)
+            {
+                return new DefaultExpressionOrValue
+                {
+                    DefaultExpression = sqlServerDefaultValue
+                };
+            }
+
             if (typeof(string) == propertyType)
             {
                 return new DefaultExpressionOrValue

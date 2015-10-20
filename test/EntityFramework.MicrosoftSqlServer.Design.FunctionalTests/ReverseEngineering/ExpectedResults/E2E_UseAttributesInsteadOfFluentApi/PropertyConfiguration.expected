@@ -14,6 +14,7 @@ namespace E2ETest.Namespace
         public byte[] RowversionColumn { get; set; }
         public int? SumOfAAndB { get; set; }
         public DateTime WithDateDefaultExpression { get; set; }
+        public DateTime WithDateFixedDefault { get; set; }
         public DateTime? WithDateNullDefault { get; set; }
         public int WithDefaultValue { get; set; }
         public Guid WithGuidDefaultExpression { get; set; }
