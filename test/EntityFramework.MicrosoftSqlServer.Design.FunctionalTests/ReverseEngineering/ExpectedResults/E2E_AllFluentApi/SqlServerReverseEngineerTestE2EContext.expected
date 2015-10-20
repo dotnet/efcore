@@ -95,7 +95,7 @@ namespace E2ETest.Namespace
                     .IsRequired()
                     .HasMaxLength(20);
 
-                entity.HasOne(d => d.OneToOneDependentNavigation).WithOne(p => p.OneToOneDependent).HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 });
+                entity.HasOne(d => d.OneToOneDependentNavigation).WithOne(p => p.OneToOneDependent).HasForeignKey<OneToOneDependent>(d => new { d.OneToOneDependentID1, d.OneToOneDependentID2 }).OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyDependent>(entity =>

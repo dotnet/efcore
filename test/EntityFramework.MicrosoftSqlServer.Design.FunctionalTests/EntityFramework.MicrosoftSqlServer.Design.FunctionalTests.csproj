@@ -49,6 +49,10 @@
       <Project>{9afdf1fa-1710-48e3-9802-7ab9dac91b35}</Project>
       <Name>EntityFramework.MicrosoftSqlServer.Design</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Relational\EntityFramework.Relational.csproj">
+      <Project>{75c5a774-a3f3-43eb-97d3-dbe0cf2825d8}</Project>
+      <Name>EntityFramework.Relational</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj">
       <Project>{6ab933c7-de2a-45f2-bdc6-e71a01ef7756}</Project>
       <Name>EntityFramework.Core.FunctionalTests</Name>

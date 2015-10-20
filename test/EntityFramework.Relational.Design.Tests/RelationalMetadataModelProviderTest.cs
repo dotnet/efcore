@@ -271,7 +271,8 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Table = childrenTable,
                 From = { childrenTable.Columns[1] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0] }
+                To = { parentTable.Columns[0] },
+                OnDelete = Migrations.ReferentialAction.Cascade
             });
 
             var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
@@ -283,6 +284,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             Assert.NotEmpty(parent.FindReferencingForeignKeys());
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.False(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
 
             var principalKey = fk.PrincipalKey;
 
@@ -308,7 +310,8 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Table = childrenTable,
                 From = { childrenTable.Columns[0] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0] }
+                To = { parentTable.Columns[0] },
+                OnDelete = Migrations.ReferentialAction.NoAction
             });
 
             var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
@@ -317,6 +320,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.True(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.Restrict, fk.DeleteBehavior);
         }
 
         [Fact]
@@ -347,7 +351,8 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Table = childrenTable,
                 From = { childrenTable.Columns[1], childrenTable.Columns[2] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0], parentTable.Columns[1] }
+                To = { parentTable.Columns[0], parentTable.Columns[1] },
+                OnDelete = Migrations.ReferentialAction.SetNull
             });
 
             var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
@@ -360,6 +365,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.False(fk.IsUnique);
+            Assert.Equal(DeleteBehavior.SetNull, fk.DeleteBehavior);
 
             var principalKey = fk.PrincipalKey;
 

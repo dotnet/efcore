@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
@@ -40,7 +41,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         {
             _testStore.ExecuteNonQuery("CREATE SCHEMA db2");
             var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1) PRIMARY KEY);" +
-                      "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, FOREIGN KEY (RangeId) REFERENCES Ranges(Id) )";
+                      "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, FOREIGN KEY (RangeId) REFERENCES Ranges(Id) ON DELETE CASCADE)";
             var dbInfo = GetDatabaseInfo(sql);
 
             var fk = Assert.Single(dbInfo.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
@@ -51,6 +52,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
             Assert.Equal("RangeId", fk.From.Single().Name);
             Assert.Equal("Id", fk.To.Single().Name);
+            Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
         }
 
         [Fact]
@@ -58,7 +60,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         {
             _testStore.ExecuteNonQuery("CREATE SCHEMA db2");
             var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1), AltId INT, PRIMARY KEY(Id, AltId));" +
-                      "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, RangeAltId INT NOT NULL, FOREIGN KEY (RangeId, RangeAltId) REFERENCES Ranges(Id, AltId) )";
+                      "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, RangeAltId INT NOT NULL, FOREIGN KEY (RangeId, RangeAltId) REFERENCES Ranges(Id, AltId) ON DELETE NO ACTION)";
             var dbInfo = GetDatabaseInfo(sql);
 
             var fk = Assert.Single(dbInfo.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
@@ -69,6 +71,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
             Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.From.Select(c => c.Name).ToArray());
             Assert.Equal(new[] { "Id", "AltId" }, fk.To.Select(c => c.Name).ToArray());
+            Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
         }
 
         [Fact]

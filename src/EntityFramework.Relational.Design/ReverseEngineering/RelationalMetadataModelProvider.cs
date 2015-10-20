@@ -298,6 +298,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                     var foreignKey = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
 
                     foreignKey.IsUnique = dependentEntityType.FindKey(depProps) != null;
+
+                    AssignOnDeleteAction(fkInfo, foreignKey);
                 }
                 catch (Exception ex)
                 {
@@ -314,6 +316,28 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             }
 
             return modelBuilder;
+        }
+
+        private static void AssignOnDeleteAction(
+            [NotNull] ForeignKey from, [NotNull] Metadata.ForeignKey to)
+        {
+            Check.NotNull(from, nameof(from));
+            Check.NotNull(to, nameof(to));
+
+            switch (from.OnDelete)
+            {
+                case Migrations.ReferentialAction.Cascade:
+                    to.DeleteBehavior = DeleteBehavior.Cascade;
+                    break;
+
+                case Migrations.ReferentialAction.SetNull:
+                    to.DeleteBehavior = DeleteBehavior.SetNull;
+                    break;
+
+                default:
+                    to.DeleteBehavior = DeleteBehavior.Restrict;
+                    break;
+            }
         }
 
         protected virtual void LogFailedForeignKey([NotNull] ForeignKey foreignKey)

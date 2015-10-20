@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Relational.Design;
+using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
@@ -37,7 +37,8 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
             _indexDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public virtual SchemaInfo GetSchema([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
+        public virtual SchemaInfo GetSchema(
+            [NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
@@ -261,6 +262,9 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                             }
                             foreignKey.To.Add(toColumn);
                         }
+
+                        foreignKey.OnDelete = ConvertToReferentialAction(
+                            reader.GetString((int)ForeignKeyList.OnDelete));
                     }
                 }
 
@@ -268,6 +272,30 @@ namespace Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering
                 {
                     dependentTable.ForeignKeys.Add(foreignKey.Value);
                 }
+            }
+        }
+
+        private static ReferentialAction? ConvertToReferentialAction(string onDeleteAction)
+        {
+            switch (onDeleteAction.ToUpperInvariant())
+            {
+                case "RESTRICT":
+                    return ReferentialAction.Restrict;
+
+                case "CASCADE":
+                    return ReferentialAction.Cascade;
+
+                case "SET_NULL":
+                    return ReferentialAction.SetNull;
+
+                case "SET_DEFAULT":
+                    return ReferentialAction.SetDefault;
+
+                case "NO_ACTION":
+                    return ReferentialAction.NoAction;
+
+                default:
+                    return null;
             }
         }
     }
