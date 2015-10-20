@@ -4,6 +4,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -13,17 +14,21 @@ namespace Microsoft.Data.Entity.Query.Expressions
     {
         private string _alias;
         private IQuerySource _querySource;
+        private IEntityType _entityType;
 
         protected TableExpressionBase(
-            [CanBeNull] IQuerySource querySource, [CanBeNull] string alias)
+            [CanBeNull] IQuerySource querySource, [CanBeNull] string alias, [CanBeNull] IEntityType entityType)
         {
             _querySource = querySource;
             _alias = alias;
+            _entityType = entityType;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
         public override Type Type => typeof(object);
+
+        public virtual IEntityType EntityType => _entityType;
 
         public virtual IQuerySource QuerySource
         {

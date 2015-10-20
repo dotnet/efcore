@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
@@ -15,10 +16,12 @@ namespace Microsoft.Data.Entity.Query.Expressions
             [NotNull] string sql,
             [NotNull] object[] parameters,
             [NotNull] string alias,
-            [NotNull] IQuerySource querySource)
+            [NotNull] IQuerySource querySource,
+            [NotNull] IEntityType entityType)
             : base(
                 Check.NotNull(querySource, nameof(querySource)),
-                Check.NotEmpty(alias, nameof(alias)))
+                Check.NotEmpty(alias, nameof(alias)),
+                Check.NotNull(entityType, nameof(entityType)))
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotNull(parameters, nameof(parameters));
