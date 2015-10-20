@@ -8,7 +8,7 @@
     <ProjectGuid>{2FA76686-11EB-4A4C-B3E2-1FDAF29E4A62}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Sqlite.Design</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Scaffolding</RootNamespace>
     <AssemblyName>EntityFramework.Sqlite.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -37,22 +37,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Shared\Check.cs">
-      <Link>Check.cs</Link>
+      <Link>Shared\Check.cs</Link>
     </Compile>
     <Compile Include="..\Shared\CodeAnnotations.cs">
-      <Link>CodeAnnotations.cs</Link>
+      <Link>Shared\CodeAnnotations.cs</Link>
     </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
+      <Link>Shared\LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
-    <Compile Include="ReverseEngineering\TableSelectionSetSqliteExtensions.cs" />
+    <Compile Include="SqliteTableSelectionSetExtensions.cs" />
     <Compile Include="SqliteDesignTimeServices.cs" />
-    <Compile Include="ReverseEngineering\SqliteDmlParser.cs" />
-    <Compile Include="ReverseEngineering\SqliteMetadataReader.cs" />
+    <Compile Include="Internal\SqliteDmlParser.cs" />
+    <Compile Include="SqliteMetadataReader.cs" />
     <Compile Include="SqliteMethodNameProvider.cs" />
     <None Include="project.json" />
   </ItemGroup>

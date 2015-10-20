@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 
-namespace Microsoft.Data.Entity.Relational.Design.Model
+namespace Microsoft.Data.Entity.Scaffolding.Model
 {
     public class ForeignKey
     {

@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Scaffolding.Internal;
+using Microsoft.Data.Entity.Scaffolding.Model;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Design

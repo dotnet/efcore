@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Relational.Design.Model
+namespace Microsoft.Data.Entity.Scaffolding.Model
 {
     public class SchemaInfo
     {

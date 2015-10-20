@@ -4,14 +4,11 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
-using Microsoft.Data.Entity.Storage.Internal;
-using Microsoft.Data.Entity.Sqlite.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.Sqlite.Design
+namespace Microsoft.Data.Entity.Scaffolding
 {
     public class SqliteDesignTimeServices
     {
@@ -22,13 +19,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
                 .AddSingleton<IMetadataReader, SqliteMetadataReader>()
                 .AddSingleton<IMethodNameProvider, SqliteMethodNameProvider>()
-                .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>()
-
-                // TODO move to commands
-                .AddSingleton<ConfigurationFactory>()
-                .AddSingleton<DbContextWriter>()
-                .AddSingleton<EntityTypeWriter>()
-                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
+                .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>();
         }
     }
 }

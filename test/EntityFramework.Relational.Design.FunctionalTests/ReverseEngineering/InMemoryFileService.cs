@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 
 namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEngineering
 {

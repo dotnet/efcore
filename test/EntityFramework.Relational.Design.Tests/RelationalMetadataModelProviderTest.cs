@@ -7,14 +7,14 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.Model;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
+using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.Scaffolding.Model;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using ForeignKey = Microsoft.Data.Entity.Relational.Design.Model.ForeignKey;
-using Index = Microsoft.Data.Entity.Relational.Design.Model.Index;
+using ForeignKey = Microsoft.Data.Entity.Scaffolding.Model.ForeignKey;
+using Index = Microsoft.Data.Entity.Scaffolding.Model.Index;
 
 namespace Microsoft.Data.Entity.Relational.Design
 {

@@ -8,7 +8,7 @@
     <ProjectGuid>{7028A7E3-0AD8-4606-A922-8189C8A704E0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Microsoft.Data.Entity.Relational.Design</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Scaffolding</RootNamespace>
     <AssemblyName>EntityFramework.Relational.Design</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -45,12 +45,12 @@
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
     <Compile Include="..\Shared\LoggingExtensions.cs">
-      <Link>LoggingExtensions.cs</Link>
+      <Link>Utilities\LoggingExtensions.cs</Link>
     </Compile>
     <Compile Include="Model\ModelExtensions.cs" />
-    <Compile Include="ReverseEngineering\CSharpNamer.cs" />
-    <Compile Include="ReverseEngineering\CSharpUniqueNamer.cs" />
-    <Compile Include="ReverseEngineering\IMetadataReader.cs" />
+    <Compile Include="Internal\CSharpNamer.cs" />
+    <Compile Include="Internal\CSharpUniqueNamer.cs" />
+    <Compile Include="IMetadataReader.cs" />
     <Compile Include="Model\Column.cs" />
     <Compile Include="Model\SchemaInfo.cs" />
     <Compile Include="Model\ForeignKey.cs" />
@@ -64,44 +64,49 @@
     <Compile Include="Properties\RelationalDesignStrings.Designer.cs">
       <DependentUpon>RelationalDesignStrings.resx</DependentUpon>
     </Compile>
-    <Compile Include="..\Shared\CodeAnnotations.cs" />
-    <Compile Include="..\Shared\StringBuilderExtensions.cs" />
-    <Compile Include="..\Shared\SharedTypeExtensions.cs" />
-    <Compile Include="ReverseEngineering\CodeWriter.cs" />
-    <Compile Include="ReverseEngineering\ConfigurationFactory.cs" />
-    <Compile Include="ReverseEngineering\Configuration\AttributeConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\CustomConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\EntityConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\FluentApiConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\IAttributeConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\IFluentApiConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\KeyFluentApiConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\ModelConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\NavigationPropertyInitializerConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\OptionsBuilderConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\PropertyConfiguration.cs" />
-    <Compile Include="ReverseEngineering\Configuration\RelationshipConfiguration.cs" />
-    <Compile Include="ReverseEngineering\FileSystemFileService.cs" />
-    <Compile Include="ReverseEngineering\IMethodNameProvider.cs" />
-    <Compile Include="ReverseEngineering\Metadata\RelationalDesignEntityTypeAnnotations.cs" />
-    <Compile Include="ReverseEngineering\Metadata\RelationalDesignMetadataExtensions.cs" />
-    <Compile Include="ReverseEngineering\Metadata\RelationalDesignPropertyAnnotations.cs" />
-    <Compile Include="ReverseEngineering\Metadata\RelationalDesignForeignKeyAnnotations.cs" />
-    <Compile Include="ReverseEngineering\MetadataModelProvider.cs" />
-    <Compile Include="ReverseEngineering\IFileService.cs" />
-    <Compile Include="ReverseEngineering\Internal\DbContextWriter.cs" />
-    <Compile Include="ReverseEngineering\Internal\EntityTypeWriter.cs" />
-    <Compile Include="ReverseEngineering\Internal\StringBuilderCodeWriter.cs" />
-    <Compile Include="ReverseEngineering\Internal\TableSelectionSet.cs" />
-    <Compile Include="ReverseEngineering\MetadataModelNameMapper.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineerFiles.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringConfiguration.cs" />
-    <Compile Include="ReverseEngineering\ReverseEngineeringGenerator.cs" />
-    <Compile Include="ReverseEngineering\RelationalMetadataModelProvider.cs" />
-    <Compile Include="ReverseEngineering\Metadata\RelationalDesignAnnotationNames.cs" />
-    <Compile Include="Utilities\CSharpUtilities.cs" />
-    <Compile Include="Utilities\ModelUtilities.cs" />
+    <Compile Include="..\Shared\CodeAnnotations.cs">
+      <Link>Utilities\CodeAnnotations.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\StringBuilderExtensions.cs">
+      <Link>Utilities\StringBuilderExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\SharedTypeExtensions.cs">
+      <Link>Utilities\SharedTypeExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Internal\CodeWriter.cs" />
+    <Compile Include="Internal\ConfigurationFactory.cs" />
+    <Compile Include="Internal\Configuration\AttributeConfiguration.cs" />
+    <Compile Include="Internal\Configuration\CustomConfiguration.cs" />
+    <Compile Include="Internal\Configuration\EntityConfiguration.cs" />
+    <Compile Include="Internal\Configuration\FluentApiConfiguration.cs" />
+    <Compile Include="Internal\Configuration\IAttributeConfiguration.cs" />
+    <Compile Include="Internal\Configuration\IFluentApiConfiguration.cs" />
+    <Compile Include="Internal\Configuration\KeyFluentApiConfiguration.cs" />
+    <Compile Include="Internal\Configuration\ModelConfiguration.cs" />
+    <Compile Include="Internal\Configuration\NavigationPropertyConfiguration.cs" />
+    <Compile Include="Internal\Configuration\NavigationPropertyInitializerConfiguration.cs" />
+    <Compile Include="Internal\Configuration\OptionsBuilderConfiguration.cs" />
+    <Compile Include="Internal\Configuration\PropertyConfiguration.cs" />
+    <Compile Include="Internal\Configuration\RelationshipConfiguration.cs" />
+    <Compile Include="Internal\FileSystemFileService.cs" />
+    <Compile Include="IMethodNameProvider.cs" />
+    <Compile Include="Metadata\ScaffoldingEntityTypeAnnotations.cs" />
+    <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
+    <Compile Include="Metadata\ScaffoldingPropertyAnnotations.cs" />
+    <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
+    <Compile Include="MetadataModelProvider.cs" />
+    <Compile Include="Internal\IFileService.cs" />
+    <Compile Include="Internal\DbContextWriter.cs" />
+    <Compile Include="Internal\EntityTypeWriter.cs" />
+    <Compile Include="Internal\StringBuilderCodeWriter.cs" />
+    <Compile Include="TableSelectionSet.cs" />
+    <Compile Include="Internal\ReverseEngineerFiles.cs" />
+    <Compile Include="Internal\ReverseEngineeringConfiguration.cs" />
+    <Compile Include="Internal\ReverseEngineeringGenerator.cs" />
+    <Compile Include="RelationalMetadataModelProvider.cs" />
+    <Compile Include="Metadata\ScaffoldingAnnotationNames.cs" />
+    <Compile Include="Internal\CSharpUtilities.cs" />
+    <Compile Include="Internal\ModelUtilities.cs" />
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">
       <LogicalName>EntityFramework.Relational.Design.RelationalDesignStrings.resources</LogicalName>
       <SubType>Designer</SubType>

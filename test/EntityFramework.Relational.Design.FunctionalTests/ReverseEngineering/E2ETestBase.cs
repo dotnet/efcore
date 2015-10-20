@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Migrations.Design;
+using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
@@ -29,6 +30,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
             var serviceCollection = new ServiceCollection()
                 .AddLogging();
             ConfigureDesignTimeServices(serviceCollection);
+            AddScaffolding(serviceCollection);
             serviceCollection.AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -38,6 +40,22 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
             MetadataModelProvider = serviceProvider.GetRequiredService<MetadataModelProvider>();
+        }
+
+        private void AddScaffolding(IServiceCollection serviceCollection)
+        {
+            serviceCollection.AddSingleton<CSharpHelper>()
+                .AddSingleton<CSharpMigrationOperationGenerator>()
+                .AddSingleton<CSharpSnapshotGenerator>()
+                .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
+                .AddSingleton<IFileService, FileSystemFileService>()
+                .AddSingleton<ModelUtilities>()
+                .AddSingleton<ReverseEngineeringGenerator>()
+                .AddSingleton<CSharpUtilities>()
+                .AddSingleton<ConfigurationFactory>()
+                .AddSingleton<DbContextWriter>()
+                .AddSingleton<EntityTypeWriter>()
+                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
         }
 
         protected abstract E2ECompiler GetCompiler();

@@ -3,15 +3,12 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Internal;
-using Microsoft.Data.Entity.SqlServer.Design.ReverseEngineering;
-using Microsoft.Data.Entity.SqlServer.Design.Utilities;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Data.Entity.SqlServer.Design
+namespace Microsoft.Data.Entity.Scaffolding
 {
     public class SqlServerDesignTimeServices
     {
@@ -23,13 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design
                 .AddSingleton<SqlServerLiteralUtilities>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
                 .AddSingleton<IMetadataReader, SqlServerMetadataReader>()
-                .AddSingleton<IMethodNameProvider, SqlServerMethodNameProvider>()
-
-                // TODO move to commands
-                .AddSingleton<ConfigurationFactory>()
-                .AddSingleton<DbContextWriter>()
-                .AddSingleton<EntityTypeWriter>()
-                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
+                .AddSingleton<IMethodNameProvider, SqlServerMethodNameProvider>();
         }
     }
 }

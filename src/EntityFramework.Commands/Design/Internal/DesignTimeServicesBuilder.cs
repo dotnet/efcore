@@ -9,8 +9,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Design;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
-using Microsoft.Data.Entity.Relational.Design.Utilities;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -74,7 +73,11 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddSingleton<IFileService, FileSystemFileService>()
                 .AddSingleton<ModelUtilities>()
                 .AddSingleton<ReverseEngineeringGenerator>()
-                .AddSingleton<CSharpUtilities>();
+                .AddSingleton<CSharpUtilities>()
+                .AddSingleton<ConfigurationFactory>()
+                .AddSingleton<DbContextWriter>()
+                .AddSingleton<EntityTypeWriter>()
+                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
 
         partial void ConfigureDnxServices(IServiceCollection services);
 
