@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                         References =
                                 {
                                     BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
-                                    BuildReference.ByName("System.Diagnostics", copyLocal: true),
+                                    BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                     References =
                             {
                                 BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
-                                BuildReference.ByName("System.Diagnostics", copyLocal: true),
+                                BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                 BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                 BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                 BuildReference.ByName("EntityFramework.Core", copyLocal: true),
@@ -330,7 +330,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                     References =
                                 {
                                     BuildReference.ByName("System.Collections.Immutable", copyLocal: true),
-                                    BuildReference.ByName("System.Diagnostics", copyLocal: true),
+                                    BuildReference.ByName("System.Diagnostics.DiagnosticSource", copyLocal: true),
                                     BuildReference.ByName("System.Interactive.Async", copyLocal: true),
                                     BuildReference.ByName("System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"),
                                     BuildReference.ByName("EntityFramework.Core", copyLocal: true),
