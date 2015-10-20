@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             foreach (var entityType in modelBuilder.Metadata.EntityTypes)
             {
-                var unmappedProperty = entityType.Properties.FirstOrDefault(p => !IsMappedPrimitiveProperty(p));
+                var unmappedProperty = entityType.Properties.FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
                 if (unmappedProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyNotMapped(unmappedProperty.Name, entityType.Name));
@@ -66,11 +66,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return modelBuilder;
         }
 
-        public virtual bool IsMappedPrimitiveProperty([NotNull] IProperty property)
+        public virtual bool IsMappedPrimitiveProperty([NotNull] Type clrType)
         {
-            Check.NotNull(property, nameof(property));
+            Check.NotNull(clrType, nameof(clrType));
 
-            return property.ClrType.IsPrimitive();
+            return clrType.IsPrimitive();
         }
 
         public virtual Type FindCandidateNavigationPropertyType([NotNull] PropertyInfo propertyInfo)

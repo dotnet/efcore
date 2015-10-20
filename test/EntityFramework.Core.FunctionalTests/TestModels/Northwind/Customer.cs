@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 {
@@ -21,6 +22,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
 
         public virtual ICollection<Order> Orders { get; set; }
 
+        [NotMapped]
         public bool IsLondon => City == "London";
 
         protected bool Equals(Customer other) => string.Equals(CustomerID, other.CustomerID);

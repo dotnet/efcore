@@ -98,10 +98,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         }
 
         [Fact]
-        public void Does_not_throw_when_interface_or_non_candidate_property_is_not_added()
+        public void Does_not_throw_when_non_candidate_property_is_not_added()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(InterfacePropertyEntity), ConfigurationSource.Convention);
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
 
             new PropertyMappingValidationConvention().Apply(modelBuilder);
         }
@@ -123,18 +123,17 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         private class NavigationEntity
         {
             public PrimitivePropertyEntity Navigation { get; set; }
-
         }
 
-        private class InterfacePropertyEntity
+        private class NonCandidatePropertyEntity
         {
-            public IProperty InterfaceProperty { get; set; }
-
-            public List<IProperty> InterfacePropertyList { get; set; }
-
-            public int ReadOnlyProperty { get; }
-
             public static int StaticProperty { get; set; }
+
+            public int _writeOnlyField = 1;
+            public int WriteOnlyProperty
+            {
+                set { _writeOnlyField = value; }
+            }
         }
     }
 }

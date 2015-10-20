@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
 {
@@ -35,6 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel
             get { return _drivers; }
         }
 
+        [NotMapped]
         public virtual ICollection<Sponsor> Sponsors
         {
             get { return _sponsors; }

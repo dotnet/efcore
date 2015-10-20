@@ -314,11 +314,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 set { }
             }
 
-            public OneToManyDependent ReadOnly
-            {
-                get { return null; }
-            }
-
             public OneToManyDependent this[int index]
             {
                 get { return null; }

@@ -257,6 +257,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     b.HasMany(e => (IEnumerable<TProductPhoto>)e.Photos).WithOne();
                     b.HasOne(e => (TProductDetail)e.Detail).WithOne(e => (TProduct)e.Product)
                         .HasForeignKey<TProductDetail>(e => e.ProductId);
+                    b.Ignore(e => e.Suppliers);
                 });
 
             modelBuilder.Entity<TOrderLine>(b =>
@@ -266,7 +267,11 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                     b.HasOne(e => (TProduct)e.Product).WithMany().HasForeignKey(e => e.ProductId);
                 });
 
-            modelBuilder.Entity<TSupplier>().HasOne(e => (TSupplierLogo)e.Logo).WithOne().HasForeignKey<TSupplierLogo>(e => e.SupplierId);
+            modelBuilder.Entity<TSupplier>(b =>
+                {
+                    b.HasOne(e => (TSupplierLogo)e.Logo).WithOne().HasForeignKey<TSupplierLogo>(e => e.SupplierId);
+                    b.Ignore(e => e.Products);
+                });
 
             modelBuilder.Entity<TCustomer>(b =>
                 {

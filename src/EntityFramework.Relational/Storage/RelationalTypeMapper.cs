@@ -96,8 +96,6 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual bool IsTypeMapped(Type clrType) => FindMapping(clrType) != null;
 
-        public virtual bool IsPropertyMapped(IProperty property) => FindMapping(property) != null;
-
         protected virtual RelationalTypeMapping FindCustomMapping([NotNull] IProperty property) => null;
 
         protected virtual RelationalTypeMapping GetCustomMapping([NotNull] IProperty property)

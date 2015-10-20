@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             _typeMapper = typeMapper;
         }
 
-        public override bool IsMappedPrimitiveProperty(IProperty property) => _typeMapper.IsPropertyMapped(property);
+        public override bool IsMappedPrimitiveProperty(Type clrType) => _typeMapper.IsTypeMapped(clrType);
 
         public override Type FindCandidateNavigationPropertyType(PropertyInfo propertyInfo)
         {

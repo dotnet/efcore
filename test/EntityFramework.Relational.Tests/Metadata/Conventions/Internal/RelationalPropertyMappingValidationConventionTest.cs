@@ -26,13 +26,14 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         }
 
         [Fact]
-        public void Does_not_throw_when_added_property_is_configured_to_use_column_type()
+        public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(long), ConfigurationSource.Convention).Relational(ConfigurationSource.Convention).ColumnType("some_int_mapping");
 
-            new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper()).Apply(modelBuilder);
+            Assert.Equal(CoreStrings.PropertyNotMapped("Property", typeof(NonPrimitiveAsPropertyEntity).FullName),
+                Assert.Throws<InvalidOperationException>(() => new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper()).Apply(modelBuilder)).Message);
         }
 
         [Fact]
@@ -111,7 +112,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         public void Does_not_throw_when_interface_or_non_candidate_property_is_not_added()
         {
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
-            var entityTypeBuilder = modelBuilder.Entity(typeof(InterfacePropertyEntity), ConfigurationSource.Convention);
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
 
             new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper()).Apply(modelBuilder);
         }
@@ -133,16 +134,17 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         private class NavigationEntity
         {
             public PrimitivePropertyEntity Navigation { get; set; }
-
         }
 
-        private class InterfacePropertyEntity
+        private class NonCandidatePropertyEntity
         {
-            public IProperty InterfaceProperty { get; set; }
-
-            public int ReadOnlyProperty { get; }
-
             public static int StaticProperty { get; set; }
+
+            public int _writeOnlyField = 1;
+            public int WriteOnlyProperty
+            {
+                set { _writeOnlyField = value; }
+            }
         }
     }
 }

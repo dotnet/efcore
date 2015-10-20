@@ -16,9 +16,7 @@ namespace System.Reflection
         public static bool IsCandidateProperty(this PropertyInfo propertyInfo)
             => !propertyInfo.IsStatic()
                 && propertyInfo.GetIndexParameters().Length == 0
-                && propertyInfo.CanRead
-                && propertyInfo.CanWrite
-                && !propertyInfo.GetTargetType().GetTypeInfo().IsInterface;
+                && propertyInfo.CanRead;
 
         public static Type FindCandidateNavigationPropertyType(this PropertyInfo propertyInfo, Func<Type, bool> isPrimitiveProperty)
         {
@@ -27,22 +25,16 @@ namespace System.Reflection
                 return null;
             }
 
-            var targetType = propertyInfo.GetTargetType();
+            var targetType = propertyInfo.PropertyType;
+            targetType = targetType.TryGetSequenceType() ?? targetType;
+            targetType = targetType.UnwrapNullableType();
 
             if (isPrimitiveProperty(targetType)
+                || targetType.GetTypeInfo().IsInterface
                 || targetType.GetTypeInfo().IsValueType)
             {
                 return null;
             }
-
-            return targetType;
-        }
-
-        public static Type GetTargetType(this PropertyInfo propertyInfo)
-        {
-            var targetType = propertyInfo.PropertyType;
-            targetType = targetType.TryGetSequenceType() ?? targetType;
-            targetType = targetType.UnwrapNullableType();
 
             return targetType;
         }

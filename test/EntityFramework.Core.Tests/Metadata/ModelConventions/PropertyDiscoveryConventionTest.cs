@@ -23,11 +23,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 set { }
             }
 
-            public int ReadOnly
-            {
-                get { return 0; }
-            }
-
             public int this[int index]
             {
                 get { return 0; }

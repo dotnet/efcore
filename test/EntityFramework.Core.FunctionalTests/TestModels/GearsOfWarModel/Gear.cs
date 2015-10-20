@@ -37,6 +37,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.GearsOfWarModel
         public string LeaderNickname { get; set; }
         public int LeaderSquadId { get; set; }
 
+        [NotMapped]
         public bool IsMarcus => Nickname == "Marcus";
     }
 }
