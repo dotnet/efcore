@@ -35,9 +35,9 @@
     <Compile Include="CSharpNamerTest.cs" />
     <Compile Include="CSharpUniqueNamerTest.cs" />
     <Compile Include="NullLogger.cs" />
-    <Compile Include="RelationalMetadataModelProviderTest.cs" />
+    <Compile Include="RelationalDatabaseModelFactoryTest.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
-    <Compile Include="RelationalDesignMetadataExtenstionsTest.cs" />
+    <Compile Include="ScaffoldingMetadataExtenstionsTest.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGeneratorTests.cs" />
     <Compile Include="TableSelectionSetTests.cs" />
     <Compile Include="TestLogger.cs" />

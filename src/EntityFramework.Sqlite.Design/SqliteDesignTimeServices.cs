@@ -4,6 +4,7 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,10 +16,13 @@ namespace Microsoft.Data.Entity.Scaffolding
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddSingleton<MetadataModelProvider, RelationalMetadataModelProvider>()
+                .AddSingleton<IScaffoldingModelFactory, RelationalScaffoldingModelFactory>()
                 .AddSingleton<IRelationalTypeMapper, SqliteTypeMapper>()
-                .AddSingleton<IMetadataReader, SqliteMetadataReader>()
-                .AddSingleton<IMethodNameProvider, SqliteMethodNameProvider>()
+                .AddSingleton<IDatabaseModelFactory, SqliteDatabaseModelFactory>()
+
+                // TODO remove
+                .AddSingleton<IMethodNameProvider, SqliteMethodNameProvider>() 
+
                 .AddSingleton<IRelationalAnnotationProvider, SqliteAnnotationProvider>();
         }
     }

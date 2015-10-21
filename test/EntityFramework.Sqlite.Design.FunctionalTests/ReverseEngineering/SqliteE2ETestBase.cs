@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Dependent (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 AssertLog(new LoggerMessages());
@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS OneToManyDependent (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 AssertLog(new LoggerMessages());
@@ -149,7 +149,7 @@ CREATE TABLE Users_Groups (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 AssertLog(new LoggerMessages());
@@ -191,7 +191,7 @@ CREATE TABLE Users_Groups (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 AssertLog(new LoggerMessages());
@@ -226,7 +226,7 @@ CREATE TABLE Users_Groups (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
                 var errorMessage = RelationalDesignStrings.MissingPrimaryKey("Alicia");
                 var expectedLog = new LoggerMessages
@@ -260,7 +260,7 @@ CREATE TABLE Principal ( Id INT);");
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 var expectedLog = new LoggerMessages
@@ -327,7 +327,7 @@ CREATE TABLE String (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 AssertLog(new LoggerMessages());
@@ -365,7 +365,7 @@ CREATE TABLE Comment (
                     ProjectPath = "testout",
                     ProjectRootNamespace = "E2E.Sqlite",
                     UseFluentApiOnly = UseFluentApiOnly,
-                    TableSelectionSet = TableSelectionSet.InclusiveAll
+                    TableSelectionSet = TableSelectionSet.All
                 });
 
                 AssertLog(new LoggerMessages());

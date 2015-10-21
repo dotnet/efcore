@@ -17,21 +17,21 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
     public class ReverseEngineeringGenerator
     {
         private readonly ConfigurationFactory _configurationFactory;
-        private readonly MetadataModelProvider _provider;
+        private readonly IScaffoldingModelFactory _factory;
 
         public ReverseEngineeringGenerator(
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] MetadataModelProvider metadataModelProvider,
+            [NotNull] IScaffoldingModelFactory scaffoldingModelFactory,
             [NotNull] ConfigurationFactory configurationFactory,
             [NotNull] CodeWriter codeWriter)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
-            Check.NotNull(metadataModelProvider, nameof(metadataModelProvider));
+            Check.NotNull(scaffoldingModelFactory, nameof(scaffoldingModelFactory));
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(codeWriter, nameof(codeWriter));
 
             Logger = loggerFactory.CreateCommandsLogger();
-            _provider = metadataModelProvider;
+            _factory = scaffoldingModelFactory;
             _configurationFactory = configurationFactory;
             CodeWriter = codeWriter;
         }
@@ -82,13 +82,13 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         {
             Check.NotNull(configuration, nameof(configuration));
 
-            var metadataModel = _provider.GetModel(
+            var metadataModel = _factory.Create(
                 configuration.ConnectionString, configuration.TableSelectionSet);
             if (metadataModel == null)
             {
                 throw new InvalidOperationException(
                     RelationalDesignStrings.ProviderReturnedNullModel(
-                        _provider.GetType().FullName,
+                        _factory.GetType().FullName,
                         configuration.ConnectionString));
             }
 

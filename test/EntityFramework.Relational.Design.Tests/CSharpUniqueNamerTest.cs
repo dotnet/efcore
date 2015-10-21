@@ -4,7 +4,7 @@
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.Scaffolding.Model;
+using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Relational.Design
@@ -14,12 +14,12 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Returns_unique_name_for_type()
         {
-            var namer = new CSharpUniqueNamer<Column>(s => s.Name);
-            var input1 = new Column
+            var namer = new CSharpUniqueNamer<ColumnModel>(s => s.Name);
+            var input1 = new ColumnModel
             {
                 Name = "Id"
             };
-            var input2 = new Column
+            var input2 = new ColumnModel
             {
                 Name = "Id"
             };
@@ -33,9 +33,9 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Uses_comparer()
         {
-            var namer = new CSharpUniqueNamer<Table>(t => t.Name);
-            var table1 = new Table { Name = "A B C" };
-            var table2 = new Table { Name = "A_B_C" };
+            var namer = new CSharpUniqueNamer<TableModel>(t => t.Name);
+            var table1 = new TableModel { Name = "A B C" };
+            var table2 = new TableModel { Name = "A_B_C" };
             Assert.Equal("A_B_C", namer.GetName(table1));
             Assert.Equal("A_B_C1", namer.GetName(table2));
         }

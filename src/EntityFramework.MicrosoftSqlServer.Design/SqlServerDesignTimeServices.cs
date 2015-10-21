@@ -15,11 +15,12 @@ namespace Microsoft.Data.Entity.Scaffolding
         public virtual void ConfigureDesignTimeServices([NotNull] IServiceCollection serviceCollection)
         {
             serviceCollection
-                .AddSingleton<MetadataModelProvider, SqlServerMetadataModelProvider>()
+                .AddSingleton<IScaffoldingModelFactory, SqlServerScaffoldingModelFactory>()
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerLiteralUtilities>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
-                .AddSingleton<IMetadataReader, SqlServerMetadataReader>()
+                .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
+                // TODO remove
                 .AddSingleton<IMethodNameProvider, SqlServerMethodNameProvider>();
         }
     }

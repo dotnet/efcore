@@ -47,15 +47,15 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Utilities\LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="Model\ModelExtensions.cs" />
     <Compile Include="Internal\CSharpNamer.cs" />
     <Compile Include="Internal\CSharpUniqueNamer.cs" />
-    <Compile Include="IMetadataReader.cs" />
-    <Compile Include="Model\Column.cs" />
-    <Compile Include="Model\SchemaInfo.cs" />
-    <Compile Include="Model\ForeignKey.cs" />
-    <Compile Include="Model\Index.cs" />
-    <Compile Include="Model\Table.cs" />
+    <Compile Include="IDatabaseModelFactory.cs" />
+    <Compile Include="Metadata\ColumnModel.cs" />
+    <Compile Include="Metadata\DatabaseModel.cs" />
+    <Compile Include="Metadata\ForeignKeyModel.cs" />
+    <Compile Include="Metadata\IndexModel.cs" />
+    <Compile Include="Metadata\ScaffoldingModelAnnotations.cs" />
+    <Compile Include="Metadata\TableModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\InternalsVisibleTo.cs" />
     <Compile Include="..\Shared\Check.cs">
@@ -89,12 +89,12 @@
     <Compile Include="Internal\Configuration\PropertyConfiguration.cs" />
     <Compile Include="Internal\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="Internal\FileSystemFileService.cs" />
-    <Compile Include="IMethodNameProvider.cs" />
+    <Compile Include="Internal\IMethodNameProvider.cs" />
     <Compile Include="Metadata\ScaffoldingEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
     <Compile Include="Metadata\ScaffoldingPropertyAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
-    <Compile Include="MetadataModelProvider.cs" />
+    <Compile Include="IScaffoldingModelFactory.cs" />
     <Compile Include="Internal\IFileService.cs" />
     <Compile Include="Internal\DbContextWriter.cs" />
     <Compile Include="Internal\EntityTypeWriter.cs" />
@@ -103,7 +103,7 @@
     <Compile Include="Internal\ReverseEngineerFiles.cs" />
     <Compile Include="Internal\ReverseEngineeringConfiguration.cs" />
     <Compile Include="Internal\ReverseEngineeringGenerator.cs" />
-    <Compile Include="RelationalMetadataModelProvider.cs" />
+    <Compile Include="RelationalScaffoldingModelFactory.cs" />
     <Compile Include="Metadata\ScaffoldingAnnotationNames.cs" />
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\ModelUtilities.cs" />

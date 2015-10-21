@@ -6,13 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Model;
+using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
 {
-    public class SqlServerMetadataReaderTest : IDisposable
+    public class SqlServerDatabaseModelFactoryTest : IDisposable
     {
         [Fact]
         public void It_reads_tables()
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
             var sql = @"
 CREATE TABLE [dbo].[Everest] ( id int );
 CREATE TABLE [dbo].[Denali] ( id int );";
-            var dbInfo = GetDatabaseInfo(sql);
+            var dbInfo = CreateModel(sql);
 
             Assert.Collection(dbInfo.Tables,
                 e =>
@@ -41,7 +41,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             _testStore.ExecuteNonQuery("CREATE SCHEMA db2");
             var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1) PRIMARY KEY);" +
                       "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, FOREIGN KEY (RangeId) REFERENCES Ranges(Id) ON DELETE CASCADE)";
-            var dbInfo = GetDatabaseInfo(sql);
+            var dbInfo = CreateModel(sql);
 
             var fk = Assert.Single(dbInfo.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
@@ -49,8 +49,8 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal("RangeId", fk.From.Single().Name);
-            Assert.Equal("Id", fk.To.Single().Name);
+            Assert.Equal("RangeId", fk.Columns.Single().Name);
+            Assert.Equal("Id", fk.PrincipalColumns.Single().Name);
             Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
         }
 
@@ -60,7 +60,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             _testStore.ExecuteNonQuery("CREATE SCHEMA db2");
             var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1), AltId INT, PRIMARY KEY(Id, AltId));" +
                       "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, RangeAltId INT NOT NULL, FOREIGN KEY (RangeId, RangeAltId) REFERENCES Ranges(Id, AltId) ON DELETE NO ACTION)";
-            var dbInfo = GetDatabaseInfo(sql);
+            var dbInfo = CreateModel(sql);
 
             var fk = Assert.Single(dbInfo.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
@@ -68,8 +68,8 @@ CREATE TABLE [dbo].[Denali] ( id int );";
             Assert.Equal("Mountains", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
             Assert.Equal("Ranges", fk.PrincipalTable.Name);
-            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.From.Select(c => c.Name).ToArray());
-            Assert.Equal(new[] { "Id", "AltId" }, fk.To.Select(c => c.Name).ToArray());
+            Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Name).ToArray());
+            Assert.Equal(new[] { "Id", "AltId" }, fk.PrincipalColumns.Select(c => c.Name).ToArray());
             Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
         }
 
@@ -78,7 +78,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         {
             var sql = "CREATE TABLE Ranges ( Name int UNIQUE, Location int );" +
                       "CREATE INDEX loc_idx ON Ranges (Location, Name);";
-            var dbInfo = GetDatabaseInfo(sql);
+            var dbInfo = CreateModel(sql);
 
             var indexes = dbInfo.Tables.Single().Indexes;
 
@@ -115,7 +115,7 @@ CREATE TABLE [dbo].[Mountains] (
     Modified rowversion,
     Primary Key (Name, Id)
 );";
-            var dbInfo = GetDatabaseInfo(sql);
+            var dbInfo = CreateModel(sql);
 
             var columns = dbInfo.Tables.Single().Columns.OrderBy(c => c.Ordinal);
 
@@ -184,7 +184,7 @@ CREATE TABLE [dbo].[Mountains] (
         public void It_reads_max_length(string type, int? length)
         {
             var sql = "CREATE TABLE [dbo].[Mountains] ( CharColumn " + type + ");";
-            var db = GetDatabaseInfo(sql);
+            var db = CreateModel(sql);
 
             Assert.Equal(length, db.Tables.Single().Columns.Single().MaxLength);
         }
@@ -194,7 +194,7 @@ CREATE TABLE [dbo].[Mountains] (
         [InlineData(false)]
         public void It_reads_identity(bool isIdentity)
         {
-            var dbInfo = GetDatabaseInfo(@"CREATE TABLE [dbo].[Mountains] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")");
+            var dbInfo = CreateModel(@"CREATE TABLE [dbo].[Mountains] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")");
 
             Assert.Equal(isIdentity, dbInfo.Tables.Single().Columns.Single().IsIdentity.Value);
         }
@@ -210,7 +210,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B
                 Tables = { "K2" }
             };
 
-            var dbInfo = GetDatabaseInfo(sql, selectionSet);
+            var dbInfo = CreateModel(sql, selectionSet);
             var table = Assert.Single(dbInfo.Tables);
             Assert.Equal("K2", table.Name);
             Assert.Equal(2, table.Columns.Count);
@@ -218,18 +218,18 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B
             Assert.Empty(table.ForeignKeys);
         }
 
-        public SchemaInfo GetDatabaseInfo(string createSql, TableSelectionSet selection = null)
+        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
         {
             _testStore.ExecuteNonQuery(createSql);
 
-            var reader = new SqlServerMetadataReader();
+            var reader = new SqlServerDatabaseModelFactory();
 
-            return reader.GetSchema(_testStore.Connection.ConnectionString, selection ?? TableSelectionSet.InclusiveAll);
+            return reader.Create(_testStore.Connection.ConnectionString, selection ?? TableSelectionSet.All);
         }
 
         private readonly SqlServerTestStore _testStore;
 
-        public SqlServerMetadataReaderTest()
+        public SqlServerDatabaseModelFactoryTest()
         {
             _testStore = SqlServerTestStore.CreateScratch();
         }

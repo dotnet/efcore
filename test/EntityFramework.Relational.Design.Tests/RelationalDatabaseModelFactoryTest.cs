@@ -7,42 +7,39 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Relational.Design.ReverseEngineering;
 using Microsoft.Data.Entity.Scaffolding;
-using Microsoft.Data.Entity.Scaffolding.Model;
+using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using ForeignKey = Microsoft.Data.Entity.Scaffolding.Model.ForeignKey;
-using Index = Microsoft.Data.Entity.Scaffolding.Model.Index;
 
 namespace Microsoft.Data.Entity.Relational.Design
 {
-    public class RelationalMetadataModelProviderTest
+    public class RelationalDatabaseModelFactoryTest
     {
-        private readonly FakeMetadataModelProvider _provider;
+        private readonly FakeScaffoldingModelFactory _factory;
         private readonly TestLogger _logger;
 
-        public RelationalMetadataModelProviderTest()
+        public RelationalDatabaseModelFactoryTest()
         {
             var factory = new TestLoggerFactory();
             _logger = factory.Logger;
 
-            _provider = new FakeMetadataModelProvider(factory);
+            _factory = new FakeScaffoldingModelFactory(factory);
         }
 
         [Fact]
         public void Creates_entity_types()
         {
-            var info = new SchemaInfo
+            var info = new DatabaseModel
             {
                 Tables =
                 {
-                    new Table { Name = "tableWithSchema", SchemaName = "public" },
-                    new Table { Name = "noSchema" }
+                    new TableModel { Name = "tableWithSchema", SchemaName = "public" },
+                    new TableModel { Name = "noSchema" }
                 }
             };
-            var model = _provider.GetModel(info);
+            var model = _factory.Create(info);
             Assert.Collection(model.EntityTypes.OrderBy(t => t.Name).Cast<EntityType>(),
                 table =>
                     {
@@ -60,36 +57,36 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Loads_column_types()
         {
-            var info = new SchemaInfo
+            var info = new DatabaseModel
             {
                 Tables =
                 {
-                    new Table
+                    new TableModel
                     {
                         Name = "Jobs",
                         Columns =
                         {
-                            new Column
+                            new ColumnModel
                             {
                                 Name = "occupation",
                                 DataType = "string",
                                 DefaultValue = "\"dev\""
                             },
-                            new Column
+                            new ColumnModel
                             {
                                 Name = "salary",
                                 DataType = "long",
                                 IsNullable = true,
                                 MaxLength = 100
                             },
-                            new Column
+                            new ColumnModel
                             {
                                 Name = "modified",
                                 DataType = "string",
                                 IsNullable = false,
                                 IsComputed = true
                             },
-                            new Column
+                            new ColumnModel
                             {
                                 Name = "created",
                                 DataType = "string",
@@ -100,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 }
             };
 
-            var entityType = (EntityType)_provider.GetModel(info).GetEntityType("Jobs");
+            var entityType = (EntityType)_factory.Create(info).GetEntityType("Jobs");
 
             Assert.Collection(entityType.Properties,
                 col4 =>
@@ -137,16 +134,16 @@ namespace Microsoft.Data.Entity.Relational.Design
         [InlineData("alias for string", "alias for string")]
         public void Column_type_annotation(string dataType, string expectedColumnType)
         {
-            var info = new SchemaInfo
+            var info = new DatabaseModel
             {
                 Tables =
                 {
-                    new Table
+                    new TableModel
                     {
                         Name = "A",
                         Columns =
                         {
-                            new Column
+                            new ColumnModel
                             {
                                 Name = "Col",
                                 DataType = dataType
@@ -155,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                     }
                 }
             };
-            var property = (Property)_provider.GetModel(info).GetEntityType("A").GetProperty("Col");
+            var property = (Property)_factory.Create(info).GetEntityType("A").GetProperty("Col");
             Assert.Equal(expectedColumnType, property.Relational().ColumnType);
         }
 
@@ -164,14 +161,14 @@ namespace Microsoft.Data.Entity.Relational.Design
         [InlineData(null)]
         public void Unmappable_column_type(string dataType)
         {
-            var info = new SchemaInfo { Tables = { new Table { Name = "E" } } };
-            info.Tables[0].Columns.Add(new Column
+            var info = new DatabaseModel { Tables = { new TableModel { Name = "E" } } };
+            info.Tables[0].Columns.Add(new ColumnModel
             {
                 Table = info.Tables[0],
                 Name = "Coli",
                 DataType = dataType
             });
-            Assert.Empty(_provider.GetModel(info).GetEntityType("E").GetProperties());
+            Assert.Empty(_factory.Create(info).GetEntityType("E").GetProperties());
             Assert.Contains(RelationalDesignStrings.CannotFindTypeMappingForColumn("E.Coli", dataType), _logger.FullLog);
         }
 
@@ -182,18 +179,18 @@ namespace Microsoft.Data.Entity.Relational.Design
 
         {
             var ordinal = 3;
-            var info = new SchemaInfo
+            var info = new DatabaseModel
             {
                 Tables =
                 {
-                    new Table
+                    new TableModel
                     {
                         Name = "PkTable",
-                        Columns = keyProps.Select(k => new Column { PrimaryKeyOrdinal = ordinal++, Name = k, DataType = "long" }).ToList()
+                        Columns = keyProps.Select(k => new ColumnModel { PrimaryKeyOrdinal = ordinal++, Name = k, DataType = "long" }).ToList()
                     }
                 }
             };
-            var model = (EntityType)_provider.GetModel(info).EntityTypes.Single();
+            var model = (EntityType)_factory.Create(info).EntityTypes.Single();
 
             Assert.Equal(keyProps, model.GetPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
         }
@@ -201,23 +198,23 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Indexes_and_alternate_keys()
         {
-            var table = new Table
+            var table = new TableModel
             {
                 Name = "T",
                 Columns =
                 {
-                    new Column { Name = "C1", DataType = "long" },
-                    new Column { Name = "C2", DataType = "long" },
-                    new Column { Name = "C3", DataType = "long" }
+                    new ColumnModel { Name = "C1", DataType = "long" },
+                    new ColumnModel { Name = "C2", DataType = "long" },
+                    new ColumnModel { Name = "C3", DataType = "long" }
                 }
             };
-            table.Indexes.Add(new Index { Name = "IDX_C1", Columns = { table.Columns[0] }, IsUnique = false });
-            table.Indexes.Add(new Index { Name = "UNQ_C2", Columns = { table.Columns[1] }, IsUnique = true });
-            table.Indexes.Add(new Index { Name = "IDX_C2_C1", Columns = { table.Columns[1], table.Columns[0] }, IsUnique = false });
-            table.Indexes.Add(new Index { /*Name ="UNQ_C3_C1",*/ Columns = { table.Columns[2], table.Columns[0] }, IsUnique = true });
-            var info = new SchemaInfo { Tables = { table } };
+            table.Indexes.Add(new IndexModel { Name = "IDX_C1", Columns = { table.Columns[0] }, IsUnique = false });
+            table.Indexes.Add(new IndexModel { Name = "UNQ_C2", Columns = { table.Columns[1] }, IsUnique = true });
+            table.Indexes.Add(new IndexModel { Name = "IDX_C2_C1", Columns = { table.Columns[1], table.Columns[0] }, IsUnique = false });
+            table.Indexes.Add(new IndexModel { /*Name ="UNQ_C3_C1",*/ Columns = { table.Columns[2], table.Columns[0] }, IsUnique = true });
+            var info = new DatabaseModel { Tables = { table } };
 
-            var entityType = (EntityType)_provider.GetModel(info).EntityTypes.Single();
+            var entityType = (EntityType)_factory.Create(info).EntityTypes.Single();
 
             Assert.Collection(entityType.Indexes,
                 indexColumn1 =>
@@ -256,26 +253,26 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void Foreign_key()
 
         {
-            var parentTable = new Table { Name = "Parent", Columns = { new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 } } };
-            var childrenTable = new Table
+            var parentTable = new TableModel { Name = "Parent", Columns = { new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 } } };
+            var childrenTable = new TableModel
             {
                 Name = "Children",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "ParentId", DataType = "long", IsNullable = true }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = true }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKey
+            childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                From = { childrenTable.Columns[1] },
+                Columns = { childrenTable.Columns[1] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0] },
+                PrincipalColumns = { parentTable.Columns[0] },
                 OnDelete = Migrations.ReferentialAction.Cascade
             });
 
-            var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
+            var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
             var parent = (EntityType)model.GetEntityType("Parent");
 
@@ -296,25 +293,25 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void Unique_foreign_key()
 
         {
-            var parentTable = new Table { Name = "Parent", Columns = { new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 } } };
-            var childrenTable = new Table
+            var parentTable = new TableModel { Name = "Parent", Columns = { new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 } } };
+            var childrenTable = new TableModel
             {
                 Name = "Children",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKey
+            childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                From = { childrenTable.Columns[0] },
+                Columns = { childrenTable.Columns[0] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0] },
+                PrincipalColumns = { parentTable.Columns[0] },
                 OnDelete = Migrations.ReferentialAction.NoAction
             });
 
-            var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
+            var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
             var children = (EntityType)model.GetEntityType("Children");
 
@@ -327,35 +324,35 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void Composite_foreign_key()
 
         {
-            var parentTable = new Table
+            var parentTable = new TableModel
             {
                 Name = "Parent",
                 Columns =
                 {
-                    new Column { Name = "Id_A", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "Id_B", DataType = "long", PrimaryKeyOrdinal = 2 }
+                    new ColumnModel { Name = "Id_A", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "Id_B", DataType = "long", PrimaryKeyOrdinal = 2 }
                 }
             };
-            var childrenTable = new Table
+            var childrenTable = new TableModel
             {
                 Name = "Children",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "ParentId_A", DataType = "long" },
-                    new Column { Name = "ParentId_B", DataType = "long" }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "ParentId_A", DataType = "long" },
+                    new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKey
+            childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                From = { childrenTable.Columns[1], childrenTable.Columns[2] },
+                Columns = { childrenTable.Columns[1], childrenTable.Columns[2] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0], parentTable.Columns[1] },
+                PrincipalColumns = { parentTable.Columns[0], parentTable.Columns[1] },
                 OnDelete = Migrations.ReferentialAction.SetNull
             });
 
-            var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
+            var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
             var parent = (EntityType)model.GetEntityType("Parent");
 
@@ -378,24 +375,24 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void It_loads_self_referencing_foreign_key()
 
         {
-            var table = new Table
+            var table = new TableModel
             {
                 Name = "ItemsList",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "ParentId", DataType = "long", IsNullable = false }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = false }
                 }
             };
-            table.ForeignKeys.Add(new ForeignKey
+            table.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = table,
-                From = { table.Columns[1] },
+                Columns = { table.Columns[1] },
                 PrincipalTable = table,
-                To = { table.Columns[0] }
+                PrincipalColumns = { table.Columns[0] }
             });
 
-            var model = _provider.GetModel(new SchemaInfo { Tables = { table } });
+            var model = _factory.Create(new DatabaseModel { Tables = { table } });
             var list = model.GetEntityType("ItemsList");
 
             Assert.NotEmpty(list.FindReferencingForeignKeys());
@@ -409,58 +406,58 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void It_logs_warning_for_bad_foreign_key()
         {
-            var parentTable = new Table
+            var parentTable = new TableModel
             {
                 Name = "Parent",
                 Columns =
                 {
-                    new Column { Name = "NotPkId", DataType = "long", PrimaryKeyOrdinal = null }
+                    new ColumnModel { Name = "NotPkId", DataType = "long", PrimaryKeyOrdinal = null }
                 }
             };
-            var childrenTable = new Table
+            var childrenTable = new TableModel
             {
                 Name = "Children",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "ParentId", DataType = "long" }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "ParentId", DataType = "long" }
                 }
             };
-            childrenTable.ForeignKeys.Add(new ForeignKey
+            childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                From = { childrenTable.Columns[1] },
+                Columns = { childrenTable.Columns[1] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0] }
+                PrincipalColumns = { parentTable.Columns[0] }
             });
 
-            _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
+            _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
-            Assert.Contains("Warning: " + RelationalDesignStrings.ForeignKeyScaffoldError(childrenTable.ForeignKeys[0].DisplayName()), _logger.FullLog);
+            Assert.Contains("Warning: " + RelationalDesignStrings.ForeignKeyScaffoldError(childrenTable.ForeignKeys[0].DisplayName), _logger.FullLog);
         }
 
         [Fact]
         public void Unique_index_foreign_key()
         {
-            var table = new Table
+            var table = new TableModel
             {
                 Name = "Friends",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "BuddyId", DataType = "long", IsNullable = false }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = false }
                 }
             };
-            table.Indexes.Add(new Index { Columns = { table.Columns[1] }, IsUnique = true });
-            table.ForeignKeys.Add(new ForeignKey
+            table.Indexes.Add(new IndexModel { Columns = { table.Columns[1] }, IsUnique = true });
+            table.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = table,
-                From = { table.Columns[1] },
+                Columns = { table.Columns[1] },
                 PrincipalTable = table,
-                To = { table.Columns[0] }
+                PrincipalColumns = { table.Columns[0] }
             });
 
-            var model = _provider.GetModel(new SchemaInfo { Tables = { table } }).GetEntityType("Friends");
+            var model = _factory.Create(new DatabaseModel { Tables = { table } }).GetEntityType("Friends");
 
             var fk = Assert.Single(model.GetForeignKeys());
 
@@ -471,35 +468,35 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Unique_index_composite_foreign_key()
         {
-            var parentTable = new Table
+            var parentTable = new TableModel
             {
                 Name = "Parent",
                 Columns =
                 {
-                    new Column { Name = "Id_A", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "Id_B", DataType = "long", PrimaryKeyOrdinal = 2 }
+                    new ColumnModel { Name = "Id_A", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "Id_B", DataType = "long", PrimaryKeyOrdinal = 2 }
                 }
             };
-            var childrenTable = new Table
+            var childrenTable = new TableModel
             {
                 Name = "Children",
                 Columns =
                 {
-                    new Column { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
-                    new Column { Name = "ParentId_A", DataType = "long" },
-                    new Column { Name = "ParentId_B", DataType = "long" }
+                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    new ColumnModel { Name = "ParentId_A", DataType = "long" },
+                    new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
             };
-            childrenTable.Indexes.Add(new Index { IsUnique = true, Columns = { childrenTable.Columns[1], childrenTable.Columns[2] } });
-            childrenTable.ForeignKeys.Add(new ForeignKey
+            childrenTable.Indexes.Add(new IndexModel { IsUnique = true, Columns = { childrenTable.Columns[1], childrenTable.Columns[2] } });
+            childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
-                From = { childrenTable.Columns[1], childrenTable.Columns[2] },
+                Columns = { childrenTable.Columns[1], childrenTable.Columns[2] },
                 PrincipalTable = parentTable,
-                To = { parentTable.Columns[0], parentTable.Columns[1] }
+                PrincipalColumns = { parentTable.Columns[0], parentTable.Columns[1] }
             });
 
-            var model = _provider.GetModel(new SchemaInfo { Tables = { parentTable, childrenTable } });
+            var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
             var parent = model.GetEntityType("Parent");
             var children = model.GetEntityType("Children");
 
@@ -512,26 +509,26 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Unique_names()
         {
-            var info = new SchemaInfo
+            var info = new DatabaseModel
             {
                 Tables =
                 {
-                    new Table
+                    new TableModel
                     {
                         Name = "E F", Columns =
                         {
-                            new Column { Name = "San itized", DataType = "long" },
-                            new Column { Name = "San_itized", DataType = "long" }
+                            new ColumnModel { Name = "San itized", DataType = "long" },
+                            new ColumnModel { Name = "San_itized", DataType = "long" }
                         }
                     },
-                    new Table { Name = "E_F" }
+                    new TableModel { Name = "E_F" }
                 }
             };
 
-            info.Tables[0].Columns.Add(new Column { Name = "Id", DataType = "long", Table = info.Tables[0] });
-            info.Tables[1].Columns.Add(new Column { Name = "Id", DataType = "long", Table = info.Tables[1] });
+            info.Tables[0].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", Table = info.Tables[0] });
+            info.Tables[1].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", Table = info.Tables[1] });
 
-            var model = _provider.GetModel(info);
+            var model = _factory.Create(info);
 
             Assert.Collection(model.EntityTypes.Cast<EntityType>(),
                 ef1 =>
@@ -562,22 +559,22 @@ namespace Microsoft.Data.Entity.Relational.Design
         }
     }
 
-    public class FakeMetadataModelProvider : RelationalMetadataModelProvider
+    public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
-        public IModel GetModel(SchemaInfo schemaInfo) => base.GetModelFromSchema(schemaInfo);
+        public IModel Create(DatabaseModel databaseModel) => base.CreateFromDatabaseModel(databaseModel);
 
-        public FakeMetadataModelProvider(
+        public FakeScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory)
             : base(loggerFactory,
                 new TestTypeMapper(),
-                new FakeMetadataReader())
+                new FakeDatabaseModelFactory())
         {
         }
     }
 
-    public class FakeMetadataReader : IMetadataReader
+    public class FakeDatabaseModelFactory : IDatabaseModelFactory
     {
-        public virtual SchemaInfo GetSchema([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create([NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
             throw new NotImplementedException();
         }

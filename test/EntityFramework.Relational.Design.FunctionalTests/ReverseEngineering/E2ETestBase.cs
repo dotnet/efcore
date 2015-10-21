@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         protected InMemoryCommandLogger _logger;
         protected InMemoryFileService InMemoryFiles;
         protected readonly ReverseEngineeringGenerator Generator;
-        protected readonly MetadataModelProvider MetadataModelProvider;
+        protected readonly IScaffoldingModelFactory ScaffoldingModelFactory;
 
         public E2ETestBase(ITestOutputHelper output)
         {
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
 
             Generator = serviceProvider.GetRequiredService<ReverseEngineeringGenerator>();
-            MetadataModelProvider = serviceProvider.GetRequiredService<MetadataModelProvider>();
+            ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
         }
 
         private void AddScaffolding(IServiceCollection serviceCollection)

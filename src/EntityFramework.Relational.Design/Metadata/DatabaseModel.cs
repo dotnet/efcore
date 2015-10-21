@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Scaffolding.Model
+namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
-    public class SchemaInfo
+    public class DatabaseModel
     {
         [CanBeNull]
         public virtual string DatabaseName { get; [param: CanBeNull] set; }
@@ -14,6 +14,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Model
         [CanBeNull]
         public virtual string DefaultSchemaName { get; [param: CanBeNull] set; }
 
-        public virtual IList<Table> Tables { get; [param: NotNull] set; } = new List<Table>();
+        public virtual IList<TableModel> Tables { get; [param: NotNull] set; } = new List<TableModel>();
     }
 }

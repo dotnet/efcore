@@ -4,15 +4,16 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Scaffolding.Model
+namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
-    public class Index
+    public class IndexModel
     {
         [CanBeNull]
-        public virtual Table Table { get; [param: CanBeNull] set; }
+        public virtual TableModel Table { get; [param: CanBeNull] set; }
 
         public virtual string Name { get; [param: NotNull] set; }
-        public virtual IList<Column> Columns { get; [param: NotNull] set; } = new List<Column>();
+        public virtual IList<ColumnModel> Columns { get; [param: NotNull] set; } = new List<ColumnModel>();
         public virtual bool IsUnique { get; [param: NotNull] set; }
+        public virtual bool? IsClustered { get; [param: CanBeNull] set; }
     }
 }

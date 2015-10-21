@@ -3,11 +3,11 @@
 
 using JetBrains.Annotations;
 
-namespace Microsoft.Data.Entity.Scaffolding.Model
+namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
-    public class Column
+    public class ColumnModel
     {
-        public virtual Table Table { get; [param: NotNull] set; }
+        public virtual TableModel Table { get; [param: NotNull] set; }
         public virtual string Name { get; [param: NotNull] set; }
         public virtual int? PrimaryKeyOrdinal { get; [param: CanBeNull] set; }
         public virtual int Ordinal { get; [param: NotNull] set; }
@@ -26,5 +26,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Model
         public virtual bool? IsComputed { get; [param: CanBeNull] set; }
         // SQL Server
         public virtual bool? IsIdentity { get; [param: CanBeNull] set; }
+
+        public virtual string DisplayName
+        {
+            get
+            {
+                var tablePrefix = Table?.DisplayName;
+                return (!string.IsNullOrEmpty(tablePrefix) ? tablePrefix + "." : "") + Name;
+            }
+        }
     }
 }

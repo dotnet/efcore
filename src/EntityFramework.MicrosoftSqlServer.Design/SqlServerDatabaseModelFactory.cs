@@ -5,33 +5,33 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding.Model;
+using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Scaffolding
 {
-    public class SqlServerMetadataReader : IMetadataReader
+    public class SqlServerDatabaseModelFactory : IDatabaseModelFactory
     {
         private SqlConnection _connection;
         private TableSelectionSet _tableSelectionSet;
-        private SchemaInfo _schemaInfo;
-        private Dictionary<string, Table> _tables;
-        private Dictionary<string, Column> _tableColumns;
+        private DatabaseModel _databaseModel;
+        private Dictionary<string, TableModel> _tables;
+        private Dictionary<string, ColumnModel> _tableColumns;
 
-        private static string TableKey(Table table) => TableKey(table.Name, table.SchemaName);
+        private static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
         private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
-        private static string ColumnKey(Table table, string columnName) => TableKey(table) + ".[" + columnName + "]";
+        private static string ColumnKey(TableModel table, string columnName) => TableKey(table) + ".[" + columnName + "]";
 
         private void ResetState()
         {
             _connection = null;
             _tableSelectionSet = null;
-            _schemaInfo = new SchemaInfo();
-            _tables = new Dictionary<string, Table>();
-            _tableColumns = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
+            _databaseModel = new DatabaseModel();
+            _tables = new Dictionary<string, TableModel>();
+            _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public virtual SchemaInfo GetSchema(string connectionString, TableSelectionSet tableSelectionSet)
+        public virtual DatabaseModel Create(string connectionString, TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
             Check.NotNull(tableSelectionSet, nameof(tableSelectionSet));
@@ -43,15 +43,15 @@ namespace Microsoft.Data.Entity.Scaffolding
                 _connection.Open();
                 _tableSelectionSet = tableSelectionSet;
 
-                _schemaInfo.DatabaseName = _connection.Database;
+                _databaseModel.DatabaseName = _connection.Database;
                  // TODO actually load per-user
-                _schemaInfo.DefaultSchemaName = "dbo";
+                _databaseModel.DefaultSchemaName = "dbo";
 
                 GetTables();
                 GetColumns();
                 GetIndexes();
                 GetForeignKeys();
-                return _schemaInfo;
+                return _databaseModel;
             }
         }
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             {
                 while (reader.Read())
                 {
-                    var table = new Table
+                    var table = new TableModel
                     {
                         SchemaName = reader.GetString(0),
                         Name = reader.GetString(1)
@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
                     if (_tableSelectionSet.Allows(table.SchemaName, table.Name))
                     {
-                        _schemaInfo.Tables.Add(table);
+                        _databaseModel.Tables.Add(table);
                         _tables[TableKey(table)] = table;
                     }
                 }
@@ -142,7 +142,7 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                     }
 
                     var table = _tables[TableKey(tableName, schemaName)];
-                    var column = new Column
+                    var column = new ColumnModel
                     {
                         Table = table,
                         DataType = dataTypeName,
@@ -182,7 +182,7 @@ ORDER BY i.name, ic.key_ordinal";
 
             using (var reader = command.ExecuteReader())
             {
-                Index index = null;
+                IndexModel index = null;
                 while (reader.Read())
                 {
                     var indexName = reader.GetString(0);
@@ -198,7 +198,7 @@ ORDER BY i.name, ic.key_ordinal";
                         || index.Name != indexName)
                     {
                         var table = _tables[TableKey(tableName, schemaName)];
-                        index = new Index
+                        index = new IndexModel
                         {
                             Table = table,
                             Name = indexName,
@@ -234,7 +234,7 @@ ORDER BY f.name, fc.constraint_column_id";
             using (var reader = command.ExecuteReader())
             {
                 var lastFkName = "";
-                ForeignKey fkInfo = null;
+                ForeignKeyModel fkInfo = null;
                 while (reader.Read())
                 {
                     var fkName = reader.GetString(0);
@@ -252,10 +252,10 @@ ORDER BY f.name, fc.constraint_column_id";
                         var principalSchemaTableName = reader.GetString(3);
                         var principalTableName = reader.GetString(4);
                         var table = _tables[TableKey(tableName, schemaName)];
-                        Table principalTable;
+                        TableModel principalTable;
                         _tables.TryGetValue(TableKey(principalTableName, principalSchemaTableName), out principalTable);
 
-                        fkInfo = new ForeignKey
+                        fkInfo = new ForeignKeyModel
                         {
                             Table = table,
                             PrincipalTable = principalTable
@@ -265,13 +265,13 @@ ORDER BY f.name, fc.constraint_column_id";
                     }
                     var fromColumnName = reader.GetString(5);
                     var fromColumn = _tableColumns[ColumnKey(fkInfo.Table, fromColumnName)];
-                    fkInfo.From.Add(fromColumn);
+                    fkInfo.Columns.Add(fromColumn);
 
                     if (fkInfo.PrincipalTable != null)
                     {
                         var toColumnName = reader.GetString(6);
                         var toColumn = _tableColumns[ColumnKey(fkInfo.PrincipalTable, toColumnName)];
-                        fkInfo.To.Add(toColumn);
+                        fkInfo.PrincipalColumns.Add(toColumn);
                     }
 
                     fkInfo.OnDelete = ConvertToReferentialAction(reader.GetString(8));

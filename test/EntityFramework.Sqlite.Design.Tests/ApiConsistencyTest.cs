@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Sqlite.Design
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(SqliteMetadataReader).Assembly;
+        protected override Assembly TargetAssembly => typeof(SqliteDatabaseModelFactory).Assembly;
     }
 }

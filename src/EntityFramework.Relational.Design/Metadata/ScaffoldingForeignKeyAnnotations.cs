@@ -14,22 +14,16 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         {
         }
 
-        public virtual string DependentEndNavPropName
+        public virtual string DependentEndNavigation
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DependentEndNavPropName); }
-            [param: CanBeNull] set { SetDependentEndNavPropName(value); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation); }
+            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.DependentEndNavigation, Check.NullButNotEmpty(value, nameof(value)));  }
         }
 
-        protected virtual bool SetDependentEndNavPropName([CanBeNull] string value)
-            => Annotations.SetAnnotation(ScaffoldingAnnotationNames.DependentEndNavPropName, Check.NullButNotEmpty(value, nameof(value)));
-
-        public virtual string PrincipalEndNavPropName
+        public virtual string PrincipalEndNavigation
         {
-            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.PrincipalEndNavPropName); }
-            [param: CanBeNull] set { SetPrincipalEndNavPropName(value); }
+            get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.PrincipalEndNavigation); }
+            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.PrincipalEndNavigation, Check.NullButNotEmpty(value, nameof(value))); }
         }
-
-        protected virtual bool SetPrincipalEndNavPropName([CanBeNull] string value)
-            => Annotations.SetAnnotation(ScaffoldingAnnotationNames.PrincipalEndNavPropName, Check.NullButNotEmpty(value, nameof(value)));
     }
 }

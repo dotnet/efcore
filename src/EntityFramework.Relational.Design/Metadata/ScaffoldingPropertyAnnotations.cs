@@ -16,10 +16,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual bool? ExplicitValueGeneratedNever
         {
             get { return (bool?)Annotations.GetAnnotation(ScaffoldingAnnotationNames.ExplicitValueGenerationNever); }
-            [param: CanBeNull] set { SetExplicitValueGeneratedNever(value); }
+            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.ExplicitValueGenerationNever, value); }
         }
-
-        protected virtual bool SetExplicitValueGeneratedNever([CanBeNull] bool? value)
-            => Annotations.SetAnnotation(ScaffoldingAnnotationNames.ExplicitValueGenerationNever, value);
     }
 }

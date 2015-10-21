@@ -18,13 +18,13 @@ using Xunit;
 
 namespace EntityFramework.Sqlite.Design.FunctionalTests
 {
-    public class SqliteMetadataModelProviderTest
+    public class SqliteDatabaseModelFactoryTest
     {
-        private readonly RelationalMetadataModelProvider _metadataModelProvider;
+        private readonly RelationalScaffoldingModelFactory _scaffoldingModelFactory;
         private readonly SqliteTestStore _testStore;
         private readonly TestLogger _logger;
 
-        public SqliteMetadataModelProviderTest()
+        public SqliteDatabaseModelFactoryTest()
         {
             _testStore = SqliteTestStore.CreateScratch();
             var serviceCollection = new ServiceCollection();
@@ -40,8 +40,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             _logger = new TestLogger();
             serviceProvider.GetService<ILoggerFactory>().AddProvider(new TestLoggerProvider(_logger));
 
-            _metadataModelProvider = serviceProvider
-                .GetService<MetadataModelProvider>() as RelationalMetadataModelProvider;
+            _scaffoldingModelFactory = serviceProvider
+                .GetService<IScaffoldingModelFactory>() as RelationalScaffoldingModelFactory;
         }
 
         [Fact]
@@ -311,7 +311,7 @@ CREATE TABLE Gum ( A, B,
         private IModel GetModel(string createSql)
         {
             _testStore.ExecuteNonQuery(createSql);
-            return _metadataModelProvider.GetModel(_testStore.Connection.ConnectionString, TableSelectionSet.InclusiveAll);
+            return _scaffoldingModelFactory.Create(_testStore.Connection.ConnectionString, TableSelectionSet.All);
         }
     }
 

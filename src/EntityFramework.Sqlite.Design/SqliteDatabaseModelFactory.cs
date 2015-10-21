@@ -7,36 +7,36 @@ using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding.Internal;
-using Microsoft.Data.Entity.Scaffolding.Model;
+using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
 
 namespace Microsoft.Data.Entity.Scaffolding
 {
-    public class SqliteMetadataReader : IMetadataReader
+    public class SqliteDatabaseModelFactory : IDatabaseModelFactory
     {
         private SqliteConnection _connection;
         private TableSelectionSet _tableSelectionSet;
-        private SchemaInfo _schemaInfo;
-        private Dictionary<string, Table> _tables;
+        private DatabaseModel _databaseModel;
+        private Dictionary<string, TableModel> _tables;
         private Dictionary<string, string> _indexDefinitions;
         private Dictionary<string, string> _tableDefinitions;
-        private Dictionary<string, Column> _tableColumns;
+        private Dictionary<string, ColumnModel> _tableColumns;
 
-        private static string ColumnKey(Table table, string columnName) => "[" + table.Name + "].[" + columnName + "]";
+        private static string ColumnKey(TableModel table, string columnName) => "[" + table.Name + "].[" + columnName + "]";
 
         private void ResetState()
         {
             _connection = null;
             _tableSelectionSet = null;
-            _schemaInfo = new SchemaInfo();
-            _tables = new Dictionary<string, Table>(StringComparer.OrdinalIgnoreCase);
-            _tableColumns = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
+            _databaseModel = new DatabaseModel();
+            _tables = new Dictionary<string, TableModel>(StringComparer.OrdinalIgnoreCase);
+            _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
             _tableDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             _indexDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public virtual SchemaInfo GetSchema(
+        public virtual DatabaseModel Create(
             [NotNull] string connectionString, [NotNull] TableSelectionSet tableSelectionSet)
         {
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -59,19 +59,19 @@ namespace Microsoft.Data.Entity.Scaffolding
                     // graceful fallback
                 }
 
-                _schemaInfo.DatabaseName = !string.IsNullOrEmpty(databaseName) ? databaseName : _connection.DataSource;
+                _databaseModel.DatabaseName = !string.IsNullOrEmpty(databaseName) ? databaseName : _connection.DataSource;
 
                 GetSqliteMaster();
                 GetColumns();
                 GetIndexes();
 
-                foreach (var table in _schemaInfo.Tables)
+                foreach (var table in _databaseModel.Tables)
                 {
                     SqliteDmlParser.ParseTableDefinition(table, _tableDefinitions[table.Name]);
                 }
 
                 GetForeignKeys();
-                return _schemaInfo;
+                return _databaseModel;
             }
         }
 
@@ -92,11 +92,11 @@ namespace Microsoft.Data.Entity.Scaffolding
                         && name != "sqlite_sequence"
                         && _tableSelectionSet.Allows(name))
                     {
-                        var table = new Table
+                        var table = new TableModel
                         {
                             Name = name
                         };
-                        _schemaInfo.Tables.Add(table);
+                        _databaseModel.Tables.Add(table);
                         _tables.Add(name, table);
                         _tableDefinitions[name] = sql;
                     }
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     {
                         var table = _tables[tableName];
 
-                        table.Indexes.Add(new Index
+                        table.Indexes.Add(new IndexModel
                         {
                             Name = name,
                             Table = table
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         private void GetColumns()
         {
-            foreach (var table in _schemaInfo.Tables)
+            foreach (var table in _databaseModel.Tables)
             {
                 var command = _connection.CreateCommand();
                 command.CommandText = $"PRAGMA table_info(\"{table.Name.Replace("\"", "\"\"")}\");";
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                         var typeName = reader.GetString((int)TableInfoColumns.Type);
                         var notNull = isPk || reader.GetBoolean((int)TableInfoColumns.NotNull);
 
-                        var column = new Column
+                        var column = new ColumnModel
                         {
                             Table = table,
                             Name = reader.GetString((int)TableInfoColumns.Name),
@@ -170,14 +170,14 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         private void GetIndexes()
         {
-            foreach (var table in _schemaInfo.Tables)
+            foreach (var table in _databaseModel.Tables)
             {
                 foreach (var index in table.Indexes)
                 {
                     var indexInfo = _connection.CreateCommand();
                     indexInfo.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
 
-                    index.Columns = new List<Column>();
+                    index.Columns = new List<ColumnModel>();
                     using (var reader = indexInfo.ExecuteReader())
                     {
                         while (reader.Read())
@@ -221,12 +221,12 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         private void GetForeignKeys()
         {
-            foreach (var dependentTable in _schemaInfo.Tables)
+            foreach (var dependentTable in _databaseModel.Tables)
             {
                 var fkList = _connection.CreateCommand();
                 fkList.CommandText = $"PRAGMA foreign_key_list(\"{dependentTable.Name.Replace("\"", "\"\"")}\");";
 
-                var tableForeignKeys = new Dictionary<int, ForeignKey>();
+                var tableForeignKeys = new Dictionary<int, ForeignKeyModel>();
 
                 using (var reader = fkList.ExecuteReader())
                 {
@@ -235,12 +235,12 @@ namespace Microsoft.Data.Entity.Scaffolding
                         var id = reader.GetInt32((int)ForeignKeyList.Id);
                         var principalTableName = reader.GetString((int)ForeignKeyList.Table);
     
-                        ForeignKey foreignKey;
+                        ForeignKeyModel foreignKey;
                         if (!tableForeignKeys.TryGetValue(id, out foreignKey))
                         {
-                            Table principalTable;
+                            TableModel principalTable;
                             _tables.TryGetValue(principalTableName, out principalTable);
-                            foreignKey = new ForeignKey
+                            foreignKey = new ForeignKeyModel
                             {
                                 Table = dependentTable,
                                 PrincipalTable = principalTable
@@ -249,17 +249,17 @@ namespace Microsoft.Data.Entity.Scaffolding
                         }
 
                         var fromColumnName = reader.GetString((int)ForeignKeyList.From);
-                        foreignKey.From.Add(_tableColumns[ColumnKey(dependentTable, fromColumnName)]);
+                        foreignKey.Columns.Add(_tableColumns[ColumnKey(dependentTable, fromColumnName)]);
 
                         if (foreignKey.PrincipalTable != null)
                         {
                             var toColumnName = reader.GetString((int)ForeignKeyList.To);
-                            Column toColumn;
+                            ColumnModel toColumn;
                             if(!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
                             {
-                                toColumn = new Column { Name = toColumnName };
+                                toColumn = new ColumnModel { Name = toColumnName };
                             }
-                            foreignKey.To.Add(toColumn);
+                            foreignKey.PrincipalColumns.Add(toColumn);
                         }
 
                         foreignKey.OnDelete = ConvertToReferentialAction(

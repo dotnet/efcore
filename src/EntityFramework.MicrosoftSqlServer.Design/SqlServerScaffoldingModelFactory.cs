@@ -10,46 +10,45 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
-using Microsoft.Data.Entity.Scaffolding.Model;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Scaffolding
 {
-    public class SqlServerMetadataModelProvider : RelationalMetadataModelProvider
+    public class SqlServerScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
         private readonly SqlServerLiteralUtilities _sqlServerLiteralUtilities;
 
         private const int DefaultDateTimePrecision = 7;
         private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
 
-        public SqlServerMetadataModelProvider(
+        public SqlServerScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IMetadataReader metadataReader,
+            [NotNull] IDatabaseModelFactory databaseModelFactory,
             [NotNull] SqlServerLiteralUtilities sqlServerLiteralUtilities)
-            : base(loggerFactory, typeMapper, metadataReader)
+            : base(loggerFactory, typeMapper, databaseModelFactory)
         {
             Check.NotNull(sqlServerLiteralUtilities, nameof(sqlServerLiteralUtilities));
 
             _sqlServerLiteralUtilities = sqlServerLiteralUtilities;
         }
 
-        protected override PropertyBuilder AddColumn([NotNull] EntityTypeBuilder builder, [NotNull] Column column)
+        protected override PropertyBuilder VisitColumn([NotNull] EntityTypeBuilder builder, [NotNull] ColumnModel column)
         {
-            var propertyBuilder = base.AddColumn(builder, column);
+            var propertyBuilder = base.VisitColumn(builder, column);
 
-            AddSqlServerTypeMapping(column, propertyBuilder);
+            VisitTypeMapping(propertyBuilder, column);
 
-            AddSqlServerDefaultValue(column, propertyBuilder);
+            VisitDefaultValue(column, propertyBuilder);
 
             return propertyBuilder;
         }
 
-        protected override EntityTypeBuilder AddPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] Table table)
+        protected override EntityTypeBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
         {
-            base.AddPrimaryKey(builder, table);
+            base.VisitPrimaryKey(builder, table);
 
             // If this property is the single integer primary key on the EntityType then
             // KeyConvention assumes ValueGeneratedOnAdd(). If the underlying column does
@@ -71,13 +70,13 @@ namespace Microsoft.Data.Entity.Scaffolding
                 || propertyType == typeof(Guid))
             {
                 property.ValueGenerated = ValueGenerated.Never;
-                property.RelationalDesign().ExplicitValueGeneratedNever = true;
+                property.Scaffolding().ExplicitValueGeneratedNever = true;
             }
 
             return builder;
         }
 
-        private PropertyBuilder AddSqlServerTypeMapping(Column column, PropertyBuilder propertyBuilder)
+        private PropertyBuilder VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)
         {
             if (column.IsIdentity == true)
             {
@@ -85,7 +84,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 {
                     Logger.LogWarning(
                         SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy(
-                            column.DisplayName(), column.DataType));
+                            column.DisplayName, column.DataType));
                 }
                 else
                 {
@@ -113,7 +112,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             return propertyBuilder;
         }
 
-        private PropertyBuilder AddSqlServerDefaultValue(Column column, PropertyBuilder propertyBuilder)
+        private PropertyBuilder VisitDefaultValue(ColumnModel column, PropertyBuilder propertyBuilder)
         {
             if (column.DefaultValue != null)
             {
@@ -139,7 +138,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 {
                     Logger.LogWarning(
                         SqlServerDesignStrings.UnableToConvertDefaultValue(
-                            column.DisplayName(), column.DefaultValue,
+                            column.DisplayName, column.DefaultValue,
                             property.ClrType, property.Name, property.DeclaringEntityType.Name));
                 }
             }

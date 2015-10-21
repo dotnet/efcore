@@ -9,13 +9,16 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
     public static class ScaffoldingMetadataExtensions
     {
-        public static ScaffoldingPropertyAnnotations RelationalDesign([NotNull] this IProperty property)
+        public static ScaffoldingModelAnnotations Scaffolding([NotNull] this IModel model)
+        => new ScaffoldingModelAnnotations(Check.NotNull(model, nameof(model)), ScaffoldingAnnotationNames.AnnotationPrefix);
+
+        public static ScaffoldingEntityTypeAnnotations Scaffolding([NotNull] this IEntityType entityType)
+            => new ScaffoldingEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), ScaffoldingAnnotationNames.AnnotationPrefix);
+
+        public static ScaffoldingPropertyAnnotations Scaffolding([NotNull] this IProperty property)
             => new ScaffoldingPropertyAnnotations(Check.NotNull(property, nameof(property)), ScaffoldingAnnotationNames.AnnotationPrefix);
 
-        public static ScaffoldingForeignKeyAnnotations RelationalDesign([NotNull] this IForeignKey foreignKey)
+        public static ScaffoldingForeignKeyAnnotations Scaffolding([NotNull] this IForeignKey foreignKey)
           => new ScaffoldingForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), ScaffoldingAnnotationNames.AnnotationPrefix);
-
-        public static ScaffoldingEntityTypeAnnotations RelationalDesign([NotNull] this IEntityType entityType)
-        => new ScaffoldingEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), ScaffoldingAnnotationNames.AnnotationPrefix);
     }
 }

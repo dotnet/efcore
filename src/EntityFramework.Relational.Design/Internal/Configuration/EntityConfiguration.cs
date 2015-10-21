@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         public virtual List<RelationshipConfiguration> RelationshipConfigurations { get; } = new List<RelationshipConfiguration>();
 
         public virtual string ErrorMessageAnnotation
-            => EntityType.RelationalDesign().EntityTypeError;
+            => EntityType.Scaffolding().EntityTypeError;
 
         public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] IProperty property)
         {

@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(SqlServerMetadataModelProvider).Assembly;
+        protected override Assembly TargetAssembly => typeof(SqlServerScaffoldingModelFactory).Assembly;
     }
 }

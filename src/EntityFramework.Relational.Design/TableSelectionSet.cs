@@ -8,7 +8,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 {
     public class TableSelectionSet
     {
-        public static TableSelectionSet InclusiveAll => new TableSelectionSet();
+        public static TableSelectionSet All => new TableSelectionSet();
 
         public TableSelectionSet()
             : this(null, null)

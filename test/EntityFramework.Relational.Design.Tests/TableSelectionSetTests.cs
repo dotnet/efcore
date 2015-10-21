@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Relational.Design
         [Fact]
         public void Modifying_inclusive_all_doesnt_change_static()
         {
-            var first = TableSelectionSet.InclusiveAll;
+            var first = TableSelectionSet.All;
             first.Tables.Add("Table");
-            var second = TableSelectionSet.InclusiveAll;
+            var second = TableSelectionSet.All;
             Assert.Empty(second.Tables);
         }
     }

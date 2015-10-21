@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.Scaffolding.Model;
+using Microsoft.Data.Entity.Scaffolding.Metadata;
 
 namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             "FOREIGN"
         };
 
-        public static void ParseTableDefinition(Table table, string sql)
+        public static void ParseTableDefinition(TableModel table, string sql)
         {
             var statements = ParseStatements(sql).ToList();
             var i = 0;
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             return SafeSplit(statementsChunk, ',').Select(s => s.Trim());
         }
 
-        public static void ParseColumnDefinition(Table table, string statement)
+        public static void ParseColumnDefinition(TableModel table, string statement)
         {
             var paramName = UnescapeString(SafeSplit(statement, ' ').First());
             var column = table.Columns.FirstOrDefault(c => c.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase));
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             }
         }
 
-        public static void ParseConstraints(Table table, string statement)
+        public static void ParseConstraints(TableModel table, string statement)
         {
             var constraint = statement.Split(' ', '(')[0];
             if (constraint.Equals("UNIQUE", StringComparison.OrdinalIgnoreCase))
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             }
         }
 
-        public static void ParseInlineUniqueConstraint(Table table, string statement)
+        public static void ParseInlineUniqueConstraint(TableModel table, string statement)
         {
             var start = statement.IndexOf('(') + 1;
             var paramChunk = statement.Substring(start, statement.LastIndexOf(')') - start);

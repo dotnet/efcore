@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
                 case ValueGenerated.Never:
                     // used to prevent conventions from altering the value generated value
-                    if (propertyConfiguration.Property.RelationalDesign().ExplicitValueGeneratedNever == true)
+                    if (propertyConfiguration.Property.Scaffolding().ExplicitValueGeneratedNever == true)
                     {
                         propertyConfiguration.FluentApiConfigurations.Add(
                             _configurationFactory.CreateFluentApiConfiguration(
@@ -444,8 +444,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     var navPropConfiguration =
                         _configurationFactory.CreateNavigationPropertyConfiguration(
                             referencedType,
-                            foreignKey.RelationalDesign().PrincipalEndNavPropName);
-                    if (otherEntityType.RelationalDesign().EntityTypeError != null)
+                            foreignKey.Scaffolding().PrincipalEndNavigation);
+                    if (otherEntityType.Scaffolding().EntityTypeError != null)
                     {
                         navPropConfiguration.ErrorAnnotation =
                             RelationalDesignStrings.UnableToAddNavigationProperty(otherEntityType.Name);
@@ -458,7 +458,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                             _configurationFactory.CreateAttributeConfiguration(
                                 nameof(InversePropertyAttribute),
                                 CSharpUtilities.DelimitString(
-                                    foreignKey.RelationalDesign().DependentEndNavPropName)));
+                                    foreignKey.Scaffolding().DependentEndNavigation)));
                         }
                     }
 
@@ -473,7 +473,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 var dependentEndNavPropConfiguration =
                     _configurationFactory.CreateNavigationPropertyConfiguration(
                         foreignKey.PrincipalEntityType.Name,
-                        foreignKey.RelationalDesign().DependentEndNavPropName);
+                        foreignKey.Scaffolding().DependentEndNavigation);
 
                 if(foreignKey.PrincipalKey.IsPrimaryKey())
                 {
@@ -486,7 +486,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                         _configurationFactory.CreateAttributeConfiguration(
                             nameof(InversePropertyAttribute),
                             CSharpUtilities.DelimitString(
-                                foreignKey.RelationalDesign().PrincipalEndNavPropName)));
+                                foreignKey.Scaffolding().PrincipalEndNavigation)));
                 }
 
                 entityConfiguration.NavigationPropertyConfigurations.Add(
@@ -501,12 +501,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     var principalEndNavPropConfiguration =
                         _configurationFactory.CreateNavigationPropertyConfiguration(
                             referencedType,
-                            foreignKey.RelationalDesign().PrincipalEndNavPropName);
+                            foreignKey.Scaffolding().PrincipalEndNavigation);
                     principalEndNavPropConfiguration.AttributeConfigurations.Add(
                         _configurationFactory.CreateAttributeConfiguration(
                             nameof(InversePropertyAttribute),
                             CSharpUtilities.DelimitString(
-                                foreignKey.RelationalDesign().DependentEndNavPropName)));
+                                foreignKey.Scaffolding().DependentEndNavigation)));
                     entityConfiguration.NavigationPropertyConfigurations.Add(
                         principalEndNavPropConfiguration);
                 }
@@ -530,8 +530,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     .GetForeignKeys().Where(fk => fk.PrincipalEntityType == entityConfiguration.EntityType))
                 {
                     var navigationPropertyName =
-                        foreignKey.RelationalDesign().PrincipalEndNavPropName;
-                    if (otherEntityType.RelationalDesign().EntityTypeError == null)
+                        foreignKey.Scaffolding().PrincipalEndNavigation;
+                    if (otherEntityType.Scaffolding().EntityTypeError == null)
                     {
                         if (!foreignKey.IsUnique)
                         {
@@ -551,9 +551,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             foreach (var foreignKey in entityConfiguration.EntityType.GetForeignKeys())
             {
                 var dependentEndNavigationPropertyName =
-                    foreignKey.RelationalDesign().DependentEndNavPropName;
+                    foreignKey.Scaffolding().DependentEndNavigation;
                 var principalEndNavigationPropertyName =
-                    foreignKey.RelationalDesign().PrincipalEndNavPropName;
+                    foreignKey.Scaffolding().PrincipalEndNavigation;
 
                 var relationshipConfiguration = _configurationFactory
                     .CreateRelationshipConfiguration(
@@ -571,7 +571,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         // do not configure EntityTypes for which we had an error when generating
         public virtual IEnumerable<EntityConfiguration> OrderedEntityConfigurations() =>
             EntityConfigurations
-                .Where(ec => ec.EntityType.RelationalDesign().EntityTypeError == null);
+                .Where(ec => ec.EntityType.Scaffolding().EntityTypeError == null);
 
         public virtual EntityConfiguration GetEntityConfiguration([NotNull] EntityType entityType)
         {

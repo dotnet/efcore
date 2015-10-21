@@ -17,10 +17,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual string EntityTypeError
         {
             get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.EntityTypeError); }
-            [param: CanBeNull] set { SetEntityTypeError(value); }
+            [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.EntityTypeError, Check.NullButNotEmpty(value, nameof(value))); }
         }
-
-        protected virtual bool SetEntityTypeError([CanBeNull] string value)
-            => Annotations.SetAnnotation(ScaffoldingAnnotationNames.EntityTypeError, Check.NullButNotEmpty(value, nameof(value)));
     }
 }

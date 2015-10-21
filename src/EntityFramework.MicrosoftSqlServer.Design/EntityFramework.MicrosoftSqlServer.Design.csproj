@@ -45,8 +45,8 @@
     </Compile>
     <Compile Include="SqlServerTableSelectionSetExtensions.cs" />
     <Compile Include="SqlServerDesignTimeServices.cs" />
-    <Compile Include="SqlServerMetadataModelProvider.cs" />
-    <Compile Include="SqlServerMetadataReader.cs" />
+    <Compile Include="SqlServerScaffoldingModelFactory.cs" />
+    <Compile Include="SqlServerDatabaseModelFactory.cs" />
     <Compile Include="SqlServerMethodNameProvider.cs" />
     <Compile Include="Internal\SqlServerLiteralUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
