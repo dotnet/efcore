@@ -243,11 +243,19 @@ namespace Microsoft.Data.Entity
         ///     This method is called for each instance of the context that is created.
         /// </summary>
         /// <remarks>
-        ///     If you passed an instance of <see cref="DbContextOptions" /> to the constructor of the context (or
-        ///     provided an <see cref="IServiceProvider" /> with <see cref="DbContextOptions" /> registered) then
-        ///     it is cloned before being passed to this method. This allows the options to be altered without
-        ///     affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
-        ///     instance.
+        ///     <para>
+        ///         If you passed an instance of <see cref="DbContextOptions" /> to the constructor of the context (or
+        ///         provided an <see cref="IServiceProvider" /> with <see cref="DbContextOptions" /> registered) then
+        ///         it is cloned before being passed to this method. This allows the options to be altered without
+        ///         affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
+        ///         instance.
+        ///     </para>
+        ///     <para>
+        ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
+        ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured"/> to determine if 
+        ///         the options have already been set, and skip some or all of the logic in 
+        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/>.
+        ///     </para>
         /// </remarks>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
@@ -262,6 +270,10 @@ namespace Microsoft.Data.Entity
         ///     exposed in <see cref="DbSet{TEntity}" /> properties on your derived context. The resulting model may be cached
         ///     and re-used for subsequent instances of your derived context.
         /// </summary>
+        /// <remarks>
+        ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)"/>)
+        ///     then this method will not be run.
+        /// </remarks>
         /// <param name="modelBuilder">
         ///     The builder being used to construct the model for this context. Databases (and other extensions) typically
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific

@@ -7,9 +7,29 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity
 {
+    /// <summary>
+    ///     Static methods that are useful in application code where there is not an EF type for the method to be accessed from. For example,
+    ///     referencing a shadow state property in a LINQ query.
+    /// </summary>
     // ReSharper disable once InconsistentNaming
     public static class EF
     {
+        /// <summary>
+        ///     Addresses a given property on an entity instance. This is useful when you want to reference a shadow state property in a
+        ///     LINQ query. Currently this method can only be used in LINQ queries and can not be used to access the value assigned to a
+        ///     property in other scenarios.
+        /// </summary>
+        /// <example>
+        ///     The following code performs a filter using the a LastUpdated shadow state property.
+        ///     <code>
+        ///         var blogs = context.Blogs
+        ///             .Where(b =&gt; EF.Property&lt;DateTime&gt;(b, "LastUpdated") > DateTime.Now.AddDays(-5))
+        ///     </code>
+        /// </example>
+        /// <typeparam name="TProperty"> The type of the property being referenced. </typeparam>
+        /// <param name="entity"> The entity to access the property on. </param>
+        /// <param name="propertyName"> The name of the property. </param>
+        /// <returns> The value assigned to the property. </returns>
         public static TProperty Property<TProperty>([NotNull] object entity, [NotNull] string propertyName)
         {
             throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
