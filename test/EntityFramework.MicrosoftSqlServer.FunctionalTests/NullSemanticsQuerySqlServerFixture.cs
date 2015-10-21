@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemantics;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.NullSemanticsModel;
@@ -65,8 +66,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             }
 
             var context = new NullSemanticsContext(_serviceProvider, optionsBuilder.Options);
-            
-            context.ChangeTracker.TrackQueryResults = false;
+
+            context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
             context.Database.UseTransaction(testStore.Transaction);
 

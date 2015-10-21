@@ -67,6 +67,7 @@
     <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\ValueBufferOriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\ValueBufferSidecar.cs" />
+    <Compile Include="ChangeTracking\QueryTrackingBehavior.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
     <Compile Include="DbUpdateException.cs" />
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />

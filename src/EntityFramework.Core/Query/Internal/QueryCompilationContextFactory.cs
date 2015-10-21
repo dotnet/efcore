@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
@@ -37,7 +38,9 @@ namespace Microsoft.Data.Entity.Query.Internal
         protected virtual IRequiresMaterializationExpressionVisitorFactory RequiresMaterializationExpressionVisitorFactory { get; }
 
         protected virtual Type ContextType => _context.GetType();
-        protected virtual bool TrackQueryResults => _context.ChangeTracker.TrackQueryResults;
+
+        protected virtual bool TrackQueryResults 
+            => _context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
 
         public virtual QueryCompilationContext Create(bool async)
             => new QueryCompilationContext(

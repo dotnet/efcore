@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
@@ -206,7 +207,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.True(context.ChangeTracker.TrackQueryResults);
+                Assert.Equal(QueryTrackingBehavior.TrackAll, context.ChangeTracker.QueryTrackingBehavior);
 
                 var query = context.Employees.OrderBy(e => e.EmployeeID);
 
@@ -215,14 +216,14 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(1, results.Count);
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
 
-                context.ChangeTracker.TrackQueryResults = false;
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
                 results = query.Skip(1).Take(1).ToList();
 
                 Assert.Equal(1, results.Count);
                 Assert.Equal(1, context.ChangeTracker.Entries().Count());
 
-                context.ChangeTracker.TrackQueryResults = true;
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
                 results = query.ToList();
 
@@ -236,7 +237,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.True(context.ChangeTracker.TrackQueryResults);
+                Assert.Equal(QueryTrackingBehavior.TrackAll, context.ChangeTracker.QueryTrackingBehavior);
 
                 var results = context.Employees.ToList();
 
@@ -246,7 +247,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             using (var context = CreateContext())
             {
-                context.ChangeTracker.TrackQueryResults = false;
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
                 var results = context.Employees.ToList();
 
@@ -260,16 +261,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.True(context.ChangeTracker.TrackQueryResults);
+                Assert.Equal(QueryTrackingBehavior.TrackAll, context.ChangeTracker.QueryTrackingBehavior);
 
-                context.ChangeTracker.TrackQueryResults = false;
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
 
                 var results = context.Employees.ToList();
 
                 Assert.Equal(9, results.Count);
                 Assert.Equal(0, context.ChangeTracker.Entries().Count());
 
-                context.ChangeTracker.TrackQueryResults = true;
+                context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
 
                 results = context.Employees.ToList();
 
