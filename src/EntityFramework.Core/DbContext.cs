@@ -32,7 +32,10 @@ namespace Microsoft.Data.Entity
     ///     </para>
     ///     <para>
     ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the database (and
-    ///         other options) to be used for the context.
+    ///         other options) to be used for the context. Alternatively, if you would rather perform configuration externally
+    ///         instead of inline in your context, you can use <see cref="DbContextOptionsBuilder{TContext}"/> 
+    ///         (or <see cref="DbContextOptionsBuilder"/>) to externally create an instance of <see cref="DbContextOptions{TContext}"/> 
+    ///         (or <see cref="DbContextOptions"/>) and pass it to a base constructor of <see cref="DbContext"/>.
     ///     </para>
     ///     <para>
     ///         The model is discovered by running a set of conventions over the entity classes found in the
@@ -74,7 +77,8 @@ namespace Microsoft.Data.Entity
         ///         used). The Entity Framework services can be registered using the
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
         ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
-        ///         services required.
+        ///         services required. For example, the Microsoft SQL Server provider includes an AddSqlServer() method
+        ///         to add the required services.
         ///     </para>
         ///     <para>
         ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
@@ -112,16 +116,18 @@ namespace Microsoft.Data.Entity
         ///         configuration of the options.
         ///     </para>
         ///     <para>
-        ///         The service provider must contain all the services required by Entity Framework (and the databases being
+        ///         The service provider must contain all the services required by Entity Framework (and the database being
         ///         used). The Entity Framework services can be registered using the
         ///         <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" /> method.
         ///         Most databases also provide an extension method on <see cref="IServiceCollection" /> to register the
-        ///         services required.
+        ///         services required. For example, the Microsoft SQL Server provider includes an AddSqlServer() method
+        ///         to add the required services.
         ///     </para>
         ///     <para>
         ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
         ///         <see cref="DbContextOptions{TContext}" />
-        ///         registered, then this will be used as the options for this context instance. The <see cref="OnConfiguring" />
+        ///         registered, then this will be used as the options for this context instance. The 
+        ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
         ///         method will still be called to allow further configuration of the options.
         ///     </para>
         /// </summary>
@@ -266,7 +272,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Saves all changes made in this context to the underlying database.
+        ///     Saves all changes made in this context to the database.
         /// </summary>
         /// <remarks>
         ///     This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
@@ -274,17 +280,17 @@ namespace Microsoft.Data.Entity
         ///     <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
         /// </remarks>
         /// <returns>
-        ///     The number of state entries written to the underlying database.
+        ///     The number of state entries written to the database.
         /// </returns>
         [DebuggerStepThrough]
         public virtual int SaveChanges() => SaveChanges(acceptAllChangesOnSuccess: true);
 
         /// <summary>
-        ///     Saves all changes made in this context to the underlying database.
+        ///     Saves all changes made in this context to the database.
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
-        ///     been sent succesfully to the database.
+        ///     been sent successfully to the database.
         /// </param>
         /// <remarks>
         ///     This method will automatically call <see cref="ChangeTracking.ChangeTracker.DetectChanges" /> to discover any
@@ -292,7 +298,7 @@ namespace Microsoft.Data.Entity
         ///     <see cref="ChangeTracking.ChangeTracker.AutoDetectChangesEnabled" />.
         /// </remarks>
         /// <returns>
-        ///     The number of state entries written to the underlying database.
+        ///     The number of state entries written to the database.
         /// </returns>
         [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -326,7 +332,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Asynchronously saves all changes made in this context to the underlying database.
+        ///     Asynchronously saves all changes made in this context to the database.
         /// </summary>
         /// <remarks>
         ///     <para>
@@ -342,18 +348,17 @@ namespace Microsoft.Data.Entity
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
-        ///     number of state entries written to the underlying database.
+        ///     number of state entries written to the database.
         /// </returns>
         public virtual Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
             => SaveChangesAsync(acceptAllChangesOnSuccess: true, cancellationToken: cancellationToken);
 
         /// <summary>
-        ///     Asynchronously saves all changes made in this context to the underlying database.
+        ///     Asynchronously saves all changes made in this context to the database.
         /// </summary>
         /// <param name="acceptAllChangesOnSuccess">
         ///     Indicates whether <see cref="ChangeTracking.ChangeTracker.AcceptAllChanges" /> is called after the changes have
-        ///     been
-        ///     sent succesfully to the database.
+        ///     been sent successfully to the database.
         /// </param>
         /// <remarks>
         ///     <para>
@@ -369,7 +374,7 @@ namespace Microsoft.Data.Entity
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
         ///     A task that represents the asynchronous save operation. The task result contains the
-        ///     number of state entries written to the underlying database.
+        ///     number of state entries written to the database.
         /// </returns>
         public virtual async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -407,9 +412,8 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity providing access to
-        ///     information the context is tracking for the given the entity and the ability
-        ///     to perform actions on the entity.
+        ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to get the entry for. </param>
@@ -474,12 +478,11 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add<TEntity>(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Added, Check.IsDefined(behavior, nameof(behavior)));
 
@@ -493,9 +496,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Attach<TEntity>(
             [NotNull] TEntity entity,
@@ -510,8 +512,8 @@ namespace Microsoft.Data.Entity
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach{TEntity}(TEntity, GraphBehavior)" /> to begin tracking the entity in the
-        ///         <see cref="EntityState.Unchanged" />
-        ///         state and then use the returned <see cref="EntityEntry{TEntity}" /> to mark the desired properties as modified.
+        ///         <see cref="EntityState.Unchanged" /> state and then use the returned <see cref="EntityEntry{TEntity}" /> 
+        ///         to mark the desired properties as modified.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
@@ -520,12 +522,11 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Update<TEntity>(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents) where TEntity : class
             => SetEntityState(Check.NotNull(entity, nameof(entity)), EntityState.Modified, Check.IsDefined(behavior, nameof(behavior)));
 
@@ -541,9 +542,8 @@ namespace Microsoft.Data.Entity
         /// <typeparam name="TEntity"> The type of the entity. </typeparam>
         /// <param name="entity"> The entity to remove. </param>
         /// <returns>
-        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Remove<TEntity>([NotNull] TEntity entity) where TEntity : class
         {
@@ -582,9 +582,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Add(
             [NotNull] object entity,
@@ -600,9 +599,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Attach(
             [NotNull] object entity,
@@ -625,9 +623,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Update(
             [NotNull] object entity,
@@ -645,9 +642,8 @@ namespace Microsoft.Data.Entity
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry Remove([NotNull] object entity)
         {
@@ -812,13 +808,12 @@ namespace Microsoft.Data.Entity
         public virtual ChangeTracker ChangeTracker => _changeTracker.Value;
 
         /// <summary>
-        ///     The metadata about the shape of entities and relationships between them.
+        ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
         /// </summary>
         public virtual IModel Model => ServiceProvider.GetRequiredService<IModel>();
 
         /// <summary>
-        ///     Creates a set to perform operations for a given entity type in the model. LINQ queries against
-        ///     <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
+        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity"/>.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>

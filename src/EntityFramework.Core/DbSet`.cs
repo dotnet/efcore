@@ -21,14 +21,18 @@ namespace Microsoft.Data.Entity
 {
     /// <summary>
     ///     <para>
-    ///         A DbSet allows operations to be performed for a given entity type. LINQ queries against
-    ///         <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
+    ///         A <see cref="DbSet{TEntity}"/> can be used to query and save instances of <typeparamref name="TEntity"/>. 
+    ///         LINQ queries against a <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
     ///     </para>
     ///     <para>
     ///         The results of a LINQ query against a <see cref="DbSet{TEntity}" /> will contain the results
     ///         returned from the database and may not reflect changes made in the context that have not
     ///         been persisted to the database. For example, the results will not contain newly added entities
     ///         and may still contain entities that are marked for deletion.
+    ///     </para>
+    ///     <para>
+    ///         Depending on the database being used, some parts of a LINQ query against a <see cref="DbSet{TEntity}" /> 
+    ///         may be evaluated in memory rather than being translated into a database query.
     ///     </para>
     ///     <para>
     ///         <see cref="DbSet{TEntity}" /> objects are usually obtained from a <see cref="DbSet{TEntity}" />
@@ -50,9 +54,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry{TEntity}" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add(
             [NotNull] TEntity entity, 
@@ -70,9 +73,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Attach(
             [NotNull] TEntity entity, 
@@ -92,9 +94,8 @@ namespace Microsoft.Data.Entity
         /// </remarks>
         /// <param name="entity"> The entity to remove. </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Remove([NotNull] TEntity entity)
         {
@@ -117,9 +118,8 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entity or also other related entities.
         /// </param>
         /// <returns>
-        ///     The <see cref="EntityEntry" /> for the entity. This entry provides access to
-        ///     information the context is tracking for the entity and the ability to perform
-        ///     actions on the entity.
+        ///     The <see cref="EntityEntry" /> for the entity. The entry provides
+        ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Update(
             [NotNull] TEntity entity, 
@@ -248,7 +248,8 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Returns an <see cref="IEnumerator{T}" /> which when enumerated will execute the query against the database.
+        ///     Returns an <see cref="IEnumerator{T}" /> which when enumerated will execute a query against the database
+        ///     to load all entities from the database.
         /// </summary>
         /// <returns> The query results. </returns>
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
@@ -257,7 +258,8 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Returns an <see cref="IEnumerator" /> which when enumerated will execute the query against the database.
+        ///     Returns an <see cref="IEnumerator" /> which when enumerated will execute a query against the database
+        ///     to load all entities from the database.
         /// </summary>
         /// <returns> The query results. </returns>
         IEnumerator IEnumerable.GetEnumerator()
@@ -319,11 +321,28 @@ namespace Microsoft.Data.Entity
     public abstract partial class DbSet<TEntity> : IListSource
         where TEntity : class
     {
+        /// <summary>
+        ///     <para>
+        ///         This method is called by data binding frameworks when attempting to data bind directly to a <see cref="DbSet{TEntity}"/>.
+        ///     </para>
+        ///     <para>
+        ///         This implementation always throws an exception as binding directly to a <see cref="DbSet{TEntity}"/> will result in a query being 
+        ///         sent to the database every time the data binding framework requests the contents of the collection. Instead materialize the results 
+        ///         into a collection, by calling a method such as <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})"/> or 
+        ///         <see cref="Enumerable.ToArray{TSource}(IEnumerable{TSource})"/>, and bind to the collection.
+        ///     </para>
+        /// </summary>
+        /// <exception cref="NotSupportedException"> Always thrown. </exception>
+        /// <returns> Never returns, always throws an exception. </returns>
         IList IListSource.GetList()
         {
             throw new NotSupportedException(CoreStrings.DataBindingWithIListSource);
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether the collection is a collection of System.Collections.IList objects.
+        ///     Always returns false.
+        /// </summary>
         bool IListSource.ContainsListCollection => false;
     }
 #endif
