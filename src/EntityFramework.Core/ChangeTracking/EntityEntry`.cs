@@ -61,6 +61,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
             return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyInfo.Name);
         }
 
+        /// <summary>
+        ///     Provides access to change tracking information and operations for a given
+        ///     property of this entity.
+        /// </summary>
+        /// <typeparam name="TProperty"> The type of the property. </typeparam>
+        /// <param name="propertyName"> The property to access information and operations for. </param>
+        /// <returns> An object that exposes change tracking information and operations for the given property. </returns>
         public virtual PropertyEntry<TEntity, TProperty> Property<TProperty>(
             [NotNull] string propertyName)
         {
