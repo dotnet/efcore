@@ -38,21 +38,13 @@ namespace Microsoft.Extensions.Internal
 #if NET45
             applicationBase = AppDomain.CurrentDomain.BaseDirectory;
 #elif DNX451 || DNXCORE50
-            var serviceProvider = CallContextServiceLocator
-                .Locator
-                .ServiceProvider;
 
-            var runtimeEnv = serviceProvider
-                .GetRequiredService<IRuntimeEnvironment>();
-
-            if(runtimeEnv.OperatingSystem != "Windows")
+            if (!PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
 
-            applicationBase = serviceProvider
-                .GetRequiredService<IApplicationEnvironment>()
-                .ApplicationBasePath;
+            applicationBase = PlatformServices.Default.Application.ApplicationBasePath;
 #else
             applicationBase = AppContext.BaseDirectory;
 #endif
@@ -79,7 +71,7 @@ namespace Microsoft.Extensions.Internal
             {
                 dllName += ".dll";
             }
-            
+
             if (File.Exists(Path.Combine(applicationBase, dllName)))
             {
                 return true;
