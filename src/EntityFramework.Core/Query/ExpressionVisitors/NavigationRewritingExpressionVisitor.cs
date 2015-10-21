@@ -388,10 +388,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         new WhereClause(
                             Expression.Equal(
                                 CreateKeyAccessExpression(
-                                    querySourceReferenceExpression,
+                                    innerQuerySourceReferenceExpression,
                                     navigation.ForeignKey.Properties),
                                 CreateKeyAccessExpression(
-                                    innerQuerySourceReferenceExpression,
+                                    querySourceReferenceExpression,
                                     navigation.ForeignKey.PrincipalKey.Properties))));
 
                     return _queryModel.MainFromClause.FromExpression;
