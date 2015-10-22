@@ -208,7 +208,7 @@ namespace Microsoft.Data.Sqlite
                     _cacheMode = SqliteConnectionCacheMode.Private;
                     return;
 
-#if NET45 || DNX451 || DNXCORE50
+#if NET451 || DOTNET5_4
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return;

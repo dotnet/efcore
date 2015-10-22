@@ -1,14 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET45 || DNX451 || DNXCORE50
+#if NET451 || NET451 || DOTNET5_4
 
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-#if DNX451 || DNXCORE50
+#if NET451 || DOTNET5_4
 using Microsoft.Dnx.Runtime;
 using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,9 +35,9 @@ namespace Microsoft.Extensions.Internal
         public static bool TryLoad(string dllName)
         {
             string applicationBase;
-#if NET45
+#if NET451
             applicationBase = AppDomain.CurrentDomain.BaseDirectory;
-#elif DNX451 || DNXCORE50
+#elif NET451 || DOTNET5_4
 
             if (!PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
             {

@@ -6,10 +6,10 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using static Microsoft.Data.Sqlite.Interop.Constants;
 
-#if NET45 || DNX451 || DNXCORE50
+#if NET451 || DOTNET5_4
 using Microsoft.Extensions.Internal;
 
-#if DNX451 || DNXCORE50
+#if NET451 || DOTNET5_4
 using System.IO;
 using System.Reflection;
 using Microsoft.Dnx.Runtime;
@@ -23,12 +23,12 @@ namespace Microsoft.Data.Sqlite.Interop
 {
     internal static class NativeMethods
     {
-#if NET45 || DNX451 || DNXCORE50
+#if NET451 || DOTNET5_4
         static NativeMethods()
         {
             var loaded = NativeLibraryLoader.TryLoad("sqlite3");
 
-#if DNX451 || DNXCORE50
+#if NET451 || DOTNET5_4
             // TODO: Remove when DNX supports native artifacts
             if (!loaded)
             {

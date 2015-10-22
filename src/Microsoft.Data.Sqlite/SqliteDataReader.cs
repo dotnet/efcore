@@ -10,7 +10,7 @@ using System.Globalization;
 using Microsoft.Data.Sqlite.Interop;
 using Microsoft.Data.Sqlite.Utilities;
 using static Microsoft.Data.Sqlite.Interop.Constants;
-#if NET45 || DNX451
+#if NET451
 using System.Data;
 
 #endif
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Sqlite
 
         public override IEnumerator GetEnumerator()
         {
-#if NET45 || DNX451
+#if NET451
             return new DbEnumerator(this);
 #else
     // TODO: Remove when the System.Data.Common includes DbEnumerator
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Sqlite
             return true;
         }
 
-#if NET45 || DNX451
+#if NET451
         // TODO: Remove when fixed in System.Data.Common
         public override void Close() => Dispose(true);
 

@@ -24,7 +24,7 @@ namespace Microsoft.Data.Sqlite
         public override int Count => _parameters.Count;
         public override object SyncRoot => ((ICollection)_parameters).SyncRoot;
 
-#if NET45 || DNX451
+#if NET451 || NET451
         public override bool IsFixedSize => false;
         public override bool IsReadOnly => false;
         public override bool IsSynchronized => false;
