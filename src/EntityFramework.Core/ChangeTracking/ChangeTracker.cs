@@ -153,11 +153,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     An action to configure the change tracking information for each entity. For the entity to begin being tracked,
         ///     the <see cref="EntityEntry.State" /> must be set.
         /// </param>
-        /// <param name="initialNodeState">An optional object containing state information that will be passed to the callback.</param>
         public virtual void TrackGraph(
             [NotNull] object rootEntity,
-            [NotNull] Action<EntityEntryGraphNode> callback,
-            [CanBeNull] object initialNodeState = null)
+            [NotNull] Action<EntityEntryGraphNode> callback)
         {
             Check.NotNull(rootEntity, nameof(rootEntity));
             Check.NotNull(callback, nameof(callback));
@@ -165,7 +163,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var rootEntry = _stateManager.GetOrCreateEntry(rootEntity);
 
             _graphIterator.TraverseGraph(
-                new EntityEntryGraphNode(_context, rootEntry, null) { NodeState = initialNodeState },
+                new EntityEntryGraphNode(_context, rootEntry, null),
                 n =>
                     {
                         if (n.Entry.State != EntityState.Detached)
