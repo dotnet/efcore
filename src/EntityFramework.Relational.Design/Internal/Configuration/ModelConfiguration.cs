@@ -174,12 +174,10 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     continue;
                 }
 
-                var keyFluentApi = _configurationFactory
-                    .CreateKeyFluentApiConfiguration("e", key.Properties);
-
                 if(key.IsPrimaryKey())
                 {
-                    keyFluentApi.IsPrimaryKey = true;
+                    var keyFluentApi = _configurationFactory
+                        .CreateKeyFluentApiConfiguration("e", key.Properties);
 
                     if (key.Properties.Count == 1)
                     {
@@ -191,9 +189,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                         propertyConfiguration.AttributeConfigurations.Add(
                             _configurationFactory.CreateAttributeConfiguration(nameof(KeyAttribute)));
                     }
-                }
 
-                entityConfiguration.FluentApiConfigurations.Add(keyFluentApi);
+                    entityConfiguration.FluentApiConfigurations.Add(keyFluentApi);
+                }
             }
         }
 
