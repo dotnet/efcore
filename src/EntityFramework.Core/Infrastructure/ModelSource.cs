@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -13,7 +14,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public abstract class ModelSource : IModelSource
     {
-        private readonly ThreadSafeDictionaryCache<Type, IModel> _models = new ThreadSafeDictionaryCache<Type, IModel>();
+        private readonly ConcurrentDictionary<Type, IModel> _models = new ConcurrentDictionary<Type, IModel>();
         protected virtual IDbSetFinder SetFinder { get; }
         protected virtual ICoreConventionSetBuilder CoreConventionSetBuilder { get; }
 

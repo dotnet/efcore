@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Internal;
+using System.Collections.Concurrent;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
 {
     public abstract class ValueGeneratorCache : IValueGeneratorCache
     {
-        private readonly ThreadSafeDictionaryCache<CacheKey, ValueGenerator> _cache
-            = new ThreadSafeDictionaryCache<CacheKey, ValueGenerator>();
+        private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache
+            = new ConcurrentDictionary<CacheKey, ValueGenerator>();
 
         private struct CacheKey
         {

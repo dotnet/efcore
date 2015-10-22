@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -11,8 +12,8 @@ namespace Microsoft.Data.Entity.Internal
 {
     public class ServiceProviderCache
     {
-        private readonly ThreadSafeDictionaryCache<long, IServiceProvider> _configurations
-            = new ThreadSafeDictionaryCache<long, IServiceProvider>();
+        private readonly ConcurrentDictionary<long, IServiceProvider> _configurations
+            = new ConcurrentDictionary<long, IServiceProvider>();
 
         public static ServiceProviderCache Instance { get; } = new ServiceProviderCache();
 
