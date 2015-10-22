@@ -316,9 +316,14 @@ namespace Microsoft.Data.Entity.Query
                                     CoreStrings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
                             }
 
-                            return new IncludeSpecification(annotation.QuerySource, navigationPath);
+                            return new
+                            {
+                                specification = new IncludeSpecification(annotation.QuerySource, navigationPath),
+                                order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
+                            };
                         })
-                    .OrderBy(a => a.NavigationPath.First().PointsToPrincipal())
+                    .OrderByDescending(e => e.order).ThenBy(e => e.specification.NavigationPath.First().PointsToPrincipal())
+                    .Select(e => e.specification)
                     .ToList();
 
             IncludeNavigations(queryModel, includeSpecifications);
