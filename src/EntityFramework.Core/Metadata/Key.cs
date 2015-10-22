@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Key : Annotatable, IKey
+    public class Key : Annotatable, IMutableKey
     {
         public Key([NotNull] IReadOnlyList<Property> properties)
         {
@@ -23,12 +23,11 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IReadOnlyList<Property> Properties { get; }
-
         public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
-
         IReadOnlyList<IProperty> IKey.Properties => Properties;
-
-        IEntityType IKey.EntityType => DeclaringEntityType;
+        IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
+        IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);

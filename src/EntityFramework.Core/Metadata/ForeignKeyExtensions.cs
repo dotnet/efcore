@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -44,6 +45,22 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             return foreignKey.DeclaringEntityType.FindPrimaryKey() == foreignKey.PrincipalKey;
+        }
+
+        public static IEnumerable<INavigation> GetNavigations(
+            [NotNull] this IForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            if (foreignKey.PrincipalToDependent != null)
+            {
+                yield return foreignKey.PrincipalToDependent;
+            }
+
+            if (foreignKey.DependentToPrincipal != null)
+            {
+                yield return foreignKey.DependentToPrincipal;
+            }
         }
 
         public static INavigation FindNavigationFrom([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)

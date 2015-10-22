@@ -165,7 +165,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.NotEmpty(children.GetForeignKeys());
 
             var principalKey = children.GetForeignKey(children.FindProperty("ParentId")).PrincipalKey;
-            Assert.Equal("Parent", principalKey.EntityType.Name);
+            Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
 
@@ -193,7 +193,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                 (Property)children.FindProperty("ParentId_B")
             };
             var principalKey = children.GetForeignKey(propList.AsReadOnly()).PrincipalKey;
-            Assert.Equal("Parent", principalKey.EntityType.Name);
+            Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id_A", principalKey.Properties[0].Name);
             Assert.Equal("Id_B", principalKey.Properties[1].Name);
         }
@@ -214,7 +214,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.NotEmpty(list.GetForeignKeys());
 
             var principalKey = list.GetForeignKey(list.FindProperty("ParentId")).PrincipalKey;
-            Assert.Equal("ItemsList", principalKey.EntityType.Name);
+            Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
 

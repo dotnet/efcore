@@ -123,7 +123,7 @@ namespace MyNamespace
 
             Assert.Equal(1, migration.UpOperations.Count);
             Assert.Empty(migration.DownOperations);
-            Assert.Empty(migration.TargetModel.EntityTypes);
+            Assert.Empty(migration.TargetModel.GetEntityTypes());
         }
 
         [Fact]
@@ -188,7 +188,7 @@ namespace MyNamespace
             Assert.Equal(typeof(MyContext), contextTypeAttribute.ContextType);
 
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
-            Assert.Empty(snapshot.Model.EntityTypes);
+            Assert.Empty(snapshot.Model.GetEntityTypes());
         }
 
         public class MyContext

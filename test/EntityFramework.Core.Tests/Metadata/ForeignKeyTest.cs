@@ -354,7 +354,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void Throws_when_setting_navigation_to_principal_on_wrong_FK()
         {
             var foreignKey1 = CreateOneToManyFK();
-            foreignKey1.DeclaringEntityType.RemoveNavigation(foreignKey1.DependentToPrincipal);
+            foreignKey1.DeclaringEntityType.RemoveNavigation(foreignKey1.DependentToPrincipal.Name);
             var navigation = foreignKey1.DeclaringEntityType.AddNavigation("Deception", foreignKey1, pointsToPrincipal: true);
 
             var foreignKey2 = CreateSelfRefFK();
@@ -368,7 +368,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         public void Throws_when_setting_navigation_to_dependent_on_wrong_FK()
         {
             var foreignKey1 = CreateOneToManyFK();
-            foreignKey1.PrincipalEntityType.RemoveNavigation(foreignKey1.PrincipalToDependent);
+            foreignKey1.PrincipalEntityType.RemoveNavigation(foreignKey1.PrincipalToDependent.Name);
             var navigation = foreignKey1.PrincipalEntityType.AddNavigation("Deception", foreignKey1, pointsToPrincipal: false);
 
             var foreignKey2 = CreateSelfRefFK();

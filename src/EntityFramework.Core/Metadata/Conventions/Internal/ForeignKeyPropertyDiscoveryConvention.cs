@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         private Property TryGetProperty(EntityType entityType, string name, Type type)
         {
-            foreach (var mutableProperty in entityType.Properties)
+            foreach (var mutableProperty in entityType.GetProperties())
             {
                 var property = (IProperty)mutableProperty;
                 if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)

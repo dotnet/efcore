@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Internal
 
         protected virtual void EnsureNoShadowEntities([NotNull] IModel model)
         {
-            var firstShadowEntity = model.EntityTypes.FirstOrDefault(entityType => !entityType.HasClrType());
+            var firstShadowEntity = model.GetEntityTypes().FirstOrDefault(entityType => !entityType.HasClrType());
             if (firstShadowEntity != null)
             {
                 ShowError(CoreStrings.ShadowEntity(firstShadowEntity.Name));
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Internal
 
         protected virtual void EnsureNoShadowKeys([NotNull] IModel model)
         {
-            foreach (var entityType in model.EntityTypes)
+            foreach (var entityType in model.GetEntityTypes())
             {
                 foreach (var key in entityType.GetKeys())
                 {
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Internal
         {
             Check.NotNull(model, nameof(model));
 
-            var entityTypeWithNullPk = model.EntityTypes.FirstOrDefault(et => et.FindPrimaryKey() == null);
+            var entityTypeWithNullPk = model.GetEntityTypes().FirstOrDefault(et => et.FindPrimaryKey() == null);
             if (entityTypeWithNullPk != null)
             {
                 ShowError(CoreStrings.EntityRequiresKey(entityTypeWithNullPk.Name));

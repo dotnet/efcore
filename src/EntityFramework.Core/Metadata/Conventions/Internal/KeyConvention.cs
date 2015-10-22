@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Metadata.EntityTypes)
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var entityTypeBuilder = modelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
                 foreach (var key in entityType.GetDeclaredKeys())

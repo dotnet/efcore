@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Internal
             _model = model;
         }
 
-        public override IEnumerable<EntityType> Vertices => _model.EntityTypes;
+        public override IEnumerable<EntityType> Vertices => _model.GetEntityTypes();
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
             => @from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)

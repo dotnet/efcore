@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class EntityTypeBuilder : IAccessor<Model>, IAccessor<InternalEntityTypeBuilder>
+    public class EntityTypeBuilder : IAccessor<IMutableModel>, IAccessor<InternalEntityTypeBuilder>
     {
         /// <summary>
         ///     <para>
@@ -53,12 +53,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The entity type being configured.
         /// </summary>
-        public virtual EntityType Metadata => Builder.Metadata;
+        public virtual IMutableEntityType Metadata => Builder.Metadata;
 
         /// <summary>
         ///     The model that the entity type belongs to.
         /// </summary>
-        Model IAccessor<Model>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder CollectionBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
-                .Relationship(Metadata, ConfigurationSource.Explicit)
+                .Relationship(Builder, ConfigurationSource.Explicit)
                 .DependentEntityType(relatedEntityType, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);

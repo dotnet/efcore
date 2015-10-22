@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasName("Eeeendeeex")
                 .ForSqlServerHasName("Dexter");
 
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.Equal("Eeeendeeex", index.Relational().Name);
             Assert.Equal("Dexter", index.SqlServer().Name);
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasIndex(e => e.Id)
                 .ForSqlServerIsClustered();
 
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.True(index.SqlServer().IsClustered.Value);
         }

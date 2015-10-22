@@ -7,29 +7,30 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
-    public class Property : PropertyBase, IProperty
+    public class Property : Annotatable, IMutableProperty
     {
         private PropertyFlags _flags;
-
-        // TODO: Remove this once the model is readonly Issue #868
         private PropertyFlags _setFlags;
-
         private int _index;
         private Type _clrType;
 
         public Property([NotNull] string name, [NotNull] EntityType declaringEntityType)
-            : base(name)
         {
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
+            Name = name;
             DeclaringEntityType = declaringEntityType;
         }
+
+        public virtual string Name { get; }
 
         public virtual Type ClrType
         {
@@ -53,7 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual Type DefaultClrType => typeof(string);
 
-        public override EntityType DeclaringEntityType { get; }
+        public virtual EntityType DeclaringEntityType { get; }
 
         public virtual bool? IsNullable
         {
@@ -240,28 +241,12 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual bool IsInUse
-        {
-            get
-            {
-                return new[] { DeclaringEntityType }.Concat(DeclaringEntityType.GetDerivedTypes()).Any(entityType =>
-                    entityType.GetDeclaredKeys().Any(k => k.Properties.Contains(this))
-                    || entityType.GetDeclaredForeignKeys().Any(k => k.Properties.Contains(this))
-                    || entityType.GetDeclaredIndexes().Any(i => i.Properties.Contains(this)));
-            }
-        }
-
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
 
         private void SetFlag(bool? value, PropertyFlags flag)
         {
             _setFlags = value.HasValue ? (_setFlags | flag) : (_setFlags & ~flag);
             _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
-        }
-
-        private void SetRequiredFlag(bool value, PropertyFlags flag)
-        {
-            _flags = value ? (_flags | flag) : (_flags & ~flag);
         }
 
         internal static string Format(IEnumerable<IProperty> properties)
@@ -277,6 +262,8 @@ namespace Microsoft.Data.Entity.Metadata
         bool IProperty.RequiresValueGenerator => RequiresValueGenerator ?? DefaultRequiresValueGenerator;
 
         bool IProperty.StoreGeneratedAlways => StoreGeneratedAlways ?? DefaultStoreGeneratedAlways;
+        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
 
         [Flags]
         private enum PropertyFlags : ushort
@@ -299,8 +286,8 @@ namespace Microsoft.Data.Entity.Metadata
 
             return properties.All(property =>
                 ((IProperty)property).IsShadowProperty
-                || (entityType.HasClrType
-                && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
+                || (entityType.HasClrType()
+                    && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
         }
     }
 }

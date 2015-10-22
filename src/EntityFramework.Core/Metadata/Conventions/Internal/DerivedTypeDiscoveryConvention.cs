@@ -17,9 +17,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 return entityTypeBuilder;
             }
 
-            var directlyDerivedTypes = entityType.Model.EntityTypes.Where(t =>
+            var directlyDerivedTypes = entityType.Model.GetEntityTypes().Where(t =>
                 t.BaseType == entityType.BaseType
-                && t.HasClrType
+                && t.HasClrType()
                 && FindClosestBaseType(t) == entityType);
 
             foreach (var directlyDerivedType in directlyDerivedTypes)

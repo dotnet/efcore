@@ -50,19 +50,6 @@ namespace Microsoft.Data.Entity.Infrastructure
                 : null;
         }
 
-        public virtual Annotation GetAnnotation(string annotationName)
-        {
-            Check.NotEmpty(annotationName, nameof(annotationName));
-
-            var annotation = FindAnnotation(annotationName);
-            if (annotation == null)
-            {
-                throw new InvalidOperationException(CoreStrings.AnnotationNotFound(annotationName));
-            }
-
-            return annotation;
-        }
-
         public virtual Annotation RemoveAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, nameof(annotation));
@@ -109,5 +96,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         IEnumerable<IAnnotation> IAnnotatable.Annotations => Annotations;
+
+        IAnnotation IAnnotatable.FindAnnotation(string annotationName) => FindAnnotation(annotationName);
     }
 }

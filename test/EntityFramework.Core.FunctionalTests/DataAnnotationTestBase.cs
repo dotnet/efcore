@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.False(context.Model.EntityTypes.Any(e => e.Name == typeof(C).FullName));
+                Assert.False(context.Model.GetEntityTypes().Any(e => e.Name == typeof(C).FullName));
             }
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.False(context.Model.EntityTypes.Any(e => e.Name == typeof(UselessBookDetails).FullName));
+                Assert.False(context.Model.GetEntityTypes().Any(e => e.Name == typeof(UselessBookDetails).FullName));
             }
         }
 
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                Assert.Null(context.Model.EntityTypes.First(e => e.Name == typeof(One).FullName).FindProperty("IgnoredProperty"));
+                Assert.Null(context.Model.GetEntityTypes().First(e => e.Name == typeof(One).FullName).FindProperty("IgnoredProperty"));
             }
         }
 

@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         {
             yield return model;
 
-            foreach (var entityType in model.EntityTypes)
+            foreach (var entityType in model.GetEntityTypes())
             {
                 yield return entityType;
 

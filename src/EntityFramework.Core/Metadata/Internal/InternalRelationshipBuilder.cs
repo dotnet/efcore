@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (oldNavigation != null)
             {
-                var removedNavigation = entityType.RemoveNavigation(oldNavigation);
+                var removedNavigation = entityType.RemoveNavigation(oldNavigation.Name);
                 Debug.Assert(removedNavigation == oldNavigation);
             }
 
@@ -574,11 +574,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder DependentEntityType(
             [NotNull] Type dependentType, ConfigurationSource configurationSource)
-            => DependentEntityType(ModelBuilder.Metadata.GetEntityType(dependentType), configurationSource, runConventions: true);
+            => DependentEntityType(ModelBuilder.Entity(dependentType, configurationSource).Metadata,
+                configurationSource, runConventions: true);
 
         public virtual InternalRelationshipBuilder DependentEntityType(
             [NotNull] string dependentTypeName, ConfigurationSource configurationSource)
-            => DependentEntityType(ModelBuilder.Metadata.GetEntityType(dependentTypeName), configurationSource, runConventions: true);
+            => DependentEntityType(ModelBuilder.Entity(dependentTypeName, configurationSource).Metadata, configurationSource, runConventions: true);
 
         public virtual InternalRelationshipBuilder DependentEntityType(
             [NotNull] EntityType dependentEntityType, ConfigurationSource configurationSource)
@@ -724,11 +725,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalRelationshipBuilder PrincipalEntityType(
             [NotNull] Type principalType, ConfigurationSource configurationSource)
-            => PrincipalEntityType(ModelBuilder.Metadata.GetEntityType(principalType), configurationSource, runConventions: true);
+            => PrincipalEntityType(ModelBuilder.Entity(principalType, configurationSource).Metadata,
+                configurationSource, runConventions: true);
 
         public virtual InternalRelationshipBuilder PrincipalEntityType(
             [NotNull] string principalTypeName, ConfigurationSource configurationSource)
-            => PrincipalEntityType(ModelBuilder.Metadata.GetEntityType(principalTypeName), configurationSource, runConventions: true);
+            => PrincipalEntityType(ModelBuilder.Entity(principalTypeName, configurationSource).Metadata,
+                configurationSource, runConventions: true);
 
         public virtual InternalRelationshipBuilder PrincipalEntityType(
             [NotNull] EntityType principalEntityType, ConfigurationSource configurationSource)

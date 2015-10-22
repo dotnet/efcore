@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        public virtual Model Model => Builder.Metadata;
+        public virtual IMutableModel Model => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the model. If an annotation with the key specified in

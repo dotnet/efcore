@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            if (!entityTypeBuilder.Metadata.HasClrType)
+            if (!entityTypeBuilder.Metadata.HasClrType())
             {
                 return entityTypeBuilder;
             }

@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         protected abstract string DatabaseSchema { get; }
 
-        protected Model CreateModel()
+        protected IMutableModel CreateModel()
         {
             var modelBuilder = new ModelBuilder(new ConventionSet());
 

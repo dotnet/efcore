@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             return modelBuilder;
         }
 
-        protected virtual ForeignKey VisitForeignKey([NotNull] ModelBuilder modelBuilder, [NotNull] ForeignKeyModel foreignKey)
+        protected virtual IMutableForeignKey VisitForeignKey([NotNull] ModelBuilder modelBuilder, [NotNull] ForeignKeyModel foreignKey)
         {
             if (foreignKey.PrincipalTable == null)
             {
@@ -366,7 +366,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(model, nameof(model));
 
             var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
-            foreach (var entityType in model.EntityTypes)
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var existingIdentifiers = new List<string>();
                 entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
@@ -375,7 +375,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     modelUtilities.OrderedProperties(entityType).Select(p => p.Name));
             }
 
-            foreach (var entityType in model.EntityTypes)
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var dependentEndExistingIdentifiers = entityTypeToExistingIdentifiers[entityType];
                 foreach (var foreignKey in entityType.GetForeignKeys())
@@ -413,7 +413,7 @@ namespace Microsoft.Data.Entity.Scaffolding
         }
 
         private static void AssignOnDeleteAction(
-            [NotNull] ForeignKeyModel from, [NotNull] ForeignKey to)
+            [NotNull] ForeignKeyModel from, [NotNull] IMutableForeignKey to)
         {
             Check.NotNull(from, nameof(from));
             Check.NotNull(to, nameof(to));

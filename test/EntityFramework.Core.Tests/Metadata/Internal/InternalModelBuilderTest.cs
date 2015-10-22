@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(typeof(Order), modelBuilder.Metadata.EntityTypes.Single().ClrType);
+            Assert.Equal(typeof(Order), modelBuilder.Metadata.GetEntityTypes().Single().ClrType);
             Assert.Empty(orderEntityTypeBuilder.Metadata.GetForeignKeys());
         }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count);
             Assert.Same(baseEntityTypeBuilder.Metadata, specialCustomerEntityTypeBuilder.Metadata.BaseType);
         }
 
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count);
             Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
         }
 
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
-            Assert.Empty(modelBuilder.Metadata.EntityTypes);
+            Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
         [Fact]
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
-            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
+            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
-            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
+            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 

@@ -319,9 +319,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         protected IProperty NameProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Name");
 
-        protected INavigation CollectionNavigation => _model.GetNavigations(ForeignKey).Single(n => n.Name == "LesserBananas");
+        protected INavigation CollectionNavigation => ForeignKey.GetNavigations().Single(n => n.Name == "LesserBananas");
 
-        protected INavigation ReferenceNavigation => _model.GetNavigations(ForeignKey).Single(n => n.Name == "TopBanana");
+        protected INavigation ReferenceNavigation => ForeignKey.GetNavigations().Single(n => n.Name == "TopBanana");
 
         private ForeignKey ForeignKey => _model.GetEntityType(typeof(Banana)).GetForeignKeys().Single();
 

@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property(e => e.AlternateKey);
                     });
 
-                Assert.Equal(3, modelBuilder.Model.GetEntityType(typeof(Customer)).PropertyCount);
+                Assert.Equal(3, modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperties().Count());
             }
 
             [Fact]
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Validate();
 
-                Assert.Equal(1, model.EntityTypes.Count);
+                Assert.Equal(1, model.GetEntityTypes().Count);
             }
 
             [Fact]
@@ -375,9 +375,9 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Validate();
 
-                Assert.Equal(0, model.EntityTypes[0].GetForeignKeys().Count());
-                Assert.Equal(0, model.EntityTypes[1].GetForeignKeys().Count());
-                Assert.Equal(2, model.EntityTypes.Count);
+                Assert.Equal(0, model.GetEntityTypes()[0].GetForeignKeys().Count());
+                Assert.Equal(0, model.GetEntityTypes()[1].GetForeignKeys().Count());
+                Assert.Equal(2, model.GetEntityTypes().Count);
             }
 
             [Fact]
@@ -629,7 +629,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = model.GetEntityType(typeof(Customer));
 
-                var index = entityType.Indexes.Single();
+                var index = entityType.GetIndexes().Single();
                 Assert.Equal(Customer.NameProperty.Name, index.Properties.Single().Name);
             }
 
@@ -648,7 +648,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = model.GetEntityType(typeof(Customer));
 
-                var index = entityType.Indexes.Single();
+                var index = entityType.GetIndexes().Single();
                 Assert.Equal("Index", index.Properties.Single().Name);
             }
 

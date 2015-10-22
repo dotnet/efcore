@@ -11,33 +11,19 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IEntityType : IAnnotatable
     {
         IModel Model { get; }
-
         string Name { get; }
-        
         IEntityType BaseType { get; }
-
         Type ClrType { get; }
-
         IKey FindPrimaryKey();
-
-        IProperty FindProperty([NotNull] string name);
-
-        IForeignKey FindForeignKey([NotNull] IReadOnlyList<IProperty> properties);
-
-        INavigation FindNavigation([NotNull] string name);
-
-        IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
-
         IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
-
-        IEnumerable<IProperty> GetProperties();
-
-        IEnumerable<IForeignKey> GetForeignKeys();
-
-        IEnumerable<INavigation> GetNavigations();
-
-        IEnumerable<IIndex> GetIndexes();
-
         IEnumerable<IKey> GetKeys();
+        IForeignKey FindForeignKey([NotNull] IReadOnlyList<IProperty> properties);
+        IEnumerable<IForeignKey> GetForeignKeys();
+        INavigation FindNavigation([NotNull] string name);
+        IEnumerable<INavigation> GetNavigations();
+        IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+        IEnumerable<IIndex> GetIndexes();
+        IProperty FindProperty([NotNull] string name);
+        IEnumerable<IProperty> GetProperties();
     }
 }

@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         private void RemoveNavigationlessForeignKeys(InternalModelBuilder modelBuilder)
         {
-            foreach (var entityType in modelBuilder.Metadata.EntityTypes)
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
                 {

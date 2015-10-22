@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             entityTypeBuilder = new NotMappedMemberAttributeConvention().Apply(entityTypeBuilder);
 
-            Assert.False(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
+            Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
 
         [Fact]
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             entityTypeBuilder = new NotMappedMemberAttributeConvention().Apply(entityTypeBuilder);
 
-            Assert.True(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
+            Assert.True(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
 
         [Fact]
@@ -280,7 +280,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var entityTypeBuilder = modelBuilder.Entity<A>();
 
-            Assert.False(entityTypeBuilder.Metadata.Properties.Any(p => p.Name == "IgnoredProperty"));
+            Assert.False(entityTypeBuilder.Metadata.GetProperties().Any(p => p.Name == "IgnoredProperty"));
         }
 
         #endregion

@@ -180,17 +180,17 @@ namespace Microsoft.Data.Entity.Metadata
 
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((PropertyInfo)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
-            Assert.Equal(0, typeBuilder.Metadata.Properties.Count());
+            Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
 
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator("Splod", typeof(int?)));
             Assert.Equal("Splod", typeBuilder.Metadata.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(int?), typeBuilder.Metadata.Relational().DiscriminatorProperty.ClrType);
-            Assert.Equal("Splod", typeBuilder.Metadata.Properties.Single().Name);
+            Assert.Equal("Splod", typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.DataAnnotation).HasDiscriminator(Splot.SplowedProperty));
             Assert.Equal(Splot.SplowedProperty.Name, typeBuilder.Metadata.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(int?), typeBuilder.Metadata.Relational().DiscriminatorProperty.ClrType);
-            Assert.Equal(Splot.SplowedProperty.Name, typeBuilder.Metadata.Properties.Single().Name);
+            Assert.Equal(Splot.SplowedProperty.Name, typeBuilder.Metadata.GetProperties().Single().Name);
 
             Assert.Null(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator("Splew", typeof(int?)));
             Assert.Equal(Splot.SplowedProperty.Name, typeBuilder.Metadata.Relational().DiscriminatorProperty.Name);
@@ -226,7 +226,7 @@ namespace Microsoft.Data.Entity.Metadata
             typeBuilder.Ignore("Discriminator", ConfigurationSource.Explicit);
 
             Assert.Null(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator());
-            Assert.Equal(0, typeBuilder.Metadata.Properties.Count());
+            Assert.Equal(0, typeBuilder.Metadata.GetProperties().Count());
         }
 
         [Fact]
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Metadata
             Assert.NotNull(typeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator((Type)null));
             Assert.Null(typeBuilder.Metadata.Relational().DiscriminatorProperty);
             Assert.Equal(4, typeBuilder.Metadata.Relational().DiscriminatorValue);
-            Assert.Empty(typeBuilder.Metadata.Properties);
+            Assert.Empty(typeBuilder.Metadata.GetProperties());
         }
 
         [Fact]

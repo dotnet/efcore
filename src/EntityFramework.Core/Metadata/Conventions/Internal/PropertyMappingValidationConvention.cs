@@ -18,24 +18,24 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             Check.NotNull(modelBuilder, nameof(modelBuilder));
 
-            foreach (var entityType in modelBuilder.Metadata.EntityTypes)
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var unmappedProperty = entityType.Properties.FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
+                var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
                 if (unmappedProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyNotMapped(unmappedProperty.Name, entityType.Name));
                 }
 
-                if (entityType.HasClrType)
+                if (entityType.HasClrType())
                 {
                     var clrProperties = new HashSet<string>();
                     clrProperties.UnionWith(entityType.ClrType.GetRuntimeProperties()
                         .Where(pi => pi.IsCandidateProperty())
                         .Select(pi => pi.Name));
 
-                    clrProperties.ExceptWith(entityType.Properties.Select(p => p.Name));
+                    clrProperties.ExceptWith(entityType.GetProperties().Select(p => p.Name));
 
-                    clrProperties.ExceptWith(entityType.Navigations.Select(p => p.Name));
+                    clrProperties.ExceptWith(entityType.GetNavigations().Select(p => p.Name));
 
                     var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType, ConfigurationSource.Convention);
 
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                             var targetType = FindCandidateNavigationPropertyType(actualProperty);
                             if (targetType != null)
                             {
-                                if (!modelBuilder.IsIgnored(targetType.FullName, ConfigurationSource.Convention))
+                                if (!modelBuilder.IsIgnored(targetType.DisplayName(), ConfigurationSource.Convention))
                                 {
                                     throw new InvalidOperationException(CoreStrings.NavigationNotAdded(actualProperty.Name, entityType.Name));
                                 }

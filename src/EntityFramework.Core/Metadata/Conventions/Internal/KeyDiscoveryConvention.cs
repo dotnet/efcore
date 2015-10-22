@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             if (entityType.BaseType == null)
             {
-                var candidateProperties = entityType.Properties.Where(p => !((IProperty)p).IsShadowProperty || !entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)).ToList();
+                var candidateProperties = entityType.GetProperties().Where(p => !((IProperty)p).IsShadowProperty || !entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)).ToList();
                 var keyProperties = DiscoverKeyProperties(entityType, candidateProperties);
                 if (keyProperties.Count != 0)
                 {

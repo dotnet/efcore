@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             var entityConfigurations = new List<EntityConfiguration>();
 
-            foreach (var entityType in Model.EntityTypes)
+            foreach (var entityType in Model.GetEntityTypes())
             {
                 var entityConfiguration =
                     _configurationFactory.CreateEntityConfiguration(this, entityType);
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 }
 
                 var conventionKeyProperties =
-                    _keyDiscoveryConvention.DiscoverKeyProperties(entityType, entityType.Properties.ToList());
+                    _keyDiscoveryConvention.DiscoverKeyProperties(entityType, entityType.GetProperties().ToList());
                 if (conventionKeyProperties != null
                     && key.Properties.OrderBy(p => p.Name).SequenceEqual(conventionKeyProperties.OrderBy(p => p.Name)))
                 {
@@ -431,7 +431,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             foreach (var otherEntityType in entityConfiguration.EntityType
-                .Model.EntityTypes.Where(et => et != entityConfiguration.EntityType))
+                .Model.GetEntityTypes().Where(et => et != entityConfiguration.EntityType))
             {
                 // set up the navigation properties for foreign keys from another EntityType
                 // which reference this EntityType (i.e. this EntityType is the principal)
@@ -522,8 +522,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
-            foreach (var otherEntityType in entityConfiguration.EntityType.Model
-                .EntityTypes.Where(et => et != entityConfiguration.EntityType))
+            foreach (var otherEntityType in entityConfiguration.EntityType.Model.GetEntityTypes().Where(et => et != entityConfiguration.EntityType))
             {
                 // find navigation properties for foreign keys from another EntityType which reference this EntityType
                 foreach (var foreignKey in otherEntityType

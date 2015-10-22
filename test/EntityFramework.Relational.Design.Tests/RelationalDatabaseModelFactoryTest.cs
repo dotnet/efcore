@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 }
             };
             var model = _factory.Create(info);
-            Assert.Collection(model.EntityTypes.OrderBy(t => t.Name).Cast<EntityType>(),
+            Assert.Collection(model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
                 table =>
                     {
                         Assert.Equal("noSchema", table.Relational().TableName);
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var entityType = (EntityType)_factory.Create(info).GetEntityType("Jobs");
 
-            Assert.Collection(entityType.Properties,
+            Assert.Collection(entityType.GetProperties(),
                 col4 =>
                     {
                         Assert.Equal("created", col4.Relational().ColumnName);
@@ -190,7 +190,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                     }
                 }
             };
-            var model = (EntityType)_factory.Create(info).EntityTypes.Single();
+            var model = (EntityType)_factory.Create(info).GetEntityTypes().Single();
 
             Assert.Equal(keyProps, model.GetPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
         }
@@ -214,9 +214,9 @@ namespace Microsoft.Data.Entity.Relational.Design
             table.Indexes.Add(new IndexModel { /*Name ="UNQ_C3_C1",*/ Columns = { table.Columns[2], table.Columns[0] }, IsUnique = true });
             var info = new DatabaseModel { Tables = { table } };
 
-            var entityType = (EntityType)_factory.Create(info).EntityTypes.Single();
+            var entityType = (EntityType)_factory.Create(info).GetEntityTypes().Single();
 
-            Assert.Collection(entityType.Indexes,
+            Assert.Collection(entityType.GetIndexes(),
                 indexColumn1 =>
                     {
                         Assert.False(indexColumn1.IsUnique);
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             var principalKey = fk.PrincipalKey;
 
             Assert.Same(parent, principalKey.DeclaringEntityType);
-            Assert.Same(parent.Properties.First(), principalKey.Properties[0]);
+            Assert.Same(parent.GetProperties().First(), principalKey.Properties[0]);
         }
 
         [Fact]
@@ -399,7 +399,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             Assert.NotEmpty(list.GetForeignKeys());
 
             var principalKey = list.GetForeignKey(list.FindProperty("ParentId")).PrincipalKey;
-            Assert.Equal("ItemsList", principalKey.EntityType.Name);
+            Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
 
@@ -530,12 +530,12 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var model = _factory.Create(info);
 
-            Assert.Collection(model.EntityTypes.Cast<EntityType>(),
+            Assert.Collection(model.GetEntityTypes().Cast<EntityType>(),
                 ef1 =>
                     {
                         Assert.Equal("E F", ef1.Relational().TableName);
                         Assert.Equal("E_F", ef1.Name);
-                        Assert.Collection(ef1.Properties.OfType<Property>(),
+                        Assert.Collection(ef1.GetProperties().OfType<Property>(),
                             id => { Assert.Equal("Id", id.Name); },
                             s1 =>
                                 {
@@ -552,7 +552,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                     {
                         Assert.Equal("E_F", ef2.Relational().TableName);
                         Assert.Equal("E_F1", ef2.Name);
-                        var id = Assert.Single(ef2.Properties.OfType<Property>());
+                        var id = Assert.Single(ef2.GetProperties().OfType<Property>());
                         Assert.Equal("Id", id.Name);
                         Assert.Equal("Id", id.Relational().ColumnName);
                     });

@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Debug.Assert(removed.HasValue);
             }
 
-            var removedKey = Metadata.RemoveKey(key);
+            var removedKey = Metadata.RemoveKey(key.Properties);
             Debug.Assert(removedKey == key);
 
             RemoveShadowPropertiesIfUnused(key.Properties);
@@ -466,7 +466,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     Debug.Assert(removedConfigurationSource.HasValue);
                 }
 
-                var duplicatedProperties = baseEntityType.Properties
+                var duplicatedProperties = baseEntityType.GetProperties()
                     .Select(p => Metadata.FindDeclaredProperty(p.Name))
                     .Where(p => p != null);
 
@@ -655,7 +655,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            foreach (var index in Metadata.Indexes.Where(i => i.Properties.Contains(property)).ToList())
+            foreach (var index in Metadata.GetIndexes().Where(i => i.Properties.Contains(property)).ToList())
             {
                 var removed = RemoveIndex(index, configurationSource);
                 Debug.Assert(removed.HasValue);
@@ -672,9 +672,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Debug.Assert(removed.HasValue);
             }
 
-            if (Metadata.Properties.Contains(property))
+            if (Metadata.GetProperties().Contains(property))
             {
-                var removedProperty = Metadata.RemoveProperty(property);
+                var removedProperty = Metadata.RemoveProperty(property.Name);
                 Debug.Assert(removedProperty == property);
             }
 
@@ -716,14 +716,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var navigationToDependent = foreignKey.PrincipalToDependent;
-            var removedNavigation = navigationToDependent?.DeclaringEntityType.RemoveNavigation(navigationToDependent);
+            var removedNavigation = navigationToDependent?.DeclaringEntityType.RemoveNavigation(navigationToDependent.Name);
             Debug.Assert(removedNavigation == navigationToDependent);
 
             var navigationToPrincipal = foreignKey.DependentToPrincipal;
-            removedNavigation = navigationToPrincipal?.DeclaringEntityType.RemoveNavigation(navigationToPrincipal);
+            removedNavigation = navigationToPrincipal?.DeclaringEntityType.RemoveNavigation(navigationToPrincipal.Name);
             Debug.Assert(removedNavigation == navigationToPrincipal);
 
-            var removedForeignKey = Metadata.RemoveForeignKey(foreignKey);
+            var removedForeignKey = Metadata.RemoveForeignKey(foreignKey.Properties);
             Debug.Assert(removedForeignKey == foreignKey);
 
             RemoveShadowPropertiesIfUnused(foreignKey.Properties);
@@ -780,7 +780,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private void RemovePropertyIfUnused(Property property)
         {
-            if (Metadata.Indexes.Any(i => i.Properties.Contains(property)))
+            if (Metadata.GetIndexes().Any(i => i.Properties.Contains(property)))
             {
                 return;
             }
@@ -800,9 +800,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return;
             }
 
-            if (Metadata.Properties.Contains(property))
+            if (Metadata.GetProperties().Contains(property))
             {
-                var removedProperty = Metadata.RemoveProperty(property);
+                var removedProperty = Metadata.RemoveProperty(property.Name);
                 Debug.Assert(removedProperty == property);
             }
         }
@@ -846,7 +846,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            var removedIndex = Metadata.RemoveIndex(index);
+            var removedIndex = Metadata.RemoveIndex(index.Properties);
             Debug.Assert(removedIndex == index);
 
             RemoveShadowPropertiesIfUnused(index.Properties);

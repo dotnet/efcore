@@ -40,9 +40,7 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         public IServiceProvider CreateServiceProvider(IServiceCollection customServices = null)
-        {
-            return CreateServiceProvider(customServices, AddProviderServices);
-        }
+            => CreateServiceProvider(customServices, AddProviderServices);
 
         private IServiceProvider CreateServiceProvider(
             IServiceCollection customServices,
@@ -62,107 +60,60 @@ namespace Microsoft.Data.Entity.Tests
             return services.BuildServiceProvider();
         }
 
-        public virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder)
-        {
-            return builder.AddInMemoryDatabase();
-        }
+        public virtual EntityFrameworkServicesBuilder AddProviderServices(EntityFrameworkServicesBuilder builder) => builder.AddInMemoryDatabase();
 
-        protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseInMemoryDatabase();
-        }
+        protected virtual void UseProviderOptions(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseInMemoryDatabase();
 
         public DbContext CreateContext(IServiceProvider serviceProvider, IModel model)
-        {
-            return new DbContext(serviceProvider, CreateOptions(model));
-        }
+            => new DbContext(serviceProvider, CreateOptions(model));
 
         public DbContext CreateContext(IServiceProvider serviceProvider, DbContextOptions options)
-        {
-            return new DbContext(serviceProvider, options);
-        }
+            => new DbContext(serviceProvider, options);
 
-        public DbContext CreateContext(IServiceProvider serviceProvider)
-        {
-            return new DbContext(serviceProvider, CreateOptions());
-        }
+        public DbContext CreateContext(IServiceProvider serviceProvider) => new DbContext(serviceProvider, CreateOptions());
 
-        public DbContext CreateContext(IModel model)
-        {
-            return new DbContext(CreateServiceProvider(), CreateOptions(model));
-        }
+        public DbContext CreateContext(IModel model) => new DbContext(CreateServiceProvider(), CreateOptions(model));
 
-        public DbContext CreateContext(DbContextOptions options)
-        {
-            return new DbContext(CreateServiceProvider(), options);
-        }
+        public DbContext CreateContext(DbContextOptions options) => new DbContext(CreateServiceProvider(), options);
 
-        public DbContext CreateContext()
-        {
-            return new DbContext(CreateServiceProvider(), CreateOptions());
-        }
+        public DbContext CreateContext() => new DbContext(CreateServiceProvider(), CreateOptions());
 
         public DbContext CreateContext(IServiceCollection customServices, IModel model)
-        {
-            return new DbContext(CreateServiceProvider(customServices), CreateOptions(model));
-        }
+            => new DbContext(CreateServiceProvider(customServices), CreateOptions(model));
 
         public DbContext CreateContext(IServiceCollection customServices, DbContextOptions options)
-        {
-            return new DbContext(CreateServiceProvider(customServices), options);
-        }
+            => new DbContext(CreateServiceProvider(customServices), options);
 
         public DbContext CreateContext(IServiceCollection customServices)
-        {
-            return new DbContext(CreateServiceProvider(customServices), CreateOptions());
-        }
+            => new DbContext(CreateServiceProvider(customServices), CreateOptions());
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, model)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, model)).Service;
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, options)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, options)).Service;
 
-        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(serviceProvider)).Service;
-        }
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider) => ((IAccessor<IServiceProvider>)CreateContext(serviceProvider)).Service;
 
         public IServiceProvider CreateContextServices(IModel model)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(model)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(model)).Service;
 
         public IServiceProvider CreateContextServices(DbContextOptions options)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(options)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(options)).Service;
 
         public IServiceProvider CreateContextServices()
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext()).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext()).Service;
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices, IModel model)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(customServices, model)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(customServices, model)).Service;
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices, DbContextOptions options)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(customServices, options)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(customServices, options)).Service;
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
-        {
-            return ((IAccessor<IServiceProvider>)CreateContext(customServices)).Service;
-        }
+            => ((IAccessor<IServiceProvider>)CreateContext(customServices)).Service;
 
-        public Model BuildModelFor<TEntity>() where TEntity : class
+        public IMutableModel BuildModelFor<TEntity>() where TEntity : class
         {
             var builder = CreateConventionBuilder();
             builder.Entity<TEntity>();

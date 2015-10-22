@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.Properties);
+            Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
         private class EntityWithEveryPrimitive
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 typeof(EntityWithEveryPrimitive)
                     .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                     .Select(p => p.Name),
-                entityBuilder.Metadata.Properties.Select(p => p.Name));
+                entityBuilder.Metadata.GetProperties().Select(p => p.Name));
         }
 
         private class EntityWithNoPrimitives
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Same(entityBuilder, new PropertyDiscoveryConvention().Apply(entityBuilder));
 
-            Assert.Empty(entityBuilder.Metadata.Properties);
+            Assert.Empty(entityBuilder.Metadata.GetProperties());
         }
 
         private static InternalEntityTypeBuilder CreateInternalEntityBuilder<T>()

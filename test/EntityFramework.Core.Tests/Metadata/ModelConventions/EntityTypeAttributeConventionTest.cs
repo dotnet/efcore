@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new NotMappedEntityTypeAttributeConvention().Apply(entityBuilder);
 
-            Assert.Equal(0, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new NotMappedEntityTypeAttributeConvention().Apply(entityBuilder);
 
-            Assert.Equal(1, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             modelBuilder.Entity<B>();
 
-            Assert.Equal(1, modelBuilder.Model.EntityTypes.Count);
+            Assert.Equal(1, modelBuilder.Model.GetEntityTypes().Count);
         }
 
         #endregion

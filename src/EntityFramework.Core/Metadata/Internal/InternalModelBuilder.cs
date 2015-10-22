@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            return IsIgnored(type.FullName, configurationSource)
+            return IsIgnored(type.DisplayName(), configurationSource)
                 ? null
                 : _entityTypeBuilders.GetOrAdd(
                     () => Metadata.FindEntityType(type),
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public virtual bool Ignore([NotNull] Type type, ConfigurationSource configurationSource)
-            => Ignore(type.FullName, configurationSource);
+            => Ignore(type.DisplayName(), configurationSource);
 
         public virtual bool Ignore([NotNull] string name, ConfigurationSource configurationSource)
         {
@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Debug.Assert(removed != null);
             }
 
-            Metadata.RemoveEntityType(entityType);
+            Metadata.RemoveEntityType(entityType.Name);
 
             return true;
         }
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var roots = new List<EntityType>();
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var entityType in Metadata.EntityTypes)
+            foreach (var entityType in Metadata.GetEntityTypes())
             {
                 var currentConfigurationSource = _entityTypeBuilders.GetConfigurationSource(entityType);
                 if (currentConfigurationSource.Overrides(configurationSource))

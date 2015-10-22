@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 stringBuilder.AppendLine(";");
             }
 
-            GenerateEntityTypes(builderName, Sort(model.EntityTypes), stringBuilder);
+            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes()), stringBuilder);
         }
 
         private IReadOnlyList<IEntityType> Sort(IReadOnlyList<IEntityType> entityTypes)
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             }
 
             var firstKey = true;
-            foreach (var key in keys.Where(key => key != primaryKey && !key.EntityType.Model.FindReferencingForeignKeys(key).Any()))
+            foreach (var key in keys.Where(key => key != primaryKey && !key.DeclaringEntityType.Model.FindReferencingForeignKeys(key).Any()))
             {
                 if (!firstKey)
                 {

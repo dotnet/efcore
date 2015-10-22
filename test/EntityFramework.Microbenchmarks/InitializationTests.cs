@@ -61,7 +61,7 @@ namespace EntityFramework.Microbenchmarks
 
             collector.StopCollection();
 
-            Assert.Equal(67, model.EntityTypes.Count());
+            Assert.Equal(67, model.GetEntityTypes().Count());
         }
 
         private void RunColdStartEnabledTest(bool cold, Action<ColdStartEnabledTests> test)
