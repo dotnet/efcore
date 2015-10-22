@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.Query
                 = typeof(DateTime).GetTypeInfo().GetDeclaredProperty(nameof(DateTime.UtcNow));
 
             public override bool IsEvaluatableMethodCall(MethodCallExpression methodCallExpression)
-                => typeof(IQueryable).IsAssignableFrom(methodCallExpression.Type);
+                => typeof(IQueryable).GetTypeInfo().IsAssignableFrom(methodCallExpression.Type.GetTypeInfo());
 
             public override bool IsEvaluatableMember(MemberExpression memberExpression)
                 => memberExpression.Member != _dateTimeNow && memberExpression.Member != _dateTimeUtcNow;

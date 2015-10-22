@@ -5,7 +5,6 @@
 
 using Microsoft.AspNet.FileProviders;
 using Microsoft.AspNet.Hosting;
-using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.Data.Entity.Design.Internal
 {
