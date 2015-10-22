@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        private static IEnumerable<T> _ShapedQuery<T>(
+        internal static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             Func<ValueBuffer, T> shaper)
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
-        private static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers)
+        internal static TResult GetResult<TResult>(IEnumerable<ValueBuffer> valueBuffers)
         {
             using (var enumerator = valueBuffers.GetEnumerator())
             {
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+        internal static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IEnumerable<ValueBuffer> source,
             Func<ValueBuffer, TOuter> outerFactory,
             Func<ValueBuffer, TInner> innerFactory,
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
-        private static IEnumerable<T> _Include<T>(
+        internal static IEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IEnumerable<T> innerResults,
             Func<T, object> entityAccessor,
@@ -198,7 +198,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(_CreateReferenceIncludeStrategy));
 
         [UsedImplicitly]
-        private static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
+        internal static IIncludeRelatedValuesStrategy _CreateReferenceIncludeStrategy(
             RelationalQueryContext relationalQueryContext,
             int valueBufferOffset,
             int queryIndex,

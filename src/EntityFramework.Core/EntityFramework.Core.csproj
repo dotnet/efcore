@@ -425,6 +425,11 @@
     </Compile>
     <Compile Include="Utilities\Imply.cs" />
     <Compile Include="Update\IUpdateEntry.cs" />
+    <Compile Include="Utilities\ImplyGen.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ImplyGen.tt</DependentUpon>
+    </Compile>
     <Compile Include="ValueGeneration\GuidValueGenerator.cs" />
     <Compile Include="ValueGeneration\HiLoValueGeneratorState.cs" />
     <Compile Include="ValueGeneration\HiLoValueGenerator.cs" />
@@ -444,6 +449,10 @@
     <Compile Include="ValueGeneration\ValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\IValueGeneratorSelector.cs" />
     <Compile Include="ValueGeneration\ValueGenerator`.cs" />
+    <Content Include="Utilities\ImplyGen.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ImplyGen.cs</LastGenOutput>
+    </Content>
     <EmbeddedResource Include="Properties\EntityFramework.Core.rd.xml" />
     <EmbeddedResource Include="Properties\CoreStrings.resx">
       <LogicalName>EntityFramework.Core.CoreStrings.resources</LogicalName>

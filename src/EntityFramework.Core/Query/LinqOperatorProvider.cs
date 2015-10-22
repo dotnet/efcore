@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         // ReSharper disable once PossibleMultipleEnumeration
-        private static IEnumerable<TResult> _ToEnumerable<TResult>(IEnumerable<TResult> results) => results;
+        internal static IEnumerable<TResult> _ToEnumerable<TResult>(IEnumerable<TResult> results) => results;
 
         public virtual MethodInfo ToOrdered => _toOrdered;
 
@@ -38,10 +38,10 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToOrdered));
 
         [UsedImplicitly]
-        private static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IEnumerable<TResult> results)
+        internal static OrderedEnumerableAdapter<TResult> _ToOrdered<TResult>(IEnumerable<TResult> results)
             => new OrderedEnumerableAdapter<TResult>(results);
 
-        private class OrderedEnumerableAdapter<TResult> : IOrderedEnumerable<TResult>
+        internal class OrderedEnumerableAdapter<TResult> : IOrderedEnumerable<TResult>
         {
             private readonly IEnumerable<TResult> _results;
 
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_InterceptExceptions));
 
         [UsedImplicitly]
-        private static IEnumerable<T> _InterceptExceptions<T>(
+        internal static IEnumerable<T> _InterceptExceptions<T>(
             IEnumerable<T> source, Type contextType, ILogger logger)
             => new ExceptionInterceptor<T>(source, contextType, logger);
 
@@ -134,7 +134,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackEntities));
 
         [UsedImplicitly]
-        private static IEnumerable<TOut> _TrackEntities<TOut, TIn>(
+        internal static IEnumerable<TOut> _TrackEntities<TOut, TIn>(
             IEnumerable<TOut> results,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackGroupedEntities));
 
         [UsedImplicitly]
-        private static IEnumerable<IGrouping<TKey, TOut>> _TrackGroupedEntities<TKey, TOut, TIn>(
+        internal static IEnumerable<IGrouping<TKey, TOut>> _TrackGroupedEntities<TKey, TOut, TIn>(
             IEnumerable<IGrouping<TKey, TOut>> groupings,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToSequence));
 
         [UsedImplicitly]
-        private static IEnumerable<T> _ToSequence<T>(T element) => new[] { element };
+        internal static IEnumerable<T> _ToSequence<T>(T element) => new[] { element };
 
         public virtual MethodInfo ToSequence => _toSequence;
 
@@ -248,7 +248,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ToQueryable));
 
         [UsedImplicitly]
-        private static IOrderedQueryable<TSource> _ToQueryable<TSource>(IEnumerable<TSource> source)
+        internal static IOrderedQueryable<TSource> _ToQueryable<TSource>(IEnumerable<TSource> source)
             => new EnumerableQuery<TSource>(source);
 
         public virtual MethodInfo ToQueryable => _toQueryable;
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_SelectMany));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
+        internal static IEnumerable<TResult> _SelectMany<TSource, TCollection, TResult>(
             IEnumerable<TSource> source,
             Func<TSource, IEnumerable<TCollection>> collectionSelector,
             Func<TSource, TCollection, TResult> resultSelector)
@@ -271,7 +271,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Join));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
+        internal static IEnumerable<TResult> _Join<TOuter, TInner, TKey, TResult>(
             IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_GroupJoin));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+        internal static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
             IEnumerable<TOuter> outer,
             IEnumerable<TInner> inner,
             Func<TOuter, TKey> outerKeySelector,
@@ -301,7 +301,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
         [UsedImplicitly]
-        private static IEnumerable<TResult> _Select<TSource, TResult>(
+        internal static IEnumerable<TResult> _Select<TSource, TResult>(
             IEnumerable<TSource> source, Func<TSource, TResult> selector)
             => source.Select(selector);
 
@@ -312,7 +312,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_OrderBy));
 
         [UsedImplicitly]
-        private static IOrderedEnumerable<TSource> _OrderBy<TSource, TKey>(
+        internal static IOrderedEnumerable<TSource> _OrderBy<TSource, TKey>(
             IEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ThenBy));
 
         [UsedImplicitly]
-        private static IOrderedEnumerable<TSource> _ThenBy<TSource, TKey>(
+        internal static IOrderedEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
@@ -338,7 +338,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Where));
 
         [UsedImplicitly]
-        private static IEnumerable<TSource> _Where<TSource>(
+        internal static IEnumerable<TSource> _Where<TSource>(
             IEnumerable<TSource> source, Func<TSource, bool> predicate) => source.Where(predicate);
 
         public virtual MethodInfo Where => _where;
@@ -371,7 +371,7 @@ namespace Microsoft.Data.Entity.Query
             = typeof(LinqOperatorProvider).GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
-        private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+        internal static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
             IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
             => source.GroupBy(keySelector, elementSelector);
 

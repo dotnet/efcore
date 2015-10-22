@@ -816,7 +816,7 @@ namespace Microsoft.Data.Entity.Query
 
         public const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
 
-        private struct TransparentIdentifier<TOuter, TInner>
+        internal struct TransparentIdentifier<TOuter, TInner>
         {
             [UsedImplicitly]
             public static TransparentIdentifier<TOuter, TInner> CreateTransparentIdentifier(TOuter outer, TInner inner)
