@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using JetBrains.Annotations;
@@ -10,16 +11,19 @@ namespace Microsoft.Data.Entity.Query
 {
     public class QueryContext
     {
+        private readonly Func<IQueryBuffer> _queryBufferFactory;
+
         private IDictionary<string, object> _parameterValues;
+        private IQueryBuffer _queryBuffer;
 
-        public QueryContext([NotNull] IQueryBuffer queryBuffer)
+        public QueryContext([NotNull] Func<IQueryBuffer> queryBufferFactory)
         {
-            Check.NotNull(queryBuffer, nameof(queryBuffer));
+            Check.NotNull(queryBufferFactory, nameof(queryBufferFactory));
 
-            QueryBuffer = queryBuffer;
+            _queryBufferFactory = queryBufferFactory;
         }
 
-        public virtual IQueryBuffer QueryBuffer { get; }
+        public virtual IQueryBuffer QueryBuffer => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
 
         public virtual CancellationToken CancellationToken { get; set; }
 

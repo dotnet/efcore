@@ -450,9 +450,6 @@
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
   </data>
-  <data name="InvalidEntityKeyOnQuery" xml:space="preserve">
-    <value>The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.</value>
-  </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>

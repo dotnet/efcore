@@ -476,8 +476,8 @@ namespace Microsoft.Data.Entity.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    (c) => { throw exception; },
-                    (c) => { throw exception; },
+                    c => { throw exception; },
+                    c => { throw exception; },
                     (c, cb) => { throw exception; },
                     (c, ct) => { throw exception; },
                     (c, ct) => { throw exception; },
@@ -522,8 +522,8 @@ namespace Microsoft.Data.Entity.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    (c) => { throw exception; },
-                    (c) => { throw exception; },
+                    c => { throw exception; },
+                    c => { throw exception; },
                     (c, cb) => { throw exception; },
                     (c, ct) => { throw exception; },
                     (c, ct) => { throw exception; },
@@ -572,8 +572,8 @@ namespace Microsoft.Data.Entity.Storage
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    (c) => { throw exception; },
-                    (c) => { throw exception; },
+                    c => { throw exception; },
+                    c => { throw exception; },
                     (c, cb) => { throw exception; },
                     (c, ct) => { throw exception; },
                     (c, ct) => { throw exception; },
@@ -697,8 +697,8 @@ Command Text",
                 log[0].Item2);
 
             Assert.Equal(LogLevel.Information, log[1].Item1);
-            Assert.Equal(
-                @"Executed DbCommand (0ms) [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
+            Assert.EndsWith(
+                @"ms) [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
 Command Text",
                 log[1].Item2);
         }
@@ -816,8 +816,8 @@ Command Text",
             var fakeDbConnection = new FakeDbConnection(
                 ConnectionString,
                 new FakeCommandExecutor(
-                    (c) => { throw exception; },
-                    (c) => { throw exception; },
+                    c => { throw exception; },
+                    c => { throw exception; },
                     (c, cb) => { throw exception; },
                     (c, ct) => { throw exception; },
                     (c, ct) => { throw exception; },

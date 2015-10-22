@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -56,12 +55,6 @@ namespace Microsoft.Data.Entity.Query.Internal
             // hot path
             Debug.Assert(entityType != null);
             Debug.Assert(keyValue != null);
-
-            if (keyValue == KeyValue.InvalidKeyValue)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.InvalidEntityKeyOnQuery(entityType.DisplayName()));
-            }
 
             if (queryStateManager)
             {
@@ -209,7 +202,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                             object targetEntity = null;
 
-                            if (keyValue != KeyValue.InvalidKeyValue)
+                            if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
                             {
                                 targetEntity
                                     = GetEntity(
@@ -277,33 +270,33 @@ namespace Microsoft.Data.Entity.Query.Internal
                 currentNavigationIndex,
                 await relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
                     .Select(async (eli, ct) =>
-                    {
-                        var keyValue
-                            = keyValueFactory
-                                .Create(keyProperties, eli.ValueBuffer);
-
-                        object targetEntity = null;
-
-                        if (keyValue != KeyValue.InvalidKeyValue)
                         {
-                            targetEntity
-                                = GetEntity(
-                                    targetEntityType,
-                                    keyValue,
-                                    eli,
-                                    queryStateManager);
-                        }
+                            var keyValue
+                                = keyValueFactory
+                                    .Create(keyProperties, eli.ValueBuffer);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            queryStateManager);
+                            object targetEntity = null;
 
-                        return targetEntity;
-                    })
+                            if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
+                            {
+                                targetEntity
+                                    = GetEntity(
+                                        targetEntityType,
+                                        keyValue,
+                                        eli,
+                                        queryStateManager);
+                            }
+
+                            await IncludeAsync(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                ct,
+                                currentNavigationIndex + 1,
+                                queryStateManager);
+
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }

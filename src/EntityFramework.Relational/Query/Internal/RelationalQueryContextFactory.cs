@@ -24,6 +24,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public override QueryContext Create()
-            => new RelationalQueryContext(CreateQueryBuffer(), _connection);
+            => new RelationalQueryContext(CreateQueryBuffer, _connection);
     }
 }

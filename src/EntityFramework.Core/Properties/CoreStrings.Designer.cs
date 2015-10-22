@@ -901,14 +901,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.
-        /// </summary>
-        public static string InvalidEntityKeyOnQuery([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityKeyOnQuery", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
         public static string CannotBeNullablePK([CanBeNull] object property, [CanBeNull] object entityType)

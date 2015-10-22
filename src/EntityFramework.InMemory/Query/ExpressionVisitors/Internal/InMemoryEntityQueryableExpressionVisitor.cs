@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     Expression.Constant(entityType),
                     Expression.Constant(keyValueFactory),
                     materializer,
-                    Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)));
+                    Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery));
             }
 
             return Expression.Call(

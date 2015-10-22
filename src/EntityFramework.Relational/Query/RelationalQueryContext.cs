@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -20,9 +21,9 @@ namespace Microsoft.Data.Entity.Query
         private int _activeIncludeQueryOffset;
 
         public RelationalQueryContext(
-            [NotNull] IQueryBuffer queryBuffer,
+            [NotNull] Func<IQueryBuffer> queryBufferFactory,
             [NotNull] IRelationalConnection connection)
-            : base(Check.NotNull(queryBuffer, nameof(queryBuffer)))
+            : base(Check.NotNull(queryBufferFactory, nameof(queryBufferFactory)))
         {
             Check.NotNull(connection, nameof(connection));
 
