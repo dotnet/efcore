@@ -239,16 +239,9 @@ namespace Microsoft.Data.Entity
         IServiceProvider IAccessor<IServiceProvider>.Service => ServiceProvider;
 
         /// <summary>
-        ///     Override this method to configure the database (and other options) to be used for this context.
-        ///     This method is called for each instance of the context that is created.
-        /// </summary>
-        /// <remarks>
         ///     <para>
-        ///         If you passed an instance of <see cref="DbContextOptions" /> to the constructor of the context (or
-        ///         provided an <see cref="IServiceProvider" /> with <see cref="DbContextOptions" /> registered) then
-        ///         it is cloned before being passed to this method. This allows the options to be altered without
-        ///         affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
-        ///         instance.
+        ///         Override this method to configure the database (and other options) to be used for this context.
+        ///         This method is called for each instance of the context that is created.
         ///     </para>
         ///     <para>
         ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
@@ -256,7 +249,7 @@ namespace Microsoft.Data.Entity
         ///         the options have already been set, and skip some or all of the logic in 
         ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/>.
         ///     </para>
-        /// </remarks>
+        /// </summary>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.

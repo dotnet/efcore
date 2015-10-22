@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///     </para>
     ///     <para>
     ///         Instances of this class are created for you when using the
-    ///         <see cref="ChangeTracker.TrackGraph(object, System.Action{EntityEntryGraphNode}, object)"/> API and it is
+    ///         <see cref="ChangeTracker.TrackGraph(object, System.Action{EntityEntryGraphNode})"/> API and it is
     ///         not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     </para>
         ///     <para>
         ///         Instances of this class are created for you when using the
-        ///         <see cref="ChangeTracker.TrackGraph(object, System.Action{EntityEntryGraphNode}, object)"/> API and it is
+        ///         <see cref="ChangeTracker.TrackGraph(object, System.Action{EntityEntryGraphNode})"/> API and it is
         ///         not designed to be directly constructed in your application code.
         ///     </para>
         /// </summary>
