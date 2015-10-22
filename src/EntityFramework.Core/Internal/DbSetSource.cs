@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -14,8 +15,8 @@ namespace Microsoft.Data.Entity.Internal
             = typeof(DbSetSource).GetTypeInfo().GetDeclaredMethods("CreateConstructor").Single();
 
         // Stores DbSet<T> objects
-        private readonly ThreadSafeDictionaryCache<Type, Func<DbContext, object>> _cache
-            = new ThreadSafeDictionaryCache<Type, Func<DbContext, object>>();
+        private readonly ConcurrentDictionary<Type, Func<DbContext, object>> _cache
+            = new ConcurrentDictionary<Type, Func<DbContext, object>>();
 
         public virtual object Create(DbContext context, Type type)
             => _cache.GetOrAdd(

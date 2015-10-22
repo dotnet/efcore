@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
 
 namespace Microsoft.Data.Entity.Storage
@@ -38,8 +38,8 @@ namespace Microsoft.Data.Entity.Storage
             }
         }
 
-        private readonly ThreadSafeDictionaryCache<CacheKey, Action<object[]>> _cache
-            = new ThreadSafeDictionaryCache<CacheKey, Action<object[]>>();
+        private readonly ConcurrentDictionary<CacheKey, Action<object[]>> _cache
+            = new ConcurrentDictionary<CacheKey, Action<object[]>>();
 
         public virtual IRelationalValueBufferFactory Create(
             IReadOnlyList<Type> valueTypes, IReadOnlyList<int> indexMap)
