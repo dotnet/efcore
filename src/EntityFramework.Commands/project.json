@@ -17,7 +17,7 @@
     "Microsoft.CodeAnalysis.CSharp": "1.1.0-rc1-*"
   },
   "frameworks": {
-    "net45": {
+    "net451": {
       "dependencies": {
         "EntityFramework.Relational.Design": "7.0.0-*"
       }

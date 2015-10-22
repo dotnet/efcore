@@ -4,7 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-#if NET45 || DNX451
+#if NET451
 using System.ComponentModel;
 #endif
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
-#if NET45 || DNX451
+#if NET451
 using Microsoft.Data.Entity.Internal;
 #endif
 using Microsoft.Data.Entity.Query;
@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity
         }
     }
 
-#if NET45 || DNX451
+#if NET451 || NET451
 
     public abstract partial class DbSet<TEntity> : IListSource
         where TEntity : class

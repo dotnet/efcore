@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Storage
         private bool _openedInternally;
         private int? _commandTimeout;
         private readonly ILogger _logger;
-#if NET45
+#if NET451
         private readonly bool _throwOnAmbientTransaction;
 #endif
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
             }
 
-#if NET45
+#if NET451
             _throwOnAmbientTransaction = relationalOptions.ThrowOnAmbientTransaction ?? true;
 #endif
         }
@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual void Open()
         {
-#if NET45
+#if NET451
             CheckForAmbientTransactions();
 
 #endif
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-#if NET45
+#if NET451
             CheckForAmbientTransactions();
 
 #endif
@@ -211,7 +211,7 @@ namespace Microsoft.Data.Entity.Storage
             _openedCount++;
         }
 
-#if NET45
+#if NET451
         private void CheckForAmbientTransactions()
         {
             if (_throwOnAmbientTransaction

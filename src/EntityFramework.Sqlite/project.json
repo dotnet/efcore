@@ -18,16 +18,11 @@
   },
   "resource": ["Properties/EntityFramework.Sqlite.rd.xml"],
   "frameworks": {
-    "net45": { },
-    "dnxcore50": {
+    "net451": { },
+    "dotnet5.4": {
       "dependencies": {
         "System.IO.FileSystem": "4.0.1-beta-*",
         "Microsoft.CSharp": "4.0.1-beta-*"
-      }
-    },
-    "dotnet": {
-      "dependencies": {
-        "System.IO.FileSystem": "4.0.0"
       }
     }
   }

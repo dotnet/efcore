@@ -14,7 +14,7 @@
   },
   "compile": "..\\Shared\\*.cs",
   "frameworks": {
-    "net45": { 
+    "net451": {
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0"
       }

@@ -17,7 +17,7 @@
     "EntityFramework.MicrosoftSqlServer.Design.SqlServerDesignStrings": "Properties/SqlServerDesignStrings.resx"
   },
   "frameworks": {
-    "net45": { },
+    "net451": { },
     "dnxcore50": { }
   }
 }

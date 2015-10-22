@@ -44,8 +44,8 @@
   <Target
     Name="WritePackageReferences"
     Condition="Exists('$(MSBuildProjectDirectory)\project.json')">
-    <PropertyGroup Condition="'$(TargetFrameworkIdentifier)|$(TargetFrameworkVersion)' == '.NETFramework|v4.5'">
-      <DnuFramework>net45</DnuFramework>
+    <PropertyGroup Condition="'$(TargetFrameworkIdentifier)|$(TargetFrameworkVersion)' == '.NETFramework|v4.5.1'">
+      <DnuFramework>net451</DnuFramework>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFrameworkIdentifier)|$(TargetFrameworkVersion)' == '.NETFramework|v4.6'">
       <DnuFramework>net46</DnuFramework>

@@ -26,26 +26,7 @@
   },
   "resource": ["Properties/EntityFramework.Core.rd.xml"],
   "frameworks": {
-    "net45": {
-      "frameworkAssemblies": {
-        "System.Collections": { "version": "4.0.0.0", "type": "build" },
-        "System.ComponentModel.DataAnnotations": "4.0.0.0",
-        "System.Diagnostics.Debug": { "version": "4.0.0.0", "type": "build" },
-        "System.Diagnostics.Tools": { "version": "4.0.0.0", "type": "build" },
-        "System.Globalization": { "version": "4.0.0.0", "type": "build" },
-        "System.Linq": { "version": "4.0.0.0", "type": "build" },
-        "System.Linq.Expressions": { "version": "4.0.0.0", "type": "build" },
-        "System.Linq.Queryable": { "version": "4.0.0.0", "type": "build" },
-        "System.ObjectModel": { "version": "4.0.0.0", "type": "build" },
-        "System.Reflection": { "version": "4.0.0.0", "type": "build" },
-        "System.Reflection.Extensions": { "version": "4.0.0.0", "type": "build" },
-        "System.Resources.ResourceManager": { "version": "4.0.0.0", "type": "build" },
-        "System.Runtime": { "version": "4.0.0.0", "type": "build" },
-        "System.Runtime.Extensions": { "version": "4.0.0.0", "type": "build" },
-        "System.Threading": { "version": "4.0.0.0", "type": "build" }
-      }
-    },
-    "dnx451": {
+    "net451": {
       "frameworkAssemblies": {
         "System.Collections": "4.0.0.0",
         "System.ComponentModel.DataAnnotations": "4.0.0.0",
@@ -64,7 +45,7 @@
         "System.Threading": "4.0.0.0"
       }
     },
-    "dnxcore50": {
+    "dotnet5.4": {
       "dependencies": {
         "System.Collections": "4.0.11-beta-*",
         "System.Collections.Concurrent": "4.0.11-beta-*",
@@ -83,27 +64,6 @@
         "System.Runtime.InteropServices": "4.0.21-beta-*",
         "System.Threading": "4.0.11-beta-*",
         "System.Threading.Tasks": "4.0.11-beta-*"
-      }
-    },
-    "dotnet": {
-      "dependencies": {
-        "System.ComponentModel": "4.0.0",
-        "System.ComponentModel.Annotations": "4.0.10",
-        "System.Diagnostics.Debug": "4.0.10",
-        "System.Globalization": "4.0.10",
-        "System.IO": "4.0.10",
-        "System.Linq": "4.0.0",
-        "System.Linq.Expressions": "4.0.10",
-        "System.Linq.Queryable": "4.0.0",
-        "System.ObjectModel": "4.0.10",
-        "System.Reflection": "4.0.10",
-        "System.Reflection.Extensions": "4.0.0",
-        "System.Reflection.TypeExtensions": "4.0.0",
-        "System.Resources.ResourceManager": "4.0.0",
-        "System.Runtime": "4.0.20",
-        "System.Runtime.Extensions": "4.0.10",
-        "System.Threading": "4.0.10",
-        "System.Threading.Tasks": "4.0.10"
       }
     }
   }
