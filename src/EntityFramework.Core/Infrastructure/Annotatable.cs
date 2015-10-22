@@ -10,6 +10,15 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
+    /// <summary>
+    ///     <para>
+    ///         Base class for types that support reading and writing annotations. 
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public class Annotatable : IAnnotatable
     {
         // TODO: Perf: use a mutable structure before the model is made readonly
@@ -18,6 +27,12 @@ namespace Microsoft.Data.Entity.Infrastructure
             = new LazyRef<ImmutableSortedSet<Annotation>>(
                 () => ImmutableSortedSet<Annotation>.Empty.WithComparer(new AnnotationComparer()));
 
+        /// <summary>
+        ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <returns> The newly added annotation. </returns>
         public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] object value)
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
@@ -36,9 +51,24 @@ namespace Microsoft.Data.Entity.Infrastructure
             return annotation;
         }
 
+        /// <summary>
+        ///     Adds an annotation to this object or returns the existing annotation if one with the specified name already exists.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to be added. </param>
+        /// <param name="value"> The value to be stored in the annotation. </param>
+        /// <returns> 
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, the newly added annotation. 
+        /// </returns>
         public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] string value)
             => FindAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
 
+        /// <summary>
+        ///     Gets the annotation with the given name, returning null if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns>
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// </returns>
         public virtual Annotation FindAnnotation([NotNull] string annotationName)
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
@@ -50,6 +80,11 @@ namespace Microsoft.Data.Entity.Infrastructure
                 : null;
         }
 
+        /// <summary>
+        ///     Removes the given annotation from this object.
+        /// </summary>
+        /// <param name="annotation"> The annotation to remove. </param>
+        /// <returns> The annotation that was removed. </returns>
         public virtual Annotation RemoveAnnotation([NotNull] Annotation annotation)
         {
             Check.NotNull(annotation, nameof(annotation));
@@ -66,6 +101,13 @@ namespace Microsoft.Data.Entity.Infrastructure
             return removedAnnotations;
         }
 
+        /// <summary>
+        ///     Gets the value annotation with the given name, returning null if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns>         
+        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// </returns>
         // ReSharper disable once AnnotationRedundancyInHierarchy
         // TODO: Fix API test to handle indexer
         public virtual object this[[NotNull] string annotationName]
@@ -85,6 +127,9 @@ namespace Microsoft.Data.Entity.Infrastructure
             }
         }
 
+        /// <summary>
+        ///     Gets all annotations on the current object.
+        /// </summary>
         public virtual IEnumerable<Annotation> Annotations
             => _annotations.HasValue
                 ? (IEnumerable<Annotation>)_annotations.Value
@@ -95,8 +140,18 @@ namespace Microsoft.Data.Entity.Infrastructure
             public int Compare(IAnnotation x, IAnnotation y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
         }
 
+        /// <summary>
+        ///     Gets all annotations on the current object.
+        /// </summary>
         IEnumerable<IAnnotation> IAnnotatable.Annotations => Annotations;
 
+        /// <summary>
+        ///     Gets the annotation with the given name, returning null if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns>
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// </returns>
         IAnnotation IAnnotatable.FindAnnotation(string annotationName) => FindAnnotation(annotationName);
     }
 }

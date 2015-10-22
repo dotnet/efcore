@@ -9,8 +9,19 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
+    /// <summary>
+    ///     The options to be used by a <see cref="DbContext"/>. You normally override 
+    ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> or use a <see cref="DbContextOptionsBuilder"/> 
+    ///     to create instances of this class and it is not designed to be directly constructed in your application code. 
+    /// </summary>
     public abstract class DbContextOptions : IDbContextOptions
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DbContextOptions" /> class. You normally override 
+        ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> or use a <see cref="DbContextOptionsBuilder"/> 
+        ///     to create instances of this class and it is not designed to be directly constructed in your application code.
+        /// </summary>
+        /// <param name="extensions"> The extensions that store the configured options. </param>
         protected DbContextOptions(
             [NotNull] IReadOnlyDictionary<Type, IDbContextOptionsExtension> extensions)
         {
@@ -19,8 +30,16 @@ namespace Microsoft.Data.Entity.Infrastructure
             _extensions = extensions;
         }
 
+        /// <summary>
+        ///     Gets the extensions that store the configured options.
+        /// </summary>
         public virtual IEnumerable<IDbContextOptionsExtension> Extensions => _extensions.Values;
 
+        /// <summary>
+        ///     Gets the extension of the specified type. Returns null if no extension of the specified type is configured.
+        /// </summary>
+        /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
+        /// <returns> The extension, or null if none was found. </returns>
         public virtual TExtension FindExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
         {
@@ -28,6 +47,11 @@ namespace Microsoft.Data.Entity.Infrastructure
             return _extensions.TryGetValue(typeof(TExtension), out extension) ? (TExtension)extension : null;
         }
 
+        /// <summary>
+        ///     Gets the extension of the specified type. Throws if no extension of the specified type is configured.
+        /// </summary>
+        /// <typeparam name="TExtension"> The type of the extension to get. </typeparam>
+        /// <returns> The extension. </returns>
         public virtual TExtension GetExtension<TExtension>()
             where TExtension : class, IDbContextOptionsExtension
         {
@@ -39,6 +63,12 @@ namespace Microsoft.Data.Entity.Infrastructure
             return extension;
         }
 
+        /// <summary>
+        ///     Adds the given extension to the options.
+        /// </summary>
+        /// <typeparam name="TExtension"> The type of extension to be added. </typeparam>
+        /// <param name="extension"> The extension to be added. </param>
+        /// <returns> The same options instance so that multiple calls can be chained. </returns>
         public abstract DbContextOptions WithExtension<TExtension>([NotNull] TExtension extension)
             where TExtension : class, IDbContextOptionsExtension;
 

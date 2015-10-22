@@ -32,16 +32,27 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         /// <summary>
-        ///     Registers the given context as a service in the <see cref="IServiceCollection" />.
-        ///     You use this method when using dependency injection in your application, such as with ASP.NET.
-        ///     For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     <para>
+        ///         Registers the given context as a service in the <see cref="IServiceCollection" /> and ensures services that the context 
+        ///         uses are resolved from the <see cref="IServiceProvider" />.
+        ///     </para>
+        ///     <para>
+        ///         You use this method when using dependency injection in your application, such as with ASP.NET.
+        ///         For more information on setting up dependency injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     </para>
         /// </summary>
-        /// <remarks>
-        ///     This method will ensure services that the context uses are resolved from the
-        ///     <see cref="IServiceProvider" /> and any Entity Framework configuration
-        ///     found in the configuration passed to <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework" />
-        ///     extension method will be honored.
-        /// </remarks>
+        /// <example>
+        ///     <code>
+        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         {
+        ///             var connectionString = "connection string to database";
+        /// 
+        ///             services.AddEntityFramework() 
+        ///                 .AddSqlServer()
+        ///                 .AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString)); 
+        ///         }
+        ///     </code>
+        /// </example>
         /// <typeparam name="TContext"> The type of context to be registered. </typeparam>
         /// <param name="optionsAction">
         ///     <para>
@@ -55,11 +66,10 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///         in addition to configuration performed here.
         ///     </para>
         ///     <para>
-        ///         You do not need to expose a constructor parameter for the <see cref="DbContextOptions" /> to be passed to the
-        ///         context. If you choose to expose a constructor parameter, you must type it as the generic
-        ///         <see cref="DbContextOptions{TContext}" /> as that is the type that will be registered in the
-        ///         <see cref="IServiceCollection" /> (in order to support multiple context types being registered in the
-        ///         same <see cref="IServiceCollection" />).
+        ///         You do not need to expose a <see cref="DbContextOptions" /> constructor parameter for the options to be passed to the
+        ///         context. If you choose to expose a constructor parameter, we recommend typing it as the generic
+        ///         <see cref="DbContextOptions{TContext}" />. You can use the non-generic <see cref="DbContextOptions"/> but this will only
+        ///         work if you have one derived context type registered in your <see cref="IServiceProvider"/>.
         ///     </para>
         /// </param>
         /// <returns>
@@ -93,7 +103,13 @@ namespace Microsoft.Data.Entity.Infrastructure
         }
 
         /// <summary>
-        ///     Gets the <see cref="IServiceCollection" /> being configured.
+        ///     <para>
+        ///         Gets the <see cref="IServiceCollection" /> being configured.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods that need to make use of services
+        ///         not directly exposed in the public API surface.
+        ///     </para>
         /// </summary>
         IServiceCollection IAccessor<IServiceCollection>.Service => _serviceCollection;
     }

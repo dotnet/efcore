@@ -6,12 +6,40 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
+    /// <summary>
+    ///     <para>
+    ///         A class that exposes annotations. Annotations allow for arbitrary metadata to be stored on an object.
+    ///     </para>
+    ///     <para>
+    ///         This interface is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
+    /// </summary>
     public interface IAnnotatable
     {
+        /// <summary>
+        ///     Gets the value annotation with the given name, returning null if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns>         
+        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// </returns>
+        // ReSharper disable once AnnotationRedundancyInHierarchy
+        // TODO: Fix API test to handle indexer
         object this[[NotNull] string annotationName] { get; }
 
+        /// <summary>
+        ///     Gets the annotation with the given name, returning null if it does not exist.
+        /// </summary>
+        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <returns>
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// </returns>
         IAnnotation FindAnnotation([NotNull] string annotationName);
 
+        /// <summary>
+        ///     Gets all annotations on the current object.
+        /// </summary>
         IEnumerable<IAnnotation> Annotations { get; }
     }
 }

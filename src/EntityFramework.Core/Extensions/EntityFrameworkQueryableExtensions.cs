@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Utilities;
@@ -2169,7 +2170,45 @@ namespace Microsoft.Data.Entity
                 .GetTypeInfo().GetDeclaredMethods(nameof(Include))
                 .Single(mi => mi.GetParameters().Any(pi => pi.Name == "navigationPropertyPath"));
 
-        // TODO API docs once we resolve #1709
+        /// <summary>
+        ///     Specifies related entities to include in the query results. The navigation property to be included is specified starting with the
+        ///     type of entity being queried (<typeparamref name="TEntity"/>). If you wish to include additional types based on the navigation
+        ///     properties of the type being included, then chain a call to 
+        ///     <see cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, ICollection{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})"/>
+        ///     after this call.
+        /// </summary>
+        /// <example>
+        ///     <para>
+        ///         The following query shows including a single level of related entities.
+        ///         <code>
+        ///             context.Blogs.Include(blog => blog.Posts);
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including two levels of entities on the same branch.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags);
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including multiple levels and branches of related data.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
+        ///                 .Include(blog => blog.Contributors);
+        ///         </code>
+        ///     </para>
+        /// </example>
+        /// <typeparam name = "TEntity" > The type of entity being queried. </typeparam>
+        /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="navigationPropertyPath">
+        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>). 
+        /// </param>
+        /// <returns>
+        ///     A new query with the related data included.
+        /// </returns>
         public static IIncludableQueryable<TEntity, TProperty> Include<TEntity, TProperty>(
             [NotNull] this IQueryable<TEntity> source,
             [NotNull] Expression<Func<TEntity, TProperty>> navigationPropertyPath)
@@ -2196,7 +2235,42 @@ namespace Microsoft.Data.Entity
                 .GetTypeInfo().GetDeclaredMethods(nameof(EntityFrameworkQueryableExtensions.ThenInclude))
                 .Single(mi => mi.GetParameters()[0].ParameterType.GenericTypeArguments[1].IsGenericParameter);
 
-        // TODO API docs once we resolve #1709
+        /// <summary>
+        ///     Specifies additional related data to be further included based on a related type that was just included.
+        /// </summary>
+        /// <example>
+        ///     <para>
+        ///         The following query shows including a single level of related entities.
+        ///         <code>
+        ///             context.Blogs.Include(blog => blog.Posts);
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including two levels of entities on the same branch.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags);
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including multiple levels and branches of related data.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
+        ///                 .Include(blog => blog.Contributors);
+        ///         </code>
+        ///     </para>
+        /// </example>
+        /// <typeparam name = "TEntity" > The type of entity being queried. </typeparam>
+        /// <typeparam name="TPreviousProperty"> The type of the entity that was just included. </typeparam>
+        /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="navigationPropertyPath">
+        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>). 
+        /// </param>
+        /// <returns>
+        ///     A new query with the related data included.
+        /// </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
             [NotNull] this IIncludableQueryable<TEntity, ICollection<TPreviousProperty>> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
@@ -2208,6 +2282,42 @@ namespace Microsoft.Data.Entity
                         ThenIncludeAfterCollectionMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
                         new[] { source.Expression, Expression.Quote(navigationPropertyPath) })));
 
+        /// <summary>
+        ///     Specifies additional related data to be further included based on a related type that was just included.
+        /// </summary>
+        /// <example>
+        ///     <para>
+        ///         The following query shows including a single level of related entities.
+        ///         <code>
+        ///             context.Blogs.Include(blog => blog.Posts);
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including two levels of entities on the same branch.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags);
+        ///         </code>
+        ///     </para>
+        ///     <para>
+        ///         The following query shows including multiple levels and branches of related data.
+        ///         <code>
+        ///             context.Blogs
+        ///                 .Include(blog => blog.Posts).ThenInclude(post => post.Tags).ThenInclude(tag => tag.TagInfo)
+        ///                 .Include(blog => blog.Contributors);
+        ///         </code>
+        ///     </para>
+        /// </example>
+        /// <typeparam name = "TEntity" > The type of entity being queried. </typeparam>
+        /// <typeparam name="TPreviousProperty"> The type of the entity that was just included. </typeparam>
+        /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <param name="navigationPropertyPath">
+        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>). 
+        /// </param>
+        /// <returns>
+        ///     A new query with the related data included.
+        /// </returns>
         public static IIncludableQueryable<TEntity, TProperty> ThenInclude<TEntity, TPreviousProperty, TProperty>(
             [NotNull] this IIncludableQueryable<TEntity, TPreviousProperty> source,
             [NotNull] Expression<Func<TPreviousProperty, TProperty>> navigationPropertyPath)
@@ -2289,19 +2399,22 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Returns a new query where the entities returned in the result set will not be tracked
-        ///         by the context.
+        ///         Returns a new query where the change tracker will not track any of the entities that are returned. 
+        ///         If the entity instances are modified, this will not be detected by the change tracker and 
+        ///         <see cref="DbContext.SaveChanges()"/> will not persist those changes to the database.
         ///     </para>
         ///     <para>
-        ///         No tracking is designed to be used as a performance optimization when working with
-        ///         result sets where changes to the entity instances will not be persisted by
-        ///         the context they were queries with. This includes disconnected scenarios (such as
-        ///         web services) and read-only data.
+        ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting 
+        ///         up change tracking for each entity instance. You should not disable change tracking if you want to 
+        ///         manipulate entity instances and persist those changes to the database using 
+        ///         <see cref="DbContext.SaveChanges()"/>.
         ///     </para>
         ///     <para>
-        ///         Identity resolution will still be performed to ensure
-        ///         that all occurrences of an entity with a given key in the result set are represented by
-        ///         the same entity instance.
+        ///         Identity resolution will still be performed to ensure that all occurrences of an entity with a given key 
+        ///         in the result set are represented by the same entity instance.
+        ///     </para>
+        ///     <para>
+        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior"/>.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
@@ -2319,6 +2432,21 @@ namespace Microsoft.Data.Entity
             = typeof(EntityFrameworkQueryableExtensions)
                 .GetTypeInfo().GetDeclaredMethod(nameof(AsTracking));
 
+        /// <summary>
+        ///     <para>
+        ///         Returns a new query where the change tracker will keep track of changes for all entities that are returned.
+        ///         Any modification to the entity instances will be detected and persisted to the database during
+        ///         <see cref="DbContext.SaveChanges()"/>.
+        ///     </para>
+        ///     <para>
+        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior"/>.
+        ///     </para>
+        /// </summary>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
+        /// <param name="source"> The source query. </param>
+        /// <returns>
+        ///     A new query where the result set will not be tracked by the context.
+        /// </returns>
         [QueryAnnotationMethod]
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)

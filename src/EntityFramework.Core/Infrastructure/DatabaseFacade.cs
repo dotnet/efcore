@@ -10,10 +10,21 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
+    /// <summary>
+    ///     Provides access to database related information and operations for a context.
+    ///     Instances of this class are typically obtained from <see cref="DbContext.Database" /> and it is not designed
+    ///     to be directly constructed in your application code.
+    /// </summary>
     public class DatabaseFacade : IAccessor<IServiceProvider>
     {
         private readonly DbContext _context;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="DatabaseFacade" /> class. Instances of this class are typically
+        ///     obtained from <see cref="DbContext.Database" /> and it is not designed to be directly constructed
+        ///     in your application code.
+        /// </summary>
+        /// <param name="context"> The context this database API belongs to .</param>
         public DatabaseFacade([NotNull] DbContext context)
         {
             Check.NotNull(context, nameof(context));
@@ -21,20 +32,57 @@ namespace Microsoft.Data.Entity.Infrastructure
             _context = context;
         }
 
-        // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
+        /// <summary>
+        ///     Ensures that the database for the context exists. If it exists, no action is taken. If it does not
+        ///     exist then the database and all its schema are created. If the database exists, then no effort is made
+        ///     to ensure it is compatible with the model for this context.
+        /// </summary>
+        /// <returns> True if the database is created, false if it already existed. </returns>
         public virtual bool EnsureCreated() => this.GetService<IDatabaseCreator>().EnsureCreated();
 
-        // TODO: Make sure API docs say that return value indicates whether or not the database or tables were created
+        /// <summary>
+        ///     Asynchronously ensures that the database for the context exists. If it exists, no action is taken. If it does not
+        ///     exist then the database and all its schema are created. If the database exists, then no effort is made
+        ///     to ensure it is compatible with the model for this context.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> 
+        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created, 
+        ///     false if it already existed. 
+        /// </returns>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
             => this.GetService<IDatabaseCreator>().EnsureCreatedAsync(cancellationToken);
 
-        // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
+        /// <summary>
+        ///     Ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
+        ///     exist then the database is deleted. The entire database is deleted an not effort is made to remove just the
+        ///     database objects that are used by the model for this context.
+        /// </summary>
+        /// <returns> True if the database is deleted, false if it did not exist. </returns>
         public virtual bool EnsureDeleted() => this.GetService<IDatabaseCreator>().EnsureDeleted();
 
-        // TODO: Make sure API docs say that return value indicates whether or not the database was deleted
+        /// <summary>
+        ///     Asynchronously ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
+        ///     exist then the database is deleted. The entire database is deleted an not effort is made to remove just the
+        ///     database objects that are used by the model for this context.
+        /// </summary>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns> 
+        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted, 
+        ///     false if it did not exist. 
+        /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
             => this.GetService<IDatabaseCreator>().EnsureDeletedAsync(cancellationToken);
 
+        /// <summary>
+        ///     <para>
+        ///         Gets the scoped <see cref="IServiceProvider" /> being used to resolve services.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods that need to make use of services
+        ///         not directly exposed in the public API surface.
+        ///     </para>
+        /// </summary>
         IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
     }
 }
