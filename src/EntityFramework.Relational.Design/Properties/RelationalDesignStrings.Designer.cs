@@ -53,11 +53,43 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Could not scaffold the foreign key '{foreignKeyName}'. One of the referenced properties or the referenced table could not be found.
+        /// Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.
         /// </summary>
-        public static string ForeignKeyScaffoldError([CanBeNull] object foreignKeyName)
+        public static string ForeignKeyScaffoldErrorPrincipalKeyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnsList, [CanBeNull] object principalEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldError", "foreignKeyName"), foreignKeyName);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldErrorPrincipalKeyNotFound", "foreignKeyName", "columnsList", "principalEntityType"), foreignKeyName, columnsList, principalEntityType);
+        }
+
+        /// <summary>
+        /// Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.
+        /// </summary>
+        public static string ForeignKeyScaffoldErrorPrincipalTableNotFound([CanBeNull] object foreignKeyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldErrorPrincipalTableNotFound", "foreignKeyName"), foreignKeyName);
+        }
+
+        /// <summary>
+        /// Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.
+        /// </summary>
+        public static string ForeignKeyScaffoldErrorPrincipalTableScaffoldingError([CanBeNull] object foreignKeyName, [CanBeNull] object principalTableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldErrorPrincipalTableScaffoldingError", "foreignKeyName", "principalTableName"), foreignKeyName, principalTableName);
+        }
+
+        /// <summary>
+        /// Could not scaffold the foreign key '{foreignKeyName}'.  Some columns in the foreign key could not be scaffolded.
+        /// </summary>
+        public static string ForeignKeyScaffoldErrorPropertyNotFound([CanBeNull] object foreignKeyName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyScaffoldErrorPropertyNotFound", "foreignKeyName"), foreignKeyName);
+        }
+
+        /// <summary>
+        /// Could not scaffold the primary key for '{tableName}'. Some columns in the primary key could not be scaffolded.
+        /// </summary>
+        public static string PrimaryKeyErrorPropertyNotFound([CanBeNull] object tableName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("PrimaryKeyErrorPropertyNotFound", "tableName"), tableName);
         }
 
         /// <summary>
@@ -133,11 +165,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unable to generate EntityType {entityTypeName}. {errorMessage}
+        /// Unable to generate entity type for table '{tableName}'.
         /// </summary>
-        public static string UnableToGenerateEntityType([CanBeNull] object entityTypeName, [CanBeNull] object errorMessage)
+        public static string UnableToGenerateEntityType([CanBeNull] object tableName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToGenerateEntityType", "entityTypeName", "errorMessage"), entityTypeName, errorMessage);
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToGenerateEntityType", "tableName"), tableName);
         }
 
         /// <summary>
@@ -146,6 +178,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string UnableToScaffoldIndex([CanBeNull] object indexName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnableToScaffoldIndex", "indexName"), indexName);
+        }
+
+        /// <summary>
+        /// Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.
+        /// </summary>
+        public static string MissingUseProviderMethodNameAnnotation
+        {
+            get { return GetString("MissingUseProviderMethodNameAnnotation"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

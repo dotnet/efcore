@@ -62,9 +62,6 @@
     <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\NoPrincipalPkFluentApiContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\Expected\AllFluentApi\NoPrincipalPk\Principal.expected">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="ReverseEngineering\Expected\AllFluentApi\OneToMany\OneToManyFluentApiContext.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -114,9 +111,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\NoPrincipalPk\NoPrincipalPkAttributesContext.expected">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\NoPrincipalPk\Principal.expected">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\Expected\UseAttributesInsteadOfFluentApi\OneToMany\OneToManyAttributesContext.expected">

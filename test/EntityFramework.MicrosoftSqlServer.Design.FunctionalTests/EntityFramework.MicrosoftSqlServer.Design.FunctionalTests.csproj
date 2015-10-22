@@ -41,6 +41,10 @@
       <Project>{10ca97eb-e724-4f08-86af-f301f2b0bfff}</Project>
       <Name>EntityFramework.Commands</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\EntityFramework.Core\EntityFramework.Core.csproj">
+      <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
+      <Name>EntityFramework.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\EntityFramework.Relational.Design\EntityFramework.Relational.Design.csproj">
       <Project>{7028a7e3-0ad8-4606-a922-8189c8a704e0}</Project>
       <Name>EntityFramework.Relational.Design</Name>
@@ -114,9 +118,6 @@
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\AttributesContext.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\TableWithUnmappablePrimaryKeyColumn.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="ReverseEngineering\ExpectedResults\E2E_UseAttributesInsteadOfFluentApi\Test_Spaces_Keywords_Table.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -157,9 +158,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\SqlServerReverseEngineerTestE2EContext.expected">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\TableWithUnmappablePrimaryKeyColumn.expected">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="ReverseEngineering\ExpectedResults\E2E_AllFluentApi\Test_Spaces_Keywords_Table.expected">

@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.Scaffolding.Metadata
 {
@@ -22,8 +24,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual int? MaxLength { get; [param: CanBeNull] set; }
         public virtual int? Precision { get; [param: CanBeNull] set; }
         public virtual int? Scale { get; [param: CanBeNull] set; }
-        public virtual bool? IsStoreGenerated { get; [param: CanBeNull] set; }
-        public virtual bool? IsComputed { get; [param: CanBeNull] set; }
+        public virtual ValueGenerated? ValueGenerated { get; set; }
         // SQL Server
         public virtual bool? IsIdentity { get; [param: CanBeNull] set; }
 

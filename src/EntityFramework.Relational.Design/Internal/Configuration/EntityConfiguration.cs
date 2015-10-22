@@ -34,9 +34,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             NavigationPropertyInitializerConfigurations { get; } = new List<NavigationPropertyInitializerConfiguration>();
         public virtual List<RelationshipConfiguration> RelationshipConfigurations { get; } = new List<RelationshipConfiguration>();
 
-        public virtual string ErrorMessageAnnotation
-            => EntityType.Scaffolding().EntityTypeError;
-
         public virtual PropertyConfiguration FindPropertyConfiguration([NotNull] IProperty property)
         {
             Check.NotNull(property, nameof(property));

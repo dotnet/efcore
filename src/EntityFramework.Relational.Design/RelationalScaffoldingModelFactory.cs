@@ -63,6 +63,8 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual IModel CreateFromDatabaseModel([NotNull] DatabaseModel databaseModel)
         {
+            Check.NotNull(databaseModel, nameof(databaseModel));
+
             var modelBuilder = new ModelBuilder(new ConventionSet());
 
             _tableNamer = new CSharpUniqueNamer<TableModel>(t => t.Name);
@@ -88,6 +90,8 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual string GetPropertyName([NotNull] ColumnModel column)
         {
+            Check.NotNull(column, nameof(column));
+
             var table = column.Table ?? _nullTable;
 
             if (!_columnNamers.ContainsKey(table))
@@ -100,39 +104,55 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual ModelBuilder VisitDatabaseModel([NotNull] ModelBuilder modelBuilder, [NotNull] DatabaseModel databaseModel)
         {
-            var tables = databaseModel.Tables;
-            VisitTables(modelBuilder, tables);
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(databaseModel, nameof(databaseModel));
 
+            VisitTables(modelBuilder, databaseModel.Tables);
+            VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
             // TODO can we add navigation properties inline with adding foreign keys?
-            foreach (var table in databaseModel.Tables)
-            {
-                VisitForeignKeys(modelBuilder, table);
-            }
-
-            VisitNavigationProperties(modelBuilder.Model);
+            VisitNavigationProperties(modelBuilder);
 
             return modelBuilder;
         }
 
         protected virtual ModelBuilder VisitTables([NotNull] ModelBuilder modelBuilder, [NotNull] IList<TableModel> tables)
         {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(tables, nameof(tables));
+
             foreach (var table in tables)
             {
-                modelBuilder.Entity(GetEntityTypeName(table), builder =>
-                    {
-                        builder.ToTable(table.Name, table.SchemaName);
-
-                        VisitTable(builder, table);
-                    });
+                VisitTable(modelBuilder, table);
             }
 
             return modelBuilder;
         }
 
-        protected virtual EntityTypeBuilder VisitTable([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
+        protected virtual EntityTypeBuilder VisitTable([NotNull] ModelBuilder modelBuilder, [NotNull] TableModel table)
         {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(table, nameof(table));
+
+            var entityTypeName = GetEntityTypeName(table);
+            var builder = modelBuilder.Entity(entityTypeName);
+
+            builder.ToTable(table.Name, table.SchemaName);
+
             VisitColumns(builder, table.Columns);
-            VisitPrimaryKey(builder, table);
+
+            var keyBuilder = VisitPrimaryKey(builder, table);
+
+            if(keyBuilder == null)
+            {
+                var errorMessage = RelationalDesignStrings.UnableToGenerateEntityType(table.DisplayName);
+                Logger.LogWarning(errorMessage);
+
+                var model = modelBuilder.Model;
+                model.RemoveEntityType(entityTypeName);
+                model.Scaffolding().EntityTypeErrors.Add(entityTypeName, errorMessage);
+                return null;
+            }
+
             VisitIndexes(builder, table.Indexes);
 
             return builder;
@@ -140,16 +160,12 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual EntityTypeBuilder VisitColumns([NotNull] EntityTypeBuilder builder, [NotNull] IList<ColumnModel> columns)
         {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(columns, nameof(columns));
+
             foreach (var column in columns)
             {
-                try
-                {
-                    VisitColumn(builder, column);
-                }
-                catch (NotSupportedException)
-                {
-                    VisitUnmappableColumn(column);
-                }
+                VisitColumn(builder, column);
             }
 
             return builder;
@@ -157,12 +173,16 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual PropertyBuilder VisitColumn([NotNull] EntityTypeBuilder builder, [NotNull] ColumnModel column)
         {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(column, nameof(column));
+
             RelationalTypeMapping mapping;
 
             if (!_typeMapper.TryGetMapping(column.DataType, out mapping)
                 || mapping.ClrType == null)
             {
-                throw new NotSupportedException();
+                Logger.LogWarning(RelationalDesignStrings.CannotFindTypeMappingForColumn(column.DisplayName, column.DataType));
+                return null;
             }
 
             var clrType = (column.IsNullable) ? mapping.ClrType.MakeNullable() : mapping.ClrType;
@@ -182,12 +202,12 @@ namespace Microsoft.Data.Entity.Scaffolding
                 property.HasMaxLength(column.MaxLength.Value);
             }
 
-            if (column.IsStoreGenerated == true)
+            if (column.ValueGenerated == ValueGenerated.OnAdd)
             {
                 property.ValueGeneratedOnAdd();
             }
 
-            if (column.IsComputed == true)
+            if (column.ValueGenerated == ValueGenerated.OnAddOrUpdate)
             {
                 property.ValueGeneratedOnAddOrUpdate();
             }
@@ -205,45 +225,44 @@ namespace Microsoft.Data.Entity.Scaffolding
             return property;
         }
 
-        protected virtual void VisitUnmappableColumn([NotNull] ColumnModel column)
-            => Logger.LogWarning(
-                RelationalDesignStrings.CannotFindTypeMappingForColumn(
-                    column.DisplayName, column.DataType));
-
-        protected virtual EntityTypeBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
+        protected virtual KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
         {
-            var keyProps = table.Columns
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(table, nameof(table));
+
+            var keyColumns = table.Columns
                 .Where(c => c.PrimaryKeyOrdinal.HasValue)
                 .OrderBy(c => c.PrimaryKeyOrdinal)
-                .Select(GetPropertyName)
-                .ToArray();
-
-            if (keyProps.Length > 0)
+                .ToList();
+          
+            if (keyColumns.Count == 0)
             {
-                try
-                {
-                    builder.HasKey(keyProps);
-                    return builder;
-                }
-                catch (InvalidOperationException)
-                {
-                    // swallow. Handled by logging
-                }
+                Logger.LogWarning(RelationalDesignStrings.MissingPrimaryKey(table.DisplayName));
+                return null;
             }
 
-            var errorMessage = RelationalDesignStrings.MissingPrimaryKey(table.DisplayName);
-            Logger.LogWarning(errorMessage);
+            var keyProps =  keyColumns.Select(GetPropertyName)
+                .Where(name => builder.Metadata.FindProperty(name) != null)
+                .ToArray();
 
-            builder.Metadata.Scaffolding().EntityTypeError = RelationalDesignStrings.UnableToGenerateEntityType(builder.Metadata.DisplayName(), errorMessage);
+            if(keyProps.Length != keyColumns.Count)
+            {
+                Logger.LogWarning(RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound(table.DisplayName));
+                return null;
+            }
 
-            return builder;
+            return builder.HasKey(keyProps);
         }
 
         protected virtual EntityTypeBuilder VisitIndexes([NotNull] EntityTypeBuilder builder, [NotNull] IList<IndexModel> indexes)
         {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(indexes, nameof(indexes));
+
             foreach (var index in indexes)
             {
                 var indexBuilder = VisitIndex(builder, index);
+
                 if (indexBuilder == null)
                 {
                     Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndex(index.Name));
@@ -255,9 +274,14 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual IndexBuilder VisitIndex([NotNull] EntityTypeBuilder builder, [NotNull] IndexModel index)
         {
+            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(index, nameof(index));
+
             var properties = index.Columns.Select(GetPropertyName).ToArray();
-            if (properties.Any(i => i == null))
+
+            if (properties.Count(p => builder.Metadata.FindProperty(p) != null) != properties.Length)
             {
+                // TODO log when index cannot be scaffolding because of missing columns
                 return null;
             }
 
@@ -281,11 +305,14 @@ namespace Microsoft.Data.Entity.Scaffolding
             return indexBuilder;
         }
 
-        protected virtual ModelBuilder VisitForeignKeys([NotNull] ModelBuilder modelBuilder, [NotNull] TableModel table)
+        protected virtual ModelBuilder VisitForeignKeys([NotNull] ModelBuilder modelBuilder, [NotNull] IList<ForeignKeyModel> foreignKeys)
         {
-            foreach (var fkInfo in table.ForeignKeys)
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(foreignKeys, nameof(foreignKeys));
+
+            foreach (var fk in foreignKeys)
             {
-                VisitForeignKey(modelBuilder, fkInfo);
+                VisitForeignKey(modelBuilder, fk);
             }
 
             return modelBuilder;
@@ -293,28 +320,40 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual IMutableForeignKey VisitForeignKey([NotNull] ModelBuilder modelBuilder, [NotNull] ForeignKeyModel foreignKey)
         {
-            var key = TryVisitForeignKey(modelBuilder, foreignKey);
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
-            if (key == null)
-            {
-                VisitFailedForeignKey(foreignKey);
-            }
-            return key;
-        }
-
-        private IMutableForeignKey TryVisitForeignKey(ModelBuilder modelBuilder, ForeignKeyModel foreignKey)
-        {
             if (foreignKey.PrincipalTable == null)
             {
+                Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableNotFound(foreignKey.DisplayName));
                 return null;
             }
 
             var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
+
+            if(dependentEntityType == null)
+            {
+                return null;
+            }
+
+            var depProps = foreignKey.Columns
+                .Select(GetPropertyName)
+                .Select(@from => dependentEntityType.FindProperty(@from))
+                .ToList()
+                .AsReadOnly();
+
+            if (depProps.Any(p => p == null))
+            {
+                // TODO log which column was not found
+                Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(foreignKey.DisplayName));
+                return null;
+            }
+
             var principalEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.PrincipalTable));
 
-            if (dependentEntityType == null
-                || principalEntityType == null)
+            if (principalEntityType == null)
             {
+                Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalTableScaffoldingError(foreignKey.DisplayName, foreignKey.PrincipalTable.DisplayName));
                 return null;
             }
 
@@ -326,6 +365,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             if (principalProps.Any(p => p == null))
             {
+                Logger.LogWarning(RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound(foreignKey.DisplayName));
                 return null;
             }
 
@@ -340,15 +380,13 @@ namespace Microsoft.Data.Entity.Scaffolding
                 }
                 else
                 {
+                    var principalColumns = foreignKey.PrincipalColumns.Select(c => c.Name).Aggregate((a, b) => a + "," + b);
+                    Logger.LogWarning(
+                        RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                            foreignKey.DisplayName, principalColumns, principalEntityType.DisplayName()));
                     return null;
                 }
             }
-
-            var depProps = foreignKey.Columns
-                .Select(GetPropertyName)
-                .Select(@from => dependentEntityType.FindProperty(@from))
-                .ToList()
-                .AsReadOnly();
 
             var key = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
 
@@ -359,15 +397,14 @@ namespace Microsoft.Data.Entity.Scaffolding
             return key;
         }
 
-        protected virtual void VisitFailedForeignKey([NotNull] ForeignKeyModel foreignKey)
-            => Logger.LogWarning(
-                RelationalDesignStrings.ForeignKeyScaffoldError(foreignKey.DisplayName));
-
-        protected virtual void VisitNavigationProperties([NotNull] IModel model)
+        protected virtual void VisitNavigationProperties([NotNull] ModelBuilder modelBuilder)
         {
+            Check.NotNull(modelBuilder, nameof(modelBuilder));
+
             // TODO perf cleanup can we do this in 1 loop instead of 2?
+            var model = modelBuilder.Model;
             var modelUtilities = new ModelUtilities();
-            Check.NotNull(model, nameof(model));
+
 
             var entityTypeToExistingIdentifiers = new Dictionary<IEntityType, List<string>>();
             foreach (var entityType in model.GetEntityTypes())
@@ -417,23 +454,23 @@ namespace Microsoft.Data.Entity.Scaffolding
         }
 
         private static void AssignOnDeleteAction(
-            [NotNull] ForeignKeyModel from, [NotNull] IMutableForeignKey to)
+            [NotNull] ForeignKeyModel fkModel, [NotNull] IMutableForeignKey foreignKey)
         {
-            Check.NotNull(from, nameof(from));
-            Check.NotNull(to, nameof(to));
+            Check.NotNull(fkModel, nameof(fkModel));
+            Check.NotNull(foreignKey, nameof(foreignKey));
 
-            switch (from.OnDelete)
+            switch (fkModel.OnDelete)
             {
                 case ReferentialAction.Cascade:
-                    to.DeleteBehavior = DeleteBehavior.Cascade;
+                    foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
                     break;
 
                 case ReferentialAction.SetNull:
-                    to.DeleteBehavior = DeleteBehavior.SetNull;
+                    foreignKey.DeleteBehavior = DeleteBehavior.SetNull;
                     break;
 
                 default:
-                    to.DeleteBehavior = DeleteBehavior.Restrict;
+                    foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
                     break;
             }
         }

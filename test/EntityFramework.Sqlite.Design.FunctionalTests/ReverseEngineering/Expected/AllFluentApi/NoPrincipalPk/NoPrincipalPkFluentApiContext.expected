@@ -19,5 +19,7 @@ namespace E2E.Sqlite
         }
 
         public virtual DbSet<Dependent> Dependent { get; set; }
+
+        // Unable to generate entity type for table 'Principal'. Please see the warning messages.
     }
 }

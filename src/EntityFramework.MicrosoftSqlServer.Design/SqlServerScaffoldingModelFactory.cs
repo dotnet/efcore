@@ -35,9 +35,21 @@ namespace Microsoft.Data.Entity.Scaffolding
             _sqlServerLiteralUtilities = sqlServerLiteralUtilities;
         }
 
+        public override IModel Create(string connectionString, TableSelectionSet tableSelectionSet)
+        {
+            var model = base.Create(connectionString, tableSelectionSet);
+            model.Scaffolding().UseProviderMethodName = nameof(SqlServerDbContextOptionsExtensions.UseSqlServer);
+            return model;
+        }
+
         protected override PropertyBuilder VisitColumn([NotNull] EntityTypeBuilder builder, [NotNull] ColumnModel column)
         {
             var propertyBuilder = base.VisitColumn(builder, column);
+
+            if(propertyBuilder == null)
+            {
+                return null;
+            }
 
             VisitTypeMapping(propertyBuilder, column);
 
@@ -46,9 +58,14 @@ namespace Microsoft.Data.Entity.Scaffolding
             return propertyBuilder;
         }
 
-        protected override EntityTypeBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
+        protected override KeyBuilder VisitPrimaryKey([NotNull] EntityTypeBuilder builder, [NotNull] TableModel table)
         {
-            base.VisitPrimaryKey(builder, table);
+            var keyBuilder = base.VisitPrimaryKey(builder, table);
+
+            if(keyBuilder == null)
+            {
+                return null;
+            }
 
             // If this property is the single integer primary key on the EntityType then
             // KeyConvention assumes ValueGeneratedOnAdd(). If the underlying column does
@@ -59,7 +76,7 @@ namespace Microsoft.Data.Entity.Scaffolding
             var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
             if (pkColumns.Count != 1 || pkColumns[0].IsIdentity == true)
             {
-                return builder;
+                return keyBuilder;
             }
 
             // TODO 
@@ -70,10 +87,21 @@ namespace Microsoft.Data.Entity.Scaffolding
                 || propertyType == typeof(Guid))
             {
                 property.ValueGenerated = ValueGenerated.Never;
-                property.Scaffolding().ExplicitValueGeneratedNever = true;
             }
 
-            return builder;
+            return keyBuilder;
+        }
+
+        protected override IndexBuilder VisitIndex(EntityTypeBuilder builder, IndexModel index)
+        {
+            var indexBuilder = base.VisitIndex(builder, index);
+
+            if (index.IsClustered == true)
+            {
+                indexBuilder?.ForSqlServerIsClustered();
+            }
+
+            return indexBuilder;
         }
 
         private PropertyBuilder VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)

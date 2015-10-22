@@ -89,10 +89,7 @@
     <Compile Include="Internal\Configuration\PropertyConfiguration.cs" />
     <Compile Include="Internal\Configuration\RelationshipConfiguration.cs" />
     <Compile Include="Internal\FileSystemFileService.cs" />
-    <Compile Include="Internal\IMethodNameProvider.cs" />
-    <Compile Include="Metadata\ScaffoldingEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
-    <Compile Include="Metadata\ScaffoldingPropertyAnnotations.cs" />
     <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
     <Compile Include="IScaffoldingModelFactory.cs" />
     <Compile Include="Internal\IFileService.cs" />

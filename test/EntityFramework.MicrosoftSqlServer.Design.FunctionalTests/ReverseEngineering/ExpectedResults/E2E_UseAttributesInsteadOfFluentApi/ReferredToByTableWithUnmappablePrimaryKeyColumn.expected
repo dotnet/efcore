@@ -12,7 +12,5 @@ namespace E2ETest.Namespace
         [MaxLength(20)]
         public string AColumn { get; set; }
         public int ValueGeneratedOnAddColumn { get; set; }
-
-        // Unable to add a Navigation Property referencing type TableWithUnmappablePrimaryKeyColumn because of errors generating that EntityType.
     }
 }

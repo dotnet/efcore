@@ -8,21 +8,25 @@ namespace Microsoft.Data.Entity.Scaffolding
 {
     public class TableSelectionSet
     {
-        public static TableSelectionSet All => new TableSelectionSet();
+        public readonly static TableSelectionSet All = new TableSelectionSet();
 
         public TableSelectionSet()
             : this(null, null)
         {
         }
 
-        public TableSelectionSet(
-            [CanBeNull] List<string> schemas, [CanBeNull] List<string> tables)
+        public TableSelectionSet([CanBeNull] IReadOnlyList<string> tables)
+            : this(tables, null)
         {
-            Schemas = schemas ?? new List<string>();
-            Tables = tables ?? new List<string>();
         }
 
-        public virtual List<string> Schemas { get; }
-        public virtual List<string> Tables { get; }
+        public TableSelectionSet([CanBeNull] IReadOnlyList<string> tables, [CanBeNull] IReadOnlyList<string> schemas)
+        {
+            Schemas = schemas ?? new List<string>().AsReadOnly();
+            Tables = tables ?? new List<string>().AsReadOnly();
+        }
+
+        public virtual IReadOnlyList<string> Schemas { get; }
+        public virtual IReadOnlyList<string> Tables { get; }
     }
 }

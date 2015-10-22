@@ -11,20 +11,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
     public class ConfigurationFactory
     {
-        private readonly IMethodNameProvider _methodNameProvider;
-
-        public ConfigurationFactory(
-            [NotNull] IMethodNameProvider methodNameProvider,
-            [NotNull] IRelationalAnnotationProvider extensionsProvider,
+        public ConfigurationFactory([NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ModelUtilities modelUtilities)
         {
-            Check.NotNull(methodNameProvider, nameof(methodNameProvider));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
             Check.NotNull(modelUtilities, nameof(modelUtilities));
 
-            _methodNameProvider = methodNameProvider;
             ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
             ModelUtilities = modelUtilities;
@@ -37,7 +31,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration) 
-            => new ModelConfiguration(this, model, customConfiguration, _methodNameProvider, ExtensionsProvider, CSharpUtilities, ModelUtilities);
+            => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ModelUtilities);
 
         public virtual CustomConfiguration CreateCustomConfiguration(
             [NotNull] string connectionString, [CanBeNull] string contextClassName,

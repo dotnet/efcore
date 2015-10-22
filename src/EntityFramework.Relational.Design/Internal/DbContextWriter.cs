@@ -2,8 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Scaffolding.Internal.Configuration;
 using Microsoft.Data.Entity.Utilities;
 
@@ -61,6 +63,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 AddOnConfiguring();
                 AddOnModelCreating();
                 AddDbSetProperties();
+                AddEntityTypeErrors();
             }
             _sb.AppendLine("}");
         }
@@ -88,7 +91,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             using (_sb.Indent())
             {
                 var first = true;
-                foreach (var entityConfig in _model.OrderedEntityConfigurations())
+                foreach (var entityConfig in _model.EntityConfigurations)
                 {
                     var fluentApiConfigurations = entityConfig.GetFluentApiConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
                     var propertyConfigurations = entityConfig.GetPropertyConfigurations(_model.CustomConfiguration.UseFluentApiOnly);
@@ -203,12 +206,28 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public virtual void AddDbSetProperties()
         {
             _sb.AppendLine();
-            foreach(var entityConfig in _model.OrderedEntityConfigurations())
+            foreach(var entityConfig in _model.EntityConfigurations)
             {
                 _sb.AppendLine("public virtual DbSet<"
                     + entityConfig.EntityType.Name
                     + "> " + entityConfig.EntityType.Name
                     + " { get; set; }");
+            }
+        }
+
+        public virtual void AddEntityTypeErrors()
+        {
+            if (_model.Model.Scaffolding().EntityTypeErrors.Count == 0)
+            {
+                return;
+            }
+
+            _sb.AppendLine();
+            foreach (var entityConfig in _model.Model.Scaffolding().EntityTypeErrors)
+            {
+                _sb.Append("// ")
+                    .Append(entityConfig.Value)
+                    .AppendLine(" Please see the warning messages.");
             }
         }
     }

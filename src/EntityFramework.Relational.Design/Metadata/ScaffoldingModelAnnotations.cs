@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -18,6 +19,22 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         {
             get { return (string)Annotations.GetAnnotation(ScaffoldingAnnotationNames.UseProviderMethodName); }
             [param: CanBeNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.UseProviderMethodName, Check.NullButNotEmpty(value, nameof(value))); }
+        }
+
+        public virtual IDictionary<string, string> EntityTypeErrors
+        {
+            get
+            {
+                var dictionary = (IDictionary<string, string>)Annotations.Metadata[ScaffoldingAnnotationNames.AnnotationPrefix + ScaffoldingAnnotationNames.EntityTypeErrors];
+
+                if (dictionary == null)
+                {
+                    EntityTypeErrors = dictionary = new Dictionary<string, string>();
+                }
+
+                return dictionary;
+            }
+            [param: NotNull] set { Annotations.SetAnnotation(ScaffoldingAnnotationNames.EntityTypeErrors, Check.NotNull(value, nameof(value))); }
         }
     }
 }

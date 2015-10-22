@@ -19,6 +19,7 @@ namespace Microsoft.Data.Entity.Relational.Design
     {
         private readonly FakeScaffoldingModelFactory _factory;
         private readonly TestLogger _logger;
+        private static ColumnModel IdColumn => new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0 };
 
         public RelationalDatabaseModelFactoryTest()
         {
@@ -35,8 +36,20 @@ namespace Microsoft.Data.Entity.Relational.Design
             {
                 Tables =
                 {
-                    new TableModel { Name = "tableWithSchema", SchemaName = "public" },
-                    new TableModel { Name = "noSchema" }
+                    new TableModel
+                    {
+                        Name = "tableWithSchema", SchemaName = "public",
+                         Columns = { IdColumn }
+                    },
+                    new TableModel
+                    {
+                        Name = "noSchema",
+                         Columns = { IdColumn }
+                    },
+                    new TableModel
+                    {
+                        Name = "notScaffoldable",
+                    }
                 }
             };
             var model = _factory.Create(info);
@@ -52,6 +65,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                         Assert.Equal("public", pgtable.Relational().Schema);
                     }
                 );
+            Assert.NotEmpty(model.Scaffolding().EntityTypeErrors.Values);
         }
 
         [Fact]
@@ -66,6 +80,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                         Name = "Jobs",
                         Columns =
                         {
+                            IdColumn,
                             new ColumnModel
                             {
                                 Name = "occupation",
@@ -84,13 +99,13 @@ namespace Microsoft.Data.Entity.Relational.Design
                                 Name = "modified",
                                 DataType = "string",
                                 IsNullable = false,
-                                IsComputed = true
+                                ValueGenerated = ValueGenerated.OnAddOrUpdate
                             },
                             new ColumnModel
                             {
                                 Name = "created",
                                 DataType = "string",
-                                IsStoreGenerated = true
+                                ValueGenerated = ValueGenerated.OnAdd
                             }
                         }
                     }
@@ -100,33 +115,37 @@ namespace Microsoft.Data.Entity.Relational.Design
             var entityType = (EntityType)_factory.Create(info).FindEntityType("Jobs");
 
             Assert.Collection(entityType.GetProperties(),
-                col4 =>
+                pk =>
                     {
-                        Assert.Equal("created", col4.Relational().ColumnName);
-                        Assert.Equal(ValueGenerated.OnAdd, col4.ValueGenerated);
-                    },
-                col3 =>
-                    {
-                        Assert.Equal("modified", col3.Relational().ColumnName);
-                        Assert.Equal(ValueGenerated.OnAddOrUpdate, col3.ValueGenerated);
+                        Assert.Equal("Id", pk.Name);
+                        Assert.Equal(typeof(long), pk.ClrType);
                     },
                 col1 =>
                     {
-                        Assert.Equal("occupation", col1.Relational().ColumnName);
-                        Assert.Equal(typeof(string), col1.ClrType);
-                        Assert.False(col1.IsColumnNullable());
-                        Assert.Null(col1.GetMaxLength());
-                        Assert.Equal("\"dev\"", col1.Relational().GeneratedValueSql);
+                        Assert.Equal("created", col1.Relational().ColumnName);
+                        Assert.Equal(ValueGenerated.OnAdd, col1.ValueGenerated);
                     },
                 col2 =>
                     {
-                        Assert.Equal(typeof(long?), col2.ClrType);
-                        Assert.True(col2.IsColumnNullable());
-                        Assert.Equal(100, col2.GetMaxLength());
-                        Assert.Null(col2.Relational().DefaultValue);
+                        Assert.Equal("modified", col2.Relational().ColumnName);
+                        Assert.Equal(ValueGenerated.OnAddOrUpdate, col2.ValueGenerated);
+                    },
+                col3 =>
+                    {
+                        Assert.Equal("occupation", col3.Relational().ColumnName);
+                        Assert.Equal(typeof(string), col3.ClrType);
+                        Assert.False(col3.IsColumnNullable());
+                        Assert.Null(col3.GetMaxLength());
+                        Assert.Equal("\"dev\"", col3.Relational().GeneratedValueSql);
+                    },
+                col4 =>
+                    {
+                        Assert.Equal("salary", col4.Name);
+                        Assert.Equal(typeof(long?), col4.ClrType);
+                        Assert.True(col4.IsColumnNullable());
+                        Assert.Equal(100, col4.GetMaxLength());
+                        Assert.Null(col4.Relational().DefaultValue);
                     });
-
-            Assert.Contains(RelationalDesignStrings.MissingPrimaryKey("Jobs"), _logger.FullLog);
         }
 
         [Theory]
@@ -146,7 +165,8 @@ namespace Microsoft.Data.Entity.Relational.Design
                             new ColumnModel
                             {
                                 Name = "Col",
-                                DataType = dataType
+                                DataType = dataType,
+                                PrimaryKeyOrdinal = 1
                             }
                         }
                     }
@@ -161,14 +181,26 @@ namespace Microsoft.Data.Entity.Relational.Design
         [InlineData(null)]
         public void Unmappable_column_type(string dataType)
         {
-            var info = new DatabaseModel { Tables = { new TableModel { Name = "E" } } };
+            var info = new DatabaseModel
+            {
+                Tables =
+                {
+                    new TableModel
+                    {
+                        Name = "E",
+                        Columns = { IdColumn }
+                    }
+                }
+            };
+
             info.Tables[0].Columns.Add(new ColumnModel
             {
                 Table = info.Tables[0],
                 Name = "Coli",
                 DataType = dataType
             });
-            Assert.Empty(_factory.Create(info).FindEntityType("E").GetProperties());
+
+            Assert.Single(_factory.Create(info).FindEntityType("E").GetProperties());
             Assert.Contains(RelationalDesignStrings.CannotFindTypeMappingForColumn("E.Coli", dataType), _logger.FullLog);
         }
 
@@ -203,7 +235,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "T",
                 Columns =
                 {
-                    new ColumnModel { Name = "C1", DataType = "long" },
+                    new ColumnModel { Name = "C1", DataType = "long", PrimaryKeyOrdinal = 1 },
                     new ColumnModel { Name = "C2", DataType = "long" },
                     new ColumnModel { Name = "C3", DataType = "long" }
                 }
@@ -240,7 +272,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                     }
                 );
 
-            Assert.Collection(entityType.GetKeys(),
+            Assert.Collection(entityType.GetKeys().Where(k => !k.IsPrimaryKey()),
                 single =>
                     {
                         Assert.Equal("UNQ_C2", single.Relational().Name);
@@ -253,13 +285,13 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void Foreign_key()
 
         {
-            var parentTable = new TableModel { Name = "Parent", Columns = { new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 } } };
+            var parentTable = new TableModel { Name = "Parent", Columns = { IdColumn } };
             var childrenTable = new TableModel
             {
                 Name = "Children",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    IdColumn,
                     new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = true }
                 }
             };
@@ -293,15 +325,8 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void Unique_foreign_key()
 
         {
-            var parentTable = new TableModel { Name = "Parent", Columns = { new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 } } };
-            var childrenTable = new TableModel
-            {
-                Name = "Children",
-                Columns =
-                {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 }
-                }
-            };
+            var parentTable = new TableModel { Name = "Parent", Columns = { IdColumn } };
+            var childrenTable = new TableModel { Name = "Children", Columns = { IdColumn } };
             childrenTable.ForeignKeys.Add(new ForeignKeyModel
             {
                 Table = childrenTable,
@@ -338,7 +363,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "Children",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    IdColumn,
                     new ColumnModel { Name = "ParentId_A", DataType = "long" },
                     new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
@@ -380,7 +405,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "ItemsList",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    IdColumn,
                     new ColumnModel { Name = "ParentId", DataType = "long", IsNullable = false }
                 }
             };
@@ -411,6 +436,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "Parent",
                 Columns =
                 {
+                    IdColumn,
                     new ColumnModel { Name = "NotPkId", DataType = "long", PrimaryKeyOrdinal = null }
                 }
             };
@@ -419,7 +445,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "Children",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    IdColumn,
                     new ColumnModel { Name = "ParentId", DataType = "long" }
                 }
             };
@@ -428,12 +454,15 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Table = childrenTable,
                 Columns = { childrenTable.Columns[1] },
                 PrincipalTable = parentTable,
-                PrincipalColumns = { parentTable.Columns[0] }
+                PrincipalColumns = { parentTable.Columns[1] }
             });
 
             _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
-            Assert.Contains("Warning: " + RelationalDesignStrings.ForeignKeyScaffoldError(childrenTable.ForeignKeys[0].DisplayName), _logger.FullLog);
+            Assert.Contains("Warning: " +
+                            RelationalDesignStrings.ForeignKeyScaffoldErrorPrincipalKeyNotFound(
+                                childrenTable.ForeignKeys[0].DisplayName, "NotPkId", "Parent"),
+                _logger.FullLog);
         }
 
         [Fact]
@@ -444,7 +473,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "Friends",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    IdColumn,
                     new ColumnModel { Name = "BuddyId", DataType = "long", IsNullable = false }
                 }
             };
@@ -482,7 +511,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "Children",
                 Columns =
                 {
-                    new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 1 },
+                    IdColumn,
                     new ColumnModel { Name = "ParentId_A", DataType = "long" },
                     new ColumnModel { Name = "ParentId_B", DataType = "long" }
                 }
@@ -525,8 +554,8 @@ namespace Microsoft.Data.Entity.Relational.Design
                 }
             };
 
-            info.Tables[0].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", Table = info.Tables[0] });
-            info.Tables[1].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", Table = info.Tables[1] });
+            info.Tables[0].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables[0] });
+            info.Tables[1].Columns.Add(new ColumnModel { Name = "Id", DataType = "long", PrimaryKeyOrdinal = 0, Table = info.Tables[1] });
 
             var model = _factory.Create(info);
 

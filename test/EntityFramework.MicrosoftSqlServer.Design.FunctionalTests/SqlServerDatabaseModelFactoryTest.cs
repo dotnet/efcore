@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
@@ -12,7 +13,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
 {
-    public class SqlServerDatabaseModelFactoryTest : IDisposable
+    public class SqlServerDatabaseModelFactoryTest : IClassFixture<SqlServerDatabaseModelFixture>
     {
         [Fact]
         public void It_reads_tables()
@@ -20,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests
             var sql = @"
 CREATE TABLE [dbo].[Everest] ( id int );
 CREATE TABLE [dbo].[Denali] ( id int );";
-            var dbInfo = CreateModel(sql);
+            var dbInfo = CreateModel(sql, new TableSelectionSet(new List<string> { "Everest", "Denali" }));
 
             Assert.Collection(dbInfo.Tables,
                 e =>
@@ -38,10 +39,10 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         [Fact]
         public void It_reads_foreign_keys()
         {
-            _testStore.ExecuteNonQuery("CREATE SCHEMA db2");
+            _fixture.ExecuteNonQuery("CREATE SCHEMA db2");
             var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1) PRIMARY KEY);" +
                       "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, FOREIGN KEY (RangeId) REFERENCES Ranges(Id) ON DELETE CASCADE)";
-            var dbInfo = CreateModel(sql);
+            var dbInfo = CreateModel(sql, new TableSelectionSet(new List<string> { "Ranges", "Mountains" }));
 
             var fk = Assert.Single(dbInfo.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
@@ -57,17 +58,17 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         [Fact]
         public void It_reads_composite_foreign_keys()
         {
-            _testStore.ExecuteNonQuery("CREATE SCHEMA db2");
-            var sql = "CREATE TABLE dbo.Ranges ( Id INT IDENTITY (1,1), AltId INT, PRIMARY KEY(Id, AltId));" +
-                      "CREATE TABLE db2.Mountains ( RangeId INT NOT NULL, RangeAltId INT NOT NULL, FOREIGN KEY (RangeId, RangeAltId) REFERENCES Ranges(Id, AltId) ON DELETE NO ACTION)";
-            var dbInfo = CreateModel(sql);
+            _fixture.ExecuteNonQuery("CREATE SCHEMA db3");
+            var sql = "CREATE TABLE dbo.Ranges1 ( Id INT IDENTITY (1,1), AltId INT, PRIMARY KEY(Id, AltId));" +
+                      "CREATE TABLE db3.Mountains1 ( RangeId INT NOT NULL, RangeAltId INT NOT NULL, FOREIGN KEY (RangeId, RangeAltId) REFERENCES Ranges1(Id, AltId) ON DELETE NO ACTION)";
+            var dbInfo = CreateModel(sql, new TableSelectionSet(new List<string> { "Ranges1", "Mountains1" }));
 
             var fk = Assert.Single(dbInfo.Tables.Single(t => t.ForeignKeys.Count > 0).ForeignKeys);
 
-            Assert.Equal("db2", fk.Table.SchemaName);
-            Assert.Equal("Mountains", fk.Table.Name);
+            Assert.Equal("db3", fk.Table.SchemaName);
+            Assert.Equal("Mountains1", fk.Table.Name);
             Assert.Equal("dbo", fk.PrincipalTable.SchemaName);
-            Assert.Equal("Ranges", fk.PrincipalTable.Name);
+            Assert.Equal("Ranges1", fk.PrincipalTable.Name);
             Assert.Equal(new[] { "RangeId", "RangeAltId" }, fk.Columns.Select(c => c.Name).ToArray());
             Assert.Equal(new[] { "Id", "AltId" }, fk.PrincipalColumns.Select(c => c.Name).ToArray());
             Assert.Equal(ReferentialAction.NoAction, fk.OnDelete);
@@ -76,24 +77,32 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         [Fact]
         public void It_reads_indexes()
         {
-            var sql = "CREATE TABLE Ranges ( Name int UNIQUE, Location int );" +
-                      "CREATE INDEX loc_idx ON Ranges (Location, Name);";
-            var dbInfo = CreateModel(sql);
+            var sql = "CREATE TABLE Place ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int );" +
+                      "CREATE CLUSTERED INDEX IX_Location_Name ON Place (Location, Name);" +
+                      "CREATE NONCLUSTERED INDEX IX_Location ON Place (Location);";
+            var dbInfo = CreateModel(sql, new TableSelectionSet(new List<string> { "Place" }));
 
             var indexes = dbInfo.Tables.Single().Indexes;
 
             Assert.All(indexes, c =>
                 {
                     Assert.Equal("dbo", c.Table.SchemaName);
-                    Assert.Equal("Ranges", c.Table.Name);
+                    Assert.Equal("Place", c.Table.Name);
                 });
 
             Assert.Collection(indexes,
-                index =>
+                nonClustered =>
                     {
-                        Assert.Equal("loc_idx", index.Name);
-                        Assert.False(index.IsUnique);
-                        Assert.Equal(new List<string> { "Location", "Name" }, index.Columns.Select(c => c.Name).ToList());
+                        Assert.Equal("IX_Location", nonClustered.Name);
+                        Assert.Null(nonClustered.IsClustered);
+                        Assert.Equal("Location", nonClustered.Columns.Select(c => c.Name).Single());
+                    },
+                clusteredIndex =>
+                    {
+                        Assert.Equal("IX_Location_Name", clusteredIndex.Name);
+                        Assert.False(clusteredIndex.IsUnique);
+                        Assert.True(clusteredIndex.IsClustered);
+                        Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(c => c.Name).ToList());
                     },
                 unique =>
                     {
@@ -106,7 +115,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         public void It_reads_columns()
         {
             var sql = @"
-CREATE TABLE [dbo].[Mountains] (
+CREATE TABLE [dbo].[MountainsColumns] (
     Id int,
     Name nvarchar(100) NOT NULL,
     Latitude decimal( 5, 2 ) DEFAULT 0.0,
@@ -115,14 +124,14 @@ CREATE TABLE [dbo].[Mountains] (
     Modified rowversion,
     Primary Key (Name, Id)
 );";
-            var dbInfo = CreateModel(sql);
+            var dbInfo = CreateModel(sql, new TableSelectionSet(new List<string> { "MountainsColumns" }));
 
             var columns = dbInfo.Tables.Single().Columns.OrderBy(c => c.Ordinal);
 
             Assert.All(columns, c =>
                 {
                     Assert.Equal("dbo", c.Table.SchemaName);
-                    Assert.Equal("Mountains", c.Table.Name);
+                    Assert.Equal("MountainsColumns", c.Table.Name);
                 });
 
             Assert.Collection(columns,
@@ -166,12 +175,12 @@ CREATE TABLE [dbo].[Mountains] (
                 sum =>
                     {
                         Assert.Equal("Sum", sum.Name);
-                        Assert.True(sum.IsComputed);
+                        Assert.Equal(ValueGenerated.OnAddOrUpdate, sum.ValueGenerated);
                     },
                 modified =>
                     {
                         Assert.Equal("Modified", modified.Name);
-                        Assert.True(modified.IsComputed);
+                        Assert.Equal(ValueGenerated.OnAddOrUpdate, modified.ValueGenerated);
                         Assert.Equal("timestamp", modified.DataType); // intentional - testing the alias
                     });
         }
@@ -184,8 +193,10 @@ CREATE TABLE [dbo].[Mountains] (
         [InlineData("varchar(max)", null)]
         public void It_reads_max_length(string type, int? length)
         {
-            var sql = "CREATE TABLE [dbo].[Mountains] ( CharColumn " + type + ");";
-            var db = CreateModel(sql);
+            var sql = @"IF OBJECT_ID('dbo.Strings', 'U') IS NOT NULL 
+    DROP TABLE [dbo].[Strings];" +
+                      "CREATE TABLE [dbo].[Strings] ( CharColumn " + type + ");";
+            var db = CreateModel(sql, new TableSelectionSet(new List<string> { "Strings" }));
 
             Assert.Equal(length, db.Tables.Single().Columns.Single().MaxLength);
         }
@@ -195,9 +206,15 @@ CREATE TABLE [dbo].[Mountains] (
         [InlineData(false)]
         public void It_reads_identity(bool isIdentity)
         {
-            var dbInfo = CreateModel(@"CREATE TABLE [dbo].[Mountains] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")");
+            var dbInfo = CreateModel(
+                @"IF OBJECT_ID('dbo.Identities', 'U') IS NOT NULL 
+    DROP TABLE [dbo].[Identities];
+CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")",
+                new TableSelectionSet(new List<string> { "Identities" }));
 
-            Assert.Equal(isIdentity, dbInfo.Tables.Single().Columns.Single().IsIdentity.Value);
+            var column = Assert.Single(dbInfo.Tables.Single().Columns);
+            Assert.Equal(isIdentity, column.IsIdentity.Value);
+            Assert.Equal(isIdentity ? ValueGenerated.OnAdd : default(ValueGenerated?), column.ValueGenerated);
         }
 
         [Fact]
@@ -206,10 +223,7 @@ CREATE TABLE [dbo].[Mountains] (
             var sql = @"CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B) REFERENCES K2 (A) );";
 
-            var selectionSet = new TableSelectionSet
-            {
-                Tables = { "K2" }
-            };
+            var selectionSet = new TableSelectionSet(new List<string>{ "K2" });
 
             var dbInfo = CreateModel(sql, selectionSet);
             var table = Assert.Single(dbInfo.Tables);
@@ -217,6 +231,26 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B
             Assert.Equal(2, table.Columns.Count);
             Assert.Equal(1, table.Indexes.Count);
             Assert.Empty(table.ForeignKeys);
+        }
+
+        private readonly SqlServerDatabaseModelFixture _fixture;
+
+        public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
+            => _fixture.CreateModel(createSql, selection);
+
+        public SqlServerDatabaseModelFactoryTest(SqlServerDatabaseModelFixture fixture)
+        {
+            _fixture = fixture;
+        }
+    }
+
+    public class SqlServerDatabaseModelFixture : IDisposable
+    {
+        private readonly SqlServerTestStore _testStore;
+
+        public SqlServerDatabaseModelFixture()
+        {
+            _testStore = SqlServerTestStore.CreateScratch();
         }
 
         public DatabaseModel CreateModel(string createSql, TableSelectionSet selection = null)
@@ -228,12 +262,7 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int,B varchar, UNIQUE (B ), FOREIGN KEY (B
             return reader.Create(_testStore.Connection.ConnectionString, selection ?? TableSelectionSet.All);
         }
 
-        private readonly SqlServerTestStore _testStore;
-
-        public SqlServerDatabaseModelFactoryTest()
-        {
-            _testStore = SqlServerTestStore.CreateScratch();
-        }
+        public void ExecuteNonQuery(string sql) => _testStore.ExecuteNonQuery(sql);
 
         public void Dispose()
         {

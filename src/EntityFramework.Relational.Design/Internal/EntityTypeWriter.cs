@@ -35,12 +35,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             _entity = entityConfiguration;
             _sb = new IndentedStringBuilder();
 
-            if (_entity.ErrorMessageAnnotation != null)
-            {
-                _sb.AppendLine("// " + _entity.ErrorMessageAnnotation);
-                return _sb.ToString();
-            }
-
             _sb.AppendLine("using System;");
             _sb.AppendLine("using System.Collections.Generic;");
             if (!_entity.ModelConfiguration.CustomConfiguration.UseFluentApiOnly)

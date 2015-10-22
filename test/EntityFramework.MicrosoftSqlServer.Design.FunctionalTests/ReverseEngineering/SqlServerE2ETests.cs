@@ -35,26 +35,22 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
         public virtual string CustomizedTemplateDir => Path.Combine("E2ETest", "CustomizedTemplate", "Dir");
 
         public static TableSelectionSet Filter
-            => new TableSelectionSet
-            {
-                Tables =
-                {
-                    "AllDataTypes",
-                    "PropertyConfiguration",
-                    "Test Spaces Keywords Table",
-                    "OneToManyDependent",
-                    "OneToManyPrincipal",
-                    "OneToOneDependent",
-                    "OneToOnePrincipal",
-                    "OneToOneSeparateFKDependent",
-                    "OneToOneSeparateFKPrincipal",
-                    "OneToOneFKToUniqueKeyDependent",
-                    "OneToOneFKToUniqueKeyPrincipal",
-                    "TableWithUnmappablePrimaryKeyColumn",
-                    "ReferredToByTableWithUnmappablePrimaryKeyColumn",
-                    "SelfReferencing"
-                }
-            };
+            => new TableSelectionSet(new List<string>{
+                "AllDataTypes",
+                "PropertyConfiguration",
+                "Test Spaces Keywords Table",
+                "OneToManyDependent",
+                "OneToManyPrincipal",
+                "OneToOneDependent",
+                "OneToOnePrincipal",
+                "OneToOneSeparateFKDependent",
+                "OneToOneSeparateFKPrincipal",
+                "OneToOneFKToUniqueKeyDependent",
+                "OneToOneFKToUniqueKeyPrincipal",
+                "ReferredToByTableWithUnmappablePrimaryKeyColumn",
+                "TableWithUnmappablePrimaryKeyColumn",
+                "SelfReferencing",
+            });
 
         public SqlServerE2ETests(SqlServerE2EFixture fixture, ITestOutputHelper output)
             : base(output)
@@ -107,7 +103,6 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                 "PropertyConfiguration.expected",
                 "ReferredToByTableWithUnmappablePrimaryKeyColumn.expected",
                 "SelfReferencing.expected",
-                "TableWithUnmappablePrimaryKeyColumn.expected",
                 "Test_Spaces_Keywords_Table.expected"
             };
 
@@ -152,7 +147,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                             RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
                             SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID","tinyint"),
                             RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                            RelationalDesignStrings.MissingPrimaryKey("dbo.TableWithUnmappablePrimaryKeyColumn")
+                            RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
+                            RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"),
                         }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);
@@ -199,7 +195,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                             RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.AllDataTypes.xmlColumn", "xml"),
                             SqlServerDesignStrings.DataTypeDoesNotAllowSqlServerIdentityStrategy("dbo.PropertyConfiguration.PropertyConfigurationID","tinyint"),
                             RelationalDesignStrings.CannotFindTypeMappingForColumn("dbo.TableWithUnmappablePrimaryKeyColumn.TableWithUnmappablePrimaryKeyColumnID", "hierarchyid"),
-                            RelationalDesignStrings.MissingPrimaryKey("dbo.TableWithUnmappablePrimaryKeyColumn")
+                            RelationalDesignStrings.PrimaryKeyErrorPropertyNotFound("dbo.TableWithUnmappablePrimaryKeyColumn"),
+                            RelationalDesignStrings.UnableToGenerateEntityType("dbo.TableWithUnmappablePrimaryKeyColumn"),
                         }
             });
             AssertEqualFileContents(expectedFileSet, actualFileSet);

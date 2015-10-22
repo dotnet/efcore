@@ -132,8 +132,20 @@
   <data name="ErrorRunningEntityTypeTemplate" xml:space="preserve">
     <value>There was an error running the EntityType template. Message: {errorMessage}</value>
   </data>
-  <data name="ForeignKeyScaffoldError" xml:space="preserve">
-    <value>Could not scaffold the foreign key '{foreignKeyName}'. One of the referenced properties or the referenced table could not be found.</value>
+  <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPrincipalTableNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table could not be found. This most likely occurred because the referenced table was excluded from scaffolding.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPrincipalTableScaffoldingError" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'. The referenced table '{principalTableName}' could not be scaffolded.</value>
+  </data>
+  <data name="ForeignKeyScaffoldErrorPropertyNotFound" xml:space="preserve">
+    <value>Could not scaffold the foreign key '{foreignKeyName}'.  Some columns in the foreign key could not be scaffolded.</value>
+  </data>
+  <data name="PrimaryKeyErrorPropertyNotFound" xml:space="preserve">
+    <value>Could not scaffold the primary key for '{tableName}'. Some columns in the primary key could not be scaffolded.</value>
   </data>
   <data name="MissingPrimaryKey" xml:space="preserve">
     <value>Unable to identify the primary key for table '{tableName}'.</value>
@@ -163,9 +175,12 @@
     <value>Unable to create metadata reference from name {metadataReferenceName}.</value>
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
-    <value>Unable to generate EntityType {entityTypeName}. {errorMessage}</value>
+    <value>Unable to generate entity type for table '{tableName}'.</value>
   </data>
   <data name="UnableToScaffoldIndex" xml:space="preserve">
     <value>Unable to scaffold the index '{indexName}' because one of the properties it contains could not be scaffolded.</value>
+  </data>
+  <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
+    <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>
   </data>
 </root>

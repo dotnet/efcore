@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
@@ -26,20 +25,17 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         protected readonly ConfigurationFactory _configurationFactory;
         protected List<OptionsBuilderConfiguration> _onConfiguringConfigurations;
         protected SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
-        private readonly IMethodNameProvider _methodNameProvider;
 
         public ModelConfiguration(
             [NotNull] ConfigurationFactory configurationFactory, 
             [NotNull] IModel model, 
             [NotNull] CustomConfiguration customConfiguration, 
-            [NotNull] IMethodNameProvider methodNameProvider, 
             [NotNull] IRelationalAnnotationProvider extensionsProvider, 
             [NotNull] CSharpUtilities cSharpUtilities, 
             [NotNull] ModelUtilities modelUtilities)
         {
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(model, nameof(model));
-            Check.NotNull(methodNameProvider, nameof(methodNameProvider));
             Check.NotNull(customConfiguration, nameof(customConfiguration));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(modelUtilities));
@@ -47,7 +43,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
             _configurationFactory = configurationFactory;
             Model = model;
-            _methodNameProvider = methodNameProvider;
             CustomConfiguration = customConfiguration;
             ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
@@ -109,14 +104,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             {
                 var entityConfiguration =
                     _configurationFactory.CreateEntityConfiguration(this, entityType);
-                if (entityConfiguration.ErrorMessageAnnotation == null)
-                {
-                    AddEntityPropertiesConfiguration(entityConfiguration);
-                    AddEntityConfiguration(entityConfiguration);
-                    AddNavigationProperties(entityConfiguration);
-                    AddNavigationPropertyInitializers(entityConfiguration);
-                    AddRelationshipConfiguration(entityConfiguration);
-                }
+
+                AddEntityPropertiesConfiguration(entityConfiguration);
+                AddEntityConfiguration(entityConfiguration);
+                AddNavigationProperties(entityConfiguration);
+                AddNavigationPropertyInitializers(entityConfiguration);
+                AddRelationshipConfiguration(entityConfiguration);
 
                 _entityConfigurationMap.Add((EntityType)entityType, entityConfiguration);
             }
@@ -124,9 +117,16 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
         public virtual void AddConnectionStringConfiguration()
         {
+            var methodName = Model.Scaffolding().UseProviderMethodName;
+
+            if (string.IsNullOrEmpty(methodName))
+            {
+                throw new InvalidOperationException(RelationalDesignStrings.MissingUseProviderMethodNameAnnotation);
+            }
+
             _onConfiguringConfigurations.Add(
                 _configurationFactory.CreateOptionsBuilderConfiguration(
-                    _methodNameProvider.DbOptionBuilderExtension
+                    methodName
                     + "("
                     + CSharpUtilities.GenerateVerbatimStringLiteral(CustomConfiguration.ConnectionString)
                     + ")"));
@@ -295,7 +295,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            var valueGenerated = propertyConfiguration.Property.ValueGenerated;
+            var valueGenerated = ((Property)propertyConfiguration.Property).ValueGenerated;
+
             switch (valueGenerated)
             {
                 case ValueGenerated.OnAdd:
@@ -322,15 +323,17 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     break;
 
                 case ValueGenerated.Never:
-                    // used to prevent conventions from altering the value generated value
-                    if (propertyConfiguration.Property.Scaffolding().ExplicitValueGeneratedNever == true)
-                    {
-                        propertyConfiguration.FluentApiConfigurations.Add(
-                            _configurationFactory.CreateFluentApiConfiguration(
-                                /* hasAttributeEquivalent */ false,
-                                nameof(PropertyBuilder.ValueGeneratedNever)));
-                    }
+                    propertyConfiguration.FluentApiConfigurations.Add(
+                        _configurationFactory.CreateFluentApiConfiguration(
+                            /* hasAttributeEquivalent */ false,
+                            nameof(PropertyBuilder.ValueGeneratedNever)));
                     break;
+
+                case null:
+                    // do nothing
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -443,21 +446,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                         _configurationFactory.CreateNavigationPropertyConfiguration(
                             referencedType,
                             foreignKey.Scaffolding().PrincipalEndNavigation);
-                    if (otherEntityType.Scaffolding().EntityTypeError != null)
+
+                    if (foreignKey.PrincipalKey.IsPrimaryKey())
                     {
-                        navPropConfiguration.ErrorAnnotation =
-                            RelationalDesignStrings.UnableToAddNavigationProperty(otherEntityType.Name);
-                    }
-                    else
-                    {
-                        if (foreignKey.PrincipalKey.IsPrimaryKey())
-                        {
-                            navPropConfiguration.AttributeConfigurations.Add(
-                            _configurationFactory.CreateAttributeConfiguration(
-                                nameof(InversePropertyAttribute),
-                                CSharpUtilities.DelimitString(
-                                    foreignKey.Scaffolding().DependentEndNavigation)));
-                        }
+                        navPropConfiguration.AttributeConfigurations.Add(
+                        _configurationFactory.CreateAttributeConfiguration(
+                            nameof(InversePropertyAttribute),
+                            CSharpUtilities.DelimitString(
+                                foreignKey.Scaffolding().DependentEndNavigation)));
                     }
 
                     entityConfiguration.NavigationPropertyConfigurations.Add(navPropConfiguration);
@@ -528,14 +524,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 {
                     var navigationPropertyName =
                         foreignKey.Scaffolding().PrincipalEndNavigation;
-                    if (otherEntityType.Scaffolding().EntityTypeError == null)
+                    if (!foreignKey.IsUnique)
                     {
-                        if (!foreignKey.IsUnique)
-                        {
-                            entityConfiguration.NavigationPropertyInitializerConfigurations.Add(
-                                _configurationFactory.CreateNavigationPropertyInitializerConfiguration(
-                                    navigationPropertyName, otherEntityType.Name));
-                        }
+                        entityConfiguration.NavigationPropertyInitializerConfigurations.Add(
+                            _configurationFactory.CreateNavigationPropertyInitializerConfiguration(
+                                navigationPropertyName, otherEntityType.Name));
                     }
                 }
             }
@@ -563,12 +556,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 entityConfiguration.RelationshipConfigurations.Add(relationshipConfiguration);
             }
         }
-
-        // default ordering is by Name, which is what we want here but
-        // do not configure EntityTypes for which we had an error when generating
-        public virtual IEnumerable<EntityConfiguration> OrderedEntityConfigurations() =>
-            EntityConfigurations
-                .Where(ec => ec.EntityType.Scaffolding().EntityTypeError == null);
 
         public virtual EntityConfiguration GetEntityConfiguration([NotNull] EntityType entityType)
         {

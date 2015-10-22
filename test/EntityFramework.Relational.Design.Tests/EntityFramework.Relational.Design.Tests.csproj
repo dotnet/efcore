@@ -39,7 +39,6 @@
     <Compile Include="ReverseEngineering\ReverseEngineeringConfigurationTests.cs" />
     <Compile Include="ScaffoldingMetadataExtenstionsTest.cs" />
     <Compile Include="ReverseEngineering\ReverseEngineeringGeneratorTests.cs" />
-    <Compile Include="TableSelectionSetTests.cs" />
     <Compile Include="TestLogger.cs" />
     <None Include="project.json" />
   </ItemGroup>

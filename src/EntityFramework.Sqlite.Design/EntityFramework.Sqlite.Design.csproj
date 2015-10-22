@@ -49,11 +49,11 @@
       <Link>Shared\SharedTypeExtensions.cs</Link>
     </Compile>
     <Compile Include="Properties\InternalsVisibleTo.cs" />
+    <Compile Include="SqliteScaffoldingModelFactory.cs" />
     <Compile Include="SqliteTableSelectionSetExtensions.cs" />
     <Compile Include="SqliteDesignTimeServices.cs" />
     <Compile Include="Internal\SqliteDmlParser.cs" />
     <Compile Include="SqliteDatabaseModelFactory.cs" />
-    <Compile Include="SqliteMethodNameProvider.cs" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

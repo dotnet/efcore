@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Xunit;
@@ -52,30 +53,18 @@ namespace Microsoft.Data.Entity.Relational.Design
 
         [Fact]
         public void It_sets_gets_entity_type_errors()
-        {
-            var et = new EntityType("ET", new Metadata.Model());
+        { 
+            var model = new Model();
 
-            Assert.Null(et.Scaffolding().EntityTypeError);
+            model.Scaffolding().EntityTypeErrors.Add("ET", "FAIL!");
+            Assert.Equal("FAIL!", model.Scaffolding().EntityTypeErrors["ET"]);
 
-            et.Scaffolding().EntityTypeError = "FAIL!";
-            Assert.Equal("FAIL!", et.Scaffolding().EntityTypeError);
+            model.Scaffolding().EntityTypeErrors = new Dictionary<string,string>();
+            Assert.Empty(model.Scaffolding().EntityTypeErrors.Values);
 
-            et.Scaffolding().EntityTypeError = null;
-            Assert.Null(et.Scaffolding().EntityTypeError);
-        }
-
-        [Fact]
-        public void It_sets_gets_value_gen_never()
-        {
-            var prop = new Property("ET", new EntityType("A", new Metadata.Model()));
-
-            Assert.Null(prop.Scaffolding().ExplicitValueGeneratedNever);
-
-            prop.Scaffolding().ExplicitValueGeneratedNever = true;
-            Assert.True(prop.Scaffolding().ExplicitValueGeneratedNever);
-
-            prop.Scaffolding().ExplicitValueGeneratedNever = null;
-            Assert.Null(prop.Scaffolding().ExplicitValueGeneratedNever);
+            model.Scaffolding().EntityTypeErrors["ET"] = "FAIL 2!";
+            model.Scaffolding().EntityTypeErrors.Clear();
+            Assert.Empty(model.Scaffolding().EntityTypeErrors.Values);
         }
     }
 }

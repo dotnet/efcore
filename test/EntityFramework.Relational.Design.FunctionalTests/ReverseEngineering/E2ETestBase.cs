@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
                 
                 Assert.Equal(expected.Count, actual.Count);
             }
-            catch (EqualException)
+            catch (Exception)
             {
                 var sep = new string('=', 60);
                 _output.WriteLine($"Contents of {category} logger messages:");

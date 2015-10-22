@@ -19,9 +19,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 .AddSingleton<IRelationalAnnotationProvider, SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerLiteralUtilities>()
                 .AddSingleton<IRelationalTypeMapper, SqlServerTypeMapper>()
-                .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>()
-                // TODO remove
-                .AddSingleton<IMethodNameProvider, SqlServerMethodNameProvider>();
+                .AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
         }
     }
 }

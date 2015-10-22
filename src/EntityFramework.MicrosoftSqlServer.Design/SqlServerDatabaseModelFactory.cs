@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -141,6 +142,9 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         maxLength = null;
                     }
 
+                    var isIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11);
+                    var isComputed = reader.GetBoolean(12) || dataTypeName == "timestamp";
+
                     var table = _tables[TableKey(tableName, schemaName)];
                     var column = new ColumnModel
                     {
@@ -154,8 +158,11 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         Precision = reader.IsDBNull(8) ? default(int?) : reader.GetInt32(8),
                         Scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9),
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
-                        IsIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11),
-                        IsComputed = reader.GetBoolean(12) || dataTypeName == "timestamp"
+                        IsIdentity = isIdentity,
+                        ValueGenerated = isIdentity ?
+                            ValueGenerated.OnAdd :
+                            isComputed ?
+                                ValueGenerated.OnAddOrUpdate : default(ValueGenerated?)
                     };
 
                     table.Columns.Add(column);
@@ -169,15 +176,17 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
             var command = _connection.CreateCommand();
             command.CommandText = @"SELECT 
     i.name AS [index_name],
-    schema_name(t.schema_id) AS [schema_name],
-    t.name AS [table_name],
+    object_schema_name(i.object_id) AS [schema_name],
+    object_name(i.object_id) AS [table_name],
 	i.is_unique,
-    c.name AS [column_name]
+    c.name AS [column_name],
+    i.type_desc
 FROM sys.indexes i
     inner join sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     inner join sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
-JOIN sys.tables AS t ON t.object_id = c.object_id
-WHERE i.type != 1 AND t.name <> '" + HistoryRepository.DefaultTableName + @"'
+WHERE   object_schema_name(i.object_id) <> 'sys' 
+    AND i.is_primary_key <> 1
+    AND object_name(i.object_id) <> '" + HistoryRepository.DefaultTableName + @"'
 ORDER BY i.name, ic.key_ordinal";
 
             using (var reader = command.ExecuteReader())
@@ -197,12 +206,18 @@ ORDER BY i.name, ic.key_ordinal";
                     if (index == null
                         || index.Name != indexName)
                     {
-                        var table = _tables[TableKey(tableName, schemaName)];
+                        TableModel table;
+                        if(!_tables.TryGetValue(TableKey(tableName, schemaName), out table))
+                        {
+                            continue;
+                        }
+
                         index = new IndexModel
                         {
                             Table = table,
                             Name = indexName,
-                            IsUnique = reader.GetBoolean(3)
+                            IsUnique = reader.GetBoolean(3),
+                            IsClustered = (reader.GetString(5) == "CLUSTERED") ? true : default(bool?)
                         };
                         table.Indexes.Add(index);
                     }

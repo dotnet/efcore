@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Design
             loggerFactory.AddProvider(_loggerProvider);
 
             var generator = services.GetRequiredService<ReverseEngineeringGenerator>();
-            var tableSelectionSet = new TableSelectionSet(schemas, tables);
+            var tableSelectionSet = new TableSelectionSet(tables, schemas);
             var configuration = new ReverseEngineeringConfiguration
             {
                 ConnectionString = connectionString,
