@@ -15,7 +15,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
         public CrossJoinExpression([NotNull] TableExpressionBase tableExpression)
             : base(
                 Check.NotNull(tableExpression, nameof(tableExpression)).QuerySource,
-                tableExpression.Alias)
+                tableExpression.Alias,
+                tableExpression.EntityType)
         {
             _tableExpression = tableExpression;
         }

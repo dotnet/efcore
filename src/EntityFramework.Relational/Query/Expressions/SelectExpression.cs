@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         public virtual Expression Predicate { get; [param: CanBeNull] set; }
 
         public SelectExpression([NotNull] ISqlQueryGeneratorFactory sqlQueryGeneratorFactory)
-            : base(null, null)
+            : base(null, null, null)
         {
             Check.NotNull(sqlQueryGeneratorFactory, nameof(sqlQueryGeneratorFactory));
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         public SelectExpression(
             [NotNull] ISqlQueryGeneratorFactory sqlQueryGeneratorFactory,
             [NotNull] string alias)
-            : base(null, Check.NotEmpty(alias, nameof(alias)))
+            : base(null, Check.NotEmpty(alias, nameof(alias)), null)
         {
             Check.NotNull(sqlQueryGeneratorFactory, nameof(sqlQueryGeneratorFactory));
 

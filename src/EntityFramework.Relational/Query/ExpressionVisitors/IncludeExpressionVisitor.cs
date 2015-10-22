@@ -149,7 +149,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             targetTableName,
                             _relationalAnnotationProvider.For(targetEntityType).Schema,
                             targetTableAlias,
-                            querySource);
+                            querySource,
+                            targetEntityType);
 
                     var valueBufferOffset = selectExpression.Projection.Count;
 
@@ -213,14 +214,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 }
                 else
                 {
-                    var principalTable
-                        = selectExpression.Tables.Last(t => t.QuerySource == querySource);
-
                     foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
                     {
+                        var principalTable = selectExpression.Tables
+                            .Where(t =>
+                                t.QuerySource == querySource &&
+                                (t.EntityType == null || t.EntityType.RootType() == navigation.ForeignKey.PrincipalEntityType.RootType()))
+                            .Last();
+
                         selectExpression
                             .AddToOrderBy(
-                                _relationalAnnotationProvider.For(property).ColumnName,
+                                 _relationalAnnotationProvider.For(property).ColumnName,
                                 property,
                                 principalTable,
                                 OrderingDirection.Asc);
@@ -233,7 +237,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             targetTableName,
                             _relationalAnnotationProvider.For(targetEntityType).Schema,
                             targetTableAlias,
-                            querySource);
+                            querySource,
+                            targetEntityType);
 
                     targetSelectExpression.AddTable(targetTableExpression);
 

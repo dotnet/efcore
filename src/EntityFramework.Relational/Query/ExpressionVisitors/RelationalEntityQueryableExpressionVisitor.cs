@@ -143,7 +143,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         name,
                         _relationalAnnotationProvider.For(entityType).Schema,
                         tableAlias,
-                        _querySource));
+                        _querySource,
+                        entityType));
             }
             else
             {
@@ -155,7 +156,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         sqlString,
                         sqlParameters,
                         tableAlias,
-                        _querySource));
+                        _querySource,
+                        entityType));
 
                 var sqlStart = sqlString.SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
 
