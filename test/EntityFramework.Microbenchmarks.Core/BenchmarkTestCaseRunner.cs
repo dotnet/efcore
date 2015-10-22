@@ -131,8 +131,7 @@ namespace EntityFramework.Microbenchmarks.Core
         private static string GetFramework()
         {
 #if DNX451 || DNXCORE50
-            var services = CallContextServiceLocator.Locator.ServiceProvider; 
-            var env = (IRuntimeEnvironment)services.GetService(typeof(IRuntimeEnvironment)); 
+            var env = PlatformServices.Default.Runtime;
             return "DNX." + env.RuntimeType;
 #else
             return ".NETFramework";

@@ -15,8 +15,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             var services = new ServiceCollection();
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                environment: null,
-                dnxServices: null);
+                environment: null);
 
             startup.ConfigureDesignTimeServices(services);
 
@@ -30,8 +29,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             var services = new ServiceCollection();
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                "Static",
-                dnxServices: null);
+                "Static");
 
             startup.ConfigureDesignTimeServices(services);
 
@@ -44,8 +42,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                environment: "Unknown",
-                dnxServices: null);
+                environment: "Unknown");
 
             startup.ConfigureDesignTimeServices(new ServiceCollection());
         }
@@ -55,8 +52,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                environment: null,
-                dnxServices: null);
+                environment: null);
 
             var services = startup.ConfigureServices();
 
@@ -69,8 +65,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                environment: "Unknown",
-                dnxServices: null);
+                environment: "Unknown");
 
             var services = startup.ConfigureServices();
 
@@ -82,8 +77,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                "Static",
-                dnxServices: null);
+                "Static");
 
             var services = startup.ConfigureServices();
 
@@ -96,8 +90,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                "Alternative",
-                dnxServices: null);
+                "Alternative");
 
             var services = startup.ConfigureServices();
 
@@ -111,8 +104,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             var services = new ServiceCollection();
             var startup = new StartupInvoker(
                 typeof(StartupInvokerTest).Assembly.FullName,
-                environment: null,
-                dnxServices: null);
+                environment: null);
 
             startup.ConfigureDesignTimeServices(typeof(NotStartup), services);
 

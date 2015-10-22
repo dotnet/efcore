@@ -35,11 +35,7 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
         public static BuildReference ByName(string name, bool copyLocal = false)
         {
 #if DNX451 || DNXCORE50
-            var library = CallContextServiceLocator
-                .Locator
-                .ServiceProvider
-                .GetService<ILibraryExporter>()
-                .GetExport(name);
+            var library = CompilationServices.Default.LibraryExporter.GetExport(name);
             if (library != null)
             {
                 var metadataReference = library.MetadataReferences.Single();

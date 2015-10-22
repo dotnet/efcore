@@ -18,12 +18,10 @@ namespace Microsoft.Data.Entity.Design.Internal
     {
         private readonly Type _startupType;
         private readonly string _environment;
-        private readonly IServiceProvider _dnxServices;
 
         public StartupInvoker(
             [NotNull] string startupAssemblyName,
-            [CanBeNull] string environment,
-            [CanBeNull] IServiceProvider dnxServices)
+            [CanBeNull] string environment)
         {
             Check.NotEmpty(startupAssemblyName, nameof(startupAssemblyName));
 
@@ -36,8 +34,6 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .Concat(startupAssembly.DefinedTypes.Where(t => t.Name == "Startup"))
                 .Select(t => t.AsType())
                 .FirstOrDefault();
-
-            _dnxServices = dnxServices;
         }
 
         public virtual IServiceProvider ConfigureServices()
@@ -98,7 +94,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         protected virtual IServiceCollection ConfigureHostServices([NotNull] IServiceCollection services)
             => services
 #if DNX451 || DNXCORE50
-                .ImportDnxServices(_dnxServices)
+                .ImportDnxServices()
                 .AddInstance<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = _environment })
 #endif
                 .AddLogging();
