@@ -9,7 +9,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         CompilingQueryModel,
         OptimizedQueryModel,
         IncludingNavigation,
-        TrackingQuerySources,
         QueryPlan
     }
 }

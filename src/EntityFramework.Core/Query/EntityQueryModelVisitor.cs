@@ -433,12 +433,6 @@ namespace Microsoft.Data.Entity.Query
 
             if (entityTrackingInfos.Any())
             {
-                QueryCompilationContext.Logger
-                    .LogVerbose(
-                        CoreLoggingEventId.TrackingQuerySources,
-                        () => CoreStrings.LogTrackingQuerySources(
-                            entityTrackingInfos.Select(eti => eti.QuerySource.ItemName).Join()));
-
                 var resultItemType = _expression.Type.GetSequenceType();
                 var resultItemTypeInfo = resultItemType.GetTypeInfo();
 

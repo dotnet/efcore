@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Data;
 using JetBrains.Annotations;
+
 // ReSharper disable once CheckNamespace
 
 namespace Microsoft.Data.Entity.Storage
@@ -14,17 +15,20 @@ namespace Microsoft.Data.Entity.Storage
             [NotNull] string commandText,
             CommandType commandType,
             int commandTimeout,
-            [NotNull] IReadOnlyDictionary<string, object> parameters)
+            [NotNull] IReadOnlyDictionary<string, object> parameters,
+            long? elapsedMilliseconds)
         {
             CommandText = commandText;
             CommandType = commandType;
             CommandTimeout = commandTimeout;
             Parameters = parameters;
+            ElapsedMilliseconds = elapsedMilliseconds;
         }
 
         public virtual string CommandText { get; }
         public virtual CommandType CommandType { get; }
         public virtual int CommandTimeout { get; }
         public virtual IReadOnlyDictionary<string, object> Parameters { get; }
+        public virtual long? ElapsedMilliseconds { get; }
     }
 }

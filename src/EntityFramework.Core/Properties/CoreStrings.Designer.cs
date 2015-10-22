@@ -725,14 +725,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Tracking query sources: [{querySources}]
-        /// </summary>
-        public static string LogTrackingQuerySources([CanBeNull] object querySources)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogTrackingQuerySources", "querySources"), querySources);
-        }
-
-        /// <summary>
         /// The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
         public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)

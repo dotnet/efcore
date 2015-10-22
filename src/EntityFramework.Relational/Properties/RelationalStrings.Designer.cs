@@ -477,11 +477,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Executing DbCommand: [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{newLine}{commandText}{newLine}
+        /// Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}
         /// </summary>
-        public static string RelationalLoggerExecutingCommand([CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)
+        public static string RelationalLoggerExecutedCommand([CanBeNull] object elapsed, [CanBeNull] object parameters, [CanBeNull] object commandType, [CanBeNull] object commandTimeout, [CanBeNull] object newLine, [CanBeNull] object commandText)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerExecutingCommand", "parameters", "commandType", "commandTimeout", "newLine", "commandText"), parameters, commandType, commandTimeout, newLine, commandText);
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerExecutedCommand", "elapsed", "parameters", "commandType", "commandTimeout", "newLine", "commandText"), elapsed, parameters, commandType, commandTimeout, newLine, commandText);
         }
 
         /// <summary>
