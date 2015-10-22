@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-            var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
+            var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
 
             PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.GetOrCreateEntry(dependent);
-            var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
+            var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
 
             PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-            var property = model.GetEntityType(typeof(Product)).GetProperty("CategoryId");
+            var property = model.FindEntityType(typeof(Product)).FindProperty("CategoryId");
 
             PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
 
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-            var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
 
             PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
 
@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.GetOrCreateEntry(dependent);
-            var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
 
             PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
 
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-            var property = model.GetEntityType(typeof(ProductDetail)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(ProductDetail)).FindProperty("Id");
 
             PropagateValue(contextServices.GetRequiredService<IKeyPropagator>(), dependentEntry, property);
 
@@ -129,8 +129,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var contextServices = CreateContextServices(model);
             var dependentEntry = contextServices.GetRequiredService<IStateManager>().GetOrCreateEntry(dependent);
-            var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
-            var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
+            var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
+            var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
 
             var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
             PropagateValue(keyPropagator, dependentEntry, property1);
@@ -152,8 +152,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             manager.StartTracking(manager.GetOrCreateEntry(principal));
             var dependentEntry = manager.GetOrCreateEntry(dependent);
-            var property1 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("OrderId");
-            var property2 = model.GetEntityType(typeof(OrderLineDetail)).GetProperty("ProductId");
+            var property1 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("OrderId");
+            var property2 = model.FindEntityType(typeof(OrderLineDetail)).FindProperty("ProductId");
 
             var keyPropagator = contextServices.GetRequiredService<IKeyPropagator>();
             PropagateValue(keyPropagator, dependentEntry, property1);

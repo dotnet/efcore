@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entity = context.Set<BuiltInDataTypes>().Single(e => e.Id == 11);
-                var entityType = context.Model.GetEntityType(typeof(BuiltInDataTypes));
+                var entityType = context.Model.FindEntityType(typeof(BuiltInDataTypes));
 
                 var param1 = (short)-1234;
                 Assert.Same(entity, context.Set<BuiltInDataTypes>().Single(e => e.Id == 11 && e.TestInt16 == param1));
@@ -224,7 +224,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entity = context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11);
-                var entityType = context.Model.GetEntityType(typeof(BuiltInNullableDataTypes));
+                var entityType = context.Model.FindEntityType(typeof(BuiltInNullableDataTypes));
 
                 short? param1 = -1234;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 11 && e.TestNullableInt16 == param1));
@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Enum8? param15 = null;
                 Assert.Same(entity, context.Set<BuiltInNullableDataTypes>().Single(e => e.Id == 711 && e.Enum8 == param15));
 
-                var entityType = context.Model.GetEntityType(typeof(BuiltInNullableDataTypes));
+                var entityType = context.Model.FindEntityType(typeof(BuiltInNullableDataTypes));
                 if (entityType.FindProperty("TestUnsignedInt16") != null)
                 {
                     ushort? param16 = null;
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var dt = context.Set<BuiltInDataTypes>().Single(e => e.Id == 1);
 
-                var entityType = context.Model.GetEntityType(typeof(BuiltInDataTypes));
+                var entityType = context.Model.FindEntityType(typeof(BuiltInDataTypes));
                 AssertEqualIfMapped(entityType, (short)-1234, () => dt.TestInt16);
                 AssertEqualIfMapped(entityType, -123456789, () => dt.TestInt32);
                 AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.TestInt64);
@@ -721,7 +721,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var dt = context.Set<BuiltInNullableDataTypes>().Single(ndt => ndt.Id == 101);
 
-                var entityType = context.Model.GetEntityType(typeof(BuiltInDataTypes));
+                var entityType = context.Model.FindEntityType(typeof(BuiltInDataTypes));
                 AssertEqualIfMapped(entityType, "TestString", () => dt.TestString);
                 AssertEqualIfMapped(entityType, new byte[] { 10, 9, 8, 7, 6 }, () => dt.TestByteArray);
                 AssertEqualIfMapped(entityType, (short)-1234, () => dt.TestNullableInt16);

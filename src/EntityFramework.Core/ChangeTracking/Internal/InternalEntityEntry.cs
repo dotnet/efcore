@@ -591,7 +591,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => HasTemporaryValue(property)
                || property.ClrType.IsDefaultValue(this[property]);
 
-        public virtual bool IsKeySet => !EntityType.GetPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
+        public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
 
         [UsedImplicitly]
         private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;

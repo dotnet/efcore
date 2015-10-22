@@ -45,8 +45,8 @@ namespace Microsoft.Data.Entity.Query
             _clrPropertyGetterSource = clrPropertyGetterSource;
             _entityType = entityType;
 
-            _entityKeyProperties = _entityType.GetPrimaryKey().Properties;
-            _keyValueFactory = keyValueFactorySource.GetKeyFactory(_entityType.GetPrimaryKey());
+            _entityKeyProperties = _entityType.FindPrimaryKey().Properties;
+            _keyValueFactory = keyValueFactorySource.GetKeyFactory(_entityType.FindPrimaryKey());
 
             _includedNavigationPaths
                 = queryCompilationContext
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Query
                     if (!_includedEntityTrackingInfos.ContainsKey(navigation))
                     {
                         var targetEntityType = navigation.GetTargetType();
-                        var targetKey = targetEntityType.GetPrimaryKey();
+                        var targetKey = targetEntityType.FindPrimaryKey();
 
                         _includedEntityTrackingInfos.Add(
                             navigation,

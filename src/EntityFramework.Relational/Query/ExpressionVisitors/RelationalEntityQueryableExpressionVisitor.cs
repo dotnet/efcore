@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var queryMethodInfo = CreateValueBufferMethodInfo;
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
-            var entityType = _model.GetEntityType(elementType);
+            var entityType = _model.FindEntityType(elementType);
             var selectExpression = _selectExpressionFactory.Create();
             var name = _relationalAnnotationProvider.For(entityType).TableName;
 
@@ -212,7 +212,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 var keyFactory
                     = _keyValueFactorySource
-                        .GetKeyFactory(entityType.GetPrimaryKey());
+                        .GetKeyFactory(entityType.FindPrimaryKey());
 
                 queryMethodArguments.AddRange(
                     new[]
@@ -221,7 +221,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         Expression.Constant(entityType),
                         Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
                         Expression.Constant(keyFactory),
-                        Expression.Constant(entityType.GetPrimaryKey().Properties),
+                        Expression.Constant(entityType.FindPrimaryKey().Properties),
                         materializer,
                         Expression.Constant(false)
                     });

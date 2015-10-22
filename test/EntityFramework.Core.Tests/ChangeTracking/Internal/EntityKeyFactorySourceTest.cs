@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -13,7 +14,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Returns_a_simple_entity_key_factory_for_single_property()
         {
-            var key = GetEntityType().GetPrimaryKey();
+            var key = GetEntityType().FindPrimaryKey();
 
             Assert.IsType<SimpleKeyValueFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
@@ -22,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_a_simple_entity_key_factory_for_single_nullable_property()
         {
             var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("NullableInt"));
+            var key = entityType.FindKey( entityType.FindProperty("NullableInt") );
 
             Assert.IsType<SimpleKeyValueFactory<int>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
@@ -31,8 +32,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_different_simple_entity_key_factory_for_different_properties()
         {
             var entityType = GetEntityType();
-            var key1 = entityType.GetKey(entityType.GetProperty("Guid1"));
-            var key2 = entityType.GetKey(entityType.GetProperty("Guid2"));
+            var key1 = entityType.FindKey( entityType.FindProperty("Guid1") );
+            var key2 = entityType.FindKey( entityType.FindProperty("Guid2") );
 
             var factorySource = CreateKeyFactorySource();
             Assert.NotSame(factorySource.GetKeyFactory(key1), factorySource.GetKeyFactory(key2));
@@ -42,8 +43,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_different_simple_nullable_entity_key_factory_for_different_properties()
         {
             var entityType = GetEntityType();
-            var key1 = entityType.GetKey(entityType.GetProperty("NullableGuid1"));
-            var key2 = entityType.GetKey(entityType.GetProperty("NullableGuid2"));
+            var key1 = entityType.FindKey( entityType.FindProperty("NullableGuid1") );
+            var key2 = entityType.FindKey( entityType.FindProperty("NullableGuid2") );
 
             var factorySource = CreateKeyFactorySource();
             Assert.NotSame(factorySource.GetKeyFactory(key1), factorySource.GetKeyFactory(key2));
@@ -53,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_same_simple_entity_key_factory_for_same_property()
         {
             var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("Guid1"));
+            var key = entityType.FindKey( entityType.FindProperty("Guid1") );
 
             var factorySource = CreateKeyFactorySource();
             Assert.Same(factorySource.GetKeyFactory(key), factorySource.GetKeyFactory(key));
@@ -63,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_a_composite_entity_key_factory_for_composite_property_key()
         {
             var entityType = GetEntityType();
-            var key = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
+            var key = entityType.FindKey(new[] { entityType.FindProperty("Id"), entityType.FindProperty("String") });
 
             Assert.IsType<CompositeKeyValueFactory>(
                 CreateKeyFactorySource().GetKeyFactory(key));
@@ -73,8 +74,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_same_composite_entity_key_factory_for_same_properties()
         {
             var entityType = GetEntityType();
-            var key1 = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
-            var key2 = entityType.GetKey(new[] { entityType.GetProperty("Id"), entityType.GetProperty("String") });
+            var key1 = entityType.FindKey(new[] { entityType.FindProperty("Id"), entityType.FindProperty("String") });
+            var key2 = entityType.FindKey(new[] { entityType.FindProperty("Id"), entityType.FindProperty("String") });
 
             var factorySource = CreateKeyFactorySource();
             Assert.Same(factorySource.GetKeyFactory(key1), factorySource.GetKeyFactory(key2));
@@ -84,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_a_simple_entity_key_factory_for_single_reference_property()
         {
             var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("String"));
+            var key = entityType.FindKey( entityType.FindProperty("String") );
 
             Assert.IsType<SimpleKeyValueFactory<string>>(CreateKeyFactorySource().GetKeyFactory(key));
         }
@@ -93,7 +94,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_a_composite_entity_key_factory_for_single_structural_property()
         {
             var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("ByteArray"));
+            var key = entityType.FindKey( entityType.FindProperty("ByteArray") );
 
             Assert.IsType<CompositeKeyValueFactory>(CreateKeyFactorySource().GetKeyFactory(key));
         }
@@ -102,7 +103,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_same_composite_entity_key_factory_for_same_structural_property()
         {
             var entityType = GetEntityType();
-            var key = entityType.GetKey(entityType.GetProperty("ByteArray"));
+            var key = entityType.FindKey( entityType.FindProperty("ByteArray") );
 
             var factorySource = CreateKeyFactorySource();
             Assert.Same(factorySource.GetKeyFactory(key), factorySource.GetKeyFactory(key));
@@ -126,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.HasAlternateKey(e => new { e.Id, e.String });
                 });
 
-            return builder.Model.GetEntityType(typeof(ScissorSister));
+            return builder.Model.FindEntityType(typeof(ScissorSister));
         }
 
         private class ScissorSister

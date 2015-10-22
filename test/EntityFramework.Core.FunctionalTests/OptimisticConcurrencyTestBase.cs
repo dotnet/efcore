@@ -98,26 +98,26 @@ namespace Microsoft.Data.Entity.FunctionalTests
         private static Dictionary<IProperty, object> GetValues(this Driver driver, IEntityType entityType)
         {
             var result = new Dictionary<IProperty, object>();
-            result.Add(entityType.GetProperty("CarNumber"), driver.CarNumber);
-            result.Add(entityType.GetProperty("Championships"), driver.Championships);
-            result.Add(entityType.GetProperty("Id"), driver.Id);
-            result.Add(entityType.GetProperty("FastestLaps"), driver.FastestLaps);
-            result.Add(entityType.GetProperty("Name"), driver.Name);
-            result.Add(entityType.GetProperty("Podiums"), driver.Podiums);
-            result.Add(entityType.GetProperty("Poles"), driver.Poles);
-            result.Add(entityType.GetProperty("Races"), driver.Races);
-            result.Add(entityType.GetProperty("TeamId"), driver.TeamId);
-            result.Add(entityType.GetProperty("Version"), driver.Version);
-            result.Add(entityType.GetProperty("Wins"), driver.Wins);
+            result.Add(entityType.FindProperty("CarNumber"), driver.CarNumber);
+            result.Add(entityType.FindProperty("Championships"), driver.Championships);
+            result.Add(entityType.FindProperty("Id"), driver.Id);
+            result.Add(entityType.FindProperty("FastestLaps"), driver.FastestLaps);
+            result.Add(entityType.FindProperty("Name"), driver.Name);
+            result.Add(entityType.FindProperty("Podiums"), driver.Podiums);
+            result.Add(entityType.FindProperty("Poles"), driver.Poles);
+            result.Add(entityType.FindProperty("Races"), driver.Races);
+            result.Add(entityType.FindProperty("TeamId"), driver.TeamId);
+            result.Add(entityType.FindProperty("Version"), driver.Version);
+            result.Add(entityType.FindProperty("Wins"), driver.Wins);
             return result;
         }
 
         private static Dictionary<IProperty, object> GetValues(this Engine engine, IEntityType entityType)
         {
             var result = new Dictionary<IProperty, object>();
-            result.Add(entityType.GetProperty("EngineSupplierId"), engine.EngineSupplierId);
-            result.Add(entityType.GetProperty("Id"), engine.Id);
-            result.Add(entityType.GetProperty("Name"), engine.Name);
+            result.Add(entityType.FindProperty("EngineSupplierId"), engine.EngineSupplierId);
+            result.Add(entityType.FindProperty("Id"), engine.Id);
+            result.Add(entityType.FindProperty("Name"), engine.Name);
             return result;
         }
     }

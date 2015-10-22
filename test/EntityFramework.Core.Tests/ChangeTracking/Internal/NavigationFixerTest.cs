@@ -424,7 +424,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent.CategoryId = 11;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(Product)).GetProperty("CategoryId"), 12, 11);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(Product)).FindProperty("CategoryId"), 12, 11);
 
             Assert.Same(dependent.Category, principal1);
             Assert.Contains(dependent, principal1.Products);
@@ -456,7 +456,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent.CategoryId = 0;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(Product)).GetProperty("CategoryId"), 12, 11);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(Product)).FindProperty("CategoryId"), 12, 11);
 
             Assert.Null(dependent.Category);
             Assert.DoesNotContain(dependent, principal2.Products);
@@ -488,7 +488,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent.CategoryId = 11;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(Product)).GetProperty("CategoryId"), 12, 11);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(Product)).FindProperty("CategoryId"), 12, 11);
 
             Assert.Same(dependent.Category, principal1);
             Assert.Contains(dependent, principal1.Products);
@@ -520,7 +520,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent.Id = 22;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id"), 21, 22);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 21, 22);
 
             Assert.Same(principal2, dependent.Product);
             Assert.Same(dependent, principal2.Detail);
@@ -549,7 +549,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent.Id = 0;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id"), 21, 0);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 21, 0);
 
             Assert.Null(dependent.Product);
             Assert.Null(principal.Detail);
@@ -577,7 +577,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent.Id = 21;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id"), 7, 21);
+            fixer.ForeignKeyPropertyChanged(dependentEntry, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 7, 21);
 
             Assert.Same(principal, dependent.Product);
             Assert.Same(dependent, principal.Detail);
@@ -612,7 +612,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             dependent1.Id = 22;
 
-            fixer.ForeignKeyPropertyChanged(dependentEntry1, model.GetEntityType(typeof(ProductDetail)).GetProperty("Id"), 21, 22);
+            fixer.ForeignKeyPropertyChanged(dependentEntry1, model.FindEntityType(typeof(ProductDetail)).FindProperty("Id"), 21, 22);
 
             Assert.Same(principal2, dependent1.Product);
             Assert.Same(dependent1, principal2.Detail);
@@ -652,7 +652,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             entity1.AlternateProductId = 23;
 
-            fixer.ForeignKeyPropertyChanged(entry1, model.GetEntityType(typeof(Product)).GetProperty("AlternateProductId"), 22, 23);
+            fixer.ForeignKeyPropertyChanged(entry1, model.FindEntityType(typeof(Product)).FindProperty("AlternateProductId"), 22, 23);
 
             Assert.Same(entity3, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -696,7 +696,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             entity1.AlternateProductId = 23;
 
-            fixer.ForeignKeyPropertyChanged(entry1, model.GetEntityType(typeof(Product)).GetProperty("AlternateProductId"), 22, 23);
+            fixer.ForeignKeyPropertyChanged(entry1, model.FindEntityType(typeof(Product)).FindProperty("AlternateProductId"), 22, 23);
 
             Assert.Same(entity3, entity1.AlternateProduct);
             Assert.Null(entity1.OriginalProduct);
@@ -806,7 +806,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             // Changes both FK relationships
             tag1.ProductId = 2;
 
-            fixer.ForeignKeyPropertyChanged(tagEntry1, model.GetEntityType(typeof(ProductTag)).GetProperty("ProductId"), 1, 2);
+            fixer.ForeignKeyPropertyChanged(tagEntry1, model.FindEntityType(typeof(ProductTag)).FindProperty("ProductId"), 1, 2);
 
             Assert.Equal(new[] { tag2 }, photo1.ProductTags.OrderBy(t => t.Id).ToArray());
             Assert.Equal(new[] { tag3, tag4 }, photo2.ProductTags.OrderBy(t => t.Id).ToArray());

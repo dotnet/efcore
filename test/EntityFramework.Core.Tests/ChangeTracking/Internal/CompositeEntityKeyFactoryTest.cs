@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Creates_a_new_primary_key_for_key_values_in_the_given_entry()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
             var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             var key = (CompositeKeyValue)new CompositeKeyValueFactory(
-                type.GetPrimaryKey())
-                .Create(type.GetPrimaryKey().Properties, entry);
+                type.FindPrimaryKey())
+                .Create(type.FindPrimaryKey().Properties, entry);
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Creates_a_new_key_for_non_primary_key_values_in_the_given_entry()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
             var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
@@ -44,8 +44,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             var key = (CompositeKeyValue)new CompositeKeyValueFactory(
-                type.GetPrimaryKey())
-                .Create(new[] { type.GetProperty("P6"), type.GetProperty("P5") }, entry);
+                type.FindPrimaryKey())
+                .Create(new[] { type.FindProperty("P6"), type.FindProperty("P5") }, entry);
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
         }
@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Creates_a_new_key_for_values_from_a_sidecar()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
             var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
@@ -63,11 +63,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(entity);
 
             var sidecar = new RelationshipsSnapshot(entry);
-            sidecar[type.GetProperty("P4")] = 77;
+            sidecar[type.FindProperty("P4")] = 77;
 
             var key = (CompositeKeyValue)new CompositeKeyValueFactory(
-                type.GetPrimaryKey())
-                .Create(new[] { type.GetProperty("P6"), type.GetProperty("P4"), type.GetProperty("P5") }, sidecar);
+                type.FindPrimaryKey())
+                .Create(new[] { type.FindProperty("P6"), type.FindProperty("P4"), type.FindProperty("P5") }, sidecar);
 
             Assert.Equal(new object[] { random, 77, "Ate" }, key.Value);
         }
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_null_if_any_value_in_the_entry_properties_is_null()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
             var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
 
             var random = new Random();
@@ -87,21 +87,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 KeyValue.InvalidKeyValue,
                 new CompositeKeyValueFactory(
-                    type.GetPrimaryKey())
-                    .Create(type.GetPrimaryKey().Properties, entry));
+                    type.FindPrimaryKey())
+                    .Create(type.FindPrimaryKey().Properties, entry));
         }
 
         [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_value_buffer()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
 
             var random = new Random();
 
             var key = (CompositeKeyValue)new CompositeKeyValueFactory(
-                type.GetPrimaryKey())
-                .Create(type.GetPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", random }));
+                type.FindPrimaryKey())
+                .Create(type.FindPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", random }));
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -110,14 +110,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Creates_a_new_key_for_non_primary_key_values_in_the_given_value_buffer()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
 
             var random = new Random();
 
             var key = (CompositeKeyValue)new CompositeKeyValueFactory(
-                type.GetPrimaryKey())
+                type.FindPrimaryKey())
                 .Create(
-                    new[] { type.GetProperty("P6"), type.GetProperty("P5") },
+                    new[] { type.FindProperty("P6"), type.FindProperty("P5") },
                     new ValueBuffer(new object[] { null, null, null, null, "Ate", random }));
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
@@ -127,14 +127,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Returns_null_if_any_value_in_the_given_buffer_is_null()
         {
             var model = BuildModel();
-            var type = model.GetEntityType(typeof(Banana));
+            var type = model.FindEntityType(typeof(Banana));
 
             var random = new Random();
 
             var key = new CompositeKeyValueFactory(
-                type.GetPrimaryKey())
+                type.FindPrimaryKey())
                 .Create(
-                    new[] { type.GetProperty("P6"), type.GetProperty("P5") },
+                    new[] { type.FindProperty("P6"), type.FindProperty("P5") },
                     new ValueBuffer(new object[] { 7, "Ate", random, 77, null, random }));
 
             Assert.Equal(KeyValue.InvalidKeyValue, key);
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             property6.IsShadowProperty = false;
 
             entityType.GetOrSetPrimaryKey(new[] { property1, property2, property3 });
-            entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.GetPrimaryKey(), entityType);
+            entityType.GetOrAddForeignKey(new[] { property4, property5, property6 }, entityType.FindPrimaryKey(), entityType);
 
             return model;
         }

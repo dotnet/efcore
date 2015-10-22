@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 }
             };
 
-            var entityType = (EntityType)_factory.Create(info).GetEntityType("Jobs");
+            var entityType = (EntityType)_factory.Create(info).FindEntityType("Jobs");
 
             Assert.Collection(entityType.GetProperties(),
                 col4 =>
@@ -152,7 +152,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                     }
                 }
             };
-            var property = (Property)_factory.Create(info).GetEntityType("A").GetProperty("Col");
+            var property = (Property)_factory.Create(info).FindEntityType("A").FindProperty("Col");
             Assert.Equal(expectedColumnType, property.Relational().ColumnType);
         }
 
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 Name = "Coli",
                 DataType = dataType
             });
-            Assert.Empty(_factory.Create(info).GetEntityType("E").GetProperties());
+            Assert.Empty(_factory.Create(info).FindEntityType("E").GetProperties());
             Assert.Contains(RelationalDesignStrings.CannotFindTypeMappingForColumn("E.Coli", dataType), _logger.FullLog);
         }
 
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             };
             var model = (EntityType)_factory.Create(info).GetEntityTypes().Single();
 
-            Assert.Equal(keyProps, model.GetPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
+            Assert.Equal(keyProps, model.FindPrimaryKey().Properties.Select(p => p.Relational().ColumnName).ToArray());
         }
 
         [Fact]
@@ -221,12 +221,12 @@ namespace Microsoft.Data.Entity.Relational.Design
                     {
                         Assert.False(indexColumn1.IsUnique);
                         Assert.Equal("IDX_C1", indexColumn1.Relational().Name);
-                        Assert.Same(entityType.GetProperty("C1"), indexColumn1.Properties.Single());
+                        Assert.Same(entityType.FindProperty("C1"), indexColumn1.Properties.Single());
                     },
                 uniqueColumn2 =>
                     {
                         Assert.True(uniqueColumn2.IsUnique);
-                        Assert.Same(entityType.GetProperty("C2"), uniqueColumn2.Properties.Single());
+                        Assert.Same(entityType.FindProperty("C2"), uniqueColumn2.Properties.Single());
                     },
                 indexColumn2Column1 =>
                     {
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.Relational.Design
                 single =>
                     {
                         Assert.Equal("UNQ_C2", single.Relational().Name);
-                        Assert.Same(entityType.GetProperty("C2"), single.Properties.Single());
+                        Assert.Same(entityType.FindProperty("C2"), single.Properties.Single());
                     },
                 composite => { Assert.Equal(new[] { "C3", "C1" }, composite.Properties.Select(c => c.Name).ToArray()); });
         }
@@ -274,9 +274,9 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
-            var parent = (EntityType)model.GetEntityType("Parent");
+            var parent = (EntityType)model.FindEntityType("Parent");
 
-            var children = (EntityType)model.GetEntityType("Children");
+            var children = (EntityType)model.FindEntityType("Children");
 
             Assert.NotEmpty(parent.FindReferencingForeignKeys());
             var fk = Assert.Single(children.GetForeignKeys());
@@ -313,7 +313,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
-            var children = (EntityType)model.GetEntityType("Children");
+            var children = (EntityType)model.FindEntityType("Children");
 
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.True(fk.IsUnique);
@@ -354,9 +354,9 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
 
-            var parent = (EntityType)model.GetEntityType("Parent");
+            var parent = (EntityType)model.FindEntityType("Parent");
 
-            var children = (EntityType)model.GetEntityType("Children");
+            var children = (EntityType)model.FindEntityType("Children");
 
             Assert.NotEmpty(parent.FindReferencingForeignKeys());
 
@@ -393,12 +393,12 @@ namespace Microsoft.Data.Entity.Relational.Design
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { table } });
-            var list = model.GetEntityType("ItemsList");
+            var list = model.FindEntityType("ItemsList");
 
             Assert.NotEmpty(list.FindReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
-            var principalKey = list.GetForeignKey(list.FindProperty("ParentId")).PrincipalKey;
+            var principalKey = list.FindForeignKey(list.FindProperty("ParentId")).PrincipalKey;
             Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -457,12 +457,12 @@ namespace Microsoft.Data.Entity.Relational.Design
                 PrincipalColumns = { table.Columns[0] }
             });
 
-            var model = _factory.Create(new DatabaseModel { Tables = { table } }).GetEntityType("Friends");
+            var model = _factory.Create(new DatabaseModel { Tables = { table } }).FindEntityType("Friends");
 
             var fk = Assert.Single(model.GetForeignKeys());
 
             Assert.True(fk.IsUnique);
-            Assert.Equal(model.GetPrimaryKey(), fk.PrincipalKey);
+            Assert.Equal(model.FindPrimaryKey(), fk.PrincipalKey);
         }
 
         [Fact]
@@ -497,13 +497,13 @@ namespace Microsoft.Data.Entity.Relational.Design
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
-            var parent = model.GetEntityType("Parent");
-            var children = model.GetEntityType("Children");
+            var parent = model.FindEntityType("Parent");
+            var children = model.FindEntityType("Children");
 
             var fk = Assert.Single(children.GetForeignKeys());
 
             Assert.True(fk.IsUnique);
-            Assert.Equal(parent.GetPrimaryKey(), fk.PrincipalKey);
+            Assert.Equal(parent.FindPrimaryKey(), fk.PrincipalKey);
         }
 
         [Fact]

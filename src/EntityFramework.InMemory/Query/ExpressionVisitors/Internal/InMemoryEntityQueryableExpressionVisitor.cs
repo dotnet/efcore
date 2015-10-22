@@ -46,12 +46,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var entityType = _model.GetEntityType(elementType);
+            var entityType = _model.FindEntityType(elementType);
 
             var keyProperties
-                = entityType.GetPrimaryKey().Properties;
+                = entityType.FindPrimaryKey().Properties;
 
-            var keyFactory = _keyValueFactorySource.GetKeyFactory(entityType.GetPrimaryKey());
+            var keyFactory = _keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey());
 
             Func<ValueBuffer, IKeyValue> keyValueFactory
                 = vr => keyFactory.Create(keyProperties, vr);

@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Migrations
 
                     return modelBuilder.Model;
                 });
-            var entityType = new LazyRef<IEntityType>(() => _model.Value.GetEntityType(typeof(HistoryRow)));
+            var entityType = new LazyRef<IEntityType>(() => _model.Value.FindEntityType(typeof(HistoryRow)));
             _migrationIdColumnName = new LazyRef<string>(
                 () => annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.MigrationId))).ColumnName);
             _productVersionColumnName = new LazyRef<string>(

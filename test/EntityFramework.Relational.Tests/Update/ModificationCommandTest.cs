@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void ModificationCommand_initialized_correctly_for_added_entities_with_temp_generated_key()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void ModificationCommand_initialized_correctly_for_added_entities_with_non_temp_generated_key()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0], isTemporary: false);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0], isTemporary: false);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);

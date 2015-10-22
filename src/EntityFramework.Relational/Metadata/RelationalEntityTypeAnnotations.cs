@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Metadata
                 var rootAnnotations = new RelationalAnnotations(rootType, Annotations.ProviderPrefix);
                 var propertyName = (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
 
-                return propertyName == null ? null : rootType.GetProperty(propertyName);
+                return propertyName == null ? null : rootType.FindProperty(propertyName);
             }
             [param: CanBeNull] set { SetDiscriminatorProperty(value); }
         }
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             var propertyName = (string)Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorProperty);
 
-            return propertyName == null ? null : EntityType.GetProperty(propertyName);
+            return propertyName == null ? null : EntityType.FindProperty(propertyName);
         }
 
         protected virtual bool SetDiscriminatorProperty([CanBeNull] IProperty value)

@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata
                         CoreStrings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
                 }
 
-                if (!entityType.GetNavigations().Contains(value))
+                if (!entityType.GetDeclaredNavigations().Contains(value))
                 {
                     throw new InvalidOperationException(CoreStrings.NavigationNotFound(value.Name, entityType.Name));
                 }

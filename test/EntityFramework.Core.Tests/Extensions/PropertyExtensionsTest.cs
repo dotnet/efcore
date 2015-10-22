@@ -123,20 +123,20 @@ namespace Microsoft.Data.Entity.Tests
             var model = BuildModel();
 
             Assert.Equal(
-                model.GetEntityType(typeof(Product)).GetProperty("Id"),
-                model.GetEntityType(typeof(ProductDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(Product)).FindProperty("Id"),
+                model.FindEntityType(typeof(ProductDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
 
             Assert.Equal(
-                model.GetEntityType(typeof(Product)).GetProperty("Id"),
-                model.GetEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(Product)).FindProperty("Id"),
+                model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
 
             Assert.Equal(
-                model.GetEntityType(typeof(ProductDetails)).GetProperty("Id2"),
-                model.GetEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1].GetGenerationProperty());
+                model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
+                model.FindEntityType(typeof(ProductDetailsTag)).GetForeignKeys().Single().Properties[1].GetGenerationProperty());
 
             Assert.Equal(
-                model.GetEntityType(typeof(ProductDetails)).GetProperty("Id2"),
-                model.GetEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(ProductDetails)).FindProperty("Id2"),
+                model.FindEntityType(typeof(ProductDetailsTagDetails)).GetForeignKeys().Single().Properties[0].GetGenerationProperty());
         }
 
         [Fact]
@@ -145,12 +145,12 @@ namespace Microsoft.Data.Entity.Tests
             var model = BuildModel();
 
             Assert.Equal(
-                model.GetEntityType(typeof(Order)).GetProperty("Id"),
-                model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId").Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(Order)).FindProperty("Id"),
+                model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "OrderId").Properties[0].GetGenerationProperty());
 
             Assert.Equal(
-                model.GetEntityType(typeof(Product)).GetProperty("Id"),
-                model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "ProductId").Properties[0].GetGenerationProperty());
+                model.FindEntityType(typeof(Product)).FindProperty("Id"),
+                model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single(k => k.Properties.First().Name == "ProductId").Properties[0].GetGenerationProperty());
         }
 
         private class Category

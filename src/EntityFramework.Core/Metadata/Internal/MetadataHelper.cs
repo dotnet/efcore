@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 for (var i = 1; i < properties.Count; i++)
                 {
                     if (properties[i].DeclaringEntityType != entityType ||
-                        properties[i].DeclaringEntityType.GetProperty(properties[i].Name) != properties[i])
+                        properties[i].DeclaringEntityType.FindProperty(properties[i].Name) != properties[i])
                     {
                         throw new ArgumentException(
                             CoreStrings.InconsistentEntityType(argumentName));

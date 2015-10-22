@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(new[] { "E", "G", "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { 0, 1, 2, 3 }, b.GetProperties().Select(p => p.Index));
             Assert.Equal(new[] { 0, 1, 2, 3 }, c.GetProperties().Select(p => p.Index));
-            Assert.Same(b.GetProperty("E"), a.GetProperty("E"));
+            Assert.Same(b.FindProperty("E"), a.FindProperty("E"));
         }
 
         [Fact]
@@ -388,8 +388,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
             Assert.Equal(new[] { 0, 1, 2 }, b.GetProperties().Select(p => p.Index));
-            Assert.Same(pk, b.FindPrimaryKey(new[] { b.GetProperty("G") }));
-            Assert.Same(b.GetKey(b.GetProperty("G")), a.GetKey(a.GetProperty("G")));
+            Assert.Same(pk, b.FindPrimaryKey(new[] { b.FindProperty("G") }));
+            Assert.Same(b.FindKey( (IProperty)b.FindProperty("G") ), a.FindKey( (IProperty)a.FindProperty("G") ));
         }
 
         [Fact]
@@ -406,8 +406,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             b.BaseType = a;
 
-            a.SetPrimaryKey(a.GetProperty("G"));
-            a.AddKey(a.GetProperty("E"));
+            a.SetPrimaryKey(a.FindProperty("G"));
+            a.AddKey(a.FindProperty("E"));
 
             Assert.Equal(new[] { new[] { "E" }, new[] { "G" } },
                 a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
@@ -1161,7 +1161,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var key1 = entityType.SetPrimaryKey(new[] { idProperty, nameProperty });
 
             Assert.NotNull(key1);
-            Assert.Same(key1, entityType.GetPrimaryKey());
+            Assert.Same(key1, entityType.FindPrimaryKey());
 
             Assert.Same(key1, entityType.FindPrimaryKey());
             Assert.Same(key1, entityType.GetKeys().Single());
@@ -1169,12 +1169,12 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var key2 = entityType.SetPrimaryKey(idProperty);
 
             Assert.NotNull(key2);
-            Assert.Same(key2, entityType.GetPrimaryKey());
+            Assert.Same(key2, entityType.FindPrimaryKey());
             Assert.Same(key2, entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
 
-            Assert.Same(key1, entityType.GetKey(key1.Properties));
-            Assert.Same(key2, entityType.GetKey(key2.Properties));
+            Assert.Same(key1, entityType.FindKey(key1.Properties));
+            Assert.Same(key2, entityType.FindKey(key2.Properties));
 
             Assert.Null(entityType.SetPrimaryKey((Property)null));
 
@@ -1185,10 +1185,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
-
-            Assert.Equal(
-                CoreStrings.EntityRequiresKey(typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPrimaryKey()).Message);
         }
 
         [Fact]
@@ -1216,7 +1212,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.NotNull(key1);
             Assert.Same(key1, entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty }));
-            Assert.Same(key1, entityType.GetPrimaryKey());
+            Assert.Same(key1, entityType.FindPrimaryKey());
 
             Assert.Same(key1, entityType.FindPrimaryKey());
             Assert.Same(key1, entityType.GetKeys().Single());
@@ -1226,11 +1222,11 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.NotNull(key2);
             Assert.NotEqual(key1, key2);
             Assert.Same(key2, entityType.GetOrSetPrimaryKey(idProperty));
-            Assert.Same(key2, entityType.GetPrimaryKey());
+            Assert.Same(key2, entityType.FindPrimaryKey());
             Assert.Same(key2, entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
-            Assert.Same(key1, entityType.GetKey(key1.Properties));
-            Assert.Same(key2, entityType.GetKey(key2.Properties));
+            Assert.Same(key1, entityType.FindKey(key1.Properties));
+            Assert.Same(key2, entityType.FindKey(key2.Properties));
 
             Assert.Null(entityType.SetPrimaryKey((Property)null));
 
@@ -1239,9 +1235,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
-            Assert.Equal(
-                CoreStrings.EntityRequiresKey(typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetPrimaryKey()).Message);
         }
 
         [Fact]
@@ -1278,7 +1271,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Equal(2, entityType.GetKeys().Count());
             Assert.Same(customerPk, entityType.FindKey(idProperty));
-            Assert.NotSame(customerPk, entityType.GetPrimaryKey());
+            Assert.NotSame(customerPk, entityType.FindPrimaryKey());
             Assert.Same(customerPk, fk.PrincipalKey);
         }
 
@@ -1299,7 +1292,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var key2 = entityType.GetOrAddKey(idProperty);
 
             Assert.NotNull(key2);
-            Assert.Same(key2, entityType.GetKey(idProperty));
+            Assert.Same(key2, entityType.FindKey( (IProperty)idProperty ));
             Assert.Equal(2, entityType.GetKeys().Count());
             Assert.Contains(key1, entityType.GetKeys());
             Assert.Contains(key2, entityType.GetKeys());
@@ -1366,10 +1359,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType = model.AddEntityType(typeof(Customer));
             var idProperty = entityType.GetOrAddProperty(Customer.IdProperty);
             var nameProperty = entityType.GetOrAddProperty(Customer.NameProperty);
-
-            Assert.Equal(
-                CoreStrings.KeyNotFound("{'" + idProperty.Name + "', '" + nameProperty.Name + "'}", typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new[] { idProperty, nameProperty })).Message);
+            
             Assert.Null(entityType.RemoveKey(new[] { idProperty }));
 
             var key1 = entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
@@ -1379,11 +1369,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(key1, entityType.RemoveKey(key1.Properties));
             Assert.Null(entityType.RemoveKey(key1.Properties));
-
-            Assert.Equal(
-                CoreStrings.KeyNotFound("{'" + idProperty.Name + "', '" + nameProperty.Name + "'}", typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetKey(new[] { idProperty, nameProperty })).Message);
-
+            
             Assert.Equal(new[] { key2 }, entityType.GetKeys().ToArray());
 
             Assert.Same(key2, entityType.RemoveKey(new[] { idProperty }));
@@ -1526,14 +1512,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey, customerType);
 
             Assert.NotNull(fk1);
-            Assert.Same(fk1, orderType.GetForeignKey(customerFk1));
+            Assert.Same(fk1, orderType.FindForeignKey((IProperty)customerFk1));
             Assert.Same(fk1, orderType.FindForeignKey(customerFk1));
             Assert.Same(fk1, orderType.GetOrAddForeignKey(customerFk1, new Key(new[] { idProperty }), orderType));
             Assert.Same(fk1, orderType.GetForeignKeys().Single());
 
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey, customerType);
 
-            Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.FindForeignKey((IProperty)customerFk2));
             Assert.Same(fk2, orderType.FindForeignKey(customerFk2));
             Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, new Key(new[] { idProperty }), orderType));
             Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
@@ -1627,7 +1613,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.NotNull(fk2);
             Assert.NotEqual(fk1, fk2);
-            Assert.Same(fk2, orderType.GetForeignKey(customerFk2));
+            Assert.Same(fk2, orderType.FindForeignKey((IProperty)customerFk2));
             Assert.Same(fk2, orderType.FindForeignKey(customerFk2));
             Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
             Assert.Same(fk2, orderType.GetOrAddForeignKey(customerFk2, customerKey, customerType));
@@ -1650,9 +1636,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             return model;
         }
 
-        private EntityType DependentType => _model.GetEntityType(typeof(DependentEntity));
+        private EntityType DependentType => _model.FindEntityType(typeof(DependentEntity));
 
-        private EntityType PrincipalType => _model.GetEntityType(typeof(PrincipalEntity));
+        private EntityType PrincipalType => _model.FindEntityType(typeof(PrincipalEntity));
 
         private class PrincipalEntity
         {
@@ -1675,10 +1661,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var orderType = model.AddEntityType(typeof(Order));
             var customerFk1 = orderType.GetOrAddProperty(Order.CustomerIdProperty);
             var customerFk2 = orderType.AddProperty("IdAgain", typeof(int));
-
-            Assert.Equal(
-                CoreStrings.ForeignKeyNotFound("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Order).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
+            
             Assert.Null(orderType.RemoveForeignKey(new[] { customerFk2 }));
 
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey, customerType);
@@ -1688,10 +1671,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(fk1, orderType.RemoveForeignKey(fk1.Properties));
             Assert.Null(orderType.RemoveForeignKey(fk1.Properties));
-
-            Assert.Equal(
-                CoreStrings.ForeignKeyNotFound("{'" + Order.CustomerIdProperty.Name + "'}", typeof(Order).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => orderType.GetForeignKey(customerFk1)).Message);
+            
             Assert.Equal(new[] { fk2 }, orderType.GetForeignKeys().ToArray());
 
             Assert.Same(fk2, orderType.RemoveForeignKey(new[] { customerFk2 }));
@@ -1829,13 +1809,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var customerNavigation = orderType.GetOrAddNavigation("Customer", customerForeignKey, pointsToPrincipal: true);
 
             Assert.Same(customerNavigation, orderType.FindNavigation("Customer"));
-            Assert.Same(customerNavigation, orderType.GetNavigation("Customer"));
+            Assert.Same(customerNavigation, orderType.FindNavigation("Customer"));
 
             Assert.Null(orderType.FindNavigation("Nose"));
-
-            Assert.Equal(
-                CoreStrings.NavigationNotFound("Nose", typeof(Order).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => orderType.GetNavigation("Nose")).Message);
         }
 
         [Fact]
@@ -2142,7 +2118,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var index1 = entityType.GetOrAddIndex(property1);
 
             Assert.Equal(1, index1.Properties.Count);
-            Assert.Same(index1, entityType.GetIndex(property1));
+            Assert.Same(index1, entityType.FindIndex( (IProperty)property1 ));
             Assert.Same(index1, entityType.FindIndex(property1));
             Assert.Same(property1, index1.Properties[0]);
 
@@ -2195,25 +2171,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Equal(CoreStrings.DuplicateIndex("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).Name, typeof(Customer).Name),
                 Assert.Throws<InvalidOperationException>(
                     () => entityType.AddIndex(new[] { property1, property2 })).Message);
-        }
-
-        [Fact]
-        public void GetIndex_throws_if_index_not_found()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
-            var property1 = entityType.AddProperty(Customer.IdProperty);
-            var property2 = entityType.AddProperty(Customer.NameProperty);
-
-            Assert.Equal(CoreStrings.IndexNotFound("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(
-                    () => entityType.GetIndex(new[] { property1, property2 })).Message);
-
-            entityType.AddIndex(property1);
-
-            Assert.Equal(CoreStrings.IndexNotFound("{'" + Customer.IdProperty.Name + "', '" + Customer.NameProperty.Name + "'}", typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(
-                    () => entityType.GetIndex(new[] { property1, property2 })).Message);
         }
 
         [Fact]
@@ -2274,7 +2231,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.Same(entityType, nameProperty.DeclaringEntityType);
 
             Assert.Same(nameProperty, entityType.GetOrAddProperty(Customer.NameProperty));
-            Assert.Same(nameProperty, entityType.GetProperty("Name"));
+            Assert.Same(nameProperty, entityType.FindProperty("Name"));
             Assert.False(nameProperty.IsShadowProperty);
 
             Assert.True(new[] { idProperty, nameProperty }.SequenceEqual(entityType.GetProperties()));
@@ -2423,14 +2380,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(property, entityType.FindProperty(Customer.IdProperty));
             Assert.Same(property, entityType.FindProperty("Id"));
-            Assert.Same(property, entityType.GetProperty(Customer.IdProperty));
-            Assert.Same(property, entityType.GetProperty("Id"));
+            Assert.Same(property, entityType.FindProperty(Customer.IdProperty));
+            Assert.Same(property, entityType.FindProperty("Id"));
 
             Assert.Null(entityType.FindProperty("Nose"));
-
-            Assert.Equal(
-                CoreStrings.PropertyNotFound("Nose", typeof(Customer).FullName),
-                Assert.Throws<ModelItemNotFoundException>(() => entityType.GetProperty("Nose")).Message);
         }
 
         [Fact]
@@ -2443,9 +2396,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty(Customer.IdProperty);
             entityType.AddProperty("Mane", typeof(int));
 
-            Assert.False(entityType.GetProperty("Name").IsShadowProperty);
-            Assert.False(entityType.GetProperty("Id").IsShadowProperty);
-            Assert.Null(entityType.GetProperty("Mane").IsShadowProperty);
+            Assert.False(entityType.FindProperty("Name").IsShadowProperty);
+            Assert.False(entityType.FindProperty("Id").IsShadowProperty);
+            Assert.Null(entityType.FindProperty("Mane").IsShadowProperty);
         }
 
         [Fact]
@@ -2510,13 +2463,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty("Id", typeof(int));
             entityType.AddProperty("Mane", typeof(int));
 
-            Assert.Equal(0, entityType.GetProperty("Id").Index);
-            Assert.Equal(1, entityType.GetProperty("Mane").Index);
-            Assert.Equal(2, entityType.GetProperty("Name").Index);
+            Assert.Equal(0, entityType.FindProperty("Id").Index);
+            Assert.Equal(1, entityType.FindProperty("Mane").Index);
+            Assert.Equal(2, entityType.FindProperty("Name").Index);
 
-            Assert.Equal(0, entityType.GetProperty("Id").GetShadowIndex());
-            Assert.Equal(1, entityType.GetProperty("Mane").GetShadowIndex());
-            Assert.Equal(-1, entityType.GetProperty("Name").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
 
             Assert.Equal(2, entityType.ShadowPropertyCount());
         }
@@ -2531,14 +2484,14 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             nameProperty.IsShadowProperty = false;
             var property = entityType.AddProperty("Id", typeof(int)).IsConcurrencyToken = true;
 
-            Assert.Equal(0, entityType.GetProperty("Id").Index);
-            Assert.Equal(1, entityType.GetProperty("Name").Index);
+            Assert.Equal(0, entityType.FindProperty("Id").Index);
+            Assert.Equal(1, entityType.FindProperty("Name").Index);
 
-            Assert.Equal(0, entityType.GetProperty("Id").GetShadowIndex());
-            Assert.Equal(-1, entityType.GetProperty("Name").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
 
-            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(-1, entityType.GetProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(1, entityType.ShadowPropertyCount());
             Assert.Equal(1, entityType.OriginalValueCount());
@@ -2549,20 +2502,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var maneProperty = entityType.AddProperty("Mane", typeof(int));
             maneProperty.IsConcurrencyToken = true;
 
-            Assert.Equal(0, entityType.GetProperty("Game").Index);
-            Assert.Equal(1, entityType.GetProperty("Id").Index);
-            Assert.Equal(2, entityType.GetProperty("Mane").Index);
-            Assert.Equal(3, entityType.GetProperty("Name").Index);
+            Assert.Equal(0, entityType.FindProperty("Game").Index);
+            Assert.Equal(1, entityType.FindProperty("Id").Index);
+            Assert.Equal(2, entityType.FindProperty("Mane").Index);
+            Assert.Equal(3, entityType.FindProperty("Name").Index);
 
-            Assert.Equal(0, entityType.GetProperty("Game").GetShadowIndex());
-            Assert.Equal(1, entityType.GetProperty("Id").GetShadowIndex());
-            Assert.Equal(2, entityType.GetProperty("Mane").GetShadowIndex());
-            Assert.Equal(-1, entityType.GetProperty("Name").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Game").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(2, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
 
-            Assert.Equal(0, entityType.GetProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.GetProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.GetProperty("Mane").GetOriginalValueIndex());
-            Assert.Equal(-1, entityType.GetProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
@@ -2570,20 +2523,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             gameProperty.IsConcurrencyToken = false;
             nameProperty.IsConcurrencyToken = true;
 
-            Assert.Equal(0, entityType.GetProperty("Game").Index);
-            Assert.Equal(1, entityType.GetProperty("Id").Index);
-            Assert.Equal(2, entityType.GetProperty("Mane").Index);
-            Assert.Equal(3, entityType.GetProperty("Name").Index);
+            Assert.Equal(0, entityType.FindProperty("Game").Index);
+            Assert.Equal(1, entityType.FindProperty("Id").Index);
+            Assert.Equal(2, entityType.FindProperty("Mane").Index);
+            Assert.Equal(3, entityType.FindProperty("Name").Index);
 
-            Assert.Equal(0, entityType.GetProperty("Game").GetShadowIndex());
-            Assert.Equal(1, entityType.GetProperty("Id").GetShadowIndex());
-            Assert.Equal(2, entityType.GetProperty("Mane").GetShadowIndex());
-            Assert.Equal(-1, entityType.GetProperty("Name").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Game").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(2, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Name").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.GetProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.GetProperty("Mane").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.GetProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
@@ -2591,20 +2544,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             gameProperty.IsShadowProperty = false;
             nameProperty.IsShadowProperty = true;
 
-            Assert.Equal(0, entityType.GetProperty("Game").Index);
-            Assert.Equal(1, entityType.GetProperty("Id").Index);
-            Assert.Equal(2, entityType.GetProperty("Mane").Index);
-            Assert.Equal(3, entityType.GetProperty("Name").Index);
+            Assert.Equal(0, entityType.FindProperty("Game").Index);
+            Assert.Equal(1, entityType.FindProperty("Id").Index);
+            Assert.Equal(2, entityType.FindProperty("Mane").Index);
+            Assert.Equal(3, entityType.FindProperty("Name").Index);
 
-            Assert.Equal(-1, entityType.GetProperty("Game").GetShadowIndex());
-            Assert.Equal(0, entityType.GetProperty("Id").GetShadowIndex());
-            Assert.Equal(1, entityType.GetProperty("Mane").GetShadowIndex());
-            Assert.Equal(2, entityType.GetProperty("Name").GetShadowIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetShadowIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetShadowIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane").GetShadowIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetShadowIndex());
 
-            Assert.Equal(-1, entityType.GetProperty("Game").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.GetProperty("Mane").GetOriginalValueIndex());
-            Assert.Equal(2, entityType.GetProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Game").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Mane").GetOriginalValueIndex());
+            Assert.Equal(2, entityType.FindProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(3, entityType.ShadowPropertyCount());
             Assert.Equal(3, entityType.OriginalValueCount());
@@ -2677,8 +2630,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty(FullNotificationEntity.NameProperty);
             entityType.AddProperty(FullNotificationEntity.IdProperty);
 
-            Assert.Equal(0, entityType.GetProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(1, entityType.GetProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(1, entityType.FindProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(2, entityType.OriginalValueCount());
         }
@@ -2692,8 +2645,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             entityType.AddProperty(FullNotificationEntity.NameProperty).IsConcurrencyToken = true;
             entityType.AddProperty(FullNotificationEntity.IdProperty);
 
-            Assert.Equal(-1, entityType.GetProperty("Id").GetOriginalValueIndex());
-            Assert.Equal(0, entityType.GetProperty("Name").GetOriginalValueIndex());
+            Assert.Equal(-1, entityType.FindProperty("Id").GetOriginalValueIndex());
+            Assert.Equal(0, entityType.FindProperty("Name").GetOriginalValueIndex());
 
             Assert.Equal(1, entityType.OriginalValueCount());
         }

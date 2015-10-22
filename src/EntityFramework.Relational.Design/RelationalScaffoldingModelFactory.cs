@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     builder.HasKey(keyProps);
                     return builder;
                 }
-                catch (ModelItemNotFoundException)
+                catch (InvalidOperationException)
                 {
                     // swallow. Handled by logging
                 }
@@ -243,11 +243,8 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             foreach (var index in indexes)
             {
-                try
-                {
-                    VisitIndex(builder, index);
-                }
-                catch (ModelItemNotFoundException)
+                var indexBuilder = VisitIndex(builder, index);
+                if (indexBuilder == null)
                 {
                     Logger.LogWarning(RelationalDesignStrings.UnableToScaffoldIndex(index.Name));
                 }
@@ -259,6 +256,10 @@ namespace Microsoft.Data.Entity.Scaffolding
         protected virtual IndexBuilder VisitIndex([NotNull] EntityTypeBuilder builder, [NotNull] IndexModel index)
         {
             var properties = index.Columns.Select(GetPropertyName).ToArray();
+            if (properties.Any(i => i == null))
+            {
+                return null;
+            }
 
             var indexBuilder = builder.HasIndex(properties)
                 .IsUnique(index.IsUnique);
@@ -292,67 +293,70 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         protected virtual IMutableForeignKey VisitForeignKey([NotNull] ModelBuilder modelBuilder, [NotNull] ForeignKeyModel foreignKey)
         {
-            if (foreignKey.PrincipalTable == null)
+            var key = TryVisitForeignKey(modelBuilder, foreignKey);
+
+            if (key == null)
             {
                 VisitFailedForeignKey(foreignKey);
+            }
+            return key;
+        }
+
+        private IMutableForeignKey TryVisitForeignKey(ModelBuilder modelBuilder, ForeignKeyModel foreignKey)
+        {
+            if (foreignKey.PrincipalTable == null)
+            {
                 return null;
             }
 
-            try
+            var dependentEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.Table));
+            var principalEntityType = modelBuilder.Model.FindEntityType(GetEntityTypeName(foreignKey.PrincipalTable));
+
+            if (dependentEntityType == null
+                || principalEntityType == null)
             {
-                var dependentEntityType = modelBuilder.Model.GetEntityType(GetEntityTypeName(foreignKey.Table));
-                var principalEntityType = modelBuilder.Model.GetEntityType(GetEntityTypeName(foreignKey.PrincipalTable));
-
-                var principalProps = foreignKey.PrincipalColumns
-                    .Select(GetPropertyName)
-                    .Select(to => principalEntityType.GetProperty(to))
-                    .ToList()
-                    .AsReadOnly();
-
-                var principalKey = principalEntityType.FindKey(principalProps);
-                if (principalKey == null)
-                {
-                    var index = principalEntityType.FindIndex(principalProps);
-                    if (index != null
-                        && index.IsUnique == true)
-                    {
-                        principalKey = principalEntityType.AddKey(principalProps);
-                    }
-                    else
-                    {
-                        VisitFailedForeignKey(foreignKey);
-                        return null;
-                    }
-                }
-
-                var depProps = foreignKey.Columns
-                    .Select(GetPropertyName)
-                    .Select(@from => dependentEntityType.GetProperty(@from))
-                    .ToList()
-                    .AsReadOnly();
-
-                var key = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
-
-                key.IsUnique = dependentEntityType.FindKey(depProps) != null;
-
-                AssignOnDeleteAction(foreignKey, key);
-
-                return key;
+                return null;
             }
-            catch (Exception ex)
+
+            var principalProps = foreignKey.PrincipalColumns
+                .Select(GetPropertyName)
+                .Select(to => principalEntityType.FindProperty(to))
+                .ToList()
+                .AsReadOnly();
+
+            if (principalProps.Any(p => p == null))
             {
-                if (ex is ModelItemNotFoundException
-                    || ex is InvalidOperationException)
+                return null;
+            }
+
+            var principalKey = principalEntityType.FindKey(principalProps);
+            if (principalKey == null)
+            {
+                var index = principalEntityType.FindIndex(principalProps);
+                if (index != null
+                    && index.IsUnique == true)
                 {
-                    VisitFailedForeignKey(foreignKey);
+                    principalKey = principalEntityType.AddKey(principalProps);
                 }
                 else
                 {
-                    throw;
+                    return null;
                 }
             }
 
-            return null;
+            var depProps = foreignKey.Columns
+                .Select(GetPropertyName)
+                .Select(@from => dependentEntityType.FindProperty(@from))
+                .ToList()
+                .AsReadOnly();
+
+            var key = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
+
+            key.IsUnique = dependentEntityType.FindKey(depProps) != null;
+
+            AssignOnDeleteAction(foreignKey, key);
+
+            return key;
         }
 
         protected virtual void VisitFailedForeignKey([NotNull] ForeignKeyModel foreignKey)

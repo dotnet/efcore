@@ -298,21 +298,21 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var idProperty = entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata;
             var numberProperty = entityBuilder.Property("Number", typeof(int), ConfigurationSource.Convention).Metadata;
 
-            Assert.Same(idProperty, entityBuilder.Metadata.GetProperty("Id"));
-            Assert.Same(numberProperty, entityBuilder.Metadata.GetProperty("Number"));
+            Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
+            Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
             Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
             Assert.Null(numberProperty.ValueGenerated);
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Number" }, ConfigurationSource.Convention);
 
-            Assert.Same(idProperty, entityBuilder.Metadata.GetProperty("Id"));
-            Assert.Same(numberProperty, entityBuilder.Metadata.GetProperty("Number"));
+            Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
+            Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
-            Assert.Same(idProperty, entityBuilder.Metadata.GetProperty("Id"));
-            Assert.Same(numberProperty, entityBuilder.Metadata.GetProperty("Number"));
+            Assert.Same(idProperty, entityBuilder.Metadata.FindProperty("Id"));
+            Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
             Assert.Equal(ValueGenerated.Never, ((IProperty)idProperty).ValueGenerated);
             Assert.Equal(ValueGenerated.OnAdd, ((IProperty)numberProperty).ValueGenerated);

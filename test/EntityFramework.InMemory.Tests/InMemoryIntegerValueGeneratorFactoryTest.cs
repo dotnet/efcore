@@ -17,24 +17,24 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Can_create_factories_for_all_integer_types()
         {
-            var entityType = _model.GetEntityType(typeof(AnEntity));
+            var entityType = _model.FindEntityType(typeof(AnEntity));
 
-            Assert.Equal(1, CreateAndUseFactory(entityType.GetProperty("Id")));
-            Assert.Equal(1L, CreateAndUseFactory(entityType.GetProperty("Long")));
-            Assert.Equal((short)1, CreateAndUseFactory(entityType.GetProperty("Short")));
-            Assert.Equal(unchecked((byte)1), CreateAndUseFactory(entityType.GetProperty("Byte")));
-            Assert.Equal((int?)1, CreateAndUseFactory(entityType.GetProperty("NullableInt")));
-            Assert.Equal((long?)1, CreateAndUseFactory(entityType.GetProperty("NullableLong")));
-            Assert.Equal((short?)1, CreateAndUseFactory(entityType.GetProperty("NullableShort")));
-            Assert.Equal(unchecked((byte?)1), CreateAndUseFactory(entityType.GetProperty("NullableByte")));
-            Assert.Equal(unchecked((uint)1), CreateAndUseFactory(entityType.GetProperty("UInt")));
-            Assert.Equal(unchecked((ulong)1), CreateAndUseFactory(entityType.GetProperty("ULong")));
-            Assert.Equal(unchecked((ushort)1), CreateAndUseFactory(entityType.GetProperty("UShort")));
-            Assert.Equal((sbyte)1, CreateAndUseFactory(entityType.GetProperty("SByte")));
-            Assert.Equal(unchecked((uint?)1), CreateAndUseFactory(entityType.GetProperty("NullableUInt")));
-            Assert.Equal(unchecked((ulong?)1), CreateAndUseFactory(entityType.GetProperty("NullableULong")));
-            Assert.Equal(unchecked((ushort?)1), CreateAndUseFactory(entityType.GetProperty("NullableUShort")));
-            Assert.Equal((sbyte?)1, CreateAndUseFactory(entityType.GetProperty("NullableSByte")));
+            Assert.Equal(1, CreateAndUseFactory(entityType.FindProperty("Id")));
+            Assert.Equal(1L, CreateAndUseFactory(entityType.FindProperty("Long")));
+            Assert.Equal((short)1, CreateAndUseFactory(entityType.FindProperty("Short")));
+            Assert.Equal(unchecked((byte)1), CreateAndUseFactory(entityType.FindProperty("Byte")));
+            Assert.Equal((int?)1, CreateAndUseFactory(entityType.FindProperty("NullableInt")));
+            Assert.Equal((long?)1, CreateAndUseFactory(entityType.FindProperty("NullableLong")));
+            Assert.Equal((short?)1, CreateAndUseFactory(entityType.FindProperty("NullableShort")));
+            Assert.Equal(unchecked((byte?)1), CreateAndUseFactory(entityType.FindProperty("NullableByte")));
+            Assert.Equal(unchecked((uint)1), CreateAndUseFactory(entityType.FindProperty("UInt")));
+            Assert.Equal(unchecked((ulong)1), CreateAndUseFactory(entityType.FindProperty("ULong")));
+            Assert.Equal(unchecked((ushort)1), CreateAndUseFactory(entityType.FindProperty("UShort")));
+            Assert.Equal((sbyte)1, CreateAndUseFactory(entityType.FindProperty("SByte")));
+            Assert.Equal(unchecked((uint?)1), CreateAndUseFactory(entityType.FindProperty("NullableUInt")));
+            Assert.Equal(unchecked((ulong?)1), CreateAndUseFactory(entityType.FindProperty("NullableULong")));
+            Assert.Equal(unchecked((ushort?)1), CreateAndUseFactory(entityType.FindProperty("NullableUShort")));
+            Assert.Equal((sbyte?)1, CreateAndUseFactory(entityType.FindProperty("NullableSByte")));
         }
 
         private static object CreateAndUseFactory(IProperty property)
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
         [Fact]
         public void Throws_for_non_integer_property()
         {
-            var property = _model.GetEntityType(typeof(AnEntity)).GetProperty("BadCheese");
+            var property = _model.FindEntityType(typeof(AnEntity)).FindProperty("BadCheese");
 
             Assert.Equal(
                 CoreStrings.InvalidValueGeneratorFactoryProperty(nameof(InMemoryIntegerValueGeneratorFactory), "BadCheese", "AnEntity"),

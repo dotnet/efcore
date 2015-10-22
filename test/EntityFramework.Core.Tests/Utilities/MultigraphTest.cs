@@ -513,8 +513,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
+            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -539,8 +539,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.GetPrimaryKey(), entityTypeC);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -565,8 +565,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // B -> A -> C
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
+            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -607,9 +607,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A -> B, A -> C, C -> B
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.GetPrimaryKey(), entityTypeC);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty("P2", typeof(int)), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -652,7 +652,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeA.GetOrSetPrimaryKey(property);
 
             // A -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA);
@@ -677,8 +677,8 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C, A -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeC, entityTypeA, entityTypeB);
@@ -703,9 +703,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.GetPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);
@@ -736,14 +736,14 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeE.GetOrSetPrimaryKey(entityTypeE.AddProperty("Id", typeof(int)));
 
             // A -> C -> B -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.GetPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.GetPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             // A -> E -> D -> A
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.GetPrimaryKey(), entityTypeD);
-            entityTypeD.GetOrAddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.GetPrimaryKey(), entityTypeE);
-            entityTypeE.GetOrAddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.GetPrimaryKey(), entityTypeA);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty("P2", typeof(int)), entityTypeD.FindPrimaryKey(), entityTypeD);
+            entityTypeD.GetOrAddForeignKey(entityTypeD.AddProperty("P2", typeof(int)), entityTypeE.FindPrimaryKey(), entityTypeE);
+            entityTypeE.GetOrAddForeignKey(entityTypeE.AddProperty("P2", typeof(int)), entityTypeA.FindPrimaryKey(), entityTypeA);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC, entityTypeD, entityTypeE);
@@ -768,9 +768,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             entityTypeC.GetOrSetPrimaryKey(entityTypeC.AddProperty("Id", typeof(int)));
 
             // C -> B -> C -> A
-            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.GetPrimaryKey(), entityTypeC);
-            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.GetPrimaryKey(), entityTypeB);
-            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.GetPrimaryKey(), entityTypeC);
+            entityTypeB.GetOrAddForeignKey(entityTypeB.AddProperty(B.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
+            entityTypeC.GetOrAddForeignKey(entityTypeC.AddProperty(C.PProperty), entityTypeB.FindPrimaryKey(), entityTypeB);
+            entityTypeA.GetOrAddForeignKey(entityTypeA.AddProperty(A.PProperty), entityTypeC.FindPrimaryKey(), entityTypeC);
 
             var graph = new EntityTypeGraph();
             graph.Populate(entityTypeA, entityTypeB, entityTypeC);

@@ -190,11 +190,11 @@ namespace Microsoft.Data.Entity.Query.Internal
                     out relatedKeyFactory);
 
             var keyProperties
-                = targetEntityType.GetPrimaryKey().Properties;
+                = targetEntityType.FindPrimaryKey().Properties;
 
             var keyValueFactory
                 = _keyValueFactorySource
-                    .GetKeyFactory(targetEntityType.GetPrimaryKey());
+                    .GetKeyFactory(targetEntityType.FindPrimaryKey());
 
             LoadNavigationProperties(
                 entity,
@@ -265,11 +265,11 @@ namespace Microsoft.Data.Entity.Query.Internal
                     out relatedKeyFactory);
 
             var keyProperties
-                = targetEntityType.GetPrimaryKey().Properties;
+                = targetEntityType.FindPrimaryKey().Properties;
 
             var keyValueFactory
                 = _keyValueFactorySource
-                    .GetKeyFactory(targetEntityType.GetPrimaryKey());
+                    .GetKeyFactory(targetEntityType.FindPrimaryKey());
 
             LoadNavigationProperties(
                 entity,

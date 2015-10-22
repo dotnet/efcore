@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Tests
             modelBuilder.Entity<Random>();
 
             Assert.True(convention.Applied);
-            Assert.NotNull(model.GetEntityType(typeof(Random)));
+            Assert.NotNull(model.FindEntityType(typeof(Random)));
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests
             modelBuilder.Entity<Random>();
 
             Assert.True(convention.Applied);
-            Assert.NotNull(modelBuilder.Model.GetEntityType(typeof(Random)));
+            Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(Random)));
         }
 
         private class TestConvention : IEntityTypeConvention

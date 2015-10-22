@@ -394,7 +394,6 @@
     <Compile Include="Infrastructure\Annotatable.cs" />
     <Compile Include="Metadata\Model.cs" />
     <Compile Include="Metadata\ModelExtensions.cs" />
-    <Compile Include="Metadata\ModelItemNotFoundException.cs" />
     <Compile Include="Metadata\Navigation.cs" />
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

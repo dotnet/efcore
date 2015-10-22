@@ -1,8 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -38,7 +40,12 @@ namespace Microsoft.Data.Entity.ChangeTracking
             Check.NotEmpty(name, nameof(name));
 
             _internalEntry = internalEntry;
-            Metadata = internalEntry.EntityType.GetProperty(name);
+            var property = internalEntry.EntityType.FindProperty(name);
+            if (property == null)
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyNotFound(name, internalEntry.EntityType.DisplayName()));
+            }
+            Metadata = property;
         }
 
         /// <summary>

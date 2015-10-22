@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             contextServices
                 .GetRequiredService<IChangeDetector>()
-                .PropertyChanging(entry, entry.EntityType.GetProperty("DependentId"));
+                .PropertyChanging(entry, entry.EntityType.FindProperty("DependentId"));
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
-            var property = entry.EntityType.GetProperty("DependentId");
+            var property = entry.EntityType.FindProperty("DependentId");
 
             contextServices
                 .GetRequiredService<IChangeDetector>()
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             contextServices
                 .GetRequiredService<IChangeDetector>()
-                .PropertyChanging(entry, entry.EntityType.GetProperty("Name"));
+                .PropertyChanging(entry, entry.EntityType.FindProperty("Name"));
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
-            var navigation = entry.EntityType.GetNavigation("Category");
+            var navigation = entry.EntityType.FindNavigation("Category");
 
             contextServices
                 .GetRequiredService<IChangeDetector>()
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
 
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
 
             contextServices
                 .GetRequiredService<IChangeDetector>()
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             contextServices
                 .GetRequiredService<IChangeDetector>()
-                .PropertyChanging(entry, entry.EntityType.GetNavigation("Products"));
+                .PropertyChanging(entry, entry.EntityType.FindNavigation("Products"));
 
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
             Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.True(entry.IsModified(entry.EntityType.GetProperty("Name")));
+            Assert.True(entry.IsModified(entry.EntityType.FindProperty("Name")));
         }
 
         [Fact]
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.False(entry.IsModified(entry.EntityType.GetProperty("Name")));
+            Assert.False(entry.IsModified(entry.EntityType.FindProperty("Name")));
         }
 
         [Fact]
@@ -185,19 +185,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 78;
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(77, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
 
@@ -228,12 +228,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(77, testListener.PrincipalKeyChange.Item4);
 
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            var property = entry.EntityType.GetProperty("PrincipalId");
+            var property = entry.EntityType.FindProperty("PrincipalId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
@@ -293,19 +293,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.Id = 78;
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), 78)));
+            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("Id")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("Id"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
 
@@ -329,9 +329,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
             var sidecar = entry.AddSidecar(storeGeneratedValuesFactory.Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
 
@@ -341,12 +341,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), 78)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("Id"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
 
@@ -369,14 +369,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 77;
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            var property = entry.EntityType.GetProperty("PrincipalId");
+            var property = entry.EntityType.FindProperty("PrincipalId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
@@ -438,12 +438,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(77, testListener.ForeignKeyChange.Item3);
             Assert.Equal(78, testListener.ForeignKeyChange.Item4);
 
@@ -475,12 +475,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(78, testListener.ForeignKeyChange.Item3);
             Assert.Equal(77, testListener.ForeignKeyChange.Item4);
 
@@ -503,7 +503,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var property = entry.EntityType.GetProperty("DependentId");
+            var property = entry.EntityType.FindProperty("DependentId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
@@ -546,7 +546,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -570,7 +570,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Unchanged);
 
-            var property = entry.EntityType.GetProperty("DependentId");
+            var property = entry.EntityType.FindProperty("DependentId");
             var sidecar = entry.AddSidecar(contextServices.GetRequiredService<IStoreGeneratedValuesFactory>()
                 .Create(entry, entry.EntityType.GetProperties()));
             sidecar.TakeSnapshot();
@@ -611,17 +611,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(1, testListener.ForeignKeyChange.Item3);
             Assert.Equal(2, testListener.ForeignKeyChange.Item4);
 
@@ -654,17 +654,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(2, testListener.ForeignKeyChange.Item3);
             Assert.Equal(1, testListener.ForeignKeyChange.Item4);
 
@@ -692,7 +692,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -726,14 +726,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<Product>()
                     .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
@@ -765,19 +765,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product2 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<Product>()
                     .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
             Assert.Empty(testListener.CollectionChange.Item3);
             Assert.Equal(new[] { product1 }, testListener.CollectionChange.Item4);
 
             Assert.Same(product1, testListener.ForeignKeyChange.Item1.Entity);
-            Assert.Same(testListener.ForeignKeyChange.Item1.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(testListener.ForeignKeyChange.Item1.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(77, testListener.ForeignKeyChange.Item3);
             Assert.Null(testListener.ForeignKeyChange.Item4);
 
@@ -809,7 +809,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product1, product2 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<Product>()
                     .OrderBy(e => e.DependentId));
 
@@ -835,14 +835,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), 77)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
 
             product.Id = 78;
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), 77)));
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("Id")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -870,7 +870,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             changeDetector.DetectChanges(entry);
 
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -900,7 +900,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -939,14 +939,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<ProductWithChanged>()
                     .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
@@ -983,14 +983,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<ProductWithChanged>()
                     .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
@@ -1020,7 +1020,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             Assert.Equal(newCategory.PrincipalId, product.DependentId);
             Assert.Same(newCategory, product.Category);
@@ -1054,7 +1054,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(tag, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Tag")]);
+            Assert.Equal(tag, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Tag")]);
 
             Assert.Equal(category.TagId, 77);
             Assert.Equal(tag.CategoryId, 77);
@@ -1082,7 +1082,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             Assert.Equal(category.TagId, 77);
             Assert.Equal(tag.CategoryId, 77);
@@ -1144,7 +1144,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(husband, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Husband")]);
+            Assert.Equal(husband, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Husband")]);
 
             Assert.NotEqual(0, husband.Id);
             Assert.NotEqual(0, wife.Id);
@@ -1174,7 +1174,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             changeDetector.DetectChanges(stateManager);
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(wife, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Wife")]);
+            Assert.Equal(wife, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Wife")]);
 
             Assert.NotEqual(0, husband.Id);
             Assert.NotEqual(0, wife.Id);
@@ -1198,17 +1198,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 78;
 
-            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(77, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
 
@@ -1234,12 +1234,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             category.PrincipalId = 78;
             category.PrincipalId = 77;
 
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("PrincipalId"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(77, testListener.PrincipalKeyChange.Item4);
 
@@ -1262,17 +1262,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.Id = 78;
 
-            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("Id")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), 78)));
+            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("Id")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.PrincipalKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("Id"), testListener.PrincipalKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("Id"), testListener.PrincipalKeyChange.Item2);
             Assert.Equal(-1, testListener.PrincipalKeyChange.Item3);
             Assert.Equal(78, testListener.PrincipalKeyChange.Item4);
 
@@ -1295,12 +1295,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 77;
 
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.GetPrimaryKey(), -1)));
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
+            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1327,12 +1327,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.DependentId = 78;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(77, testListener.ForeignKeyChange.Item3);
             Assert.Equal(78, testListener.ForeignKeyChange.Item4);
 
@@ -1359,12 +1359,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.DependentId = 77;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(78, testListener.ForeignKeyChange.Item3);
             Assert.Equal(77, testListener.ForeignKeyChange.Item4);
 
@@ -1390,7 +1390,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.DependentId = 77;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.GetProperty("DependentId")]);
+            Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("DependentId")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1419,17 +1419,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.Category = newCategory;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item4);
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(1, testListener.ForeignKeyChange.Item3);
             Assert.Equal(2, testListener.ForeignKeyChange.Item4);
 
@@ -1458,17 +1458,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.Category = originalCategory;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(originalCategory, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.ReferenceChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
             Assert.Equal(newCategory, testListener.ReferenceChange.Item3);
             Assert.Equal(originalCategory, testListener.ReferenceChange.Item4);
 
             Assert.Same(entry, testListener.ForeignKeyChange.Item1);
-            Assert.Same(entry.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(entry.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(2, testListener.ForeignKeyChange.Item3);
             Assert.Equal(1, testListener.ForeignKeyChange.Item4);
 
@@ -1494,7 +1494,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.Category = category;
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1529,19 +1529,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product1, product2, product3 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<NotifyingProduct>()
                     .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
             Assert.Equal(new[] { product3 }, testListener.CollectionChange.Item3);
             Assert.Empty(testListener.CollectionChange.Item4);
 
             Assert.Same(product3, testListener.ReferenceChange.Item1.Entity);
-            Assert.Same(testListener.ReferenceChange.Item1.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
+            Assert.Same(testListener.ReferenceChange.Item1.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
             Assert.Null(testListener.ReferenceChange.Item3);
             Assert.Equal(category, testListener.ReferenceChange.Item4);
 
@@ -1576,24 +1576,24 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal(
                 new[] { product2 },
-                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Products")])
+                ((ICollection<object>)entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Products")])
                     .Cast<NotifyingProduct>()
                     .OrderBy(e => e.DependentId));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
             Assert.Same(entry, testListener.CollectionChange.Item1);
-            Assert.Same(entry.EntityType.GetNavigation("Products"), testListener.CollectionChange.Item2);
+            Assert.Same(entry.EntityType.FindNavigation("Products"), testListener.CollectionChange.Item2);
             Assert.Empty(testListener.CollectionChange.Item3);
             Assert.Equal(new[] { product1 }, testListener.CollectionChange.Item4);
 
             Assert.Same(product1, testListener.ForeignKeyChange.Item1.Entity);
-            Assert.Same(testListener.ForeignKeyChange.Item1.EntityType.GetProperty("DependentId"), testListener.ForeignKeyChange.Item2);
+            Assert.Same(testListener.ForeignKeyChange.Item1.EntityType.FindProperty("DependentId"), testListener.ForeignKeyChange.Item2);
             Assert.Equal(77, testListener.ForeignKeyChange.Item3);
             Assert.Null(testListener.ForeignKeyChange.Item4);
 
             Assert.Same(product1, testListener.ReferenceChange.Item1.Entity);
-            Assert.Same(testListener.ReferenceChange.Item1.EntityType.GetNavigation("Category"), testListener.ReferenceChange.Item2);
+            Assert.Same(testListener.ReferenceChange.Item1.EntityType.FindNavigation("Category"), testListener.ReferenceChange.Item2);
             Assert.Equal(category, testListener.ReferenceChange.Item3);
             Assert.Null(testListener.ReferenceChange.Item4);
 
@@ -1618,7 +1618,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             product.Category = newCategory;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(newCategory, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             Assert.Equal(newCategory.PrincipalId, product.DependentId);
             Assert.Same(newCategory, product.Category);
@@ -1644,7 +1644,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             category.Tag = tag;
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
-            Assert.Equal(tag, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Tag")]);
+            Assert.Equal(tag, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Tag")]);
 
             Assert.Equal(category.TagId, 77);
             Assert.Equal(tag.CategoryId, 77);
@@ -1669,7 +1669,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             tag.Category = category;
 
             Assert.Equal(EntityState.Modified, entry.EntityState);
-            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Category")]);
+            Assert.Equal(category, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Category")]);
 
             Assert.Equal(category.TagId, 77);
             Assert.Equal(tag.CategoryId, 77);
@@ -1724,7 +1724,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             wife.Husband = husband;
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(husband, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Husband")]);
+            Assert.Equal(husband, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Husband")]);
 
             Assert.NotEqual(0, husband.Id);
             Assert.NotEqual(0, wife.Id);
@@ -1751,7 +1751,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             husband.Wife = wife;
 
             Assert.Equal(EntityState.Added, entry.EntityState);
-            Assert.Equal(wife, entry.RelationshipsSnapshot[entry.EntityType.GetNavigation("Wife")]);
+            Assert.Equal(wife, entry.RelationshipsSnapshot[entry.EntityType.FindNavigation("Wife")]);
 
             Assert.NotEqual(0, husband.Id);
             Assert.NotEqual(0, wife.Id);
@@ -2153,7 +2153,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             return new InternalClrEntityEntry(
                 contextServices.GetRequiredService<IStateManager>(),
-                contextServices.GetRequiredService<IModel>().GetEntityType(typeof(TEntity)),
+                contextServices.GetRequiredService<IModel>().FindEntityType(typeof(TEntity)),
                 contextServices.GetRequiredService<IEntityEntryMetadataServices>(), entity ?? new TEntity());
         }
 
