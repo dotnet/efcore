@@ -17,19 +17,13 @@
   },
   "resource": ["Properties/EntityFramework.MicrosoftSqlServer.rd.xml"],
   "frameworks": {
-    "net45": { },
-    "dnxcore50": {
+     "net451": {},
+    "dotnet5.4": {
       "dependencies": {
         "System.Data.SqlClient": "4.0.0-*",
         "System.Text.Encoding.CodePages": "4.0.1-beta-*",
         "System.Threading.Thread": "4.0.0-*",
         "System.Threading.ThreadPool": "4.0.10-*"
-      }
-    },
-    "dotnet": {
-      "dependencies": {
-        "System.Data.SqlClient": "4.0.0-*",
-        "System.Threading.Thread": "4.0.0-*"
       }
     }
   }
