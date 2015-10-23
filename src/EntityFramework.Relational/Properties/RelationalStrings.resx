@@ -292,8 +292,8 @@
   <data name="ParameterLoggingEnabled" xml:space="preserve">
     <value>SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.</value>
   </data>
-  <data name="RelationalLoggerExecutingCommand" xml:space="preserve">
-    <value>Executing DbCommand: [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{newLine}{commandText}{newLine}</value>
+  <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
+    <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
   </data>
   <data name="DuplicateColumnName" xml:space="preserve">
     <value>Cannot use column name '{columnName}' in entity '{entityType}' for property '{property}' since it is being used for another property.</value>

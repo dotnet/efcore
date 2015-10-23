@@ -177,14 +177,17 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         }
 
         public virtual void OnNavigationRemoved(
-            [NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] string navigationName, bool pointsToPrincipal)
+            [NotNull] InternalEntityTypeBuilder sourceEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
+            [NotNull] string navigationName)
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
+            Check.NotNull(sourceEntityTypeBuilder, nameof(sourceEntityTypeBuilder));
+            Check.NotNull(targetEntityTypeBuilder, nameof(targetEntityTypeBuilder));
             Check.NotNull(navigationName, nameof(navigationName));
 
             foreach (var navigationConvention in _conventionSet.NavigationRemovedConventions)
             {
-                if (!navigationConvention.Apply(relationshipBuilder, navigationName, pointsToPrincipal))
+                if (!navigationConvention.Apply(sourceEntityTypeBuilder, targetEntityTypeBuilder, navigationName))
                 {
                     break;
                 }

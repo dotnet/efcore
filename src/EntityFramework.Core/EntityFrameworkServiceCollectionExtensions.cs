@@ -42,17 +42,29 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         The database you are using will also define extension methods that can be called on the returned
-        ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services for the database. For example,
-        ///         when using EntityFramework.MicrosoftSqlServer you would call
-        ///         <c>collection.AddEntityFramework().UseSqlServer(connectionString)</c>.
+        ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services required by the database. 
+        ///         For example, when using EntityFramework.MicrosoftSqlServer you would call
+        ///         <c>collection.AddEntityFramework().AddSqlServer()</c>.
         ///     </para>
         ///     <para>
-        ///         For derived contexts to resolve their services from the <see cref="IServiceProvider" /> you must chain a call
-        ///         to the <see cref="EntityFrameworkServicesBuilder.AddDbContext{TContext}" /> method on the returned
+        ///         For derived contexts to be registered in the <see cref="IServiceProvider" /> and resolve their services 
+        ///         from the <see cref="IServiceProvider" /> you must chain a call to the 
+        ///         <see cref="EntityFrameworkServicesBuilder.AddDbContext{TContext}" /> method on the returned
         ///         <see cref="EntityFrameworkServicesBuilder" />.
-        ///         This will ensure services are resolved from the <see cref="IServiceProvider" />  will be honored.
         ///     </para>
         /// </remarks>
+        /// <example>
+        ///     <code>
+        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         {
+        ///             var connectionString = "connection string to database";
+        /// 
+        ///             services.AddEntityFramework() 
+        ///                 .AddSqlServer()
+        ///                 .AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString)); 
+        ///         }
+        ///     </code>
+        /// </example>
         /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
         /// <returns>
         ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.

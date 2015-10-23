@@ -21,9 +21,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         where TEntity : class
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="PropertyEntry{TEntity, TProperty}" /> class. Instances of this class
-        ///     are returned from methods when using the <see cref="ChangeTracker" /> API and it is not designed
-        ///     to be directly constructed in your application code.
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="PropertyEntry{TEntity, TProperty}" /> class.
+        ///     </para>
+        ///     <para>
+        ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
+        ///         not designed to be directly constructed in your application code.
+        ///     </para>
         /// </summary>
         /// <param name="internalEntry">  The internal entry tracking information about the entity the property belongs to. </param>
         /// <param name="name"> The name of the property. </param>
@@ -32,12 +36,23 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
         }
 
+        /// <summary>
+        ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
+        ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
+        ///     for the context to detect the change.
+        /// </summary>
         public new virtual TProperty CurrentValue
         {
             get { return (TProperty)base.CurrentValue; }
             [param: CanBeNull] set { base.CurrentValue = value; }
         }
 
+        /// <summary>
+        ///     Gets or sets the value that was assigned to this property when it was retrieved from the database.
+        ///     This property is populated when an entity is retrieved from the database, but setting it may be
+        ///     useful in disconnected scenarios where entities are retrieved with one context instance and
+        ///     saved with a different context instance.
+        /// </summary>
         public new virtual TProperty OriginalValue
         {
             get { return (TProperty)base.OriginalValue; }

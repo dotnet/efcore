@@ -9,9 +9,8 @@ using Microsoft.CodeAnalysis;
 using System;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Dnx.Runtime;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Dnx.Compilation;
-using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
@@ -69,8 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.Compilation
             }
 
 #if DNX451 || DNXCORE50
-            var libraryExporter = CallContextServiceLocator.Locator.ServiceProvider.GetRequiredService<ILibraryExporter>();
-            var libraryExport = libraryExporter.GetExport(name);
+            var libraryExport = CompilationServices.Default.LibraryExporter.GetExport(name);
             if (libraryExport != null)
             {
                 foreach(var metadataReference in libraryExport.MetadataReferences)

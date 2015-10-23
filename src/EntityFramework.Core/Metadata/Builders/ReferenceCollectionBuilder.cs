@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class ReferenceCollectionBuilder : IAccessor<Model>, IAccessor<InternalRelationshipBuilder>
+    public class ReferenceCollectionBuilder : IAccessor<IMutableModel>, IAccessor<InternalRelationshipBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     : oldBuilder._required;
 
                 var foreignKey = builder.Metadata;
-                Entity.Metadata.ForeignKey.AreCompatible(
+                ForeignKey.AreCompatible(
                     foreignKey.PrincipalEntityType,
                     foreignKey.DeclaringEntityType,
                     foreignKey.DependentToPrincipal?.Name,
@@ -81,12 +81,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The foreign key that represents this relationship.
         /// </summary>
-        public virtual ForeignKey Metadata => Builder.Metadata;
+        public virtual IMutableForeignKey Metadata => Builder.Metadata;
 
         /// <summary>
         ///     The model that this relationship belongs to.
         /// </summary>
-        Model IAccessor<Model>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
                 Assert.Throws<NotSupportedException>(() => selector.Select(entityType.GetProperty("Random"), entityType)).Message);
         }
 
-        private static Model BuildModel(bool generateValues = true)
+        private static IMutableModel BuildModel(bool generateValues = true)
         {
             var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
             builder.Ignore<Random>();
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             var entityType = model.GetEntityType(typeof(AnEntity));
             entityType.AddProperty("Random", typeof(Random)).IsShadowProperty = false;
 
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 property.RequiresValueGenerator = generateValues;
             }

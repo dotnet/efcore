@@ -20,14 +20,11 @@ namespace Microsoft.Data.Entity.Design.Internal
     public partial class DesignTimeServicesBuilder
     {
         private readonly StartupInvoker _startup;
-        private readonly IServiceProvider _dnxServices;
 
         public DesignTimeServicesBuilder(
-            [NotNull] StartupInvoker startupInvoker,
-            [CanBeNull] IServiceProvider dnxServices)
+            [NotNull] StartupInvoker startupInvoker)
         {
             _startup = startupInvoker;
-            _dnxServices = dnxServices;
         }
 
         public virtual IServiceProvider Build([NotNull] DbContext context)
@@ -83,7 +80,7 @@ namespace Microsoft.Data.Entity.Design.Internal
 
 #if DNX451 || DNXCORE50
         partial void ConfigureDnxServices(IServiceCollection services)
-            => services.ImportDnxServices(_dnxServices);
+            => services.ImportDnxServices();
 #endif
 
         private void ConfigureProviderServices(string provider, IServiceCollection services, bool throwOnError = false)

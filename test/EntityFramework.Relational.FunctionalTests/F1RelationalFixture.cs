@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<EngineSupplier>().ToTable("EngineSuppliers");
             modelBuilder.Entity<Gearbox>().ToTable("Gearboxes");
             modelBuilder.Entity<Sponsor>().ToTable("Sponsors");
-            modelBuilder.Entity<TestDriver>().ToTable("TestDrivers");
-            modelBuilder.Entity<TitleSponsor>().ToTable("TitleSponsors");
         }
     }
 }

@@ -1,23 +1,66 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
     public static class ModelExtensions
     {
-        public static IEnumerable<INavigation> GetNavigations(
-            [NotNull] this IModel model, [NotNull] IForeignKey foreignKey)
+        public static IEntityType GetEntityType([NotNull] this IModel model, [NotNull] Type type)
         {
             Check.NotNull(model, nameof(model));
+            Check.NotNull(type, nameof(type));
 
-            // TODO: Perf: consider not needing to do a full scan here
-            return model.EntityTypes.SelectMany(e => e.GetNavigations()).Where(n => n.ForeignKey == foreignKey);
+            var entityType = model.FindEntityType(type);
+            if (entityType == null)
+            {
+                throw new ModelItemNotFoundException(CoreStrings.EntityTypeNotFound(type.Name));
+            }
+
+            return entityType;
         }
+
+        public static IMutableEntityType GetEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
+            => (IMutableEntityType)((IModel)model).GetEntityType(type);
+
+        public static EntityType GetEntityType([NotNull] this Model model, [NotNull] Type type)
+            => (EntityType)((IModel)model).GetEntityType(type);
+
+        public static IEntityType GetEntityType([NotNull] this IModel model, [NotNull] string name)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotEmpty(name, nameof(name));
+
+            var entityType = model.FindEntityType(name);
+            if (entityType == null)
+            {
+                throw new ModelItemNotFoundException(CoreStrings.EntityTypeNotFound(name));
+            }
+
+            return entityType;
+        }
+
+        public static IMutableEntityType GetEntityType([NotNull] this IMutableModel model, [NotNull] string name)
+            => (IMutableEntityType)((IModel)model).GetEntityType(name);
+
+        public static EntityType GetEntityType([NotNull] this Model model, [NotNull] string name)
+            => (EntityType)((IModel)model).GetEntityType(name);
+
+        public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return model.FindEntityType(type.DisplayName());
+        }
+
+        public static IMutableEntityType FindEntityType([NotNull] this IMutableModel model, [NotNull] Type type)
+            => (IMutableEntityType)((IModel)model).FindEntityType(type);
 
         public static string GetProductVersion([NotNull] this IModel model)
         {
@@ -34,6 +77,17 @@ namespace Microsoft.Data.Entity.Metadata
             model[CoreAnnotationNames.ProductVersionAnnotation] = value;
         }
         
+        public static IEnumerable<IForeignKey> FindDeclaredReferencingForeignKeys([NotNull] this IModel model, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(model, nameof(model));
+            Check.NotNull(entityType, nameof(entityType));
+
+            // TODO: Perf: Add additional indexes so that this isn't a linear lookup
+            // Issue #1179
+            return model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
+                .Where(fk => fk.PrincipalEntityType == entityType);
+        }
+
         public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IModel model, [NotNull] IEntityType entityType)
         {
             Check.NotNull(model, nameof(model));
@@ -41,7 +95,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return model.EntityTypes.SelectMany(et => et.GetDeclaredForeignKeys())
+            return model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
                 .Where(fk => fk.PrincipalEntityType.IsAssignableFrom(entityType));
         }
 
@@ -52,7 +106,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return model.EntityTypes.SelectMany(e => e.GetDeclaredForeignKeys()).Where(fk => fk.PrincipalKey == key);
+            return model.GetEntityTypes().SelectMany(e => e.GetDeclaredForeignKeys()).Where(fk => fk.PrincipalKey == key);
         }
 
         public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IModel model, [NotNull] IProperty property)
@@ -62,7 +116,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             // TODO: Perf: Add additional indexes so that this isn't a linear lookup
             // Issue #1179
-            return model.EntityTypes
+            return model.GetEntityTypes()
                 .SelectMany(e => e.GetDeclaredForeignKeys()
                     .Where(f => f.PrincipalKey.Properties.Contains(property)));
         }

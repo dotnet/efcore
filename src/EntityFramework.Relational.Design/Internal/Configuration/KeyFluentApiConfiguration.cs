@@ -26,14 +26,13 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             _properties = new List<Property>(properties);
         }
 
-        public virtual bool IsPrimaryKey { get; set; }
         public virtual bool HasAttributeEquivalent { get; set; }
         public virtual string For { get; }
 
         public virtual string FluentApi => string.Format(
                 CultureInfo.InvariantCulture,
                 "{0}({1} => {2})",
-                IsPrimaryKey ? nameof(EntityTypeBuilder.HasKey) : nameof(EntityTypeBuilder.HasAlternateKey),
+                nameof(EntityTypeBuilder.HasKey),
                 _lambdaIdentifier,
                 new ModelUtilities().GenerateLambdaToKey(_properties, _lambdaIdentifier));
     }

@@ -438,12 +438,6 @@ namespace Microsoft.Data.Entity.Query
 
             if (entityTrackingInfos.Any())
             {
-                QueryCompilationContext.Logger
-                    .LogVerbose(
-                        CoreLoggingEventId.TrackingQuerySources,
-                        () => CoreStrings.LogTrackingQuerySources(
-                            entityTrackingInfos.Select(eti => eti.QuerySource.ItemName).Join()));
-
                 var resultItemType = _expression.Type.GetSequenceType();
                 var resultItemTypeInfo = resultItemType.GetTypeInfo();
 
@@ -857,7 +851,7 @@ namespace Microsoft.Data.Entity.Query
             Type transparentIdentifierType, Expression outerExpression, Expression innerExpression)
         {
             var createTransparentIdentifierMethodInfo
-                = transparentIdentifierType.GetMethod(CreateTransparentIdentifierMethodName);
+                = transparentIdentifierType.GetTypeInfo().GetDeclaredMethod(CreateTransparentIdentifierMethodName);
 
             return Expression.Call(createTransparentIdentifierMethodInfo, outerExpression, innerExpression);
         }
@@ -865,7 +859,7 @@ namespace Microsoft.Data.Entity.Query
         private static Expression AccessOuterTransparentField(
             Type transparentIdentifierType, Expression targetExpression)
         {
-            var fieldInfo = transparentIdentifierType.GetField("Outer");
+            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Outer");
 
             return Expression.Field(targetExpression, fieldInfo);
         }
@@ -873,7 +867,7 @@ namespace Microsoft.Data.Entity.Query
         private static Expression AccessInnerTransparentField(
             Type transparentIdentifierType, Expression targetExpression)
         {
-            var fieldInfo = transparentIdentifierType.GetField("Inner");
+            var fieldInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner");
 
             return Expression.Field(targetExpression, fieldInfo);
         }

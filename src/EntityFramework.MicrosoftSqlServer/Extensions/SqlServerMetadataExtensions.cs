@@ -12,25 +12,25 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerMetadataExtensions
     {
-        public static SqlServerPropertyAnnotations SqlServer([NotNull] this Property property)
+        public static SqlServerPropertyAnnotations SqlServer([NotNull] this IMutableProperty property)
             => (SqlServerPropertyAnnotations)SqlServer((IProperty)property);
 
         public static ISqlServerPropertyAnnotations SqlServer([NotNull] this IProperty property)
             => new SqlServerPropertyAnnotations(Check.NotNull(property, nameof(property)));
 
-        public static RelationalEntityTypeAnnotations SqlServer([NotNull] this EntityType entityType)
+        public static RelationalEntityTypeAnnotations SqlServer([NotNull] this IMutableEntityType entityType)
             => (RelationalEntityTypeAnnotations)SqlServer((IEntityType)entityType);
 
         public static IRelationalEntityTypeAnnotations SqlServer([NotNull] this IEntityType entityType)
             => new RelationalEntityTypeAnnotations(Check.NotNull(entityType, nameof(entityType)), SqlServerAnnotationNames.Prefix);
 
-        public static SqlServerKeyAnnotations SqlServer([NotNull] this Key key)
+        public static SqlServerKeyAnnotations SqlServer([NotNull] this IMutableKey key)
             => (SqlServerKeyAnnotations)SqlServer((IKey)key);
 
         public static ISqlServerKeyAnnotations SqlServer([NotNull] this IKey key)
             => new SqlServerKeyAnnotations(Check.NotNull(key, nameof(key)));
 
-        public static SqlServerIndexAnnotations SqlServer([NotNull] this Index index)
+        public static SqlServerIndexAnnotations SqlServer([NotNull] this IMutableIndex index)
             => (SqlServerIndexAnnotations)SqlServer((IIndex)index);
 
         public static ISqlServerIndexAnnotations SqlServer([NotNull] this IIndex index)
@@ -39,10 +39,10 @@ namespace Microsoft.Data.Entity
         public static IRelationalForeignKeyAnnotations SqlServer([NotNull] this IForeignKey foreignKey)
             => new RelationalForeignKeyAnnotations(Check.NotNull(foreignKey, nameof(foreignKey)), SqlServerAnnotationNames.Prefix);
 
-        public static RelationalForeignKeyAnnotations SqlServer([NotNull] this ForeignKey foreignKey)
+        public static RelationalForeignKeyAnnotations SqlServer([NotNull] this IMutableForeignKey foreignKey)
             => (RelationalForeignKeyAnnotations)SqlServer((IForeignKey)foreignKey);
 
-        public static SqlServerModelAnnotations SqlServer([NotNull] this Model model)
+        public static SqlServerModelAnnotations SqlServer([NotNull] this IMutableModel model)
             => (SqlServerModelAnnotations)SqlServer((IModel)model);
 
         public static ISqlServerModelAnnotations SqlServer([NotNull] this IModel model)

@@ -9,20 +9,26 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             var conventionSet = new ConventionSet();
 
-            var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention();
+            var propertyDiscoveryConvention = new PropertyDiscoveryConvention();
             var keyDiscoveryConvention = new KeyDiscoveryConvention();
+            var relationshipDiscoveryConvention = new RelationshipDiscoveryConvention();
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedEntityTypeAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(new NotMappedMemberAttributeConvention());
-            conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
+            conventionSet.EntityTypeAddedConventions.Add(new BaseTypeDiscoveryConvention());
+            conventionSet.EntityTypeAddedConventions.Add(propertyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.EntityTypeAddedConventions.Add(new InversePropertyAttributeConvention());
             conventionSet.EntityTypeAddedConventions.Add(relationshipDiscoveryConvention);
+            conventionSet.EntityTypeAddedConventions.Add(new DerivedTypeDiscoveryConvention());
 
+            conventionSet.BaseEntityTypeSetConventions.Add(propertyDiscoveryConvention);
+            conventionSet.BaseEntityTypeSetConventions.Add(keyDiscoveryConvention);
             conventionSet.BaseEntityTypeSetConventions.Add(relationshipDiscoveryConvention);
 
             // An ambiguity might have been resolved
             conventionSet.EntityTypeMemberIgnoredConventions.Add(relationshipDiscoveryConvention);
 
+            var keyAttributeConvention = new KeyAttributeConvention();
             var foreignKeyPropertyDiscoveryConvention = new ForeignKeyPropertyDiscoveryConvention();
             conventionSet.PropertyAddedConventions.Add(new ConcurrencyCheckAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(new DatabaseGeneratedAttributeConvention());
@@ -32,8 +38,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             conventionSet.PropertyAddedConventions.Add(new TimestampAttributeConvention());
             conventionSet.PropertyAddedConventions.Add(keyDiscoveryConvention);
             conventionSet.PropertyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
-
-            var keyAttributeConvention = new KeyAttributeConvention();
             conventionSet.PropertyAddedConventions.Add(keyAttributeConvention);
 
             var keyConvention = new KeyConvention();
@@ -44,6 +48,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var cascadeDeleteConvention = new CascadeDeleteConvention();
             conventionSet.ForeignKeyAddedConventions.Add(new ForeignKeyAttributeConvention());
             conventionSet.ForeignKeyAddedConventions.Add(foreignKeyPropertyDiscoveryConvention);
+            conventionSet.ForeignKeyAddedConventions.Add(keyConvention);
             conventionSet.ForeignKeyAddedConventions.Add(cascadeDeleteConvention);
 
             conventionSet.ForeignKeyRemovedConventions.Add(keyConvention);

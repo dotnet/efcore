@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -38,8 +37,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
 
-            return foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
-                   || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType);
+            return foreignKey.DeclaringEntityType.IsSameHierarchy(foreignKey.PrincipalEntityType);
         }
 
         public static bool IsSelfPrimaryKeyReferencing([NotNull] this IForeignKey foreignKey)
@@ -49,24 +47,41 @@ namespace Microsoft.Data.Entity.Metadata
             return foreignKey.DeclaringEntityType.FindPrimaryKey() == foreignKey.PrincipalKey;
         }
 
+        public static IEnumerable<INavigation> GetNavigations(
+            [NotNull] this IForeignKey foreignKey)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+
+            if (foreignKey.PrincipalToDependent != null)
+            {
+                yield return foreignKey.PrincipalToDependent;
+            }
+
+            if (foreignKey.DependentToPrincipal != null)
+            {
+                yield return foreignKey.DependentToPrincipal;
+            }
+        }
+
         public static INavigation FindNavigationFrom([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(entityType, nameof(entityType));
 
-            if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
-                && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
+            if (foreignKey.DeclaringEntityType != entityType
+                && foreignKey.PrincipalEntityType != entityType)
             {
-                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
-                    entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationshipStrict(
+                    entityType.DisplayName(), foreignKey.DeclaringEntityType.DisplayName(), foreignKey.PrincipalEntityType.DisplayName()));
             }
 
-            if (foreignKey.IsIntraHierarchical())
+            if (foreignKey.IsSelfReferencing())
             {
-                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
+                throw new InvalidOperationException(CoreStrings.SelfReferencingAmbiguousNavigation(
+                    entityType.DisplayName(), Property.Format(foreignKey.Properties)));
             }
 
-            return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+            return foreignKey.DeclaringEntityType == entityType
                 ? foreignKey.DependentToPrincipal
                 : foreignKey.PrincipalToDependent;
         }
@@ -74,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata
         public static Navigation FindNavigationFrom([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
             => (Navigation)((IForeignKey)foreignKey).FindNavigationFrom(entityType);
 
-        public static INavigation FindNavigationTo([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static INavigation FindNavigationFromInHierarchy([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(entityType, nameof(entityType));
@@ -83,15 +98,47 @@ namespace Microsoft.Data.Entity.Metadata
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
                 throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
-                    entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
+                    entityType.DisplayName(), foreignKey.DeclaringEntityType.DisplayName(), foreignKey.PrincipalEntityType.DisplayName()));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousNavigation(entityType.Name, Property.Format(foreignKey.Properties), foreignKey.PrincipalEntityType, foreignKey.DeclaringEntityType));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousNavigation(
+                    entityType.DisplayName(),
+                    Property.Format(foreignKey.Properties),
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName()));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                ? foreignKey.DependentToPrincipal
+                : foreignKey.PrincipalToDependent;
+        }
+
+        public static Navigation FindNavigationFromInHierarchy([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
+            => (Navigation)((IForeignKey)foreignKey).FindNavigationFromInHierarchy(entityType);
+
+        public static INavigation FindNavigationTo([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (foreignKey.DeclaringEntityType != entityType
+                && foreignKey.PrincipalEntityType != entityType)
+            {
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationshipStrict(
+                    entityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    foreignKey.PrincipalEntityType.DisplayName()));
+            }
+
+            if (foreignKey.IsSelfReferencing())
+            {
+                throw new InvalidOperationException(CoreStrings.SelfReferencingAmbiguousNavigation(
+                    entityType.DisplayName(), Property.Format(foreignKey.Properties)));
+            }
+
+            return foreignKey.DeclaringEntityType == entityType
                 ? foreignKey.PrincipalToDependent
                 : foreignKey.DependentToPrincipal;
         }
@@ -99,7 +146,7 @@ namespace Microsoft.Data.Entity.Metadata
         public static Navigation FindNavigationTo([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
             => (Navigation)((IForeignKey)foreignKey).FindNavigationTo(entityType);
 
-        public static IEntityType ResolveOtherEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static INavigation FindNavigationToInHierarchy([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(entityType, nameof(entityType));
@@ -108,15 +155,41 @@ namespace Microsoft.Data.Entity.Metadata
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
                 throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
-                    entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
+                    entityType.DisplayName(), foreignKey.DeclaringEntityType.DisplayName(), foreignKey.PrincipalEntityType.DisplayName()));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousNavigation(
+                    entityType.DisplayName(),
+                    Property.Format(foreignKey.Properties),
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName()));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                ? foreignKey.PrincipalToDependent
+                : foreignKey.DependentToPrincipal;
+        }
+
+        public static Navigation FindNavigationToInHierarchy([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
+            => (Navigation)((IForeignKey)foreignKey).FindNavigationToInHierarchy(entityType);
+
+        public static IEntityType ResolveOtherEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (foreignKey.DeclaringEntityType != entityType
+                && foreignKey.PrincipalEntityType != entityType)
+            {
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationshipStrict(
+                    entityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    foreignKey.PrincipalEntityType.DisplayName()));
+            }
+
+            return foreignKey.DeclaringEntityType == entityType
                 ? foreignKey.PrincipalEntityType
                 : foreignKey.DeclaringEntityType;
         }
@@ -124,7 +197,8 @@ namespace Microsoft.Data.Entity.Metadata
         public static EntityType ResolveOtherEntityType([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
             => (EntityType)((IForeignKey)foreignKey).ResolveOtherEntityType(entityType);
 
-        public static IEntityType ResolveEntityType([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        public static IEntityType ResolveOtherEntityTypeInHierarchy(
+            [NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
         {
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(entityType, nameof(entityType));
@@ -133,12 +207,48 @@ namespace Microsoft.Data.Entity.Metadata
                 && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
             {
                 throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
-                    entityType.Name, foreignKey.DeclaringEntityType.Name, foreignKey.PrincipalEntityType.Name));
+                    entityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    foreignKey.PrincipalEntityType.DisplayName()));
             }
 
             if (foreignKey.IsIntraHierarchical())
             {
-                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(entityType.Name, Property.Format(foreignKey.Properties)));
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
+                    entityType.DisplayName(),
+                    Property.Format(foreignKey.Properties),
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName()));
+            }
+
+            return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                ? foreignKey.PrincipalEntityType
+                : foreignKey.DeclaringEntityType;
+        }
+
+        public static EntityType ResolveOtherEntityTypeInHierarchy([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)foreignKey).ResolveOtherEntityTypeInHierarchy(entityType);
+
+        public static IEntityType ResolveEntityTypeInHierarchy([NotNull] this IForeignKey foreignKey, [NotNull] IEntityType entityType)
+        {
+            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotNull(entityType, nameof(entityType));
+
+            if (!foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                && !foreignKey.PrincipalEntityType.IsAssignableFrom(entityType))
+            {
+                throw new ArgumentException(CoreStrings.EntityTypeNotInRelationship(
+                    entityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName(),
+                    foreignKey.PrincipalEntityType.DisplayName()));
+            }
+
+            if (foreignKey.IsIntraHierarchical())
+            {
+                throw new InvalidOperationException(CoreStrings.IntraHierarchicalAmbiguousTargetEntityType(
+                    entityType.DisplayName(), Property.Format(foreignKey.Properties),
+                    foreignKey.PrincipalEntityType.DisplayName(),
+                    foreignKey.DeclaringEntityType.DisplayName()));
             }
 
             return foreignKey.DeclaringEntityType.IsAssignableFrom(entityType)
@@ -146,7 +256,7 @@ namespace Microsoft.Data.Entity.Metadata
                 : foreignKey.PrincipalEntityType;
         }
 
-        public static EntityType ResolveEntityType([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
-            => (EntityType)((IForeignKey)foreignKey).ResolveEntityType(entityType);
+        public static EntityType ResolveEntityTypeInHierarchy([NotNull] this ForeignKey foreignKey, [NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)foreignKey).ResolveEntityTypeInHierarchy(entityType);
     }
 }

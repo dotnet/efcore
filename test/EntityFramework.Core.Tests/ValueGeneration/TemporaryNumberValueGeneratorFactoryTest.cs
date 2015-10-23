@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Xunit;
 
@@ -12,7 +11,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
 {
     public class TemporaryNumberValueGeneratorFactoryTest
     {
-        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
+        private static readonly IMutableModel _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
 
         [Fact]
         public void Can_create_factories_for_all_integer_types()

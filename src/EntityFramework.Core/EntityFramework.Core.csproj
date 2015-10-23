@@ -75,6 +75,7 @@
     <Compile Include="Extensions\Internal\ListExtensions.cs" />
     <Compile Include="GraphBehavior.cs" />
     <Compile Include="Infrastructure\AccessorExtensions.cs" />
+    <Compile Include="Infrastructure\AnnotatableExtensions.cs" />
     <Compile Include="Infrastructure\DbContextAttribute.cs" />
     <Compile Include="Infrastructure\IDbContextFactory.cs" />
     <Compile Include="Infrastructure\IKeyValue.cs" />
@@ -92,7 +93,6 @@
     <Compile Include="Internal\PropertyListComparer.cs" />
     <Compile Include="Internal\ReferenceEnumerableEqualityComparer.cs" />
     <Compile Include="Internal\ReferenceEqualityComparer.cs" />
-    <Compile Include="Internal\ThreadSafeDictionaryCache.cs" />
     <Compile Include="Internal\ThreadSafeLazyRef.cs" />
     <Compile Include="Internal\TypeExtensions.cs" />
     <Compile Include="Metadata\Builders\CollectionNavigationBuilder.cs" />
@@ -164,6 +164,8 @@
     <Compile Include="DbContextOptionsBuilder`.cs" />
     <Compile Include="Metadata\Builders\ReferenceReferenceBuilder`.cs" />
     <Compile Include="Metadata\Conventions\ConventionSet.cs" />
+    <Compile Include="Metadata\Conventions\Internal\BaseTypeDiscoveryConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\DerivedTypeDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\CascadeDeleteConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationRemovedConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPropertyNullableConvention.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="Metadata\Conventions\Internal\ForeignKeyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IEntityTypeMemberIgnoredConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\INavigationConvention.cs" />
+    <Compile Include="Metadata\Conventions\Internal\InheritanceDiscoveryConventionBase.cs" />
     <Compile Include="Metadata\Conventions\Internal\InversePropertyAttributeConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\IPrimaryKeyConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\NavigationAttributeNavigationConvention.cs" />
@@ -206,6 +209,14 @@
     <Compile Include="Metadata\Conventions\Internal\RequiredPropertyAttributeConvention.cs" />
     <Compile Include="Metadata\CoreAnnotationNames.cs" />
     <Compile Include="Metadata\DeleteBehavior.cs" />
+    <Compile Include="Metadata\IMutableAnnotatable.cs" />
+    <Compile Include="Metadata\IMutableEntityType.cs" />
+    <Compile Include="Metadata\IMutableForeignKey.cs" />
+    <Compile Include="Metadata\IMutableIndex.cs" />
+    <Compile Include="Metadata\IMutableKey.cs" />
+    <Compile Include="Metadata\IMutableModel.cs" />
+    <Compile Include="Metadata\IMutableNavigation.cs" />
+    <Compile Include="Metadata\IMutableProperty.cs" />
     <Compile Include="Metadata\Internal\InternalMetadataBuilder`.cs" />
     <Compile Include="Metadata\Internal\MetadataHelper.cs" />
     <Compile Include="Metadata\ValueGenerated.cs" />
@@ -384,7 +395,6 @@
     <Compile Include="Metadata\Model.cs" />
     <Compile Include="Metadata\ModelExtensions.cs" />
     <Compile Include="Metadata\ModelItemNotFoundException.cs" />
-    <Compile Include="Metadata\PropertyBase.cs" />
     <Compile Include="Metadata\Navigation.cs" />
     <Compile Include="Metadata\Property.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

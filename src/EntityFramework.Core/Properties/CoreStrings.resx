@@ -384,9 +384,6 @@
   <data name="LogIncludingNavigation" xml:space="preserve">
     <value>Including navigation: '{navigation}'</value>
   </data>
-  <data name="LogTrackingQuerySources" xml:space="preserve">
-    <value>Tracking query sources: [{querySources}]</value>
-  </data>
   <data name="CannotBeNullable" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
   </data>
@@ -396,8 +393,8 @@
   <data name="RecursiveOnConfiguring" xml:space="preserve">
     <value>An attempt was made to use the context while it is being configured. A DbContext instance cannot be used inside OnConfiguring since it is still being configured at this point.</value>
   </data>
-  <data name="EntityTypeInUse" xml:space="preserve">
-    <value>The entity type '{entityType}' cannot be removed because it is being referenced from a foreign key. All referencing foreign keys must be removed or redefined before the entity type can be removed.</value>
+  <data name="EntityTypeInUseByForeignKey" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be removed because it is being referenced by foreign key {foreignKey} on '{referencingEntityType}'. All referencing foreign keys must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="ArgumentPropertyNull" xml:space="preserve">
     <value>The property '{property}' of the argument '{argument}' cannot be null.</value>
@@ -496,7 +493,7 @@
     <value>The block size used for Hi-Lo value generation must be positive. When the Hi-Lo generator is backed by a SQL sequence this means that the sequence increment must be positive.</value>
   </data>
   <data name="IntraHierarchicalAmbiguousTargetEntityType" xml:space="preserve">
-    <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.</value>
+    <value>The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references entity type '{principalEntityType}' that it is in the same hierarchy as the entity type that it is declared on '{dependentEntityType}'.</value>
   </data>
   <data name="NonClrBaseType" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a shadow state entity type while '{entityType}' is not.</value>
@@ -545,6 +542,15 @@
   </data>
   <data name="ConflictingProperty" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a property with the same name already exists on entity type '{duplicateEntityType}'.</value>
+  </data>
+  <data name="EntityTypeNotInRelationshipStrict" xml:space="preserve">
+    <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.</value>
+  </data>
+  <data name="SelfReferencingAmbiguousNavigation" xml:space="preserve">
+    <value>The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is the same as the dependent entity type.</value>
+  </data>
+  <data name="EntityTypeInUseByDerived" xml:space="preserve">
+    <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.</value>
   </data>
   <data name="NavigationNotAdded" xml:space="preserve">
     <value>The navigation '{navigation}' on entity type '{entityType}' has not been added to the model, or ignored, or target entityType ignored.</value>

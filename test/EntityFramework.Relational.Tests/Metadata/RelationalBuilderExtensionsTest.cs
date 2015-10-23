@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasIndex(e => e.Id)
                 .HasName("Eeeendeeex");
 
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).Indexes.Single();
+            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.Equal("Eeeendeeex", index.Relational().Name);
         }

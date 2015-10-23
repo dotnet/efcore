@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -20,8 +21,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private static readonly MethodInfo _createAndSet
             = typeof(ClrCollectionAccessorSource).GetTypeInfo().GetDeclaredMethods("CreateAndSet").Single();
 
-        private readonly ThreadSafeDictionaryCache<Tuple<Type, string>, IClrCollectionAccessor> _cache
-            = new ThreadSafeDictionaryCache<Tuple<Type, string>, IClrCollectionAccessor>();
+        private readonly ConcurrentDictionary<Tuple<Type, string>, IClrCollectionAccessor> _cache
+            = new ConcurrentDictionary<Tuple<Type, string>, IClrCollectionAccessor>();
 
         public ClrCollectionAccessorSource([NotNull] ICollectionTypeFactory collectionTypeFactory)
         {

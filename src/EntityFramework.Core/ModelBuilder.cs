@@ -14,23 +14,18 @@ namespace Microsoft.Data.Entity
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API surface for configuring a <see cref="Model" /> that defines the shape of your
-    ///         entities and how they map to the database.
+    ///         Provides a simple API surface for configuring a <see cref="Metadata.Model" /> that defines the shape of your
+    ///         entities, the relationships between them, and how they map to the database.
     ///     </para>
     ///     <para>
     ///         You can use <see cref="ModelBuilder" /> to construct a model for a context by overriding
-    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> or creating a <see cref="Model" />
-    ///         externally
-    ///         and setting it on a <see cref="DbContextOptions" /> instance that is passed to the context
-    ///         constructor.
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on your derived context. Alternatively you can create the 
+    ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
     /// </summary>
     public class ModelBuilder : IAccessor<InternalModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
-
-        // TODO: Configure property facets, foreign keys & navigation properties
-        // Issue #213
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
@@ -68,7 +63,7 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     The model being configured.
         /// </summary>
-        public virtual Model Model => Builder.Metadata;
+        public virtual IMutableModel Model => Builder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the model. If an annotation with the key specified in
@@ -88,7 +83,13 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     The internal <see cref="ModelBuilder" /> being used to configure this model.
+        ///     <para>
+        ///         The internal <see cref="ModelBuilder" /> being used to configure this model.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods to configure the model. It is not intended to be used in
+        ///         application code.
+        ///     </para>
         /// </summary>
         InternalModelBuilder IAccessor<InternalModelBuilder>.Service => _builder;
 

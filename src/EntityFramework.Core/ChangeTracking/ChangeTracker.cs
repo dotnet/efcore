@@ -52,20 +52,37 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
         /// <summary>
         ///     <para>
-        ///         Gets or sets a value indicating whether the <see cref="ChangeTracker.DetectChanges()" /> method is called
+        ///         Gets or sets a value indicating whether the <see cref="DetectChanges()" /> method is called
         ///         automatically by methods of <see cref="DbContext" /> and related classes.
         ///     </para>
         ///     <para>
         ///         The default value is true. This ensures the context is aware of any changes to tracked entity instances
         ///         before performing operations such as <see cref="DbContext.SaveChanges()" /> or returning change tracking
         ///         information. If you disable automatic detect changes then you must ensure that
-        ///         <see cref="DetectChanges" /> is called when entity instances have been modified.
+        ///         <see cref="DetectChanges()" /> is called when entity instances have been modified.
         ///         Failure to do so may result in some changes not being persisted during
         ///         <see cref="DbContext.SaveChanges()" /> or out-of-date change tracking information being returned.
         ///     </para>
         /// </summary>
         public virtual bool AutoDetectChangesEnabled { get; set; } = true;
 
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets the tracking behavior for LINQ queries run against the context. Disabling change tracking
+        ///         is useful for read-only scenarios because it avoids the overhead of setting up change tracking for each
+        ///         entity instance. You should not disable change tracking if you want to manipulate entity instances and
+        ///         persist those changes to the database using <see cref="DbContext.SaveChanges()"/>.
+        ///     </para>
+        ///     <para>
+        ///         This method sets the default behavior for the context, but you can override this behavior for individual 
+        ///         queries using the <see cref="EntityFrameworkQueryableExtensions.AsNoTracking{TEntity}(IQueryable{TEntity})"/>
+        ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})"/> methods.
+        ///     </para>
+        ///     <para>
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll"/>. This means the change tracker will
+        ///         keep track of changes for all entities that are returned from a LINQ query.
+        ///     </para>
+        /// </summary>
         public virtual QueryTrackingBehavior QueryTrackingBehavior { get; set; }
 
         /// <summary>
@@ -104,7 +121,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets the internal state manager being used to store information about tracked entities.
+        ///     <para>
+        ///         Gets the internal state manager being used to store information about tracked entities.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods. It is not intended to be used in
+        ///         application code.
+        ///     </para>
         /// </summary>
         IStateManager IAccessor<IStateManager>.Service => _stateManager;
 
@@ -114,17 +137,17 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual DbContext Context => _context;
 
         /// <summary>
-        ///     Scans the tracked entity instances to detect any changes made to the instance data. <see cref="DetectChanges" />
+        ///     Scans the tracked entity instances to detect any changes made to the instance data. <see cref="DetectChanges()" />
         ///     is usually called automatically by the context when up-to-date information is required (before
-        ///     <see cref="DbContext.SaveChanges()" />
-        ///     and when returning change tracking information). You typically only need to call this method if you have disabled
-        ///     <see cref="AutoDetectChangesEnabled" />.
+        ///     <see cref="DbContext.SaveChanges()" /> and when returning change tracking information). You typically only need to 
+        ///     call this method if you have disabled <see cref="AutoDetectChangesEnabled" />.
         /// </summary>
         public virtual void DetectChanges() => _changeDetector.DetectChanges(_stateManager);
 
         /// <summary>
         ///     Accepts all changes made to entities in the context. It will be assumed that the tracked entities
-        ///     represent the current state of the database.
+        ///     represent the current state of the database. This method is typically called by <see cref="DbContext.SaveChanges()"/>
+        ///     after changes have been successfully saved to the database.
         /// </summary>
         public virtual void AcceptAllChanges() => _stateManager.AcceptAllChanges();
 

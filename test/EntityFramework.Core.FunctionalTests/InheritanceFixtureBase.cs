@@ -9,15 +9,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
     {
         public virtual void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Kiwi>().HasBaseType<Bird>();
-            modelBuilder.Entity<Eagle>().HasBaseType<Bird>();
-            modelBuilder.Entity<Bird>().HasBaseType<Animal>();
+            modelBuilder.Entity<Kiwi>();
+            modelBuilder.Entity<Eagle>();
+            modelBuilder.Entity<Bird>();
             modelBuilder.Entity<Animal>().HasKey(e => e.Species);
-            modelBuilder.Entity<Rose>().HasBaseType<Flower>();
-            modelBuilder.Entity<Daisy>().HasBaseType<Flower>();
-            modelBuilder.Entity<Flower>().HasBaseType<Plant>();
+            modelBuilder.Entity<Rose>();
+            modelBuilder.Entity<Daisy>();
+            modelBuilder.Entity<Flower>();
             modelBuilder.Entity<Plant>().HasKey(e => e.Species);
             modelBuilder.Entity<Country>();
+
+            //#3282
+            modelBuilder.Entity<Eagle>().Property(e => e.EagleId).Metadata.RequiresValueGenerator = false;
         }
 
         public abstract InheritanceContext CreateContext();

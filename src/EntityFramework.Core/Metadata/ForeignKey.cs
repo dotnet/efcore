@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class ForeignKey : Annotatable, IForeignKey
+    public class ForeignKey : Annotatable, IMutableForeignKey
     {
         private Navigation _dependentToPrincipal;
         private Navigation _principalToDependent;
@@ -31,9 +31,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
             Properties = dependentProperties;
-
             PrincipalKey = principalKey;
-
             DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
 
@@ -58,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (value == null
                     && _dependentToPrincipal != null
-                    && DeclaringEntityType.Navigations.Contains(_dependentToPrincipal))
+                    && DeclaringEntityType.GetNavigations().Contains(_dependentToPrincipal))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name));
@@ -78,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 if (value == null
                     && _principalToDependent != null
-                    && PrincipalEntityType.Navigations.Contains(_principalToDependent))
+                    && PrincipalEntityType.GetNavigations().Contains(_principalToDependent))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.NavigationStillOnEntityType(_principalToDependent.Name, PrincipalEntityType.Name));
@@ -98,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata
                         CoreStrings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
                 }
 
-                if (!entityType.Navigations.Contains(value))
+                if (!entityType.GetNavigations().Contains(value))
                 {
                     throw new InvalidOperationException(CoreStrings.NavigationNotFound(value.Name, entityType.Name));
                 }
@@ -106,15 +104,11 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual IReadOnlyList<Property> Properties { get; }
-
-        public virtual EntityType DeclaringEntityType { get; }
-
         public virtual Key PrincipalKey { get; }
-
+        public virtual EntityType DeclaringEntityType { get; }
         public virtual EntityType PrincipalEntityType { get; }
 
         public virtual bool? IsUnique { get; set; }
-
         protected virtual bool DefaultIsUnique => false;
 
         public virtual bool? IsRequired
@@ -169,21 +163,33 @@ namespace Microsoft.Data.Entity.Metadata
         protected virtual DeleteBehavior DefaultDeleteBehavior => Metadata.DeleteBehavior.Restrict;
 
         IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
-
-        IEntityType IForeignKey.DeclaringEntityType => DeclaringEntityType;
-
-        IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
-
+        IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties => Properties;
         IKey IForeignKey.PrincipalKey => PrincipalKey;
-
+        IMutableKey IMutableForeignKey.PrincipalKey => PrincipalKey;
+        IEntityType IForeignKey.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableForeignKey.DeclaringEntityType => DeclaringEntityType;
+        IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
+        IMutableEntityType IMutableForeignKey.PrincipalEntityType => PrincipalEntityType;
         INavigation IForeignKey.DependentToPrincipal => DependentToPrincipal;
+
+        IMutableNavigation IMutableForeignKey.DependentToPrincipal
+        {
+            get { return DependentToPrincipal; }
+
+            set { DependentToPrincipal = (Navigation)value; }
+        }
 
         INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
 
+        IMutableNavigation IMutableForeignKey.PrincipalToDependent
+        {
+            get { return PrincipalToDependent; }
+
+            set { PrincipalToDependent = (Navigation)value; }
+        }
+
         bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
-
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
-
         DeleteBehavior IForeignKey.DeleteBehavior => DeleteBehavior ?? DefaultDeleteBehavior;
 
         public override string ToString()

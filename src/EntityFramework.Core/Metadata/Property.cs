@@ -5,31 +5,33 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
-    public class Property : PropertyBase, IProperty
+    public class Property : Annotatable, IMutableProperty
     {
         private PropertyFlags _flags;
-
-        // TODO: Remove this once the model is readonly Issue #868
         private PropertyFlags _setFlags;
-
         private int _index;
         private Type _clrType;
 
         public Property([NotNull] string name, [NotNull] EntityType declaringEntityType)
-            : base(name)
         {
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            
+
+            Name = name;
             DeclaringEntityType = declaringEntityType;
         }
-        
+
+        public virtual string Name { get; }
+
         public virtual Type ClrType
         {
             get { return _clrType; }
@@ -52,7 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         protected virtual Type DefaultClrType => typeof(string);
 
-        public override EntityType DeclaringEntityType { get; }
+        public virtual EntityType DeclaringEntityType { get; }
 
         public virtual bool? IsNullable
         {
@@ -159,6 +161,29 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 if (IsShadowProperty != value)
                 {
+                    if (value == false)
+                    {
+                        if (DeclaringEntityType.ClrType == null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(Name, DeclaringEntityType.DisplayName()));
+                        }
+
+                        var clrProperty = DeclaringEntityType.ClrType.GetPropertiesInHierarchy(Name).FirstOrDefault();
+                        if (clrProperty == null)
+                        {
+                            throw new InvalidOperationException(CoreStrings.NoClrProperty(Name, DeclaringEntityType.DisplayName()));
+                        }
+
+                        if (ClrType == null)
+                        {
+                            ClrType = clrProperty.PropertyType;
+                        }
+                        else if (ClrType != clrProperty.PropertyType)
+                        {
+                            throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(Name, DeclaringEntityType.DisplayName()));
+                        }
+                    }
+
                     SetFlag(value, PropertyFlags.IsShadowProperty);
 
                     DeclaringEntityType.PropertyMetadataChanged(this);
@@ -216,17 +241,6 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual bool IsInUse
-        {
-            get
-            {
-                return new[] { DeclaringEntityType }.Concat(DeclaringEntityType.GetDerivedTypes()).Any(entityType =>
-                    entityType.GetDeclaredKeys().Any(k => k.Properties.Contains(this))
-                    || entityType.GetDeclaredForeignKeys().Any(k => k.Properties.Contains(this))
-                    || entityType.GetDeclaredIndexes().Any(i => i.Properties.Contains(this)));
-            }
-        }
-
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
 
         private void SetFlag(bool? value, PropertyFlags flag)
@@ -235,13 +249,8 @@ namespace Microsoft.Data.Entity.Metadata
             _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
         }
 
-        private void SetRequiredFlag(bool value, PropertyFlags flag)
-        {
-            _flags = value ? (_flags | flag) : (_flags & ~flag);
-        }
-
         internal static string Format(IEnumerable<IProperty> properties)
-            => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+            => "{" + String.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
 
         Type IProperty.ClrType => ClrType ?? DefaultClrType;
         bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
@@ -253,6 +262,8 @@ namespace Microsoft.Data.Entity.Metadata
         bool IProperty.RequiresValueGenerator => RequiresValueGenerator ?? DefaultRequiresValueGenerator;
 
         bool IProperty.StoreGeneratedAlways => StoreGeneratedAlways ?? DefaultStoreGeneratedAlways;
+        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
 
         [Flags]
         private enum PropertyFlags : ushort
@@ -266,6 +277,17 @@ namespace Microsoft.Data.Entity.Metadata
             RequiresValueGenerator = 64,
             IsShadowProperty = 128,
             StoreGeneratedAlways = 256
+        }
+
+        public static bool AreCompatible([NotNull] IReadOnlyList<Property> properties, [NotNull] EntityType entityType)
+        {
+            Check.NotNull(properties, nameof(properties));
+            Check.NotNull(entityType, nameof(entityType));
+
+            return properties.All(property =>
+                ((IProperty)property).IsShadowProperty
+                || (entityType.HasClrType()
+                    && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
         }
     }
 }

@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests
                 ModelBuilder = modelBuilder;
             }
 
-            public virtual Model Model => ModelBuilder.Model;
+            public virtual IMutableModel Model => ModelBuilder.Model;
             protected ModelBuilder ModelBuilder { get; }
 
             public abstract TestEntityTypeBuilder<TEntity> Entity<TEntity>()
@@ -125,22 +125,19 @@ namespace Microsoft.Data.Entity.Tests
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder Validate()
-            {                
-                return ModelBuilder.Validate() == null ? null : this;
-            }
+            public virtual TestModelBuilder Validate() => ModelBuilder.Validate() == null ? null : this;
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>
             where TEntity : class
         {
-            public abstract EntityType Metadata { get; }
+            public abstract IMutableEntityType Metadata { get; }
             public abstract TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value);
 
-            public abstract TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
+            public abstract TestEntityTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
                 where TBaseEntity : class;
 
-            public abstract TestEntityTypeBuilder<TEntity> BaseType(string baseEntityTypeName);
+            public abstract TestEntityTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName);
             public abstract TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression);
             public abstract TestKeyBuilder HasKey(params string[] propertyNames);
             public abstract TestKeyBuilder HasAlternateKey(Expression<Func<TEntity, object>> keyExpression);
@@ -176,12 +173,10 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             private KeyBuilder KeyBuilder { get; }
-            public Key Metadata => KeyBuilder.Metadata;
+            public IMutableKey Metadata => KeyBuilder.Metadata;
 
             public virtual TestKeyBuilder HasAnnotation(string annotation, object value)
-            {
-                return new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
-            }
+                => new TestKeyBuilder(KeyBuilder.HasAnnotation(annotation, value));
         }
 
         public class TestIndexBuilder
@@ -192,22 +187,18 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             private IndexBuilder IndexBuilder { get; }
-            public Index Metadata => IndexBuilder.Metadata;
+            public IMutableIndex Metadata => IndexBuilder.Metadata;
 
             public virtual TestIndexBuilder HasAnnotation(string annotation, object value)
-            {
-                return new TestIndexBuilder(IndexBuilder.HasAnnotation(annotation, value));
-            }
+                => new TestIndexBuilder(IndexBuilder.HasAnnotation(annotation, value));
 
             public virtual TestIndexBuilder IsUnique(bool isUnique = true)
-            {
-                return new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
-            }
+                => new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
         }
 
         public abstract class TestPropertyBuilder<TProperty>
         {
-            public abstract Property Metadata { get; }
+            public abstract IMutableProperty Metadata { get; }
             public abstract TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object value);
             public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
             public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
@@ -241,7 +232,7 @@ namespace Microsoft.Data.Entity.Tests
             where TEntity : class
             where TRelatedEntity : class
         {
-            public abstract ForeignKey Metadata { get; }
+            public abstract IMutableForeignKey Metadata { get; }
 
             public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasForeignKey(
                 Expression<Func<TRelatedEntity, object>> foreignKeyExpression);
@@ -267,7 +258,7 @@ namespace Microsoft.Data.Entity.Tests
             where TEntity : class
             where TRelatedEntity : class
         {
-            public abstract ForeignKey Metadata { get; }
+            public abstract IMutableForeignKey Metadata { get; }
 
             public abstract TestReferenceReferenceBuilder<TEntity, TRelatedEntity> HasAnnotation(
                 string annotation, object value);

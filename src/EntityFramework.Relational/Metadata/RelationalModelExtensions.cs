@@ -10,6 +10,6 @@ namespace Microsoft.Data.Entity.Metadata
     public static class RelationalModelExtensions
     {
         public static IEnumerable<IEntityType> GetRootEntityTypes([NotNull] this IModel model)
-            => model.EntityTypes.Where(e => e.BaseType == null);
+            => model.GetEntityTypes().Where(e => e.BaseType == null);
     }
 }

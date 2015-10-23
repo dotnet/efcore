@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests
 {

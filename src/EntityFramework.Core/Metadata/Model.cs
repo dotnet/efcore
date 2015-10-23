@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -13,10 +12,8 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Model : Annotatable, IModel
+    public class Model : Annotatable, IMutableModel
     {
-        // TODO: Perf: use a mutable structure before the model is made readonly
-        // Issue #868
         private ImmutableSortedSet<EntityType> _entities
             = ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer());
 
@@ -54,11 +51,7 @@ namespace Microsoft.Data.Entity.Metadata
             => FindEntityType(name) ?? AddEntityType(name);
 
         public virtual EntityType FindEntityType([NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return type.GetTypeInfo().IsClass ? FindEntityType(new EntityType(type, this)) : null;
-        }
+            => (EntityType)((IMutableModel)this).FindEntityType(type);
 
         public virtual EntityType FindEntityType([NotNull] string name)
         {
@@ -72,39 +65,43 @@ namespace Microsoft.Data.Entity.Metadata
                 ? entityType
                 : null;
 
-        public virtual EntityType GetEntityType([NotNull] Type type)
+        public virtual EntityType RemoveEntityType([NotNull] Type type)
         {
-            Check.NotNull(type, nameof(type));
-
             var entityType = FindEntityType(type);
-            if (entityType == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.EntityTypeNotFound(type.Name));
-            }
-
-            return entityType;
+            return entityType == null
+                ? null
+                : RemoveEntityType(entityType);
         }
 
-        public virtual EntityType GetEntityType([NotNull] string name)
+        public virtual EntityType RemoveEntityType([NotNull] string name)
         {
-            Check.NotEmpty(name, nameof(name));
-
             var entityType = FindEntityType(name);
-            if (entityType == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.EntityTypeNotFound(name));
-            }
-
-            return entityType;
+            return entityType == null
+                ? null
+                : RemoveEntityType(entityType);
         }
 
-        public virtual EntityType RemoveEntityType([NotNull] EntityType entityType)
+        private EntityType RemoveEntityType([NotNull] EntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            if (FindReferencingForeignKeys(entityType).Any())
+            var referencingForeignKey = FindDeclaredReferencingForeignKeys(entityType).FirstOrDefault();
+            if (referencingForeignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.EntityTypeInUse(entityType.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeInUseByForeignKey(
+                        entityType.DisplayName(),
+                        Property.Format(referencingForeignKey.Properties),
+                        referencingForeignKey.DeclaringEntityType.DisplayName()));
+            }
+
+            var derivedEntityType = entityType.GetDirectlyDerivedTypes().FirstOrDefault();
+            if (derivedEntityType != null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.EntityTypeInUseByDerived(
+                        entityType.DisplayName(),
+                        derivedEntityType.DisplayName()));
             }
 
             var previousEntities = _entities;
@@ -119,7 +116,10 @@ namespace Microsoft.Data.Entity.Metadata
             return removedEntityType;
         }
 
-        public virtual IReadOnlyList<EntityType> EntityTypes => _entities;
+        public virtual IReadOnlyList<EntityType> GetEntityTypes() => _entities;
+
+        public virtual IEnumerable<ForeignKey> FindDeclaredReferencingForeignKeys([NotNull] EntityType entityType)
+            => ((IModel)this).FindDeclaredReferencingForeignKeys(entityType).Cast<ForeignKey>();
 
         public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] EntityType entityType)
             => ((IModel)this).FindReferencingForeignKeys(entityType).Cast<ForeignKey>();
@@ -130,16 +130,18 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys([NotNull] Property property)
             => ((IModel)this).FindReferencingForeignKeys(property).Cast<ForeignKey>();
 
-        public virtual string StorageName { get; [param: CanBeNull] set; }
-
-        IEntityType IModel.FindEntityType(Type type) => FindEntityType(type);
-
-        IEntityType IModel.GetEntityType(Type type) => GetEntityType(type);
-
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
 
-        IEntityType IModel.GetEntityType(string name) => GetEntityType(name);
+        IReadOnlyList<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
 
-        IReadOnlyList<IEntityType> IModel.EntityTypes => EntityTypes;
+        IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
+
+        IMutableEntityType IMutableModel.GetOrAddEntityType(string name) => GetOrAddEntityType(name);
+
+        IReadOnlyList<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
+
+        IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
+
+        IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
     }
 }

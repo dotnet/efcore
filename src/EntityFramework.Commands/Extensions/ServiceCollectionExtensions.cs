@@ -5,26 +5,22 @@
 
 // ReSharper disable once CheckNamespace
 
-using System;
 using JetBrains.Annotations;
-using Microsoft.Dnx.Runtime;
+using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     internal static class ServiceCollectionExtensions
     {
         public static IServiceCollection ImportDnxServices(
-            [NotNull] this IServiceCollection services,
-            [CanBeNull] IServiceProvider dnxServices)
+            [NotNull] this IServiceCollection services)
         {
-            if (dnxServices != null)
-            {
-                var runtimeServices = dnxServices.GetRequiredService<IRuntimeServices>();
-                foreach (var service in runtimeServices.Services)
-                {
-                    services.AddTransient(service, _ => dnxServices.GetService(service));
-                }
-            }
+            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.Application));
+            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.Runtime));
+            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.AssemblyLoadContextAccessor));
+            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.AssemblyLoaderContainer));
+            services.TryAdd(ServiceDescriptor.Instance(PlatformServices.Default.LibraryManager));
 
             return services;
         }

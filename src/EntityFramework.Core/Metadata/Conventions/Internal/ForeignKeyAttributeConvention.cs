@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         private string FindForeignKeyAttributeOnProperty(EntityType entityType, string navigationName)
         {
             if (string.IsNullOrWhiteSpace(navigationName)
-                || !entityType.HasClrType)
+                || !entityType.HasClrType())
             {
                 return null;
             }

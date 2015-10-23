@@ -14,8 +14,6 @@ namespace E2E.Sqlite
         {
             modelBuilder.Entity<Users_Groups>(entity =>
             {
-                entity.HasAlternateKey(e => new { e.UserId, e.GroupId });
-
                 entity.HasOne(d => d.Group).WithMany(p => p.Users_Groups).HasForeignKey(d => d.GroupId);
 
                 entity.HasOne(d => d.User).WithMany(p => p.Users_Groups).HasForeignKey(d => d.UserId);

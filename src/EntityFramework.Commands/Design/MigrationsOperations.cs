@@ -32,8 +32,7 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] string startupAssemblyName,
             [CanBeNull] string environment,
             [NotNull] string projectDir,
-            [NotNull] string rootNamespace,
-            [CanBeNull] IServiceProvider dnxServices = null)
+            [NotNull] string rootNamespace)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotEmpty(assemblyName, nameof(assemblyName));
@@ -52,11 +51,10 @@ namespace Microsoft.Data.Entity.Design
                 loggerProvider,
                 assemblyName,
                 startupAssemblyName,
-                environment,
-                dnxServices);
+                environment);
 
-            var startup = new StartupInvoker(startupAssemblyName, environment, dnxServices);
-            _servicesBuilder = new DesignTimeServicesBuilder(startup, dnxServices);
+            var startup = new StartupInvoker(startupAssemblyName, environment);
+            _servicesBuilder = new DesignTimeServicesBuilder(startup);
         }
 
         public virtual MigrationFiles AddMigration(

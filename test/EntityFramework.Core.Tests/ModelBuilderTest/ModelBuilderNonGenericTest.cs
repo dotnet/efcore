@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Xunit;
@@ -110,7 +111,7 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             protected EntityTypeBuilder EntityTypeBuilder { get; }
-            public override EntityType Metadata => EntityTypeBuilder.Metadata;
+            public override IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
 
             protected virtual NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
                 => new NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
@@ -118,10 +119,10 @@ namespace Microsoft.Data.Entity.Tests
             public override TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value)
                 => Wrap(EntityTypeBuilder.HasAnnotation(annotation, value));
 
-            public override TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
+            public override TestEntityTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
                 => Wrap(EntityTypeBuilder.HasBaseType(typeof(TBaseEntity)));
 
-            public override TestEntityTypeBuilder<TEntity> BaseType(string baseEntityTypeName)
+            public override TestEntityTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName)
                 => Wrap(EntityTypeBuilder.HasBaseType(baseEntityTypeName));
 
             public override TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression)
@@ -173,7 +174,7 @@ namespace Microsoft.Data.Entity.Tests
 
             private PropertyBuilder PropertyBuilder { get; }
 
-            public override Property Metadata => PropertyBuilder.Metadata;
+            public override IMutableProperty Metadata => PropertyBuilder.Metadata;
 
             public override TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object value)
                 => new NonGenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasAnnotation(annotation, value));
@@ -241,7 +242,7 @@ namespace Microsoft.Data.Entity.Tests
 
             private ReferenceCollectionBuilder ReferenceCollectionBuilder { get; }
 
-            public override ForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
+            public override IMutableForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
 
             public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> HasForeignKey(Expression<Func<TRelatedEntity, object>> foreignKeyExpression)
                 => new NonGenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder.HasForeignKey(foreignKeyExpression.GetPropertyAccessList().Select(p => p.Name).ToArray()));
@@ -276,7 +277,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
 
-            public override ForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
+            public override IMutableForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
 
             protected virtual NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(ReferenceReferenceBuilder referenceReferenceBuilder)
                 => new NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -11,8 +12,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class KeyValueFactorySource : IKeyValueFactorySource
     {
-        private readonly ThreadSafeDictionaryCache<IKey, KeyValueFactory> _cache
-            = new ThreadSafeDictionaryCache<IKey, KeyValueFactory>(ReferenceEqualityComparer.Instance);
+        private readonly ConcurrentDictionary<IKey, KeyValueFactory> _cache
+            = new ConcurrentDictionary<IKey, KeyValueFactory>(ReferenceEqualityComparer.Instance);
 
         public virtual KeyValueFactory GetKeyFactory(IKey key)
             => _cache.GetOrAdd(

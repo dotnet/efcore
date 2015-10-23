@@ -22,9 +22,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly InternalEntityEntry _internalEntry;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="PropertyEntry" /> class. Instances of this class
-        ///     are returned from methods when using the <see cref="ChangeTracker" /> API and it is not designed
-        ///     to be directly constructed in your application code.
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="PropertyEntry" /> class.
+        ///     </para>
+        ///     <para>
+        ///         Instances of this class are returned from methods when using the <see cref="ChangeTracker" /> API and it is
+        ///         not designed to be directly constructed in your application code.
+        ///     </para>
         /// </summary>
         /// <param name="internalEntry">  The internal entry tracking information about the entity the property belongs to. </param>
         /// <param name="name"> The name of the property. </param>
@@ -49,14 +53,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets the metadata the context is using to reason about this property.
+        ///     Gets the metadata that describes the facets of this property and how it maps to the database.
         /// </summary>
         public virtual IProperty Metadata { get; }
 
         /// <summary>
         ///     Gets or sets the value currently assigned to this property. If the current value is set using this property,
         ///     the change tracker is aware of the change and <see cref="ChangeTracker.DetectChanges" /> is not required
-        ///     for the context to be aware of the change.
+        ///     for the context to detect the change.
         /// </summary>
         public virtual object CurrentValue
         {

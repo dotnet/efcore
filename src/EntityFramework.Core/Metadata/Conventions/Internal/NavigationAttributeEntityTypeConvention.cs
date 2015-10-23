@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             var entityType = entityTypeBuilder.Metadata;
 
-            if (entityType.HasClrType)
+            if (entityType.HasClrType())
             {
                 foreach (var navigationPropertyInfo in entityType.ClrType.GetRuntimeProperties().OrderBy(p => p.Name))
                 {

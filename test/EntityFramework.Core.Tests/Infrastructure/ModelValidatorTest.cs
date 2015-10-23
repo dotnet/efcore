@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -34,34 +35,9 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         public virtual void Detects_a_null_primary_key()
         {
             var model = new Model();
-            var entityType = model.AddEntityType(typeof(A));
-            var property = entityType.AddProperty("Id", typeof(int));
+            model.AddEntityType(typeof(A));
 
             VerifyError(CoreStrings.EntityRequiresKey(typeof(A).FullName), model);
-        }
-
-        [Fact]
-        public virtual void Detects_a_non_shadow_property_that_doesnt_match_a_CLR_property()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(A));
-            var property = entityType.AddProperty("Id1", typeof(int));
-            property.IsShadowProperty = false;
-            entityType.SetPrimaryKey(property);
-
-            VerifyError(CoreStrings.NoClrProperty("Id1", typeof(A).FullName), model);
-        }
-
-        [Fact]
-        public virtual void Detects_a_non_shadow_property_that_doesnt_match_the_CLR_property_type()
-        {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(A));
-            var property = entityType.AddProperty("P0", typeof(string));
-            property.IsShadowProperty = false;
-            entityType.SetPrimaryKey(property);
-
-            VerifyError(CoreStrings.PropertyWrongClrType("P0", typeof(A).FullName), model);
         }
 
         [Fact]
@@ -166,7 +142,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             Validate(model);
         }
 
-        private Key CreateKey(EntityType entityType, int startingPropertyIndex = -1, int propertyCount = 1)
+        protected Key CreateKey(EntityType entityType, int startingPropertyIndex = -1, int propertyCount = 1)
         {
             if (startingPropertyIndex == -1)
             {
@@ -191,12 +167,15 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             entityType.SetPrimaryKey(property);
         }
 
-        private ForeignKey CreateForeignKey(Key dependentKey, Key principalKey)
+        protected ForeignKey CreateForeignKey(Key dependentKey, Key principalKey)
+            => CreateForeignKey(dependentKey.DeclaringEntityType, dependentKey.Properties, principalKey);
+
+        protected ForeignKey CreateForeignKey(EntityType dependEntityType, IReadOnlyList<Property> dependentProperties, Key principalKey)
         {
-            var foreignKey = dependentKey.DeclaringEntityType.AddForeignKey(dependentKey.Properties, principalKey, principalKey.DeclaringEntityType);
+            var foreignKey = dependEntityType.AddForeignKey(dependentProperties, principalKey, principalKey.DeclaringEntityType);
             foreignKey.IsUnique = true;
             foreignKey.IsRequired = false;
-            foreach (var property in dependentKey.Properties)
+            foreach (var property in dependentProperties)
             {
                 property.RequiresValueGenerator = false;
             }
@@ -214,14 +193,8 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             public int? P3 { get; set; }
         }
 
-        protected class B
+        protected class B : A
         {
-            public int Id { get; set; }
-
-            public int? P0 { get; set; }
-            public int? P1 { get; set; }
-            public int? P2 { get; set; }
-            public int? P3 { get; set; }
         }
 
         protected virtual void Validate(IModel model) => CreateModelValidator().Validate(model);

@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Design
         public void It_adds_reads_nav_prop_names()
         {
             var modelBuilder = new ModelBuilder(new Metadata.Conventions.ConventionSet());
-            ForeignKey fk = null; 
+            IMutableForeignKey fk = null; 
             modelBuilder.Entity("A", b =>
                 {
                     b.Property<int>("Id");

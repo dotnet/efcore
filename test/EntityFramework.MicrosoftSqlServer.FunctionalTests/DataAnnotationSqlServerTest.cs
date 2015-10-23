@@ -90,19 +90,21 @@ VALUES (@p0, @p1, @p2);",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Equal(@"@p0: Book1
+            Assert.Equal(@"@p0: 0
+@p1: Book1
 
 SET NOCOUNT OFF;
-INSERT INTO [BookDetail] ([BookId])
-OUTPUT INSERTED.[Id]
-VALUES (@p0);
+INSERT INTO [BookDetail] ([Id], [BookId])
+VALUES (@p0, @p1);
+SELECT @@ROWCOUNT;
 
-@p0: 
+@p0: 0
+@p1: 
 
 SET NOCOUNT OFF;
-INSERT INTO [BookDetail] ([BookId])
-OUTPUT INSERTED.[Id]
-VALUES (@p0);",
+INSERT INTO [BookDetail] ([Id], [BookId])
+VALUES (@p0, @p1);
+SELECT @@ROWCOUNT;",
                 Sql);
         }
 

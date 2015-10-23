@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             Check.NotNull(metadataModel, nameof(metadataModel));
 
             var readOnlyFiles = CodeWriter.GetReadOnlyFilePaths(
-                outputPath, dbContextClassName, metadataModel.EntityTypes);
+                outputPath, dbContextClassName, metadataModel.GetEntityTypes());
             if (readOnlyFiles.Count > 0)
             {
                 throw new InvalidOperationException(

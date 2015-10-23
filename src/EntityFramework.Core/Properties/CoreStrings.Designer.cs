@@ -725,14 +725,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Tracking query sources: [{querySources}]
-        /// </summary>
-        public static string LogTrackingQuerySources([CanBeNull] object querySources)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("LogTrackingQuerySources", "querySources"), querySources);
-        }
-
-        /// <summary>
         /// The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.
         /// </summary>
         public static string CannotBeNullable([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
@@ -757,11 +749,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The entity type '{entityType}' cannot be removed because it is being referenced from a foreign key. All referencing foreign keys must be removed or redefined before the entity type can be removed.
+        /// The entity type '{entityType}' cannot be removed because it is being referenced by foreign key {foreignKey} on '{referencingEntityType}'. All referencing foreign keys must be removed or redefined before the entity type can be removed.
         /// </summary>
-        public static string EntityTypeInUse([CanBeNull] object entityType)
+        public static string EntityTypeInUseByForeignKey([CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object referencingEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUse", "entityType"), entityType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUseByForeignKey", "entityType", "foreignKey", "referencingEntityType"), entityType, foreignKey, referencingEntityType);
         }
 
         /// <summary>
@@ -1021,11 +1013,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references an entity type that it is in the same hierarchy as the entity type that it is declared on.
+        /// The entity type related to '{entityType}' cannot be determined because the specified foreign key {foreignKey} references entity type '{principalEntityType}' that it is in the same hierarchy as the entity type that it is declared on '{dependentEntityType}'.
         /// </summary>
-        public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey)
+        public static string IntraHierarchicalAmbiguousTargetEntityType([CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object principalEntityType, [CanBeNull] object dependentEntityType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IntraHierarchicalAmbiguousTargetEntityType", "entityType", "foreignKey"), entityType, foreignKey);
+            return string.Format(CultureInfo.CurrentCulture, GetString("IntraHierarchicalAmbiguousTargetEntityType", "entityType", "foreignKey", "principalEntityType", "dependentEntityType"), entityType, foreignKey, principalEntityType, dependentEntityType);
         }
 
         /// <summary>
@@ -1154,6 +1146,30 @@ namespace Microsoft.Data.Entity.Internal
         public static string ConflictingProperty([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ConflictingProperty", "navigation", "entityType", "duplicateEntityType"), navigation, entityType, duplicateEntityType);
+        }
+
+        /// <summary>
+        /// The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.
+        /// </summary>
+        public static string EntityTypeNotInRelationshipStrict([CanBeNull] object entityType, [CanBeNull] object dependentType, [CanBeNull] object principalType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotInRelationshipStrict", "entityType", "dependentType", "principalType"), entityType, dependentType, principalType);
+        }
+
+        /// <summary>
+        /// The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is the same as the dependent entity type.
+        /// </summary>
+        public static string SelfReferencingAmbiguousNavigation([CanBeNull] object entityType, [CanBeNull] object foreignKey)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("SelfReferencingAmbiguousNavigation", "entityType", "foreignKey"), entityType, foreignKey);
+        }
+
+        /// <summary>
+        /// The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.
+        /// </summary>
+        public static string EntityTypeInUseByDerived([CanBeNull] object entityType, [CanBeNull] object derivedEntityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUseByDerived", "entityType", "derivedEntityType"), entityType, derivedEntityType);
         }
 
         /// <summary>

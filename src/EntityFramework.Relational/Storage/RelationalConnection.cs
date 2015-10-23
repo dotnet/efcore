@@ -23,9 +23,7 @@ namespace Microsoft.Data.Entity.Storage
         private bool _openedInternally;
         private int? _commandTimeout;
         private readonly ILogger _logger;
-#if NET451
         private readonly bool _throwOnAmbientTransaction;
-#endif
 
         protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILogger logger)
         {
@@ -59,9 +57,7 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(RelationalStrings.NoConnectionOrConnectionString);
             }
 
-#if NET451
             _throwOnAmbientTransaction = relationalOptions.ThrowOnAmbientTransaction ?? true;
-#endif
         }
 
         protected abstract DbConnection CreateDbConnection();
@@ -173,10 +169,8 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual void Open()
         {
-#if NET451
             CheckForAmbientTransactions();
 
-#endif
             if (_openedCount == 0 && _connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogVerbose(
@@ -193,10 +187,8 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual async Task OpenAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-#if NET451
             CheckForAmbientTransactions();
 
-#endif
             if (_openedCount == 0 && _connection.Value.State != ConnectionState.Open)
             {
                 _logger.LogVerbose(
@@ -211,16 +203,16 @@ namespace Microsoft.Data.Entity.Storage
             _openedCount++;
         }
 
-#if NET451
         private void CheckForAmbientTransactions()
         {
+#if NET451
             if (_throwOnAmbientTransaction
                 && System.Transactions.Transaction.Current != null)
             {
                 throw new InvalidOperationException(RelationalStrings.AmbientTransaction);
             }
-        }
 #endif
+        }
 
         public virtual void Close()
         {

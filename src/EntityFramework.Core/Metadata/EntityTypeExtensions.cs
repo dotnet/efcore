@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         private static IEnumerable<IEntityType> GetDirectlyDerivedTypes(IModel model, IEntityType entityType)
-            => model.EntityTypes.Where(et1 => et1.BaseType == entityType);
+            => model.GetEntityTypes().Where(et1 => et1.BaseType == entityType);
 
         public static string DisplayName([NotNull] this IEntityType entityType)
         {
@@ -121,6 +122,15 @@ namespace Microsoft.Data.Entity.Metadata
             return false;
         }
 
+        public static bool IsSameHierarchy([NotNull] this IEntityType firstEntityType, [NotNull] IEntityType secondEntityType)
+        {
+            Check.NotNull(firstEntityType, nameof(firstEntityType));
+            Check.NotNull(secondEntityType, nameof(secondEntityType));
+
+            return firstEntityType.IsAssignableFrom(secondEntityType)
+                   || secondEntityType.IsAssignableFrom(firstEntityType);
+        }
+
         public static bool IsAbstract([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -157,6 +167,20 @@ namespace Microsoft.Data.Entity.Metadata
             return property;
         }
 
+        public static IMutableProperty GetProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+            => (IMutableProperty)((IEntityType)entityType).GetProperty(propertyInfo);
+
+        public static IMutableProperty GetProperty([NotNull] this IMutableEntityType entityType, [NotNull] string propertyName)
+            => (IMutableProperty)((IEntityType)entityType).GetProperty(propertyName);
+
+        public static IMutableProperty FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            return entityType.FindProperty(propertyInfo.Name);
+        }
+
         public static IEnumerable<IProperty> FindDerivedProperties(
             [NotNull] this IEntityType entityType,
             [NotNull] string propertyName)
@@ -168,7 +192,50 @@ namespace Microsoft.Data.Entity.Metadata
                 et.GetDeclaredProperties().Where(property => propertyName.Equals(property.Name)));
         }
 
-        [NotNull]
+        public static IMutableProperty GetOrAddProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            var property = entityType.FindProperty(propertyInfo);
+            if (property != null)
+            {
+                property.ClrType = propertyInfo.PropertyType;
+                property.IsShadowProperty = false;
+                return property;
+            }
+
+            return entityType.AddProperty(propertyInfo);
+        }
+
+        public static IMutableProperty AddProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] string name, [NotNull] Type propertyType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var property = entityType.AddProperty(name);
+            property.ClrType = propertyType;
+            return property;
+        }
+
+        public static IMutableProperty AddProperty(
+            [NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+        {
+            Check.NotNull(propertyInfo, nameof(propertyInfo));
+
+            if (entityType.HasClrType()
+                && !propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo()))
+            {
+                throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(
+                    propertyInfo.Name, entityType.DisplayName(), propertyInfo.DeclaringType.Name));
+            }
+
+            var property = entityType.AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
+            property.IsShadowProperty = false;
+            return property;
+        }
+
         public static INavigation GetNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -276,8 +343,17 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetForeignKeys().Where(p => p.DeclaringEntityType == entityType);
         }
 
+        public static IMutableForeignKey AddForeignKey(
+            [NotNull] this IMutableEntityType entityType,
+            [NotNull] IMutableProperty property,
+            [NotNull] IMutableKey principalKey,
+            [NotNull] IMutableEntityType principalEntityType)
+            => entityType.AddForeignKey(new[] { property }, principalKey, principalEntityType);
+
         public static IKey GetPrimaryKey([NotNull] this IEntityType entityType)
         {
+            Check.NotNull(entityType, nameof(entityType));
+
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null)
             {
@@ -287,11 +363,17 @@ namespace Microsoft.Data.Entity.Metadata
             return primaryKey;
         }
 
+        public static IMutableKey GetPrimaryKey([NotNull] this IMutableEntityType entityType)
+            => (IMutableKey)((IEntityType)entityType).GetPrimaryKey();
+
         public static IKey FindDeclaredPrimaryKey([NotNull] this IEntityType entityType)
         {
             var primaryKey = entityType.FindPrimaryKey();
-            return primaryKey.EntityType == entityType ? primaryKey : null;
+            return primaryKey.DeclaringEntityType == entityType ? primaryKey : null;
         }
+        public static IMutableKey SetPrimaryKey(
+            [NotNull] this IMutableEntityType entityType, [NotNull] Property property)
+            => entityType.SetPrimaryKey(new[] { property });
 
         public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
             => entityType.GetKey(new[] { property });
@@ -311,7 +393,11 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.GetKeys().Where(p => p.EntityType == entityType);
+            return entityType.GetKeys().Where(p => p.DeclaringEntityType == entityType);
         }
+
+        public static IMutableKey AddKey(
+            [NotNull] this IMutableEntityType entityType, [NotNull] IMutableProperty property)
+            => entityType.AddKey(new[] { property });
     }
 }

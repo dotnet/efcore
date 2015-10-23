@@ -29,8 +29,7 @@ namespace Microsoft.Data.Entity.Design
             [NotNull] ILoggerProvider loggerProvider,
             [NotNull] string assemblyName,
             [NotNull] string startupAssemblyName,
-            [CanBeNull] string environment,
-            [CanBeNull] IServiceProvider dnxServices = null)
+            [CanBeNull] string environment)
         {
             Check.NotNull(loggerProvider, nameof(loggerProvider));
             Check.NotEmpty(assemblyName, nameof(assemblyName));
@@ -41,7 +40,7 @@ namespace Microsoft.Data.Entity.Design
             _startupAssemblyName = startupAssemblyName;
             _logger = new LazyRef<ILogger>(() => _loggerProvider.CreateCommandsLogger());
 
-            var startup = new StartupInvoker(startupAssemblyName, environment, dnxServices);
+            var startup = new StartupInvoker(startupAssemblyName, environment);
             _runtimeServices = startup.ConfigureServices();
         }
 

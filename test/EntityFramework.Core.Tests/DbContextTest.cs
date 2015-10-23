@@ -1534,7 +1534,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 Assert.Equal(
                     new[] { typeof(Category).FullName, typeof(Product).FullName, typeof(TheGu).FullName },
-                    context.Model.EntityTypes.Select(e => e.Name).ToArray());
+                    context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
 
                 var categoryType = context.Model.GetEntityType(typeof(Category));
                 Assert.Equal("Id", categoryType.GetPrimaryKey().Properties.Single().Name);
@@ -1568,7 +1568,7 @@ namespace Microsoft.Data.Entity.Tests
             {
                 Assert.Equal(
                     new[] { typeof(TheGu).FullName },
-                    context.Model.EntityTypes.Select(e => e.Name).ToArray());
+                    context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
             }
         }
 

@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)
         {
-            var entityTypes = modelBuilder.Metadata.EntityTypes;
+            var entityTypes = modelBuilder.Metadata.GetEntityTypes();
             foreach (var entityType in entityTypes.Where(et => et.BaseType == null))
             {
                 var currentPrimaryKey = entityType.FindPrimaryKey();

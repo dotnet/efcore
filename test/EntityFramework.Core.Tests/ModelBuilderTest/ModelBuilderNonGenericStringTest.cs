@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests
             protected override NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
                 => new NonGenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
 
-            public override TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
+            public override TestEntityTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
                 => Wrap(EntityTypeBuilder.HasBaseType(typeof(TBaseEntity)));
 
             public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> reference = null)

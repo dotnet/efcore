@@ -12,7 +12,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class EntityType : Annotatable, IEntityType
+    public class EntityType : Annotatable, IMutableEntityType
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
 
@@ -70,7 +70,14 @@ namespace Microsoft.Data.Entity.Metadata
             Model = model;
 
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
+#if DEBUG
+            DebugName = DisplayName();
+#endif
         }
+
+#if DEBUG
+        private string DebugName { get; set; }
+#endif
 
         public virtual Type ClrType => _typeOrName as Type;
 
@@ -91,9 +98,9 @@ namespace Microsoft.Data.Entity.Metadata
                 _baseType = null;
                 if (value != null)
                 {
-                    if (HasClrType)
+                    if (this.HasClrType())
                     {
-                        if (!value.HasClrType)
+                        if (!value.HasClrType())
                         {
                             throw new InvalidOperationException(CoreStrings.NonClrBaseType(this, value));
                         }
@@ -104,8 +111,8 @@ namespace Microsoft.Data.Entity.Metadata
                         }
                     }
 
-                    if (!HasClrType
-                        && value.HasClrType)
+                    if (!this.HasClrType()
+                        && value.HasClrType())
                     {
                         throw new InvalidOperationException(CoreStrings.NonShadowBaseType(this, value));
                     }
@@ -120,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata
                         throw new InvalidOperationException(CoreStrings.DerivedEntityCannotHaveKeys(Name));
                     }
 
-                    var propertyCollisions = value.Properties.Select(p => p.Name)
+                    var propertyCollisions = value.GetProperties().Select(p => p.Name)
                         .SelectMany(baseProperty => FindPropertiesInHierarchy(baseProperty));
                     if (propertyCollisions.Any())
                     {
@@ -131,7 +138,7 @@ namespace Microsoft.Data.Entity.Metadata
                                 string.Join(", ", propertyCollisions.Select(p => p.Name))));
                     }
 
-                    var navigationCollisions = value.Navigations.Select(p => p.Name)
+                    var navigationCollisions = value.GetNavigations().Select(p => p.Name)
                         .SelectMany(baseNavigation => FindNavigationsInHierarchy(baseNavigation));
                     if (navigationCollisions.Any())
                     {
@@ -220,8 +227,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual int PropertyCount => (BaseType?.PropertyCount ?? 0) + _properties.Count;
 
-        public virtual bool HasClrType => ClrType != null;
-
         public virtual bool UseEagerSnapshots
         {
             get { return _useEagerSnapshots; }
@@ -241,11 +246,9 @@ namespace Microsoft.Data.Entity.Metadata
 
         #region Primary and Candidate Keys
 
-        [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key SetPrimaryKey([CanBeNull] Property property)
             => SetPrimaryKey(property == null ? null : new[] { property });
 
-        [ContractAnnotation("null => null; notnull => notnull")]
         public virtual Key SetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
             if (BaseType != null)
@@ -293,22 +296,11 @@ namespace Microsoft.Data.Entity.Metadata
             return _primaryKey;
         }
 
-        [ContractAnnotation("null => null; notnull => notnull")]
-        public virtual Key GetOrSetPrimaryKey([CanBeNull] Property property)
-            => GetOrSetPrimaryKey(property == null ? null : new[] { property });
+        public virtual Key GetOrSetPrimaryKey([NotNull] Property property)
+            => GetOrSetPrimaryKey(new[] { property });
 
-        [ContractAnnotation("null => null; notnull => notnull")]
-        public virtual Key GetOrSetPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
-        {
-            Key primaryKey;
-            if (properties != null
-                && (primaryKey = FindPrimaryKey(properties)) != null)
-            {
-                return primaryKey;
-            }
-
-            return SetPrimaryKey(properties);
-        }
+        public virtual Key GetOrSetPrimaryKey([NotNull] IReadOnlyList<Property> properties)
+            => FindPrimaryKey(properties) ?? SetPrimaryKey(properties);
 
         public virtual Key GetPrimaryKey() => (Key)((IEntityType)this).GetPrimaryKey();
 
@@ -319,7 +311,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Key FindPrimaryKey([CanBeNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(properties, nameof(properties));
+            Check.HasNoNulls(properties, nameof(properties));
+            Check.NotEmpty(properties, nameof(properties));
 
             if (BaseType != null)
             {
@@ -379,6 +372,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Key FindKey([NotNull] IReadOnlyList<Property> properties)
         {
+            Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
 
             return FindDeclaredKey(properties) ?? BaseType?.FindKey(properties);
@@ -396,27 +390,26 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IKey FindKey(IReadOnlyList<IProperty> properties)
-            => FindKey(properties.Cast<Property>().ToList());
-
-        public virtual Key RemoveKey([NotNull] Key key)
+        public virtual Key RemoveKey([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(key, nameof(key));
+            Check.NotEmpty(properties, nameof(properties));
 
-            Key removedKey;
-            if (_keys.TryGetValue(key.Properties, out removedKey))
+            var key = FindDeclaredKey(properties);
+            return key == null
+                ? null
+                : RemoveKey(key);
+        }
+
+        private Key RemoveKey([NotNull] Key key)
+        {
+            CheckKeyNotInUse(key);
+
+            if (_primaryKey == key)
             {
-                CheckKeyNotInUse(removedKey);
-
-                if (_primaryKey == removedKey)
-                {
-                    SetPrimaryKey((IReadOnlyList<Property>)null);
-                }
-                _keys.Remove(key.Properties);
-                return removedKey;
+                SetPrimaryKey((IReadOnlyList<Property>)null);
             }
-
-            return null;
+            _keys.Remove(key.Properties);
+            return key;
         }
 
         private void CheckKeyNotInUse(Key key)
@@ -428,8 +421,7 @@ namespace Microsoft.Data.Entity.Metadata
             }
         }
 
-        public virtual IEnumerable<Key> GetKeys()
-            => BaseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
+        public virtual IEnumerable<Key> GetKeys() => BaseType?.GetKeys().Concat(_keys.Values) ?? _keys.Values;
 
         #endregion
 
@@ -495,6 +487,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual ForeignKey FindForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
+            Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
 
             return FindDeclaredForeignKey(properties) ?? BaseType?.FindForeignKey(properties);
@@ -512,9 +505,6 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties)
-            => FindForeignKey(properties.Cast<Property>().ToList());
-
         public virtual IEnumerable<ForeignKey> FindDerivedForeignKeys([NotNull] IReadOnlyList<Property> properties)
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredForeignKeys()
                 .Where(foreignKey => PropertyListComparer.Instance.Equals(properties, foreignKey.Properties)));
@@ -522,20 +512,22 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IEnumerable<ForeignKey> FindForeignKeysInHierarchy([NotNull] IReadOnlyList<Property> properties)
             => ToEnumerable(FindForeignKey(properties)).Concat(FindDerivedForeignKeys(properties));
 
-        public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
+        public virtual ForeignKey RemoveForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(foreignKey, nameof(foreignKey));
+            Check.NotEmpty(properties, nameof(properties));
 
-            ForeignKey removedFk;
-            if (_foreignKeys.TryGetValue(foreignKey.Properties, out removedFk))
-            {
-                CheckForeignKeyNotInUse(removedFk);
+            var foreignKey = FindDeclaredForeignKey(properties);
+            return foreignKey == null
+                ? null
+                : RemoveForeignKey(foreignKey);
+        }
 
-                _foreignKeys.Remove(removedFk.Properties);
-                return removedFk;
-            }
+        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
+        {
+            CheckForeignKeyNotInUse(foreignKey);
 
-            return null;
+            _foreignKeys.Remove(foreignKey.Properties);
+            return foreignKey;
         }
 
         public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys() => Model.FindReferencingForeignKeys(this);
@@ -580,7 +572,7 @@ namespace Microsoft.Data.Entity.Metadata
                     duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
-            var otherNavigation = Navigations.FirstOrDefault(
+            var otherNavigation = GetNavigations().FirstOrDefault(
                 n => n.ForeignKey == foreignKey
                      && n.PointsToPrincipal() == pointsToPrincipal);
 
@@ -621,7 +613,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
             => FindNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
-        
+
         public virtual Navigation GetNavigation([NotNull] string name)
             => (Navigation)((IEntityType)this).GetNavigation(name);
 
@@ -650,32 +642,34 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IEnumerable<Navigation> FindNavigationsInHierarchy([NotNull] string propertyName)
             => ToEnumerable(FindNavigation(propertyName)).Concat(FindDerivedNavigations(propertyName));
 
-        public virtual Navigation RemoveNavigation([NotNull] Navigation navigation)
+        public virtual Navigation RemoveNavigation([NotNull] string name)
         {
-            Check.NotNull(navigation, nameof(navigation));
+            Check.NotEmpty(name, nameof(name));
 
-            Navigation removedNavigation;
-            if (_navigations.TryGetValue(navigation.Name, out removedNavigation))
-            {
-                _navigations.Remove(navigation.Name);
-
-                if (removedNavigation.PointsToPrincipal())
-                {
-                    removedNavigation.ForeignKey.DependentToPrincipal = null;
-                }
-                else
-                {
-                    removedNavigation.ForeignKey.PrincipalToDependent = null;
-                }
-
-                return removedNavigation;
-            }
-
-            return null;
+            var navigation = FindDeclaredNavigation(name);
+            return navigation == null
+                ? null
+                : RemoveNavigation(navigation);
         }
 
-        public virtual IEnumerable<Navigation> Navigations
-            => BaseType?.Navigations.Concat(_navigations.Values) ?? _navigations.Values;
+        private Navigation RemoveNavigation(Navigation navigation)
+        {
+            _navigations.Remove(navigation.Name);
+
+            if (navigation.PointsToPrincipal())
+            {
+                navigation.ForeignKey.DependentToPrincipal = null;
+            }
+            else
+            {
+                navigation.ForeignKey.PrincipalToDependent = null;
+            }
+
+            return navigation;
+        }
+
+        public virtual IEnumerable<Navigation> GetNavigations()
+            => BaseType?.GetNavigations().Concat(_navigations.Values) ?? _navigations.Values;
 
         #endregion
 
@@ -721,6 +715,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Index FindIndex([NotNull] IReadOnlyList<Property> properties)
         {
+            Check.HasNoNulls(properties, nameof(properties));
             Check.NotEmpty(properties, nameof(properties));
 
             return FindDeclaredIndex(properties) ?? BaseType?.FindIndex(properties);
@@ -738,9 +733,6 @@ namespace Microsoft.Data.Entity.Metadata
                 : null;
         }
 
-        public virtual IIndex FindIndex(IReadOnlyList<IProperty> properties)
-            => FindIndex(properties.Cast<Property>().ToList());
-
         public virtual IEnumerable<Index> FindIndexesInHierarchy([NotNull] IReadOnlyList<Property> properties)
             => ToEnumerable(FindIndex(properties)).Concat(FindDerivedIndexes(properties));
 
@@ -748,54 +740,34 @@ namespace Microsoft.Data.Entity.Metadata
             => GetDerivedTypes().SelectMany(et => et.GetDeclaredIndexes()
                 .Where(index => PropertyListComparer.Instance.Equals(properties, index.Properties)));
 
-        public virtual Index RemoveIndex([NotNull] Index index)
+        public virtual Index RemoveIndex([NotNull] IReadOnlyList<Property> properties)
         {
-            Check.NotNull(index, nameof(index));
+            Check.NotEmpty(properties, nameof(properties));
 
-            Index removedIndex;
-            if (_indexes.TryGetValue(index.Properties, out removedIndex))
-            {
-                _indexes.Remove(index.Properties);
-                return removedIndex;
-            }
-
-            return null;
+            var index = FindDeclaredIndex(properties);
+            return index == null
+                ? null
+                : RemoveIndex(index);
         }
 
-        public virtual IEnumerable<Index> Indexes => BaseType?.Indexes.Concat(_indexes.Values) ?? _indexes.Values;
+        private Index RemoveIndex(Index index)
+        {
+            _indexes.Remove(index.Properties);
+            return index;
+        }
+
+        public virtual IEnumerable<Index> GetIndexes() => BaseType?.GetIndexes().Concat(_indexes.Values) ?? _indexes.Values;
 
         #endregion
 
         #region Properties
-        
+
         public virtual Property AddProperty([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            => (Property)((IMutableEntityType)this).AddProperty(propertyInfo);
 
-            if (HasClrType)
-            {
-                if (!propertyInfo.DeclaringType.GetTypeInfo().IsAssignableFrom(ClrType.GetTypeInfo()))
-                {
-                    throw new ArgumentException(CoreStrings.PropertyWrongEntityClrType(propertyInfo.Name, Name, propertyInfo.DeclaringType.Name));
-                }
-            }
-            else
-            {
-                throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(propertyInfo.Name, Name));
-            }
-
-            var property = AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
-            property.IsShadowProperty = false;
-            return property;
-        }
-        
         public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType)
-        {
-            var property = AddProperty(name);
-            property.ClrType = propertyType;
-            return property;
-        }
-        
+            => (Property)((IMutableEntityType)this).AddProperty(name, propertyType);
+
         public virtual Property AddProperty([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
@@ -824,45 +796,29 @@ namespace Microsoft.Data.Entity.Metadata
         }
 
         public virtual Property GetOrAddProperty([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            => (Property)((IMutableEntityType)this).GetOrAddProperty(propertyInfo);
 
-            var property = FindProperty(propertyInfo);
-            if (property != null)
-            {
-                property.ClrType = propertyInfo.PropertyType;
-                property.IsShadowProperty = false;
-                return property;
-            }
-
-            return AddProperty(propertyInfo);
-        }
-        
         public virtual Property GetOrAddProperty([NotNull] string name)
             => FindProperty(name) ?? AddProperty(name);
-        
+
         public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
             return GetProperty(propertyInfo.Name);
         }
-        
+
         public virtual Property GetProperty([NotNull] string propertyName)
             => (Property)((IEntityType)this).GetProperty(propertyName);
 
         public virtual Property FindProperty([NotNull] PropertyInfo propertyInfo)
+            => (Property)((IMutableEntityType)this).FindProperty(propertyInfo);
+
+        public virtual Property FindProperty([NotNull] string name)
         {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
+            Check.NotEmpty(name, nameof(name));
 
-            return FindProperty(propertyInfo.Name);
-        }
-
-        public virtual Property FindProperty([NotNull] string propertyName)
-        {
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            return FindDeclaredProperty(propertyName) ?? BaseType?.FindProperty(propertyName);
+            return FindDeclaredProperty(name) ?? BaseType?.FindProperty(name);
         }
 
         public virtual Property FindDeclaredProperty([NotNull] string propertyName)
@@ -883,30 +839,49 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual IEnumerable<Property> FindPropertiesInHierarchy([NotNull] string propertyName)
             => ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
 
-        public virtual Property RemoveProperty([NotNull] Property property)
+        public virtual Property RemoveProperty([NotNull] string name)
         {
-            Check.NotNull(property, nameof(property));
+            Check.NotEmpty(name, nameof(name));
 
-            Property removedProperty;
-            if (_properties.TryGetValue(property.Name, out removedProperty))
-            {
-                if (property.IsInUse)
-                {
-                    throw new InvalidOperationException(CoreStrings.PropertyInUse(property.Name, Name));
-                }
-
-                _properties.Remove(property.Name);
-
-                PropertyMetadataChanged(property);
-
-                return removedProperty;
-            }
-
-            return null;
+            var property = FindDeclaredProperty(name);
+            return property == null
+                ? null
+                : RemoveProperty(property);
         }
 
-        public virtual IEnumerable<Property> Properties
-            => BaseType?.Properties.Concat(_properties.Values) ?? _properties.Values;
+        private Property RemoveProperty(Property property)
+        {
+            CheckPropertyNotInUse(property);
+
+            _properties.Remove(property.Name);
+
+            PropertyMetadataChanged(property);
+
+            return property;
+        }
+
+        private void CheckPropertyNotInUse(Property property)
+        {
+            CheckPropertyNotInUse(property, this);
+
+            foreach (var entityType in GetDerivedTypes())
+            {
+                CheckPropertyNotInUse(property, entityType);
+            }
+        }
+
+        private void CheckPropertyNotInUse(Property property, EntityType entityType)
+        {
+            if (entityType.GetDeclaredKeys().Any(k => k.Properties.Contains(property))
+                || entityType.GetDeclaredForeignKeys().Any(k => k.Properties.Contains(property))
+                || entityType.GetDeclaredIndexes().Any(i => i.Properties.Contains(property)))
+            {
+                throw new InvalidOperationException(CoreStrings.PropertyInUse(property.Name, Name));
+            }
+        }
+
+        public virtual IEnumerable<Property> GetProperties()
+            => BaseType?.GetProperties().Concat(_properties.Values) ?? _properties.Values;
 
         public virtual void PropertyMetadataChanged([CanBeNull] Property property)
         {
@@ -948,21 +923,91 @@ namespace Microsoft.Data.Entity.Metadata
 
         IModel IEntityType.Model => Model;
 
+        IMutableModel IMutableEntityType.Model => Model;
+
+        IMutableEntityType IMutableEntityType.BaseType
+        {
+            get { return BaseType; }
+            set { BaseType = (EntityType)value; }
+        }
+
+        public virtual IMutableKey SetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
+            => SetPrimaryKey(properties?.Cast<Property>().ToList());
+
+        public virtual IMutableKey GetOrSetPrimaryKey(IReadOnlyList<IMutableProperty> properties)
+            => GetOrSetPrimaryKey(properties.Cast<Property>().ToList());
+
         IKey IEntityType.FindPrimaryKey() => FindPrimaryKey();
+        IMutableKey IMutableEntityType.FindPrimaryKey() => FindPrimaryKey();
 
-        IProperty IEntityType.FindProperty(string propertyName) => FindProperty(propertyName);
+        public virtual IMutableKey AddKey(IReadOnlyList<IMutableProperty> properties) => AddKey(properties.Cast<Property>().ToList());
+        public virtual IMutableKey GetOrAddKey(IReadOnlyList<IMutableProperty> properties) => GetOrAddKey(properties.Cast<Property>().ToList());
 
-        INavigation IEntityType.FindNavigation(string name) => FindNavigation(name);
+        public virtual IKey FindKey(IReadOnlyList<IProperty> properties)
+            => FindKey(properties.Cast<Property>().ToList());
 
-        IEnumerable<IProperty> IEntityType.GetProperties() => Properties;
+        public virtual IMutableKey FindKey(IReadOnlyList<IMutableProperty> properties) => FindKey(properties.Cast<Property>().ToList());
+        IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
+        IEnumerable<IMutableKey> IMutableEntityType.GetKeys() => GetKeys();
+        public virtual IMutableKey RemoveKey(IReadOnlyList<IMutableProperty> properties) => RemoveKey(properties.Cast<Property>().ToList());
+
+        public virtual IMutableForeignKey AddForeignKey(
+            IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
+            => AddForeignKey(properties.Cast<Property>().ToList(), (Key)principalKey, (EntityType)principalEntityType);
+
+        public virtual IMutableForeignKey GetOrAddForeignKey(
+            IReadOnlyList<IMutableProperty> properties, IMutableKey principalKey, IMutableEntityType principalEntityType)
+            => GetOrAddForeignKey(properties.Cast<Property>().ToList(), (Key)principalKey, (EntityType)principalEntityType);
+
+        public virtual IForeignKey FindForeignKey(IReadOnlyList<IProperty> properties)
+            => FindForeignKey(properties.Cast<Property>().ToList());
+
+        public virtual IMutableForeignKey FindForeignKey(IReadOnlyList<IMutableProperty> properties)
+            => FindForeignKey(properties.Cast<Property>().ToList());
 
         IEnumerable<IForeignKey> IEntityType.GetForeignKeys() => GetForeignKeys();
+        IEnumerable<IMutableForeignKey> IMutableEntityType.GetForeignKeys() => GetForeignKeys();
 
-        IEnumerable<INavigation> IEntityType.GetNavigations() => Navigations;
+        public virtual IMutableForeignKey RemoveForeignKey(IReadOnlyList<IMutableProperty> properties)
+            => RemoveForeignKey(properties.Cast<Property>().ToList());
 
-        IEnumerable<IIndex> IEntityType.GetIndexes() => Indexes;
+        IMutableNavigation IMutableEntityType.AddNavigation(string name, IMutableForeignKey foreignKey, bool pointsToPrincipal)
+            => AddNavigation(name, (ForeignKey)foreignKey, pointsToPrincipal);
 
-        IEnumerable<IKey> IEntityType.GetKeys() => GetKeys();
+        IMutableNavigation IMutableEntityType.GetOrAddNavigation(string name, IMutableForeignKey foreignKey, bool pointsToPrincipal)
+            => GetOrAddNavigation(name, (ForeignKey)foreignKey, pointsToPrincipal);
+
+        INavigation IEntityType.FindNavigation(string name) => FindNavigation(name);
+        IMutableNavigation IMutableEntityType.FindNavigation(string name) => FindNavigation(name);
+        IEnumerable<INavigation> IEntityType.GetNavigations() => GetNavigations();
+        IEnumerable<IMutableNavigation> IMutableEntityType.GetNavigations() => GetNavigations();
+        IMutableNavigation IMutableEntityType.RemoveNavigation(string name) => RemoveNavigation(name);
+
+        public virtual IMutableIndex AddIndex(IReadOnlyList<IMutableProperty> properties)
+            => AddIndex(properties.Cast<Property>().ToList());
+
+        public virtual IMutableIndex GetOrAddIndex(IReadOnlyList<IMutableProperty> properties)
+            => GetOrAddIndex(properties.Cast<Property>().ToList());
+
+        public virtual IIndex FindIndex(IReadOnlyList<IProperty> properties)
+            => FindIndex(properties.Cast<Property>().ToList());
+
+        public virtual IMutableIndex FindIndex(IReadOnlyList<IMutableProperty> properties)
+            => FindIndex(properties.Cast<Property>().ToList());
+
+        IEnumerable<IIndex> IEntityType.GetIndexes() => GetIndexes();
+        IEnumerable<IMutableIndex> IMutableEntityType.GetIndexes() => GetIndexes();
+
+        public virtual IMutableIndex RemoveIndex(IReadOnlyList<IMutableProperty> properties)
+            => RemoveIndex(properties.Cast<Property>().ToList());
+
+        IMutableProperty IMutableEntityType.AddProperty(string name) => AddProperty(name);
+        IMutableProperty IMutableEntityType.GetOrAddProperty(string name) => GetOrAddProperty(name);
+        IProperty IEntityType.FindProperty(string name) => FindProperty(name);
+        IMutableProperty IMutableEntityType.FindProperty(string name) => FindProperty(name);
+        IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+        IEnumerable<IMutableProperty> IMutableEntityType.GetProperties() => GetProperties();
+        IMutableProperty IMutableEntityType.RemoveProperty(string name) => RemoveProperty(name);
 
         #endregion
 

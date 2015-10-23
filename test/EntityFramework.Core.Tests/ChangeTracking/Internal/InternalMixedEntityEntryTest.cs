@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
-    public class InternalMixedEntityEntryTest : InternalEntityEntryTest
+    public class InternalMixedEntityEntryTest : InternalEntityEntryTestBase
     {
         [Fact]
         public void Can_get_entity()

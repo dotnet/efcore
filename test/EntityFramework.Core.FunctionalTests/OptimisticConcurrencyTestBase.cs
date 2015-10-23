@@ -547,21 +547,15 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         [Fact]
         public virtual void Calling_Reload_on_a_Unchanged_entity_makes_the_entity_unchanged()
-        {
-            TestReloadPositive(EntityState.Unchanged);
-        }
+            => TestReloadPositive(EntityState.Unchanged);
 
         [Fact]
         public virtual void Calling_Reload_on_a_Modified_entity_makes_the_entity_unchanged()
-        {
-            TestReloadPositive(EntityState.Modified);
-        }
+            => TestReloadPositive(EntityState.Modified);
 
         [Fact]
         public virtual void Calling_Reload_on_a_Deleted_entity_makes_the_entity_unchanged()
-        {
-            TestReloadPositive(EntityState.Deleted);
-        }
+            => TestReloadPositive(EntityState.Deleted);
 
         private void TestReloadPositive(EntityState state)
         {
@@ -628,10 +622,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         /// </summary>
         private Task ConcurrencyTestAsync(
             Action<F1Context> change, Action<F1Context, DbUpdateException> resolver,
-            Action<F1Context> validator)
-        {
-            return ConcurrencyTestAsync(change, change, resolver, validator);
-        }
+            Action<F1Context> validator) => ConcurrencyTestAsync(change, change, resolver, validator);
 
         /// <summary>
         ///     Runs the two actions with two different contexts and calling

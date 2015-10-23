@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata
             return (int?)property[CoreAnnotationNames.MaxLengthAnnotation];
         }
 
-        public static void SetMaxLength([NotNull] this Property property, int? maxLength)
+        public static void SetMaxLength([NotNull] this IMutableProperty property, int? maxLength)
         {
             Check.NotNull(property, nameof(property));
 
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, nameof(property));
 
             // TODO: Perf: Avoid doing Contains check each time
-            return property.DeclaringEntityType.Model.EntityTypes.Where(e => e.GetProperties().Contains(property));
+            return property.DeclaringEntityType.Model.GetEntityTypes().Where(e => e.GetProperties().Contains(property));
         }
 
         public static IEnumerable<EntityType> FindContainingEntityTypes([NotNull] this Property property)

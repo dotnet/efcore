@@ -2696,7 +2696,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     modelBuilder.Entity(
                         "Animal",
                         x =>
@@ -2737,7 +2737,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     modelBuilder.Entity(
                         "Animal",
                         x =>
@@ -2777,7 +2777,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -2801,7 +2801,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -2841,7 +2841,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -2864,7 +2864,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -2903,7 +2903,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -2928,7 +2928,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -2967,7 +2967,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -2992,7 +2992,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -3033,7 +3033,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -3058,7 +3058,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -3100,7 +3100,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -3126,7 +3126,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -3168,7 +3168,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -3194,7 +3194,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -3284,7 +3284,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                         });
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     modelBuilder.Entity(
                         "Animal",
                         x =>
@@ -3332,7 +3332,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     modelBuilder.Entity(
                         "Animal",
                         x =>
@@ -3387,7 +3387,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 _ => { },
                 modelBuilder =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     modelBuilder.Entity(
                         "Animal",
                         x =>
@@ -3494,7 +3494,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                         });
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -3525,7 +3525,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                         });
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -3567,7 +3567,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Execute(
                 source =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -3598,7 +3598,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 },
                 target =>
                 {
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>
@@ -3654,7 +3654,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                         });
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     source.Entity(
                         "Animal",
                         x =>
@@ -3686,7 +3686,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                             x.Property<int>("Id");
                             x.HasKey("Id");
                         });
-                    EntityType animal = null;
+                    IMutableEntityType animal = null;
                     target.Entity(
                         "Animal",
                         x =>

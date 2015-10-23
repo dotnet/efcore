@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
@@ -41,124 +42,123 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public virtual IReadOnlyList<RelationalParameter> Parameters { get; }
 
-
         public virtual void ExecuteNonQuery(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             bool manageConnection = true)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
                 (cmd, con) =>
-                {
-                    using (cmd)
                     {
-                        return cmd.ExecuteNonQuery();
-                    }
-                },
+                        using (cmd)
+                        {
+                            return cmd.ExecuteNonQuery();
+                        }
+                    },
                 RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                 openConnection: manageConnection,
                 closeConnection: manageConnection);
 
         public virtual async Task ExecuteNonQueryAsync(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken),
             bool manageConnection = true)
             => await ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 async (cmd, con, ct) =>
-                {
-                    using (cmd)
                     {
-                        return await cmd.ExecuteNonQueryAsync(ct);
-                    }
-                },
+                        using (cmd)
+                        {
+                            return await cmd.ExecuteNonQueryAsync(ct);
+                        }
+                    },
                 RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
                 openConnection: manageConnection,
                 closeConnection: manageConnection,
                 cancellationToken: cancellationToken);
 
         public virtual object ExecuteScalar(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             bool manageConnection = true)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
                 (cmd, con) =>
-                {
-                    using (cmd)
                     {
-                        return cmd.ExecuteScalar();
-                    }
-                },
+                        using (cmd)
+                        {
+                            return cmd.ExecuteScalar();
+                        }
+                    },
                 RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                 openConnection: manageConnection,
                 closeConnection: manageConnection);
 
         public virtual async Task<object> ExecuteScalarAsync(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken),
             bool manageConnection = true)
             => await ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 async (cmd, con, ct) =>
-                {
-                    using (cmd)
                     {
-                        return await cmd.ExecuteScalarAsync(ct);
-                    }
-                },
+                        using (cmd)
+                        {
+                            return await cmd.ExecuteScalarAsync(ct);
+                        }
+                    },
                 RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
                 openConnection: manageConnection,
                 closeConnection: manageConnection,
                 cancellationToken: cancellationToken);
 
         public virtual RelationalDataReader ExecuteReader(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             bool manageConnection = true)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
                 (cmd, con) =>
-                {
-                    try
                     {
-                        return new RelationalDataReader(
-                            manageConnection
-                                ? connection
-                                : null,
-                            cmd,
-                            cmd.ExecuteReader());
-                    }
-                    catch
-                    {
-                        cmd.Dispose();
-                        throw;
-                    }
-                },
+                        try
+                        {
+                            return new RelationalDataReader(
+                                manageConnection
+                                    ? connection
+                                    : null,
+                                cmd,
+                                cmd.ExecuteReader());
+                        }
+                        catch
+                        {
+                            cmd.Dispose();
+                            throw;
+                        }
+                    },
                 RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                 openConnection: manageConnection,
                 closeConnection: false);
 
         public virtual async Task<RelationalDataReader> ExecuteReaderAsync(
-            [NotNull] IRelationalConnection connection,
+            IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken),
             bool manageConnection = true)
             => await ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 async (cmd, con, ct) =>
-                {
-                    try
                     {
-                        return new RelationalDataReader(
-                            manageConnection
-                                ? con
-                                : null,
-                            cmd,
-                            await cmd.ExecuteReaderAsync(ct));
-                    }
-                    catch
-                    {
-                        cmd.Dispose();
-                        throw;
-                    }
-                },
+                        try
+                        {
+                            return new RelationalDataReader(
+                                manageConnection
+                                    ? con
+                                    : null,
+                                cmd,
+                                await cmd.ExecuteReaderAsync(ct));
+                        }
+                        catch
+                        {
+                            cmd.Dispose();
+                            throw;
+                        }
+                    },
                 RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                 openConnection: manageConnection,
                 closeConnection: false,
@@ -180,19 +180,32 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             T result;
 
-            if(openConnection)
+            if (openConnection)
             {
                 connection.Open();
             }
 
+            Stopwatch stopwatch = null;
+
             try
             {
-                Logger.LogCommand(dbCommand);
+                if (Logger.IsEnabled(LogLevel.Information))
+                {
+                    stopwatch = Stopwatch.StartNew();
+                }
 
                 result = action(dbCommand, connection);
+
+                stopwatch?.Stop();
+
+                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
             }
             catch (Exception exception)
             {
+                stopwatch?.Stop();
+
+                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
+
                 DiagnosticSource
                     .WriteCommandError(
                         dbCommand,
@@ -209,7 +222,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
             finally
             {
-                if(closeConnection)
+                if (closeConnection)
                 {
                     connection.Close();
                 }
@@ -243,17 +256,30 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             if (openConnection)
             {
-                await connection.OpenAsync();
+                await connection.OpenAsync(cancellationToken);
             }
+
+            Stopwatch stopwatch = null;
 
             try
             {
-                Logger.LogCommand(dbCommand);
+                if (Logger.IsEnabled(LogLevel.Information))
+                {
+                    stopwatch = Stopwatch.StartNew();
+                }
 
                 result = await action(dbCommand, connection, cancellationToken);
+
+                stopwatch?.Stop();
+
+                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
             }
             catch (Exception exception)
             {
+                stopwatch?.Stop();
+
+                Logger.LogCommandExecuted(dbCommand, stopwatch?.ElapsedMilliseconds);
+
                 DiagnosticSource
                     .WriteCommandError(
                         dbCommand,
@@ -261,7 +287,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         async: true,
                         exception: exception);
 
-                if(openConnection && !closeConnection)
+                if (openConnection && !closeConnection)
                 {
                     connection.Close();
                 }

@@ -17,13 +17,14 @@ namespace Microsoft.Data.Entity.Storage
 {
     internal static class RelationalLoggerExtensions
     {
-        public static void LogCommand([NotNull] this ISensitiveDataLogger logger, [NotNull] DbCommand command)
+        public static void LogCommandExecuted(
+            [NotNull] this ISensitiveDataLogger logger, [NotNull] DbCommand command, long? elapsedMilliseconds)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(command, nameof(command));
 
             logger.LogInformation(
-                RelationalLoggingEventId.ExecutingCommand,
+                RelationalLoggingEventId.ExecutedCommand,
                 () =>
                     {
                         var logParameterValues
@@ -36,10 +37,12 @@ namespace Microsoft.Data.Entity.Storage
                             command.CommandTimeout,
                             command.Parameters
                                 .Cast<DbParameter>()
-                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"));
+                                .ToDictionary(p => p.ParameterName, p => logParameterValues ? p.Value : "?"),
+                            elapsedMilliseconds);
                     },
                 state =>
-                    RelationalStrings.RelationalLoggerExecutingCommand(
+                    RelationalStrings.RelationalLoggerExecutedCommand(
+                        string.Format($"{elapsedMilliseconds:N0}"),
                         state.Parameters
                             .Select(kv => $"{kv.Key}='{Convert.ToString(kv.Value, CultureInfo.InvariantCulture)}'")
                             .Join(),

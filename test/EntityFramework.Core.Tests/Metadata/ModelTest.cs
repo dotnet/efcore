@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             Assert.Null(model.FindEntityType(typeof(Customer)));
-            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer), model)));
+            Assert.Null(model.RemoveEntityType(typeof(Customer)));
 
             var entityType = model.AddEntityType(typeof(Customer));
 
@@ -27,10 +27,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer)));
 
-            Assert.Equal(new[] { entityType }, model.EntityTypes.ToArray());
+            Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
-            Assert.Same(entityType, model.RemoveEntityType(entityType));
-            Assert.Null(model.RemoveEntityType(entityType));
+            Assert.Same(entityType, model.RemoveEntityType(entityType.ClrType));
+            Assert.Null(model.RemoveEntityType(entityType.ClrType));
             Assert.Null(model.FindEntityType(typeof(Customer)));
         }
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             var model = new Model();
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
-            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer).FullName, model)));
+            Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
 
             var entityType = model.AddEntityType(typeof(Customer).FullName);
 
@@ -50,10 +50,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer).FullName));
 
-            Assert.Equal(new[] { entityType }, model.EntityTypes.ToArray());
+            Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
-            Assert.Same(entityType, model.RemoveEntityType(entityType));
-            Assert.Null(model.RemoveEntityType(entityType));
+            Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
+            Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
         }
 
@@ -70,15 +70,32 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             orderType.AddForeignKey(customerFk, customerKey, customerType);
 
             Assert.Equal(
-                CoreStrings.EntityTypeInUse(typeof(Customer).FullName),
-                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType)).Message);
+                CoreStrings.EntityTypeInUseByForeignKey(
+                    typeof(Customer).Name,
+                    "{'" + Order.CustomerIdProperty.Name + "'}",
+                    typeof(Order).Name),
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
+        }
+
+        [Fact]
+        public void Cannot_remove_entity_type_when_it_has_derived_types()
+        {
+            var model = new Model();
+            var customerType = model.GetOrAddEntityType(typeof(Customer));
+            var specialCustomerType = model.GetOrAddEntityType(typeof(SpecialCustomer));
+
+            specialCustomerType.BaseType = customerType;
+
+            Assert.Equal(
+                CoreStrings.EntityTypeInUseByDerived(typeof(Customer).Name, typeof(SpecialCustomer).Name),
+                Assert.Throws<InvalidOperationException>(() => model.RemoveEntityType(customerType.Name)).Message);
         }
 
         [Fact]
         public void Adding_duplicate_entity_by_type_throws()
         {
             var model = new Model();
-            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer).FullName, model)));
+            Assert.Null(model.RemoveEntityType(typeof(Customer).FullName));
 
             model.AddEntityType(typeof(Customer));
 
@@ -91,7 +108,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         public void Adding_duplicate_entity_by_name_throws()
         {
             var model = new Model();
-            Assert.Null(model.RemoveEntityType(new EntityType(typeof(Customer), model)));
+            Assert.Null(model.RemoveEntityType(typeof(Customer)));
 
             model.AddEntityType(typeof(Customer));
 
@@ -137,7 +154,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var entityType1 = model.AddEntityType(typeof(Order));
             var entityType2 = model.AddEntityType(typeof(Customer));
 
-            Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.EntityTypes));
+            Assert.True(new[] { entityType2, entityType1 }.SequenceEqual(model.GetEntityTypes()));
         }
 
         [Fact]
@@ -162,6 +179,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
 
         private class Order

@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public enum RelationalLoggingEventId
     {
-        ExecutingCommand = 1,
+        ExecutedCommand = 1,
         CreatingDatabase,
         OpeningConnection,
         ClosingConnection,

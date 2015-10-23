@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Design;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Dnx.Runtime;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Dnx.Runtime.Common.CommandLine;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,25 +23,16 @@ namespace Microsoft.Data.Entity.Commands
 {
     public class Program
     {
-        private readonly IApplicationShutdown _applicationShutdown;
-        private readonly bool _useConsoleColors;
-        private readonly IServiceProvider _dnxServices;
+        private static readonly bool _useConsoleColors;
 
-        public Program([NotNull] IServiceProvider dnxServices)
+        static Program()
         {
-            Check.NotNull(dnxServices, nameof(dnxServices));
-
-            var runtimeEnv = dnxServices.GetRequiredService<IRuntimeEnvironment>();
-            _applicationShutdown = dnxServices.GetRequiredService<IApplicationShutdown>();
-            _useConsoleColors = runtimeEnv.OperatingSystem == "Windows";
-            _dnxServices = dnxServices;
+            _useConsoleColors = PlatformServices.Default.Runtime.OperatingSystem == "Windows";
         }
 
-        public virtual int Main([NotNull] string[] args)
+        public static int Main([NotNull] string[] args)
         {
             Check.NotNull(args, nameof(args));
-
-            Console.CancelKeyPress += (_, __) => _applicationShutdown.RequestShutdown();
 
             var app = new CommandLineApplication
             {
@@ -178,8 +169,7 @@ namespace Microsoft.Data.Entity.Commands
                                         dbContextClassName.Value(),
                                         schemaFilters.Values,
                                         tableFilters.Values,
-                                        useDataAnnotations.HasValue(),
-                                        _applicationShutdown.ShutdownRequested);
+                                        useDataAnnotations.HasValue());
                                 });
                         });
                 });
@@ -321,7 +311,7 @@ namespace Microsoft.Data.Entity.Commands
             return app.Execute(args);
         }
 
-        private void ShowLogo()
+        private static void ShowLogo()
             => AnsiConsole.GetOutput(_useConsoleColors).WriteLine(
                 "\x1b[1m\x1b[37m" + Environment.NewLine +
                 "                     _/\\__" + Environment.NewLine +
@@ -332,10 +322,10 @@ namespace Microsoft.Data.Entity.Commands
                 "        \x1b[22m\x1b[35m|___||_|  \x1b[1m\x1b[37m     /   \\\\\\/\\\\" + Environment.NewLine +
                 "\x1b[22m\x1b[39m");
 
-        private Executor CreateExecutor(string environment, bool verbose)
-            => new Executor(environment, verbose, _dnxServices);
+        private static Executor CreateExecutor(string environment, bool verbose)
+            => new Executor(environment, verbose);
 
-        private void LogError(string format, params object[] arg)
+        private static void LogError(string format, params object[] arg)
         {
             using (new ColorScope(ConsoleColor.Red))
             {
@@ -350,9 +340,9 @@ namespace Microsoft.Data.Entity.Commands
             private readonly LazyRef<DbContextOperations> _contextOperations;
             private readonly LazyRef<DatabaseOperations> _databaseOperations;
 
-            public Executor(string environment, bool verbose, IServiceProvider dnxServices)
+            public Executor(string environment, bool verbose)
             {
-                var appEnv = dnxServices.GetRequiredService<IApplicationEnvironment>();
+                var appEnv = PlatformServices.Default.Application;
 
                 var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose));
                 _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
@@ -367,8 +357,7 @@ namespace Microsoft.Data.Entity.Commands
                         loggerProvider,
                         targetName,
                         startupTargetName,
-                        environment,
-                        dnxServices));
+                        environment));
                 _databaseOperations = new LazyRef<DatabaseOperations>(
                     () => new DatabaseOperations(
                         loggerProvider,
@@ -376,8 +365,7 @@ namespace Microsoft.Data.Entity.Commands
                         startupTargetName,
                         environment,
                         projectDir,
-                        rootNamespace,
-                        dnxServices));
+                        rootNamespace));
                 _migrationsOperations = new LazyRef<MigrationsOperations>(
                     () => new MigrationsOperations(
                         loggerProvider,
@@ -385,8 +373,7 @@ namespace Microsoft.Data.Entity.Commands
                         startupTargetName,
                         environment,
                         projectDir,
-                        rootNamespace,
-                        dnxServices));
+                        rootNamespace));
             }
 
             public virtual int ListContexts(bool json)

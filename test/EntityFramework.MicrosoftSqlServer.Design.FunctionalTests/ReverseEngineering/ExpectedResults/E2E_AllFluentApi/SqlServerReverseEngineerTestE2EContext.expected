@@ -100,8 +100,6 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneFKToUniqueKeyDependent>(entity =>
             {
-                entity.HasAlternateKey(e => new { e.OneToOneFKToUniqueKeyDependentFK1, e.OneToOneFKToUniqueKeyDependentFK2 });
-
                 entity.HasKey(e => new { e.OneToOneFKToUniqueKeyDependentID1, e.OneToOneFKToUniqueKeyDependentID2 });
 
                 entity.Property(e => e.SomeColumn)
@@ -114,8 +112,6 @@ namespace E2ETest.Namespace
             modelBuilder.Entity<OneToOneFKToUniqueKeyPrincipal>(entity =>
             {
                 entity.HasKey(e => new { e.OneToOneFKToUniqueKeyPrincipalID1, e.OneToOneFKToUniqueKeyPrincipalID2 });
-
-                entity.HasAlternateKey(e => new { e.OneToOneFKToUniqueKeyPrincipalUniqueKey1, e.OneToOneFKToUniqueKeyPrincipalUniqueKey2 });
 
                 entity.Property(e => e.SomePrincipalColumn)
                     .IsRequired()
@@ -133,8 +129,6 @@ namespace E2ETest.Namespace
 
             modelBuilder.Entity<OneToOneSeparateFKDependent>(entity =>
             {
-                entity.HasAlternateKey(e => new { e.OneToOneSeparateFKDependentFK1, e.OneToOneSeparateFKDependentFK2 });
-
                 entity.HasKey(e => new { e.OneToOneSeparateFKDependentID1, e.OneToOneSeparateFKDependentID2 });
 
                 entity.Property(e => e.SomeDependentEndColumn)
@@ -163,6 +157,8 @@ namespace E2ETest.Namespace
                 entity.Property(e => e.SumOfAAndB).ValueGeneratedOnAddOrUpdate();
 
                 entity.Property(e => e.WithDateDefaultExpression).HasDefaultValueSql("getdate()");
+
+                entity.Property(e => e.WithDateFixedDefault).HasDefaultValueSql("'October 20, 2015 11am'");
 
                 entity.Property(e => e.WithDefaultValue).HasDefaultValue(-1);
 

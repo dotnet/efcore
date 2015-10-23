@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Equal(
                 new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
-                model.EntityTypes.Select(e => e.Name).ToArray());
+                model.GetEntityTypes().Select(e => e.Name).ToArray());
         }
 
         private class JustAClass

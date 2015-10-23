@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata
         private readonly string _annotationName;
 
         public Sequence(
-            [NotNull] Model model,
+            [NotNull] IMutableModel model,
             [NotNull] string annotationPrefix,
             [NotNull] string name,
             [CanBeNull] string schema = null)

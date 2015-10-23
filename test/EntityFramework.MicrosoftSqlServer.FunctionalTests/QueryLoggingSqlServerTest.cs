@@ -28,7 +28,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.StartsWith(
                     @"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
-    Tracking query sources: [<generated>_0]
     TRACKED: True
 (QueryContext prm0) => IEnumerable<Customer> _ShapedQuery(
     queryContext: prm0, 
@@ -102,7 +101,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => AnnotateQuery(Include([c].Orders))'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Including navigation: 'Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer.Orders'
-    Tracking query sources: [c]
     TRACKED: True
 (QueryContext prm0) => IEnumerable<Customer> _Include(
     queryContext: (RelationalQueryContext) prm0, 

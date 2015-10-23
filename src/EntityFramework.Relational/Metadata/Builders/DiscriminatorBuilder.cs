@@ -25,13 +25,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
         public virtual DiscriminatorBuilder HasValue([NotNull] Type entityType, [CanBeNull] object value)
         {
-            var entityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder.ModelBuilder.Entity(entityType, ConfigurationSource.Convention);
+            var entityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder.ModelBuilder.Entity(entityType, AnnotationsBuilder.Annotations.ConfigurationSource);
             return HasValue(entityTypeBuilder, value);
         }
 
         public virtual DiscriminatorBuilder HasValue([NotNull] string entityTypeName, [CanBeNull] object value)
         {
-            var entityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder.ModelBuilder.Entity(entityTypeName, ConfigurationSource.Convention);
+            var entityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder.ModelBuilder.Entity(entityTypeName, AnnotationsBuilder.Annotations.ConfigurationSource);
             return HasValue(entityTypeBuilder, value);
         }
 

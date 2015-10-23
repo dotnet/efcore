@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
-    public class InternalClrEntityEntryTest : InternalEntityEntryTest
+    public class InternalClrEntityEntryTest : InternalEntityEntryTestBase
     {
         [Fact]
         public void Can_get_entity()
@@ -86,21 +86,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         [Fact]
         public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
-        {
-            SetPropertyClrTest(new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
-        }
+            => SetPropertyClrTest(new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
 
         [Fact]
         public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
-        {
-            SetPropertyClrTest(new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false); 
-        }
+            => SetPropertyClrTest(new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
         [Fact]
         public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
-        {
-            SetPropertyClrTest(new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
-        }
+            => SetPropertyClrTest(new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
         [Fact]
         public void Original_values_are_not_tracked_unless_needed_by_default_for_properties_of_full_notifications_entity()

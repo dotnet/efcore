@@ -34,13 +34,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
-            => PerformFixup(() => ForeignKeyPropertyChangedAction(entry, property, oldValue, newValue));
+            => PerformFixup(() => ForeignKeyPropertyChangedAction(entry, property));
 
-        private void ForeignKeyPropertyChangedAction(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
+        private void ForeignKeyPropertyChangedAction(InternalEntityEntry entry, IProperty property)
         {
             foreach (var foreignKey in entry.EntityType.GetForeignKeys().Where(p => p.Properties.Contains(property)).Distinct())
             {
-                var navigations = _model.GetNavigations(foreignKey).ToList();
+                var navigations = foreignKey.GetNavigations().ToList();
 
                 var oldPrincipalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
                 if (oldPrincipalEntry != null)
@@ -154,7 +154,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            foreach (var foreignKey in _model.EntityTypes.SelectMany(
+            foreach (var foreignKey in _model.GetEntityTypes().SelectMany(
                 e => e.GetForeignKeys().Where(f => f.PrincipalKey.Properties.Contains(property))))
             {
                 var newKeyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p]).ToList();
@@ -196,7 +196,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var entries = entry.StateManager.Entries.ToList();
 
             // TODO: Perf on this state manager query
-            foreach (var navigation in _model.EntityTypes
+            foreach (var navigation in _model.GetEntityTypes()
                 .SelectMany(e => e.GetNavigations())
                 .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
             {
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 var entries = entry.StateManager.Entries.ToList();
 
                 // TODO: Perf on this state manager query
-                foreach (var navigation in _model.EntityTypes
+                foreach (var navigation in _model.GetEntityTypes()
                     .SelectMany(e => e.GetNavigations())
                     .Where(n => n.GetTargetType().IsAssignableFrom(entityType)))
                 {
@@ -348,7 +348,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private void DoFixup(IForeignKey foreignKey, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
-            => DoFixup(_model.GetNavigations(foreignKey).ToList(), principalEntry, dependentEntries);
+            => DoFixup(foreignKey.GetNavigations().ToList(), principalEntry, dependentEntries);
 
         private void DoFixup(IEnumerable<INavigation> navigations, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
         {

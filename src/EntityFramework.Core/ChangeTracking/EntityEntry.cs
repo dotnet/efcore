@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     <para>
         ///         When setting the state, the entity will always end up in the specified state. For example, if you
         ///         change the state to <see cref="EntityState.Deleted" /> the entity will be marked for deletion regardless
-        ///         of its current state. This is different than calling <see cref="DbSet{TEntity}.Remove" /> where the entity
+        ///         of its current state. This is different than calling <see cref="DbSet{TEntity}.Remove(TEntity)" /> where the entity
         ///         will be disconnected (rather than marked for deletion) if it is in the <see cref="EntityState.Added" /> state.
         ///     </para>
         /// </summary>
@@ -68,7 +68,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         /// <summary>
-        ///     Gets the internal entry that is tracking information about this entity.
+        ///     <para>
+        ///         Gets the internal entry that is tracking information about this entity.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods. It is not intended to be used in
+        ///         application code.
+        ///     </para>
         /// </summary>
         InternalEntityEntry IAccessor<InternalEntityEntry>.Service => _internalEntityEntry;
 
@@ -78,7 +84,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         public virtual DbContext Context { get; }
 
         /// <summary>
-        ///     Gets the metadata the context is using to reason about this entity.
+        ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.
         /// </summary>
         public virtual IEntityType Metadata => _internalEntityEntry.EntityType;
 
@@ -96,9 +102,9 @@ namespace Microsoft.Data.Entity.ChangeTracking
         }
 
         /// <summary>
-        ///         Gets a value indicating if the key values of this entity have been assigned a value.
-        ///         False if one or more of the key properties is assigned null or the CLR default,
-        ///         otherwise true.
+        ///     Gets a value indicating if the key values of this entity have been assigned a value.
+        ///     False if one or more of the key properties is assigned null or the CLR default,
+        ///     otherwise true.
         /// </summary>
         public virtual bool IsKeySet => _internalEntityEntry.IsKeySet;
     }

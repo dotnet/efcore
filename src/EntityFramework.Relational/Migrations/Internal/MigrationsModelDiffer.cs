@@ -230,8 +230,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         Diff(Annotations.For(source).Sequences, Annotations.For(target).Sequences))
                     .Concat(
                         Diff(
-                            source.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()),
-                            target.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()),
+                            source.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()),
+                            target.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()),
                             diffContext))
                 : target != null
                     ? Add(target, diffContext)
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             => GetSchemas(target).SelectMany(Add)
                 .Concat(target.GetRootEntityTypes().SelectMany(t => Add(t, diffContext)))
                 .Concat(Annotations.For(target).Sequences.SelectMany(Add))
-                .Concat(target.EntityTypes.SelectMany(t => t.GetDeclaredForeignKeys()).SelectMany(k => Add(k, diffContext)));
+                .Concat(target.GetEntityTypes().SelectMany(t => t.GetDeclaredForeignKeys()).SelectMany(k => Add(k, diffContext)));
 
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IModel source, [NotNull] DiffContext diffContext) =>
             source.GetRootEntityTypes().SelectMany(t => Remove(t, diffContext))
@@ -511,7 +511,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Add([NotNull] IKey target)
         {
             var targetAnnotations = Annotations.For(target);
-            var targetEntityTypeAnnotations = Annotations.For(target.EntityType.RootType());
+            var targetEntityTypeAnnotations = Annotations.For(target.DeclaringEntityType.RootType());
 
             MigrationOperation operation;
             if (target.IsPrimaryKey())
@@ -542,7 +542,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         protected virtual IEnumerable<MigrationOperation> Remove([NotNull] IKey source)
         {
             var sourceAnnotations = Annotations.For(source);
-            var sourceEntityTypeAnnotations = Annotations.For(source.EntityType.RootType());
+            var sourceEntityTypeAnnotations = Annotations.For(source.DeclaringEntityType.RootType());
 
             if (source.IsPrimaryKey())
             {

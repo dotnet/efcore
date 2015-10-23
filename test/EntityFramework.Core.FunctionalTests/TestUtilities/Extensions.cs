@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             var modelClone = new Model();
             var clonedEntityTypes = new Dictionary<IEntityType, EntityType>();
-            foreach (var entityType in model.EntityTypes)
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var clrType = entityType.ClrType;
                 var clonedEntityType = clrType == null

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.FunctionalTests.TestModels
 {

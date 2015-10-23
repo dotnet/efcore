@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
 {
     public class InMemoryIntegerValueGeneratorFactoryTest
     {
-        private static readonly Model _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
+        private static readonly IMutableModel _model = TestHelpers.Instance.BuildModelFor<AnEntity>();
 
         [Fact]
         public void Can_create_factories_for_all_integer_types()

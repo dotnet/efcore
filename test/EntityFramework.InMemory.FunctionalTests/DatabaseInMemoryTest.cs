@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             public string Name { get; set; }
         }
 
-        private static Model CreateModel()
+        private static IMutableModel CreateModel()
         {
             var modelBuilder = TestHelpers.Instance.CreateConventionBuilder();
 

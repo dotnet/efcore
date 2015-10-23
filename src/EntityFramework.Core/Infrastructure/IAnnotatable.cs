@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     {
         object this[[NotNull] string annotationName] { get; }
 
-        Annotation GetAnnotation([NotNull] string annotationName);
+        IAnnotation FindAnnotation([NotNull] string annotationName);
 
         IEnumerable<IAnnotation> Annotations { get; }
     }

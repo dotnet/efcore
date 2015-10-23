@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
-    public class KeyDiscoveryConvention : IEntityTypeConvention, IPropertyConvention
+    public class KeyDiscoveryConvention : IEntityTypeConvention, IPropertyConvention, IBaseTypeConvention
     {
         private const string KeySuffix = "Id";
 
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             if (entityType.BaseType == null)
             {
-                var candidateProperties = entityType.Properties.Where(p => !((IProperty)p).IsShadowProperty || !entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)).ToList();
+                var candidateProperties = entityType.GetProperties().Where(p => !((IProperty)p).IsShadowProperty || !entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)).ToList();
                 var keyProperties = DiscoverKeyProperties(entityType, candidateProperties);
                 if (keyProperties.Count != 0)
                 {
@@ -54,6 +54,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             return keyProperties;
         }
+
+        public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
+            => Apply(entityTypeBuilder) != null;
 
         public virtual InternalPropertyBuilder Apply(InternalPropertyBuilder propertyBuilder)
         {

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -45,7 +46,7 @@ namespace Microsoft.Data.Entity
     /// </remarks>
     public class DbContext : IDisposable, IAccessor<IServiceProvider>
     {
-        private static readonly ThreadSafeDictionaryCache<Type, Type> _optionsTypes = new ThreadSafeDictionaryCache<Type, Type>();
+        private static readonly ConcurrentDictionary<Type, Type> _optionsTypes = new ConcurrentDictionary<Type, Type>();
 
         private LazyRef<IDbContextServices> _contextServices;
         private LazyRef<IDbSetInitializer> _setInitializer;
@@ -239,16 +240,17 @@ namespace Microsoft.Data.Entity
         IServiceProvider IAccessor<IServiceProvider>.Service => ServiceProvider;
 
         /// <summary>
-        ///     Override this method to configure the database (and other options) to be used for this context.
-        ///     This method is called for each instance of the context that is created.
+        ///     <para>
+        ///         Override this method to configure the database (and other options) to be used for this context.
+        ///         This method is called for each instance of the context that is created.
+        ///     </para>
+        ///     <para>
+        ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
+        ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured"/> to determine if 
+        ///         the options have already been set, and skip some or all of the logic in 
+        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/>.
+        ///     </para>
         /// </summary>
-        /// <remarks>
-        ///     If you passed an instance of <see cref="DbContextOptions" /> to the constructor of the context (or
-        ///     provided an <see cref="IServiceProvider" /> with <see cref="DbContextOptions" /> registered) then
-        ///     it is cloned before being passed to this method. This allows the options to be altered without
-        ///     affecting other context instances that are constructed with the same <see cref="DbContextOptions" />
-        ///     instance.
-        /// </remarks>
         /// <param name="optionsBuilder">
         ///     A builder used to create or modify options for this context. Databases (and other extensions)
         ///     typically define extension methods on this object that allow you to configure the context.
@@ -262,6 +264,10 @@ namespace Microsoft.Data.Entity
         ///     exposed in <see cref="DbSet{TEntity}" /> properties on your derived context. The resulting model may be cached
         ///     and re-used for subsequent instances of your derived context.
         /// </summary>
+        /// <remarks>
+        ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)"/>)
+        ///     then this method will not be run.
+        /// </remarks>
         /// <param name="modelBuilder">
         ///     The builder being used to construct the model for this context. Databases (and other extensions) typically
         ///     define extension methods on this object that allow you to configure aspects of the model that are specific

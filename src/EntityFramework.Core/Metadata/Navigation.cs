@@ -2,32 +2,35 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata
 {
-    public class Navigation : PropertyBase, INavigation
+    [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
+    public class Navigation : Annotatable, IMutableNavigation
     {
         public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
-            : base(Check.NotEmpty(name, nameof(name)))
         {
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
+            Name = name;
             ForeignKey = foreignKey;
         }
 
+        public virtual string Name { get; }
         public virtual ForeignKey ForeignKey { get; }
 
-        public override EntityType DeclaringEntityType
+        public virtual EntityType DeclaringEntityType
             => this.PointsToPrincipal()
                 ? ForeignKey.DeclaringEntityType
                 : ForeignKey.PrincipalEntityType;
-
-        IForeignKey INavigation.ForeignKey => ForeignKey;
 
         public override string ToString() => DeclaringEntityType + "." + Name;
 
@@ -71,7 +74,7 @@ namespace Microsoft.Data.Entity.Metadata
                 }
                 return false;
             }
-            
+
             var navigationTargetClrType = navigationProperty.PropertyType.TryGetSequenceType();
             if (shouldBeCollection == false
                 || navigationTargetClrType == null
@@ -100,5 +103,10 @@ namespace Microsoft.Data.Entity.Metadata
 
             return true;
         }
+
+        IForeignKey INavigation.ForeignKey => ForeignKey;
+        IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
+        IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
+        IMutableEntityType IMutableNavigation.DeclaringEntityType => DeclaringEntityType;
     }
 }

@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             model.SqlServer().GetOrAddSequence(SqlServerAnnotationNames.DefaultHiLoSequenceName);
             var entityType = model.GetEntityType(typeof(AnEntity));
 
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 property.ValueGenerated = ValueGenerated.OnAdd;
             }
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             Assert.IsType<SqlServerSequenceHiLoValueGenerator<int>>(selector.Select(entityType.GetProperty("Id"), entityType));
         }
 
-        private static Model BuildModel(bool generateValues = true)
+        private static IMutableModel BuildModel(bool generateValues = true)
         {
             var builder = SqlServerTestHelpers.Instance.CreateConventionBuilder();
             builder.Ignore<Random>();
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             var property1 = entityType.AddProperty("Random", typeof(Random));
             property1.IsShadowProperty = false;
 
-            foreach (var property in entityType.Properties)
+            foreach (var property in entityType.GetProperties())
             {
                 property.RequiresValueGenerator = generateValues;
             }

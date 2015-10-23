@@ -8,6 +8,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 {
     public interface INavigationRemovedConvention
     {
-        bool Apply([NotNull] InternalRelationshipBuilder relationshipBuilder, [NotNull] string navigationName, bool pointsToPrincipal);
+        bool Apply(
+            [NotNull] InternalEntityTypeBuilder sourceEntityTypeBuilder,
+            [NotNull] InternalEntityTypeBuilder targetEntityTypeBuilder,
+            [NotNull] string navigationName);
     }
 }

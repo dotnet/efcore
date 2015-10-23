@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             builder
                 .Append(Key.IsPrimaryKey() ? "PK_" : "AK_")
-                .Append(Key.EntityType.DisplayName());
+                .Append(Key.DeclaringEntityType.DisplayName());
 
             if (!Key.IsPrimaryKey())
             {

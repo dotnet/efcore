@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -13,11 +14,11 @@ namespace Microsoft.Data.Entity.Storage
 {
     public abstract class RelationalTypeMapper : IRelationalTypeMapper
     {
-        private readonly ThreadSafeDictionaryCache<int, RelationalTypeMapping> _boundedStringMappings
-            = new ThreadSafeDictionaryCache<int, RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedStringMappings
+            = new ConcurrentDictionary<int, RelationalTypeMapping>();
 
-        private readonly ThreadSafeDictionaryCache<int, RelationalTypeMapping> _boundedBinaryMappings
-            = new ThreadSafeDictionaryCache<int, RelationalTypeMapping>();
+        private readonly ConcurrentDictionary<int, RelationalTypeMapping> _boundedBinaryMappings
+            = new ConcurrentDictionary<int, RelationalTypeMapping>();
 
         protected abstract IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
 

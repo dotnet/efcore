@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity
         }
     }
 
-#if NET451 || NET451
+#if NET451
 
     public abstract partial class DbSet<TEntity> : IListSource
         where TEntity : class

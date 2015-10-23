@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Internal
         protected virtual void EnsureDistinctTableNames([NotNull] IModel model)
         {
             var tables = new HashSet<string>();
-            foreach (var entityType in model.EntityTypes.Where(et => et.BaseType == null))
+            foreach (var entityType in model.GetEntityTypes().Where(et => et.BaseType == null))
             {
                 var annotations = _relationalExtensions.For(entityType);
 
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Internal
 
         protected virtual void EnsureDistinctColumnNames([NotNull] IModel model)
         {
-            foreach (var entityType in model.EntityTypes)
+            foreach (var entityType in model.GetEntityTypes())
             {
                 var columns = new HashSet<string>();
                 foreach (var property in entityType.GetProperties())
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Internal
         protected virtual void ValidateInheritanceMapping([NotNull] IModel model)
         {
             var roots = new HashSet<IEntityType>();
-            foreach (var entityType in model.EntityTypes.Where(et => et.BaseType != null))
+            foreach (var entityType in model.GetEntityTypes().Where(et => et.BaseType != null))
             {
                 ValidateDiscriminator(entityType);
 

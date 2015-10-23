@@ -1,13 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata.Conventions;
-using Xunit;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
+using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal.Test
 {
@@ -151,8 +149,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(typeof(Order), modelBuilder.Metadata.EntityTypes.Single().ClrType);
+            Assert.Equal(typeof(Order), modelBuilder.Metadata.GetEntityTypes().Single().ClrType);
             Assert.Empty(orderEntityTypeBuilder.Metadata.GetForeignKeys());
+        }
+
+        [Fact]
+        public void Can_ignore_entity_type_with_base_and_derived_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var baseEntityTypeBuilder = modelBuilder.Entity(typeof(Base), ConfigurationSource.Explicit);
+            var customerEntityTypeBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
+            var specialCustomerEntityTypeBuilder = modelBuilder.Entity(typeof(SpecialCustomer), ConfigurationSource.Explicit);
+
+            Assert.NotNull(customerEntityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
+            Assert.NotNull(specialCustomerEntityTypeBuilder.HasBaseType(customerEntityTypeBuilder.Metadata, ConfigurationSource.Convention));
+
+            Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count);
+            Assert.Same(baseEntityTypeBuilder.Metadata, specialCustomerEntityTypeBuilder.Metadata.BaseType);
         }
 
         [Fact]
@@ -168,7 +183,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(2, modelBuilder.Metadata.EntityTypes.Count);
+            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count);
             Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
         }
 
@@ -190,7 +205,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.Explicit));
 
             modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
-            Assert.Empty(modelBuilder.Metadata.EntityTypes);
+            Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
         }
 
         [Fact]
@@ -211,7 +226,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
-            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
+            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
@@ -233,19 +248,27 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
             modelBuilder = new ModelCleanupConvention().Apply(modelBuilder);
-            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.EntityTypes.Select(et => et.ClrType));
+            Assert.Equal(new[] { typeof(Order), typeof(Product) }, modelBuilder.Metadata.GetEntityTypes().Select(et => et.ClrType));
             Assert.Equal(typeof(Product), orderEntityTypeBuilder.Metadata.GetForeignKeys().Single().PrincipalEntityType.ClrType);
         }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
             => new InternalModelBuilder(model ?? new Model(), new ConventionSet());
 
-        private class Customer
+        private class Base
+        {
+            public int Id { get; set; }
+        }
+
+        private class Customer : Base
         {
             public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
 
-            public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        private class SpecialCustomer : Customer
+        {
         }
 
         private class Order

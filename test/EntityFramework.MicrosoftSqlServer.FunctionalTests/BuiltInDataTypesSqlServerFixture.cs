@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests

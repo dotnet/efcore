@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IKey : IAnnotatable
     {
         IReadOnlyList<IProperty> Properties { get; }
-        IEntityType EntityType { get; }
+        IEntityType DeclaringEntityType { get; }
     }
 }

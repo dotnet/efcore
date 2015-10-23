@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             protected EntityTypeBuilder<TEntity> EntityTypeBuilder { get; }
-            public override EntityType Metadata => EntityTypeBuilder.Metadata;
+            public override IMutableEntityType Metadata => EntityTypeBuilder.Metadata;
 
             protected virtual TestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder<TEntity> entityTypeBuilder)
                 => new GenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
@@ -132,10 +132,10 @@ namespace Microsoft.Data.Entity.Tests
             public override TestEntityTypeBuilder<TEntity> HasAnnotation(string annotation, object value)
                 => Wrap(EntityTypeBuilder.HasAnnotation(annotation, value));
 
-            public override TestEntityTypeBuilder<TEntity> BaseType<TBaseEntity>()
+            public override TestEntityTypeBuilder<TEntity> HasBaseType<TBaseEntity>()
                 => Wrap(EntityTypeBuilder.HasBaseType<TBaseEntity>());
 
-            public override TestEntityTypeBuilder<TEntity> BaseType(string baseEntityTypeName)
+            public override TestEntityTypeBuilder<TEntity> HasBaseType(string baseEntityTypeName)
                 => Wrap(EntityTypeBuilder.HasBaseType(baseEntityTypeName));
 
             public override TestKeyBuilder HasKey(Expression<Func<TEntity, object>> keyExpression)
@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Tests
 
             private PropertyBuilder<TProperty> PropertyBuilder { get; }
 
-            public override Property Metadata => PropertyBuilder.Metadata;
+            public override IMutableProperty Metadata => PropertyBuilder.Metadata;
 
             public override TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object value)
                 => new GenericTestPropertyBuilder<TProperty>(PropertyBuilder.HasAnnotation(annotation, value));
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected ReferenceCollectionBuilder<TEntity, TRelatedEntity> ReferenceCollectionBuilder { get; }
 
-            public override ForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
+            public override IMutableForeignKey Metadata => ReferenceCollectionBuilder.Metadata;
 
             protected virtual GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity> Wrap(ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
                 => new GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(referenceCollectionBuilder);
@@ -290,7 +290,7 @@ namespace Microsoft.Data.Entity.Tests
 
             protected ReferenceReferenceBuilder<TEntity, TRelatedEntity> ReferenceReferenceBuilder { get; }
 
-            public override ForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
+            public override IMutableForeignKey Metadata => ReferenceReferenceBuilder.Metadata;
 
             protected virtual GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
                 => new GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);

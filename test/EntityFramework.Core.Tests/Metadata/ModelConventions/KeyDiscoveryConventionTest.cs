@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var entityBuilder = CreateInternalEntityBuilder<EntityWithNoId>();
             var convention = new Mock<KeyDiscoveryConvention> { CallBase = true };
             convention.Setup(c => c.DiscoverKeyProperties(It.IsAny<EntityType>(), It.IsAny<IReadOnlyList<Property>>()))
-                .Returns<EntityType, IReadOnlyList<Property>>((t, properties) => t.Properties.ToList());
+                .Returns<EntityType, IReadOnlyList<Property>>((t, properties) => t.GetProperties().ToList());
 
             Assert.Same(entityBuilder, convention.Object.Apply(entityBuilder));
 

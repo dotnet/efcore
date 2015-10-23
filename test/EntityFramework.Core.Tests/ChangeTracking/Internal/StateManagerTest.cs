@@ -571,7 +571,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public string Id { get; set; }
         }
 
-        private static Model BuildModel()
+        private static IMutableModel BuildModel()
         {
             var builder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             var model = builder.Model;

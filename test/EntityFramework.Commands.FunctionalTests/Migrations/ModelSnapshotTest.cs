@@ -99,9 +99,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.EntityTypes.Count);
+                        Assert.Equal(2, o.GetEntityTypes().Count);
                         Assert.Collection(
-                            o.EntityTypes,
+                            o.GetEntityTypes(),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty", t.Name),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties", t.Name));
                     });
@@ -129,8 +129,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.EntityTypes[0].Annotations.Count());
-                        Assert.Equal("AnnotationValue", o.EntityTypes[0]["AnnotationName"]);
+                        Assert.Equal(1, o.GetEntityTypes()[0].Annotations.Count());
+                        Assert.Equal("AnnotationValue", o.GetEntityTypes()[0]["AnnotationName"]);
                     });
         }
 
@@ -168,9 +168,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Der
 ",
                 o =>
                     {
-                        Assert.Equal(3, o.EntityTypes.Count());
+                        Assert.Equal(3, o.GetEntityTypes().Count());
                         Assert.Collection(
-                            o.EntityTypes,
+                            o.GetEntityTypes(),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+AnotherDerivedEntity", t.Name),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity", t.Name),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity", t.Name)
@@ -196,9 +196,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.EntityTypes.First().GetProperties().Count());
+                        Assert.Equal(2, o.GetEntityTypes().First().GetProperties().Count());
                         Assert.Collection(
-                            o.EntityTypes.First().GetProperties(),
+                            o.GetEntityTypes().First().GetProperties(),
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
                             );
@@ -222,9 +222,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.EntityTypes.First().GetPrimaryKey().Properties.Count);
+                        Assert.Equal(2, o.GetEntityTypes().First().GetPrimaryKey().Properties.Count);
                         Assert.Collection(
-                            o.EntityTypes.First().GetPrimaryKey().Properties,
+                            o.GetEntityTypes().First().GetPrimaryKey().Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
                             );
@@ -252,7 +252,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                 o =>
                 {
                     Assert.Collection(
-                        o.EntityTypes.First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
+                        o.GetEntityTypes().First().GetDeclaredKeys().First(k => k.Properties.Count == 2).Properties,
                         t => Assert.Equal("Id", t.Name),
                         t => Assert.Equal("AlternateId", t.Name)
                         );
@@ -279,8 +279,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.EntityTypes.First().GetIndexes().Count());
-                        Assert.Equal("AlternateId", o.EntityTypes.First().GetIndexes().First().Properties[0].Name);
+                        Assert.Equal(1, o.GetEntityTypes().First().GetIndexes().Count());
+                        Assert.Equal("AlternateId", o.GetEntityTypes().First().GetIndexes().First().Properties[0].Name);
                     });
         }
 
@@ -304,9 +304,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.EntityTypes.First().GetIndexes().Count());
+                        Assert.Equal(1, o.GetEntityTypes().First().GetIndexes().Count());
                         Assert.Collection(
-                            o.EntityTypes.First().GetIndexes().First().Properties,
+                            o.GetEntityTypes().First().GetIndexes().First().Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name));
                     });
@@ -412,7 +412,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal("AnnotationValue", o.EntityTypes[0].GetProperty("Id")["AnnotationName"]); }
+                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes()[0].GetProperty("Id")["AnnotationName"]); }
                 );
         }
 
@@ -433,7 +433,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(false, o.EntityTypes[0].GetProperty("Name").IsNullable); });
+                o => { Assert.Equal(false, o.GetEntityTypes()[0].GetProperty("Name").IsNullable); });
         }
 
         [Fact]
@@ -453,7 +453,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(ValueGenerated.OnAdd, o.EntityTypes[0].GetProperty("AlternateId").ValueGenerated); });
+                o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes()[0].GetProperty("AlternateId").ValueGenerated); });
         }
 
         [Fact]
@@ -473,7 +473,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(100, o.EntityTypes[0].GetProperty("Name").GetMaxLength()); });
+                o => { Assert.Equal(100, o.GetEntityTypes()[0].GetProperty("Name").GetMaxLength()); });
         }
 
         [Fact]
@@ -492,7 +492,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(false, o.EntityTypes[0].GetProperty("AlternateId").RequiresValueGenerator); });
+                o => { Assert.Equal(false, o.GetEntityTypes()[0].GetProperty("AlternateId").RequiresValueGenerator); });
         }
 
         [Fact]
@@ -512,7 +512,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(true, o.EntityTypes[0].GetProperty("AlternateId").IsConcurrencyToken); });
+                o => { Assert.Equal(true, o.GetEntityTypes()[0].GetProperty("AlternateId").IsConcurrencyToken); });
         }
 
         #endregion
@@ -538,7 +538,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
     });
 ",
-                o => { Assert.Equal("AnnotationValue", o.EntityTypes[0].GetIndexes().First()["AnnotationName"]); });
+                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes()[0].GetIndexes().First()["AnnotationName"]); });
         }
 
         [Fact]
@@ -560,7 +560,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .IsUnique();
     });
 ",
-                o => { Assert.Equal(true, o.EntityTypes[0].GetIndexes().First().IsUnique); });
+                o => { Assert.Equal(true, o.GetEntityTypes()[0].GetIndexes().First().IsUnique); });
         }
 
         #endregion
