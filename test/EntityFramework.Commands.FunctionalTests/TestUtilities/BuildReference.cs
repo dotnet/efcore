@@ -9,9 +9,8 @@ using Microsoft.CodeAnalysis;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Dnx.Runtime;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Dnx.Compilation;
-using Microsoft.Dnx.Runtime.Infrastructure;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
 

@@ -6,7 +6,7 @@
 // ReSharper disable once CheckNamespace
 
 using JetBrains.Annotations;
-using Microsoft.Dnx.Runtime;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection

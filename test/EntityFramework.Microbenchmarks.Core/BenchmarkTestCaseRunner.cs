@@ -11,8 +11,7 @@ using Xunit.Sdk;
 
 #if DNXCORE50 || DNX451
 using Microsoft.Extensions.Configuration;
-using Microsoft.Dnx.Runtime;
-using Microsoft.Dnx.Runtime.Infrastructure;
+using Microsoft.Extensions.PlatformAbstractions;
 using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
 #else
 using XunitDiagnosticMessage = Xunit.Sdk.DiagnosticMessage;
