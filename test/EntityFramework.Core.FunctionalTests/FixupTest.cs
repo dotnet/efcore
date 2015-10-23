@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -55,9 +56,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = new FixupContext())
             {
-                var categoryType = context.Model.GetEntityType(typeof(Category));
-                var productType = context.Model.GetEntityType(typeof(Product));
-                var offerType = context.Model.GetEntityType(typeof(SpecialOffer));
+                var categoryType = context.Model.FindEntityType(typeof(Category));
+                var productType = context.Model.FindEntityType(typeof(Product));
+                var offerType = context.Model.FindEntityType(typeof(SpecialOffer));
 
                 var stateManager = context.ChangeTracker.GetService();
 

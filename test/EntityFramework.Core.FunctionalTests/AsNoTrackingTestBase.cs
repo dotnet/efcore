@@ -109,6 +109,37 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Include_reference_and_collection()
+        {
+            using (var context = CreateContext())
+            {
+                var orders
+                    = context.Set<Order>()
+                        .Include(o => o.Customer)
+                        .Include(o => o.OrderDetails)
+                        .AsNoTracking()
+                        .ToList();
+
+                Assert.Equal(830, orders.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Where_simple_shadow()
+        {
+            using (var context = CreateContext())
+            {
+                var employees
+                    = context.Set<Employee>()
+                        .Where(e => EF.Property<string>(e, "Title") == "Sales Representative")
+                        .AsNoTracking()
+                        .ToList();
+
+                Assert.Equal(6, employees.Count);
+            }
+        }
+
         protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected AsNoTrackingTestBase(TFixture fixture)

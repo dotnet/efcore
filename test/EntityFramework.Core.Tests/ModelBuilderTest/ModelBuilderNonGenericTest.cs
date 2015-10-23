@@ -41,13 +41,13 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<PrincipalEntity>();
 
-                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
                 Assert.Equal("NavId", foreignKey.Properties.Single().Name);
 
                 modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
 
                 // Does not set foreign key property for added shadow property
-                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                var newForeignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
                 Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
             }
 
@@ -63,13 +63,13 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<PrincipalEntity>();
 
-                var foreignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
                 Assert.Equal("NavId", foreignKey.Properties.Single().Name);
 
                 modelBuilder.Entity<DependentEntity>().Property(et => et.PrincipalEntityId);
 
                 // Does not set foreign key property for added shadow property
-                var newForeignKey = model.GetEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
+                var newForeignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
                 Assert.Equal("NavId", newForeignKey.Properties.Single().Name);
             }
 

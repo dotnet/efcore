@@ -303,7 +303,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             fkProperty.IsShadowProperty = false;
 
             entityType.GetOrSetPrimaryKey(pkProperty);
-            var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.GetPrimaryKey(), entityType);
+            var fk = entityType.GetOrAddForeignKey(fkProperty, entityType.FindPrimaryKey(), entityType);
 
             entityType.AddProperty("Name", typeof(string)).IsShadowProperty = false;
 
@@ -313,17 +313,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             return model;
         }
 
-        protected IProperty IdProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Id");
+        protected IProperty IdProperty => _model.FindEntityType(typeof(Banana)).FindProperty("Id");
 
-        protected IProperty FkProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Fk");
+        protected IProperty FkProperty => _model.FindEntityType(typeof(Banana)).FindProperty("Fk");
 
-        protected IProperty NameProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Name");
+        protected IProperty NameProperty => _model.FindEntityType(typeof(Banana)).FindProperty("Name");
 
         protected INavigation CollectionNavigation => ForeignKey.GetNavigations().Single(n => n.Name == "LesserBananas");
 
         protected INavigation ReferenceNavigation => ForeignKey.GetNavigations().Single(n => n.Name == "TopBanana");
 
-        private ForeignKey ForeignKey => _model.GetEntityType(typeof(Banana)).GetForeignKeys().Single();
+        private ForeignKey ForeignKey => _model.FindEntityType(typeof(Banana)).GetForeignKeys().Single();
 
         protected class Banana : INotifyPropertyChanged, INotifyPropertyChanging
         {

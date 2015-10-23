@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var queryMethodInfo = CreateValueBufferMethodInfo;
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
-            var entityType = _model.GetEntityType(elementType);
+            var entityType = _model.FindEntityType(elementType);
             var selectExpression = _selectExpressionFactory.Create();
             var name = _relationalAnnotationProvider.For(entityType).TableName;
 
@@ -212,18 +212,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 var keyFactory
                     = _keyValueFactorySource
-                        .GetKeyFactory(entityType.GetPrimaryKey());
+                        .GetKeyFactory(entityType.FindPrimaryKey());
 
                 queryMethodArguments.AddRange(
                     new[]
                     {
                         EntityQueryModelVisitor.QueryContextParameter,
                         Expression.Constant(entityType),
-                        Expression.Constant(QueryModelVisitor.QuerySourceRequiresTracking(_querySource)),
+                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery),
                         Expression.Constant(keyFactory),
-                        Expression.Constant(entityType.GetPrimaryKey().Properties),
+                        Expression.Constant(entityType.FindPrimaryKey().Properties),
                         materializer,
-                        Expression.Constant(false)
+                        Expression.Constant(false),
+                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired)
                     });
             }
 
@@ -282,21 +283,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             int valueBufferOffset,
             QueryContext queryContext,
             IEntityType entityType,
-            bool queryStateManager,
+            bool trackingQuery,
             KeyValueFactory keyValueFactory,
             IReadOnlyList<IProperty> keyProperties,
             Func<ValueBuffer, object> materializer,
-            bool allowNullResult)
+            bool allowNullResult,
+            bool useQueryBuffer)
             where TEntity : class
         {
             valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
 
-            var keyValue
-                = keyValueFactory.Create(keyProperties, valueBuffer);
+            var keyValue = keyValueFactory.Create(keyProperties, valueBuffer);
 
             TEntity entity = null;
 
-            if (keyValue == KeyValue.InvalidKeyValue)
+            if (ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
             {
                 if (!allowNullResult)
                 {
@@ -304,15 +305,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         RelationalStrings.InvalidKeyValue(entityType.DisplayName()));
                 }
             }
-            else
+            else if (useQueryBuffer)
             {
                 entity
                     = (TEntity)queryContext.QueryBuffer
                         .GetEntity(
                             entityType,
                             keyValue,
-                            new EntityLoadInfo(valueBuffer, materializer),
-                            queryStateManager);
+                            new EntityLoadInfo(valueBuffer, materializer), 
+                            queryStateManager: trackingQuery);
+            }
+            else
+            {
+                entity = (TEntity)materializer(valueBuffer);
             }
 
             return entity;

@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Metadata
             Check.NotNull(property, nameof(property));
 
             // TODO: Perf: make it fast to check if a property is part of the primary key
-            var pk = property.DeclaringEntityType.GetPrimaryKey();
+            var pk = property.DeclaringEntityType.FindPrimaryKey();
             if (pk != null
                 && pk.Properties.Contains(property))
             {

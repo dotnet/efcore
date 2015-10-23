@@ -14,13 +14,6 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public static class EntityTypeExtensions
     {
-        public static IEnumerable<IEntityType> GetDerivedTypes([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            return GetDerivedTypes(entityType.Model, entityType);
-        }
-
         public static IEnumerable<IEntityType> GetConcreteTypesInHierarchy([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -30,8 +23,12 @@ namespace Microsoft.Data.Entity.Metadata
                 .Where(et => !et.IsAbstract());
         }
 
-        public static IEnumerable<EntityType> GetConcreteTypesInHierarchy([NotNull] this EntityType entityType)
-            => ((IEntityType)entityType).GetConcreteTypesInHierarchy().Cast<EntityType>();
+        public static IEnumerable<IEntityType> GetDerivedTypes([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return GetDerivedTypes(entityType.Model, entityType);
+        }
 
         private static IEnumerable<IEntityType> GetDerivedTypes(IModel model, IEntityType entityType)
         {
@@ -145,33 +142,13 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetProperties().Where(p => p.DeclaringEntityType == entityType);
         }
 
-        public static IProperty GetProperty([NotNull] this IEntityType entityType, [NotNull] PropertyInfo propertyInfo)
+        public static IProperty FindProperty([NotNull] this IEntityType entityType, [NotNull] PropertyInfo propertyInfo)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
-            return entityType.GetProperty(propertyInfo.Name);
+            return entityType.FindProperty(propertyInfo.Name);
         }
-
-        public static IProperty GetProperty([NotNull] this IEntityType entityType, [NotNull] string propertyName)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotEmpty(propertyName, nameof(propertyName));
-
-            var property = entityType.FindProperty(propertyName);
-            if (property == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.PropertyNotFound(propertyName, entityType.Name));
-            }
-
-            return property;
-        }
-
-        public static IMutableProperty GetProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
-            => (IMutableProperty)((IEntityType)entityType).GetProperty(propertyInfo);
-
-        public static IMutableProperty GetProperty([NotNull] this IMutableEntityType entityType, [NotNull] string propertyName)
-            => (IMutableProperty)((IEntityType)entityType).GetProperty(propertyName);
 
         public static IMutableProperty FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
         {
@@ -236,20 +213,6 @@ namespace Microsoft.Data.Entity.Metadata
             return property;
         }
 
-        public static INavigation GetNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-            Check.NotNull(name, nameof(name));
-
-            var navigation = entityType.FindNavigation(name);
-            if (navigation == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.NavigationNotFound(name, entityType.Name));
-            }
-
-            return navigation;
-        }
-
         public static IEnumerable<INavigation> GetDeclaredNavigations([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
@@ -299,18 +262,8 @@ namespace Microsoft.Data.Entity.Metadata
                    || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
         }
 
-        public static IIndex GetIndex([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.GetIndex(new[] { property });
-
-        public static IIndex GetIndex([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
-        {
-            var index = entityType.FindIndex(properties);
-            if (index == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.IndexNotFound(Property.Format(properties), entityType.Name));
-            }
-            return index;
-        }
+        public static IIndex FindIndex([NotNull] this IEntityType entityType, [NotNull] IProperty property)
+            => entityType.FindIndex(new[] { property });
 
         public static IEnumerable<IIndex> GetDeclaredIndexes([NotNull] this IEntityType entityType)
         {
@@ -319,21 +272,7 @@ namespace Microsoft.Data.Entity.Metadata
             return entityType.GetIndexes().Where(p => p.DeclaringEntityType == entityType);
         }
 
-        public static IForeignKey GetForeignKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.GetForeignKey(new[] { property });
-
-        public static IForeignKey GetForeignKey([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
-        {
-            var foreignKey = entityType.FindForeignKey(properties);
-            if (foreignKey == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.ForeignKeyNotFound(Property.Format(properties), entityType.Name));
-            }
-
-            return foreignKey;
-        }
-
-        public static ForeignKey FindForeignKey([NotNull] this EntityType entityType, [NotNull] Property property)
+        public static IForeignKey FindForeignKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
             => entityType.FindForeignKey(new[] { property });
 
         public static IEnumerable<IForeignKey> GetDeclaredForeignKeys([NotNull] this IEntityType entityType)
@@ -350,44 +289,15 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] IMutableEntityType principalEntityType)
             => entityType.AddForeignKey(new[] { property }, principalKey, principalEntityType);
 
-        public static IKey GetPrimaryKey([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            var primaryKey = entityType.FindPrimaryKey();
-            if (primaryKey == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.EntityRequiresKey(entityType.Name));
-            }
-
-            return primaryKey;
-        }
-
-        public static IMutableKey GetPrimaryKey([NotNull] this IMutableEntityType entityType)
-            => (IMutableKey)((IEntityType)entityType).GetPrimaryKey();
-
         public static IKey FindDeclaredPrimaryKey([NotNull] this IEntityType entityType)
-        {
-            var primaryKey = entityType.FindPrimaryKey();
-            return primaryKey.DeclaringEntityType == entityType ? primaryKey : null;
-        }
+            => entityType.BaseType == null ? entityType.FindPrimaryKey() : null;
+
         public static IMutableKey SetPrimaryKey(
             [NotNull] this IMutableEntityType entityType, [NotNull] Property property)
             => entityType.SetPrimaryKey(new[] { property });
 
-        public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
-            => entityType.GetKey(new[] { property });
-
-        public static IKey GetKey([NotNull] this IEntityType entityType, [NotNull] IReadOnlyList<IProperty> properties)
-        {
-            var key = entityType.FindKey(properties);
-            if (key == null)
-            {
-                throw new ModelItemNotFoundException(CoreStrings.KeyNotFound(Property.Format(properties), entityType.Name));
-            }
-
-            return key;
-        }
+        public static IKey FindKey([NotNull] this IEntityType entityType, [NotNull] IProperty property)
+            => entityType.FindKey(new[] { property });
 
         public static IEnumerable<IKey> GetDeclaredKeys([NotNull] this IEntityType entityType)
         {

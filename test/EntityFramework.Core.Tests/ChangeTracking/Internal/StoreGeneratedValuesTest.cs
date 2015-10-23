@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         protected override Sidecar CreateSidecar(InternalEntityEntry entry = null)
         {
             entry = entry ?? CreateInternalEntry();
-            var properties = entry.EntityType.GetPrimaryKey().Properties
+            var properties = entry.EntityType.FindPrimaryKey().Properties
                 .Concat(entry.EntityType.GetForeignKeys().SelectMany(fk => fk.Properties))
                 .ToList();
 

@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
@@ -43,7 +44,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var entityType = model.GetEntityType(typeof(Gunter));
+            var entityType = model.FindEntityType(typeof(Gunter));
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -63,7 +64,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
-            var entityType = model.GetEntityType(typeof(Gunter));
+            var entityType = model.FindEntityType(typeof(Gunter));
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -83,7 +84,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
-            var entityType = model.GetEntityType(typeof(Gunter));
+            var entityType = model.FindEntityType(typeof(Gunter));
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -104,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
+            var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -125,7 +126,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
             var model = builder.Model;
-            var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Gunter)).FindProperty("Id");
 
             Assert.Equal("V2.Annotation", property["Annotation"]);
             Assert.Equal("V2.Metadata", property["Metadata"]);
@@ -146,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var index = model.GetEntityType(typeof(Gunter)).GetIndexes().Single();
+            var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single();
 
             Assert.Equal("V2.Annotation", index["Annotation"]);
             Assert.Equal("V2.Metadata", index["Metadata"]);
@@ -168,7 +169,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
+            var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -190,7 +191,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
+            var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -213,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Avatar)).GetForeignKeys().Single();
+            var foreignKey = model.FindEntityType(typeof(Avatar)).GetForeignKeys().Single();
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -251,7 +252,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<EntityTypeBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var entityType = model.GetEntityType(typeof(Gunter));
+            var entityType = model.FindEntityType(typeof(Gunter));
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -271,7 +272,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
-            var entityType = model.GetEntityType(typeof(Gunter));
+            var entityType = model.FindEntityType(typeof(Gunter));
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -291,7 +292,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<EntityTypeBuilder<Gunter>>(returnedBuilder);
 
             var model = builder.Model;
-            var entityType = model.GetEntityType(typeof(Gunter));
+            var entityType = model.FindEntityType(typeof(Gunter));
 
             Assert.Equal("V2.Annotation", entityType["Annotation"]);
             Assert.Equal("V2.Metadata", entityType["Metadata"]);
@@ -312,7 +313,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<KeyBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var key = model.GetEntityType(typeof(Gunter)).GetPrimaryKey();
+            var key = model.FindEntityType(typeof(Gunter)).FindPrimaryKey();
 
             Assert.Equal("V2.Annotation", key["Annotation"]);
             Assert.Equal("V2.Metadata", key["Metadata"]);
@@ -333,7 +334,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<PropertyBuilder<int>>(returnedBuilder);
 
             var model = builder.Model;
-            var property = model.GetEntityType(typeof(Gunter)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Gunter)).FindProperty("Id");
 
             Assert.Equal("V2.Annotation", property["Annotation"]);
             Assert.Equal("V2.Metadata", property["Metadata"]);
@@ -354,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType<IndexBuilder>(returnedBuilder);
 
             var model = builder.Model;
-            var index = model.GetEntityType(typeof(Gunter)).GetIndexes().Single();
+            var index = model.FindEntityType(typeof(Gunter)).GetIndexes().Single();
 
             Assert.Equal("V2.Annotation", index["Annotation"]);
             Assert.Equal("V2.Metadata", index["Metadata"]);
@@ -376,7 +377,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
+            var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -398,7 +399,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Gate)).GetForeignKeys().Single();
+            var foreignKey = model.FindEntityType(typeof(Gate)).GetForeignKeys().Single();
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);
@@ -421,7 +422,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             Assert.IsType(relationshipBuilder.GetType(), returnedBuilder);
 
             var model = builder.Model;
-            var foreignKey = model.GetEntityType(typeof(Avatar)).GetForeignKeys().Single();
+            var foreignKey = model.FindEntityType(typeof(Avatar)).GetForeignKeys().Single();
 
             Assert.Equal("V2.Annotation", foreignKey["Annotation"]);
             Assert.Equal("V2.Metadata", foreignKey["Metadata"]);

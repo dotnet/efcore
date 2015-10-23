@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -69,7 +70,7 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(10, context.Model.GetEntityType(typeof(One)).GetProperty("MaxLengthProperty").GetMaxLength());
+                Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
             }
         }
 
@@ -124,7 +125,7 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             using (var context = CreateContext())
             {
-                Assert.Equal(16, context.Model.GetEntityType(typeof(Two)).GetProperty("Data").GetMaxLength());
+                Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
             }
         }
 
@@ -133,7 +134,7 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             using (var context = CreateContext())
             {
-                Assert.True(context.Model.GetEntityType(typeof(Two)).GetProperty("Timestamp").IsConcurrencyToken);
+                Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
             }
         }
 

@@ -21,9 +21,9 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Book>();
 
-                Assert.Contains("Details", model.GetEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
-                Assert.Contains("AnotherBook", model.GetEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
-                Assert.DoesNotContain("Book", model.GetEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+                Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+                Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+                Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
             }
 
             [Fact]
@@ -34,20 +34,20 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<BookDetailsBase>();
                 modelBuilder.Entity<Book>();
 
-                Assert.Same(model.GetEntityType(typeof(BookDetailsBase)), model.GetEntityType(typeof(BookDetails)).BaseType);
-                Assert.Contains("Details", model.GetEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
-                Assert.Contains("AnotherBook", model.GetEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
-                Assert.Contains("AnotherBook", model.GetEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
-                Assert.DoesNotContain("Book", model.GetEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+                Assert.Same(model.FindEntityType(typeof(BookDetailsBase)), model.FindEntityType(typeof(BookDetails)).BaseType);
+                Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+                Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
+                Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+                Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
                 
                 modelBuilder.Entity<BookDetails>().HasBaseType(null);
                 
-                Assert.Same(model.GetEntityType(typeof(BookDetails)),
-                    model.GetEntityType(typeof(Book)).GetNavigations().Single(n => n.Name == "Details").ForeignKey.DeclaringEntityType);
-                Assert.Contains("Details", model.GetEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
-                Assert.Contains("AnotherBook", model.GetEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
-                Assert.Contains("AnotherBook", model.GetEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
-                Assert.DoesNotContain("Book", model.GetEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+                Assert.Same(model.FindEntityType(typeof(BookDetails)),
+                    model.FindEntityType(typeof(Book)).GetNavigations().Single(n => n.Name == "Details").ForeignKey.DeclaringEntityType);
+                Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+                Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
+                Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
+                Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
             }
 
             [Fact]
@@ -58,9 +58,9 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<Book>();
                 
                 Assert.Equal("Label",
-                    model.GetEntityType(typeof(BookLabel)).FindNavigation("Book").FindInverse().Name);
+                    model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").FindInverse().Name);
                 
-                Assert.Null(model.GetEntityType(typeof(Book)).FindNavigation("AlternateLabel").FindInverse());
+                Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation("AlternateLabel").FindInverse());
             }
 
             [Fact]
@@ -70,20 +70,20 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<SpecialBookLabel>();
 
-                Assert.Same(model.GetEntityType(typeof(BookLabel)), model.GetEntityType(typeof(SpecialBookLabel)).BaseType);
-                Assert.Empty(model.GetEntityType(typeof(SpecialBookLabel)).GetDeclaredNavigations());
-                Assert.Contains("Book", model.GetEntityType(typeof(BookLabel)).GetNavigations().Select(nav => nav.Name));
-                Assert.Equal("Label", model.GetEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
-                Assert.Contains("AlternateLabel", model.GetEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
-                Assert.Null(model.GetEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
+                Assert.Same(model.FindEntityType(typeof(BookLabel)), model.FindEntityType(typeof(SpecialBookLabel)).BaseType);
+                Assert.Empty(model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredNavigations());
+                Assert.Contains("Book", model.FindEntityType(typeof(BookLabel)).GetNavigations().Select(nav => nav.Name));
+                Assert.Equal("Label", model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
+                Assert.Contains("AlternateLabel", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+                Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
                 
                 modelBuilder.Entity<SpecialBookLabel>().HasBaseType(null);
                 
-                Assert.Null(model.GetEntityType(typeof(SpecialBookLabel)).GetNavigations().Single(n => n.Name == "Book").FindInverse());
-                Assert.Contains("Book", model.GetEntityType(typeof(BookLabel)).GetNavigations().Select(nav => nav.Name));
-                Assert.Equal("Label", model.GetEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
-                Assert.Contains("AlternateLabel", model.GetEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
-                Assert.Null(model.GetEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
+                Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).GetNavigations().Single(n => n.Name == "Book").FindInverse());
+                Assert.Contains("Book", model.FindEntityType(typeof(BookLabel)).GetNavigations().Select(nav => nav.Name));
+                Assert.Equal("Label", model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
+                Assert.Contains("AlternateLabel", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+                Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
             }
 
             // TODO: Support base type ignore
@@ -96,10 +96,10 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Ignore<BookLabel>();
 
                 Assert.Null(model.FindEntityType(typeof(BookLabel)));
-                Assert.Contains("Book", model.GetEntityType(typeof(SpecialBookLabel)).GetNavigations().Select(nav => nav.Name));
-                Assert.Equal("Label", model.GetEntityType(typeof(SpecialBookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
-                Assert.Contains("AlternateLabel", model.GetEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
-                Assert.Null(model.GetEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
+                Assert.Contains("Book", model.FindEntityType(typeof(SpecialBookLabel)).GetNavigations().Select(nav => nav.Name));
+                Assert.Equal("Label", model.FindEntityType(typeof(SpecialBookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
+                Assert.Contains("AlternateLabel", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
+                Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
             }
 
             [Fact]
@@ -109,11 +109,11 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Post>();
 
-                Assert.Null(model.GetEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
-                Assert.Equal("PostDetailsId", model.GetEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
+                Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
+                Assert.Equal("PostDetailsId", model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.Properties.First().Name);
 
-                Assert.Null(model.GetEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
-                Assert.Equal("PostId", model.GetEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+                Assert.Null(model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
+                Assert.Equal("PostId", model.FindEntityType(typeof(PostDetails)).FindNavigation("Post").ForeignKey.Properties.First().Name);
             }
 
             [Fact]
@@ -123,11 +123,11 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Post>();
 
-                Assert.Null(model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorId", model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+                Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
+                Assert.Equal("AuthorId", model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
 
-                Assert.Null(model.GetEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
-                Assert.Equal("PostId", model.GetEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
+                Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.PrincipalToDependent);
+                Assert.Equal("PostId", model.FindEntityType(typeof(Author)).FindNavigation("Post").ForeignKey.Properties.First().Name);
             }
 
             [Fact]
@@ -137,11 +137,11 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder(model);
                 modelBuilder.Entity<Author>();
 
-                Assert.Null(model.GetEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorId", model.GetEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
+                Assert.Null(model.FindEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
+                Assert.Equal("AuthorId", model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.Properties.First().Name);
 
-                Assert.Null(model.GetEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.PrincipalToDependent);
-                Assert.Equal("AuthorDetailsId", model.GetEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.Properties.First().Name);
+                Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.PrincipalToDependent);
+                Assert.Equal("AuthorDetailsId", model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.Properties.First().Name);
             }
 
 

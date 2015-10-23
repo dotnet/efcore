@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();
-            var entityType = model.GetEntityType(typeof(Led));
+            var entityType = model.FindEntityType(typeof(Led));
             var property1 = GetProperty1(model);
             var property2 = GetProperty2(model);
             var cache = SqlServerTestHelpers.Instance.CreateContextServices(model).GetRequiredService<ISqlServerValueGeneratorCache>();
@@ -323,11 +323,11 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public int Id { get; set; }
         }
 
-        private static IProperty GetProperty1(IModel model) => model.GetEntityType(typeof(Led)).GetProperty("Zeppelin");
+        private static IProperty GetProperty1(IModel model) => model.FindEntityType(typeof(Led)).FindProperty("Zeppelin");
 
-        private static IProperty GetProperty2(IModel model) => model.GetEntityType(typeof(Led)).GetProperty("Stairway");
+        private static IProperty GetProperty2(IModel model) => model.FindEntityType(typeof(Led)).FindProperty("Stairway");
 
-        private static IProperty GetProperty3(IModel model) => model.GetEntityType(typeof(Led)).GetProperty("WholeLotta");
+        private static IProperty GetProperty3(IModel model) => model.FindEntityType(typeof(Led)).FindProperty("WholeLotta");
 
         private static IModel CreateModel()
         {

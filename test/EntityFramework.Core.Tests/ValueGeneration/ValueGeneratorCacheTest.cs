@@ -15,9 +15,9 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
         public void Uses_single_generator_per_property()
         {
             var model = CreateModel();
-            var entityType = model.GetEntityType("Led");
-            var property1 = entityType.GetProperty("Zeppelin");
-            var property2 = entityType.GetProperty("Stairway");
+            var entityType = model.FindEntityType("Led");
+            var property1 = entityType.FindProperty("Zeppelin");
+            var property2 = entityType.FindProperty("Stairway");
             var cache = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorCache>();
 
             var generator1 = cache.GetOrAdd(property1, entityType, (p, et) => new GuidValueGenerator());

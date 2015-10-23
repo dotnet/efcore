@@ -123,13 +123,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.GetOrAddEntityType(typeof(Customer));
 
-            Assert.Same(entityType, model.GetEntityType(typeof(Customer)));
+            Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
             Assert.Same(entityType, model.FindEntityType(typeof(Customer)));
             Assert.Null(model.FindEntityType(typeof(string)));
-
-            Assert.Equal(
-                CoreStrings.EntityTypeNotFound("String"),
-                Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType(typeof(string))).Message);
         }
 
         [Fact]
@@ -138,13 +134,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             var model = new Model();
             var entityType = model.GetOrAddEntityType(typeof(Customer).FullName);
 
-            Assert.Same(entityType, model.GetEntityType(typeof(Customer).FullName));
+            Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(entityType, model.FindEntityType(typeof(Customer).FullName));
             Assert.Null(model.FindEntityType(typeof(string)));
-
-            Assert.Equal(
-                CoreStrings.EntityTypeNotFound("String"),
-                Assert.Throws<ModelItemNotFoundException>(() => model.GetEntityType("String")).Message);
         }
 
         [Fact]

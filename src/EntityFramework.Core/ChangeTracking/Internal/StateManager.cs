@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
                 }
 
-                var entityType = _model.GetEntityType(entity.GetType());
+                var entityType = _model.FindEntityType(entity.GetType());
 
                 entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
 
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 throw new InvalidOperationException(CoreStrings.MultipleEntries(entityType.Name));
             }
 
-            var keyValue = GetKeyValueChecked(entityType.GetPrimaryKey(), entry);
+            var keyValue = GetKeyValueChecked(entityType.FindPrimaryKey(), entry);
 
             if (_identityMap.TryGetValue(keyValue, out existingEntry))
             {

@@ -326,8 +326,8 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels
                         .HasForeignKey(e => e.Username);
 
                     var entityType = b.Metadata;
-                    var activityEntityType = entityType.Model.GetEntityType(typeof(TSuspiciousActivity));
-                    activityEntityType.AddForeignKey(activityEntityType.GetProperty("Username"), key.Metadata, entityType);
+                    var activityEntityType = entityType.Model.FindEntityType(typeof(TSuspiciousActivity));
+                    activityEntityType.AddForeignKey(activityEntityType.FindProperty("Username"), key.Metadata, entityType);
 
                     b.HasOne(e => (TLastLogin)e.LastLogin).WithOne(e => (TLogin)e.Login)
                         .HasForeignKey<TLastLogin>(e => e.Username);

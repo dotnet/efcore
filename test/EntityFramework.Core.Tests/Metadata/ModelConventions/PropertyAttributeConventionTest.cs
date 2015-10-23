@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new KeyAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
+            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new KeyAttributeConvention().Apply(propertyBuilder);
 
-            Assert.Equal("Id", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
+            Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
         }
 
         [Fact]
@@ -160,9 +160,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             keyAttributeConvention.Apply(myPrimaryKeyPropertyBuilder);
 
-            Assert.Equal(2, entityTypeBuilder.Metadata.GetPrimaryKey().Properties.Count);
-            Assert.Equal("Id", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[0].Name);
-            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.GetPrimaryKey().Properties[1].Name);
+            Assert.Equal(2, entityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
+            Assert.Equal("Id", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[0].Name);
+            Assert.Equal("MyPrimaryKey", entityTypeBuilder.Metadata.FindPrimaryKey().Properties[1].Name);
 
             Assert.Equal(
                 CoreStrings.CompositePKWithDataAnnotation(entityTypeBuilder.Metadata.DisplayName()),
@@ -174,9 +174,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         {
             var model = new MyContext().Model;
 
-            Assert.Equal(2, model.GetEntityType(typeof(B)).GetPrimaryKey().Properties.Count);
-            Assert.Equal("MyPrimaryKey", model.GetEntityType(typeof(B)).GetPrimaryKey().Properties[0].Name);
-            Assert.Equal("Id", model.GetEntityType(typeof(B)).GetPrimaryKey().Properties[1].Name);
+            Assert.Equal(2, model.FindEntityType(typeof(B)).FindPrimaryKey().Properties.Count);
+            Assert.Equal("MyPrimaryKey", model.FindEntityType(typeof(B)).FindPrimaryKey().Properties[0].Name);
+            Assert.Equal("Id", model.FindEntityType(typeof(B)).FindPrimaryKey().Properties[1].Name);
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new KeyAttributeConvention().Apply(derivedEntityTypeBuilder.ModelBuilder);
 
-            Assert.Equal(2, baseEntityTypeBuilder.Metadata.GetPrimaryKey().Properties.Count);
+            Assert.Equal(2, baseEntityTypeBuilder.Metadata.FindPrimaryKey().Properties.Count);
         }
 
         #endregion

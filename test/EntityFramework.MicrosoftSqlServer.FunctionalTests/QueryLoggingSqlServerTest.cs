@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         valueBufferOffset: 0, 
         queryContext: prm0, 
         entityType: FunctionalTests.TestModels.Northwind.Customer, 
-        queryStateManager: True, 
+        trackingQuery: True, 
         keyValueFactory: SimpleKeyValueFactory`1, 
         keyProperties: List<Property> { Customer.CustomerID, }, 
         materializer: (ValueBuffer prm2) => 
@@ -62,7 +62,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var3
         }
         , 
-        allowNullResult: False
+        allowNullResult: False, 
+        useQueryBuffer: True
     )
 )",
                     TestSqlLoggerFactory.Log);
@@ -117,7 +118,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             valueBufferOffset: 0, 
             queryContext: prm0, 
             entityType: FunctionalTests.TestModels.Northwind.Customer, 
-            queryStateManager: True, 
+            trackingQuery: True, 
             keyValueFactory: SimpleKeyValueFactory`1, 
             keyProperties: List<Property> { Customer.CustomerID, }, 
             materializer: (ValueBuffer prm2) => 
@@ -138,7 +139,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 var3
             }
             , 
-            allowNullResult: False
+            allowNullResult: False, 
+            useQueryBuffer: True
         )
     )
     , 

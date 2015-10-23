@@ -222,9 +222,9 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.GetEntityTypes().First().GetPrimaryKey().Properties.Count);
+                        Assert.Equal(2, o.GetEntityTypes().First().FindPrimaryKey().Properties.Count);
                         Assert.Collection(
-                            o.GetEntityTypes().First().GetPrimaryKey().Properties,
+                            o.GetEntityTypes().First().FindPrimaryKey().Properties,
                             t => Assert.Equal("Id", t.Name),
                             t => Assert.Equal("AlternateId", t.Name)
                             );
@@ -412,7 +412,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes()[0].GetProperty("Id")["AnnotationName"]); }
+                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes()[0].FindProperty("Id")["AnnotationName"]); }
                 );
         }
 
@@ -433,7 +433,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(false, o.GetEntityTypes()[0].GetProperty("Name").IsNullable); });
+                o => { Assert.Equal(false, o.GetEntityTypes()[0].FindProperty("Name").IsNullable); });
         }
 
         [Fact]
@@ -453,7 +453,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes()[0].GetProperty("AlternateId").ValueGenerated); });
+                o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes()[0].FindProperty("AlternateId").ValueGenerated); });
         }
 
         [Fact]
@@ -473,7 +473,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(100, o.GetEntityTypes()[0].GetProperty("Name").GetMaxLength()); });
+                o => { Assert.Equal(100, o.GetEntityTypes()[0].FindProperty("Name").GetMaxLength()); });
         }
 
         [Fact]
@@ -492,7 +492,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(false, o.GetEntityTypes()[0].GetProperty("AlternateId").RequiresValueGenerator); });
+                o => { Assert.Equal(false, o.GetEntityTypes()[0].FindProperty("AlternateId").RequiresValueGenerator); });
         }
 
         [Fact]
@@ -512,7 +512,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(true, o.GetEntityTypes()[0].GetProperty("AlternateId").IsConcurrencyToken); });
+                o => { Assert.Equal(true, o.GetEntityTypes()[0].FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
         #endregion
@@ -647,7 +647,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .HasForeignKey(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", ""Name"");
     });
 ",
-                o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetProperty("Name").IsNullable); });
+                o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).FindProperty("Name").IsNullable); });
         }
 
         [Fact]

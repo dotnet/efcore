@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
@@ -296,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public virtual void Can_create_foreign_key_value_based_on_dependent_values()
         {
-            var entityType = _model.GetEntityType(typeof(Banana).FullName);
+            var entityType = _model.FindEntityType(typeof(Banana).FullName);
             var foreignKey = entityType.GetForeignKeys().Single();
 
             var entry = CreateInternalEntry();
@@ -311,7 +312,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public virtual void Can_create_foreign_key_value_based_on_principal_end_values()
         {
-            var entityType = _model.GetEntityType(typeof(Banana).FullName);
+            var entityType = _model.FindEntityType(typeof(Banana).FullName);
             var foreignKey = entityType.GetForeignKeys().Single();
 
             var entry = CreateInternalEntry();
@@ -338,7 +339,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public virtual void Can_create_composite_foreign_key_value_based_on_dependent_values()
         {
-            var entityType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
+            var entityType = _model.FindEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = entityType.GetForeignKeys().Single();
 
             var entry = TestHelpers.Instance.CreateInternalEntry<SomeMoreDependentEntity>(_model);
@@ -354,7 +355,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public virtual void Can_create_composite_foreign_key_value_based_on_principal_end_values()
         {
-            var dependentType = _model.GetEntityType(typeof(SomeMoreDependentEntity).FullName);
+            var dependentType = _model.FindEntityType(typeof(SomeMoreDependentEntity).FullName);
             var foreignKey = dependentType.GetForeignKeys().Single();
 
             var entry = TestHelpers.Instance.CreateInternalEntry<SomeDependentEntity>(_model);
@@ -428,16 +429,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             fk5A.IsShadowProperty = false;
             var fk5B = entityType5.AddProperty("Fk2", typeof(string));
             fk5B.IsShadowProperty = false;
-            entityType5.GetOrAddForeignKey(new[] { fk5A, fk5B }, entityType2.GetPrimaryKey(), entityType2);
+            entityType5.GetOrAddForeignKey(new[] { fk5A, fk5B }, entityType2.FindPrimaryKey(), entityType2);
 
             return model;
         }
 
-        protected IProperty IdProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Id");
+        protected IProperty IdProperty => _model.FindEntityType(typeof(Banana)).FindProperty("Id");
 
-        protected IProperty NameProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Name");
+        protected IProperty NameProperty => _model.FindEntityType(typeof(Banana)).FindProperty("Name");
 
-        protected IProperty FkProperty => _model.GetEntityType(typeof(Banana)).GetProperty("Fk");
+        protected IProperty FkProperty => _model.FindEntityType(typeof(Banana)).FindProperty("Fk");
 
         protected class Banana : INotifyPropertyChanged, INotifyPropertyChanging
         {

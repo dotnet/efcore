@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .ForSqlServerHasColumnName("MyNameIs");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("Name", property.Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .ForSqlServerHasColumnType("nvarchar(DA)");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("nvarchar(42)", property.Relational().ColumnType);
             Assert.Equal("nvarchar(DA)", property.SqlServer().ColumnType);
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .ForSqlServerHasDefaultValueSql("VanillaCoke");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
 
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .ForSqlServerHasComputedColumnSql("VanillaCoke");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
 
@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Property(e => e.Name)
                 .ForSqlServerHasDefaultValue(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)));
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal(new DateTimeOffset(1973, 9, 3, 0, 10, 0, new TimeSpan(1, 0, 0)), property.Relational().DefaultValue);
             Assert.Equal(new DateTimeOffset(2006, 9, 19, 19, 0, 0, new TimeSpan(-8, 0, 0)), property.SqlServer().DefaultValue);
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasName("KeyLimePie")
                 .ForSqlServerHasName("LemonSupreme");
 
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+            var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
             Assert.Equal("KeyLimePie", key.Relational().Name);
             Assert.Equal("LemonSupreme", key.SqlServer().Name);
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasConstraintName("LemonSupreme")
                 .ForSqlServerHasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasConstraintName("LemonSupreme")
                 .ForSqlServerHasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -193,7 +193,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasConstraintName("LemonSupreme")
                 .ForSqlServerHasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -217,7 +217,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasConstraintName("LemonSupreme")
                 .ForSqlServerHasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -234,7 +234,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasConstraintName("LemonSupreme")
                 .ForSqlServerHasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasConstraintName("LemonSupreme")
                 .ForSqlServerHasConstraintName("ChocolateLimes");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
             Assert.Equal("ChocolateLimes", foreignKey.SqlServer().Name);
@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasName("Eeeendeeex")
                 .ForSqlServerHasName("Dexter");
 
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).GetIndexes().Single();
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.Equal("Eeeendeeex", index.Relational().Name);
             Assert.Equal("Dexter", index.SqlServer().Name);
@@ -291,7 +291,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ToTable("Customizer")
                 .ForSqlServerToTable("Custardizer");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ToTable("Customizer")
                 .ForSqlServerToTable("Custardizer");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ToTable("Customizer", "db0")
                 .ForSqlServerToTable("Custardizer", "dbOh");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -344,7 +344,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ToTable("Customizer", "db0")
                 .ForSqlServerToTable("Custardizer", "dbOh");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -363,7 +363,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasIndex(e => e.Id)
                 .ForSqlServerIsClustered();
 
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).GetIndexes().Single();
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.True(index.SqlServer().IsClustered.Value);
         }
@@ -378,7 +378,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .HasKey(e => e.Id)
                 .ForSqlServerIsClustered();
 
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+            var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
             Assert.True(key.SqlServer().IsClustered.Value);
         }
@@ -544,7 +544,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo();
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -565,7 +565,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo("Snook");
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -596,7 +596,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -633,7 +633,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -656,7 +656,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -685,7 +685,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -714,7 +714,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .ForSqlServerUseSequenceHiLo("Snook", "Tasty");
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -736,7 +736,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .UseSqlServerIdentityColumn();
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -757,7 +757,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .UseSqlServerIdentityColumn();
 
             var model = modelBuilder.Model;
-            var property = model.GetEntityType(typeof(Customer)).GetProperty("Id");
+            var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
 
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public static IKeyValue GetPrimaryKeyValue([NotNull] this IPropertyAccessor propertyAccessor)
         {
-            var key = propertyAccessor.InternalEntityEntry.EntityType.GetPrimaryKey();
+            var key = propertyAccessor.InternalEntityEntry.EntityType.FindPrimaryKey();
             return propertyAccessor.InternalEntityEntry.CreateKey(key, key.Properties, propertyAccessor);
         }
     }

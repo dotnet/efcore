@@ -27,6 +27,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public override QueryContext Create()
-            => new InMemoryQueryContext(CreateQueryBuffer(), _database.Store);
+            => new InMemoryQueryContext(CreateQueryBuffer, _database.Store);
     }
 }

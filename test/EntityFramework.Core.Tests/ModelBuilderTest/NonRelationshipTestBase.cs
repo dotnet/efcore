@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Xunit;
@@ -23,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests
                 var entityBuilder = modelBuilder.Entity<Customer>();
 
                 Assert.NotNull(entityBuilder);
-                Assert.Equal(typeof(Customer).FullName, model.GetEntityType(typeof(Customer)).Name);
+                Assert.Equal(typeof(Customer).FullName, model.FindEntityType(typeof(Customer)).Name);
             }
 
             [Fact]
@@ -34,10 +35,10 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Customer>().HasKey(b => b.Id);
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
-                Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
+                Assert.Equal(1, entity.FindPrimaryKey().Properties.Count);
+                Assert.Equal(Customer.IdProperty.Name, entity.FindPrimaryKey().Properties.First().Name);
             }
 
             [Fact]
@@ -54,10 +55,10 @@ namespace Microsoft.Data.Entity.Tests
                         b.HasKey(Customer.IdProperty.Name + 1);
                     });
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
-                Assert.Equal(Customer.IdProperty.Name + 1, entity.GetPrimaryKey().Properties.First().Name);
+                Assert.Equal(1, entity.FindPrimaryKey().Properties.Count);
+                Assert.Equal(Customer.IdProperty.Name + 1, entity.FindPrimaryKey().Properties.First().Name);
             }
 
             [Fact]
@@ -71,10 +72,10 @@ namespace Microsoft.Data.Entity.Tests
                         b.HasKey(e => e.Id);
                     });
 
-                var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
+                var entity = modelBuilder.Model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetPrimaryKey().Properties.Count);
-                Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
+                Assert.Equal(1, entity.FindPrimaryKey().Properties.Count);
+                Assert.Equal(Customer.IdProperty.Name, entity.FindPrimaryKey().Properties.First().Name);
             }
 
             [Fact]
@@ -87,11 +88,11 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Customer>()
                     .HasKey(e => new { e.Id, e.Name });
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
-                Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
-                Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Last().Name);
+                Assert.Equal(2, entity.FindPrimaryKey().Properties.Count);
+                Assert.Equal(Customer.IdProperty.Name, entity.FindPrimaryKey().Properties.First().Name);
+                Assert.Equal(Customer.NameProperty.Name, entity.FindPrimaryKey().Properties.Last().Name);
             }
 
             [Fact]
@@ -108,11 +109,11 @@ namespace Microsoft.Data.Entity.Tests
                         b.HasKey(Customer.IdProperty.Name, Customer.NameProperty.Name + "Shadow");
                     });
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(2, entity.GetPrimaryKey().Properties.Count);
-                Assert.Equal(Customer.IdProperty.Name, entity.GetPrimaryKey().Properties.First().Name);
-                Assert.Equal(Customer.NameProperty.Name + "Shadow", entity.GetPrimaryKey().Properties.Last().Name);
+                Assert.Equal(2, entity.FindPrimaryKey().Properties.Count);
+                Assert.Equal(Customer.IdProperty.Name, entity.FindPrimaryKey().Properties.First().Name);
+                Assert.Equal(Customer.NameProperty.Name + "Shadow", entity.FindPrimaryKey().Properties.Last().Name);
             }
 
             [Fact]
@@ -128,9 +129,9 @@ namespace Microsoft.Data.Entity.Tests
                 keyBuilder.HasAnnotation("A1", "V1")
                     .HasAnnotation("A2", "V2");
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.GetPrimaryKey().Properties.Select(p => p.Name));
+                Assert.Equal(new[] { Customer.IdProperty.Name, Customer.NameProperty.Name }, entity.FindPrimaryKey().Properties.Select(p => p.Name));
                 Assert.Equal("V1", keyBuilder.Metadata["A1"]);
                 Assert.Equal("V2", keyBuilder.Metadata["A2"]);
             }
@@ -141,15 +142,15 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
                 modelBuilder.Entity<Customer>().Property<int>(Customer.IdProperty.Name);
 
-                var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
+                var entity = modelBuilder.Model.FindEntityType(typeof(Customer));
                 var key = entity.AddKey(entity.GetOrAddProperty(Customer.NameProperty));
 
                 modelBuilder.Entity<Customer>().HasKey(b => b.Name);
 
                 Assert.Same(key, entity.GetKeys().Single());
-                Assert.Equal(Customer.NameProperty.Name, entity.GetPrimaryKey().Properties.Single().Name);
+                Assert.Equal(Customer.NameProperty.Name, entity.FindPrimaryKey().Properties.Single().Name);
 
-                var idProperty = (IProperty)entity.GetProperty(Customer.IdProperty);
+                var idProperty = (IProperty)EntityTypeExtensions.FindProperty((IEntityType)entity, Customer.IdProperty);
                 Assert.False(idProperty.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, idProperty.ValueGenerated);
             }
@@ -162,10 +163,10 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Customer>().HasAlternateKey(b => b.AlternateKey);
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
-                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
+                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -180,10 +181,10 @@ namespace Microsoft.Data.Entity.Tests
                         b.HasAlternateKey(Customer.AlternateKeyProperty.Name + 1);
                     });
 
-                var entity = model.GetEntityType(typeof(Customer));
+                var entity = model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
-                Assert.Equal(Customer.AlternateKeyProperty.Name + 1, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
+                Assert.Equal(Customer.AlternateKeyProperty.Name + 1, entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -196,10 +197,10 @@ namespace Microsoft.Data.Entity.Tests
                         b.HasAlternateKey(e => e.AlternateKey);
                     });
 
-                var entity = modelBuilder.Model.GetEntityType(typeof(Customer));
+                var entity = modelBuilder.Model.FindEntityType(typeof(Customer));
 
-                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.GetPrimaryKey()));
-                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.GetPrimaryKey()).Properties.First().Name);
+                Assert.Equal(1, entity.GetKeys().Count(key => key != entity.FindPrimaryKey()));
+                Assert.Equal(Customer.AlternateKeyProperty.Name, entity.GetKeys().First(key => key != entity.FindPrimaryKey()).Properties.First().Name);
             }
 
             [Fact]
@@ -252,7 +253,7 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property(e => e.AlternateKey);
                     });
 
-                Assert.Equal(3, modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperties().Count());
+                Assert.Equal(3, modelBuilder.Model.FindEntityType(typeof(Customer)).GetProperties().Count());
             }
 
             [Fact]
@@ -271,14 +272,14 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom");
                     });
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.GetProperty("Up").IsNullable);
-                Assert.True(entityType.GetProperty("Down").IsNullable);
-                Assert.False(entityType.GetProperty("Charm").IsNullable);
-                Assert.True(entityType.GetProperty("Strange").IsNullable);
-                Assert.False(entityType.GetProperty("Top").IsNullable);
-                Assert.True(entityType.GetProperty("Bottom").IsNullable);
+                Assert.False(entityType.FindProperty("Up").IsNullable);
+                Assert.True(entityType.FindProperty("Down").IsNullable);
+                Assert.False(entityType.FindProperty("Charm").IsNullable);
+                Assert.True(entityType.FindProperty("Strange").IsNullable);
+                Assert.False(entityType.FindProperty("Top").IsNullable);
+                Assert.True(entityType.FindProperty("Bottom").IsNullable);
             }
 
             [Fact]
@@ -342,7 +343,7 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Shadow");
                     });
 
-                Assert.NotNull(modelBuilder.Model.GetEntityType(typeof(Customer)).FindProperty("Shadow"));
+                Assert.NotNull(modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Shadow"));
             }
 
             [Fact]
@@ -396,14 +397,14 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom").IsRequired();
                     });
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.GetProperty("Up").IsNullable);
-                Assert.False(entityType.GetProperty("Down").IsNullable);
-                Assert.False(entityType.GetProperty("Charm").IsNullable);
-                Assert.False(entityType.GetProperty("Strange").IsNullable);
-                Assert.False(entityType.GetProperty("Top").IsNullable);
-                Assert.False(entityType.GetProperty("Bottom").IsNullable);
+                Assert.False(entityType.FindProperty("Up").IsNullable);
+                Assert.False(entityType.FindProperty("Down").IsNullable);
+                Assert.False(entityType.FindProperty("Charm").IsNullable);
+                Assert.False(entityType.FindProperty("Strange").IsNullable);
+                Assert.False(entityType.FindProperty("Top").IsNullable);
+                Assert.False(entityType.FindProperty("Bottom").IsNullable);
             }
 
             [Fact]
@@ -419,11 +420,11 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom").IsRequired(false);
                     });
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.True(entityType.GetProperty("Down").IsNullable);
-                Assert.True(entityType.GetProperty("Strange").IsNullable);
-                Assert.True(entityType.GetProperty("Bottom").IsNullable);
+                Assert.True(entityType.FindProperty("Down").IsNullable);
+                Assert.True(entityType.FindProperty("Strange").IsNullable);
+                Assert.True(entityType.FindProperty("Bottom").IsNullable);
             }
 
             [Fact]
@@ -447,11 +448,11 @@ namespace Microsoft.Data.Entity.Tests
                             Assert.Throws<InvalidOperationException>(() => b.Property<int>("Top").IsRequired(false)).Message);
                     });
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.GetProperty("Up").IsNullable);
-                Assert.False(entityType.GetProperty("Charm").IsNullable);
-                Assert.False(entityType.GetProperty("Top").IsNullable);
+                Assert.False(entityType.FindProperty("Up").IsNullable);
+                Assert.False(entityType.FindProperty("Charm").IsNullable);
+                Assert.False(entityType.FindProperty("Top").IsNullable);
             }
 
             [Fact]
@@ -468,19 +469,19 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Photon");
                     });
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.GetProperty("Up").IsShadowProperty);
-                Assert.False(entityType.GetProperty("Charm").IsShadowProperty);
-                Assert.False(entityType.GetProperty("Top").IsShadowProperty);
-                Assert.True(entityType.GetProperty("Gluon").IsShadowProperty);
-                Assert.True(entityType.GetProperty("Photon").IsShadowProperty);
+                Assert.False(entityType.FindProperty("Up").IsShadowProperty);
+                Assert.False(entityType.FindProperty("Charm").IsShadowProperty);
+                Assert.False(entityType.FindProperty("Top").IsShadowProperty);
+                Assert.True(entityType.FindProperty("Gluon").IsShadowProperty);
+                Assert.True(entityType.FindProperty("Photon").IsShadowProperty);
 
-                Assert.Equal(-1, entityType.GetProperty("Up").GetShadowIndex());
-                Assert.Equal(-1, entityType.GetProperty("Charm").GetShadowIndex());
-                Assert.Equal(-1, entityType.GetProperty("Top").GetShadowIndex());
-                Assert.Equal(0, entityType.GetProperty("Gluon").GetShadowIndex());
-                Assert.Equal(1, entityType.GetProperty("Photon").GetShadowIndex());
+                Assert.Equal(-1, entityType.FindProperty("Up").GetShadowIndex());
+                Assert.Equal(-1, entityType.FindProperty("Charm").GetShadowIndex());
+                Assert.Equal(-1, entityType.FindProperty("Top").GetShadowIndex());
+                Assert.Equal(0, entityType.FindProperty("Gluon").GetShadowIndex());
+                Assert.Equal(1, entityType.FindProperty("Photon").GetShadowIndex());
             }
 
             [Fact]
@@ -499,23 +500,23 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom").IsConcurrencyToken(false);
                     });
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Quarks));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Quarks));
 
-                Assert.False(entityType.GetProperty(Customer.IdProperty.Name).IsConcurrencyToken);
-                Assert.True(entityType.GetProperty("Up").IsConcurrencyToken);
-                Assert.False(entityType.GetProperty("Down").IsConcurrencyToken);
-                Assert.True(entityType.GetProperty("Charm").IsConcurrencyToken);
-                Assert.False(entityType.GetProperty("Strange").IsConcurrencyToken);
-                Assert.True(entityType.GetProperty("Top").IsConcurrencyToken);
-                Assert.False(entityType.GetProperty("Bottom").IsConcurrencyToken);
+                Assert.False(entityType.FindProperty(Customer.IdProperty.Name).IsConcurrencyToken);
+                Assert.True(entityType.FindProperty("Up").IsConcurrencyToken);
+                Assert.False(entityType.FindProperty("Down").IsConcurrencyToken);
+                Assert.True(entityType.FindProperty("Charm").IsConcurrencyToken);
+                Assert.False(entityType.FindProperty("Strange").IsConcurrencyToken);
+                Assert.True(entityType.FindProperty("Top").IsConcurrencyToken);
+                Assert.False(entityType.FindProperty("Bottom").IsConcurrencyToken);
 
-                Assert.Equal(-1, entityType.GetProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
-                Assert.Equal(2, entityType.GetProperty("Up").GetOriginalValueIndex());
-                Assert.Equal(-1, entityType.GetProperty("Down").GetOriginalValueIndex());
-                Assert.Equal(0, entityType.GetProperty("Charm").GetOriginalValueIndex());
-                Assert.Equal(-1, entityType.GetProperty("Strange").GetOriginalValueIndex());
-                Assert.Equal(1, entityType.GetProperty("Top").GetOriginalValueIndex());
-                Assert.Equal(-1, entityType.GetProperty("Bottom").GetOriginalValueIndex());
+                Assert.Equal(-1, entityType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
+                Assert.Equal(2, entityType.FindProperty("Up").GetOriginalValueIndex());
+                Assert.Equal(-1, entityType.FindProperty("Down").GetOriginalValueIndex());
+                Assert.Equal(0, entityType.FindProperty("Charm").GetOriginalValueIndex());
+                Assert.Equal(-1, entityType.FindProperty("Strange").GetOriginalValueIndex());
+                Assert.Equal(1, entityType.FindProperty("Top").GetOriginalValueIndex());
+                Assert.Equal(-1, entityType.FindProperty("Bottom").GetOriginalValueIndex());
             }
 
             [Fact]
@@ -535,15 +536,15 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom").Metadata.RequiresValueGenerator = false;
                     });
 
-                var entityType = model.GetEntityType(typeof(Quarks));
+                var entityType = model.FindEntityType(typeof(Quarks));
 
-                Assert.Equal(false, entityType.GetProperty(Customer.IdProperty.Name).RequiresValueGenerator);
-                Assert.Equal(true, entityType.GetProperty("Up").RequiresValueGenerator);
-                Assert.Equal(true, entityType.GetProperty("Down").RequiresValueGenerator);
-                Assert.Equal(true, entityType.GetProperty("Charm").RequiresValueGenerator);
-                Assert.Equal(false, entityType.GetProperty("Strange").RequiresValueGenerator);
-                Assert.Equal(true, entityType.GetProperty("Top").RequiresValueGenerator);
-                Assert.Equal(false, entityType.GetProperty("Bottom").RequiresValueGenerator);
+                Assert.Equal(false, entityType.FindProperty(Customer.IdProperty.Name).RequiresValueGenerator);
+                Assert.Equal(true, entityType.FindProperty("Up").RequiresValueGenerator);
+                Assert.Equal(true, entityType.FindProperty("Down").RequiresValueGenerator);
+                Assert.Equal(true, entityType.FindProperty("Charm").RequiresValueGenerator);
+                Assert.Equal(false, entityType.FindProperty("Strange").RequiresValueGenerator);
+                Assert.Equal(true, entityType.FindProperty("Top").RequiresValueGenerator);
+                Assert.Equal(false, entityType.FindProperty("Bottom").RequiresValueGenerator);
             }
 
             [Fact]
@@ -563,15 +564,15 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom").ValueGeneratedNever();
                     });
 
-                var entityType = model.GetEntityType(typeof(Quarks));
+                var entityType = model.FindEntityType(typeof(Quarks));
 
-                Assert.Equal(ValueGenerated.OnAdd, entityType.GetProperty(Customer.IdProperty.Name).ValueGenerated);
-                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.GetProperty("Up").ValueGenerated);
-                Assert.Equal(ValueGenerated.Never, entityType.GetProperty("Down").ValueGenerated);
-                Assert.Equal(ValueGenerated.OnAdd, entityType.GetProperty("Charm").ValueGenerated);
-                Assert.Equal(ValueGenerated.Never, entityType.GetProperty("Strange").ValueGenerated);
-                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.GetProperty("Top").ValueGenerated);
-                Assert.Equal(ValueGenerated.Never, entityType.GetProperty("Bottom").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAdd, entityType.FindProperty(Customer.IdProperty.Name).ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Up").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Down").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAdd, entityType.FindProperty("Charm").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Strange").ValueGenerated);
+                Assert.Equal(ValueGenerated.OnAddOrUpdate, entityType.FindProperty("Top").ValueGenerated);
+                Assert.Equal(ValueGenerated.Never, entityType.FindProperty("Bottom").ValueGenerated);
             }
 
             [Fact]
@@ -590,15 +591,15 @@ namespace Microsoft.Data.Entity.Tests
                         b.Property<string>("Bottom").HasMaxLength(100);
                     });
 
-                var entityType = model.GetEntityType(typeof(Quarks));
+                var entityType = model.FindEntityType(typeof(Quarks));
 
-                Assert.Null(entityType.GetProperty(Customer.IdProperty.Name).GetMaxLength());
-                Assert.Equal(0, entityType.GetProperty("Up").GetMaxLength());
-                Assert.Equal(100, entityType.GetProperty("Down").GetMaxLength());
-                Assert.Equal(0, entityType.GetProperty("Charm").GetMaxLength());
-                Assert.Equal(100, entityType.GetProperty("Strange").GetMaxLength());
-                Assert.Equal(0, entityType.GetProperty("Top").GetMaxLength());
-                Assert.Equal(100, entityType.GetProperty("Bottom").GetMaxLength());
+                Assert.Null(entityType.FindProperty(Customer.IdProperty.Name).GetMaxLength());
+                Assert.Equal(0, entityType.FindProperty("Up").GetMaxLength());
+                Assert.Equal(100, entityType.FindProperty("Down").GetMaxLength());
+                Assert.Equal(0, entityType.FindProperty("Charm").GetMaxLength());
+                Assert.Equal(100, entityType.FindProperty("Strange").GetMaxLength());
+                Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
+                Assert.Equal(100, entityType.FindProperty("Bottom").GetMaxLength());
             }
 
             [Fact]
@@ -627,7 +628,7 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Customer>()
                     .HasIndex(ix => ix.Name);
 
-                var entityType = model.GetEntityType(typeof(Customer));
+                var entityType = model.FindEntityType(typeof(Customer));
 
                 var index = entityType.GetIndexes().Single();
                 Assert.Equal(Customer.NameProperty.Name, index.Properties.Single().Name);
@@ -646,7 +647,7 @@ namespace Microsoft.Data.Entity.Tests
                             b.HasIndex("Index");
                         });
 
-                var entityType = model.GetEntityType(typeof(Customer));
+                var entityType = model.FindEntityType(typeof(Customer));
 
                 var index = entityType.GetIndexes().Single();
                 Assert.Equal("Index", index.Properties.Single().Name);
@@ -662,7 +663,7 @@ namespace Microsoft.Data.Entity.Tests
                 var firstIndexBuilder = entityBuilder.HasIndex(ix => ix.Id).IsUnique();
                 var secondIndexBuilder = entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(Customer));
+                var entityType = (IEntityType)model.FindEntityType(typeof(Customer));
 
                 Assert.Equal(2, entityType.GetIndexes().Count());
                 Assert.True(firstIndexBuilder.Metadata.IsUnique);
@@ -678,14 +679,14 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityBuilder = modelBuilder.Entity<EntityWithoutId>();
 
-                var entityType = (IEntityType)model.GetEntityType(typeof(EntityWithoutId));
+                var entityType = (IEntityType)model.FindEntityType(typeof(EntityWithoutId));
 
                 Assert.Null(entityType.FindPrimaryKey());
 
                 entityBuilder.Property<int>("Id");
 
-                Assert.NotNull(entityType.GetPrimaryKey());
-                AssertEqual(new [] { "Id" }, entityType.GetPrimaryKey().Properties.Select(p => p.Name));
+                Assert.NotNull(entityType.FindPrimaryKey());
+                AssertEqual(new [] { "Id" }, entityType.FindPrimaryKey().Properties.Select(p => p.Name));
             }
         }
     }

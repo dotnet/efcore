@@ -37,10 +37,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void StartTracking_throws_if_different_instance_with_same_identity_is_already_tracked()
         {
             var model = BuildModel();
-            var categoryType = model.GetEntityType(typeof(Category));
+            var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var entityKey = new SimpleKeyValue<int>(categoryType.GetPrimaryKey(), 77);
+            var entityKey = new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
             stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
@@ -55,11 +55,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void StartTracking_is_no_op_if_entity_is_already_tracked()
         {
             var model = BuildModel();
-            var categoryType = model.GetEntityType(typeof(Category));
+            var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
             var category = new Category { Id = 77 };
-            var entityKey = new SimpleKeyValue<int>(categoryType.GetPrimaryKey(), 77);
+            var entityKey = new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
             var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer);
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void StartTracking_throws_for_invalid_entity_key()
         {
             var model = BuildModel();
-            var categoryType = model.GetEntityType(typeof(Category));
+            var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
             var valueBuffer = new ValueBuffer(new object[] { 0, "Bjork", null });
@@ -87,9 +87,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var model = BuildModel();
             var stateManager = CreateStateManager(model);
-            var entityType = model.GetEntityType("Location");
+            var entityType = model.FindEntityType("Location");
             var entry = stateManager.CreateNewEntry(entityType);
-            entry[entityType.GetPrimaryKey().Properties.Single()] = 42;
+            entry[entityType.FindPrimaryKey().Properties.Single()] = 42;
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
             Assert.Null(entry.Entity);
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var stateManager = CreateStateManager(model);
 
-            var entry = stateManager.CreateNewEntry(model.GetEntityType(typeof(Category)));
+            var entry = stateManager.CreateNewEntry(model.FindEntityType(typeof(Category)));
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
             Assert.IsType<Category>(entry.Entity);
@@ -532,7 +532,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var productEntry4 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = 78 }));
             var productEntry5 = stateManager.StartTracking(stateManager.GetOrCreateEntry(new Product { Id = Guid.NewGuid(), DependentId = null }));
 
-            var fk = model.GetEntityType(typeof(Product)).GetForeignKeys().Single();
+            var fk = model.FindEntityType(typeof(Product)).GetForeignKeys().Single();
 
             Assert.Equal(
                 new[] { productEntry1, productEntry2 },

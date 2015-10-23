@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = CreateInternalEntry(
                  configuration,
-                 model.GetEntityType(typeof(SomeEntity).FullName),
+                 model.FindEntityType(typeof(SomeEntity).FullName),
                  null,
                  new ValueBuffer(new object[] { 1, "Kool" }));
 
@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Original_values_are_not_tracked_unless_needed_by_default_for_shadow_properties()
         {
             var model = BuildModel();
-            var entityType = model.GetEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.GetProperty("Id");
+            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
+            var idProperty = entityType.FindProperty("Id");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity).FullName);
             entityType2.BaseType = someCompositeEntityType;
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
-            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.GetPrimaryKey(), entityType1);
+            entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
             var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
             justAProperty.RequiresValueGenerator = true;
 
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             entityType5.BaseType = someSimpleEntityType;
             var fk5a = entityType5.AddProperty("Fk1", typeof(int));
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));
-            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.GetPrimaryKey(), entityType2);
+            entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);
 
             return model;
         }

@@ -73,9 +73,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyName, nameof(propertyName));
 
-            var property = this.GetService().EntityType.GetProperty(propertyName);
+            var property = this.GetService().EntityType.FindProperty(propertyName);
 
-            if (property.ClrType != typeof(TProperty))
+            if (property != null
+                && property.ClrType != typeof(TProperty))
             {
                 throw new ArgumentException(CoreStrings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }

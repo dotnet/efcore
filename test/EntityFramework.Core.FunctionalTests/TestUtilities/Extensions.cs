@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             foreach (var key in sourceEntityType.GetDeclaredKeys())
             {
                 var clonedKey = targetEntityType.AddKey(
-                    key.Properties.Select(p => targetEntityType.GetProperty(p.Name)).ToList());
+                    key.Properties.Select(p => targetEntityType.FindProperty(p.Name)).ToList());
                 if (key.IsPrimaryKey())
                 {
                     targetEntityType.SetPrimaryKey(clonedKey.Properties);
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             foreach (var index in sourceEntityType.GetDeclaredIndexes())
             {
                 var clonedIndex = targetEntityType.AddIndex(
-                    index.Properties.Select(p => targetEntityType.GetProperty(p.Name)).ToList());
+                    index.Properties.Select(p => targetEntityType.FindProperty(p.Name)).ToList());
                 clonedIndex.IsUnique = index.IsUnique;
                 index.Annotations.ForEach(annotation => clonedIndex[annotation.Name] = annotation.Value);
             }
@@ -123,11 +123,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             foreach (var foreignKey in sourceEntityType.GetDeclaredForeignKeys())
             {
-                var targetPrincipalEntityType = targetEntityType.Model.GetEntityType(foreignKey.PrincipalEntityType.Name);
+                var targetPrincipalEntityType = targetEntityType.Model.FindEntityType(foreignKey.PrincipalEntityType.Name);
                 var clonedForeignKey = targetEntityType.AddForeignKey(
-                    foreignKey.Properties.Select(p => targetEntityType.GetProperty(p.Name)).ToList(),
-                    targetPrincipalEntityType.GetKey(
-                        foreignKey.PrincipalKey.Properties.Select(p => targetPrincipalEntityType.GetProperty(p.Name)).ToList()),
+                    foreignKey.Properties.Select(p => targetEntityType.FindProperty(p.Name)).ToList(),
+                    targetPrincipalEntityType.FindKey(foreignKey.PrincipalKey.Properties.Select(p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
                 clonedForeignKey.IsUnique = foreignKey.IsUnique;
                 clonedForeignKey.IsRequired = foreignKey.IsRequired;
@@ -139,9 +138,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             foreach (var navigation in sourceEntityType.GetDeclaredNavigations())
             {
-                var targetDependentEntityType = targetEntityType.Model.GetEntityType(navigation.ForeignKey.DeclaringEntityType.Name);
-                var targetForeignKey = targetDependentEntityType.GetForeignKey(
-                    navigation.ForeignKey.Properties.Select(p => targetDependentEntityType.GetProperty(p.Name)).ToList());
+                var targetDependentEntityType = targetEntityType.Model.FindEntityType(navigation.ForeignKey.DeclaringEntityType.Name);
+                var targetForeignKey = targetDependentEntityType.FindForeignKey(navigation.ForeignKey.Properties.Select(p => targetDependentEntityType.FindProperty(p.Name)).ToList());
                 var clonedNavigation = targetEntityType.AddNavigation(navigation.Name, targetForeignKey, pointsToPrincipal: navigation.PointsToPrincipal());
                 navigation.Annotations.ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
             }

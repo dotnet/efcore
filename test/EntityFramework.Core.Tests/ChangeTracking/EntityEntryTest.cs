@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             using (var context = new FreezerContext())
             {
                 var entity = context.Add(new Chunky()).Entity;
-                var entityType = context.Model.GetEntityType(typeof(Chunky));
+                var entityType = context.Model.FindEntityType(typeof(Chunky));
 
                 Assert.Same(entityType, context.Entry(entity).Metadata);
                 Assert.Same(entityType, context.Entry((object)entity).Metadata);
@@ -197,12 +197,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var entity = context.Add(new Chunky()).Entity;
 
-                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType()),
-                    Assert.Throws<ModelItemNotFoundException>(() => context.Entry(entity).Property("Chimp").Metadata.Name).Message);
-                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType()),
-                    Assert.Throws<ModelItemNotFoundException>(() => context.Entry((object)entity).Property("Chimp").Metadata.Name).Message);
-                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType()),
-                    Assert.Throws<ModelItemNotFoundException>(() => context.Entry(entity).Property<int>("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Property("Chimp").Metadata.Name).Message);
+                Assert.Equal(CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property<int>("Chimp").Metadata.Name).Message);
             }
         }
 

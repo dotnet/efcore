@@ -85,14 +85,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.
-        /// </summary>
-        public static string EntityTypeNotFound([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotFound", "entityType"), entityType);
-        }
-
-        /// <summary>
         /// The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.
         /// </summary>
         public static string PropertyNotFound([CanBeNull] object property, [CanBeNull] object entityType)
@@ -597,30 +589,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The foreign key {foreignKey} on entity type '{entityType}' could not be found. Ensure that the foreign key been added to the entity type.
-        /// </summary>
-        public static string ForeignKeyNotFound([CanBeNull] object foreignKey, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyNotFound", "foreignKey", "entityType"), foreignKey, entityType);
-        }
-
-        /// <summary>
-        /// The index {index} on entity type '{entityType}' could not be found. Ensure that the index been added to the entity type.
-        /// </summary>
-        public static string IndexNotFound([CanBeNull] object index, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IndexNotFound", "index", "entityType"), index, entityType);
-        }
-
-        /// <summary>
-        /// The key {key} on entity type '{entityType}' could not be found. Ensure that the key been added to the entity type.
-        /// </summary>
-        public static string KeyNotFound([CanBeNull] object key, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("KeyNotFound", "key", "entityType"), key, entityType);
-        }
-
-        /// <summary>
         /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.
         /// </summary>
         public static string NavigationToShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetType)
@@ -930,14 +898,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string DuplicatePropertiesOnBase([CanBeNull] object entityType, [CanBeNull] object baseType, [CanBeNull] object properties)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicatePropertiesOnBase", "entityType", "baseType", "properties"), entityType, baseType, properties);
-        }
-
-        /// <summary>
-        /// The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.
-        /// </summary>
-        public static string InvalidEntityKeyOnQuery([CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityKeyOnQuery", "entityType"), entityType);
         }
 
         /// <summary>

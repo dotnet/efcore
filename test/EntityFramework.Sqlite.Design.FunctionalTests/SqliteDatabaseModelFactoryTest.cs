@@ -49,8 +49,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         {
             var entityType = GetModel(@"CREATE TABLE ""Column Types"" (
                                         col1 text,
-                                        col2 unsigned big int );")
-                .GetEntityType("Column_Types");
+                                        col2 unsigned big int );").FindEntityType("Column_Types");
 
             Assert.NotNull(entityType);
             Assert.Equal("Column Types", entityType.Sqlite().TableName);
@@ -71,8 +70,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                                             hiredate datetime default current_timestamp,
                                             iq float default (100 + 19.4),
                                             name text
-                                            );")
-                .GetEntityType("Jobs");
+                                            );").FindEntityType("Jobs");
 
             Assert.NotNull(entityType);
 
@@ -88,8 +86,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         {
             var entityType = GetModel(@"CREATE TABLE Restaurants (
                                         Name text not null,
-                                        MenuUrl text );")
-                .GetEntityType("Restaurants");
+                                        MenuUrl text );").FindEntityType("Restaurants");
 
             Assert.NotNull(entityType);
 
@@ -102,7 +99,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [InlineData("Id INT, AltId INT, PRIMARY KEY (Id, AltId)", new[] { "Id", "AltId" })]
         public void It_loads_primary_key(string def, string[] keys)
         {
-            var entityType = GetModel($"CREATE TABLE Keys ({def});").GetEntityType("Keys");
+            var entityType = GetModel($"CREATE TABLE Keys ({def});").FindEntityType("Keys");
 
             Assert.NotNull(entityType);
             Assert.Equal(keys, entityType.GetKeys().First().Properties.Select(p => p.Sqlite().ColumnName).ToArray());
@@ -118,7 +115,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [InlineData(new[] { "z", "y" }, "CREATE TABLE t (y int, z int, UNIQUE(z,y));")]
         public void It_gets_unique_indexes(string[] columns, string create)
         {
-            var entityType = GetModel(create).GetEntityType("t");
+            var entityType = GetModel(create).FindEntityType("t");
 
             var idx = entityType.GetIndexes().First();
             Assert.True(idx.IsUnique);
@@ -136,7 +133,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         [Fact]
         public void It_gets_indexes()
         {
-            var entityType = GetModel("CREATE TABLE t (Id int, A text); CREATE INDEX idx_1 on t (id, a);").GetEntityType("t");
+            var entityType = GetModel("CREATE TABLE t (Id int, A text); CREATE INDEX idx_1 on t (id, a);").FindEntityType("t");
 
             var idx = entityType.GetIndexes().First();
             Assert.False(idx.IsUnique);
@@ -158,13 +155,13 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                         );";
 
             var model = GetModel(sql);
-            var parent = model.GetEntityType("Parent");
-            var children = model.GetEntityType("Children");
+            var parent = model.FindEntityType("Parent");
+            var children = model.FindEntityType("Children");
 
             Assert.NotEmpty(parent.FindReferencingForeignKeys());
             Assert.NotEmpty(children.GetForeignKeys());
 
-            var principalKey = children.GetForeignKey(children.FindProperty("ParentId")).PrincipalKey;
+            var principalKey = children.FindForeignKey(children.FindProperty("ParentId")).PrincipalKey;
             Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -181,8 +178,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                         );";
 
             var model = GetModel(sql);
-            var parent = model.GetEntityType("Parent");
-            var children = model.GetEntityType("Children");
+            var parent = model.FindEntityType("Parent");
+            var children = model.FindEntityType("Children");
 
             Assert.NotEmpty(parent.FindReferencingForeignKeys());
             Assert.NotEmpty(children.GetForeignKeys());
@@ -192,7 +189,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                 (Property)children.FindProperty("ParentId_A"),
                 (Property)children.FindProperty("ParentId_B")
             };
-            var principalKey = children.GetForeignKey(propList.AsReadOnly()).PrincipalKey;
+            var principalKey = children.FindForeignKey(propList.AsReadOnly()).PrincipalKey;
             Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id_A", principalKey.Properties[0].Name);
             Assert.Equal("Id_B", principalKey.Properties[1].Name);
@@ -208,12 +205,12 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                         );";
 
             var model = GetModel(sql);
-            var list = model.GetEntityType("ItemsList");
+            var list = model.FindEntityType("ItemsList");
 
             Assert.NotEmpty(list.FindReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
-            var principalKey = list.GetForeignKey(list.FindProperty("ParentId")).PrincipalKey;
+            var principalKey = list.FindForeignKey(list.FindProperty("ParentId")).PrincipalKey;
             Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -242,12 +239,12 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
     BuddyId UNIQUE,
     FOREIGN KEY (BuddyId) REFERENCES Friends(Id)
 );";
-            var table = GetModel(sql).GetEntityType("Friends");
+            var table = GetModel(sql).FindEntityType("Friends");
 
-            var fk = table.GetForeignKey(new[] { table.GetProperty("BuddyId") });
+            var fk = table.FindForeignKey(new[] { table.FindProperty("BuddyId") });
 
             Assert.True(fk.IsUnique);
-            Assert.Equal(table.GetPrimaryKey(), fk.PrincipalKey);
+            Assert.Equal(table.FindPrimaryKey(), fk.PrincipalKey);
         }
 
         [Fact]
@@ -259,9 +256,9 @@ CREATE TABLE Friends (
     Id PRIMARY KEY,
     FOREIGN KEY (Id) REFERENCES Family(Id)
 );";
-            var table = GetModel(sql).GetEntityType("Friends");
+            var table = GetModel(sql).FindEntityType("Friends");
 
-            var fk = table.GetForeignKey(new[] { table.GetProperty("Id") });
+            var fk = table.FindForeignKey(new[] { table.FindProperty("Id") });
 
             Assert.True(fk.IsUnique);
         }
@@ -274,9 +271,9 @@ CREATE TABLE Friends (
     BuddyId,
     FOREIGN KEY (BuddyId) REFERENCES Friends(Id)
 );";
-            var table = GetModel(sql).GetEntityType("Friends");
+            var table = GetModel(sql).FindEntityType("Friends");
 
-            var fk = table.GetForeignKey(new[] { table.GetProperty("BuddyId") });
+            var fk = table.FindForeignKey(new[] { table.FindProperty("BuddyId") });
 
             Assert.False(fk.IsUnique);
         }
@@ -289,8 +286,8 @@ CREATE TABLE Gum ( A, B,
     UNIQUE (A,B),
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";
-            var dependent = GetModel(sql).GetEntityType("Gum");
-            var foreignKey = dependent.GetForeignKey(new[] { dependent.GetProperty("A"), dependent.GetProperty("B") });
+            var dependent = GetModel(sql).FindEntityType("Gum");
+            var foreignKey = dependent.FindForeignKey(new[] { dependent.FindProperty("A"), dependent.FindProperty("B") });
 
             Assert.True(foreignKey.IsUnique);
         }
@@ -302,8 +299,8 @@ CREATE TABLE Gum ( A, B,
 CREATE TABLE Gum ( A, B,
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";
-            var dependent = GetModel(sql).GetEntityType("Gum");
-            var foreignKey = dependent.GetForeignKey(new[] { dependent.GetProperty("A"), dependent.GetProperty("B") });
+            var dependent = GetModel(sql).FindEntityType("Gum");
+            var foreignKey = dependent.FindForeignKey(new[] { dependent.FindProperty("A"), dependent.FindProperty("B") });
 
             Assert.False(foreignKey.IsUnique);
         }

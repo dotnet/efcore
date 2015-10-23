@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var second = context.SimpleEntities.Add(new SimpleEntity { StringProperty = "Entity 2" }).Entity;
                 // TODO: Replace with
                 // context.ChangeTracker.Entry(entity).Property(SimpleEntity.ShadowPropertyName).CurrentValue = "shadow";
-                var property = context.Model.GetEntityType(typeof(SimpleEntity)).GetProperty(SimpleEntity.ShadowPropertyName);
+                var property = context.Model.FindEntityType(typeof(SimpleEntity)).FindProperty(SimpleEntity.ShadowPropertyName);
                 context.Entry(second).GetService()[property] = "shadow";
                 SetPartitionId(second, context);
 
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         // TODO: Use a value generator to handle this automatically
         private void SetPartitionId(SimpleEntity entity, CrossStoreContext context)
         {
-            var property = context.Model.GetEntityType(entity.GetType()).GetProperty(SimpleEntity.ShadowPartitionIdName);
+            var property = context.Model.FindEntityType(entity.GetType()).FindProperty(SimpleEntity.ShadowPartitionIdName);
             context.Entry(entity).GetService()[property] = "Partition";
         }
 

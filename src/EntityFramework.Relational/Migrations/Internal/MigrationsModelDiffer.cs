@@ -341,7 +341,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             CopyAnnotations(MigrationsAnnotations.For(target), createTableOperation);
 
             createTableOperation.Columns.AddRange(target.GetPropertiesInHierarchy().SelectMany(p => Add(p, inline: true)).Cast<AddColumnOperation>());
-            var primaryKey = target.GetPrimaryKey();
+            var primaryKey = target.FindPrimaryKey();
             createTableOperation.PrimaryKey = Add(primaryKey).Cast<AddPrimaryKeyOperation>().Single();
             createTableOperation.UniqueConstraints.AddRange(
                 target.GetKeys().Where(k => k != primaryKey).SelectMany(Add).Cast<AddUniqueConstraintOperation>());

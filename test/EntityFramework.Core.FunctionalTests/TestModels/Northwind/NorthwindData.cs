@@ -1,4 +1,4 @@
-// Copyright (c) .NET Foundation. All rights reserved.
+﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind
         {
             context.Set<Customer>().AddRange(CreateCustomers());
 
-            var titleProperty = context.Model.GetEntityType(typeof(Employee)).GetProperty("Title");
+            var titleProperty = context.Model.FindEntityType(typeof(Employee)).FindProperty("Title");
             foreach (var employee in CreateEmployees())
             {
                 context.Set<Employee>().Add(employee);

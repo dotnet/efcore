@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                     GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
 
-                    if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.GetPrimaryKey())
+                    if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.FindPrimaryKey())
                     {
                         stringBuilder
                             .AppendLine()
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                     GenerateForeignKeyAnnotations(foreignKey, stringBuilder);
 
-                    if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.GetPrimaryKey())
+                    if (foreignKey.PrincipalKey != foreignKey.PrincipalEntityType.FindPrimaryKey())
                     {
                         stringBuilder
                             .AppendLine()

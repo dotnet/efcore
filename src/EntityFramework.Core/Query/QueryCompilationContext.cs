@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
@@ -13,6 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query
 {
@@ -65,6 +67,67 @@ namespace Microsoft.Data.Entity.Query
                 Check.NotNull(value, nameof(value));
 
                 _queryAnnotations = value;
+            }
+        }
+
+        public virtual bool IsTrackingQuery
+        {
+            get
+            {
+                var lastTrackingModifier
+                    = QueryAnnotations
+                        .OfType<QueryAnnotation>()
+                        .LastOrDefault(
+                            qa => qa.IsCallTo(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
+                                  || qa.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
+
+                return lastTrackingModifier
+                    ?.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo)
+                       ?? TrackQueryResults;
+            }
+        }
+
+        public virtual bool IsQueryBufferRequired { get; private set; }
+
+        public virtual void DetermineQueryBufferRequirement([NotNull] QueryModel queryModel)
+        {
+            Check.NotNull(queryModel, nameof(queryModel));
+
+            IsQueryBufferRequired
+                = IsTrackingQuery
+                  || QueryAnnotations.OfType<IncludeQueryAnnotation>().Any()
+                  || new ShadowAccessFindingExpressionVisitor().AnyShadowAccess(queryModel);
+        }
+
+        private class ShadowAccessFindingExpressionVisitor : ExpressionVisitorBase
+        {
+            private bool _anyShadowAccess;
+
+            public bool AnyShadowAccess(QueryModel queryModel)
+            {
+                queryModel.TransformExpressions(Visit);
+
+                return _anyShadowAccess;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
+                if (methodCallExpression.Method.IsGenericMethod
+                    && ReferenceEquals(
+                        methodCallExpression.Method.GetGenericMethodDefinition(),
+                        EntityQueryModelVisitor.PropertyMethodInfo))
+                {
+                    _anyShadowAccess = true;
+                }
+
+                return base.VisitMethodCall(methodCallExpression);
+            }
+
+            protected override Expression VisitSubQuery(SubQueryExpression expression)
+            {
+                expression.QueryModel.TransformExpressions(Visit);
+
+                return expression;
             }
         }
 

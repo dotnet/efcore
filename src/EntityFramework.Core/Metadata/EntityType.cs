@@ -302,8 +302,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Key GetOrSetPrimaryKey([NotNull] IReadOnlyList<Property> properties)
             => FindPrimaryKey(properties) ?? SetPrimaryKey(properties);
 
-        public virtual Key GetPrimaryKey() => (Key)((IEntityType)this).GetPrimaryKey();
-
         public virtual Key FindPrimaryKey()
             => BaseType?.FindPrimaryKey() ?? FindDeclaredPrimaryKey();
 
@@ -365,8 +363,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Key GetOrAddKey([NotNull] IReadOnlyList<Property> properties)
             => FindKey(properties)
                ?? AddKey(properties);
-
-        public virtual Key GetKey([NotNull] IReadOnlyList<Property> properties) => (Key)((IEntityType)this).GetKey(properties);
 
         public virtual Key FindKey([NotNull] Property property) => FindKey(new[] { property });
 
@@ -482,8 +478,8 @@ namespace Microsoft.Data.Entity.Metadata
             => FindForeignKey(properties)
                ?? AddForeignKey(properties, principalKey, principalEntityType);
 
-        public virtual ForeignKey GetForeignKey([NotNull] IReadOnlyList<Property> properties)
-            => (ForeignKey)((IEntityType)this).GetForeignKey(properties);
+        public virtual ForeignKey FindForeignKey([NotNull] Property property)
+            => FindForeignKey(new[] { property });
 
         public virtual ForeignKey FindForeignKey([NotNull] IReadOnlyList<Property> properties)
         {
@@ -614,9 +610,6 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
             => FindNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
 
-        public virtual Navigation GetNavigation([NotNull] string name)
-            => (Navigation)((IEntityType)this).GetNavigation(name);
-
         public virtual Navigation FindNavigation([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
@@ -706,9 +699,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Index GetOrAddIndex([NotNull] IReadOnlyList<Property> properties)
             => FindIndex(properties) ?? AddIndex(properties);
-
-        public virtual Index GetIndex([NotNull] IReadOnlyList<Property> properties)
-            => (Index)((IEntityType)this).GetIndex(properties);
 
         public virtual Index FindIndex([NotNull] Property property)
             => FindIndex(new[] { property });
@@ -800,16 +790,6 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual Property GetOrAddProperty([NotNull] string name)
             => FindProperty(name) ?? AddProperty(name);
-
-        public virtual Property GetProperty([NotNull] PropertyInfo propertyInfo)
-        {
-            Check.NotNull(propertyInfo, nameof(propertyInfo));
-
-            return GetProperty(propertyInfo.Name);
-        }
-
-        public virtual Property GetProperty([NotNull] string propertyName)
-            => (Property)((IEntityType)this).GetProperty(propertyName);
 
         public virtual Property FindProperty([NotNull] PropertyInfo propertyInfo)
             => (Property)((IMutableEntityType)this).FindProperty(propertyInfo);

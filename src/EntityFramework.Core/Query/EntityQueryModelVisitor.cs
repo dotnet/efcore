@@ -156,6 +156,7 @@ namespace Microsoft.Data.Entity.Query
                 OptimizeQueryModel(queryModel);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
+                QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
 
                 VisitQueryModel(queryModel);
 
@@ -189,6 +190,7 @@ namespace Microsoft.Data.Entity.Query
                 OptimizeQueryModel(queryModel);
 
                 QueryCompilationContext.FindQuerySourcesRequiringMaterialization(this, queryModel);
+                QueryCompilationContext.DetermineQueryBufferRequirement(queryModel);
 
                 VisitQueryModel(queryModel);
 
@@ -363,7 +365,7 @@ namespace Microsoft.Data.Entity.Query
                         includeSpecification,
                         _expression.Type.GetSequenceType(),
                         accessorLambda,
-                        QuerySourceRequiresTracking(includeSpecification.QuerySource));
+                        QueryCompilationContext.IsTrackingQuery);
 
                     QueryCompilationContext
                         .AddTrackableInclude(
@@ -520,20 +522,6 @@ namespace Microsoft.Data.Entity.Query
                     });
 
             return queryExecutor;
-        }
-
-        public virtual bool QuerySourceRequiresTracking([NotNull] IQuerySource querySource)
-        {
-            Check.NotNull(querySource, nameof(querySource));
-
-            if (QueryCompilationContext.QueryAnnotations == null)
-            {
-                return true;
-            }
-
-            return QueryCompilationContext
-                .GetCustomQueryAnnotations(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
-                .All(qa => qa.QuerySource != querySource);
         }
 
         public override void VisitQueryModel([NotNull] QueryModel queryModel)

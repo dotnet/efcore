@@ -72,8 +72,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet(), model);
             modelBuilder.Entity<BlogDetails>();
 
-            Assert.DoesNotContain(model.GetEntityType(typeof(Blog)).GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
-            Assert.Contains(model.GetEntityType(typeof(BlogDetails)).GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
+            Assert.DoesNotContain(model.FindEntityType(typeof(Blog)).GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
+            Assert.Contains(model.FindEntityType(typeof(BlogDetails)).GetNavigations(), nav => nav.Name == nameof(BlogDetails.Blog));
         }
 
         #endregion
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet(), model);
             modelBuilder.Entity<BlogDetails>();
 
-            Assert.True(model.GetEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
+            Assert.True(model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Property(e => e.Name)
                 .HasColumnName("Eman");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("Name", property.Name);
             Assert.Equal("Eman", property.Relational().ColumnName);
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Property(e => e.Name)
                 .HasColumnType("nvarchar(42)");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("nvarchar(42)", property.Relational().ColumnType);
         }
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Property(e => e.Name)
                 .HasDefaultValueSql("CherryCoke");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Property(e => e.Name)
                 .HasComputedColumnSql("CherryCoke");
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal("CherryCoke", property.Relational().GeneratedValueSql);
             Assert.Equal(ValueGenerated.OnAddOrUpdate, property.ValueGenerated);
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Property(e => e.Name)
                 .HasDefaultValue(guid);
 
-            var property = modelBuilder.Model.GetEntityType(typeof(Customer)).GetProperty("Name");
+            var property = modelBuilder.Model.FindEntityType(typeof(Customer)).FindProperty("Name");
 
             Assert.Equal(guid, property.Relational().DefaultValue);
         }
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasKey(e => e.Id)
                 .HasName("KeyLimePie");
 
-            var key = modelBuilder.Model.GetEntityType(typeof(Customer)).GetPrimaryKey();
+            var key = modelBuilder.Model.FindEntityType(typeof(Customer)).FindPrimaryKey();
 
             Assert.Equal("KeyLimePie", key.Relational().Name);
         }
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>().HasMany(e => e.Orders).WithOne(e => e.Customer)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasForeignKey(e => e.CustomerId)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Order>().HasOne(e => e.Customer).WithMany(e => e.Orders)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasForeignKey(e => e.CustomerId)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(Order)).GetForeignKeys().Single(fk => fk.PrincipalEntityType.ClrType == typeof(Customer));
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasPrincipalKey<Order>(e => e.OrderId)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
 
@@ -207,7 +207,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasForeignKey<OrderDetails>(e => e.Id)
                 .HasConstraintName("LemonSupreme");
 
-            var foreignKey = modelBuilder.Model.GetEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
+            var foreignKey = modelBuilder.Model.FindEntityType(typeof(OrderDetails)).GetForeignKeys().Single();
 
             Assert.Equal("LemonSupreme", foreignKey.Relational().Name);
         }
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasIndex(e => e.Id)
                 .HasName("Eeeendeeex");
 
-            var index = modelBuilder.Model.GetEntityType(typeof(Customer)).GetIndexes().Single();
+            var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
             Assert.Equal("Eeeendeeex", index.Relational().Name);
         }
@@ -236,7 +236,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .ToTable("Customizer");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -251,7 +251,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity(typeof(Customer))
                 .ToTable("Customizer");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .ToTable("Customizer", "db0");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -282,7 +282,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity(typeof(Customer))
                 .ToTable("Customizer", "db0");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -300,11 +300,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -323,11 +323,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasDiscriminator(b => b.Name)
                 .HasValue("2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -341,11 +341,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -364,11 +364,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasDiscriminator<string>("Name")
                 .HasValue("2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -382,11 +382,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -405,11 +405,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasDiscriminator("Name", typeof(string))
                 .HasValue(typeof(SpecialCustomer), "2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -423,11 +423,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasValue(typeof(Customer).FullName, "1")
                 .HasValue(typeof(SpecialCustomer).FullName, "2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Name", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -441,11 +441,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasValue(typeof(Customer), "1")
                 .HasValue(typeof(SpecialCustomer), "2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Discriminator", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -463,11 +463,11 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .HasDiscriminator()
                 .HasValue("2");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
             Assert.Equal("Discriminator", entityType.Relational().DiscriminatorProperty.Name);
             Assert.Equal(typeof(string), entityType.Relational().DiscriminatorProperty.ClrType);
             Assert.Equal("1", entityType.Relational().DiscriminatorValue);
-            Assert.Equal("2", modelBuilder.Model.GetEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
+            Assert.Equal("2", modelBuilder.Model.FindEntityType(typeof(SpecialCustomer)).Relational().DiscriminatorValue);
         }
 
         [Fact]
@@ -491,7 +491,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .ToTable("Customizer");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("Customer", entityType.DisplayName());
             Assert.Equal("Customizer", entityType.Relational().TableName);
@@ -515,7 +515,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
                 .Entity<Customer>()
                 .ToTable("Customizer", "db1");
 
-            var entityType = modelBuilder.Model.GetEntityType(typeof(Customer));
+            var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
             Assert.Equal("db0", modelBuilder.Model.Relational().DefaultSchema);
             Assert.Equal("Customer", entityType.DisplayName());

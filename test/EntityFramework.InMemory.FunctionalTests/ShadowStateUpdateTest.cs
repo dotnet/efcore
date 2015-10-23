@@ -30,14 +30,14 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             {
                 // TODO: Better API for shadow state access
                 var customerEntry = context.ChangeTracker.GetService().CreateNewEntry(customerType);
-                customerEntry[customerType.GetProperty("Id")] = 42;
-                customerEntry[customerType.GetProperty("Name")] = "Daenerys";
+                customerEntry[customerType.FindProperty("Id")] = 42;
+                customerEntry[customerType.FindProperty("Name")] = "Daenerys";
 
                 customerEntry.SetEntityState(EntityState.Added);
 
                 await context.SaveChangesAsync();
 
-                customerEntry[customerType.GetProperty("Name")] = "Changed!";
+                customerEntry[customerType.FindProperty("Name")] = "Changed!";
             }
 
             // TODO: Fix this when we can query shadow entities
@@ -48,8 +48,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerEntry = context.ChangeTracker.GetService().CreateNewEntry(customerType);
-                customerEntry[customerType.GetProperty("Id")] = 42;
-                customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
+                customerEntry[customerType.FindProperty("Id")] = 42;
+                customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
 
                 customerEntry.SetEntityState(EntityState.Modified);
 
@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerEntry = context.ChangeTracker.GetService().CreateNewEntry(customerType);
-                customerEntry[customerType.GetProperty("Id")] = 42;
+                customerEntry[customerType.FindProperty("Id")] = 42;
 
                 customerEntry.SetEntityState(EntityState.Deleted);
 
@@ -97,11 +97,11 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
                 // TODO: Better API for shadow state access
                 var customerEntry = context.Entry(customer).GetService();
-                customerEntry[customerType.GetProperty("Name")] = "Daenerys";
+                customerEntry[customerType.FindProperty("Name")] = "Daenerys";
 
                 await context.SaveChangesAsync();
 
-                customerEntry[customerType.GetProperty("Name")] = "Changed!";
+                customerEntry[customerType.FindProperty("Name")] = "Changed!";
             }
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 var customerEntry = context.Entry(customer).GetService();
-                customerEntry[customerType.GetProperty("Name")] = "Daenerys Targaryen";
+                customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
 
                 context.Update(customer);
 

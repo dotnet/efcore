@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public async Task ExecuteAsync_saves_store_generated_values()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
@@ -221,8 +221,8 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             await batch.ExecuteAsync(connection);
 
-            Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
-            Assert.Equal("Test", entry[entry.EntityType.GetProperty("Name")]);
+            Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
+            Assert.Equal("Test", entry[entry.EntityType.FindProperty("Name")]);
         }
 
         [Fact]
@@ -230,7 +230,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entry = CreateEntry(
                 EntityState.Added, generateKeyValues: true, computeNonKeyValue: true);
-            entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
@@ -245,8 +245,8 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             await batch.ExecuteAsync(connection);
 
-            Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
-            Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
+            Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
+            Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")]);
         }
 
         [Fact]
@@ -268,15 +268,15 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             await batch.ExecuteAsync(connection);
 
-            Assert.Equal(1, entry[entry.EntityType.GetProperty("Id")]);
-            Assert.Equal("FortyTwo", entry[entry.EntityType.GetProperty("Name")]);
+            Assert.Equal(1, entry[entry.EntityType.FindProperty("Id")]);
+            Assert.Equal("FortyTwo", entry[entry.EntityType.FindProperty("Name")]);
         }
 
         [Fact]
         public async Task Exception_not_thrown_for_more_than_one_row_returned_for_single_command()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
@@ -297,7 +297,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             await batch.ExecuteAsync(connection);
 
-            Assert.Equal(42, entry[entry.EntityType.GetProperty("Id")]);
+            Assert.Equal(42, entry[entry.EntityType.FindProperty("Id")]);
         }
 
         [Fact]
@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public async Task Exception_thrown_if_no_rows_returned_for_command_with_store_generated_values()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            entry.MarkAsTemporary(entry.EntityType.GetPrimaryKey().Properties[0]);
+            entry.MarkAsTemporary(entry.EntityType.FindPrimaryKey().Properties[0]);
 
             var command = new ModificationCommand("T1", null, new ParameterNameGenerator(), p => p.TestProvider());
             command.AddEntry(entry);
@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void CreateStoreCommand_creates_parameters_for_each_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
             entry.MarkAsTemporary(property);
 
             var batch = new ModificationCommandBatchFake();
@@ -392,7 +392,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void PopulateParameters_creates_parameter_for_write_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
             entry.MarkAsTemporary(property);
 
             var batch = new ModificationCommandBatchFake();
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void PopulateParameters_creates_parameter_for_condition_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
             entry.MarkAsTemporary(property);
 
             var batch = new ModificationCommandBatchFake();
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void PopulateParameters_creates_parameter_for_write_and_condition_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
             entry.MarkAsTemporary(property);
 
             var batch = new ModificationCommandBatchFake();
@@ -479,7 +479,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         public void PopulateParameters_does_not_create_parameter_for_read_ModificationCommand()
         {
             var entry = CreateEntry(EntityState.Added, generateKeyValues: true);
-            var property = entry.EntityType.GetProperty("Id");
+            var property = entry.EntityType.FindProperty("Id");
             entry.MarkAsTemporary(property);
 
             var batch = new ModificationCommandBatchFake();

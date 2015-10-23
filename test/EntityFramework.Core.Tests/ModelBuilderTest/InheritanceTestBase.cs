@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<BigMak>().Ignore(b => b.Bun);
 
                 Assert.Null(pickle.BaseType);
-                var pickleClone = modelBuilder.Model.Clone().GetEntityType(pickle.Name);
+                var pickleClone = modelBuilder.Model.Clone().FindEntityType(pickle.Name);
                 var initialProperties = pickleClone.GetProperties();
                 var initialKeys = pickleClone.GetKeys();
                 var initialIndexes = pickleClone.GetIndexes();

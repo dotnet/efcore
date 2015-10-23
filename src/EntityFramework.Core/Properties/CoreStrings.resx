@@ -144,9 +144,6 @@
   <data name="MultipleEntries" xml:space="preserve">
     <value>Cannot start tracking InternalEntityEntry for entity type '{entityType}' because another InternalEntityEntry is already tracking the same entity.</value>
   </data>
-  <data name="EntityTypeNotFound" xml:space="preserve">
-    <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
-  </data>
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
@@ -336,15 +333,6 @@
   <data name="DuplicateKey" xml:space="preserve">
     <value>The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
   </data>
-  <data name="ForeignKeyNotFound" xml:space="preserve">
-    <value>The foreign key {foreignKey} on entity type '{entityType}' could not be found. Ensure that the foreign key been added to the entity type.</value>
-  </data>
-  <data name="IndexNotFound" xml:space="preserve">
-    <value>The index {index} on entity type '{entityType}' could not be found. Ensure that the index been added to the entity type.</value>
-  </data>
-  <data name="KeyNotFound" xml:space="preserve">
-    <value>The key {key} on entity type '{entityType}' could not be found. Ensure that the key been added to the entity type.</value>
-  </data>
   <data name="NavigationToShadowEntity" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.</value>
   </data>
@@ -461,9 +449,6 @@
   </data>
   <data name="DuplicatePropertiesOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the properties: {properties}.</value>
-  </data>
-  <data name="InvalidEntityKeyOnQuery" xml:space="preserve">
-    <value>The instance of entity type '{entityType}' cannot be loaded because it has an invalid (e.g. null or CLR default) primary key.</value>
   </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' cannot be marked as nullable/optional because the property is a part of the primary key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of primary key can be marked as nullable/optional.</value>
