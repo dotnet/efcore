@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
@@ -135,34 +136,24 @@ namespace Microsoft.Data.Entity.Design.Internal
                         provider));
             }
 
-            var providerServicesAssemblyName = providerServicesAttribute.AssemblyName;
-            Assembly providerServicesAssembly;
-            if (providerServicesAssemblyName != null)
+            try
             {
-                try
-                {
-                    providerServicesAssembly = Assembly.Load(new AssemblyName(providerServicesAssemblyName));
-                }
-                catch (Exception ex)
-                {
-                    if (!throwOnError)
-                    {
-                        return null;
-                    }
-
-                    throw new OperationException(
-                        CommandsStrings.CannotFindDesignTimeProviderAssembly(providerServicesAssemblyName), ex);
-                }
+                return Type.GetType(
+                    providerServicesAttribute.FullyQualifiedTypeName,
+                    throwOnError: true,
+                    ignoreCase: false);
             }
-            else
+            catch (Exception ex)
+            when (ex is FileNotFoundException || ex is FileLoadException || ex is BadImageFormatException)
             {
-                providerServicesAssembly = providerAssembly;
-            }
+                if (!throwOnError)
+                {
+                    return null;
+                }
 
-            return providerServicesAssembly.GetType(
-                providerServicesAttribute.TypeName,
-                throwOnError: true,
-                ignoreCase: false);
+                throw new OperationException(
+                    CommandsStrings.CannotFindDesignTimeProviderAssembly(providerServicesAttribute.PackageName), ex);
+            }
         }
     }
 }
