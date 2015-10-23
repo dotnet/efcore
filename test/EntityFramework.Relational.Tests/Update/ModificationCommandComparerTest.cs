@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 .UseModel(model);
             optionsBuilder.UseInMemoryDatabase();
 
-            var contextServices = new DbContext(optionsBuilder.Options).GetService();
+            var contextServices = new DbContext(optionsBuilder.Options).GetInfrastructure();
             var stateManager = contextServices.GetRequiredService<IStateManager>();
 
             var key = entityType.AddProperty("Id", typeof(int));

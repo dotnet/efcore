@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class KeyBuilder : IAccessor<IMutableModel>, IAccessor<InternalKeyBuilder>
+    public class KeyBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalKeyBuilder>
     {
         private readonly InternalKeyBuilder _builder;
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the key.
         /// </summary>
-        InternalKeyBuilder IAccessor<InternalKeyBuilder>.Service => _builder;
+        InternalKeyBuilder IInfrastructure<InternalKeyBuilder>.Instance => _builder;
 
         /// <summary>
         ///     The key being configured.
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that the key belongs to.
         /// </summary>
-        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the key. If an annotation with the key specified in
@@ -71,6 +71,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        private InternalKeyBuilder Builder => this.GetService<InternalKeyBuilder>();
+        private InternalKeyBuilder Builder => this.GetInfrastructure<InternalKeyBuilder>();
     }
 }

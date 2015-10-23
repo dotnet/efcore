@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public interface IRelationalTransaction : IDisposable, IAccessor<DbTransaction>
+    public interface IRelationalTransaction : IDisposable, IInfrastructure<DbTransaction>
     {
         IRelationalConnection Connection { get; }
         void Commit();

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     ///     <see cref="EntityFrameworkServiceCollectionExtensions.AddEntityFramework(IServiceCollection)" />
     ///     and then chaining API calls on the returned <see cref="EntityFrameworkServicesBuilder" />.
     /// </summary>
-    public class EntityFrameworkServicesBuilder : IAccessor<IServiceCollection>
+    public class EntityFrameworkServicesBuilder : IInfrastructure<IServiceCollection>
     {
         private readonly IServiceCollection _serviceCollection;
 
@@ -111,6 +111,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceCollection IAccessor<IServiceCollection>.Service => _serviceCollection;
+        IServiceCollection IInfrastructure<IServiceCollection>.Instance => _serviceCollection;
     }
 }

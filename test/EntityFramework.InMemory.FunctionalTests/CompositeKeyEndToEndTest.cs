@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .GetService()
+                .GetInfrastructure()
                 .BuildServiceProvider();
 
             var ticks = DateTime.UtcNow.Ticks;

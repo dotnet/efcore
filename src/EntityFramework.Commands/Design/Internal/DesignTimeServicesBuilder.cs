@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             ConfigureServices(services);
             ConfigureDnxServices(services);
 
-            var contextServices = ((IAccessor<IServiceProvider>)context).Service;
+            var contextServices = ((IInfrastructure<IServiceProvider>)context).Instance;
             ConfigureContextServices(contextServices, services);
 
             var databaseProviderServices = contextServices.GetRequiredService<IDatabaseProviderServices>();

@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 db.Database.Migrate();
 
-                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                var history = db.GetInfrastructure().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
                     history.GetAppliedMigrations(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
@@ -53,10 +53,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 db.Database.EnsureDeleted();
 
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
                 migrator.Migrate("Migration1");
 
-                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                var history = db.GetInfrastructure().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
                     history.GetAppliedMigrations(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
@@ -71,10 +71,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 db.Database.EnsureDeleted();
                 db.Database.Migrate();
 
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
                 migrator.Migrate(Migration.InitialDatabase);
 
-                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                var history = db.GetInfrastructure().GetRequiredService<IHistoryRepository>();
                 Assert.Empty(history.GetAppliedMigrations());
             }
         }
@@ -87,10 +87,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 db.Database.EnsureDeleted();
                 db.Database.Migrate();
 
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
                 migrator.Migrate("Migration1");
 
-                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                var history = db.GetInfrastructure().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
                     history.GetAppliedMigrations(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
                 await db.Database.MigrateAsync();
 
-                var history = db.GetService().GetRequiredService<IHistoryRepository>();
+                var history = db.GetInfrastructure().GetRequiredService<IHistoryRepository>();
                 Assert.Collection(
                     await history.GetAppliedMigrationsAsync(),
                     x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var db = _fixture.CreateContext())
             {
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
                 SetSql(migrator.GenerateScript());
             }
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var db = _fixture.CreateContext())
             {
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
                 SetSql(migrator.GenerateScript(idempotent: true));
             }
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var db = _fixture.CreateContext())
             {
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
                 SetSql(
                     migrator.GenerateScript(
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var db = _fixture.CreateContext())
             {
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
 
                 SetSql(
                     migrator.GenerateScript(
@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var db = _fixture.CreateContext())
             {
-                var migrator = db.GetService().GetRequiredService<IMigrator>();
+                var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
                 MigrationsFixtureBase.ActiveProvider = null;
 
                 migrator.GenerateScript(toMigration: "Migration1");
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 await db.Database.EnsureDeletedAsync();
                 await db.Database.EnsureCreatedAsync();
 
-                var services = db.GetService();
+                var services = db.GetInfrastructure();
                 var connection = db.Database.GetDbConnection();
 
                 await db.Database.OpenConnectionAsync();

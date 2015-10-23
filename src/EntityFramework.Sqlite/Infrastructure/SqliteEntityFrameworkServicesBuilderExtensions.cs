@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(builder, nameof(builder));
 
-            var service = builder.AddRelational().GetService();
+            var service = builder.AddRelational().GetInfrastructure();
 
             service.TryAddEnumerable(ServiceDescriptor
                 .Singleton<IDatabaseProvider, DatabaseProvider<SqliteDatabaseProviderServices, SqliteOptionsExtension>>());

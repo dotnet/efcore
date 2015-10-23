@@ -57,8 +57,8 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = TestHelpers.Instance.CreateContext())
             {
                 Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service,
-                    ((IAccessor<IServiceProvider>)context.Database).Service);
+                    ((IInfrastructure<IServiceProvider>)context).Instance,
+                    ((IInfrastructure<IServiceProvider>)context.Database).Instance);
             }
         }
 

@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 .UseModel(model);
             optionsBuilder.UseInMemoryDatabase();
 
-            return new DbContext(optionsBuilder.Options).GetService();
+            return new DbContext(optionsBuilder.Options).GetInfrastructure();
         }
 
         private static ICommandBatchPreparer CreateCommandBatchPreparer(IModificationCommandBatchFactory modificationCommandBatchFactory = null)

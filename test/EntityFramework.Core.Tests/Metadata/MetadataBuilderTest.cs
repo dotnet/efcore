@@ -474,7 +474,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -484,7 +484,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -493,7 +493,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -511,7 +511,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -520,7 +520,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -529,7 +529,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -538,7 +538,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -556,7 +556,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -566,7 +566,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -575,7 +575,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -584,7 +584,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -593,7 +593,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -602,7 +602,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
         {
             builder.HasAnnotation("Annotation", value + ".Annotation");
             builder.Metadata["Metadata"] = value + ".Metadata";
-            builder.GetService<IMutableModel>()["Model"] = value + ".Model";
+            builder.GetInfrastructure<IMutableModel>()["Model"] = value + ".Model";
 
             return builder;
         }

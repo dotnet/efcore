@@ -293,8 +293,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         root.RequiredChildren.Remove(removed1);
                         break;
                     case ChangeMechanism.FK:
-                        context.Entry(removed2).GetService()[context.Entry(removed2).Property(e => e.ParentId).Metadata] = null;
-                        context.Entry(removed1).GetService()[context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
+                        context.Entry(removed2).GetInfrastructure()[context.Entry(removed2).Property(e => e.ParentId).Metadata] = null;
+                        context.Entry(removed1).GetInfrastructure()[context.Entry(removed1).Property(e => e.ParentId).Metadata] = null;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(changeMechanism));
@@ -3501,7 +3501,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             public class KeyValueEntityTracker
             {
                 public virtual void TrackEntity(EntityEntry entry)
-                    => entry.GetService()
+                    => entry.GetInfrastructure()
                         .SetEntityState(DetermineState(entry), acceptChanges: true);
 
                 public virtual EntityState DetermineState(EntityEntry entry)

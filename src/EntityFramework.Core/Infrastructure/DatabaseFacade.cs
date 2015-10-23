@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     ///     Instances of this class are typically obtained from <see cref="DbContext.Database" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class DatabaseFacade : IAccessor<IServiceProvider>
+    public class DatabaseFacade : IInfrastructure<IServiceProvider>
     {
         private readonly DbContext _context;
 
@@ -83,6 +83,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
     }
 }

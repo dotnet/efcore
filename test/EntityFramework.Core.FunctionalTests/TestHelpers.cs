@@ -88,30 +88,30 @@ namespace Microsoft.Data.Entity.Tests
             => new DbContext(CreateServiceProvider(customServices), CreateOptions());
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, IModel model)
-            => ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, model)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, model)).Instance;
 
         public IServiceProvider CreateContextServices(IServiceProvider serviceProvider, DbContextOptions options)
-            => ((IAccessor<IServiceProvider>)CreateContext(serviceProvider, options)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider, options)).Instance;
 
-        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider) => ((IAccessor<IServiceProvider>)CreateContext(serviceProvider)).Service;
+        public IServiceProvider CreateContextServices(IServiceProvider serviceProvider) => ((IInfrastructure<IServiceProvider>)CreateContext(serviceProvider)).Instance;
 
         public IServiceProvider CreateContextServices(IModel model)
-            => ((IAccessor<IServiceProvider>)CreateContext(model)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(model)).Instance;
 
         public IServiceProvider CreateContextServices(DbContextOptions options)
-            => ((IAccessor<IServiceProvider>)CreateContext(options)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(options)).Instance;
 
         public IServiceProvider CreateContextServices()
-            => ((IAccessor<IServiceProvider>)CreateContext()).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext()).Instance;
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices, IModel model)
-            => ((IAccessor<IServiceProvider>)CreateContext(customServices, model)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(customServices, model)).Instance;
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices, DbContextOptions options)
-            => ((IAccessor<IServiceProvider>)CreateContext(customServices, options)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(customServices, options)).Instance;
 
         public IServiceProvider CreateContextServices(IServiceCollection customServices)
-            => ((IAccessor<IServiceProvider>)CreateContext(customServices)).Service;
+            => ((IInfrastructure<IServiceProvider>)CreateContext(customServices)).Instance;
 
         public IMutableModel BuildModelFor<TEntity>() where TEntity : class
         {

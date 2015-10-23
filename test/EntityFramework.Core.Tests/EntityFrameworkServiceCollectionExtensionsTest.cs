@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.Tests
 
         private IServiceCollection AddServices(IServiceCollection serviceCollection)
         {
-            return _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework()).GetService();
+            return _testHelpers.AddProviderServices(serviceCollection.AddEntityFramework()).GetInfrastructure();
         }
 
         public void Dispose()
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests
             bool isRequired)
             where TService : class
         {
-            var provider = ((IAccessor<IServiceProvider>)_firstContext).Service;
+            var provider = ((IInfrastructure<IServiceProvider>)_firstContext).Instance;
             var service = provider.GetService<TService>();
             if (isRequired)
             {
@@ -164,13 +164,13 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Same(service, provider.GetService<TService>());
 
-            var otherScopeService = ((IAccessor<IServiceProvider>)_secondContext).Service.GetService<TService>();
+            var otherScopeService = ((IInfrastructure<IServiceProvider>)_secondContext).Instance.GetService<TService>();
 
             if (isSingleton)
             {
                 Assert.Same(service, otherScopeService);
             }
-            Assert.Equal(1, ((IAccessor<IServiceProvider>)_firstContext).Service.GetServices<TService>().Count());
+            Assert.Equal(1, ((IInfrastructure<IServiceProvider>)_firstContext).Instance.GetServices<TService>().Count());
 
             if (typeof(TService) != typeof(IDbContextServices))
             {
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 using (var customContext = _testHelpers.CreateContext(customServiceCollection.BuildServiceProvider()))
                 {
-                    var serviceProviderWithCustomService = ((IAccessor<IServiceProvider>)customContext).Service;
+                    var serviceProviderWithCustomService = ((IInfrastructure<IServiceProvider>)customContext).Instance;
                     if (isExistingReplaced)
                     {
                         Assert.NotSame(service, serviceProviderWithCustomService.GetService<TService>());

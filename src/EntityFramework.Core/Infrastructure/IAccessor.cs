@@ -13,12 +13,12 @@ namespace Microsoft.Data.Entity.Infrastructure
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    /// <typeparam name="TService"> The type of the property being hidden. </typeparam>
-    public interface IAccessor<out TService>
+    /// <typeparam name="T"> The type of the property being hidden. </typeparam>
+    public interface IInfrastructure<out T>
     {
         /// <summary>
         ///     Gets the value of the property being hidden.
         /// </summary>
-        TService Service { get; }
+        T Instance { get; }
     }
 }

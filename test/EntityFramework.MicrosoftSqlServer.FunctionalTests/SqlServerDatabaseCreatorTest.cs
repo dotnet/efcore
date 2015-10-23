@@ -377,10 +377,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             var optionsBuilder = new DbContextOptionsBuilder();
             optionsBuilder.UseSqlServer(testStore.Connection.ConnectionString);
 
-            return ((IAccessor<IServiceProvider>)new BloggingContext(
+            return ((IInfrastructure<IServiceProvider>)new BloggingContext(
                 serviceCollection.BuildServiceProvider(),
                 optionsBuilder.Options))
-                .Service;
+                .Instance;
         }
 
         private static IRelationalDatabaseCreator GetDatabaseCreator(SqlServerTestStore testStore)

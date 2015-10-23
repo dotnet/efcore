@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         entity type.
     ///     </para>
     /// </summary>
-    public class ReferenceReferenceBuilder : IAccessor<IMutableModel>, IAccessor<InternalRelationshipBuilder>
+    public class ReferenceReferenceBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalRelationshipBuilder>
     {
         private readonly IReadOnlyList<Property> _foreignKeyProperties;
         private readonly IReadOnlyList<Property> _principalKeyProperties;
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure this relationship.
         /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => Builder;
+        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The foreign key that represents this relationship.
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that this relationship belongs to.
         /// </summary>
-        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the relationship. If an annotation with the key specified in

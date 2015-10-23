@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///     </para>
     /// </summary>
     [DebuggerDisplay("{_internalEntityEntry,nq}")]
-    public class EntityEntry : IAccessor<InternalEntityEntry>
+    public class EntityEntry : IInfrastructure<InternalEntityEntry>
     {
         private readonly InternalEntityEntry _internalEntityEntry;
 
@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalEntityEntry IAccessor<InternalEntityEntry>.Service => _internalEntityEntry;
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntityEntry;
 
         /// <summary>
         ///     Gets the context that is tracking the entity.

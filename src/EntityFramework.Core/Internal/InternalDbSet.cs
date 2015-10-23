@@ -16,7 +16,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Internal
 {
     public class InternalDbSet<TEntity>
-        : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
+        : DbSet<TEntity>, IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
         where TEntity : class
     {
         private readonly DbContext _context;
@@ -92,6 +92,6 @@ namespace Microsoft.Data.Entity.Internal
 
         IQueryProvider IQueryable.Provider => _entityQueryable.Value.Provider;
 
-        IServiceProvider IAccessor<IServiceProvider>.Service => ((IAccessor<IServiceProvider>)_context).Service;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance => ((IInfrastructure<IServiceProvider>)_context).Instance;
     }
 }

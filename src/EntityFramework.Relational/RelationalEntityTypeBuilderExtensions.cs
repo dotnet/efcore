@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit)
                 .ToTable(name);
 
@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit)
                 .ToTable(name, schema);
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
 
-            return ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            return ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator();
         }
 
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(discriminatorType, nameof(discriminatorType));
 
-            return ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            return ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, discriminatorType);
         }
 
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotEmpty(name, nameof(name));
 
-            return new DiscriminatorBuilder<TDiscriminator>(((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            return new DiscriminatorBuilder<TDiscriminator>(((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator(name, typeof(TDiscriminator)));
         }
 
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NotNull(propertyExpression, nameof(propertyExpression));
 
-            return new DiscriminatorBuilder<TDiscriminator>(((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            return new DiscriminatorBuilder<TDiscriminator>(((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .Relational(ConfigurationSource.Explicit).HasDiscriminator(propertyExpression.GetPropertyAccess()));
         }
     }

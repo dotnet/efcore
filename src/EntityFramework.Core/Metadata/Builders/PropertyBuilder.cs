@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class PropertyBuilder : IAccessor<IMutableModel>, IAccessor<InternalPropertyBuilder>
+    public class PropertyBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalPropertyBuilder>
     {
         /// <summary>
         ///     <para>
@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the property.
         /// </summary>
-        InternalPropertyBuilder IAccessor<InternalPropertyBuilder>.Service => Builder;
+        InternalPropertyBuilder IInfrastructure<InternalPropertyBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The property being configured.
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that the property belongs to.
         /// </summary>
-        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the property. If an annotation with the key specified in

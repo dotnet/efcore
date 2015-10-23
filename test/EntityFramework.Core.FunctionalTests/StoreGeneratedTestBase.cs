@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { Identity = "Masami" });
-                entry.GetService().MarkAsTemporary(entry.Property(e => e.Identity).Metadata);
+                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.Identity).Metadata);
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { AlwaysIdentity = "Masami" });
-                entry.GetService().MarkAsTemporary(entry.Property(e => e.AlwaysIdentity).Metadata);
+                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.AlwaysIdentity).Metadata);
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -388,7 +388,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { Computed = "Masami" });
-                entry.GetService().MarkAsTemporary(entry.Property(e => e.Computed).Metadata);
+                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.Computed).Metadata);
 
                 context.SaveChanges();
                 id = entry.Entity.Id;
@@ -562,7 +562,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var entry = context.Add(new Gumball { AlwaysComputed = "Masami" });
-                entry.GetService().MarkAsTemporary(entry.Property(e => e.AlwaysComputed).Metadata);
+                entry.GetInfrastructure().MarkAsTemporary(entry.Property(e => e.AlwaysComputed).Metadata);
 
                 context.SaveChanges();
                 id = entry.Entity.Id;

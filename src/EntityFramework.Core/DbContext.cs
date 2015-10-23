@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity
     ///         is discovered by convention, you can override the <see cref="OnModelCreating(ModelBuilder)" /> method.
     ///     </para>
     /// </remarks>
-    public class DbContext : IDisposable, IAccessor<IServiceProvider>
+    public class DbContext : IDisposable, IInfrastructure<IServiceProvider>
     {
         private static readonly ConcurrentDictionary<Type, Type> _optionsTypes = new ConcurrentDictionary<Type, Type>();
 
@@ -237,7 +237,7 @@ namespace Microsoft.Data.Entity
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IAccessor<IServiceProvider>.Service => ServiceProvider;
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance => ServiceProvider;
 
         /// <summary>
         ///     <para>
@@ -574,7 +574,7 @@ namespace Microsoft.Data.Entity
         {
             var entry = EntryWithoutDetectChanges(entity);
 
-            SetEntityState(entry.GetService(), entityState, behavior);
+            SetEntityState(entry.GetInfrastructure(), entityState, behavior);
 
             return entry;
         }
@@ -671,7 +671,7 @@ namespace Microsoft.Data.Entity
         {
             var entry = EntryWithoutDetectChanges(entity);
 
-            SetEntityState(entry.GetService(), entityState, behavior);
+            SetEntityState(entry.GetInfrastructure(), entityState, behavior);
 
             return entry;
         }

@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             Check.NotNull(builder, nameof(builder));
 
-            builder.GetService()
+            builder.GetInfrastructure()
                 .TryAdd(new ServiceCollection()
                 .AddSingleton(s => new DiagnosticListener("Microsoft.Data.Entity"))
                 .AddSingleton<DiagnosticSource>(s => s.GetService<DiagnosticListener>())

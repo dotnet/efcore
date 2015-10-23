@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class ReferenceNavigationBuilder : IAccessor<InternalRelationshipBuilder>
+    public class ReferenceNavigationBuilder : IInfrastructure<InternalRelationshipBuilder>
     {
         /// <summary>
         ///     <para>
@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     Gets the internal builder being used to configure the relationship.
         /// </summary>
-        InternalRelationshipBuilder IAccessor<InternalRelationshipBuilder>.Service => Builder;
+        InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 
         /// <summary>
         ///     Configures this as a one-to-many relationship.

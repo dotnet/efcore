@@ -334,7 +334,7 @@ namespace Microsoft.Data.Entity.Migrations
             var columnMap = new Dictionary<PropertyInfo, AddColumnOperation>();
             foreach (var property in typeof(TColumns).GetTypeInfo().DeclaredProperties)
             {
-                var addColumnOperation = ((IAccessor<AddColumnOperation>)property.GetMethod.Invoke(columnsObject, null)).Service;
+                var addColumnOperation = ((IInfrastructure<AddColumnOperation>)property.GetMethod.Invoke(columnsObject, null)).Instance;
                 if (addColumnOperation.Name == null)
                 {
                     addColumnOperation.Name = property.Name;

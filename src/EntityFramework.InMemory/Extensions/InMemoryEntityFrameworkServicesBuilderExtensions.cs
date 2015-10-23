@@ -22,7 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             Check.NotNull(builder, nameof(builder));
 
-            var service = builder.GetService();
+            var service = builder.GetInfrastructure();
 
             service.TryAddEnumerable(ServiceDescriptor
                 .Singleton<IDatabaseProvider, DatabaseProvider<InMemoryDatabaseProviderServices, InMemoryOptionsExtension>>());

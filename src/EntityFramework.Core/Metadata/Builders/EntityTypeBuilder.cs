@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class EntityTypeBuilder : IAccessor<IMutableModel>, IAccessor<InternalEntityTypeBuilder>
+    public class EntityTypeBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalEntityTypeBuilder>
     {
         /// <summary>
         ///     <para>
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the entity type.
         /// </summary>
-        InternalEntityTypeBuilder IAccessor<InternalEntityTypeBuilder>.Service => Builder;
+        InternalEntityTypeBuilder IInfrastructure<InternalEntityTypeBuilder>.Instance => Builder;
 
         /// <summary>
         ///     The entity type being configured.
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that the entity type belongs to.
         /// </summary>
-        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the entity type. If an annotation with the key specified in

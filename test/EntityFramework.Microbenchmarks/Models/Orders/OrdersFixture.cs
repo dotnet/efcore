@@ -42,7 +42,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         {
             using (var context = new OrdersContext(_connectionString))
             {
-                var database = ((IAccessor<IServiceProvider>)context).GetService<IRelationalDatabaseCreator>();
+                var database = ((IInfrastructure<IServiceProvider>)context).GetService<IRelationalDatabaseCreator>();
                 if (!database.Exists())
                 {
                     context.Database.EnsureCreated();

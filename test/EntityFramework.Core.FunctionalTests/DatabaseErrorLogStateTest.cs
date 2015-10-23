@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             var serviceProvider = new ServiceCollection()
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
-                .GetService()
+                .GetInfrastructure()
                 .AddInstance<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
@@ -133,8 +133,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 context.Blogs.Add(new BloggingContext.Blog(false) { Url = "http://sample.com" });
                 context.SaveChanges();
-                var entry = context.ChangeTracker.Entries().Single().GetService();
-                context.ChangeTracker.GetService().StopTracking(entry);
+                var entry = context.ChangeTracker.Entries().Single().GetInfrastructure();
+                context.ChangeTracker.GetInfrastructure().StopTracking(entry);
 
                 var ex = Assert.ThrowsAny<Exception>(() => test(context));
                 while (ex.InnerException != null)

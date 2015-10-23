@@ -36,10 +36,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         public static void SetValues(this EntityEntry entry, Dictionary<IProperty, object> values)
-            => entry.GetService().SetValues(values);
+            => entry.GetInfrastructure().SetValues(values);
 
         public static void SetOriginalValues(this EntityEntry entry, Dictionary<IProperty, object> values)
-            => entry.GetService().SetOriginalValues(values);
+            => entry.GetInfrastructure().SetOriginalValues(values);
 
         public static void Reload(this InternalEntityEntry internalEntry, DbContext context)
         {
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         public static void Reload(this EntityEntry entityEntry, DbContext context)
-            => entityEntry.GetService().Reload(context);
+            => entityEntry.GetInfrastructure().Reload(context);
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this InternalEntityEntry internalEntry, DbContext context)
         {
@@ -93,7 +93,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         public static Dictionary<IProperty, object> GetDatabaseValues(this EntityEntry entry, DbContext context)
-            => entry.GetService().GetDatabaseValues(context);
+            => entry.GetInfrastructure().GetDatabaseValues(context);
 
         private static Dictionary<IProperty, object> GetValues(this Driver driver, IEntityType entityType)
         {

@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Operations.Builders
 {
-    public class OperationBuilder<TOperation> : IAccessor<TOperation>
+    public class OperationBuilder<TOperation> : IInfrastructure<TOperation>
         where TOperation : MigrationOperation
     {
         public OperationBuilder([NotNull] TOperation operation)
@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Migrations.Operations.Builders
 
         protected virtual TOperation Operation { get; }
 
-        TOperation IAccessor<TOperation>.Service => Operation;
+        TOperation IInfrastructure<TOperation>.Instance => Operation;
 
         public virtual OperationBuilder<TOperation> Annotation(
             [NotNull] string name,

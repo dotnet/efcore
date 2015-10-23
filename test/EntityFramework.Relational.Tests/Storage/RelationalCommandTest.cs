@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Storage
 
             var command = fakeConnection.DbConnections[0].DbCommands[0];
 
-            Assert.Same(relationalTransaction.GetService(), command.Transaction);
+            Assert.Same(relationalTransaction.GetInfrastructure(), command.Transaction);
         }
 
         [Fact]

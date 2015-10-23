@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
                 // TODO: Better API for shadow state access
-                var customerEntry = context.ChangeTracker.GetService().CreateNewEntry(customerType);
+                var customerEntry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(customerType);
                 customerEntry[customerType.FindProperty("Id")] = 42;
                 customerEntry[customerType.FindProperty("Name")] = "Daenerys";
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var customerEntry = context.ChangeTracker.GetService().CreateNewEntry(customerType);
+                var customerEntry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(customerType);
                 customerEntry[customerType.FindProperty("Id")] = 42;
                 customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
 
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var customerEntry = context.ChangeTracker.GetService().CreateNewEntry(customerType);
+                var customerEntry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(customerType);
                 customerEntry[customerType.FindProperty("Id")] = 42;
 
                 customerEntry.SetEntityState(EntityState.Deleted);
@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 context.Add(customer);
 
                 // TODO: Better API for shadow state access
-                var customerEntry = context.Entry(customer).GetService();
+                var customerEntry = context.Entry(customer).GetInfrastructure();
                 customerEntry[customerType.FindProperty("Name")] = "Daenerys";
 
                 await context.SaveChangesAsync();
@@ -116,7 +116,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var customerEntry = context.Entry(customer).GetService();
+                var customerEntry = context.Entry(customer).GetInfrastructure();
                 customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
 
                 context.Update(customer);

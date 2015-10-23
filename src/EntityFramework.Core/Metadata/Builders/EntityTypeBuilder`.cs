@@ -241,6 +241,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 CollectionBuilder(relatedEntityType, navigationName));
         }
 
-        private InternalEntityTypeBuilder Builder => this.GetService<InternalEntityTypeBuilder>();
+        private InternalEntityTypeBuilder Builder => this.GetInfrastructure<InternalEntityTypeBuilder>();
     }
 }

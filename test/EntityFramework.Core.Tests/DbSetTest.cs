@@ -86,10 +86,10 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Same(product2, productEntry2.Entity);
                 Assert.Equal(expectedState, productEntry2.State);
 
-                Assert.Same(categoryEntry1.GetService(), context.Entry(category1).GetService());
-                Assert.Same(categoryEntry2.GetService(), context.Entry(category2).GetService());
-                Assert.Same(productEntry1.GetService(), context.Entry(product1).GetService());
-                Assert.Same(productEntry2.GetService(), context.Entry(product2).GetService());
+                Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+                Assert.Same(categoryEntry2.GetInfrastructure(), context.Entry(category2).GetInfrastructure());
+                Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
+                Assert.Same(productEntry2.GetInfrastructure(), context.Entry(product2).GetInfrastructure());
             }
         }
 
@@ -399,8 +399,8 @@ namespace Microsoft.Data.Entity.Tests
             using (var context = new EarlyLearningCenter())
             {
                 Assert.Same(
-                    ((IAccessor<IServiceProvider>)context).Service,
-                    ((IAccessor<IServiceProvider>)context.Products).Service);
+                    ((IInfrastructure<IServiceProvider>)context).Instance,
+                    ((IInfrastructure<IServiceProvider>)context.Products).Instance);
             }
         }
 

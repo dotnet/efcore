@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     ///         and it is not designed to be directly constructed in your application code.
     ///     </para>
     /// </summary>
-    public class IndexBuilder : IAccessor<IMutableModel>, IAccessor<InternalIndexBuilder>
+    public class IndexBuilder : IInfrastructure<IMutableModel>, IInfrastructure<InternalIndexBuilder>
     {
         private readonly InternalIndexBuilder _builder;
 
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The internal builder being used to configure the index.
         /// </summary>
-        InternalIndexBuilder IAccessor<InternalIndexBuilder>.Service => _builder;
+        InternalIndexBuilder IInfrastructure<InternalIndexBuilder>.Instance => _builder;
 
         /// <summary>
         ///     The index being configured.
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <summary>
         ///     The model that the index belongs to.
         /// </summary>
-        IMutableModel IAccessor<IMutableModel>.Service => Builder.ModelBuilder.Metadata;
+        IMutableModel IInfrastructure<IMutableModel>.Instance => Builder.ModelBuilder.Metadata;
 
         /// <summary>
         ///     Adds or updates an annotation on the index. If an annotation with the key specified in
@@ -83,6 +83,6 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
-        private InternalIndexBuilder Builder => this.GetService<InternalIndexBuilder>();
+        private InternalIndexBuilder Builder => this.GetInfrastructure<InternalIndexBuilder>();
     }
 }

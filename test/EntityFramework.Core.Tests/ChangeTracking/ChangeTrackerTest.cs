@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 var stateManger = context.GetService<IStateManager>();
 
-                Assert.Same(stateManger, context.ChangeTracker.GetService());
+                Assert.Same(stateManger, context.ChangeTracker.GetInfrastructure());
             }
         }
 
@@ -409,7 +409,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 if (!entry.IsKeySet)
                 {
-                    entry.GetService()[entry.Metadata.FindPrimaryKey().Properties.Single()] = 777;
+                    entry.GetInfrastructure()[entry.Metadata.FindPrimaryKey().Properties.Single()] = 777;
                     return EntityState.Added;
                 }
 
@@ -1074,7 +1074,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
 
             public virtual void TrackEntity(EntityEntryGraphNode node)
-                => node.Entry.GetService().SetEntityState(DetermineState(node.Entry), acceptChanges: true);
+                => node.Entry.GetInfrastructure().SetEntityState(DetermineState(node.Entry), acceptChanges: true);
 
             public virtual EntityState DetermineState(EntityEntry entry)
                 => entry.IsKeySet

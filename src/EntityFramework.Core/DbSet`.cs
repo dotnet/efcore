@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity
     /// </summary>
     /// <typeparam name="TEntity"> The type of entity being operated on by this set. </typeparam>
     public abstract partial class DbSet<TEntity>
-        : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IAccessor<IServiceProvider>
+        : IOrderedQueryable<TEntity>, IAsyncEnumerableAccessor<TEntity>, IInfrastructure<IServiceProvider>
         where TEntity : class
     {
         /// <summary>
@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity
         ///         not directly exposed in the public API surface.
         ///     </para>
         /// </summary>
-        IServiceProvider IAccessor<IServiceProvider>.Service
+        IServiceProvider IInfrastructure<IServiceProvider>.Instance
         {
             get { throw new NotImplementedException(); }
         }

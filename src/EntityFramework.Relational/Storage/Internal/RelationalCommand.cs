@@ -329,7 +329,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             if (connection.Transaction != null)
             {
-                command.Transaction = connection.Transaction.GetService();
+                command.Transaction = connection.Transaction.GetInfrastructure();
             }
 
             if (connection.CommandTimeout != null)

@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var propertyInfo = propertyExpression.GetPropertyAccess();
 
-            return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyInfo.Name);
+            return new PropertyEntry<TEntity, TProperty>(this.GetInfrastructure(), propertyInfo.Name);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             Check.NotNull(propertyName, nameof(propertyName));
 
-            var property = this.GetService().EntityType.FindProperty(propertyName);
+            var property = this.GetInfrastructure().EntityType.FindProperty(propertyName);
 
             if (property != null
                 && property.ClrType != typeof(TProperty))
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
                 throw new ArgumentException(CoreStrings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }
 
-            return new PropertyEntry<TEntity, TProperty>(this.GetService(), propertyName);
+            return new PropertyEntry<TEntity, TProperty>(this.GetInfrastructure(), propertyName);
         }
     }
 }

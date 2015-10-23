@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             Check.NullButNotEmpty(name, nameof(name));
 
-            var relationalEntityTypeBuilder = ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            var relationalEntityTypeBuilder = ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .SqlServer(ConfigurationSource.Explicit);
             relationalEntityTypeBuilder.TableName = name;
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity
             Check.NullButNotEmpty(name, nameof(name));
             Check.NullButNotEmpty(schema, nameof(schema));
 
-            var relationalEntityTypeBuilder = ((IAccessor<InternalEntityTypeBuilder>)entityTypeBuilder).GetService()
+            var relationalEntityTypeBuilder = ((IInfrastructure<InternalEntityTypeBuilder>)entityTypeBuilder).GetInfrastructure()
                 .SqlServer(ConfigurationSource.Explicit);
             relationalEntityTypeBuilder.TableName = name;
             relationalEntityTypeBuilder.Schema = schema;

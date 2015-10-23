@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity
     ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
     /// </summary>
-    public class ModelBuilder : IAccessor<InternalModelBuilder>
+    public class ModelBuilder : IInfrastructure<InternalModelBuilder>
     {
         private readonly InternalModelBuilder _builder;
 
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalModelBuilder IAccessor<InternalModelBuilder>.Service => _builder;
+        InternalModelBuilder IInfrastructure<InternalModelBuilder>.Instance => _builder;
 
         /// <summary>
         ///     Returns an object that can be used to configure a given entity type in the model.
@@ -229,6 +229,6 @@ namespace Microsoft.Data.Entity
             return this;
         }
 
-        private InternalModelBuilder Builder => this.GetService();
+        private InternalModelBuilder Builder => this.GetInfrastructure();
     }
 }

@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             Expression query;
             using (var context1 = new QueryKeyCacheContext(rowNumberPaging: true))
             {
-                var services = ((IAccessor<IServiceProvider>)context1).Service.GetService<IDbContextServices>().DatabaseProviderServices;
+                var services = ((IInfrastructure<IServiceProvider>)context1).Instance.GetService<IDbContextServices>().DatabaseProviderServices;
                 query = context1.Set<Poco1>().Skip(4).Take(10).Expression;
                 var generator = services.CompiledQueryCacheKeyGenerator;
                 key1 = generator.GenerateCacheKey(query, false);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
             using (var context2 = new QueryKeyCacheContext(rowNumberPaging: false))
             {
-                var services = ((IAccessor<IServiceProvider>)context2).Service.GetService<IDbContextServices>().DatabaseProviderServices;
+                var services = ((IInfrastructure<IServiceProvider>)context2).Instance.GetService<IDbContextServices>().DatabaseProviderServices;
                 var generator = services.CompiledQueryCacheKeyGenerator;
                 key2 = generator.GenerateCacheKey(query, false);
             }

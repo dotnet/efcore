@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///     Instances of this class are typically obtained from <see cref="DbContext.ChangeTracker" /> and it is not designed
     ///     to be directly constructed in your application code.
     /// </summary>
-    public class ChangeTracker : IAccessor<IStateManager>
+    public class ChangeTracker : IInfrastructure<IStateManager>
     {
         private readonly IStateManager _stateManager;
         private readonly IChangeDetector _changeDetector;
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
-        IStateManager IAccessor<IStateManager>.Service => _stateManager;
+        IStateManager IInfrastructure<IStateManager>.Instance => _stateManager;
 
         /// <summary>
         ///     Gets the context this change tracker belongs to.

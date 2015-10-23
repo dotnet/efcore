@@ -88,6 +88,6 @@ namespace Microsoft.Data.Entity.Storage
             Connection.UseTransaction(null);
         }
 
-        DbTransaction IAccessor<DbTransaction>.Service => _transaction;
+        DbTransaction IInfrastructure<DbTransaction>.Instance => _transaction;
     }
 }
