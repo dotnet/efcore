@@ -29,6 +29,10 @@ namespace Microsoft.Data.Entity
         ///         manipulate entity instances and persist those changes to the database using 
         ///         <see cref="DbContext.SaveChanges()"/>.
         ///     </para>
+        ///     <para>
+        ///         Identity resolution will still be performed to ensure that all occurrences of an entity with a given key 
+        ///         in the result set are represented by the same entity instance.
+        ///     </para>
         /// </summary>
         NoTracking
     }

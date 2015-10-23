@@ -54,17 +54,27 @@ namespace Microsoft.Data.Entity.Infrastructure
             => this.GetService<IDatabaseCreator>().EnsureCreatedAsync(cancellationToken);
 
         /// <summary>
-        ///     Ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
-        ///     exist then the database is deleted. The entire database is deleted an not effort is made to remove just the
-        ///     database objects that are used by the model for this context.
+        ///     <para>
+        ///         Ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
+        ///         exist then the database is deleted.
+        ///     </para>
+        ///     <para>
+        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by 
+        ///         the model for this context.
+        ///     </para>
         /// </summary>
         /// <returns> True if the database is deleted, false if it did not exist. </returns>
         public virtual bool EnsureDeleted() => this.GetService<IDatabaseCreator>().EnsureDeleted();
 
         /// <summary>
-        ///     Asynchronously ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
-        ///     exist then the database is deleted. The entire database is deleted an not effort is made to remove just the
-        ///     database objects that are used by the model for this context.
+        ///     <para>
+        ///         Asynchronously ensures that the database for the context does not exist. If it does not exist, no action is taken. If it does
+        ///         exist then the database is deleted.
+        ///     </para>
+        ///     <para>
+        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by 
+        ///         the model for this context.
+        ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns> 
