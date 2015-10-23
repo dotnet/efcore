@@ -121,9 +121,8 @@
     <Compile Include="ChangeTracking\EntityEntryTest.cs" />
     <Compile Include="ChangeTracking\PropertyEntryTest.cs" />
     <Compile Include="Infrastructure\AnnotationTest.cs" />
-    <Compile Include="Metadata\Internal\ClrCollectionAccessorSourceTest.cs" />
-    <Compile Include="Metadata\Internal\ClrPropertyGetterSourceTest.cs" />
-    <Compile Include="Metadata\Internal\ClrPropertySetterSourceTest.cs" />
+    <Compile Include="Metadata\Internal\ClrCollectionAccessorFactoryTest.cs" />
+    <Compile Include="Metadata\Internal\ClrPropertyGetterFactoryTest.cs" />
     <Compile Include="Metadata\Internal\EntityMaterializerSourceTest.cs" />
     <Compile Include="Metadata\Internal\EntityTypeTest.cs" />
     <Compile Include="Metadata\Internal\FieldMatcherTest.cs" />

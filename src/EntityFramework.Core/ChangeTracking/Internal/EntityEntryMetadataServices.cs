@@ -5,40 +5,27 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class EntityEntryMetadataServices : IEntityEntryMetadataServices
     {
-        private readonly IClrAccessorSource<IClrPropertyGetter> _getterSource;
-        private readonly IClrAccessorSource<IClrPropertySetter> _setterSource;
         private readonly IOriginalValuesFactory _originalValuesFactory;
         private readonly IRelationshipsSnapshotFactory _relationshipsSnapshotFactory;
         private readonly IStoreGeneratedValuesFactory _storeGeneratedValuesFactory;
         private readonly IKeyValueFactorySource _keyValueFactorySource;
 
         public EntityEntryMetadataServices(
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
-            [NotNull] IClrAccessorSource<IClrPropertySetter> setterSource,
             [NotNull] IOriginalValuesFactory originalValuesFactory,
             [NotNull] IRelationshipsSnapshotFactory relationshipsSnapshotFactory,
             [NotNull] IStoreGeneratedValuesFactory storeGeneratedValuesFactory,
             [NotNull] IKeyValueFactorySource keyValueFactorySource)
         {
-            _getterSource = getterSource;
-            _setterSource = setterSource;
             _originalValuesFactory = originalValuesFactory;
             _relationshipsSnapshotFactory = relationshipsSnapshotFactory;
             _storeGeneratedValuesFactory = storeGeneratedValuesFactory;
             _keyValueFactorySource = keyValueFactorySource;
         }
-
-        public virtual object ReadValue(object entity, IPropertyBase propertyBase)
-            => _getterSource.GetAccessor(propertyBase).GetClrValue(entity);
-
-        public virtual void WriteValue(object entity, IPropertyBase propertyBase, object value)
-            => _setterSource.GetAccessor(propertyBase).SetClrValue(entity, value);
 
         public virtual Sidecar CreateOriginalValues(InternalEntityEntry entry)
             => _originalValuesFactory.Create(entry);

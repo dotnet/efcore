@@ -274,14 +274,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
-            return MetadataServices.ReadValue(Entity, propertyBase);
+            return propertyBase.GetGetter().GetClrValue(Entity);
         }
 
         protected virtual void WritePropertyValue([NotNull] IPropertyBase propertyBase, [CanBeNull] object value)
         {
             Debug.Assert(!(propertyBase is IProperty) || !((IProperty)propertyBase).IsShadowProperty);
 
-            MetadataServices.WriteValue(Entity, propertyBase, value);
+            propertyBase.GetSetter().SetClrValue(Entity, value);
         }
 
         public virtual object GetOriginalValue(IProperty property) => OriginalValues[property];

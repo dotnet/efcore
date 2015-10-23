@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query.Internal
@@ -15,10 +14,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         public RelationalQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
-            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] IRelationalConnection connection)
-            : base(stateManager, keyValueFactorySource, collectionAccessorSource, propertySetterSource)
+            : base(stateManager, keyValueFactorySource)
         {
             _connection = connection;
         }

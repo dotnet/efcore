@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Internal
 {
@@ -17,7 +18,10 @@ namespace Microsoft.Data.Entity.Internal
         public virtual IReadOnlyList<DbSetProperty> FindSets(DbContext context) => _cache.GetOrAdd(context.GetType(), FindSets);
 
         private static DbSetProperty[] FindSets(Type contextType)
-            => contextType.GetRuntimeProperties()
+        {
+            var factory = new ClrPropertySetterFactory();
+
+            return contextType.GetRuntimeProperties()
                 .Where(
                     p => !p.IsStatic()
                          && !p.GetIndexParameters().Any()
@@ -25,9 +29,14 @@ namespace Microsoft.Data.Entity.Internal
                          && p.PropertyType.GetTypeInfo().IsGenericType
                          && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
                 .OrderBy(p => p.Name)
-                .Select(p => new DbSetProperty(
-                    p.DeclaringType, p.Name,
-                    p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(), p.SetMethod != null))
+                .Select(p =>
+                    {
+                        return new DbSetProperty(
+                            p.Name,
+                            p.PropertyType.GetTypeInfo().GenericTypeArguments.Single(),
+                            p.SetMethod == null ? null : factory.Create(p));
+                    })
                 .ToArray();
+        }
     }
 }

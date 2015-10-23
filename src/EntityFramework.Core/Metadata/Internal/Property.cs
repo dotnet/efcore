@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -14,8 +15,14 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
-    public class Property : Annotatable, IMutableProperty
+    public class Property : Annotatable, IMutableProperty, IPropertyBaseAccessors
     {
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private IClrPropertyGetter _getter;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private IClrPropertySetter _setter;
+
         private PropertyFlags _flags;
         private PropertyFlags _setFlags;
         private Type _clrType;
@@ -309,5 +316,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 || (entityType.HasClrType()
                     && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
         }
+
+        public virtual IClrPropertyGetter Getter 
+            => LazyInitializer.EnsureInitialized(ref _getter, () => new ClrPropertyGetterFactory().Create(this));
+
+        public virtual IClrPropertySetter Setter 
+            => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
     }
 }

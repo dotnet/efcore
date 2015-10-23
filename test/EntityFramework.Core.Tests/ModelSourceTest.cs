@@ -23,9 +23,9 @@ namespace Microsoft.Data.Entity.Tests
             setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
                 {
-                    new DbSetProperty(typeof(JustAClass), "One", typeof(SetA), hasSetter: true),
-                    new DbSetProperty(typeof(JustAClass), "Two", typeof(SetB), hasSetter: true),
-                    new DbSetProperty(typeof(JustAClass), "Three", typeof(SetA), hasSetter: true)
+                    new DbSetProperty("One", typeof(SetA), setter: null),
+                    new DbSetProperty("Two", typeof(SetB), setter: null),
+                    new DbSetProperty("Three", typeof(SetA), setter: null)
                 });
 
             var model = CreateDefaultModelSource(setFinderMock.Object)

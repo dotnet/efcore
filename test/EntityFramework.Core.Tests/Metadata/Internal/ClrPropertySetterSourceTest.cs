@@ -15,9 +15,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var setterMock = new Mock<IClrPropertySetter>();
             var propertyMock = setterMock.As<IProperty>();
 
-            var source = new ClrPropertySetterSource();
+            var source = new ClrPropertySetterFactory();
 
-            Assert.Same(setterMock.Object, source.GetAccessor(propertyMock.Object));
+            Assert.Same(setterMock.Object, source.Create(propertyMock.Object));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, 77);
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 77);
 
             Assert.Equal(77, customer.Id);
         }
@@ -38,22 +38,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(typeof(Customer), "Id").SetClrValue(customer, 77);
+            new ClrPropertySetterFactory().Create(typeof(Customer).GetAnyProperty("Id")).SetClrValue(customer, 77);
 
             Assert.Equal(77, customer.Id);
-        }
-
-        [Fact]
-        public void Delegate_setter_is_cached_by_type_and_property_name()
-        {
-            var entityType = new Model().AddEntityType(typeof(Customer));
-            var idProperty = entityType.AddProperty(Customer.IdProperty);
-
-            var source = new ClrPropertySetterSource();
-
-            var accessor = source.GetAccessor(typeof(Customer), "Id");
-            Assert.Same(accessor, source.GetAccessor(typeof(Customer), "Id"));
-            Assert.Same(accessor, source.GetAccessor(idProperty));
         }
 
         [Fact]
@@ -64,7 +51,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, 1);
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 1);
 
             Assert.Equal(1, customer.Id);
         }
@@ -77,7 +64,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, "MyString");
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, "MyString");
 
             Assert.Equal("MyString", customer.Content);
         }
@@ -90,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, 3);
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, 3);
 
             Assert.Equal(3, customer.OptionalInt);
         }
@@ -103,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, null);
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, null);
 
             Assert.Null(customer.OptionalInt);
         }
@@ -116,7 +103,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, Flag.One);
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.One);
 
             Assert.Equal(Flag.One, customer.Flag);
         }
@@ -129,7 +116,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var customer = new Customer { Id = 7 };
 
-            new ClrPropertySetterSource().GetAccessor(idProperty).SetClrValue(customer, Flag.Two);
+            new ClrPropertySetterFactory().Create(idProperty).SetClrValue(customer, Flag.Two);
 
             Assert.Equal(Flag.Two, customer.OptionalFlag);
         }

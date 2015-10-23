@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -16,10 +15,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         public InMemoryQueryContextFactory(
             [NotNull] IStateManager stateManager,
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
-            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
-            [NotNull] IClrAccessorSource<IClrPropertySetter> propertySetterSource,
             [NotNull] IInMemoryDatabase database)
-            : base(stateManager, keyValueFactorySource, collectionAccessorSource, propertySetterSource)
+            : base(stateManager, keyValueFactorySource)
         {
             Check.NotNull(database, nameof(database));
 

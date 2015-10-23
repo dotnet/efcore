@@ -8,23 +8,16 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
-using Microsoft.Data.Entity.ValueGeneration.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class KeyPropagator : IKeyPropagator
     {
-        private readonly IClrAccessorSource<IClrPropertyGetter> _getterSource;
-        private readonly IClrCollectionAccessorSource _collectionAccessorSource;
         private readonly IValueGeneratorSelector _valueGeneratorSelector;
 
         public KeyPropagator(
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> getterSource,
-            [NotNull] IClrCollectionAccessorSource collectionAccessorSource,
             [NotNull] IValueGeneratorSelector valueGeneratorSelector)
         {
-            _getterSource = getterSource;
-            _collectionAccessorSource = collectionAccessorSource;
             _valueGeneratorSelector = valueGeneratorSelector;
         }
 
@@ -106,7 +99,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             if (navigation.IsDependentToPrincipal())
             {
-                return _getterSource.GetAccessor(navigation).GetClrValue(dependentEntity);
+                return navigation.GetGetter().GetClrValue(dependentEntity);
             }
 
             // TODO: Perf
@@ -115,12 +108,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (navigation.IsCollection())
                 {
-                    if (_collectionAccessorSource.GetAccessor(navigation).Contains(principalEntry.Entity, dependentEntity))
+                    if (navigation.GetCollectionAccessor().Contains(principalEntry.Entity, dependentEntity))
                     {
                         return principalEntry.Entity;
                     }
                 }
-                else if (_getterSource.GetAccessor(navigation).GetClrValue(principalEntry.Entity) == dependentEntity)
+                else if (navigation.GetGetter().GetClrValue(principalEntry.Entity) == dependentEntity)
                 {
                     return principalEntry.Entity;
                 }
