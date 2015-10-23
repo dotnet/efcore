@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Xunit;
 
@@ -236,6 +237,116 @@ INNER JOIN [Level1] AS [e1] ON [e4].[Name] = (
     INNER JOIN [Level4] AS [subQuery0.OneToOne_Optional_FK.OneToOne_Required_PK] ON [subQuery0.OneToOne_Optional_FK].[Id] = [subQuery0.OneToOne_Optional_FK.OneToOne_Required_PK].[Id]
     WHERE [subQuery0].[Level1_Required_Id] = [e1].[Id]
 )",
+                Sql);
+        }
+
+        public override void Multiple_complex_includes()
+        {
+            base.Multiple_complex_includes();
+
+            Assert.Equal(
+                @"SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId], [e].[OneToOne_Optional_SelfId], [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
+ORDER BY [e].[Id], [l].[Id]
+
+SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id]
+    FROM [Level1] AS [e]
+) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
+ORDER BY [e].[Id]
+
+SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
+    FROM [Level1] AS [e]
+    LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
+) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
+ORDER BY [l0].[Id], [l0].[Id0]",
+                Sql);
+        }
+
+        public override void Multiple_complex_includes_self_ref()
+        {
+            base.Multiple_complex_includes_self_ref();
+
+            Assert.Equal(
+                @"SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId], [e].[OneToOne_Optional_SelfId], [l].[Id], [l].[Name], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level1] AS [l] ON [e].[OneToOne_Optional_SelfId] = [l].[Id]
+ORDER BY [e].[Id], [l].[Id]
+
+SELECT [l].[Id], [l].[Name], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
+    FROM [Level1] AS [e]
+    LEFT JOIN [Level1] AS [l] ON [e].[OneToOne_Optional_SelfId] = [l].[Id]
+) AS [l0] ON [l].[OneToMany_Optional_Self_InverseId] = [l0].[Id0]
+ORDER BY [l0].[Id], [l0].[Id0]
+
+SELECT [l].[Id], [l].[Name], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Name], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id]
+    FROM [Level1] AS [e]
+) AS [e] ON [l].[OneToMany_Optional_Self_InverseId] = [e].[Id]
+LEFT JOIN [Level1] AS [l0] ON [l].[OneToOne_Optional_SelfId] = [l0].[Id]
+ORDER BY [e].[Id]",
+                Sql);
+        }
+
+        public override void Multiple_complex_include_select()
+        {
+            base.Multiple_complex_include_select();
+
+            Assert.Equal(
+                @"SELECT [e].[Id], [e].[Name], [e].[OneToMany_Optional_Self_InverseId], [e].[OneToMany_Required_Self_InverseId], [e].[OneToOne_Optional_SelfId], [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level1] AS [e]
+LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
+ORDER BY [e].[Id], [l].[Id]
+
+SELECT [l].[Id], [l].[Level1_Optional_Id], [l].[Level1_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId], [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_InverseId], [l0].[OneToMany_Optional_Self_InverseId], [l0].[OneToMany_Required_InverseId], [l0].[OneToMany_Required_Self_InverseId], [l0].[OneToOne_Optional_PK_InverseId], [l0].[OneToOne_Optional_SelfId]
+FROM [Level2] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id]
+    FROM [Level1] AS [e]
+) AS [e] ON [l].[OneToMany_Optional_InverseId] = [e].[Id]
+LEFT JOIN [Level3] AS [l0] ON [l0].[Level2_Optional_Id] = [l].[Id]
+ORDER BY [e].[Id]
+
+SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_InverseId], [l].[OneToMany_Optional_Self_InverseId], [l].[OneToMany_Required_InverseId], [l].[OneToMany_Required_Self_InverseId], [l].[OneToOne_Optional_PK_InverseId], [l].[OneToOne_Optional_SelfId]
+FROM [Level3] AS [l]
+INNER JOIN (
+    SELECT DISTINCT [e].[Id], [l].[Id] AS [Id0]
+    FROM [Level1] AS [e]
+    LEFT JOIN [Level2] AS [l] ON [l].[Level1_Optional_Id] = [e].[Id]
+) AS [l0] ON [l].[OneToMany_Optional_InverseId] = [l0].[Id0]
+ORDER BY [l0].[Id], [l0].[Id0]",
+                Sql);
+        }
+
+        // issue #3491
+        //[Fact]
+        public virtual void Multiple_complex_includes_from_sql()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.FromSql("SELECT * FROM [Level1]")
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .ThenInclude(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToMany_Optional)
+                    .ThenInclude(e => e.OneToOne_Optional_FK);
+
+                var result = query.ToList();
+            }
+
+            Assert.Equal(
+                @"",
                 Sql);
         }
 
