@@ -117,6 +117,16 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
             new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper()).Apply(modelBuilder);
         }
 
+        [Fact]
+        public void Does_not_throw_when_clr_type_is_not_set_for_shadow_property()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationAsProperty), ConfigurationSource.Convention);
+            entityTypeBuilder.Property("ShadowPropertyOfNullType", ConfigurationSource.Convention);
+
+            new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper()).Apply(modelBuilder);
+        }
+
         private class NonPrimitiveAsPropertyEntity
         {
             public NavigationAsProperty Property { get; set; }

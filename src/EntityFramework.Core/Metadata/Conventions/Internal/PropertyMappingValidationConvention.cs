@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(p.ClrType));
+                var unmappedProperty = entityType.GetProperties().FirstOrDefault(p => !IsMappedPrimitiveProperty(((IProperty)p).ClrType));
                 if (unmappedProperty != null)
                 {
                     throw new InvalidOperationException(CoreStrings.PropertyNotMapped(unmappedProperty.Name, entityType.Name));

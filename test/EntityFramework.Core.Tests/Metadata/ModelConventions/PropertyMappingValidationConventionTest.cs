@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
@@ -102,6 +101,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         {
             var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
+
+            new PropertyMappingValidationConvention().Apply(modelBuilder);
+        }
+
+        [Fact]
+        public void Does_not_throw_when_clr_type_is_not_set_for_shadow_property()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationAsProperty), ConfigurationSource.Convention);
+            entityTypeBuilder.Property("ShadowPropertyOfNullType", ConfigurationSource.Convention);
 
             new PropertyMappingValidationConvention().Apply(modelBuilder);
         }

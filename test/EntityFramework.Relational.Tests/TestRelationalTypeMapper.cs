@@ -26,7 +26,8 @@ namespace Microsoft.Data.Entity.Tests
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
             = new Dictionary<Type, RelationalTypeMapping>
                 {
-                        { typeof(int), _defaultIntMapping }
+                        { typeof(int), _defaultIntMapping },
+                        { typeof(string), _string }
                 };
 
         protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
