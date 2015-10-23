@@ -319,26 +319,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     ? firstNavigation.ForeignKey.Properties
                     : firstNavigation.ForeignKey.PrincipalKey.Properties);
 
-            if (leftKeyAccess.Type != rightKeyAccess.Type)
-            {
-                if (leftKeyAccess.Type.IsNullableType())
-                {
-                    Debug.Assert(leftKeyAccess.Type.UnwrapNullableType() == rightKeyAccess.Type);
-
-                    rightKeyAccess = Expression.Convert(rightKeyAccess, leftKeyAccess.Type);
-                }
-                else
-                {
-                    Debug.Assert(rightKeyAccess.Type.IsNullableType());
-                    Debug.Assert(rightKeyAccess.Type.UnwrapNullableType() == leftKeyAccess.Type);
-
-                    leftKeyAccess = Expression.Convert(leftKeyAccess, rightKeyAccess.Type);
-                }
-            }
-
             subQueryModel.BodyClauses.Add(
                 new WhereClause(
-                    Expression.Equal(leftKeyAccess, rightKeyAccess)));
+                    CreateKeyComparisonExpression(leftKeyAccess, rightKeyAccess)));
 
             subQueryModel.ResultOperators.Add(new FirstResultOperator(returnDefaultWhenEmpty: true));
 
@@ -366,6 +349,28 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider);
         }
 
+        private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
+        {
+            if (leftExpression.Type != rightExpression.Type)
+            {
+                if (leftExpression.Type.IsNullableType())
+                {
+                    Debug.Assert(leftExpression.Type.UnwrapNullableType() == rightExpression.Type);
+
+                    rightExpression = Expression.Convert(rightExpression, leftExpression.Type);
+                }
+                else
+                {
+                    Debug.Assert(rightExpression.Type.IsNullableType());
+                    Debug.Assert(rightExpression.Type.UnwrapNullableType() == leftExpression.Type);
+
+                    leftExpression = Expression.Convert(leftExpression, rightExpression.Type);
+                }
+            }
+
+            return Expression.Equal(leftExpression, rightExpression);
+        }
+
         private Expression CreateJoinsForNavigations(
             QuerySourceReferenceExpression outerQuerySourceReferenceExpression,
             IEnumerable<INavigation> navigations)
@@ -384,15 +389,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     var innerQuerySourceReferenceExpression
                         = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
 
+                    var leftKeyAccess = CreateKeyAccessExpression(
+                                    querySourceReferenceExpression,
+                                    navigation.PointsToPrincipal()
+                                        ? navigation.ForeignKey.Properties
+                                        : navigation.ForeignKey.PrincipalKey.Properties);
+
+                    var rightKeyAccess = CreateKeyAccessExpression(
+                                    innerQuerySourceReferenceExpression,
+                                    navigation.PointsToPrincipal()
+                                        ? navigation.ForeignKey.PrincipalKey.Properties
+                                        : navigation.ForeignKey.Properties);
+
                     _queryModel.BodyClauses.Add(
                         new WhereClause(
-                            Expression.Equal(
-                                CreateKeyAccessExpression(
-                                    querySourceReferenceExpression,
-                                    navigation.ForeignKey.Properties),
-                                CreateKeyAccessExpression(
-                                    innerQuerySourceReferenceExpression,
-                                    navigation.ForeignKey.PrincipalKey.Properties))));
+                            CreateKeyComparisonExpression(leftKeyAccess, rightKeyAccess)));
 
                     return _queryModel.MainFromClause.FromExpression;
                 }
