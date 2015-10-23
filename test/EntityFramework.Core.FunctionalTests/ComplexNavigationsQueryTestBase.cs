@@ -620,5 +620,33 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
             }
         }
+
+        [Fact]
+        public virtual void Select_nav_prop_collection_one_to_many_required()
+        {
+            List<List<int>> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Required)
+                    .ToList()
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.OneToMany_Required?.Select(i => i.Id).ToList()).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.OrderBy(e => e.Id).Select(e => e.OneToMany_Required.Select(i => i.Id));
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.Equal(expected[i].Count, result[i].Count());
+                }
+            }
+        }
     }
 }

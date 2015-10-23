@@ -350,6 +350,15 @@ ORDER BY [l0].[Id], [l0].[Id0]",
                 Sql);
         }
 
+        public override void Select_nav_prop_collection_one_to_many_required()
+        {
+            base.Select_nav_prop_collection_one_to_many_required();
+
+            Assert.Equal(
+                @"",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }
