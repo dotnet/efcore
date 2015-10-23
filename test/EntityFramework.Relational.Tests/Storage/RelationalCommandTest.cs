@@ -647,10 +647,8 @@ namespace Microsoft.Data.Entity.Storage
             Assert.Equal(1, log.Count);
             Assert.Equal(LogLevel.Information, log[0].Item1);
             Assert.Equal(
-                @"Executing DbCommand: [Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
-
-Command Text
-",
+                @"Executed DbCommand (0ms) [Parameters=[FirstParameter='?'], CommandType='0', CommandTimeout='30']
+Command Text",
                 log[0].Item2);
         }
 
@@ -700,10 +698,8 @@ Command Text
 
             Assert.Equal(LogLevel.Information, log[1].Item1);
             Assert.Equal(
-                @"Executing DbCommand: [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
-
-Command Text
-",
+                @"Executed DbCommand (0ms) [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
+Command Text",
                 log[1].Item2);
         }
 
@@ -753,10 +749,8 @@ Command Text
 
             Assert.Equal(LogLevel.Information, log[1].Item1);
             Assert.Equal(
-                @"Executing DbCommand: [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
-
-Command Text
-",
+                @"Executed DbCommand (0ms) [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
+Command Text",
                 log[1].Item2);
         }
 
