@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -13,8 +14,17 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
-    public class Navigation : Annotatable, IMutableNavigation
+    public class Navigation : Annotatable, IMutableNavigation, INavigationAccessors
     {
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private IClrPropertyGetter _getter;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private IClrPropertySetter _setter;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private IClrCollectionAccessor _collectionAccessor;
+
         public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
         {
             Check.NotEmpty(name, nameof(name));
@@ -134,6 +144,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual EntityType GetTargetType()
             => (EntityType)((INavigation)this).GetTargetType();
+
+        public virtual IClrPropertyGetter Getter
+            => LazyInitializer.EnsureInitialized(ref _getter, () => new ClrPropertyGetterFactory().Create(this));
+
+        public virtual IClrPropertySetter Setter 
+            => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
+
+        public virtual IClrCollectionAccessor CollectionAccessor 
+            => LazyInitializer.EnsureInitialized(ref _collectionAccessor, () => new ClrCollectionAccessorFactory().Create(this));
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;

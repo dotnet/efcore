@@ -3,13 +3,12 @@
 
 using System;
 using System.Reflection;
-using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class ClrPropertyGetterSource : ClrAccessorSource<IClrPropertyGetter>
+    public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
     {
-        protected override IClrPropertyGetter Create([NotNull] PropertyInfo property)
+        public override IClrPropertyGetter Create(PropertyInfo property)
         {
             var types = new[] { property.DeclaringType, property.PropertyType };
             var getterType = typeof(ClrPropertyGetter<,>).MakeGenericType(types);

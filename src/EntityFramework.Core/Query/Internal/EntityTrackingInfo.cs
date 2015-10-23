@@ -20,7 +20,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         private static readonly IEnumerable<IncludedEntity> _emptyIncludedEntities
             = Enumerable.Empty<IncludedEntity>();
 
-        private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
         private readonly IEntityType _entityType;
         private readonly KeyValueFactory _keyValueFactory;
         private readonly IReadOnlyList<IReadOnlyList<INavigation>> _includedNavigationPaths;
@@ -28,20 +27,17 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public EntityTrackingInfo(
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource,
             [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QuerySourceReferenceExpression querySourceReferenceExpression,
             [NotNull] IEntityType entityType)
         {
             Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
-            Check.NotNull(clrPropertyGetterSource, nameof(clrPropertyGetterSource));
             Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
 
             QuerySourceReferenceExpression = querySourceReferenceExpression;
 
-            _clrPropertyGetterSource = clrPropertyGetterSource;
             _entityType = entityType;
 
             _keyValueFactory = keyValueFactorySource.GetKeyFactory(_entityType.FindPrimaryKey());
@@ -157,7 +153,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 if (navigation.IsCollection())
                 {
-                    var propertyGetter = _clrPropertyGetterSource.GetAccessor(navigation);
+                    var propertyGetter = navigation.GetGetter();
                     var referencedEntities = (IEnumerable<object>)propertyGetter.GetClrValue(entity);
 
                     foreach (var referencedEntity
@@ -174,9 +170,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 }
                 else
                 {
-                    var propertyGetter = _clrPropertyGetterSource.GetAccessor(navigation);
-
-                    var referencedEntity = propertyGetter.GetClrValue(entity);
+                    var referencedEntity = navigation.GetGetter().GetClrValue(entity);
 
                     if (referencedEntity != null)
                     {

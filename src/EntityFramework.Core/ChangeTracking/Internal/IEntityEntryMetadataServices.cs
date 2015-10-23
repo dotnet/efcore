@@ -10,8 +10,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface IEntityEntryMetadataServices
     {
-        object ReadValue([NotNull] object entity, [NotNull] IPropertyBase propertyBase);
-        void WriteValue([NotNull] object entity, [NotNull] IPropertyBase propertyBase, [CanBeNull] object value);
         Sidecar CreateOriginalValues([NotNull] InternalEntityEntry entry);
         Sidecar CreateRelationshipSnapshot([NotNull] InternalEntityEntry entry);
         Sidecar CreateStoreGeneratedValues([NotNull] InternalEntityEntry entry, [NotNull] IReadOnlyList<IProperty> properties);

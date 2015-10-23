@@ -3,33 +3,27 @@
 
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Internal
 {
     public class DbSetInitializer : IDbSetInitializer
     {
         private readonly IDbSetFinder _setFinder;
-        private readonly IClrAccessorSource<IClrPropertySetter> _setSetters;
         private readonly IDbSetSource _setSource;
 
         public DbSetInitializer(
             [NotNull] IDbSetFinder setFinder,
-            [NotNull] IClrAccessorSource<IClrPropertySetter> setSetters,
             [NotNull] IDbSetSource setSource)
         {
             _setFinder = setFinder;
-            _setSetters = setSetters;
             _setSource = setSource;
         }
 
         public virtual void InitializeSets(DbContext context)
         {
-            foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.HasSetter))
+            foreach (var setInfo in _setFinder.FindSets(context).Where(p => p.Setter != null))
             {
-                _setSetters
-                    .GetAccessor(setInfo.ContextType, setInfo.Name)
-                    .SetClrValue(context, _setSource.Create(context, setInfo.EntityType));
+                setInfo.Setter.SetClrValue(context, _setSource.Create(context, setInfo.EntityType));
             }
         }
 

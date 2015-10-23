@@ -4,7 +4,6 @@
 using System;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -17,18 +16,20 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Initializes_all_entity_set_properties_with_setters()
         {
+            var setterFactory = new ClrPropertySetterFactory();
+
             var setFinderMock = new Mock<IDbSetFinder>();
             setFinderMock.Setup(m => m.FindSets(It.IsAny<DbContext>())).Returns(
                 new[]
-                    {
-                        new DbSetProperty(typeof(JustAContext), "One", typeof(string), hasSetter: true),
-                        new DbSetProperty(typeof(JustAContext), "Two", typeof(object), hasSetter: true),
-                        new DbSetProperty(typeof(JustAContext), "Three", typeof(string), hasSetter: true),
-                        new DbSetProperty(typeof(JustAContext), "Four", typeof(string), hasSetter: false)
-                    });
+                {
+                    new DbSetProperty("One", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("One"))),
+                    new DbSetProperty("Two", typeof(object), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Two"))),
+                    new DbSetProperty("Three", typeof(string), setterFactory.Create(typeof(JustAContext).GetAnyProperty("Three"))),
+                    new DbSetProperty("Four", typeof(string), null)
+                });
 
             var customServices = new ServiceCollection()
-                .AddInstance<IDbSetInitializer>(new DbSetInitializer(setFinderMock.Object, new ClrPropertySetterSource(), new DbSetSource()));
+                .AddInstance<IDbSetInitializer>(new DbSetInitializer(setFinderMock.Object, new DbSetSource()));
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(customServices);
 

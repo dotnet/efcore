@@ -3,25 +3,26 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Internal
 {
     public struct DbSetProperty
     {
-        public DbSetProperty([NotNull] Type contextType, [NotNull] string name, [NotNull] Type entityType, bool hasSetter)
+        public DbSetProperty(
+            [NotNull] string name, 
+            [NotNull] Type entityType, 
+            [CanBeNull] IClrPropertySetter setter)
         {
-            ContextType = contextType;
             Name = name;
             EntityType = entityType;
-            HasSetter = hasSetter;
+            Setter = setter;
         }
-
-        public Type ContextType { get; }
 
         public string Name { get; }
 
         public Type EntityType { get; }
 
-        public bool HasSetter { get; }
+        public IClrPropertySetter Setter { get; }
     }
 }
