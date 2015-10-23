@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -56,8 +55,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                         var command
                             = _queryingEnumerable._commandBuilder
-                            .Build(_queryingEnumerable._relationalQueryContext.ParameterValues);
-
+                                .Build(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         await _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -41,7 +40,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             { ExpressionType.Subtract, " - " },
             { ExpressionType.Multiply, " * " },
             { ExpressionType.Divide, " / " },
-            { ExpressionType.Modulo, " % " },
+            { ExpressionType.Modulo, " % " }
         };
 
         public DefaultQuerySqlGenerator(
@@ -71,7 +70,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _sql =  _commandBuilderFactory.Create();
+            _sql = _commandBuilderFactory.Create();
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
             _parameterValues = parameterValues;
 
@@ -939,7 +938,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             return parameterExpression;
         }
 
-        protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result) 
+        protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)
             => _binaryOperatorMap.TryGetValue(op, out result);
 
         protected virtual string GenerateBinaryOperator(ExpressionType op) => _binaryOperatorMap[op];

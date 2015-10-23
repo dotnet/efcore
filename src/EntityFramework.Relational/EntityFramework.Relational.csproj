@@ -101,18 +101,18 @@
     <Compile Include="Query\Expressions\LateralJoinExpression.cs" />
     <Compile Include="Query\Expressions\ISelectExpressionFactory.cs" />
     <Compile Include="Query\Expressions\SelectExpressionFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\CompositePredicateExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\ICompositePredicateExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\IIncludeExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\IMaterializerFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\IncludeExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\IQueryFlattenerFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\CompositePredicateExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\ICompositePredicateExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\IIncludeExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\IMaterializerFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\IncludeExpressionVisitorFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\IQueryFlattenerFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\ISqlTranslatingExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\QueryFlattenerFactory.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\QueryFlattenerFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalProjectionExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalEntityQueryableExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ICommandBuilderFactory.cs" />
+    <Compile Include="Query\Internal\ICommandBuilderFactory.cs" />
     <Compile Include="Query\Expressions\StringCompareExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\ContainsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\EndsWithTranslator.cs" />
@@ -252,9 +252,9 @@
     <Compile Include="Storage\UntypedRelationalValueBufferFactoryFactory.cs" />
     <Compile Include="Query\AsyncQueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\NotNullableExpression.cs" />
-    <Compile Include="Query\ExpressionVisitors\CompositePredicateExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\EqualityPredicateExpandingVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\EqualityPredicateInExpressionOptimizer.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\CompositePredicateExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\EqualityPredicateExpandingVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\EqualityPredicateInExpressionOptimizer.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\AliasExpression.cs" />
     <Compile Include="Query\Expressions\RawSqlDerivedTableExpression.cs" />
@@ -266,17 +266,17 @@
     <Compile Include="Query\Expressions\MinExpression.cs" />
     <Compile Include="Query\Expressions\SumExpression.cs" />
     <Compile Include="Query\Expressions\TableExpressionBase.cs" />
-    <Compile Include="Query\ExpressionVisitors\IsNullExpressionBuildingVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\RelationalNullsExpressionVisitorBase.cs" />
-    <Compile Include="Query\ExpressionVisitors\PredicateNegationExpressionOptimizer.cs" />
-    <Compile Include="Query\ExpressionVisitors\RelationalNullsExpandingVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\RelationalNullsOptimizedExpandingVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\IsNullExpressionBuildingVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\RelationalNullsExpressionVisitorBase.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\PredicateNegationExpressionOptimizer.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\RelationalNullsExpandingVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\RelationalNullsOptimizedExpandingVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\IncludeExpressionVisitor.cs" />
-    <Compile Include="Query\ExpressionVisitors\MaterializerFactory.cs" />
-    <Compile Include="Query\IAsyncIncludeRelatedValuesStrategy.cs" />
-    <Compile Include="Query\IIncludeRelatedValuesStrategy.cs" />
-    <Compile Include="Query\ExpressionVisitors\QueryFlattener.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\IncludeExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\MaterializerFactory.cs" />
+    <Compile Include="Query\Internal\IAsyncIncludeRelatedValuesStrategy.cs" />
+    <Compile Include="Query\Internal\IIncludeRelatedValuesStrategy.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\QueryFlattener.cs" />
     <Compile Include="Query\QueryMethodProvider.cs" />
     <Compile Include="Query\Expressions\CountExpression.cs" />
     <Compile Include="Query\Expressions\ExistsExpression.cs" />
@@ -288,7 +288,7 @@
     <Compile Include="Query\Expressions\SelectExpression.cs" />
     <Compile Include="Query\Expressions\TableExpression.cs" />
     <Compile Include="Query\IQueryMethodProvider.cs" />
-    <Compile Include="Query\ExpressionVisitors\ResultTransformingExpressionVisitor.cs" />
+    <Compile Include="Query\ExpressionVisitors\Internal\ResultTransformingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalProjectionExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\RelationalEntityQueryableExpressionVisitor.cs" />
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
@@ -373,6 +373,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

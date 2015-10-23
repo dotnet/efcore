@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.Internal;
 using Moq;
 using Xunit;
 

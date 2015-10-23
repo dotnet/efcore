@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         public virtual SelectExpression Create()
             => new SelectExpression(_sqlQueryGeneratorFactory);
 
-        public virtual  SelectExpression Create([NotNull] string alias)
+        public virtual SelectExpression Create([NotNull] string alias)
             => new SelectExpression(
                 _sqlQueryGeneratorFactory,
                 Check.NotEmpty(alias, nameof(alias)));

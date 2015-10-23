@@ -10,24 +10,20 @@ namespace Microsoft.Data.Entity.Query.Expressions
 {
     public class StringCompareExpression : Expression
     {
-        private ExpressionType _op;
-        private Expression _left;
-        private Expression _right;
-
         public StringCompareExpression(ExpressionType op, [NotNull] Expression left, [NotNull] Expression right)
         {
-            _op = op;
-            _left = left;
-            _right = right;
+            Operator = op;
+            Left = left;
+            Right = right;
         }
 
         public override ExpressionType NodeType => ExpressionType.Extension;
 
-        public virtual ExpressionType Operator => _op;
+        public virtual ExpressionType Operator { get; }
 
-        public virtual Expression Left => _left;
+        public virtual Expression Left { get; }
 
-        public virtual Expression Right => _right;
+        public virtual Expression Right { get; }
 
         protected override Expression Accept([NotNull] ExpressionVisitor visitor)
         {
@@ -48,6 +44,6 @@ namespace Microsoft.Data.Entity.Query.Expressions
             return newLeft != Left || newRight != Right
                 ? new StringCompareExpression(Operator, newLeft, newRight)
                 : this;
-        } 
+        }
     }
 }

@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                         var command
                             = _queryingEnumerable._commandBuilder
-                            .Build(_queryingEnumerable._relationalQueryContext.ParameterValues);
+                                .Build(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);

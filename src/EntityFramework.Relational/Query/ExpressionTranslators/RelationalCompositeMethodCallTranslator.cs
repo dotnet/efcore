@@ -15,14 +15,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 
         protected RelationalCompositeMethodCallTranslator([NotNull] ILogger logger)
         {
-            _methodCallTranslators 
+            _methodCallTranslators
                 = new List<IMethodCallTranslator>
-            {
-                new ContainsTranslator(),
-                new EndsWithTranslator(),
-                new EqualsTranslator(logger),
-                new StartsWithTranslator()
-            };
+                {
+                    new ContainsTranslator(),
+                    new EndsWithTranslator(),
+                    new EqualsTranslator(logger),
+                    new StartsWithTranslator()
+                };
         }
 
         public virtual Expression Translate(MethodCallExpression expression)

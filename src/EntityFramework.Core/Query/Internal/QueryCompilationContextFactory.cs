@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         protected virtual Type ContextType => _context.GetType();
 
-        protected virtual bool TrackQueryResults 
+        protected virtual bool TrackQueryResults
             => _context.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll;
 
         public virtual QueryCompilationContext Create(bool async)

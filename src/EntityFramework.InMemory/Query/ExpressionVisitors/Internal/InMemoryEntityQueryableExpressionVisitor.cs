@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _querySource = querySource;
         }
 
-        private new InMemoryQueryModelVisitor QueryModelVisitor 
+        private new InMemoryQueryModelVisitor QueryModelVisitor
             => (InMemoryQueryModelVisitor)base.QueryModelVisitor;
 
         protected override Expression VisitEntityQueryable(Type elementType)

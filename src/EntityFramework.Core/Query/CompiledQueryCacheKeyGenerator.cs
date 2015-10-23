@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
+using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query
@@ -42,9 +42,9 @@ namespace Microsoft.Data.Entity.Query
             private readonly bool _async;
 
             public CompiledQueryCacheKey(
-                [NotNull] string query, 
-                [NotNull] IModel model, 
-                QueryTrackingBehavior queryTrackingBehavior, 
+                [NotNull] string query,
+                [NotNull] IModel model,
+                QueryTrackingBehavior queryTrackingBehavior,
                 bool async)
             {
                 _query = query;

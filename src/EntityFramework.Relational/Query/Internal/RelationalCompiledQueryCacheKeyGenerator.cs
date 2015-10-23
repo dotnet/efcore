@@ -14,8 +14,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly IDbContextOptions _contextOptions;
 
         public RelationalCompiledQueryCacheKeyGenerator(
-            [NotNull] IModel model, 
-            [NotNull] DbContext context, 
+            [NotNull] IModel model,
+            [NotNull] DbContext context,
             [NotNull] IDbContextOptions contextOptions)
             : base(model, context)
         {

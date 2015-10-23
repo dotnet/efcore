@@ -15,28 +15,28 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
     public class SqlServerConvertTranslator : IMethodCallTranslator
     {
         private static readonly Dictionary<string, DbType> _typeMapping = new Dictionary<string, DbType>
-            {
-                [nameof(Convert.ToByte)] = DbType.Byte,
-                [nameof(Convert.ToDecimal)] = DbType.Decimal,
-                [nameof(Convert.ToDouble)] = DbType.Double,
-                [nameof(Convert.ToInt16)] = DbType.Int16,
-                [nameof(Convert.ToInt32)] = DbType.Int32,
-                [nameof(Convert.ToInt64)] = DbType.Int64,
-                [nameof(Convert.ToString)] = DbType.String
-            };
+        {
+            [nameof(Convert.ToByte)] = DbType.Byte,
+            [nameof(Convert.ToDecimal)] = DbType.Decimal,
+            [nameof(Convert.ToDouble)] = DbType.Double,
+            [nameof(Convert.ToInt16)] = DbType.Int16,
+            [nameof(Convert.ToInt32)] = DbType.Int32,
+            [nameof(Convert.ToInt64)] = DbType.Int64,
+            [nameof(Convert.ToString)] = DbType.String
+        };
 
         private static readonly List<Type> _supportedTypes = new List<Type>
-            {
-                typeof(bool),
-                typeof(byte),
-                typeof(decimal),
-                typeof(double),
-                typeof(float),
-                typeof(int),
-                typeof(long),
-                typeof(short),
-                typeof(string)
-            };
+        {
+            typeof(bool),
+            typeof(byte),
+            typeof(decimal),
+            typeof(double),
+            typeof(float),
+            typeof(int),
+            typeof(long),
+            typeof(short),
+            typeof(string)
+        };
 
         private static readonly IEnumerable<MethodInfo> _supportedMethods;
 
@@ -54,11 +54,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
                     "CONVERT",
                     methodCallExpression.Type,
                     new[]
-                        {
-                            Expression.Constant(
-                                _typeMapping[methodCallExpression.Method.Name]),
-                            methodCallExpression.Arguments[0]
-                        })
+                    {
+                        Expression.Constant(
+                            _typeMapping[methodCallExpression.Method.Name]),
+                        methodCallExpression.Arguments[0]
+                    })
                 : null;
     }
 }

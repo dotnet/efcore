@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.Internal;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {

@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
     {
         private readonly List<IExpressionFragmentTranslator> _translators
             = new List<IExpressionFragmentTranslator>
-                {
-                    new StringCompareTranslator()
-                };
+            {
+                new StringCompareTranslator()
+            };
 
         public virtual Expression Translate(Expression expression)
         {

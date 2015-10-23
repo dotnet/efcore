@@ -16,6 +16,7 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 #endif
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.Internal;
 
 namespace Microsoft.Data.Entity
 {

@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                     appendAction(stringBuilder, "{ ");
                     stringBuilder.IncrementIndent();
 
-                    for (int i = 0; i < trackingInfoList.Count; i++)
+                    for (var i = 0; i < trackingInfoList.Count; i++)
                     {
                         var entityTrackingInfo = trackingInfoList[i];
                         var separator = i == trackingInfoList.Count - 1 ? " " : ", ";

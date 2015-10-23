@@ -911,8 +911,8 @@ namespace Microsoft.Data.Entity.Query
         #endregion
 
         public virtual Expression ReplaceClauseReferences(
-            [NotNull] Expression expression, 
-            [CanBeNull] IQuerySource querySource = null, 
+            [NotNull] Expression expression,
+            [CanBeNull] IQuerySource querySource = null,
             bool inProjection = false)
         {
             Check.NotNull(expression, nameof(expression));

@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
                 Assert.NotNull(customers);
                 Assert.StartsWith(
-                    @"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
-    Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
+                    @"    Compiling query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
+    Optimized query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     TRACKED: True
 (QueryContext prm0) => IEnumerable<Customer> _ShapedQuery(
     queryContext: prm0, 
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         FROM [Customers] AS [c]
     , 
     shaper: (ValueBuffer prm1) => Customer CreateEntity(
-        querySource: from Customer <generated>_0 in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
+        querySource: from Customer <generated>_0 in value(Internal.EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
         valueBuffer: prm1, 
         valueBufferOffset: 0, 
         queryContext: prm0, 
@@ -99,8 +99,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => AnnotateQuery(Include([c].Orders))'
-    Optimized query model: 'value(Microsoft.Data.Entity.Query.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
+                Assert.StartsWith(@"    Compiling query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer]) => AnnotateQuery(Include([c].Orders))'
+    Optimized query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Including navigation: 'Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer.Orders'
     TRACKED: True
 (QueryContext prm0) => IEnumerable<Customer> _Include(
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             ORDER BY [c].[CustomerID]
         , 
         shaper: (ValueBuffer prm1) => Customer CreateEntity(
-            querySource: from Customer c in value(EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
+            querySource: from Customer c in value(Internal.EntityQueryable`1[FunctionalTests.TestModels.Northwind.Customer]), 
             valueBuffer: prm1, 
             valueBufferOffset: 0, 
             queryContext: prm0, 
@@ -176,8 +176,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
          }
     , 
     querySourceRequiresTracking: True
-)
-",
+)",
                     TestSqlLoggerFactory.Log);
             }
         }

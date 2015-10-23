@@ -14,10 +14,10 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
     public class ThenIncludeExpressionNode : ResultOperatorExpressionNodeBase
     {
         public static readonly MethodInfo[] SupportedMethods =
-            {
-                EntityFrameworkQueryableExtensions.ThenIncludeAfterCollectionMethodInfo,
-                EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
-            };
+        {
+            EntityFrameworkQueryableExtensions.ThenIncludeAfterCollectionMethodInfo,
+            EntityFrameworkQueryableExtensions.ThenIncludeAfterReferenceMethodInfo
+        };
 
         private readonly LambdaExpression _navigationPropertyPathLambda;
 

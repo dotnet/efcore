@@ -45,7 +45,6 @@ namespace Microsoft.Data.Entity.Query.Sql
             return _sqlCommandBuilder.Build(_sql, _inputParameters);
         }
 
-
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
             IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
         {

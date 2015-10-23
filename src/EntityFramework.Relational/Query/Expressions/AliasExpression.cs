@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             var newInnerExpression = visitor.Visit(_expression);
 
-            return newInnerExpression != _expression 
+            return newInnerExpression != _expression
                 ? new AliasExpression(Alias, newInnerExpression)
                 : this;
         }

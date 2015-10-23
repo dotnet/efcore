@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
@@ -190,7 +189,7 @@ namespace Microsoft.Data.Entity.Query
                     });
         }
 
-        public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod 
+        public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod
             => _createReferenceIncludeStrategyMethodInfo;
 
         private static readonly MethodInfo _createReferenceIncludeStrategyMethodInfo
@@ -202,7 +201,7 @@ namespace Microsoft.Data.Entity.Query
             RelationalQueryContext relationalQueryContext,
             int valueBufferOffset,
             int queryIndex,
-            Func<ValueBuffer, object> materializer) 
+            Func<ValueBuffer, object> materializer)
             => new ReferenceIncludeRelatedValuesStrategy(
                 relationalQueryContext, valueBufferOffset, queryIndex, materializer);
 
@@ -238,7 +237,7 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
-        public virtual MethodInfo CreateCollectionIncludeRelatedValuesStrategyMethod 
+        public virtual MethodInfo CreateCollectionIncludeRelatedValuesStrategyMethod
             => _createCollectionIncludeStrategyMethodInfo;
 
         private static readonly MethodInfo _createCollectionIncludeStrategyMethodInfo

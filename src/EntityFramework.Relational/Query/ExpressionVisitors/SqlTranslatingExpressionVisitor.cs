@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionTranslators;
+using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -66,7 +67,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             var translatedExpression = _compositeExpressionFragmentTranslator.Translate(expression);
 
-            if (translatedExpression != null && translatedExpression != expression)
+            if (translatedExpression != null
+                && translatedExpression != expression)
             {
                 return Visit(translatedExpression);
             }
@@ -153,10 +155,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     return leftExpression != null
                            && rightExpression != null
                         ? Expression.MakeBinary(
-                            binaryExpression.NodeType, 
-                            leftExpression, 
-                            rightExpression, 
-                            binaryExpression.IsLiftedToNull, 
+                            binaryExpression.NodeType,
+                            leftExpression,
+                            rightExpression,
+                            binaryExpression.IsLiftedToNull,
                             binaryExpression.Method)
                         : null;
                 }
@@ -517,9 +519,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     = subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
 
                 if (querySourceReferenceExpression == null
-                    || (_inProjection 
+                    || (_inProjection
                         || !_queryModelVisitor.QueryCompilationContext
-                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource)))
+                            .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource)))
                 {
                     var queryModelVisitor
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
@@ -558,26 +560,26 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         }
 
         private static readonly Type[] _supportedConstantTypes =
-            {
-                typeof(bool),
-                typeof(byte),
-                typeof(byte[]),
-                typeof(char),
-                typeof(decimal),
-                typeof(DateTime),
-                typeof(DateTimeOffset),
-                typeof(double),
-                typeof(float),
-                typeof(Guid),
-                typeof(int),
-                typeof(long),
-                typeof(sbyte),
-                typeof(short),
-                typeof(string),
-                typeof(uint),
-                typeof(ulong),
-                typeof(ushort)
-            };
+        {
+            typeof(bool),
+            typeof(byte),
+            typeof(byte[]),
+            typeof(char),
+            typeof(decimal),
+            typeof(DateTime),
+            typeof(DateTimeOffset),
+            typeof(double),
+            typeof(float),
+            typeof(Guid),
+            typeof(int),
+            typeof(long),
+            typeof(sbyte),
+            typeof(short),
+            typeof(string),
+            typeof(uint),
+            typeof(ulong),
+            typeof(ushort)
+        };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
@@ -614,7 +616,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 var newLeft = Visit(stringCompare.Left);
                 var newRight = Visit(stringCompare.Right);
 
-                if (newLeft == null || newRight == null)
+                if (newLeft == null
+                    || newRight == null)
                 {
                     return null;
                 }

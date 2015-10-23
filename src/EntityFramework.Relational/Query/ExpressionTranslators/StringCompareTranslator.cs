@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Query.Expressions;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 {
@@ -15,12 +15,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
     {
         private static readonly Dictionary<ExpressionType, ExpressionType> _operatorMap = new Dictionary<ExpressionType, ExpressionType>
         {
-            {  ExpressionType.LessThan, ExpressionType.GreaterThan },
-            {  ExpressionType.LessThanOrEqual, ExpressionType.GreaterThanOrEqual },
-            {  ExpressionType.GreaterThan, ExpressionType.LessThan },
-            {  ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual },
-            {  ExpressionType.Equal, ExpressionType.Equal },
-            {  ExpressionType.NotEqual, ExpressionType.NotEqual },
+            { ExpressionType.LessThan, ExpressionType.GreaterThan },
+            { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThanOrEqual },
+            { ExpressionType.GreaterThan, ExpressionType.LessThan },
+            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual },
+            { ExpressionType.Equal, ExpressionType.Equal },
+            { ExpressionType.NotEqual, ExpressionType.NotEqual }
         };
 
         private static readonly MethodInfo _methodInfo = typeof(string).GetTypeInfo().GetDeclaredMethods(nameof(string.Compare))

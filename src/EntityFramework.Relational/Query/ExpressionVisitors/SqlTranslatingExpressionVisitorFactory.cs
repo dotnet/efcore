@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [CanBeNull] Expression topLevelPredicate = null,
             bool bindParentQueries = false,
             bool inProjection = false)
-            => new SqlTranslatingExpressionVisitor (
+            => new SqlTranslatingExpressionVisitor(
                 _relationalAnnotationProvider,
                 _compositeExpressionFragmentTranslator,
                 _methodCallTranslator,

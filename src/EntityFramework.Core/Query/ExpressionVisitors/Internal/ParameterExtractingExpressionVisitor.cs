@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             if (methodCallExpression.Method.IsGenericMethod
                 && ReferenceEquals(
-                    methodCallExpression.Method.GetGenericMethodDefinition(), 
+                    methodCallExpression.Method.GetGenericMethodDefinition(),
                     EntityQueryModelVisitor.PropertyMethodInfo))
             {
                 return methodCallExpression;

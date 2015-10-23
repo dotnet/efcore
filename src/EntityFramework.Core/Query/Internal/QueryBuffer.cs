@@ -269,34 +269,34 @@ namespace Microsoft.Data.Entity.Query.Internal
                 navigationPath,
                 currentNavigationIndex,
                 await relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
-                    .Select(async (eli, ct) =>
+                .Select(async (eli, ct) =>
+                    {
+                        var keyValue
+                            = keyValueFactory
+                                .Create(keyProperties, eli.ValueBuffer);
+
+                        object targetEntity = null;
+
+                        if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
                         {
-                            var keyValue
-                                = keyValueFactory
-                                    .Create(keyProperties, eli.ValueBuffer);
+                            targetEntity
+                                = GetEntity(
+                                    targetEntityType,
+                                    keyValue,
+                                    eli,
+                                    queryStateManager);
+                        }
 
-                            object targetEntity = null;
+                        await IncludeAsync(
+                            targetEntity,
+                            navigationPath,
+                            relatedEntitiesLoaders,
+                            ct,
+                            currentNavigationIndex + 1,
+                            queryStateManager);
 
-                            if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
-                            {
-                                targetEntity
-                                    = GetEntity(
-                                        targetEntityType,
-                                        keyValue,
-                                        eli,
-                                        queryStateManager);
-                            }
-
-                            await IncludeAsync(
-                                targetEntity,
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                ct,
-                                currentNavigationIndex + 1,
-                                queryStateManager);
-
-                            return targetEntity;
-                        })
+                        return targetEntity;
+                    })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }
