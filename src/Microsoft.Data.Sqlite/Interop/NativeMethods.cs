@@ -12,8 +12,7 @@ using Microsoft.Extensions.Internal;
 #if NET451 || DOTNET5_4
 using System.IO;
 using System.Reflection;
-using Microsoft.Dnx.Runtime;
-using Microsoft.Dnx.Runtime.Infrastructure;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 #endif
 
@@ -32,10 +31,7 @@ namespace Microsoft.Data.Sqlite.Interop
             // TODO: Remove when DNX supports native artifacts
             if (!loaded)
             {
-                var library = CallContextServiceLocator
-                    .Locator
-                    .ServiceProvider
-                    .GetRequiredService<ILibraryManager>()
+                var library = PlatformServices.Default.LibraryManager
                     .GetLibrary(typeof(NativeMethods).GetTypeInfo().Assembly.GetName().Name);
 
                 var installPath = library.Path;

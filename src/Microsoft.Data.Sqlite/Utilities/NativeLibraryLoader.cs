@@ -9,8 +9,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 
 #if NET451 || DOTNET5_4
-using Microsoft.Dnx.Runtime;
-using Microsoft.Dnx.Runtime.Infrastructure;
+using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 #endif
 

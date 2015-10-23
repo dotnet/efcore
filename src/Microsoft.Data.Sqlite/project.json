@@ -4,7 +4,7 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
         "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*"
       },
       "frameworkAssemblies": {
@@ -13,7 +13,7 @@
     },
     "dotnet5.4": {
       "dependencies": {
-        "Microsoft.Dnx.Runtime.Abstractions": "1.0.0-*",
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
         "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*",
         "System.Collections": "4.0.11-*",
         "System.ComponentModel": "4.0.1-*",
