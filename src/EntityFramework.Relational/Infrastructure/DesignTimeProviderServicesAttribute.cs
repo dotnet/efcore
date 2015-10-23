@@ -11,16 +11,16 @@ namespace Microsoft.Data.Entity.Infrastructure
     public sealed class DesignTimeProviderServicesAttribute : Attribute
     {
         public DesignTimeProviderServicesAttribute(
-            [NotNull] string typeName, [NotNull] string assemblyName)
+            [NotNull] string fullyQualifiedTypeName, [NotNull] string packageName)
         {
-            Check.NotEmpty(typeName, nameof(typeName));
-            Check.NotEmpty(assemblyName, nameof(assemblyName));
+            Check.NotEmpty(fullyQualifiedTypeName, nameof(fullyQualifiedTypeName));
+            Check.NotEmpty(packageName, nameof(packageName));
 
-            TypeName = typeName;
-            AssemblyName = assemblyName;
+            FullyQualifiedTypeName = fullyQualifiedTypeName;
+            PackageName = packageName;
         }
 
-        public string TypeName { get; }
-        public string AssemblyName { get; }
+        public string FullyQualifiedTypeName { get; }
+        public string PackageName { get; }
     }
 }

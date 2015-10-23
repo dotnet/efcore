@@ -8,5 +8,5 @@ using Microsoft.Data.Entity.Infrastructure;
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    typeName: "Microsoft.Data.Entity.Scaffolding.SqlServerDesignTimeServices",
-    assemblyName: "EntityFramework.MicrosoftSqlServer.Design")]
+    fullyQualifiedTypeName: "Microsoft.Data.Entity.Scaffolding.SqlServerDesignTimeServices, EntityFramework.MicrosoftSqlServer.Design",
+    packageName: "EntityFramework.MicrosoftSqlServer.Design")]

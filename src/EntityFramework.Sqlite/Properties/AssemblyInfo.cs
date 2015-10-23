@@ -8,5 +8,5 @@ using Microsoft.Data.Entity.Infrastructure;
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: AssemblyMetadata("Serviceable", "True")]
 [assembly: DesignTimeProviderServices(
-    typeName: "Microsoft.Data.Entity.Scaffolding.SqliteDesignTimeServices",
-    assemblyName: "EntityFramework.Sqlite.Design")]
+    fullyQualifiedTypeName: "Microsoft.Data.Entity.Scaffolding.SqliteDesignTimeServices, EntityFramework.Sqlite.Design",
+    packageName: "EntityFramework.Sqlite.Design")]
