@@ -492,5 +492,161 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 }
             }
         }
+
+        // issue #3180
+        [Fact]
+        public virtual void Multiple_complex_includes()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .Include(e => e.OneToMany_Optional).ToList();
+
+                levelTwos = context.LevelTwo
+                    .Include(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToOne_Optional_FK).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                        .ThenInclude(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToMany_Optional)
+                        .ThenInclude(e => e.OneToOne_Optional_FK);
+
+                var result = query.ToList();
+
+                Assert.Equal(levelOnes.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    var expectedLevel1 = levelOnes.Where(e => e.Id == resultItem.Id).Single();
+                    Assert.Equal(expectedLevel1.OneToOne_Optional_FK?.Id, resultItem.OneToOne_Optional_FK?.Id);
+                    Assert.Equal(expectedLevel1.OneToMany_Optional?.Count, resultItem.OneToMany_Optional?.Count);
+
+                    var oneToOne_Optional_FK = resultItem.OneToOne_Optional_FK;
+                    if (oneToOne_Optional_FK != null)
+                    {
+                        var expectedReferenceLevel2 = levelTwos.Where(e => e.Id == oneToOne_Optional_FK.Id).Single();
+                        Assert.Equal(expectedReferenceLevel2.OneToMany_Optional?.Count, oneToOne_Optional_FK.OneToMany_Optional?.Count);
+                    }
+                }
+            }
+        }
+
+        // issue #3180
+        [Fact]
+        public virtual void Multiple_complex_includes_self_ref()
+        {
+            List<Level1> levelOnes1;
+            List<Level1> levelOnes2;
+            using (var context = CreateContext())
+            {
+                levelOnes1 = context.LevelOne.Include(e => e.OneToOne_Optional_Self).ToList();
+                levelOnes2 = context.LevelOne.Include(e => e.OneToMany_Optional_Self).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_Self)
+                        .ThenInclude(e => e.OneToMany_Optional_Self)
+                    .Include(e => e.OneToMany_Optional_Self)
+                        .ThenInclude(e => e.OneToOne_Optional_Self);
+
+                var result = query.ToList();
+
+                foreach (var resultItem in result)
+                {
+                    var expected1 = levelOnes1.Where(e => e.Id == resultItem.Id).Single();
+                    var expected2 = levelOnes2.Where(e => e.Id == resultItem.Id).Single();
+
+                    Assert.Equal(expected1.OneToOne_Optional_Self?.Id, resultItem.OneToOne_Optional_Self?.Id);
+                    Assert.Equal(expected2.OneToMany_Optional_Self?.Count, resultItem.OneToMany_Optional_Self?.Count);
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Multiple_complex_include_select()
+        {
+            List<Level1> levelOnes;
+            List<Level2> levelTwos;
+            using (var context = CreateContext())
+            {
+                levelOnes = context.LevelOne
+                    .Include(e => e.OneToOne_Optional_FK)
+                    .Include(e => e.OneToMany_Optional).ToList();
+
+                levelTwos = context.LevelTwo
+                    .Include(e => e.OneToMany_Optional)
+                    .Include(e => e.OneToOne_Optional_FK).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne
+                    .Select(e => e)
+                    .Include(e => e.OneToOne_Optional_FK)
+                        .ThenInclude(e => e.OneToMany_Optional)
+                    .Select(e => e)
+                    .Include(e => e.OneToMany_Optional)
+                        .ThenInclude(e => e.OneToOne_Optional_FK);
+
+                var result = query.ToList();
+
+                Assert.Equal(levelOnes.Count, result.Count);
+                foreach (var resultItem in result)
+                {
+                    var expectedLevel1 = levelOnes.Where(e => e.Id == resultItem.Id).Single();
+                    Assert.Equal(expectedLevel1.OneToOne_Optional_FK?.Id, resultItem.OneToOne_Optional_FK?.Id);
+                    Assert.Equal(expectedLevel1.OneToMany_Optional?.Count, resultItem.OneToMany_Optional?.Count);
+
+                    var oneToOne_Optional_FK = resultItem.OneToOne_Optional_FK;
+                    if (oneToOne_Optional_FK != null)
+                    {
+                        var expectedReferenceLevel2 = levelTwos.Where(e => e.Id == oneToOne_Optional_FK.Id).Single();
+                        Assert.Equal(expectedReferenceLevel2.OneToMany_Optional?.Count, oneToOne_Optional_FK.OneToMany_Optional?.Count);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public virtual void Select_nav_prop_collection_one_to_many_required()
+        {
+            List<List<int>> expected;
+            using (var context = CreateContext())
+            {
+                expected = context.LevelOne
+                    .Include(e => e.OneToMany_Required)
+                    .ToList()
+                    .OrderBy(e => e.Id)
+                    .Select(e => e.OneToMany_Required?.Select(i => i.Id).ToList()).ToList();
+            }
+
+            ClearLog();
+
+            using (var context = CreateContext())
+            {
+                var query = context.LevelOne.OrderBy(e => e.Id).Select(e => e.OneToMany_Required.Select(i => i.Id));
+                var result = query.ToList();
+
+                Assert.Equal(expected.Count, result.Count);
+                for (int i = 0; i < result.Count; i++)
+                {
+                    Assert.Equal(expected[i].Count, result[i].Count());
+                }
+            }
+        }
     }
 }
