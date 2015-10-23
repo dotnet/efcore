@@ -1,17 +1,14 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451 || NET451 || DOTNET5_4
+#if NET451 || DOTNET5_4
 
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-
-#if NET451 || DOTNET5_4
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.DependencyInjection;
-#endif
 
 namespace Microsoft.Extensions.Internal
 {
@@ -36,7 +33,7 @@ namespace Microsoft.Extensions.Internal
             string applicationBase;
 #if NET451
             applicationBase = AppDomain.CurrentDomain.BaseDirectory;
-#elif NET451 || DOTNET5_4
+#elif DOTNET5_4
 
             if (!PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
             {

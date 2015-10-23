@@ -99,7 +99,7 @@ namespace Microsoft.Data.Sqlite
         public override string SourceColumn { get; set; } = string.Empty;
         public override bool SourceColumnNullMapping { get; set; }
 
-#if NET451 || NET451
+#if NET451
         public override DataRowVersion SourceVersion { get; set; }
 #endif
 

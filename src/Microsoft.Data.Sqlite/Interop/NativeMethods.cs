@@ -7,15 +7,11 @@ using System.Runtime.InteropServices;
 using static Microsoft.Data.Sqlite.Interop.Constants;
 
 #if NET451 || DOTNET5_4
-using Microsoft.Extensions.Internal;
-
-#if NET451 || DOTNET5_4
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.DependencyInjection;
-#endif
-
+using Microsoft.Extensions.Internal;
 #endif
 
 namespace Microsoft.Data.Sqlite.Interop
@@ -27,7 +23,6 @@ namespace Microsoft.Data.Sqlite.Interop
         {
             var loaded = NativeLibraryLoader.TryLoad("sqlite3");
 
-#if NET451 || DOTNET5_4
             // TODO: Remove when DNX supports native artifacts
             if (!loaded)
             {
@@ -42,7 +37,6 @@ namespace Microsoft.Data.Sqlite.Interop
 
                 loaded = NativeLibraryLoader.TryLoad("sqlite3", Path.Combine(installPath, "runtimes/win/native"));
             }
-#endif
 
             Debug.Assert(loaded, "loaded is false.");
         }

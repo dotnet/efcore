@@ -12,7 +12,6 @@ using Microsoft.Data.Sqlite.Utilities;
 using static Microsoft.Data.Sqlite.Interop.Constants;
 #if NET451
 using System.Data;
-
 #endif
 
 namespace Microsoft.Data.Sqlite
