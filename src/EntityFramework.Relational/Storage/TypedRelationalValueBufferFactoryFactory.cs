@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -33,12 +32,6 @@ namespace Microsoft.Data.Entity.Storage
             public IReadOnlyList<Type> ValueTypes { get; }
             public IReadOnlyList<int> IndexMap { get; }
 
-            private bool Equals(CacheKey other)
-            {
-                return ValueTypes.SequenceEqual(other.ValueTypes)
-                       && (IndexMap?.SequenceEqual(other.IndexMap) ?? true);
-            }
-
             public override bool Equals(object obj)
             {
                 if (ReferenceEquals(null, obj))
@@ -48,6 +41,22 @@ namespace Microsoft.Data.Entity.Storage
 
                 return obj is CacheKey
                        && Equals((CacheKey)obj);
+            }
+
+            private bool Equals(CacheKey other)
+            {
+                if (!ValueTypes.SequenceEqual(other.ValueTypes))
+                {
+                    return false;
+                }
+
+                if (IndexMap == null)
+                {
+                    return other.IndexMap == null;
+                }
+
+                return other.IndexMap != null
+                       && IndexMap.SequenceEqual(other.IndexMap);
             }
 
             public override int GetHashCode()
