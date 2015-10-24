@@ -30,10 +30,10 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     from methods when using the <see cref="ChangeTracker" /> API and it is not designed to be directly
         ///     constructed in your application code.
         /// </summary>
-        /// <param name="context"> The context that is tracking the entity. </param>
         /// <param name="internalEntry"> The internal entry tracking information about this entity. </param>
-        public EntityEntry([NotNull] DbContext context, [NotNull] InternalEntityEntry internalEntry)
-            : base(context, internalEntry)
+        /// 
+        public EntityEntry([NotNull] InternalEntityEntry internalEntry)
+            : base(internalEntry)
         {
         }
 

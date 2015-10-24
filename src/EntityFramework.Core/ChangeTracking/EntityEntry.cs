@@ -29,15 +29,13 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     methods when using the <see cref="ChangeTracker" /> API and it is not designed to be directly constructed in
         ///     your application code.
         /// </summary>
-        /// <param name="context"> The context that is tracking the entity. </param>
         /// <param name="internalEntry"> The internal entry tracking information about this entity. </param>
-        public EntityEntry([NotNull] DbContext context, [NotNull] InternalEntityEntry internalEntry)
+        /// 
+        public EntityEntry([NotNull] InternalEntityEntry internalEntry)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
-            Check.NotNull(context, nameof(context));
 
             _internalEntityEntry = internalEntry;
-            Context = context;
         }
 
         /// <summary>
@@ -81,8 +79,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     Gets the context that is tracking the entity.
         /// </summary>
-        public virtual DbContext Context { get; }
-
+        public virtual DbContext Context => _internalEntityEntry.StateManager.Context;
         /// <summary>
         ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.
         /// </summary>

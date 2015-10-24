@@ -8,7 +8,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface IEntityEntryGraphIterator
     {
-        void TraverseGraph<TNode>([NotNull] TNode node, [NotNull] Func<TNode, bool> handleNode)
-            where TNode : EntityGraphNodeBase<TNode>;
+        void TraverseGraph([NotNull] EntityEntryGraphNode node, [NotNull] Func<EntityEntryGraphNode, bool> handleNode);
     }
 }

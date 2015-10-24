@@ -599,6 +599,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         InternalEntityEntry IPropertyAccessor.InternalEntityEntry => this;
 
-        public virtual EntityEntry ToEntityEntry() => new EntityEntry(StateManager.Context, this);
+        public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
     }
 }

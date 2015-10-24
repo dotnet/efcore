@@ -59,7 +59,6 @@
       <Link>Extensions\Internal\PropertyInfoExtensions.cs</Link>
     </Compile>
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
-    <Compile Include="ChangeTracking\EntityGraphNodeBase.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />

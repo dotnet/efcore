@@ -3,26 +3,27 @@
 
 using System;
 using System.Collections;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class EntityEntryGraphIterator : IEntityEntryGraphIterator
     {
-        public virtual void TraverseGraph<TNode>(TNode node, Func<TNode, bool> handleNode)
-            where TNode : EntityGraphNodeBase<TNode>
+        public virtual void TraverseGraph(EntityEntryGraphNode node, Func<EntityEntryGraphNode, bool> handleNode)
         {
             if (!handleNode(node))
             {
                 return;
             }
 
-            var navigations = node.Entry.EntityType.GetNavigations();
-            var stateManager = node.Entry.StateManager;
+            var internalEntityEntry = node.GetInfrastructure();
+            var navigations = internalEntityEntry.EntityType.GetNavigations();
+            var stateManager = internalEntityEntry.StateManager;
 
             foreach (var navigation in navigations)
             {
-                var navigationValue = node.Entry[navigation];
+                var navigationValue = internalEntityEntry[navigation];
 
                 if (navigationValue != null)
                 {

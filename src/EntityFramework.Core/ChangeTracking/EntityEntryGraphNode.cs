@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
@@ -12,37 +13,52 @@ namespace Microsoft.Data.Entity.ChangeTracking
     ///     Provides access to change tracking information and operations for a node in a 
     ///     graph of entities that is being traversed.
     /// </summary>
-    public class EntityEntryGraphNode : EntityGraphNodeBase<EntityEntryGraphNode>
+    public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
     {
+        private readonly InternalEntityEntry _internalEntityEntry;
+
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EntityGraphNodeBase{TNode}" /> class.
+        ///     Initializes a new instance of the <see cref="EntityEntryGraphNode" /> class.
         /// </summary>
-        /// <param name="context"> The context that the graph traversal was initiated from. </param>
         /// <param name="internalEntityEntry"> The internal entry tracking information about this entity. </param>
         /// <param name="inboundNavigation"> 
         ///     The navigation property that is being traversed to reach this node in the graph.
         /// </param>
         public EntityEntryGraphNode(
-            [NotNull] DbContext context,
             [NotNull] InternalEntityEntry internalEntityEntry,
             [CanBeNull] INavigation inboundNavigation)
-            : base(internalEntityEntry, inboundNavigation)
         {
-            Check.NotNull(context, nameof(context));
+            Check.NotNull(internalEntityEntry, nameof(internalEntityEntry));
 
-            Context = context;
-            Entry = new EntityEntry(context, internalEntityEntry);
+            _internalEntityEntry = internalEntityEntry;
+            InboundNavigation = inboundNavigation;
         }
 
         /// <summary>
-        ///     Gets the context that the graph traversal was initiated from.
+        ///     Gets the navigation property that is being traversed to reach this node in the graph.
         /// </summary>
-        public virtual DbContext Context { get; }
+        public virtual INavigation InboundNavigation { get; }
+
+        /// <summary>
+        ///     Gets or sets state that will be available to all nodes that are visited after this node.
+        /// </summary>
+        public virtual object NodeState { get; [param: CanBeNull] set; }
 
         /// <summary>
         ///     Gets the entry tracking information about this entity.
         /// </summary>
-        public new virtual EntityEntry Entry { get; }
+        public virtual EntityEntry Entry => new EntityEntry(_internalEntityEntry);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the internal entry that is tracking information about this entity.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods. It is not intended to be used in
+        ///         application code.
+        ///     </para>
+        /// </summary>
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntityEntry; 
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.
@@ -53,12 +69,11 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </param>
         /// <param name="reachedVia"> The navigation property that is being traversed to reach the new node. </param>
         /// <returns> The newly created node. </returns>
-        public override EntityEntryGraphNode CreateNode(
-            EntityEntryGraphNode currentNode,
-            InternalEntityEntry internalEntityEntry,
-            INavigation reachedVia)
+        public virtual EntityEntryGraphNode CreateNode(
+            [NotNull] EntityEntryGraphNode currentNode,
+            [NotNull] InternalEntityEntry internalEntityEntry,
+            [NotNull] INavigation reachedVia)
             => new EntityEntryGraphNode(
-                Context,
                 Check.NotNull(internalEntityEntry, nameof(internalEntityEntry)),
                 Check.NotNull(reachedVia, nameof(reachedVia)))
                 {

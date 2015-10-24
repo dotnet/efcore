@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         {
             TryDetectChanges();
 
-            return _stateManager.Entries.Select(e => new EntityEntry(_context, e));
+            return _stateManager.Entries.Select(e => new EntityEntry(e));
         }
 
         /// <summary>
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             return _stateManager.Entries
                 .Where(e => e.Entity is TEntity)
-                .Select(e => new EntityEntry<TEntity>(_context, e));
+                .Select(e => new EntityEntry<TEntity>(e));
         }
 
         private void TryDetectChanges()
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             var rootEntry = _stateManager.GetOrCreateEntry(rootEntity);
 
             _graphIterator.TraverseGraph(
-                new EntityEntryGraphNode(_context, rootEntry, null),
+                new EntityEntryGraphNode(rootEntry, null),
                 n =>
                     {
                         if (n.Entry.State != EntityState.Detached)

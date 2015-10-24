@@ -434,7 +434,7 @@ namespace Microsoft.Data.Entity
         }
 
         private EntityEntry<TEntity> EntryWithoutDetectChanges<TEntity>(TEntity entity) where TEntity : class
-            => new EntityEntry<TEntity>(this, GetStateManager().GetOrCreateEntry(entity));
+            => new EntityEntry<TEntity>(GetStateManager().GetOrCreateEntry(entity));
 
         /// <summary>
         ///     <para>
@@ -459,7 +459,7 @@ namespace Microsoft.Data.Entity
         }
 
         private EntityEntry EntryWithoutDetectChanges(object entity)
-            => new EntityEntry(this, GetStateManager().GetOrCreateEntry(entity));
+            => new EntityEntry(GetStateManager().GetOrCreateEntry(entity));
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState, GraphBehavior behavior)
         {
