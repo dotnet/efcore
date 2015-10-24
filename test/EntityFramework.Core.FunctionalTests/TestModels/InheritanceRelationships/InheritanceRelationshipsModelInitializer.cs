@@ -19,7 +19,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var nrb4 = new NestedReferenceBase { Name = "NRB4 (dangling)" };
 
                 context.NestedReferences.AddRange(nrb1, nrb2, nrb3, nrb4);
-                context.SaveChanges();
 
                 var nrd1 = new NestedReferenceDerived { Name = "NRD1" };
                 var nrd2 = new NestedReferenceDerived { Name = "NRD2" };
@@ -28,7 +27,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var nrd5 = new NestedReferenceDerived { Name = "NRD4 (dangling)" };
 
                 context.NestedReferences.AddRange(nrd1, nrd2, nrd3, nrd5);
-                context.SaveChanges();
 
                 var ncb11 = new NestedCollectionBase { Name = "NCB11" };
                 var ncb21 = new NestedCollectionBase { Name = "NCB21" };
@@ -37,7 +35,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var ncb41 = new NestedCollectionBase { Name = "NCB41 (dangling)" };
 
                 context.NestedCollections.AddRange(ncb11, ncb21, ncb22, ncb31, ncb41);
-                context.SaveChanges();
 
                 var ncd11 = new NestedCollectionDerived { Name = "NCD11" };
                 var ncd21 = new NestedCollectionDerived { Name = "NCD21" };
@@ -49,14 +46,12 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var ncd52 = new NestedCollectionDerived { Name = "NCD52 (dangling)" };
 
                 context.NestedCollections.AddRange(ncd11, ncd21, ncd31, ncd32, ncd41, ncd42, ncd51, ncd52);
-                context.SaveChanges();
 
                 var brob1 = new BaseReferenceOnBase { Name = "BROB1", NestedReference = nrb1, NestedCollection = new List<NestedCollectionBase> { ncb11 } };
                 var brob2 = new BaseReferenceOnBase { Name = "BROB2", NestedReference = nrd1, NestedCollection = new List<NestedCollectionBase> { ncd11 } };
                 var brob3 = new BaseReferenceOnBase { Name = "BROB3 (dangling)" };
 
                 context.BaseReferencesOnBase.AddRange(brob1, brob2, brob3);
-                context.SaveChanges();
 
                 var drob1 = new DerivedReferenceOnBase { Name = "DROB1", NestedReference = nrb2, NestedCollection = new List<NestedCollectionBase> { ncb21, ncb22 } };
                 var drob2 = new DerivedReferenceOnBase { Name = "DROB2", NestedReference = nrd2, NestedCollection = new List<NestedCollectionBase> { ncd21 } };
@@ -65,7 +60,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var drob5 = new DerivedReferenceOnBase { Name = "DROB5 (dangling)" };
 
                 context.BaseReferencesOnBase.AddRange(drob1, drob2, drob3, drob4, drob5);
-                context.SaveChanges();
 
                 var rob1 = new ReferenceOnBase { Name = "ROB1" };
                 var rob2 = new ReferenceOnBase { Name = "ROB2" };
@@ -73,7 +67,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var rob4 = new ReferenceOnBase { Name = "ROB4" };
 
                 context.ReferencesOnBase.AddRange(rob1, rob2, rob3, rob4);
-                context.SaveChanges();
 
                 var bcob11 = new BaseCollectionOnBase { Name = "BCOB11", NestedReference = nrb1, NestedCollection = new List<NestedCollectionBase> { ncb11 } };
                 var bcob12 = new BaseCollectionOnBase { Name = "BCOB12", NestedReference = nrd1, NestedCollection = new List<NestedCollectionBase> { ncd11 } };
@@ -82,7 +75,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var bcob32 = new BaseCollectionOnBase { Name = "BCOB32 (dangling)" };
 
                 context.BaseCollectionsOnBase.AddRange(bcob11, bcob12, bcob21, bcob31, bcob32);
-                context.SaveChanges();
 
                 var dcob11 = new DerivedCollectionOnBase { Name = "DCOB11", NestedReference = nrd2, NestedCollection = new List<NestedCollectionBase> { ncd21 } };
                 var dcob12 = new DerivedCollectionOnBase { Name = "DCOB12", NestedReference = nrb3, NestedCollection  = new List<NestedCollectionBase> { ncb31 } };
@@ -94,7 +86,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var dcob52 = new DerivedCollectionOnBase { Name = "DCOB52 (dangling)" };
 
                 context.BaseCollectionsOnBase.AddRange(dcob11, dcob12, dcob21, dcob31, dcob32, dcob41, dcob51, dcob52);
-                context.SaveChanges();
 
                 var cob11 = new CollectionOnBase { Name = "COB11" };
                 var cob12 = new CollectionOnBase { Name = "COB12" };
@@ -107,35 +98,30 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var cob52 = new CollectionOnBase { Name = "COB52 (dangling)" };
 
                 context.CollectionsOnBase.AddRange(cob11, cob12, cob21, cob31, cob32, cob33, cob41, cob51, cob52);
-                context.SaveChanges();
 
                 var brod1 = new BaseReferenceOnDerived { Name = "BROD1" };
                 var brod2 = new BaseReferenceOnDerived { Name = "BROD2 (dangling)" };
                 var brod3 = new BaseReferenceOnDerived { Name = "BROD3 (dangling)" };
 
                 context.BaseReferencesOnDerived.AddRange(brod1, brod2, brod3);
-                context.SaveChanges();
 
                 var drod1 = new DerivedReferenceOnDerived { Name = "DROD1" };
                 var drod2 = new DerivedReferenceOnDerived { Name = "DROD2" };
                 var drod3 = new DerivedReferenceOnDerived { Name = "DROD3 (dangling)" };
 
                 context.BaseReferencesOnDerived.AddRange(drod1, drod2, drod3);
-                context.SaveChanges();
 
                 var rod1 = new ReferenceOnDerived { Name = "ROD1" };
                 var rod2 = new ReferenceOnDerived { Name = "ROD2" };
                 var rod3 = new ReferenceOnDerived { Name = "ROD3 (dangling)" };
 
                 context.ReferencesOnDerived.AddRange(rod1, rod2, rod3);
-                context.SaveChanges();
 
                 var bcod11 = new BaseCollectionOnDerived { Name = "BCOD11" };
                 var bcod21 = new BaseCollectionOnDerived { Name = "BCOD21 (dangling)" };
                 var bcod22 = new BaseCollectionOnDerived { Name = "BCOD22 (dangling)" };
 
                 context.BaseCollectionsOnDerived.AddRange(bcod11, bcod21, bcod22);
-                context.SaveChanges();
 
                 var dcod11 = new DerivedCollectionOnDerived { Name = "DCOD11" };
                 var dcod12 = new DerivedCollectionOnDerived { Name = "DCOD12" };
@@ -143,7 +129,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var dcod31 = new DerivedCollectionOnDerived { Name = "DCOD31 (dangling)" };
 
                 context.BaseCollectionsOnDerived.AddRange(dcod11, dcod12, dcod21, dcod31);
-                context.SaveChanges();
 
                 var cod11 = new CollectionOnDerived { Name = "COD11" };
                 var cod21 = new CollectionOnDerived { Name = "COD21" };
@@ -151,7 +136,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 var cod31 = new CollectionOnDerived { Name = "COD31 (dangling)" };
 
                 context.CollectionsOnDerived.AddRange(cod11, cod21, cod22, cod31);
-                context.SaveChanges();
 
                 var baseEntity1 = new BaseInheritanceRelationshipEntity
                 {
@@ -182,7 +166,6 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.InheritanceRelationsh
                 };
 
                 context.BaseEntities.AddRange(baseEntity1, baseEntity2, baseEntity3);
-                context.SaveChanges();
 
                 var derivedEntity1 = new DerivedInheritanceRelationshipEntity
                 {
