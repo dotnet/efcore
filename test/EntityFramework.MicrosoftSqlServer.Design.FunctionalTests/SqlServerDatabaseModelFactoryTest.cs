@@ -23,16 +23,16 @@ CREATE TABLE [dbo].[Everest] ( id int );
 CREATE TABLE [dbo].[Denali] ( id int );";
             var dbInfo = CreateModel(sql, new TableSelectionSet(new List<string> { "Everest", "Denali" }));
 
-            Assert.Collection(dbInfo.Tables,
-                e =>
-                    {
-                        Assert.Equal("dbo", e.SchemaName);
-                        Assert.Equal("Everest", e.Name);
-                    },
+            Assert.Collection(dbInfo.Tables.OrderBy(t => t.Name),
                 d =>
                     {
                         Assert.Equal("dbo", d.SchemaName);
                         Assert.Equal("Denali", d.Name);
+                    },
+                e =>
+                    {
+                        Assert.Equal("dbo", e.SchemaName);
+                        Assert.Equal("Everest", e.Name);
                     });
         }
 
