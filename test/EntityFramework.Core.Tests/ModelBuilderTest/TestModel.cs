@@ -323,5 +323,17 @@ namespace Microsoft.Data.Entity.Tests
             public PrincipalEntity Nav { get; set; }
         }
 
+
+        protected class EntityA
+        {
+            public int Id { get; set; }
+            public EntityB Navigation { get; set; }
+            public EntityB AnotherNavigation { get; set; }
+        }
+
+        protected class EntityB
+        {
+            public int Id { get; set; }
+        }
     }
 }

@@ -258,7 +258,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
-            Assert.Null(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention));
+            Assert.Null(entityBuilder.Relationship(entityBuilder, null, ConfigurationSource.Convention));
 
             Assert.NotNull(relationshipBuilder);
         }

@@ -131,11 +131,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var dependentEntityTypebuilder = relationshipBuilder.ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention);
             var principalEntityTypeBuilder = relationshipBuilder.ModelBuilder.Entity(foreignKey.PrincipalEntityType.Name, ConfigurationSource.Convention);
 
-            dependentEntityTypebuilder.Relationship(principalEntityTypeBuilder, ConfigurationSource.DataAnnotation)
+            dependentEntityTypebuilder.Relationship(principalEntityTypeBuilder, dependentToPrincipalNavigationName, ConfigurationSource.DataAnnotation)
                 .PrincipalToDependent(null, ConfigurationSource.DataAnnotation)
                 .DependentToPrincipal(dependentToPrincipalNavigationName, ConfigurationSource.DataAnnotation);
 
-            principalEntityTypeBuilder.Relationship(dependentEntityTypebuilder, ConfigurationSource.DataAnnotation)
+            principalEntityTypeBuilder.Relationship(dependentEntityTypebuilder, null, ConfigurationSource.DataAnnotation)
                 .PrincipalToDependent(null, ConfigurationSource.DataAnnotation)
                 .DependentToPrincipal(principalToDepedentNavigationName, ConfigurationSource.DataAnnotation);
         }

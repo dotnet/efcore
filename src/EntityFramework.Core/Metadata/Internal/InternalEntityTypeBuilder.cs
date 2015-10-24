@@ -906,7 +906,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (existingForeignKey == null
                 || existingForeignKey.DeclaringEntityType != Metadata)
             {
-                newRelationship = Relationship(principalEntityTypeBuilder, configurationSource);
+                newRelationship = Relationship(principalEntityTypeBuilder, null, configurationSource);
                 relationship = newRelationship;
             }
             else
@@ -1027,7 +1027,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (navigationToTarget == null)
                 {
-                    return Relationship(targetEntityTypeBuilder, configurationSource)
+                    return Relationship(targetEntityTypeBuilder, null, configurationSource)
                         .Navigations(null, null, configurationSource);
                 }
 
@@ -1053,7 +1053,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if (!toTargetCanBeUnique)
                 {
                     return Navigations(
-                        Relationship(targetEntityTypeBuilder, configurationSource)
+                        Relationship(targetEntityTypeBuilder, null, configurationSource)
                             .PrincipalEntityType(targetEntityTypeBuilder, configurationSource)
                             .IsUnique(false, configurationSource),
                         null,
@@ -1062,7 +1062,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 return Navigations(
-                    targetEntityTypeBuilder.Relationship(this, configurationSource),
+                    targetEntityTypeBuilder.Relationship(this, inverseNavigation.Name, configurationSource),
                     inverseNavigation.Name,
                     null,
                     configurationSource);
@@ -1087,7 +1087,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 return Navigations(
-                    Relationship(targetEntityTypeBuilder, configurationSource)
+                    Relationship(targetEntityTypeBuilder, navigationToTarget.Name, configurationSource)
                         .PrincipalEntityType(targetEntityTypeBuilder, configurationSource)
                         .IsUnique(false, configurationSource),
                     navigationToTarget.Name,
@@ -1098,7 +1098,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (!toSourceCanBeUnique)
             {
                 return Navigations(
-                    targetEntityTypeBuilder.Relationship(this, configurationSource)
+                    targetEntityTypeBuilder.Relationship(this, inverseNavigation.Name, configurationSource)
                         .PrincipalEntityType(this, configurationSource)
                         .IsUnique(false, configurationSource),
                     inverseNavigation.Name,
@@ -1106,7 +1106,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     configurationSource);
             }
 
-            var relationship = Relationship(targetEntityTypeBuilder, configurationSource);
+            var relationship = Relationship(targetEntityTypeBuilder, null, configurationSource);
             if (!toTargetCanBeNonUnique
                 && !toSourceCanBeNonUnique)
             {
@@ -1138,16 +1138,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] EntityType principalEntityType,
             ConfigurationSource configurationSource)
-            => Relationship(ModelBuilder.Entity(principalEntityType.Name, configurationSource), configurationSource);
+            => Relationship(ModelBuilder.Entity(principalEntityType.Name, configurationSource), null, configurationSource);
 
         public virtual InternalRelationshipBuilder Relationship(
             [NotNull] InternalEntityTypeBuilder principalEntityTypeBuilder,
+            [CanBeNull] string navigationToPrincipalName,
             ConfigurationSource configurationSource)
             => CreateForeignKey(
                 principalEntityTypeBuilder,
                 null,
                 null,
-                null,
+                navigationToPrincipalName,
                 null,
                 configurationSource,
                 runConventions: true);
