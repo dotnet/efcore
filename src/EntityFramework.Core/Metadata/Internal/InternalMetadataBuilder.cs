@@ -18,27 +18,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Metadata = metadata;
         }
 
+        public virtual Annotatable Metadata { get; }
+        public abstract InternalModelBuilder ModelBuilder { get; }
+
         public virtual bool HasAnnotation(
-            [NotNull] string annotation, [CanBeNull] object value, ConfigurationSource configurationSource)
-        {
-            return HasAnnotation(annotation, value, configurationSource, canOverrideSameSource: true);
-        }
+            [NotNull] string name, [CanBeNull] object value, ConfigurationSource configurationSource)
+            => HasAnnotation(name, value, configurationSource, canOverrideSameSource: true);
 
         private bool HasAnnotation(
-            string annotation, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
+            string name, object value, ConfigurationSource configurationSource, bool canOverrideSameSource)
         {
-            var existingValue = Metadata[annotation];
+            var existingValue = Metadata[name];
             if (existingValue != null)
             {
                 ConfigurationSource existingConfigurationSource;
-                if (!_annotationSources.Value.TryGetValue(annotation, out existingConfigurationSource))
+                if (!_annotationSources.Value.TryGetValue(name, out existingConfigurationSource))
                 {
                     existingConfigurationSource = ConfigurationSource.Explicit;
                 }
 
                 if ((value == null || !existingValue.Equals(value))
                     && (!configurationSource.Overrides(existingConfigurationSource)
-                    || configurationSource == existingConfigurationSource && !canOverrideSameSource))
+                        || configurationSource == existingConfigurationSource && !canOverrideSameSource))
                 {
                     return false;
                 }
@@ -48,21 +49,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (value != null)
             {
-                _annotationSources.Value[annotation] = configurationSource;
-                Metadata[annotation] = value;
+                _annotationSources.Value[name] = configurationSource;
+                Metadata[name] = value;
             }
             else
             {
-                _annotationSources.Value.Remove(annotation);
-                Metadata.RemoveAnnotation(new Annotation(annotation, "_"));
+                _annotationSources.Value.Remove(name);
+                Metadata.RemoveAnnotation(name);
             }
 
             return true;
         }
-
-        public virtual Annotatable Metadata { get; }
-
-        public abstract InternalModelBuilder ModelBuilder { get; }
 
         protected virtual void MergeAnnotationsFrom([NotNull] InternalMetadataBuilder annotatableBuilder)
         {

@@ -136,13 +136,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 if (!pointsToPrincipal)
                 {
-                    var canBeUnique = Entity.Metadata.Navigation.IsCompatible(
+                    var canBeUnique = Internal.Navigation.IsCompatible(
                         navigationName,
                         Metadata.PrincipalEntityType,
                         Metadata.DeclaringEntityType,
                         shouldBeCollection: false,
                         shouldThrow: false);
-                    var canBeNonUnique = Entity.Metadata.Navigation.IsCompatible(
+                    var canBeNonUnique = Internal.Navigation.IsCompatible(
                         navigationName,
                         Metadata.PrincipalEntityType,
                         Metadata.DeclaringEntityType,
@@ -172,7 +172,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     }
                     else if (!canBeUnique)
                     {
-                        Entity.Metadata.Navigation.IsCompatible(
+                        Internal.Navigation.IsCompatible(
                             navigationName,
                             Metadata.PrincipalEntityType,
                             Metadata.DeclaringEntityType,
@@ -182,7 +182,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         return null;
                     }
                 }
-                else if (!Entity.Metadata.Navigation.IsCompatible(
+                else if (!Internal.Navigation.IsCompatible(
                     navigationName,
                     Metadata.DeclaringEntityType,
                     Metadata.PrincipalEntityType,
@@ -200,9 +200,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = this;
             if (conflictingNavigation?.ForeignKey == Metadata)
             {
-                Debug.Assert(conflictingNavigation.PointsToPrincipal() != pointsToPrincipal);
+                Debug.Assert(conflictingNavigation.IsDependentToPrincipal() != pointsToPrincipal);
 
-                builder = builder.Navigation(null, conflictingNavigation.PointsToPrincipal(), configurationSource, runConventions: runConventions);
+                builder = builder.Navigation(null, conflictingNavigation.IsDependentToPrincipal(), configurationSource, runConventions: runConventions);
             }
             else
             {
@@ -287,13 +287,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 if (!pointsToPrincipal)
                 {
-                    var canBeUnique = Entity.Metadata.Navigation.IsCompatible(
+                    var canBeUnique = Internal.Navigation.IsCompatible(
                         navigationName,
                         Metadata.PrincipalEntityType,
                         Metadata.DeclaringEntityType,
                         shouldBeCollection: false,
                         shouldThrow: false);
-                    var canBeNonUnique = Entity.Metadata.Navigation.IsCompatible(
+                    var canBeNonUnique = Internal.Navigation.IsCompatible(
                         navigationName,
                         Metadata.PrincipalEntityType,
                         Metadata.DeclaringEntityType,
@@ -314,7 +314,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         return false;
                     }
                 }
-                else if (!Entity.Metadata.Navigation.IsCompatible(
+                else if (!Internal.Navigation.IsCompatible(
                     navigationName,
                     Metadata.DeclaringEntityType,
                     Metadata.PrincipalEntityType,
@@ -332,7 +332,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (conflictingNavigation.ForeignKey == Metadata)
                 {
-                    if (!CanSetNavigation(null, conflictingNavigation.PointsToPrincipal(), configurationSource))
+                    if (!CanSetNavigation(null, conflictingNavigation.IsDependentToPrincipal(), configurationSource))
                     {
                         return false;
                     }
@@ -515,7 +515,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var builder = this;
             if (Metadata.PrincipalToDependent != null
-                && !Entity.Metadata.Navigation.IsCompatible(
+                && !Internal.Navigation.IsCompatible(
                     Metadata.PrincipalToDependent.Name,
                     Metadata.PrincipalEntityType,
                     Metadata.DeclaringEntityType,
@@ -555,7 +555,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (Metadata.PrincipalToDependent != null
                 && _principalToDependentConfigurationSource.HasValue
                 && !configurationSource.Overrides(_principalToDependentConfigurationSource.Value)
-                && !Entity.Metadata.Navigation.IsCompatible(
+                && !Internal.Navigation.IsCompatible(
                     Metadata.PrincipalToDependent.Name,
                     Metadata.PrincipalEntityType,
                     Metadata.DeclaringEntityType,
@@ -647,7 +647,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (!shouldInvert)
             {
                 if (Metadata.DependentToPrincipal != null
-                    && !Entity.Metadata.Navigation.IsCompatible(
+                    && !Internal.Navigation.IsCompatible(
                         Metadata.DependentToPrincipal.Name,
                         dependentEntityType,
                         principalEntityType,
@@ -663,7 +663,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 if (Metadata.PrincipalToDependent != null
-                    && !Entity.Metadata.Navigation.IsCompatible(
+                    && !Internal.Navigation.IsCompatible(
                         Metadata.PrincipalToDependent.Name,
                         principalEntityType,
                         dependentEntityType,
@@ -796,7 +796,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (!shouldInvert)
             {
                 if (Metadata.DependentToPrincipal != null
-                    && !Entity.Metadata.Navigation.IsCompatible(
+                    && !Internal.Navigation.IsCompatible(
                         Metadata.DependentToPrincipal.Name,
                         dependentEntityType,
                         principalEntityType,
@@ -812,7 +812,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 if (Metadata.PrincipalToDependent != null
-                    && !Entity.Metadata.Navigation.IsCompatible(
+                    && !Internal.Navigation.IsCompatible(
                         Metadata.PrincipalToDependent.Name,
                         principalEntityType,
                         dependentEntityType,
@@ -1009,7 +1009,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
-            var conflictingForeignKey = dependentEntityType.FindForeignKey(properties);
+            var conflictingForeignKey = dependentEntityType.FindForeignKeys(properties).SingleOrDefault();
             if (conflictingForeignKey != null
                 && !ModelBuilder.Entity(dependentEntityType.Name, ConfigurationSource.Convention)
                     .CanRemove(conflictingForeignKey, configurationSource))

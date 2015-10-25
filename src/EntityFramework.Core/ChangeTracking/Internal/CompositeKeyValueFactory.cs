@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public override IKeyValue Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
-            => Create(properties, p => valueBuffer[p.Index]);
+            => Create(properties, p => valueBuffer[p.GetIndex()]);
 
         public override IKeyValue Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(properties, p => propertyAccessor[p]);

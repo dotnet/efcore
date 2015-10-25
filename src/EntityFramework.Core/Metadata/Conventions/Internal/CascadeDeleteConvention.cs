@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
     {
         public virtual bool Apply(InternalPropertyBuilder propertyBuilder)
         {
-            foreach (var foreignKey in propertyBuilder.Metadata.FindContainingForeignKeysInHierarchy())
+            foreach (var foreignKey in propertyBuilder.Metadata.FindContainingForeignKeys())
             {
                 Apply(propertyBuilder.ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .Relationship(foreignKey, ConfigurationSource.Convention));

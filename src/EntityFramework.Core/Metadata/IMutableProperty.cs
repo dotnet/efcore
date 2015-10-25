@@ -17,6 +17,6 @@ namespace Microsoft.Data.Entity.Metadata
         new bool? RequiresValueGenerator { get; set; }
         new bool? IsShadowProperty { get; set; }
         new bool? IsConcurrencyToken { get; set; }
-        new bool? StoreGeneratedAlways { get; set; }
+        new bool? IsStoreGeneratedAlways { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace Microsoft.Data.Entity.Metadata
         public const string OriginalValueIndexAnnotation = "OriginalValueIndex";
         public const string ProductVersionAnnotation = "ProductVersion";
         public const string ShadowIndexAnnotation = "ShadowIndex";
+        public const string IndexAnnotation = "Index";
     }
 }

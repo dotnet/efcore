@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <returns> 
         ///     The existing annotation if an annotation with the specified name already exists. Otherwise, the newly added annotation. 
         /// </returns>
-        public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] string value)
+        public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] object value)
             => FindAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
 
         /// <summary>
@@ -83,13 +83,14 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Removes the given annotation from this object.
         /// </summary>
-        /// <param name="annotation"> The annotation to remove. </param>
+        /// <param name="annotationName"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public virtual Annotation RemoveAnnotation([NotNull] Annotation annotation)
+        public virtual Annotation RemoveAnnotation([NotNull] string annotationName)
         {
-            Check.NotNull(annotation, nameof(annotation));
+            Check.NotNull(annotationName, nameof(annotationName));
 
             var previousAnnotations = _annotations.Value;
+            var annotation = new Annotation(annotationName, "_");
             _annotations.Value = _annotations.Value.Remove(annotation);
 
             Annotation removedAnnotations = null;

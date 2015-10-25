@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -131,7 +132,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 && newState != EntityState.Detached)
             {
                 var hasTempValue = EntityType.GetProperties()
-                    .FirstOrDefault(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.TemporaryOrModified));
+                    .FirstOrDefault(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.TemporaryOrModified));
 
                 if (hasTempValue != null)
                 {
@@ -146,7 +147,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 foreach (var property in EntityType.GetProperties().Where(
                     p => !p.IsReadOnlyAfterSave))
                 {
-                    _stateData.FlagProperty(property.Index, PropertyFlag.TemporaryOrModified, isFlagged: true);
+                    _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isFlagged: true);
                 }
             }
 
@@ -185,7 +186,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 if (oldState == EntityState.Added)
                 {
                     foreach (var property in EntityType.GetProperties()
-                        .Where(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.TemporaryOrModified)))
+                        .Where(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.TemporaryOrModified)))
                     {
                         this[property] = property.ClrType.GetDefaultValue();
                     }
@@ -205,7 +206,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool IsModified(IProperty property)
             => _stateData.EntityState == EntityState.Modified
-               && _stateData.IsPropertyFlagged(property.Index, PropertyFlag.TemporaryOrModified);
+               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
         public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified = true)
         {
@@ -232,7 +233,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 throw new NotSupportedException(CoreStrings.KeyReadOnly(property.Name, EntityType.DisplayName()));
             }
 
-            _stateData.FlagProperty(property.Index, PropertyFlag.TemporaryOrModified, isModified);
+            _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isModified);
 
             // Don't change entity state if it is Added or Deleted
             if (isModified && currentState == EntityState.Unchanged)
@@ -256,7 +257,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual bool HasTemporaryValue([NotNull] IProperty property)
             => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
-               && _stateData.IsPropertyFlagged(property.Index, PropertyFlag.TemporaryOrModified);
+               && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
         public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
         {
@@ -266,7 +267,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            _stateData.FlagProperty(property.Index, PropertyFlag.TemporaryOrModified, isTemporary);
+            _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isTemporary);
         }
 
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
@@ -348,12 +349,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     {
                         if (value == null)
                         {
-                            _stateData.FlagProperty(asProperty.Index, PropertyFlag.Null, isFlagged: true);
+                            _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: true);
                             writeValue = false;
                         }
                         else
                         {
-                            _stateData.FlagProperty(asProperty.Index, PropertyFlag.Null, isFlagged: false);
+                            _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: false);
                         }
                     }
 
@@ -440,7 +441,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var fks = EntityType.GetForeignKeys()
                 .Where(fk => fk.Properties
-                    .Any(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)))
+                    .Any(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null)))
                 .ToList();
 
             if (fks.Any(fk => fk.DeleteBehavior == DeleteBehavior.Cascade))
@@ -458,7 +459,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             else
             {
                 throw new InvalidOperationException(CoreStrings.PropertyConceptualNull(
-                    EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.Index, PropertyFlag.Null)).Name,
+                    EntityType.GetProperties().First(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null)).Name,
                     EntityType.DisplayName()));
             }
         }
@@ -582,10 +583,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual bool IsStoreGenerated(IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
                && ((EntityState == EntityState.Added
-                    && (property.StoreGeneratedAlways || IsTemporaryOrDefault(property)))
+                    && (property.IsStoreGeneratedAlways || IsTemporaryOrDefault(property)))
                    || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
                        && (EntityState == EntityState.Modified
-                           && (property.StoreGeneratedAlways || !IsModified(property)))));
+                           && (property.IsStoreGeneratedAlways || !IsModified(property)))));
 
         private bool IsTemporaryOrDefault(IProperty property)
             => HasTemporaryValue(property)
@@ -594,7 +595,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual bool IsKeySet => !EntityType.FindPrimaryKey().Properties.Any(p => p.ClrType.IsDefaultValue(this[p]));
 
         [UsedImplicitly]
-        private string DebuggerDisplay => this.GetPrimaryKeyValue() + " - " + EntityState;
+        private string DebuggerDisplay => GetPrimaryKeyValue() + " - " + EntityState;
 
         InternalEntityEntry IPropertyAccessor.InternalEntityEntry => this;
 

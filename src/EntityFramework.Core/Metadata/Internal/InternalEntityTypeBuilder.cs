@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     continue;
                 }
 
-                var detachedRelationships = ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList()
+                var detachedRelationships = key.FindReferencingForeignKeys().ToList()
                     .Select(DetachRelationship).ToList();
                 RemoveKey(key, ConfigurationSource.DataAnnotation);
                 foreach (var relationshipSnapshot in detachedRelationships)
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            foreach (var foreignKey in ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList())
+            foreach (var foreignKey in key.FindReferencingForeignKeys().ToList())
             {
                 var removed = ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .RemoveForeignKey(foreignKey, configurationSource);
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                && Metadata.FindNavigationsInHierarchy(navigationName).All(n =>
                    ModelBuilder.Entity(n.ForeignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
                        .Relationship(n.ForeignKey, ConfigurationSource.Convention)
-                       .CanSetNavigation(null, n.PointsToPrincipal(), configurationSource));
+                       .CanSetNavigation(null, n.IsDependentToPrincipal(), configurationSource));
 
         public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
         {
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var key in Metadata.GetKeys().ToList())
                 {
-                    foreach (var referencingForeignKey in ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList())
+                    foreach (var referencingForeignKey in key.FindReferencingForeignKeys().ToList())
                     {
                         detachedRelationships.Add(DetachRelationship(referencingForeignKey));
                     }
@@ -524,7 +524,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var detachedRelationships = new List<RelationshipBuilderSnapshot>();
             foreach (var propertyToDetach in propertiesToDetachList)
             {
-                foreach (var relationship in propertyToDetach.FindContainingForeignKeysInHierarchy().ToList())
+                foreach (var relationship in propertyToDetach.FindContainingForeignKeys().ToList())
                 {
                     detachedRelationships.Add(DetachRelationship(relationship));
                 }
@@ -661,12 +661,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Debug.Assert(removed.HasValue);
             }
 
-            var detachedRelationships = property.FindContainingForeignKeysInHierarchy().ToList()
+            var detachedRelationships = property.FindContainingForeignKeys().ToList()
                 .Select(DetachRelationship).ToList();
 
             foreach (var key in Metadata.GetKeys().Where(i => i.Properties.Contains(property)).ToList())
             {
-                detachedRelationships.AddRange(ModelBuilder.Metadata.FindReferencingForeignKeys(key).ToList()
+                detachedRelationships.AddRange(key.FindReferencingForeignKeys().ToList()
                     .Select(DetachRelationship));
                 var removed = RemoveKey(key, configurationSource);
                 Debug.Assert(removed.HasValue);
@@ -723,7 +723,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             removedNavigation = navigationToPrincipal?.DeclaringEntityType.RemoveNavigation(navigationToPrincipal.Name);
             Debug.Assert(removedNavigation == navigationToPrincipal);
 
-            var removedForeignKey = Metadata.RemoveForeignKey(foreignKey.Properties);
+            var removedForeignKey = Metadata.RemoveForeignKey(foreignKey);
             Debug.Assert(removedForeignKey == foreignKey);
 
             RemoveShadowPropertiesIfUnused(foreignKey.Properties);
@@ -759,7 +759,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return;
             }
 
-            if (ModelBuilder.Metadata.FindReferencingForeignKeys(key).Any())
+            if (key.FindReferencingForeignKeys().Any())
             {
                 return;
             }
@@ -1163,7 +1163,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var principalType = principalEntityTypeBuilder.Metadata;
             Debug.Assert(dependentProperties == null
-                         || Metadata.FindForeignKey(dependentProperties) == null);
+                         || Metadata.FindForeignKeys(dependentProperties)
+                             .All(foreignKey => foreignKey.PrincipalEntityType != principalEntityTypeBuilder.Metadata));
 
             var principalBaseEntityTypeBuilder = ModelBuilder.Entity(principalType.RootType().Name, ConfigurationSource.Convention);
             Key principalKey;

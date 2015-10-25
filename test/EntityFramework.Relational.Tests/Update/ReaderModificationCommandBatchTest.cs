@@ -512,7 +512,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
 
             var entityType = model.AddEntityType(typeof(T1));
 

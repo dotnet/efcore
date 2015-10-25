@@ -17,7 +17,12 @@ namespace Microsoft.Data.Entity.Metadata
         IKey FindPrimaryKey();
         IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
         IEnumerable<IKey> GetKeys();
-        IForeignKey FindForeignKey([NotNull] IReadOnlyList<IProperty> properties);
+
+        IForeignKey FindForeignKey(
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType);
+
         IEnumerable<IForeignKey> GetForeignKeys();
         INavigation FindNavigation([NotNull] string name);
         IEnumerable<INavigation> GetNavigations();

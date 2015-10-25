@@ -241,7 +241,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             if (navigations.Any())
                             {
                                 if (navigations.Count == 1
-                                    && navigations[0].PointsToPrincipal())
+                                    && navigations[0].IsDependentToPrincipal())
                                 {
                                     var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(memberExpression, navigations[0]);
                                     if (foreignKeyMemberAccess != null)
@@ -312,13 +312,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
             var leftKeyAccess = CreateKeyAccessExpression(
                 querySourceReference,
-                firstNavigation.PointsToPrincipal()
+                firstNavigation.IsDependentToPrincipal()
                     ? firstNavigation.ForeignKey.PrincipalKey.Properties
                     : firstNavigation.ForeignKey.Properties);
 
             var rightKeyAccess = CreateKeyAccessExpression(
                 outerQuerySourceReferenceExpression,
-                firstNavigation.PointsToPrincipal()
+                firstNavigation.IsDependentToPrincipal()
                     ? firstNavigation.ForeignKey.Properties
                     : firstNavigation.ForeignKey.PrincipalKey.Properties);
 
@@ -395,13 +395,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                     var leftKeyAccess = CreateKeyAccessExpression(
                                     querySourceReferenceExpression,
-                                    navigation.PointsToPrincipal()
+                                    navigation.IsDependentToPrincipal()
                                         ? navigation.ForeignKey.Properties
                                         : navigation.ForeignKey.PrincipalKey.Properties);
 
                     var rightKeyAccess = CreateKeyAccessExpression(
                                     innerQuerySourceReferenceExpression,
-                                    navigation.PointsToPrincipal()
+                                    navigation.IsDependentToPrincipal()
                                         ? navigation.ForeignKey.PrincipalKey.Properties
                                         : navigation.ForeignKey.Properties);
 
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             CreateEntityQueryable(targetEntityType),
                             CreateKeyAccessExpression(
                                 querySourceReferenceExpression,
-                                navigation.PointsToPrincipal()
+                                navigation.IsDependentToPrincipal()
                                     ? navigation.ForeignKey.Properties
                                     : navigation.ForeignKey.PrincipalKey.Properties),
                             Expression.Constant(null));
@@ -438,7 +438,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     var innerKeySelector
                         = CreateKeyAccessExpression(
                             innerQuerySourceReferenceExpression,
-                            navigation.PointsToPrincipal()
+                            navigation.IsDependentToPrincipal()
                                 ? navigation.ForeignKey.PrincipalKey.Properties
                                 : navigation.ForeignKey.Properties);
 

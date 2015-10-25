@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private static bool PaintAction(InternalEntityEntryGraphNode n)
         {
             if (n.Entry.EntityState != EntityState.Detached
-                || (n.InboundNavigation != null && n.InboundNavigation.PointsToPrincipal()))
+                || (n.InboundNavigation != null && n.InboundNavigation.IsDependentToPrincipal()))
             {
                 return false;
             }

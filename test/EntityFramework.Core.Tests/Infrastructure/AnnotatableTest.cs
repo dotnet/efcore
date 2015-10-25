@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             var annotatable = new Annotatable();
             Assert.Null(annotatable.FindAnnotation("Foo"));
-            Assert.Null(annotatable.RemoveAnnotation(new Annotation("Foo", "Bar")));
+            Assert.Null(annotatable.RemoveAnnotation("Foo"));
 
             var annotation = annotatable.AddAnnotation("Foo", "Bar");
 
@@ -29,10 +29,10 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             Assert.Equal(new[] { annotation }, annotatable.Annotations.ToArray());
 
-            Assert.Same(annotation, annotatable.RemoveAnnotation(annotation));
+            Assert.Same(annotation, annotatable.RemoveAnnotation(annotation.Name));
 
             Assert.Empty(annotatable.Annotations);
-            Assert.Null(annotatable.RemoveAnnotation(annotation));
+            Assert.Null(annotatable.RemoveAnnotation(annotation.Name));
             Assert.Null(annotatable["Foo"]);
             Assert.Null(annotatable.FindAnnotation("Foo"));
         }

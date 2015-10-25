@@ -7,6 +7,7 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
 
 namespace Microsoft.Data.Entity.Migrations.Design
@@ -16,7 +17,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
         public static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
         {
             CoreAnnotationNames.OriginalValueIndexAnnotation,
-            CoreAnnotationNames.ShadowIndexAnnotation
+            CoreAnnotationNames.ShadowIndexAnnotation,
+            CoreAnnotationNames.IndexAnnotation
         };
 
         public abstract string FileExtension { get; }

@@ -6,9 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public static class Extensions
@@ -139,8 +141,13 @@ namespace Microsoft.Data.Entity.FunctionalTests
             foreach (var navigation in sourceEntityType.GetDeclaredNavigations())
             {
                 var targetDependentEntityType = targetEntityType.Model.FindEntityType(navigation.ForeignKey.DeclaringEntityType.Name);
-                var targetForeignKey = targetDependentEntityType.FindForeignKey(navigation.ForeignKey.Properties.Select(p => targetDependentEntityType.FindProperty(p.Name)).ToList());
-                var clonedNavigation = targetEntityType.AddNavigation(navigation.Name, targetForeignKey, pointsToPrincipal: navigation.PointsToPrincipal());
+                var targetPrincipalEntityType = targetEntityType.Model.FindEntityType(navigation.ForeignKey.PrincipalEntityType.Name);
+                var targetForeignKey = targetDependentEntityType.FindForeignKey(
+                    navigation.ForeignKey.Properties.Select(p => targetDependentEntityType.FindProperty(p.Name)).ToList(),
+                    targetPrincipalEntityType.FindKey(navigation.ForeignKey.PrincipalKey.Properties.Select(
+                        p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
+                    targetPrincipalEntityType);
+                var clonedNavigation = targetEntityType.AddNavigation(navigation.Name, targetForeignKey, pointsToPrincipal: navigation.IsDependentToPrincipal());
                 navigation.Annotations.ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
             }
         }

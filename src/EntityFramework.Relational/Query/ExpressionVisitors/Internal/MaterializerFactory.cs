@@ -33,10 +33,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         public virtual Expression CreateMaterializer(
-            [NotNull] IEntityType entityType,
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,
-            [CanBeNull] IQuerySource querySource)
+            IEntityType entityType,
+            SelectExpression selectExpression,
+            Func<IProperty, SelectExpression, int> projectionAdder,
+            IQuerySource querySource)
         {
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(selectExpression, nameof(selectExpression));
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             .CreateReadValueExpression(
                                 valueBufferParameter,
                                 discriminatorProperty.ClrType,
-                                discriminatorProperty.Index)),
+                                discriminatorProperty.GetIndex())),
                     Expression.IfThenElse(
                         Expression.Equal(discriminatorValueVariable, firstDiscriminatorValue),
                         Expression.Return(returnLabelTarget, materializer),

@@ -25,10 +25,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _memberMapper = memberMapper;
         }
 
-        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index) 
+        public virtual Expression CreateReadValueExpression(Expression valueBuffer, Type type, int index)
             => Expression.Convert(CreateReadValueCallExpression(valueBuffer, index), type);
 
-        public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index) 
+        public virtual Expression CreateReadValueCallExpression(Expression valueBuffer, int index)
             => Expression.Call(valueBuffer, _readValue, Expression.Constant(index));
 
         public virtual Expression CreateMaterializeExpression(
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         CreateReadValueExpression(
                             valueBufferExpression,
                             targetMember.Type,
-                            indexMap?[mapping.Item1.Index] ?? mapping.Item1.Index)));
+                            indexMap?[mapping.Item1.GetIndex()] ?? mapping.Item1.GetIndex())));
 
             blockExpressions.Add(instanceVariable);
 

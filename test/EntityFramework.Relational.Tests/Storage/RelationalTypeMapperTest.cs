@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 
@@ -128,6 +129,6 @@ namespace Microsoft.Data.Entity.Tests.Model
             return new TestRelationalTypeMapper().GetMapping(property);
         }
 
-        private static EntityType CreateEntityType() => new Entity.Metadata.Model().AddEntityType("MyType");
+        private static EntityType CreateEntityType() => new Entity.Metadata.Internal.Model().AddEntityType("MyType");
     }
 }

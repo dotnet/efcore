@@ -709,8 +709,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             DependentType.Relationship(PrincipalType, ConfigurationSource.Convention);
             PrincipalType.Relationship(DependentType, ConfigurationSource.Convention);
 
-            var relationshipBuilder = PrincipalType.Relationship(
-                DependentType, ConfigurationSource.Convention)
+            var relationshipBuilder = PrincipalType.Relationship(DependentType, ConfigurationSource.Convention)
                 .IsUnique(true, ConfigurationSource.Convention);
 
             var newRelationshipBuilder = new ForeignKeyPropertyDiscoveryConvention().Apply(relationshipBuilder);

@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -21,9 +22,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             => property is IProperty;
 
         protected override object ReadValue(IPropertyBase property)
-            => _values[((IProperty)property).Index] ?? NullSentinel.Value;
+            => _values[((IProperty)property).GetIndex()] ?? NullSentinel.Value;
 
         protected override void WriteValue(IPropertyBase property, object value)
-            => _values[((IProperty)property).Index] = value;
+            => _values[((IProperty)property).GetIndex()] = value;
     }
 }

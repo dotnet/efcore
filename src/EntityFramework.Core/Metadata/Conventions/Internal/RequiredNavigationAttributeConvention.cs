@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(navigation, nameof(navigation));
             Check.NotNull(attribute, nameof(attribute));
 
-            if (!navigation.PointsToPrincipal()
+            if (!navigation.IsDependentToPrincipal()
                 || navigation.DeclaringEntityType.ClrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == navigation.Name)?.PropertyType.TryGetSequenceType() != null)
             {
                 return relationshipBuilder;

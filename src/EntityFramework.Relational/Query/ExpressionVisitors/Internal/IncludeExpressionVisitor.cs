@@ -157,7 +157,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     canProduceInnerJoin
                         = canProduceInnerJoin
                           && (navigation.ForeignKey.IsRequired
-                              && navigation.PointsToPrincipal());
+                              && navigation.IsDependentToPrincipal());
 
                     var joinExpression
                         = canProduceInnerJoin
@@ -194,8 +194,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     joinExpression.Predicate
                         = BuildJoinEqualityExpression(
                             navigation,
-                            navigation.PointsToPrincipal() ? targetTableExpression : joinExpression,
-                            navigation.PointsToPrincipal() ? joinExpression : targetTableExpression,
+                            navigation.IsDependentToPrincipal() ? targetTableExpression : joinExpression,
+                            navigation.IsDependentToPrincipal() ? joinExpression : targetTableExpression,
                             querySource);
 
                     targetTableExpression = joinedTableExpression;

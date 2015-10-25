@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
 
             if (foreignKeyProperties == null
-                || relationshipBuilder.Metadata.DeclaringEntityType.FindForeignKey(foreignKeyProperties) != null)
+                || relationshipBuilder.Metadata.DeclaringEntityType.FindForeignKey(foreignKeyProperties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType) != null)
             {
                 return relationshipBuilder;
             }
@@ -98,12 +98,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 return true;
             }
 
-            var model = foreignKey.DeclaringEntityType.Model;
             var principalPk = foreignKey.PrincipalEntityType.FindPrimaryKey();
             var principalPkReferenceThreshold = foreignKey.PrincipalKey == principalPk ? 1 : 0;
-            var isPrincipalKeyReferenced = principalPk != null && model.FindReferencingForeignKeys(principalPk).Count() > principalPkReferenceThreshold;
+            var isPrincipalKeyReferenced = principalPk != null && principalPk.FindReferencingForeignKeys().Count() > principalPkReferenceThreshold;
             var dependentPk = foreignKey.DeclaringEntityType.FindPrimaryKey();
-            var isDependentPrimaryKeyReferenced = dependentPk != null && model.FindReferencingForeignKeys(dependentPk).Any();
+            var isDependentPrimaryKeyReferenced = dependentPk != null && dependentPk.FindReferencingForeignKeys().Any();
 
             if (isPrincipalKeyReferenced
                 && !isDependentPrimaryKeyReferenced)

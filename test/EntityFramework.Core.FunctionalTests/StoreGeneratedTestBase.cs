@@ -801,17 +801,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         property.IsReadOnlyBeforeSave = false;
 
                         property = b.Property(e => e.AlwaysIdentity).ValueGeneratedOnAdd().Metadata;
-                        property.StoreGeneratedAlways = true;
+                        property.IsStoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = false;
 
                         property = b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).ValueGeneratedOnAdd().Metadata;
-                        property.StoreGeneratedAlways = true;
+                        property.IsStoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = true;
 
                         property = b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).ValueGeneratedOnAdd().Metadata;
-                        property.StoreGeneratedAlways = true;
+                        property.IsStoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = false;
 
@@ -828,17 +828,17 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         property.IsReadOnlyBeforeSave = false;
 
                         property = b.Property(e => e.AlwaysComputed).ValueGeneratedOnAddOrUpdate().Metadata;
-                        property.StoreGeneratedAlways = true;
+                        property.IsStoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = false;
 
                         property = b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                        property.StoreGeneratedAlways = true;
+                        property.IsStoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = false;
                         property.IsReadOnlyBeforeSave = true;
 
                         property = b.Property(e => e.AlwaysComputedReadOnlyAfterSave).ValueGeneratedOnAddOrUpdate().Metadata;
-                        property.StoreGeneratedAlways = true;
+                        property.IsStoreGeneratedAlways = true;
                         property.IsReadOnlyAfterSave = true;
                         property.IsReadOnlyBeforeSave = false;
                     });

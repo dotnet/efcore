@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;

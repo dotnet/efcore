@@ -4,6 +4,7 @@
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -67,7 +68,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var property in EntityType.GetProperties().Where(property => property.IsShadowProperty))
             {
-                shadowValues[property.GetShadowIndex()] = valueBuffer[property.Index];
+                shadowValues[property.GetShadowIndex()] = valueBuffer[property.GetIndex()];
             }
 
             return shadowValues;

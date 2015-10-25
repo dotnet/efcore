@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_duplicate_table_names()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_duplicate_table_names_with_schema()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Does_not_detect_duplicate_table_names_in_different_schema()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityB = model.AddEntityType(typeof(B));
@@ -61,7 +61,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Does_not_detect_duplicate_table_names_for_inherited_entities()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Passes_for_non_hierarchical_model()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
 
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Does_not_detect_non_instantiable_types()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<>));
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_missing_discriminator_property()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_missing_discriminator_value_on_base()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityAbstract = model.AddEntityType(typeof(Abstract));
@@ -138,7 +138,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public virtual void Detects_missing_discriminator_value_on_leaf()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<string>));

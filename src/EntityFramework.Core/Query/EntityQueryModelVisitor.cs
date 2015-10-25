@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Query
                                 order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
                             };
                         })
-                    .OrderByDescending(e => e.order).ThenBy(e => e.specification.NavigationPath.First().PointsToPrincipal())
+                    .OrderByDescending(e => e.order).ThenBy(e => e.specification.NavigationPath.First().IsDependentToPrincipal())
                     .Select(e => e.specification)
                     .ToList();
 
@@ -965,7 +965,7 @@ namespace Microsoft.Data.Entity.Query
             return BindMethodCallExpression(
                 methodCallExpression,
                 (property, querySource)
-                    => BindReadValueMethod(methodCallExpression.Type, expression, property.Index));
+                    => BindReadValueMethod(methodCallExpression.Type, expression, property.GetIndex()));
         }
 
         public virtual Expression BindMemberToValueBuffer(
@@ -979,7 +979,7 @@ namespace Microsoft.Data.Entity.Query
                 memberExpression,
                 null,
                 (property, querySource)
-                    => BindReadValueMethod(memberExpression.Type, expression, property.Index));
+                    => BindReadValueMethod(memberExpression.Type, expression, property.GetIndex()));
         }
 
         public virtual Expression BindReadValueMethod(

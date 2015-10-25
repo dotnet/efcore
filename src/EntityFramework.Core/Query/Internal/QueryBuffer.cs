@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             var valueBuffer = (ValueBuffer)boxedValueBuffer;
 
-            return valueBuffer[property.Index];
+            return valueBuffer[property.GetIndex()];
         }
 
         public virtual void StartTracking(object entity, EntityTrackingInfo entityTrackingInfo)
@@ -321,14 +321,14 @@ namespace Microsoft.Data.Entity.Query.Internal
                 Debug.Assert(entry != null);
 
                 primaryKeyValue
-                    = navigation.PointsToPrincipal()
+                    = navigation.IsDependentToPrincipal()
                         ? entry.GetDependentKeyValue(navigation.ForeignKey)
                         : entry.GetPrimaryKeyValue();
             }
             else
             {
                 primaryKeyValue
-                    = navigation.PointsToPrincipal()
+                    = navigation.IsDependentToPrincipal()
                         ? keyFactory
                             .Create(
                                 navigation.ForeignKey.Properties,
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                                 (ValueBuffer)boxedValueBuffer);
             }
 
-            if (navigation.PointsToPrincipal())
+            if (navigation.IsDependentToPrincipal())
             {
                 relatedKeyFactory
                     = valueBuffer =>
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             int currentNavigationIndex,
             IReadOnlyList<object> relatedEntities)
         {
-            if (navigationPath[currentNavigationIndex].PointsToPrincipal()
+            if (navigationPath[currentNavigationIndex].IsDependentToPrincipal()
                 && relatedEntities.Any())
             {
                 _clrPropertySetterSource

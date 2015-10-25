@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Design
@@ -254,7 +255,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             }
 
             var firstKey = true;
-            foreach (var key in keys.Where(key => key != primaryKey && !key.DeclaringEntityType.Model.FindReferencingForeignKeys(key).Any()))
+            foreach (var key in keys.Where(key => key != primaryKey && !key.FindReferencingForeignKeys().Any()))
             {
                 if (!firstKey)
                 {

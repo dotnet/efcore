@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Internal
@@ -36,7 +38,7 @@ namespace Microsoft.Data.Entity.Internal
                     if (key.Properties.Any(p => p.IsShadowProperty))
                     {
                         string message;
-                        var referencingFk = model.FindReferencingForeignKeys(key).FirstOrDefault();
+                        var referencingFk = key.FindReferencingForeignKeys().FirstOrDefault();
                         if (referencingFk != null)
                         {
                             message = CoreStrings.ReferencedShadowKey(

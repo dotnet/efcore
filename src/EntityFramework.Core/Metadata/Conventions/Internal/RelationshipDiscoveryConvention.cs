@@ -200,7 +200,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     || fk.ResolveOtherEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
                    && inverseEntityTypeBuilder.ModelBuilder.Entity(fk.DeclaringEntityType.Name, ConfigurationSource.Convention)
                        .Relationship(fk, ConfigurationSource.Convention)
-                       .CanSetNavigation(inverseName, !existingNavigation.PointsToPrincipal(), ConfigurationSource.Convention);
+                       .CanSetNavigation(inverseName, !existingNavigation.IsDependentToPrincipal(), ConfigurationSource.Convention);
         }
 
         private IReadOnlyList<RelationshipCandidate> RemoveInheritedInverseNavigations(

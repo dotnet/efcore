@@ -9,6 +9,7 @@ using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Scaffolding;
 using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Sqlite.FunctionalTests;
@@ -162,7 +163,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.NotEmpty(parent.FindReferencingForeignKeys());
             Assert.NotEmpty(children.GetForeignKeys());
 
-            var principalKey = children.FindForeignKey(children.FindProperty("ParentId")).PrincipalKey;
+            var principalKey = children.FindForeignKeys(children.FindProperty("ParentId")).SingleOrDefault().PrincipalKey;
             Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -190,7 +191,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
                 (Property)children.FindProperty("ParentId_A"),
                 (Property)children.FindProperty("ParentId_B")
             };
-            var principalKey = children.FindForeignKey(propList.AsReadOnly()).PrincipalKey;
+            var principalKey = children.FindForeignKeys(propList.AsReadOnly()).SingleOrDefault().PrincipalKey;
             Assert.Equal("Parent", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id_A", principalKey.Properties[0].Name);
             Assert.Equal("Id_B", principalKey.Properties[1].Name);
@@ -211,7 +212,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.NotEmpty(list.FindReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
-            var principalKey = list.FindForeignKey(list.FindProperty("ParentId")).PrincipalKey;
+            var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).SingleOrDefault().PrincipalKey;
             Assert.Equal("ItemsList", principalKey.DeclaringEntityType.Name);
             Assert.Equal("Id", principalKey.Properties[0].Name);
         }
@@ -244,7 +245,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
 );";
             var table = GetModel(sql).FindEntityType("Friends");
 
-            var fk = table.FindForeignKey(new[] { table.FindProperty("BuddyId") });
+            var fk = table.FindForeignKeys(new[] { table.FindProperty("BuddyId") }).SingleOrDefault();
 
             Assert.True(fk.IsUnique);
             Assert.Equal(table.FindPrimaryKey(), fk.PrincipalKey);
@@ -261,7 +262,7 @@ CREATE TABLE Friends (
 );";
             var table = GetModel(sql).FindEntityType("Friends");
 
-            var fk = table.FindForeignKey(new[] { table.FindProperty("Id") });
+            var fk = table.FindForeignKeys(new[] { table.FindProperty("Id") }).SingleOrDefault();
 
             Assert.True(fk.IsUnique);
         }
@@ -276,7 +277,7 @@ CREATE TABLE Friends (
 );";
             var table = GetModel(sql).FindEntityType("Friends");
 
-            var fk = table.FindForeignKey(new[] { table.FindProperty("BuddyId") });
+            var fk = table.FindForeignKeys(new[] { table.FindProperty("BuddyId") }).SingleOrDefault();
 
             Assert.False(fk.IsUnique);
         }
@@ -290,7 +291,7 @@ CREATE TABLE Gum ( A, B PRIMARY KEY,
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";
             var dependent = GetModel(sql).FindEntityType("Gum");
-            var foreignKey = dependent.FindForeignKey(new[] { dependent.FindProperty("A"), dependent.FindProperty("B") });
+            var foreignKey = dependent.FindForeignKeys(new[] { dependent.FindProperty("A"), dependent.FindProperty("B") }).SingleOrDefault();
 
             Assert.True(foreignKey.IsUnique);
         }
@@ -303,7 +304,7 @@ CREATE TABLE Gum ( A, B PRIMARY KEY,
     FOREIGN KEY (A, B) REFERENCES DoubleMint (A, B)
 );";
             var dependent = GetModel(sql).FindEntityType("Gum");
-            var foreignKey = dependent.FindForeignKey(new[] { dependent.FindProperty("A"), dependent.FindProperty("B") });
+            var foreignKey = dependent.FindForeignKeys(new[] { dependent.FindProperty("A"), dependent.FindProperty("B") }).SingleOrDefault();
 
             Assert.False(foreignKey.IsUnique);
         }

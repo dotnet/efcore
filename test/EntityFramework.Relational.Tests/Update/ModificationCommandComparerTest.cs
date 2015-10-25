@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         [Fact]
         public void Compare_returns_0_only_for_commands_that_are_equal()
         {
-            var model = new Entity.Metadata.Model();
+            var model = new Entity.Metadata.Internal.Model();
             var entityType = model.AddEntityType(typeof(object));
 
             var optionsBuilder = new DbContextOptionsBuilder()

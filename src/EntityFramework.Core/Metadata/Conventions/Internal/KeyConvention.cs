@@ -148,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     if (key.Properties.Any(p => ((IProperty)p).IsShadowProperty && entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)))
                     {
                         string message;
-                        var referencingFk = modelBuilder.Metadata.FindReferencingForeignKeys(key).FirstOrDefault();
+                        var referencingFk = key.FindReferencingForeignKeys().FirstOrDefault();
                         if (referencingFk != null)
                         {
                             message = CoreStrings.ReferencedShadowKey(

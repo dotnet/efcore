@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API surface for configuring a <see cref="Metadata.Model" /> that defines the shape of your
+    ///         Provides a simple API surface for configuring a <see cref="Metadata.Internal.Model" /> that defines the shape of your
     ///         entities, the relationships between them, and how they map to the database.
     ///     </para>
     ///     <para>

@@ -77,7 +77,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var dependentProperties = foreignKey.Properties;
             var principalProperties = foreignKey.PrincipalKey.Properties;
 
-            if (navigation.PointsToPrincipal())
+            if (navigation.IsDependentToPrincipal())
             {
                 if (newValue != null)
                 {
@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            foreach (var foreignKey in _model.FindReferencingForeignKeys(entityType))
+            foreach (var foreignKey in entityType.FindReferencingForeignKeys())
             {
                 var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
                 if (dependents.Length > 0)
@@ -354,7 +354,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var navigation in navigations)
             {
-                if (navigation.PointsToPrincipal())
+                if (navigation.IsDependentToPrincipal())
                 {
                     var setter = _setterSource.GetAccessor(navigation);
 
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void Unfixup(INavigation navigation, InternalEntityEntry oldPrincipalEntry, InternalEntityEntry dependentEntry)
         {
-            if (navigation.PointsToPrincipal())
+            if (navigation.IsDependentToPrincipal())
             {
                 _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
 
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var navigation in dependentEntry.EntityType.GetNavigations().Where(n => n.ForeignKey == foreignKey))
             {
-                if (navigation.PointsToPrincipal())
+                if (navigation.IsDependentToPrincipal())
                 {
                     _setterSource.GetAccessor(navigation).SetClrValue(dependentEntry.Entity, null);
                     dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
@@ -512,7 +512,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         && oldEntity != entry.Entity)
                     {
                         var oldEntry = entry.StateManager.GetOrCreateEntry(oldEntity);
-                        if (navigation.PointsToPrincipal())
+                        if (navigation.IsDependentToPrincipal())
                         {
                             Unfixup(navigation, inverseEntry, oldEntry);
                             SetNullForeignKey(oldEntry, navigation.ForeignKey.Properties);
