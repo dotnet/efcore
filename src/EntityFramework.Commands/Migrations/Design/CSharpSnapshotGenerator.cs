@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 stringBuilder.AppendLine(";");
             }
 
-            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes()), stringBuilder);
+            GenerateEntityTypes(builderName, Sort(model.GetEntityTypes().ToList()), stringBuilder);
         }
 
         private IReadOnlyList<IEntityType> Sort(IReadOnlyList<IEntityType> entityTypes)

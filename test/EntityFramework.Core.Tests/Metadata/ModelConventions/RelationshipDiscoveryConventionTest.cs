@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             var model = (IModel)entityBuilder.Metadata.Model;
-            Assert.Equal(2, model.GetEntityTypes().Count);
+            Assert.Equal(2, model.GetEntityTypes().Count());
             var firstEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(MultipleNavigationsFirst));
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(MultipleNavigationsSecond));
 
@@ -688,7 +688,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             var model = (IModel)entityBuilder.Metadata.Model;
-            Assert.Equal(2, model.GetEntityTypes().Count);
+            Assert.Equal(2, model.GetEntityTypes().Count());
             var firstEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityOne));
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityTwo));
 
@@ -706,7 +706,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             var model = (IModel)entityBuilder.Metadata.Model;
-            Assert.Equal(2, model.GetEntityTypes().Count);
+            Assert.Equal(2, model.GetEntityTypes().Count());
             var firstEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityOne));
             var secondEntityType = model.GetEntityTypes().Single(e => e.ClrType == typeof(AmbiguousCardinalityTwo));
 
@@ -930,7 +930,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Navigation navigation, string expectedInverseName, bool unique, bool singleRelationship = true)
         {
             IForeignKey fk = navigation.ForeignKey;
-            Assert.Equal(1, fk.DeclaringEntityType.Model.GetEntityTypes().Count);
+            Assert.Equal(1, fk.DeclaringEntityType.Model.GetEntityTypes().Count());
             Assert.Equal(expectedInverseName, navigation.FindInverse()?.Name);
             Assert.Equal(unique, fk.IsUnique);
             Assert.NotSame(fk.Properties.Single(), fk.PrincipalKey.Properties.Single());

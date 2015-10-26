@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     public interface IModel : IAnnotatable
     {
-        IReadOnlyList<IEntityType> GetEntityTypes();
+        IEnumerable<IEntityType> GetEntityTypes();
 
         IEntityType FindEntityType([NotNull] string name);
     }

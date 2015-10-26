@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
 
-        IReadOnlyList<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
+        IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
 
         IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
 

@@ -100,7 +100,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(2, o.GetEntityTypes().Count);
+                        Assert.Equal(2, o.GetEntityTypes().Count());
                         Assert.Collection(
                             o.GetEntityTypes(),
                             t => Assert.Equal("Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty", t.Name),
@@ -130,8 +130,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.GetEntityTypes()[0].Annotations.Count());
-                        Assert.Equal("AnnotationValue", o.GetEntityTypes()[0]["AnnotationName"]);
+                        Assert.Equal(1, o.GetEntityTypes().First().Annotations.Count());
+                        Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                     });
         }
 
@@ -413,7 +413,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes()[0].FindProperty("Id")["AnnotationName"]); }
+                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"]); }
                 );
         }
 
@@ -434,7 +434,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(false, o.GetEntityTypes()[0].FindProperty("Name").IsNullable); });
+                o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
         }
 
         [Fact]
@@ -454,7 +454,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes()[0].FindProperty("AlternateId").ValueGenerated); });
+                o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated); });
         }
 
         [Fact]
@@ -474,7 +474,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(100, o.GetEntityTypes()[0].FindProperty("Name").GetMaxLength()); });
+                o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
         }
 
         [Fact]
@@ -493,7 +493,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(false, o.GetEntityTypes()[0].FindProperty("AlternateId").RequiresValueGenerator); });
+                o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("AlternateId").RequiresValueGenerator); });
         }
 
         [Fact]
@@ -513,7 +513,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
     });
 ",
-                o => { Assert.Equal(true, o.GetEntityTypes()[0].FindProperty("AlternateId").IsConcurrencyToken); });
+                o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
         }
 
         #endregion
@@ -539,7 +539,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
     });
 ",
-                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes()[0].GetIndexes().First()["AnnotationName"]); });
+                o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]); });
         }
 
         [Fact]
@@ -561,7 +561,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .IsUnique();
     });
 ",
-                o => { Assert.Equal(true, o.GetEntityTypes()[0].GetIndexes().First().IsUnique); });
+                o => { Assert.Equal(true, o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
         }
 
         #endregion
