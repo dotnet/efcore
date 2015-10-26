@@ -318,7 +318,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder CollectionBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
-                .Relationship(Builder, ConfigurationSource.Explicit)
+                .Relationship(Builder, null, ConfigurationSource.Explicit)
                 .DependentEntityType(relatedEntityType, ConfigurationSource.Explicit)
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);

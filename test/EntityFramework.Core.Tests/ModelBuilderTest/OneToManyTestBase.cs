@@ -1672,6 +1672,18 @@ namespace Microsoft.Data.Entity.Tests
                 var newForeignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
                 Assert.Equal("PrincipalEntityId", newForeignKey.Properties.Single().Name);
             }
+
+            [Fact]
+            public virtual void Creates_shadow_foreign_key_properties_based_on_their_respective_navigation_to_principal_names()
+            {
+                var model = new Model();
+                var modelBuilder = CreateModelBuilder(model);
+                modelBuilder.Entity<EntityA>();
+
+                var entityType = model.FindEntityType(typeof(EntityA));
+                Assert.Equal("NavigationId", entityType.FindNavigation("Navigation").ForeignKey.Properties.First().Name);
+                Assert.Equal("AnotherNavigationId", entityType.FindNavigation("AnotherNavigation").ForeignKey.Properties.First().Name);
+            }
         }
     }
 }
