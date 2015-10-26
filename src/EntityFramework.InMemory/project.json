@@ -16,7 +16,8 @@
     "EntityFramework.InMemory.InMemoryStrings": "Properties/InMemoryStrings.resx"
   },
   "frameworks": {
-     "net451": {},
-     "dotnet5.4": {}
-   }
+    "net451": {},
+    "dotnet5.4": {},
+    "netcore50": {}
+  }
 }
