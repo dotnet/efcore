@@ -8,27 +8,137 @@ using Microsoft.Data.Entity.Infrastructure;
 
 namespace Microsoft.Data.Entity.Metadata
 {
+    /// <summary>
+    ///     Represents an entity in a <see cref="Model"/>.
+    /// </summary>
     public interface IEntityType : IAnnotatable
     {
+        /// <summary>
+        ///     Gets the model this entity belongs to.
+        /// </summary>
         IModel Model { get; }
+
+        /// <summary>
+        ///     Gets the name of the entity.
+        /// </summary>
         string Name { get; }
+
+        /// <summary>
+        ///     Gets the base type of the entity. Returns null if this is not a derived type in an inheritance hierarchy.
+        /// </summary>
         IEntityType BaseType { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the CLR class that is used to represent instances of this entity. Returns null if the entity does not have a 
+        ///         corresponding CLR class (known as a shadow entity).
+        ///     </para>
+        ///     <para>
+        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext"/>. 
+        ///         Therefore, shadow entities will only exist in migration model snapshots, etc.
+        ///     </para>
+        /// </summary>
         Type ClrType { get; }
+
+        /// <summary>
+        ///     <para>
+        ///         Gets primary key for this entity. Returns null if no primary key is defined.
+        ///     </para>
+        ///     <para>
+        ///         To be a valid model, each entity type must have a primary key defined. Therefore, the primary key may be 
+        ///         null while the model is being created, but will be present by the time the model is used with a <see cref="DbContext"/>.     
+        ///     </para>
+        /// </summary>
+        /// <returns> The primary key, or null if none is defined. </returns>
         IKey FindPrimaryKey();
+
+        /// <summary>
+        ///     Gets the primary or alternate key that is defined on the given properties. Returns null if no key is defined
+        ///     for the given properties.
+        /// </summary>
+        /// <param name="properties"></param>
+        /// <returns> The key, or null if none is defined. </returns>
         IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
+
+        /// <summary>
+        ///     Gets the primary and alternate keys for this entity.
+        /// </summary>
+        /// <returns> The primary and alternate keys. </returns>
         IEnumerable<IKey> GetKeys();
 
+        /// <summary>
+        ///     Gets the foreign key for the given properties that points to a given primary or alternate key. Returns null
+        ///     if no foreign key is found.
+        /// </summary>
+        /// <param name="properties"> The properties that the foreign key is defined on. </param>
+        /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
+        /// <param name="principalEntityType"> 
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
+        ///     base type of the hierarchy).
+        /// </param>
+        /// <returns> The foreign key, or null if none is defined. </returns>
         IForeignKey FindForeignKey(
             [NotNull] IReadOnlyList<IProperty> properties,
             [NotNull] IKey principalKey,
             [NotNull] IEntityType principalEntityType);
 
+        /// <summary>
+        ///     Gets the foreign keys defined on this entity.
+        /// </summary>
+        /// <returns> The foreign keys defined on this entity. </returns>
         IEnumerable<IForeignKey> GetForeignKeys();
+
+        /// <summary>
+        ///     Gets the navigation property with the given name. Returns null if no navigation property
+        ///     with the given name is found.
+        /// </summary>
+        /// <param name="name"> The name of the navigation property. </param>
+        /// <returns> The navigation property, or null if none is found. </returns>
         INavigation FindNavigation([NotNull] string name);
+
+        /// <summary>
+        ///     Gets the navigation properties defined on this entity.
+        /// </summary>
+        /// <returns> The navigation properties defined on this entity. </returns>
         IEnumerable<INavigation> GetNavigations();
+
+        /// <summary>
+        ///     Gets the index defined on the given properties. Returns null if no index is defined.
+        /// </summary>
+        /// <param name="properties"> The properties to find the index on. </param>
+        /// <returns> The index, or null if none is found. </returns>
         IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
+
+        /// <summary>
+        ///     Gets the indexes defined on this entity.
+        /// </summary>
+        /// <returns> The indexes defined on this entity. </returns>
         IEnumerable<IIndex> GetIndexes();
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the property with a given name. Returns null if no property with the given name is defined.
+        ///     </para>
+        ///     <para>
+        ///         This API only finds scalar properties and does not find navigation properties. Use 
+        ///         <see cref="FindNavigation(string)"/> to find a navigation property.
+        ///     </para>
+        /// </summary>
+        /// <param name="name"> The name of the property. </param>
+        /// <returns> The property, or null if none is found. </returns>
         IProperty FindProperty([NotNull] string name);
+
+        /// <summary>
+        ///     <para>
+        ///         Gets the properties defined on this entity.
+        ///     </para>
+        ///     <para>
+        ///         This API only returns scalar properties and does not return navigation properties. Use 
+        ///         <see cref="GetNavigations"/> to get navigation properties.
+        ///     </para>
+        /// </summary>
+        /// <returns> The properties defined on this entity. </returns>
         IEnumerable<IProperty> GetProperties();
     }
 }

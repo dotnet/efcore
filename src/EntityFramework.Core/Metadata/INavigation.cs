@@ -3,8 +3,14 @@
 
 namespace Microsoft.Data.Entity.Metadata
 {
+    /// <summary>
+    ///     Represents a navigation property which can be used to navigate a relationship.
+    /// </summary>
     public interface INavigation : IPropertyBase
     {
+        /// <summary>
+        ///     Gets the foreign key that defines the relationship this navigation property will navigate.
+        /// </summary>
         IForeignKey ForeignKey { get; }
     }
 }
