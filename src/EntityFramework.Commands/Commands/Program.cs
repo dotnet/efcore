@@ -14,10 +14,9 @@ using Microsoft.Data.Entity.Design;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Dnx.Runtime.Common.CommandLine;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -33,6 +32,9 @@ namespace Microsoft.Data.Entity.Commands
         public static int Main([NotNull] string[] args)
         {
             Check.NotNull(args, nameof(args));
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            Console.CancelKeyPress += (_, __) => cancellationTokenSource.Cancel();
 
             var app = new CommandLineApplication
             {
@@ -169,7 +171,8 @@ namespace Microsoft.Data.Entity.Commands
                                         dbContextClassName.Value(),
                                         schemaFilters.Values,
                                         tableFilters.Values,
-                                        useDataAnnotations.HasValue());
+                                        useDataAnnotations.HasValue(),
+                                        cancellationTokenSource.Token);
                                 });
                         });
                 });
