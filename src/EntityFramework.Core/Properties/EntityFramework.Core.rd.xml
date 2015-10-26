@@ -9,14 +9,6 @@
       <GenericParameter Name="TEntity" Dynamic="Required All"/>
       <ImpliesType Name="Microsoft.Data.Entity.Utilities.ImpliedEntityType{TEntity}" Dynamic="Required All"/>
     </Type>
-
-    <TypeInstantiation Name="System.Collections.Generic.IEnumerable" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required All" />
     
-    <Assembly Name="System.Linq">
-      <Type Name="System.Linq.Enumerable">
-        <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
-      </Type>
-    </Assembly>
-
   </Library>
 </Directives>
