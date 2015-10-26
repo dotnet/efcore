@@ -1295,8 +1295,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 },
                 principalEntityBuilder.Metadata.FindPrimaryKey(),
                 principalEntityBuilder.Metadata);
-            var navigationToPrincipal = dependentEntityBuilder.Metadata.AddNavigation(Order.CustomerProperty.Name, foreignKey, pointsToPrincipal: true);
-            var navigationToDependent = principalEntityBuilder.Metadata.AddNavigation(Customer.OrdersProperty.Name, foreignKey, pointsToPrincipal: false);
+
+            var navigationToPrincipal = foreignKey.HasDependentToPrincipal(Order.CustomerProperty.Name);
+            var navigationToDependent = foreignKey.HasPrincipalToDependent(Customer.OrdersProperty.Name);
 
             var relationship = dependentEntityBuilder.HasForeignKey(principalEntityBuilder, foreignKey.Properties, ConfigurationSource.Convention)
                 .DependentToPrincipal(navigationToPrincipal.Name, ConfigurationSource.Convention)
@@ -1363,10 +1364,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 },
                 principalEntityBuilder.Metadata.FindPrimaryKey(),
                 principalEntityBuilder.Metadata);
-            existingForeignKey.PrincipalEntityType
-                .AddNavigation(Customer.OrdersProperty.Name, existingForeignKey, pointsToPrincipal: false);
-            existingForeignKey.DeclaringEntityType
-                .AddNavigation(Order.CustomerProperty.Name, existingForeignKey, pointsToPrincipal: true);
+            existingForeignKey.HasPrincipalToDependent(Customer.OrdersProperty.Name);
+            existingForeignKey.HasDependentToPrincipal(Order.CustomerProperty.Name);
             var newForeignKeyBuilder = dependentEntityBuilder.HasForeignKey(typeof(Customer).FullName, new[] { Order.IdProperty.Name, Order.CustomerUniqueProperty.Name }, ConfigurationSource.Convention);
 
             newForeignKeyBuilder = newForeignKeyBuilder.DependentToPrincipal(Order.CustomerProperty.Name, ConfigurationSource.Convention);
@@ -1829,8 +1828,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(1, principalEntityBuilder.Metadata.GetDeclaredKeys().Count());
             Assert.Equal(0, derivedPrincipalEntityBuilder.Metadata.GetDeclaredKeys().Count());
             Assert.Equal(0, derivedPrincipalEntityBuilder.Metadata.GetForeignKeys().Count());
-            Assert.Equal(0, principalEntityBuilder.Metadata.FindReferencingForeignKeys().Count());
-            var fk = derivedPrincipalEntityBuilder.Metadata.FindReferencingForeignKeys().Single();
+            Assert.Equal(0, principalEntityBuilder.Metadata.GetReferencingForeignKeys().Count());
+            var fk = derivedPrincipalEntityBuilder.Metadata.GetReferencingForeignKeys().Single();
             Assert.Equal(Order.CustomerProperty.Name, fk.DependentToPrincipal.Name);
             Assert.Equal(Customer.OrdersProperty.Name, fk.PrincipalToDependent.Name);
         }

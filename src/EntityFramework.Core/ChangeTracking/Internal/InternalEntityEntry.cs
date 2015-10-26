@@ -466,7 +466,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void CascadeDelete()
         {
-            foreach (var fk in EntityType.FindReferencingForeignKeys())
+            foreach (var fk in EntityType.GetReferencingForeignKeys())
             {
                 foreach (var dependent in StateManager.GetDependents(this, fk).ToList())
                 {

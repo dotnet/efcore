@@ -308,7 +308,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            foreach (var foreignKey in entityType.FindReferencingForeignKeys())
+            foreach (var foreignKey in entityType.GetReferencingForeignKeys())
             {
                 var dependents = entry.StateManager.GetDependents(entry, foreignKey).ToArray();
                 if (dependents.Length > 0)

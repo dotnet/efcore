@@ -86,6 +86,7 @@
     <Compile Include="Internal\IDatabaseProviderSelector.cs" />
     <Compile Include="Internal\IndentedStringBuilder.cs" />
     <Compile Include="Internal\LazyRef.cs" />
+    <Compile Include="Metadata\Internal\ICanGetNavigations.cs" />
     <Compile Include="Metadata\Internal\INavigationAccessors.cs" />
     <Compile Include="Metadata\Internal\IPropertyBaseAccessors.cs" />
     <Compile Include="Metadata\Internal\KeyExtensions.cs" />

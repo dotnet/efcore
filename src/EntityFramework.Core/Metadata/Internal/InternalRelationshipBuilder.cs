@@ -224,16 +224,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     strictPrincipal: strictPrincipal);
             }
 
-            if (oldNavigation != null)
-            {
-                var removedNavigation = entityType.RemoveNavigation(oldNavigation.Name);
-                Debug.Assert(removedNavigation == oldNavigation);
-            }
-
             if (navigationName != null)
             {
                 entityTypeBuilder.Unignore(navigationName);
-                entityType.AddNavigation(navigationName, builder.Metadata, pointsToPrincipal);
+            }
+
+            if (pointsToPrincipal)
+            {
+                builder.Metadata.HasDependentToPrincipal(navigationName);
+            }
+            else
+            {
+                builder.Metadata.HasPrincipalToDependent(navigationName);
             }
 
             if (pointsToPrincipal)

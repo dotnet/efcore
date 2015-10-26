@@ -316,7 +316,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         private void ApplyOnRelatedEntityTypes(InternalModelBuilder modelBuilder, EntityType entityType)
         {
-            var relatedEntityTypes = entityType.FindReferencingForeignKeys().Select(fk => fk.DeclaringEntityType)
+            var relatedEntityTypes = entityType.GetReferencingForeignKeys().Select(fk => fk.DeclaringEntityType)
                 .Concat(entityType.GetForeignKeys().Select(fk => fk.PrincipalEntityType))
                 .Distinct()
                 .ToList();

@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity
             return entityType.FindForeignKey(new[] { property }, principalKey, principalEntityType);
         }
 
-        public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IEntityType entityType)
+        public static IEnumerable<IForeignKey> GetReferencingForeignKeys([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));
 
@@ -100,6 +100,28 @@ namespace Microsoft.Data.Entity
             Check.NotNull(propertyInfo, nameof(propertyInfo));
 
             return entityType.FindNavigation(propertyInfo.Name);
+        }
+
+        public static INavigation FindNavigation([NotNull] this IEntityType entityType, [NotNull] string name)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+            Check.NotNull(name, nameof(name));
+
+            return entityType.GetNavigations().FirstOrDefault(n => n.Name.Equals(name));
+        }
+
+        public static IEnumerable<INavigation> GetNavigations([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            var fastEntityType = entityType as ICanGetNavigations;
+            if (fastEntityType != null)
+            {
+                return fastEntityType.GetNavigations();
+            }
+
+            return entityType.BaseType?.GetNavigations().Concat(entityType.GetDeclaredNavigations())
+                   ?? entityType.GetDeclaredNavigations();
         }
 
         public static IProperty FindProperty([NotNull] this IEntityType entityType, [NotNull] PropertyInfo propertyInfo)

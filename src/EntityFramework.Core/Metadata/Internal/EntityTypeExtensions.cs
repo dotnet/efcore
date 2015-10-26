@@ -153,7 +153,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.GetNavigations().Where(p => p.DeclaringEntityType == entityType);
+            return entityType.GetDeclaredForeignKeys()
+                .Concat(entityType.GetDeclaredReferencingForeignKeys())
+                .SelectMany(foreignKey => foreignKey.FindNavigationsFrom(entityType))
+                .Distinct()
+                .OrderBy(m => m.Name);
+        }
+
+        public static IEnumerable<IForeignKey> GetDeclaredReferencingForeignKeys([NotNull] this IEntityType entityType)
+        {
+            Check.NotNull(entityType, nameof(entityType));
+
+            return entityType.Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
+                .Where(fk => fk.PrincipalEntityType == entityType);
         }
 
         public static IEnumerable<INavigation> FindDerivedNavigations(

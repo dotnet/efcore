@@ -87,8 +87,8 @@ namespace Microsoft.Data.Entity
             return entityType.FindForeignKey(new[] { property }, principalKey, principalEntityType);
         }
 
-        public static IEnumerable<IMutableForeignKey> FindReferencingForeignKeys([NotNull] this IMutableEntityType entityType)
-            => ((IEntityType)entityType).FindReferencingForeignKeys().Cast<IMutableForeignKey>();
+        public static IEnumerable<IMutableForeignKey> GetReferencingForeignKeys([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetReferencingForeignKeys().Cast<IMutableForeignKey>();
 
         public static IMutableForeignKey AddForeignKey(
             [NotNull] this IMutableEntityType entityType,
@@ -129,17 +129,11 @@ namespace Microsoft.Data.Entity
             return entityType.FindNavigation(propertyInfo.Name);
         }
 
-        public static IMutableNavigation GetOrAddNavigation(
-            [NotNull] this IMutableEntityType entityType,
-            [NotNull] string name,
-            [NotNull] IMutableForeignKey foreignKey,
-            bool pointsToPrincipal)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+        public static IMutableNavigation FindNavigation([NotNull] this IMutableEntityType entityType, [NotNull] string name)
+            => (IMutableNavigation)((IEntityType)entityType).FindNavigation(name);
 
-            return entityType.FindNavigation(name)
-                   ?? entityType.AddNavigation(name, foreignKey, pointsToPrincipal);
-        }
+        public static IEnumerable<IMutableNavigation> GetNavigations([NotNull] this IMutableEntityType entityType)
+            => ((IEntityType)entityType).GetNavigations().Cast<IMutableNavigation>();
 
         public static IMutableProperty FindProperty([NotNull] this IMutableEntityType entityType, [NotNull] PropertyInfo propertyInfo)
         {

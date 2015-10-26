@@ -355,8 +355,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.Base)).ForeignKey;
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Null(baseFk.FindNavigationTo(entityBuilder.Metadata));
-            Assert.Null(derivedFk.FindNavigationTo(entityBuilder.Metadata));
+            Assert.Empty(baseFk.FindNavigationsTo(entityBuilder.Metadata));
+            Assert.Empty(derivedFk.FindNavigationsTo(entityBuilder.Metadata));
             Assert.Equal(2, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -378,8 +378,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.Base)).ForeignKey;
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Equal(nameof(Base.BaseNavigation), baseFk.FindNavigationTo(entityBuilder.Metadata).Name);
-            Assert.Null(derivedFk.FindNavigationTo(entityBuilder.Metadata));
+            Assert.Equal(nameof(Base.BaseNavigation), baseFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
+            Assert.Empty(derivedFk.FindNavigationsTo(entityBuilder.Metadata));
             Assert.Equal(2, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -401,8 +401,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.Base)).ForeignKey;
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedTwo)).ForeignKey;
-            Assert.Equal(nameof(Base.BaseNavigation), baseFk.FindNavigationTo(entityBuilder.Metadata).Name);
-            Assert.Null(derivedFk.FindNavigationTo(entityBuilder.Metadata));
+            Assert.Equal(nameof(Base.BaseNavigation), baseFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
+            Assert.Empty(derivedFk.FindNavigationsTo(entityBuilder.Metadata));
             Assert.Equal(2, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -424,8 +424,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.Base)).ForeignKey;
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Null(baseFk.FindNavigationTo(entityBuilder.Metadata));
-            Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationTo(entityBuilder.Metadata).Name);
+            Assert.Empty(baseFk.FindNavigationsTo(entityBuilder.Metadata));
+            Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
             Assert.Equal(2, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -447,8 +447,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.Base)).ForeignKey;
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Equal(nameof(Base.BaseNavigation), baseFk.FindNavigationTo(entityBuilder.Metadata).Name);
-            Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationTo(entityBuilder.Metadata).Name);
+            Assert.Equal(nameof(Base.BaseNavigation), baseFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
+            Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
             Assert.Equal(3, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(4, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -609,7 +609,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationTo(entityBuilder.Metadata).Name);
+            Assert.Equal(nameof(DerivedOne.DerivedNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
             Assert.Equal(1, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -630,7 +630,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var derivedFk = entityBuilder.Metadata.GetNavigations()
                 .Single(n => n.Name == nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Equal(nameof(Base.BaseNavigation), derivedFk.FindNavigationTo(entityBuilder.Metadata).Name);
+            Assert.Equal(nameof(Base.BaseNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
             Assert.Equal(1, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(3, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }
@@ -666,7 +666,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
 
             var derivedFk = entityBuilder.Metadata.FindNavigation(nameof(NavigationsToBaseAndDerived.DerivedOne)).ForeignKey;
-            Assert.Equal(nameof(DerivedOne.BaseNavigation), derivedFk.FindNavigationTo(entityBuilder.Metadata).Name);
+            Assert.Equal(nameof(DerivedOne.BaseNavigation), derivedFk.FindNavigationsTo(entityBuilder.Metadata).Single().Name);
             Assert.Equal(1, entityBuilder.Metadata.GetNavigations().Count());
             Assert.Equal(2, entityBuilder.Metadata.Model.GetEntityTypes().Count);
         }

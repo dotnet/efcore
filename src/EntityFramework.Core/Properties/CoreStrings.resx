@@ -258,32 +258,20 @@
   <data name="KeyInUse" xml:space="preserve">
     <value>Cannot remove key {key} from entity type '{entityType}' because it is referenced by a foreign key in entity type '{dependentType}'. All foreign keys must be removed or redefined before the referenced key can be removed.</value>
   </data>
-  <data name="ForeignKeyInUse" xml:space="preserve">
-    <value>Cannot remove foreign key {foreignKey} from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.</value>
-  </data>
-  <data name="NavigationOnWrongEntityType" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because according to the specified foreign key it should belong to entity type '{existingEntityType}'.</value>
-  </data>
   <data name="DuplicateNavigation" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="NavigationOnShadowEntity" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.</value>
   </data>
   <data name="NoClrNavigation" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.</value>
   </data>
   <data name="NavigationSingleWrongClrType" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
   </data>
   <data name="NavigationCollectionWrongClrType" xml:space="preserve">
-    <value>The collection navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.</value>
-  </data>
-  <data name="NavigationNotFound" xml:space="preserve">
-    <value>The navigation property '{navigation}' on entity type '{entityType}' could not be found. Ensure that the navigation property exists and has been included in the model.</value>
-  </data>
-  <data name="MultipleNavigations" xml:space="preserve">
-    <value>The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.</value>
+    <value>The collection navigation property '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.</value>
   </data>
   <data name="ForeignKeyCountMismatch" xml:space="preserve">
     <value>The number of properties specified for the foreign key {foreignKey} on entity type '{dependentType}' does not match the number of properties in the principal key {principalKey} on entity type '{principalType}'.</value>
@@ -292,19 +280,19 @@
     <value>The types of the properties specified for the foreign key {foreignKey} on entity type '{dependentType}' do not match the types of the properties in the principal key {principalKey} on entity type '{principalType}'.</value>
   </data>
   <data name="NavigationBadType" xml:space="preserve">
-    <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
+    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.</value>
   </data>
   <data name="NavigationArray" xml:space="preserve">
-    <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
+    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.</value>
   </data>
   <data name="NavigationNoGetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on entity type '{entityType}' does not have a getter.</value>
+    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.</value>
   </data>
   <data name="NavigationNoSetter" xml:space="preserve">
-    <value>The navigation property '{navigation}' on entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.</value>
+    <value>The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.</value>
   </data>
   <data name="NavigationCannotCreateType" xml:space="preserve">
-    <value>The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
+    <value>The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.</value>
   </data>
   <data name="KeyReadOnly" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is part of a key and so cannot be modified or marked as modified.</value>
@@ -334,7 +322,7 @@
     <value>The key {key} cannot be added to the entity type '{entityType}' because a key on the same properties already exists on entity type '{duplicateEntityType}'.</value>
   </data>
   <data name="NavigationToShadowEntity" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.</value>
+    <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.</value>
   </data>
   <data name="CollectionArgumentContainsNulls" xml:space="preserve">
     <value>The collection argument '{argumentName}' must not contain any null references.</value>
@@ -435,9 +423,6 @@
   <data name="ForeignKeyReferencedEntityKeyMismatch" xml:space="preserve">
     <value>The provided principal entity key '{principalKey}' is not a key on the entity type '{principalEntityType}'.</value>
   </data>
-  <data name="NavigationForWrongForeignKey" xml:space="preserve">
-    <value>The navigation for property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
-  </data>
   <data name="WrongGenericPropertyType" xml:space="preserve">
     <value>Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.</value>
   </data>
@@ -461,12 +446,6 @@
   </data>
   <data name="CompositePKWithDataAnnotation" xml:space="preserve">
     <value>Entity type '{entityType}' has composite primary key defined with data annotations. To set composite primary key, use fluent API.</value>
-  </data>
-  <data name="NavigationStillOnEntityType" xml:space="preserve">
-    <value>The navigation property '{navigation}' cannot be removed because it is still referenced from entity type '{entityType}'.</value>
-  </data>
-  <data name="IntraHierarchicalAmbiguousNavigation" xml:space="preserve">
-    <value>The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is '{principalEntityType}' and it is in the same hierarchy as the dependent entity type '{dependentEntityType}'.</value>
   </data>
   <data name="DuplicateNavigationsOnBase" xml:space="preserve">
     <value>The type '{entityType}' cannot have base type '{baseType}' because both types include the navigations: {navigations}.</value>
@@ -531,9 +510,6 @@
   <data name="EntityTypeNotInRelationshipStrict" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}'.</value>
   </data>
-  <data name="SelfReferencingAmbiguousNavigation" xml:space="preserve">
-    <value>The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is the same as the dependent entity type.</value>
-  </data>
   <data name="EntityTypeInUseByDerived" xml:space="preserve">
     <value>The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.</value>
   </data>
@@ -545,5 +521,8 @@
   </data>
   <data name="PropertyNotMapped" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has CLR type which is not supported by current provider and it has not been configured to use any supported column type.</value>
+  </data>
+  <data name="NavigationForWrongForeignKey" xml:space="preserve">
+    <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
   </data>
 </root>

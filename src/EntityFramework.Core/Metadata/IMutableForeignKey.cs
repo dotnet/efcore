@@ -9,8 +9,10 @@ namespace Microsoft.Data.Entity.Metadata
         new IMutableKey PrincipalKey { get; }
         new IMutableEntityType DeclaringEntityType { get; }
         new IMutableEntityType PrincipalEntityType { get; }
-        new IMutableNavigation DependentToPrincipal { get; [param: CanBeNull] set; }
-        new IMutableNavigation PrincipalToDependent { get; [param: CanBeNull] set; }
+        new IMutableNavigation DependentToPrincipal { get; }
+        new IMutableNavigation PrincipalToDependent { get; }
+        IMutableNavigation HasDependentToPrincipal([CanBeNull] string name);
+        IMutableNavigation HasPrincipalToDependent([CanBeNull] string name);
         new bool? IsUnique { get; set; }
         new bool? IsRequired { get; set; }
         new DeleteBehavior? DeleteBehavior { get; set; }

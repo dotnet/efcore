@@ -308,8 +308,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             entityType.AddProperty("Name", typeof(string)).IsShadowProperty = false;
 
-            entityType.AddNavigation("LesserBananas", fk, pointsToPrincipal: false);
-            entityType.AddNavigation("TopBanana", fk, pointsToPrincipal: true);
+            fk.HasPrincipalToDependent("LesserBananas");
+            fk.HasDependentToPrincipal("TopBanana");
 
             return model;
         }

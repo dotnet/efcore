@@ -21,10 +21,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public override IEnumerable<EntityType> GetOutgoingNeighbours(EntityType from)
             => @from.GetForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.PrincipalEntityType)
-                .Union(@from.FindReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
+                .Union(@from.GetReferencingForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.DeclaringEntityType));
 
         public override IEnumerable<EntityType> GetIncomingNeighbours(EntityType to)
             => to.GetForeignKeys().Where(fk => fk.PrincipalToDependent != null).Select(fk => fk.PrincipalEntityType)
-                .Union(to.FindReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
+                .Union(to.GetReferencingForeignKeys().Where(fk => fk.DependentToPrincipal != null).Select(fk => fk.DeclaringEntityType));
     }
 }

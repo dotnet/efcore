@@ -389,22 +389,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Cannot remove foreign key {foreignKey} from entity type '{entityType}' because it is referenced by navigation property '{navigation}' in entity type '{dependentType}'. All navigations must be removed or redefined before the referenced foreign key can be removed.
-        /// </summary>
-        public static string ForeignKeyInUse([CanBeNull] object foreignKey, [CanBeNull] object entityType, [CanBeNull] object navigation, [CanBeNull] object dependentType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ForeignKeyInUse", "foreignKey", "entityType", "navigation", "dependentType"), foreignKey, entityType, navigation, dependentType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because according to the specified foreign key it should belong to entity type '{existingEntityType}'.
-        /// </summary>
-        public static string NavigationOnWrongEntityType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object existingEntityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationOnWrongEntityType", "navigation", "entityType", "existingEntityType"), navigation, entityType, existingEntityType);
-        }
-
-        /// <summary>
         /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because a navigation property with the same name already exists on entity type '{duplicateEntityType}'.
         /// </summary>
         public static string DuplicateNavigation([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object duplicateEntityType)
@@ -413,7 +397,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the entity type is defined in shadow state and navigations properties cannot be added to shadow state.
         /// </summary>
         public static string NavigationOnShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -421,7 +405,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because there is no corresponding CLR property on the underlying type and navigations properties cannot be added to shadow state.
         /// </summary>
         public static string NoClrNavigation([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -429,7 +413,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.
         /// </summary>
         public static string NavigationSingleWrongClrType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object clrType, [CanBeNull] object targetType)
         {
@@ -437,27 +421,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The collection navigation property '{navigation}' cannot be added to entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.
+        /// The collection navigation property '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection navigation properties must implement IEnumerable&lt;&gt; of the related entity.
         /// </summary>
         public static string NavigationCollectionWrongClrType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object clrType, [CanBeNull] object targetType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("NavigationCollectionWrongClrType", "navigation", "entityType", "clrType", "targetType"), navigation, entityType, clrType, targetType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' on entity type '{entityType}' could not be found. Ensure that the navigation property exists and has been included in the model.
-        /// </summary>
-        public static string NavigationNotFound([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationNotFound", "navigation", "entityType"), navigation, entityType);
-        }
-
-        /// <summary>
-        /// The navigation properties '{navigation1}' and '{navigation2}' on entity type '{entityType}' are both backed by the same foreign key and point in the same direction. Each foreign key can have at most one navigation property and one inverse navigation property.
-        /// </summary>
-        public static string MultipleNavigations([CanBeNull] object navigation1, [CanBeNull] object navigation2, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleNavigations", "navigation1", "navigation2", "entityType"), navigation1, navigation2, entityType);
         }
 
         /// <summary>
@@ -477,7 +445,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.
+        /// The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which does not implement ICollection&lt;{targetType}&gt;. Collection navigation properties must implement ICollection&lt;&gt; of the target type.
         /// </summary>
         public static string NavigationBadType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType, [CanBeNull] object targetType)
         {
@@ -485,7 +453,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.
+        /// The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' which is an array type.. Collection navigation properties cannot be arrays.
         /// </summary>
         public static string NavigationArray([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType)
         {
@@ -493,7 +461,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' on entity type '{entityType}' does not have a getter.
+        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a getter.
         /// </summary>
         public static string NavigationNoGetter([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -501,7 +469,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' on entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
+        /// The navigation property '{navigation}' on the entity type '{entityType}' does not have a setter. Read-only collection navigation properties must be initialized before use.
         /// </summary>
         public static string NavigationNoSetter([CanBeNull] object navigation, [CanBeNull] object entityType)
         {
@@ -509,7 +477,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The type of navigation property '{navigation}' on entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.
+        /// The type of navigation property '{navigation}' on the entity type '{entityType}' is '{foundType}' for which it was not possible to create a concrete instance. Either initialize the property before use, add a public parameterless constructor to the type, or use a type which can be assigned a HashSet&lt;&gt; or List&lt;&gt;.
         /// </summary>
         public static string NavigationCannotCreateType([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object foundType)
         {
@@ -589,7 +557,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property '{navigation}' cannot be added to entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.
+        /// The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.
         /// </summary>
         public static string NavigationToShadowEntity([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetType)
         {
@@ -861,14 +829,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation for property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.
-        /// </summary>
-        public static string NavigationForWrongForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetFk, [CanBeNull] object actualFk)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationForWrongForeignKey", "navigation", "entityType", "targetFk", "actualFk"), navigation, entityType, targetFk, actualFk);
-        }
-
-        /// <summary>
         /// Property '{property}' on entity type '{entityType}' is of type '{actualType}' but the generic type provided is of type '{genericType}'.
         /// </summary>
         public static string WrongGenericPropertyType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object actualType, [CanBeNull] object genericType)
@@ -930,22 +890,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string CompositePKWithDataAnnotation([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("CompositePKWithDataAnnotation", "entityType"), entityType);
-        }
-
-        /// <summary>
-        /// The navigation property '{navigation}' cannot be removed because it is still referenced from entity type '{entityType}'.
-        /// </summary>
-        public static string NavigationStillOnEntityType([CanBeNull] object navigation, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationStillOnEntityType", "navigation", "entityType"), navigation, entityType);
-        }
-
-        /// <summary>
-        /// The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is '{principalEntityType}' and it is in the same hierarchy as the dependent entity type '{dependentEntityType}'.
-        /// </summary>
-        public static string IntraHierarchicalAmbiguousNavigation([CanBeNull] object entityType, [CanBeNull] object foreignKey, [CanBeNull] object principalEntityType, [CanBeNull] object dependentEntityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IntraHierarchicalAmbiguousNavigation", "entityType", "foreignKey", "principalEntityType", "dependentEntityType"), entityType, foreignKey, principalEntityType, dependentEntityType);
         }
 
         /// <summary>
@@ -1117,14 +1061,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The navigation property corresponding to '{entityType}' cannot be determined because the principal entity type for foreign key {foreignKey} is the same as the dependent entity type.
-        /// </summary>
-        public static string SelfReferencingAmbiguousNavigation([CanBeNull] object entityType, [CanBeNull] object foreignKey)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("SelfReferencingAmbiguousNavigation", "entityType", "foreignKey"), entityType, foreignKey);
-        }
-
-        /// <summary>
         /// The entity type '{entityType}' cannot be removed because '{derivedEntityType}' is derived from it. All derived entity types must be removed or redefined before the entity type can be removed.
         /// </summary>
         public static string EntityTypeInUseByDerived([CanBeNull] object entityType, [CanBeNull] object derivedEntityType)
@@ -1154,6 +1090,14 @@ namespace Microsoft.Data.Entity.Internal
         public static string PropertyNotMapped([CanBeNull] object property, [CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("PropertyNotMapped", "property", "entityType"), property, entityType);
+        }
+
+        /// <summary>
+        /// The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.
+        /// </summary>
+        public static string NavigationForWrongForeignKey([CanBeNull] object navigation, [CanBeNull] object entityType, [CanBeNull] object targetFk, [CanBeNull] object actualFk)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("NavigationForWrongForeignKey", "navigation", "entityType", "targetFk", "actualFk"), navigation, entityType, targetFk, actualFk);
         }
 
         private static string GetString(string name, params string[] formatterNames)

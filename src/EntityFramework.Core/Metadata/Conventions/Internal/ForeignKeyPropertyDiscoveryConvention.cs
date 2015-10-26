@@ -267,7 +267,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, ConfigurationSource.Convention);
                     Apply(relationshipBuilder);
                 }
-                foreach (var foreignKey in entityType.FindReferencingForeignKeys().ToList())
+                foreach (var foreignKey in entityType.GetReferencingForeignKeys().ToList())
                 {
                     var relationshipBuilder = propertyBuilder.ModelBuilder
                         .Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)

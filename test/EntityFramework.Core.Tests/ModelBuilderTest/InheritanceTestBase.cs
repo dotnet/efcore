@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Tests
                 var initialKeys = pickleClone.GetKeys();
                 var initialIndexes = pickleClone.GetIndexes();
                 var initialForeignKeys = pickleClone.GetForeignKeys();
-                var initialReferencingForeignKeys = pickleClone.FindReferencingForeignKeys();
+                var initialReferencingForeignKeys = pickleClone.GetReferencingForeignKeys();
 
                 pickleBuilder.HasBaseType<Ingredient>();
                 var ingredientBuilder = modelBuilder.Entity<Ingredient>();
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.GetIndexes());
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
-                AssertEqual(initialReferencingForeignKeys, pickle.FindReferencingForeignKeys());
+                AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
                 pickleBuilder.HasBaseType(null);
 
@@ -54,13 +54,13 @@ namespace Microsoft.Data.Entity.Tests
                 AssertEqual(initialKeys, pickle.GetKeys());
                 AssertEqual(initialIndexes, pickle.GetIndexes());
                 AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
-                AssertEqual(initialReferencingForeignKeys, pickle.FindReferencingForeignKeys());
+                AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
                 AssertEqual(initialProperties, ingredient.GetProperties(), new PropertyComparer(compareAnnotations: false));
                 AssertEqual(initialKeys, ingredient.GetKeys());
                 AssertEqual(initialIndexes, ingredient.GetIndexes());
                 Assert.Equal(initialForeignKeys.Count(), ingredient.GetForeignKeys().Count());
-                Assert.Equal(initialReferencingForeignKeys.Count(), ingredient.FindReferencingForeignKeys().Count());
+                Assert.Equal(initialReferencingForeignKeys.Count(), ingredient.GetReferencingForeignKeys().Count());
             }
             
             [Fact]

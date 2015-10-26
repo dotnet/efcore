@@ -111,20 +111,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             if (createProducts)
             {
-                categoryType.AddNavigation("Products", categoryFk, pointsToPrincipal: false);
+                categoryFk.HasPrincipalToDependent(nameof(Category.Products));
             }
             if (createCategory)
             {
-                productType.AddNavigation("Category", categoryFk, pointsToPrincipal: true);
+                categoryFk.HasDependentToPrincipal(nameof(Product.Category));
             }
 
             if (createFeaturedProductCategory)
             {
-                productType.AddNavigation("FeaturedProductCategory", featuredProductFk, pointsToPrincipal: false);
+                featuredProductFk.HasPrincipalToDependent(nameof(Product.FeaturedProductCategory));
             }
             if (createFeaturedProduct)
             {
-                categoryType.AddNavigation("FeaturedProduct", featuredProductFk, pointsToPrincipal: true);
+                featuredProductFk.HasDependentToPrincipal(nameof(Category.FeaturedProduct));
             }
 
             return model;
