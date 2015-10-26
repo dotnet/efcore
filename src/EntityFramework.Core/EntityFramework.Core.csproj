@@ -213,7 +213,7 @@
     <Compile Include="Metadata\Conventions\Internal\PropertyDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RelationshipDiscoveryConvention.cs" />
     <Compile Include="Metadata\Conventions\Internal\RequiredPropertyAttributeConvention.cs" />
-    <Compile Include="Metadata\CoreAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\CoreAnnotationNames.cs" />
     <Compile Include="Metadata\DeleteBehavior.cs" />
     <Compile Include="Metadata\IMutableAnnotatable.cs" />
     <Compile Include="Metadata\IMutableEntityType.cs" />

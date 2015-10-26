@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
+using Microsoft.Data.Entity.Scaffolding.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace

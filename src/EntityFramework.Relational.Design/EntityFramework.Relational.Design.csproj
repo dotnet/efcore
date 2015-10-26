@@ -101,7 +101,7 @@
     <Compile Include="Internal\ReverseEngineeringConfiguration.cs" />
     <Compile Include="Internal\ReverseEngineeringGenerator.cs" />
     <Compile Include="RelationalScaffoldingModelFactory.cs" />
-    <Compile Include="Metadata\ScaffoldingAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\ScaffoldingAnnotationNames.cs" />
     <Compile Include="Internal\CSharpUtilities.cs" />
     <Compile Include="Internal\ModelUtilities.cs" />
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">

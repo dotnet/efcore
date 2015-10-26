@@ -168,7 +168,7 @@
     <Compile Include="Metadata\IRelationalModelAnnotations.cs" />
     <Compile Include="Metadata\IRelationalPropertyAnnotations.cs" />
     <Compile Include="Metadata\ISequence.cs" />
-    <Compile Include="Metadata\RelationalAnnotationNames.cs" />
+    <Compile Include="Metadata\Internal\RelationalAnnotationNames.cs" />
     <Compile Include="RelationalEntityTypeBuilderExtensions.cs" />
     <Compile Include="Metadata\RelationalEntityTypeAnnotations.cs" />
     <Compile Include="Metadata\RelationalForeignKeyAnnotations.cs" />
