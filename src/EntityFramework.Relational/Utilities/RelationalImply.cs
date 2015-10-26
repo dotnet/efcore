@@ -4,6 +4,7 @@
 #pragma warning disable 0169
 
 using System;
+using System.Threading;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Storage;
 
@@ -21,13 +22,15 @@ namespace Microsoft.Data.Entity.Utilities
 
     internal partial class ImplyGeneric<T>
     {
-        public ImplyJoin<T, T> Join;
-
         public void ImplyMethods()
         {
             QueryMethodProvider.GetResult<T>(null);
             QueryMethodProvider._ShapedQuery<T>(null, null, null);
             QueryMethodProvider._Include<T>(null, null, null, null, null, true);
+
+            AsyncQueryMethodProvider.GetResult<T>(null, default(CancellationToken)).Wait();
+            AsyncQueryMethodProvider._ShapedQuery<T>(null, null, null);
+            AsyncQueryMethodProvider._Include<T>(null, null, null, null, null, true);
         }
     }
 
@@ -35,8 +38,6 @@ namespace Microsoft.Data.Entity.Utilities
     {
         public Func<T1, T2> Func1;
         public Func<T2, T1> Func2;
-        public ImplyJoin<T1, T2> Join1;
-        public ImplyJoin<T2, T1> Join2;
     }
 
     internal class ImplyGeneric<T1, T2, T3, T4>

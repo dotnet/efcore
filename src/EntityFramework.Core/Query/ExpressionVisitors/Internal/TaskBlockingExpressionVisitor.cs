@@ -33,6 +33,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 .GetDeclaredMethod(nameof(_Result));
 
         [UsedImplicitly]
-        private static T _Result<T>(Task<T> task) => task.Result;
+        internal static T _Result<T>(Task<T> task) => task.Result;
     }
 }

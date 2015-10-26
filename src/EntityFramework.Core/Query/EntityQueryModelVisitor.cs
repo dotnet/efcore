@@ -275,7 +275,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetTypeInfo().GetDeclaredMethod(nameof(TaskToSequence));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<T> TaskToSequence<T>(Task<T> task)
+        internal static IAsyncEnumerable<T> TaskToSequence<T>(Task<T> task)
             => new TaskResultAsyncEnumerable<T>(task);
 
         protected virtual void IncludeNavigations([NotNull] QueryModel queryModel)
@@ -816,7 +816,7 @@ namespace Microsoft.Data.Entity.Query
 
         public const string CreateTransparentIdentifierMethodName = "CreateTransparentIdentifier";
 
-        internal struct TransparentIdentifier<TOuter, TInner>
+        private struct TransparentIdentifier<TOuter, TInner>
         {
             [UsedImplicitly]
             public static TransparentIdentifier<TOuter, TInner> CreateTransparentIdentifier(TOuter outer, TInner inner)
