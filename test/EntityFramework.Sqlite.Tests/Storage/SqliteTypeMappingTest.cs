@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.Storage
         [InlineData("TEXT", typeof(string))]
         [InlineData("Integer", typeof(long))]
         [InlineData("Blob", typeof(byte[]))]
-        [InlineData("real", typeof(double))]
         [InlineData("numeric", typeof(string))]
         [InlineData("real", typeof(double))]
         [InlineData("doub", typeof(double))]
