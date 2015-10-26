@@ -16,13 +16,18 @@
   "namedResource": {
     "EntityFramework.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
   },
-  "resource": ["Properties/EntityFramework.Sqlite.rd.xml"],
+  "resource": [ "Properties/EntityFramework.Sqlite.rd.xml" ],
   "frameworks": {
     "net451": { },
     "dotnet5.4": {
       "dependencies": {
         "System.IO.FileSystem": "4.0.1-beta-*",
         "Microsoft.CSharp": "4.0.1-beta-*"
+      }
+    },
+    "netcore50": {
+      "dependencies": {
+        "System.IO.FileSystem": "4.0.0"
       }
     }
   }
