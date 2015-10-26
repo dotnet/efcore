@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(RelationalStrings.ClientEvalDisabled("[c].IsLondon"),
                     Assert.Throws<InvalidOperationException>(
                         () => context.Customers
-                            .FromSql("select * from Customers")
+                            .FromSql(@"select * from ""Customers""")
                             .Where(c => c.IsLondon)
                             .ToList()).Message);
             }
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = context.Customers
-                        .FromSql("select * from Customers")
+                        .FromSql(@"select * from ""Customers""")
                         .ToList();
 
                 Assert.Equal(91, customers.Count);
