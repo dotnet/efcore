@@ -47,6 +47,7 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Utilities\LoggingExtensions.cs</Link>
     </Compile>
+    <Compile Include="Internal\Configuration\IndexConfiguration.cs" />
     <Compile Include="Internal\CSharpNamer.cs" />
     <Compile Include="Internal\CSharpUniqueNamer.cs" />
     <Compile Include="IDatabaseModelFactory.cs" />

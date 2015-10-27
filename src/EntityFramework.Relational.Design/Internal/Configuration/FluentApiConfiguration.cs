@@ -8,17 +8,17 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 {
     public class FluentApiConfiguration : IFluentApiConfiguration
     {
-        private readonly string _methodName;
-        private readonly string[] _methodArguments;
-
         public FluentApiConfiguration(
             [NotNull] string methodName, [CanBeNull] params string[] methodArguments)
         {
             Check.NotEmpty(methodName, nameof(methodName));
 
-            _methodName = methodName;
-            _methodArguments = methodArguments;
+            MethodName = methodName;
+            MethodArguments = methodArguments;
         }
+
+        public virtual string MethodName { get; }
+        public virtual string[] MethodArguments { get; }
 
         public virtual bool HasAttributeEquivalent { get; set; }
 
@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             get
             {
-                return _methodArguments == null
-                    ? _methodName + "()"
-                    : _methodName + "(" + string.Join(", ", _methodArguments) + ")";
+                return MethodArguments == null
+                    ? MethodName + "()"
+                    : MethodName + "(" + string.Join(", ", MethodArguments) + ")";
             }
         }
 
