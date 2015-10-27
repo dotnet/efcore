@@ -136,6 +136,11 @@ CREATE TABLE "dbo"."AllDataTypes" (
 
 GO
 
+CREATE INDEX "IX_UnscaffoldableIndex"
+	ON "dbo"."AllDataTypes" ( nvarcharColumn, sql_variantColumn )
+
+GO
+
 CREATE TABLE "dbo"."PropertyConfiguration" (
 	"PropertyConfigurationID" "tinyint" IDENTITY(1, 1) PRIMARY KEY, -- tests error message about tinyint identity columns
 	"WithDateDefaultExpression" "datetime2" NOT NULL DEFAULT (getdate()),
