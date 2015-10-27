@@ -47,13 +47,9 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         public virtual object GetEntity(
-            IEntityType entityType,
-            IKeyValue keyValue,
-            EntityLoadInfo entityLoadInfo,
-            bool queryStateManager)
+            IKeyValue keyValue, EntityLoadInfo entityLoadInfo, bool queryStateManager)
         {
             // hot path
-            Debug.Assert(entityType != null);
             Debug.Assert(keyValue != null);
 
             if (queryStateManager)
@@ -182,9 +178,6 @@ namespace Microsoft.Data.Entity.Query.Internal
                     out primaryKeyValue,
                     out relatedKeyFactory);
 
-            var keyProperties
-                = targetEntityType.FindPrimaryKey().Properties;
-
             var keyValueFactory
                 = _keyValueFactorySource
                     .GetKeyFactory(targetEntityType.FindPrimaryKey());
@@ -196,20 +189,13 @@ namespace Microsoft.Data.Entity.Query.Internal
                 relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
                     .Select(eli =>
                         {
-                            var keyValue
-                                = keyValueFactory
-                                    .Create(keyProperties, eli.ValueBuffer);
+                            var keyValue = keyValueFactory.Create(eli.ValueBuffer);
 
                             object targetEntity = null;
 
                             if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
                             {
-                                targetEntity
-                                    = GetEntity(
-                                        targetEntityType,
-                                        keyValue,
-                                        eli,
-                                        queryStateManager);
+                                targetEntity = GetEntity(keyValue, eli, queryStateManager);
                             }
 
                             Include(
@@ -257,9 +243,6 @@ namespace Microsoft.Data.Entity.Query.Internal
                     out primaryKeyValue,
                     out relatedKeyFactory);
 
-            var keyProperties
-                = targetEntityType.FindPrimaryKey().Properties;
-
             var keyValueFactory
                 = _keyValueFactorySource
                     .GetKeyFactory(targetEntityType.FindPrimaryKey());
@@ -269,34 +252,27 @@ namespace Microsoft.Data.Entity.Query.Internal
                 navigationPath,
                 currentNavigationIndex,
                 await relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
-                .Select(async (eli, ct) =>
-                    {
-                        var keyValue
-                            = keyValueFactory
-                                .Create(keyProperties, eli.ValueBuffer);
-
-                        object targetEntity = null;
-
-                        if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
+                    .Select(async (eli, ct) =>
                         {
-                            targetEntity
-                                = GetEntity(
-                                    targetEntityType,
-                                    keyValue,
-                                    eli,
-                                    queryStateManager);
-                        }
+                            var keyValue = keyValueFactory.Create(eli.ValueBuffer);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            queryStateManager);
+                            object targetEntity = null;
 
-                        return targetEntity;
-                    })
+                            if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
+                            {
+                                targetEntity = GetEntity(keyValue, eli, queryStateManager);
+                            }
+
+                            await IncludeAsync(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                ct,
+                                currentNavigationIndex + 1,
+                                queryStateManager);
+
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }

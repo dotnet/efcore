@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -163,7 +164,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         private static IEnumerable<TEntity> EntityQuery<TEntity>(
             QueryContext queryContext,
             IEntityType entityType,
-            Func<ValueBuffer, IKeyValue> keyValueFactory,
+            KeyValueFactory keyValueFactory,
             Func<IEntityType, ValueBuffer, object> materializer,
             bool queryStateManager)
             where TEntity : class
@@ -174,12 +175,11 @@ namespace Microsoft.Data.Entity.Query.Internal
                     t.Select(vs =>
                         {
                             var valueBuffer = new ValueBuffer(vs);
-                            var keyValue = keyValueFactory(valueBuffer);
+                            var keyValue = keyValueFactory.Create(valueBuffer);
 
                             return (TEntity)queryContext
                                 .QueryBuffer
                                 .GetEntity(
-                                    entityType,
                                     keyValue,
                                     new EntityLoadInfo(
                                         valueBuffer,

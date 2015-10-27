@@ -43,7 +43,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         entityType: FunctionalTests.TestModels.Northwind.Customer, 
         trackingQuery: True, 
         keyValueFactory: SimpleKeyValueFactory`1, 
-        keyProperties: List<Property> { Customer.CustomerID, }, 
         materializer: (ValueBuffer prm2) => 
         {
             var var3
@@ -120,7 +119,6 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             entityType: FunctionalTests.TestModels.Northwind.Customer, 
             trackingQuery: True, 
             keyValueFactory: SimpleKeyValueFactory`1, 
-            keyProperties: List<Property> { Customer.CustomerID, }, 
             materializer: (ValueBuffer prm2) => 
             {
                 var var3

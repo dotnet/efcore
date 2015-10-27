@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         = (int)((ConstantExpression)innerShaper.Arguments[2]).Value;
 
                     newArguments[2] = Expression.Constant(oldBufferOffset + _readerOffset);
-                    newArguments[9] = Expression.Constant(true);
+                    newArguments[8] = Expression.Constant(true);
 
                     innerShaper = innerShaper.Update(innerShaper.Object, newArguments);
                 }

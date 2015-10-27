@@ -18,6 +18,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual IKey Key { get; }
 
+        public abstract IKeyValue Create(ValueBuffer valueBuffer);
+
         public abstract IKeyValue Create(
             [NotNull] IReadOnlyList<IProperty> properties,
             ValueBuffer valueBuffer);

@@ -4,6 +4,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -40,6 +41,11 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             private bool _disposed;
 
+            private DbDataReader _dbDataReader;
+            private IRelationalValueBufferFactory _valueBufferFactory;
+
+            private ValueBuffer _current;
+
             public Enumerator(QueryingEnumerable queryingEnumerable)
             {
                 _queryingEnumerable = queryingEnumerable;
@@ -60,17 +66,21 @@ namespace Microsoft.Data.Entity.Query.Internal
                         _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
 
-                        _dataReader = command.ExecuteReader(_queryingEnumerable._relationalQueryContext.Connection, false);
+                        _dataReader 
+                            = command.ExecuteReader(
+                                _queryingEnumerable._relationalQueryContext.Connection, 
+                                manageConnection: false);
 
-                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader.DbDataReader);
+                        _dbDataReader = _dataReader.DbDataReader;
+                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dbDataReader);
+                        _valueBufferFactory = _queryingEnumerable._commandBuilder.ValueBufferFactory;
                     }
 
-                    var hasNext = _dataReader.DbDataReader.Read();
+                    var hasNext = _dbDataReader.Read();
 
-                    Current
+                    _current
                         = hasNext
-                            ? _queryingEnumerable._commandBuilder.ValueBufferFactory
-                                .Create(_dataReader.DbDataReader)
+                            ? _valueBufferFactory.Create(_dbDataReader)
                             : default(ValueBuffer);
 
                     return hasNext;
@@ -78,7 +88,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 if (_buffer.Count > 0)
                 {
-                    Current = _buffer.Dequeue();
+                    _current = _buffer.Dequeue();
 
                     return true;
                 }
@@ -86,7 +96,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                 return false;
             }
 
-            public ValueBuffer Current { get; private set; }
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public ValueBuffer Current => _current;
 
             public void BufferAll()
             {
@@ -96,11 +107,9 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                     using (_dataReader)
                     {
-                        while (_dataReader.DbDataReader.Read())
+                        while (_dbDataReader.Read())
                         {
-                            _buffer.Enqueue(
-                                _queryingEnumerable._commandBuilder.ValueBufferFactory
-                                    .Create(_dataReader.DbDataReader));
+                            _buffer.Enqueue(_valueBufferFactory.Create(_dbDataReader));
                         }
                     }
 

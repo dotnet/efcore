@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -37,9 +38,15 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             private bool _disposed;
 
+            private DbDataReader _dbDataReader;
+            private IRelationalValueBufferFactory _valueBufferFactory;
+
+            private ValueBuffer _current;
+
             public AsyncEnumerator(AsyncQueryingEnumerable queryingEnumerable)
             {
                 _queryingEnumerable = queryingEnumerable;
+                _valueBufferFactory = _queryingEnumerable._commandBuilder.ValueBufferFactory;
             }
 
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
@@ -60,20 +67,22 @@ namespace Microsoft.Data.Entity.Query.Internal
                         await _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
 
-                        _dataReader = await command.ExecuteReaderAsync(
-                            _queryingEnumerable._relationalQueryContext.Connection,
-                            cancellationToken,
-                            false);
+                        _dataReader
+                            = await command.ExecuteReaderAsync(
+                                _queryingEnumerable._relationalQueryContext.Connection,
+                                cancellationToken, 
+                                manageConnection: false);
 
-                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dataReader.DbDataReader);
+                        _dbDataReader = _dataReader.DbDataReader;
+                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dbDataReader);
+                        _valueBufferFactory = _queryingEnumerable._commandBuilder.ValueBufferFactory;
                     }
 
-                    var hasNext = await _dataReader.DbDataReader.ReadAsync(cancellationToken);
+                    var hasNext = await _dbDataReader.ReadAsync(cancellationToken);
 
-                    Current
+                    _current
                         = hasNext
-                            ? _queryingEnumerable._commandBuilder.ValueBufferFactory
-                                .Create(_dataReader.DbDataReader)
+                            ? _valueBufferFactory.Create(_dbDataReader)
                             : default(ValueBuffer);
 
                     return hasNext;
@@ -81,15 +90,16 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 if (_buffer.Count > 0)
                 {
-                    Current = _buffer.Dequeue();
+                    _current = _buffer.Dequeue();
 
                     return true;
                 }
 
                 return false;
             }
-
-            public ValueBuffer Current { get; private set; }
+            
+            // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
+            public ValueBuffer Current => _current;
 
             public async Task BufferAllAsync(CancellationToken cancellationToken)
             {
@@ -101,11 +111,9 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                     using (_dataReader)
                     {
-                        while (await _dataReader.DbDataReader.ReadAsync(cancellationToken))
+                        while (await _dbDataReader.ReadAsync(cancellationToken))
                         {
-                            _buffer.Enqueue(
-                                _queryingEnumerable._commandBuilder.ValueBufferFactory
-                                    .Create(_dataReader.DbDataReader));
+                            _buffer.Enqueue(_valueBufferFactory.Create(_dbDataReader));
                         }
                     }
 

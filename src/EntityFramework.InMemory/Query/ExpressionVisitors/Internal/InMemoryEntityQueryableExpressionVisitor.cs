@@ -5,10 +5,8 @@ using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.Internal;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Clauses;
 
@@ -48,14 +46,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
             var entityType = _model.FindEntityType(elementType);
 
-            var keyProperties
-                = entityType.FindPrimaryKey().Properties;
-
-            var keyFactory = _keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey());
-
-            Func<ValueBuffer, IKeyValue> keyValueFactory
-                = vr => keyFactory.Create(keyProperties, vr);
-
             if (QueryModelVisitor.QueryCompilationContext
                 .QuerySourceRequiresMaterialization(_querySource))
             {
@@ -65,7 +55,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     InMemoryQueryModelVisitor.EntityQueryMethodInfo.MakeGenericMethod(elementType),
                     EntityQueryModelVisitor.QueryContextParameter,
                     Expression.Constant(entityType),
-                    Expression.Constant(keyValueFactory),
+                    Expression.Constant(_keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey())),
                     materializer,
                     Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery));
             }

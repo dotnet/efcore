@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
         private readonly IEntityType _entityType;
-        private readonly IReadOnlyList<IProperty> _entityKeyProperties;
         private readonly KeyValueFactory _keyValueFactory;
         private readonly IReadOnlyList<IReadOnlyList<INavigation>> _includedNavigationPaths;
         private readonly IDictionary<INavigation, IncludedEntityTrackingInfo> _includedEntityTrackingInfos;
@@ -45,7 +44,6 @@ namespace Microsoft.Data.Entity.Query.Internal
             _clrPropertyGetterSource = clrPropertyGetterSource;
             _entityType = entityType;
 
-            _entityKeyProperties = _entityType.FindPrimaryKey().Properties;
             _keyValueFactory = keyValueFactorySource.GetKeyFactory(_entityType.FindPrimaryKey());
 
             _includedNavigationPaths
@@ -62,14 +60,12 @@ namespace Microsoft.Data.Entity.Query.Internal
                     if (!_includedEntityTrackingInfos.ContainsKey(navigation))
                     {
                         var targetEntityType = navigation.GetTargetType();
-                        var targetKey = targetEntityType.FindPrimaryKey();
 
                         _includedEntityTrackingInfos.Add(
                             navigation,
                             new IncludedEntityTrackingInfo(
                                 targetEntityType,
-                                keyValueFactorySource.GetKeyFactory(targetKey),
-                                targetKey.Properties));
+                                keyValueFactorySource.GetKeyFactory(targetEntityType.FindPrimaryKey())));
                     }
                 }
             }
@@ -86,7 +82,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             stateManager.StartTracking(
                 _entityType,
-                _keyValueFactory.Create(_entityKeyProperties, valueBuffer),
+                _keyValueFactory.Create(valueBuffer),
                 entity,
                 valueBuffer);
         }
@@ -94,26 +90,21 @@ namespace Microsoft.Data.Entity.Query.Internal
         public class IncludedEntityTrackingInfo
         {
             public IncludedEntityTrackingInfo(
-                [NotNull] IEntityType entityType,
-                [NotNull] KeyValueFactory keyValueFactory,
-                [NotNull] IReadOnlyList<IProperty> entityKeyProperties)
+                [NotNull] IEntityType entityType, [NotNull] KeyValueFactory keyValueFactory)
             {
                 Check.NotNull(entityType, nameof(entityType));
                 Check.NotNull(keyValueFactory, nameof(keyValueFactory));
-                Check.NotNull(entityKeyProperties, nameof(entityKeyProperties));
 
                 EntityType = entityType;
                 KeyValueFactory = keyValueFactory;
-                EntityKeyProperties = entityKeyProperties;
             }
 
             public virtual IEntityType EntityType { get; }
 
             private KeyValueFactory KeyValueFactory { get; }
-            private IReadOnlyList<IProperty> EntityKeyProperties { get; }
 
             public virtual IKeyValue CreateKeyValue(ValueBuffer valueBuffer)
-                => KeyValueFactory.Create(EntityKeyProperties, valueBuffer);
+                => KeyValueFactory.Create(valueBuffer);
         }
 
         public struct IncludedEntity

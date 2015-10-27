@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
@@ -13,10 +14,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class CompositeKeyValueFactory : KeyValueFactory
     {
+        private readonly int[] _indexes;
+
         public CompositeKeyValueFactory([NotNull] IKey key)
             : base(key)
         {
+            _indexes = key.Properties.Select(p => p.GetIndex()).ToArray();
         }
+
+        public override IKeyValue Create(ValueBuffer valueBuffer)
+            => Create(_indexes, i => valueBuffer[i]);
 
         public override IKeyValue Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(properties, p => valueBuffer[p.GetIndex()]);
@@ -24,13 +31,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override IKeyValue Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(properties, p => propertyAccessor[p]);
 
-        private KeyValue Create(IReadOnlyList<IProperty> properties, Func<IProperty, object> reader)
+        private KeyValue Create<T>(IReadOnlyList<T> ts, Func<T, object> reader)
         {
-            var components = new object[properties.Count];
+            var components = new object[ts.Count];
 
-            for (var i = 0; i < properties.Count; i++)
+            for (var i = 0; i < ts.Count; i++)
             {
-                var value = reader(properties[i]);
+                var value = reader(ts[i]);
 
                 if (value == null)
                 {

@@ -21,7 +21,6 @@ namespace Microsoft.Data.Entity.Query.Internal
     public interface IQueryBuffer
     {
         object GetEntity(
-            [NotNull] IEntityType entityType,
             [NotNull] IKeyValue keyValue,
             EntityLoadInfo entityLoadInfo,
             bool queryStateManager);

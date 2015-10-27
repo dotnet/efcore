@@ -12,10 +12,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class SimpleKeyValueFactory<TKey> : KeyValueFactory
     {
+        private readonly int _index;
+
         public SimpleKeyValueFactory([NotNull] IKey key)
             : base(key)
         {
+            _index = key.Properties[0].GetIndex();
         }
+
+        public override IKeyValue Create(ValueBuffer valueBuffer) 
+            => Create(valueBuffer[_index]);
 
         public override IKeyValue Create(
             IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)

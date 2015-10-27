@@ -213,18 +213,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 queryMethodInfo
                     = CreateEntityMethodInfo.MakeGenericMethod(elementType);
 
-                var keyFactory
-                    = _keyValueFactorySource
-                        .GetKeyFactory(entityType.FindPrimaryKey());
-
                 queryMethodArguments.AddRange(
                     new[]
                     {
                         EntityQueryModelVisitor.QueryContextParameter,
                         Expression.Constant(entityType),
                         Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery),
-                        Expression.Constant(keyFactory),
-                        Expression.Constant(entityType.FindPrimaryKey().Properties),
+                        Expression.Constant(_keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey())),
                         materializer,
                         Expression.Constant(false),
                         Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired)
@@ -288,7 +283,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             IEntityType entityType,
             bool trackingQuery,
             KeyValueFactory keyValueFactory,
-            IReadOnlyList<IProperty> keyProperties,
             Func<ValueBuffer, object> materializer,
             bool allowNullResult,
             bool useQueryBuffer)
@@ -296,7 +290,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
 
-            var keyValue = keyValueFactory.Create(keyProperties, valueBuffer);
+            var keyValue = keyValueFactory.Create(valueBuffer);
 
             TEntity entity = null;
 
@@ -313,7 +307,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 entity
                     = (TEntity)queryContext.QueryBuffer
                         .GetEntity(
-                            entityType,
                             keyValue,
                             new EntityLoadInfo(valueBuffer, materializer),
                             queryStateManager: trackingQuery);
