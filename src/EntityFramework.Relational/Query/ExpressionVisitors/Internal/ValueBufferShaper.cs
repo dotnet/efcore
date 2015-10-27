@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class ValueBufferShaper : Shaper, IShaper<ValueBuffer>
     {
@@ -18,6 +18,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         public override Type Type => typeof(ValueBuffer);
 
         public virtual ValueBuffer Shape(QueryContext queryContext, ValueBuffer valueBuffer)
-            => valueBuffer.WithOffset(ValueBufferOffset);
+            => valueBuffer;
     }
 }

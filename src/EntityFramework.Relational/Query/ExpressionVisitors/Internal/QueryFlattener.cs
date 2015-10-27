@@ -58,8 +58,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                 if (innerEntityShaper != null)
                 {
-                    innerEntityShaper.ValueBufferOffset += _readerOffset;
-                    innerEntityShaper.AllowNullResult = true;
+                    innerShaper = innerEntityShaper.WithOffset(_readerOffset);
                 }
 
                 var materializerLambda = (LambdaExpression)methodCallExpression.Arguments.Last();

@@ -5,7 +5,7 @@ using System;
 using JetBrains.Annotations;
 using Remotion.Linq.Clauses;
 
-namespace Microsoft.Data.Entity.Query.ExpressionVisitors
+namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public abstract class Shaper
     {
@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             _querySource = querySource;
         }
 
-        public virtual int ValueBufferOffset { get; set; }
-
         public abstract Type Type { get; }
+
+        protected virtual IQuerySource QuerySource => _querySource;
     }
 }

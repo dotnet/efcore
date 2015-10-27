@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
     , 
-    shaper: EntityShaper`1
+    shaper: BufferedEntityShaper`1
 )",
                     TestSqlLoggerFactory.Log);
             }
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         , 
-        shaper: EntityShaper`1
+        shaper: BufferedEntityShaper`1
     )
     , 
     entityAccessor: Unhandled expression type: Default

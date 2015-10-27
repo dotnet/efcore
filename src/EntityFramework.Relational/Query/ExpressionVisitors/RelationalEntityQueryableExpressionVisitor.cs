@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     = fromSqlAnnotation.Sql
                         .TrimStart()
                         .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
-                
+
                 if (!useQueryComposition)
                 {
                     if (relationalQueryCompilationContext.QueryAnnotations
@@ -244,7 +244,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 .GetDeclaredMethod(nameof(CreateEntityShaper));
 
         [UsedImplicitly]
-        private static EntityShaper<TEntity> CreateEntityShaper<TEntity>(
+        private static IShaper<TEntity> CreateEntityShaper<TEntity>(
             IQuerySource querySource,
             string entityType,
             bool trackingQuery,
@@ -252,12 +252,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Func<ValueBuffer, object> materializer,
             bool useQueryBuffer)
             where TEntity : class
-            => new EntityShaper<TEntity>(
-                querySource,
-                entityType,
-                trackingQuery,
-                keyValueFactory,
-                materializer,
-                useQueryBuffer);
+            => !useQueryBuffer
+                ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
+                    querySource,
+                    entityType,
+                    keyValueFactory,
+                    materializer)
+                : new BufferedEntityShaper<TEntity>(
+                    querySource,
+                    entityType,
+                    trackingQuery,
+                    keyValueFactory,
+                    materializer);
     }
 }
