@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class AsNoTrackingTestBase<TFixture> : IClassFixture<TFixture>
@@ -29,10 +31,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c in context.Set<Customer>()
-                        join o in context.Set<Order>().AsNoTracking()
-                            on c.CustomerID equals o.CustomerID
-                        where c.CustomerID == "ALFKI"
-                        select o)
+                       join o in context.Set<Order>().AsNoTracking()
+                           on c.CustomerID equals o.CustomerID
+                       where c.CustomerID == "ALFKI"
+                       select o)
                         .ToList();
 
                 Assert.Equal(6, customers.Count);
@@ -64,10 +66,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c in context.Set<Customer>()
-                        join o in context.Set<Order>().AsNoTracking()
-                            on c.CustomerID equals o.CustomerID
-                        where c.CustomerID == "ALFKI"
-                        select new { c.CustomerID, c, ocid = o.CustomerID, o })
+                       join o in context.Set<Order>().AsNoTracking()
+                           on c.CustomerID equals o.CustomerID
+                       where c.CustomerID == "ALFKI"
+                       select new { c.CustomerID, c, ocid = o.CustomerID, o })
                         .ToList();
 
                 Assert.Equal(6, customers.Count);
@@ -82,10 +84,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var customers
                     = (from c in context.Set<Customer>()
-                        join o in context.Set<Order>().AsNoTracking()
-                            on c.CustomerID equals o.CustomerID
-                        where c.CustomerID == "ALFKI"
-                        select new { c, o })
+                       join o in context.Set<Order>().AsNoTracking()
+                           on c.CustomerID equals o.CustomerID
+                       where c.CustomerID == "ALFKI"
+                       select new { c, o })
                         .AsNoTracking()
                         .ToList();
 
@@ -137,6 +139,22 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         .ToList();
 
                 Assert.Equal(6, employees.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void SelectMany_simple()
+        {
+            using (var context = CreateContext())
+            {
+                var results
+                    = (from e in context.Set<Employee>()
+                       from c in context.Set<Customer>()
+                       select new { c, e })
+                        .AsNoTracking()
+                        .ToList();
+
+                Assert.Equal(819, results.Count);
             }
         }
 
