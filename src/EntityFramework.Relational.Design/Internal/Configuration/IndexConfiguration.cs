@@ -3,6 +3,7 @@
 
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             get
             {
                 var sb = new StringBuilder();
-                sb.Append("HasIndex(");
+                sb.Append(nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(");
                 sb.Append(LambdaIdentifier);
                 sb.Append(" => ");
                 sb.Append(new ModelUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier));
@@ -40,7 +41,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
                 if (!string.IsNullOrEmpty(Index.Relational().Name))
                 {
-                    sb.Append(".HasName(");
+                    sb.Append("." + nameof(RelationalIndexBuilderExtensions.HasName) + "(");
                     sb.Append(CSharpUtilities.Instance.DelimitString(Index.Relational().Name));
                     sb.Append(")");
                 }
@@ -48,7 +49,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 if (Index.IsUnique.HasValue
                     && Index.IsUnique.Value)
                 {
-                    sb.Append(".IsUnique()");
+                    sb.Append("." + nameof(IndexBuilder.IsUnique) + "()");
                 }
 
                 return sb.ToString();
