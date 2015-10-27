@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Metadata
         INavigation DependentToPrincipal { get; }
 
         /// <summary>
-        ///     Gets the navigation property on the principal entity type that points to the dependent entity(s).
+        ///     Gets the navigation property on the principal entity type that points to the dependent entity.
         /// </summary>
         INavigation PrincipalToDependent { get; }
 
@@ -58,8 +58,8 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsRequired { get; }
 
         /// <summary>
-        ///     Gets a value indicating how a delete operation on the principal entity should be propagated to the
-        ///     dependent entity(s).
+        ///     Gets a value indicating how a delete operation is applied to dependent entities in the relationship when the 
+        ///     principal is deleted or the relationship is severed.
         /// </summary>
         DeleteBehavior DeleteBehavior { get; }
     }

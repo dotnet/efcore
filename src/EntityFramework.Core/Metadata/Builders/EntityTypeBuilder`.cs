@@ -40,6 +40,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
         }
 
+        /// <summary>
+        ///     Creates a new builder based on the provided internal builder. This overridden implementation creates 
+        ///     <see cref="EntityTypeBuilder{TEntity}"/> instances so that logic inherited from the base class will 
+        ///     use those instead of <see cref="EntityTypeBuilder"/>.
+        /// </summary>
+        /// <param name="builder"> The internal builder to create the new builder from. </param>
+        /// <returns> The newly created builder. </returns>
         protected override EntityTypeBuilder New(InternalEntityTypeBuilder builder)
             => new EntityTypeBuilder<TEntity>(builder);
 
@@ -53,12 +60,27 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         public new virtual EntityTypeBuilder<TEntity> HasAnnotation([NotNull] string annotation, [NotNull] object value)
             => (EntityTypeBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
+        /// <summary>
+        ///     Sets the base type of this entity in an inheritance hierarchy.
+        /// </summary>
+        /// <param name="name"> The name of the base type. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([NotNull] string name)
             => (EntityTypeBuilder<TEntity>)base.HasBaseType(name);
 
+        /// <summary>
+        ///     Sets the base type of this entity in an inheritance hierarchy.
+        /// </summary>
+        /// <param name="entityType"> The base type. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual EntityTypeBuilder<TEntity> HasBaseType([NotNull] Type entityType)
             => (EntityTypeBuilder<TEntity>)base.HasBaseType(entityType);
 
+        /// <summary>
+        ///     Sets the base type of this entity in an inheritance hierarchy.
+        /// </summary>
+        /// <typeparam name="TBaseType"> The base type. </typeparam>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder<TEntity> HasBaseType<TBaseType>()
             => (EntityTypeBuilder<TEntity>)base.HasBaseType(typeof(TBaseType));
 
@@ -67,11 +89,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
-        ///         A lambda expression representing the primary key property(s) (<c>t => t.Id1</c>).
+        ///         A lambda expression representing the primary key property(s) (<c>blog => blog.Url</c>).
         ///     </para>
         ///     <para>
         ///         If the primary key is made up of multiple properties then specify an anonymous type including the
-        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the primary key. </returns>
@@ -88,11 +110,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
-        ///         A lambda expression representing the unique constraint property(s) (<c>t => t.Id1</c>).
+        ///         A lambda expression representing the unique constraint property(s) (<c>blog => blog.Url</c>).
         ///     </para>
         ///     <para>
         ///         If the unique constraint is made up of multiple properties then specify an anonymous type including
-        ///         the properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///         the properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the unique constraint. </returns>
@@ -109,7 +131,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be configured (
-        ///     <c>t => t.Property1</c>).
+        ///     <c>blog => blog.Url</c>).
         /// </param>
         /// <returns> An object that can be used to configure the property. </returns>
         public virtual PropertyBuilder<TProperty> Property<TProperty>([NotNull] Expression<Func<TEntity, TProperty>> propertyExpression)
@@ -126,7 +148,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="propertyExpression">
         ///     A lambda expression representing the property to be ignored
-        ///     (<c>t => t.Property1</c>).
+        ///     (<c>blog => blog.Url</c>).
         /// </param>
         public virtual EntityTypeBuilder<TEntity> Ignore([NotNull] Expression<Func<TEntity, object>> propertyExpression)
         {
@@ -159,11 +181,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <param name="indexExpression">
         ///     <para>
         ///         A lambda expression representing the property(s) to be included in the index
-        ///         (<c>t => t.Property1</c>).
+        ///         (<c>blog => blog.Url</c>).
         ///     </para>
         ///     <para>
         ///         If the index is made up of multiple properties then specify an anonymous type including the
-        ///         properties (<c>t => new { t.Property1, t.Property2 }</c>).
+        ///         properties (<c>post => new { post.Title, post.BlogId }</c>).
         ///     </para>
         /// </param>
         /// <returns> An object that can be used to configure the index. </returns>
@@ -193,7 +215,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="reference">
         ///     A lambda expression representing the reference navigation property on this entity type that represents
-        ///     the relationship (<c>t => t.Reference1</c>). If no property is specified, the relationship will be
+        ///     the relationship (<c>post => post.Blog</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>
@@ -226,7 +248,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// <typeparam name="TRelatedEntity"> The entity type that this relationship targets. </typeparam>
         /// <param name="collection">
         ///     A lambda expression representing the collection navigation property on this entity type that represents
-        ///     the relationship (<c>t => t.Collection1</c>). If no property is specified, the relationship will be
+        ///     the relationship (<c>blog => blog.Posts</c>). If no property is specified, the relationship will be
         ///     configured without a navigation property on this end.
         /// </param>
         /// <returns> An object that can be used to configure the relationship. </returns>

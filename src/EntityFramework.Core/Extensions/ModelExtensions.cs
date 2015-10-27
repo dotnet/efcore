@@ -9,8 +9,17 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
+    /// <summary>
+    ///     Extension methods for <see cref="IModel"/>.
+    /// </summary>
     public static class ModelExtensions
     {
+        /// <summary>
+        ///     Gets the entity that maps the given entity class. Returns null if no entity type with the given name is found.
+        /// </summary>
+        /// <param name="model"> The model to find the entity type in. </param>
+        /// <param name="type"> The type of the entity class to find the type for. </param>
+        /// <returns> The entity type, or null if none if found. </returns>
         public static IEntityType FindEntityType([NotNull] this IModel model, [NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));

@@ -40,7 +40,13 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         private InternalRelationshipBuilder Builder { get; }
 
         /// <summary>
-        ///     Gets the internal builder being used to configure the relationship.
+        ///     <para>
+        ///         Gets the internal builder being used to configure the relationship.
+        ///     </para>
+        ///     <para>
+        ///         This property is intended for use by extension methods that need to make use of services
+        ///         not directly exposed in the public API surface.
+        ///     </para>
         /// </summary>
         InternalRelationshipBuilder IInfrastructure<InternalRelationshipBuilder>.Instance => Builder;
 

@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.Metadata
         ///     Gets the primary or alternate key that is defined on the given properties. Returns null if no key is defined
         ///     for the given properties.
         /// </summary>
-        /// <param name="properties"></param>
+        /// <param name="properties"> The properties that make up the key. </param>
         /// <returns> The key, or null if none is defined. </returns>
         IKey FindKey([NotNull] IReadOnlyList<IProperty> properties);
 

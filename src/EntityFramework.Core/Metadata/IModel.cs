@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Metadata
         IEnumerable<IEntityType> GetEntityTypes();
 
         /// <summary>
-        ///     Gets the entity with the given name. Returns null if no navigation property with the given name is found.
+        ///     Gets the entity with the given name. Returns null if no entity with the given name is found.
         /// </summary>
         /// <param name="name"> The name of the entity to find. </param>
         /// <returns> The entity type, or null if none if found. </returns>

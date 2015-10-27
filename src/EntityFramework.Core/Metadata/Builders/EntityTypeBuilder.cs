@@ -40,13 +40,19 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Builder = builder;
         }
 
+        /// <summary>
+        ///     Creates a new builder based on the provided internal builder. This can be overridden by derived builders
+        ///     so that logic inherited from this base class will create instances of the derived builder. 
+        /// </summary>
+        /// <param name="builder"> The internal builder to create the new builder from. </param>
+        /// <returns> The newly created builder. </returns>
         protected virtual EntityTypeBuilder New([NotNull] InternalEntityTypeBuilder builder)
             => new EntityTypeBuilder(builder);
 
         private InternalEntityTypeBuilder Builder { get; }
 
         /// <summary>
-        ///     The internal builder being used to configure the entity type.
+        ///     Gets the internal builder being used to configure the entity type.
         /// </summary>
         InternalEntityTypeBuilder IInfrastructure<InternalEntityTypeBuilder>.Instance => Builder;
 
@@ -77,9 +83,19 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return this;
         }
 
+        /// <summary>
+        ///     Sets the base type of this entity in an inheritance hierarchy.
+        /// </summary>
+        /// <param name="name"> The name of the base type. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasBaseType([CanBeNull] string name)
             => New(Builder.HasBaseType(name, ConfigurationSource.Explicit));
 
+        /// <summary>
+        ///     Sets the base type of this entity in an inheritance hierarchy.
+        /// </summary>
+        /// <param name="entityType"> The base type. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public virtual EntityTypeBuilder HasBaseType([CanBeNull] Type entityType)
             => New(Builder.HasBaseType(entityType, ConfigurationSource.Explicit));
 
@@ -301,6 +317,15 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return new CollectionNavigationBuilder(CollectionBuilder(relatedEntityType, navigationName));
         }
 
+        /// <summary>
+        ///     Creates a relationship builder for a relationship that has a reference navigation property on this entity.
+        /// </summary>
+        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
+        /// <param name="navigationName"> 
+        ///     The name of the navigation property on this entity. If null is passed, then a relationship with no navigation 
+        ///     property is created. 
+        /// </param>
+        /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder ReferenceBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
         {
@@ -315,6 +340,15 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             return relationship.DependentToPrincipal(navigationName, ConfigurationSource.Explicit);
         }
 
+        /// <summary>
+        ///     Creates a relationship builder for a relationship that has a collection navigation property on this entity.
+        /// </summary>
+        /// <param name="relatedEntityType"> The entity type that the relationship targets. </param>
+        /// <param name="navigationName"> 
+        ///     The name of the navigation property on this entity. If null is passed, then a relationship with no navigation 
+        ///     property is created. 
+        /// </param>
+        /// <returns> The newly created builder. </returns>
         protected virtual InternalRelationshipBuilder CollectionBuilder(
             [NotNull] EntityType relatedEntityType, [CanBeNull] string navigationName)
             => Builder.ModelBuilder.Entity(relatedEntityType.Name, ConfigurationSource.Explicit)
@@ -323,6 +357,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 .IsUnique(false, ConfigurationSource.Explicit)
                 .PrincipalToDependent(navigationName, ConfigurationSource.Explicit);
 
+        /// <summary>
+        ///     Creates a builder for a property on this entity.
+        /// </summary>
+        /// <param name="propertyType"> The type of values stored in the property. </param>
+        /// <param name="propertyName"> The name of the property. </param>
+        /// <returns> The newly created builder. </returns>
         protected virtual InternalPropertyBuilder PropertyBuilder(
             [NotNull] Type propertyType, [CanBeNull] string propertyName)
         {

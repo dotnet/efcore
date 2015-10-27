@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
     {
         /// <summary>
         ///     <para>
-        ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder{TEntity,TRelatedEntity}" />
+        ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder{TPrincipalEntity, TDependentEntity}" />
         ///         class.
         ///     </para>
         ///     <para>
@@ -41,6 +41,23 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
         }
 
+        /// <summary>
+        ///     <para>
+        ///         Initializes a new instance of the <see cref="ReferenceCollectionBuilder{TPrincipalEntity, TDependentEntity}" /> 
+        ///         class.
+        ///     </para>
+        /// </summary>
+        /// <param name="builder"> The internal builder being used to configure this relationship. </param>
+        /// <param name="oldBuilder"> A builder to copy configuration from. </param>
+        /// <param name="foreignKeySet">
+        ///     A value indicating whether the foreign key properties have been configured in this chain of configuration calls.
+        /// </param>
+        /// <param name="principalKeySet">
+        ///     A value indicating whether the principal key properties have been configured in this chain of configuration calls.
+        /// </param>
+        /// <param name="requiredSet">
+        ///     A value indicating whether required/optional has been configured in this chain of configuration calls.
+        /// </param>
         protected ReferenceCollectionBuilder(InternalRelationshipBuilder builder,
             ReferenceCollectionBuilder oldBuilder,
             bool foreignKeySet = false,
@@ -66,11 +83,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="foreignKeyExpression">
         ///     <para>
-        ///         A lambda expression representing the foreign key property(s) (<c>t => t.Id1</c>).
+        ///         A lambda expression representing the foreign key property(s) (<c>post => post.BlogId</c>).
         ///     </para>
         ///     <para>
         ///         If the foreign key is made up of multiple properties then specify an anonymous type including the
-        ///         properties (<c>t => new { t.Id1, t.Id2 }</c>). The order specified should match the order of
+        ///         properties (<c>comment => new { comment.BlogId, comment.PostTitle }</c>). The order specified should match the order of
         ///         corresponding keys in <see cref="HasPrincipalKey(Expression{Func{TPrincipalEntity,object}})" />.
         ///     </para>
         /// </param>
@@ -94,11 +111,11 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="keyExpression">
         ///     <para>
-        ///         A lambda expression representing the reference key property(s) (<c>t => t.Id</c>).
+        ///         A lambda expression representing the reference key property(s) (<c>blog => blog.BlogId</c>).
         ///     </para>
         ///     <para>
         ///         If the principal key is made up of multiple properties then specify an anonymous type including
-        ///         the properties (<c>t => new { t.Id1, t.Id2 }</c>).
+        ///         the properties (<c>post => new { post.BlogId, post.PostTitle }</c>).
         ///     </para>
         /// </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
@@ -188,6 +205,12 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
+        /// <summary>
+        ///     Configures how a delete operation is applied to dependent entities in the relationship when the 
+        ///     principal is deleted or the relationship is severed.
+        /// </summary>
+        /// <param name="deleteBehavior"> The action to perform. </param>
+        /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
         public new virtual ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity> OnDelete(DeleteBehavior deleteBehavior)
             => new ReferenceCollectionBuilder<TPrincipalEntity, TDependentEntity>(
                 Builder.DeleteBehavior(deleteBehavior, ConfigurationSource.Explicit), this);
