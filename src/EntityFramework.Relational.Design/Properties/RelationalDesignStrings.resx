@@ -178,7 +178,7 @@
     <value>Unable to generate entity type for table '{tableName}'.</value>
   </data>
   <data name="UnableToScaffoldIndex" xml:space="preserve">
-    <value>Unable to scaffold the index '{indexName}' because one of the properties it contains could not be scaffolded.</value>
+    <value>Unable to scaffold the index '{indexName}' because at least one of the properties it contains could not be scaffolded.</value>
   </data>
   <data name="MissingUseProviderMethodNameAnnotation" xml:space="preserve">
     <value>Cannot scaffold the connection string. The "UseProviderMethodName" is missing from the scaffolding model.</value>

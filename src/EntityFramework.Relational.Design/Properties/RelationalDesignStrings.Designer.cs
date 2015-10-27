@@ -173,7 +173,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unable to scaffold the index '{indexName}' because one of the properties it contains could not be scaffolded.
+        /// Unable to scaffold the index '{indexName}' because at least one of the properties it contains could not be scaffolded.
         /// </summary>
         public static string UnableToScaffoldIndex([CanBeNull] object indexName)
         {
