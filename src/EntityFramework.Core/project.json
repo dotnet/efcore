@@ -28,6 +28,25 @@
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
+        "System.Collections": { "version": "4.0.0.0", "type": "build" },
+        "System.ComponentModel.DataAnnotations": "4.0.0.0",
+        "System.Diagnostics.Debug": { "version": "4.0.0.0", "type": "build" },
+        "System.Diagnostics.Tools": { "version": "4.0.0.0", "type": "build" },
+        "System.Globalization": { "version": "4.0.0.0", "type": "build" },
+        "System.Linq": { "version": "4.0.0.0", "type": "build" },
+        "System.Linq.Expressions": { "version": "4.0.0.0", "type": "build" },
+        "System.Linq.Queryable": { "version": "4.0.0.0", "type": "build" },
+        "System.ObjectModel": { "version": "4.0.0.0", "type": "build" },
+        "System.Reflection": { "version": "4.0.0.0", "type": "build" },
+        "System.Reflection.Extensions": { "version": "4.0.0.0", "type": "build" },
+        "System.Resources.ResourceManager": { "version": "4.0.0.0", "type": "build" },
+        "System.Runtime": { "version": "4.0.0.0", "type": "build" },
+        "System.Runtime.Extensions": { "version": "4.0.0.0", "type": "build" },
+        "System.Threading": { "version": "4.0.0.0", "type": "build" }
+      }
+    },
+    "dnx451": {
+      "frameworkAssemblies": {
         "System.Collections": "4.0.0.0",
         "System.ComponentModel.DataAnnotations": "4.0.0.0",
         "System.Diagnostics.Debug": "4.0.0.0",
