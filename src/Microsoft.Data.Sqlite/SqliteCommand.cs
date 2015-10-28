@@ -92,18 +92,18 @@ namespace Microsoft.Data.Sqlite
             {
                 throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
             }
-            
+
             if (Connection == null
                 || Connection.State != ConnectionState.Open)
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresOpenConnection("ExecuteReader"));
             }
-            
+
             if (string.IsNullOrEmpty(CommandText))
             {
                 throw new InvalidOperationException(Strings.FormatCallRequiresSetCommandText("ExecuteReader"));
             }
-            
+
             if (Transaction != Connection.Transaction)
             {
                 throw new InvalidOperationException(
@@ -119,7 +119,7 @@ namespace Microsoft.Data.Sqlite
             var changes = 0;
             var stmts = new Queue<Tuple<Sqlite3StmtHandle, bool>>();
             var tail = CommandText;
-            
+
             do
             {
                 Sqlite3StmtHandle stmt;
@@ -168,7 +168,17 @@ namespace Microsoft.Data.Sqlite
 
                 try
                 {
-                    rc = NativeMethods.sqlite3_step_blocking(Connection.DbHandle, stmt, CommandTimeout*1000);
+                    var timer = Stopwatch.StartNew();
+                    while (SQLITE_LOCKED == (rc = NativeMethods.sqlite3_step(stmt)))
+                    {
+                        if (timer.ElapsedMilliseconds >= CommandTimeout * 1000)
+                        {
+                            break;
+                        }
+
+                        NativeMethods.sqlite3_reset(stmt);
+                    }
+
                     MarshalEx.ThrowExceptionForRC(rc, Connection.DbHandle);
                 }
                 catch

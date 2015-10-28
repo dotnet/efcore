@@ -4,40 +4,21 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using static Microsoft.Data.Sqlite.Interop.Constants;
 
-#if NET451 || DOTNET5_4
-using System.IO;
-using System.Reflection;
-using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Internal;
+#if NET451
+using Microsoft.Data.Sqlite.Utilities;
 #endif
 
 namespace Microsoft.Data.Sqlite.Interop
 {
     internal static class NativeMethods
     {
-#if NET451 || DOTNET5_4
+#if NET451
         static NativeMethods()
         {
+            // NOTE: This is used by AnyCPU applications to load the native library based on the process's
+            //       architecture. It does nothing on DNX and Mono which handle native library loading themselves.
             var loaded = NativeLibraryLoader.TryLoad("sqlite3");
-
-            // TODO: Remove when DNX supports native artifacts
-            if (!loaded)
-            {
-                var library = PlatformServices.Default.LibraryManager
-                    .GetLibrary(typeof(NativeMethods).GetTypeInfo().Assembly.GetName().Name);
-
-                var installPath = library.Path;
-                if (library.Type == "Project")
-                {
-                    installPath = Path.GetDirectoryName(installPath);
-                }
-
-                loaded = NativeLibraryLoader.TryLoad("sqlite3", Path.Combine(installPath, "runtimes/win/native"));
-            }
-
             Debug.Assert(loaded, "loaded is false.");
         }
 #endif
@@ -250,25 +231,7 @@ namespace Microsoft.Data.Sqlite.Interop
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_step(Sqlite3StmtHandle stmt);
 
-        //TODO move to a utility class
-        public static int sqlite3_step_blocking(Sqlite3Handle db, Sqlite3StmtHandle stmt, int milliseconds)
-        {
-            var timer = new Stopwatch();
-            int rc;
-            timer.Start();
-            while (SQLITE_LOCKED == (rc = sqlite3_step(stmt)))
-            {
-                if (timer.ElapsedMilliseconds >= milliseconds)
-                {
-                    return rc;
-                }
-                sqlite3_reset(stmt);
-            }
-            return rc;
-        }
-
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_stmt_readonly(Sqlite3StmtHandle pStmt);
-
     }
 }

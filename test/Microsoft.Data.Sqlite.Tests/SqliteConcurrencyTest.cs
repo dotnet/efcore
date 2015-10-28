@@ -15,6 +15,8 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteConcurrencyTest : IDisposable
     {
+        private const int SQLITE_BUSY = 5;
+
         public SqliteConcurrencyTest()
         {
             using (var connection = CreateConnection())
@@ -172,8 +174,8 @@ INSERT INTO a VALUES (2);";
                     insertCommand.CommandTimeout = 1;
                     insertCommand.CommandText = "INSERT INTO a VALUES ( 1);";
 
-                    var waitHandle = new Semaphore(0,1);
-                    var beginRead = new Semaphore(0,1);
+                    var waitHandle = new Semaphore(0, 1);
+                    var beginRead = new Semaphore(0, 1);
                     var t1 = new Thread(() =>
                         {
                             using (var reader = selectCommand.ExecuteReader())
@@ -185,9 +187,9 @@ INSERT INTO a VALUES (2);";
                     var t2 = new Thread(() =>
                         {
                             beginRead.WaitOne();
-                            var ex = Assert.Throws<SqliteException>(()=>insertCommand.ExecuteNonQuery());
+                            var ex = Assert.Throws<SqliteException>(() => insertCommand.ExecuteNonQuery());
                             waitHandle.Release();
-                             
+
                             Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
                             var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
                             Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
