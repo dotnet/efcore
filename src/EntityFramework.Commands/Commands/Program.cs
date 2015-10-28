@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
                             var targetProject = update.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = update.Option(
                                 "-e|--environment <environment>",
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Commands
                         {
                             list.Description = "List your DbContext types";
                             var targetProject = list.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project with the DbContext classes. If omitted, the current project is used.");
                             var environment = list.Option(
                                 "-e|--environment <environment>",
@@ -150,14 +150,14 @@ namespace Microsoft.Data.Entity.Commands
                                 "[provider]",
                                 "The provider to use. For example, EntityFramework.MicrosoftSqlServer");
                             var useDataAnnotations = scaffold.Option(
-                                "-a|--dataAnnotations",
+                                "-a|--data-annotations",
                                 "Use DataAnnotation attributes to configure the model where possible. If omitted, the output code will use only the fluent API.",
                                 CommandOptionType.NoValue);
                             var dbContextClassName = scaffold.Option(
                                 "-c|--context <name>",
                                 "Name of the generated DbContext class.");
                             var outputDir = scaffold.Option(
-                                "-o|--outputDir <path>",
+                                "-o|--output-dir <path>",
                                 "Directory of the project where the classes should be output. If omitted, the top-level project directory is used.");
                             var schemaFilters = scaffold.Option(
                                 "-s|--schema <schema_name.table_name>",
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "Selects a table for which to generate classes.",
                                 CommandOptionType.MultipleValue);
                             var targetProject = scaffold.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project to scaffold the model into. If omitted, the current project is used.");
                             var environment = scaffold.Option(
                                 "-e|--environment <environment>",
@@ -233,13 +233,13 @@ namespace Microsoft.Data.Entity.Commands
                                 "[name]",
                                 "The name of the migration");
                             var outputDir = add.Option(
-                                "-o|--outputDir",
+                                "-o|--output-dir",
                                 "The directory (and sub-namespace) to use. If omitted, \"Migrations\" is used.");
                             var context = add.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
                             var targetProject = add.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project to add the migration to. If omitted, the current project is used.");
                             var environment = add.Option(
                                 "-e|--environment <environment>",
@@ -283,7 +283,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
                             var targetProject = list.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = list.Option(
                                 "-e|--environment <environment>",
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
                             var targetProject = remove.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = remove.Option(
                                 "-e|--environment <environment>",
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
                             var targetProject = script.Option(
-                                "-p|--targetProject <project>",
+                                "-p|--target-project <project>",
                                 "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = script.Option(
                                 "-e|--environment <environment>",
