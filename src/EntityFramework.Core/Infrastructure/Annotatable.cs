@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
-        public virtual IEnumerable<Annotation> Annotations
+        public virtual IEnumerable<Annotation> GetAnnotations()
             => _annotations.HasValue
                 ? (IEnumerable<Annotation>)_annotations.Value
                 : ImmutableList<Annotation>.Empty;
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
-        IEnumerable<IAnnotation> IAnnotatable.Annotations => Annotations;
+        IEnumerable<IAnnotation> IAnnotatable.GetAnnotations() => GetAnnotations();
 
         /// <summary>
         ///     Gets the annotation with the given name, returning null if it does not exist.

@@ -1118,19 +1118,67 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Can_create_entity_type()
         {
-            var model = new Model();
-            var entityType = model.AddEntityType(typeof(Customer));
+            var entityType = new Model().AddEntityType(typeof(Customer));
 
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.Same(typeof(Customer), entityType.ClrType);
         }
 
         [Fact]
+        public void Can_set_and_reset_CLR_type()
+        {
+            var entityType = new Model().AddEntityType(typeof(Customer).DisplayName());
+
+            Assert.Equal(typeof(Customer).FullName, entityType.Name);
+            Assert.Null(entityType.ClrType);
+
+            entityType.ClrType = typeof(Customer);
+
+            Assert.Equal(typeof(Customer).FullName, entityType.Name);
+            Assert.Same(typeof(Customer), entityType.ClrType);
+
+            entityType.ClrType = null;
+
+            Assert.Equal(typeof(Customer).FullName, entityType.Name);
+            Assert.Null(entityType.ClrType);
+        }
+
+        [Fact]
+        public void Cannot_set_CLR_type_if_name_does_not_match()
+        {
+            var entityType = new Model().AddEntityType(typeof(Customer).Name);
+
+            Assert.Equal(CoreStrings.ClrTypeWrongName(typeof(Customer).DisplayName(), typeof(Customer).Name),
+                Assert.Throws<InvalidOperationException>(() => entityType.ClrType = typeof(Customer)).Message);
+        }
+        
+        [Fact]
+        public void Cannot_set_CLR_type_if_base_type_derived_type_or_properties_set()
+        {
+            var model = new Model();
+            var entityType = model.AddEntityType(typeof(Customer).DisplayName());
+
+            entityType.AddProperty("Blah");
+            Assert.Equal(CoreStrings.EntityTypeInUse(entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.ClrType = typeof(Customer)).Message);
+
+            entityType.RemoveProperty("Blah");
+            entityType.BaseType = model.AddEntityType("Base");
+            Assert.Equal(CoreStrings.EntityTypeInUse(entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.ClrType = typeof(Customer)).Message);
+            
+            entityType.BaseType = null;
+            model.AddEntityType("Derived").BaseType = entityType;
+            Assert.Equal(CoreStrings.EntityTypeInUse(entityType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => entityType.ClrType = typeof(Customer)).Message);
+        }
+
+        [Fact]
         public void Display_name_is_prettified_CLR_name()
         {
-            Assert.Equal("EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).DisplayName());
-            Assert.Equal("Customer", new EntityType(typeof(Customer), new Model()).DisplayName());
-            Assert.Equal("List<Customer>", new EntityType(typeof(List<Customer>), new Model()).DisplayName());
+            Assert.Equal("EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).DisplayName());
+            Assert.Equal("Customer", new Model().AddEntityType(typeof(Customer)).DisplayName());
+            Assert.Equal("List<Customer>", new Model().AddEntityType(typeof(List<Customer>)).DisplayName());
         }
 
         [Fact]
@@ -1145,9 +1193,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Name_is_prettified_CLR_full_name()
         {
-            Assert.Equal("Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest", new EntityType(typeof(EntityTypeTest), new Model()).Name);
-            Assert.Equal("Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest+Customer", new EntityType(typeof(Customer), new Model()).Name);
-            Assert.Equal("System.Collections.Generic.List<Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest+Customer>", new EntityType(typeof(List<Customer>), new Model()).Name);
+            Assert.Equal("Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest", new Model().AddEntityType(typeof(EntityTypeTest)).Name);
+            Assert.Equal("Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest+Customer", new Model().AddEntityType(typeof(Customer)).Name);
+            Assert.Equal("System.Collections.Generic.List<Microsoft.Data.Entity.Metadata.Internal.EntityTypeTest+Customer>", new Model().AddEntityType(typeof(List<Customer>)).Name);
         }
 
         [Fact]
@@ -1756,7 +1804,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Same(customerNavigation, orderType.GetNavigations().Single());
             Assert.Same(ordersNavigation, customerType.GetNavigations().Single());
-            
+
             Assert.Same(customerNavigation, customerForeignKey.HasDependentToPrincipal(null));
             Assert.Null(customerForeignKey.HasDependentToPrincipal(null));
             Assert.Empty(orderType.GetNavigations());
@@ -1808,7 +1856,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Null(orderType.FindNavigation("Nose"));
         }
-        
+
         [Fact]
         public void Adding_a_new_navigation_with_a_name_that_conflicts_with_a_property_throws()
         {
@@ -2528,7 +2576,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Lazy_original_values_are_used_for_full_notification_and_shadow_enties()
         {
-            Assert.False(new EntityType(typeof(FullNotificationEntity), new Model()).UseEagerSnapshots);
+            Assert.False(new Model().AddEntityType(typeof(FullNotificationEntity)).UseEagerSnapshots);
         }
 
         [Fact]
@@ -2538,40 +2586,52 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Lazy_original_values_are_used_for_enties_that_are_made_shadow()
+        {
+            var entityType = new Model().AddEntityType(typeof(ChangedOnlyEntity));
+            entityType.ClrType = null;
+            Assert.False(entityType.UseEagerSnapshots);
+        }
+
+        [Fact]
         public void Eager_original_values_are_used_for_enties_that_only_implement_INotifyPropertyChanged()
         {
-            Assert.True(new EntityType(typeof(ChangedOnlyEntity), new Model()).UseEagerSnapshots);
+            Assert.True(new Model().AddEntityType(typeof(ChangedOnlyEntity)).UseEagerSnapshots);
         }
 
         [Fact]
         public void Eager_original_values_are_used_for_enties_that_do_no_notification()
         {
-            Assert.True(new EntityType(typeof(Customer), new Model()).UseEagerSnapshots);
+            Assert.True(new Model().AddEntityType(typeof(Customer)).UseEagerSnapshots);
         }
 
         [Fact]
         public void Lazy_original_values_can_be_switched_off()
         {
-            Assert.False(new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = false }.UseEagerSnapshots);
+            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
+            entityType.UseEagerSnapshots = false;
+            Assert.False(entityType.UseEagerSnapshots);
         }
 
         [Fact]
         public void Lazy_original_values_can_be_switched_on_but_only_if_entity_does_not_require_eager_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = true };
+            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
+            entityType.UseEagerSnapshots = true;
             entityType.UseEagerSnapshots = false;
             Assert.False(entityType.UseEagerSnapshots);
 
+            entityType = new Model().AddEntityType(typeof(ChangedOnlyEntity));
             Assert.Equal(
                 CoreStrings.EagerOriginalValuesRequired(typeof(ChangedOnlyEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => new EntityType(typeof(ChangedOnlyEntity), new Model()) { UseEagerSnapshots = false }).Message);
+                Assert.Throws<InvalidOperationException>(() => entityType.UseEagerSnapshots = false).Message);
         }
 
         [Fact]
         public void All_properties_have_original_value_indexes_when_using_eager_original_values()
         {
-            var entityType = new EntityType(typeof(FullNotificationEntity), new Model()) { UseEagerSnapshots = true };
-
+            var entityType = new Model().AddEntityType(typeof(FullNotificationEntity));
+            entityType.UseEagerSnapshots = true;
             entityType.AddProperty(FullNotificationEntity.NameProperty);
             entityType.AddProperty(FullNotificationEntity.IdProperty);
 

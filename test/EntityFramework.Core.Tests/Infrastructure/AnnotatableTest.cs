@@ -27,11 +27,11 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
 
             Assert.Same(annotation, annotatable.GetOrAddAnnotation("Foo", "Baz"));
 
-            Assert.Equal(new[] { annotation }, annotatable.Annotations.ToArray());
+            Assert.Equal(new[] { annotation }, annotatable.GetAnnotations().ToArray());
 
             Assert.Same(annotation, annotatable.RemoveAnnotation(annotation.Name));
 
-            Assert.Empty(annotatable.Annotations);
+            Assert.Empty(annotatable.GetAnnotations());
             Assert.Null(annotatable.RemoveAnnotation(annotation.Name));
             Assert.Null(annotatable["Foo"]);
             Assert.Null(annotatable.FindAnnotation("Foo"));
@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             annotatable["Foo"] = null;
 
             Assert.Null(annotatable["Foo"]);
-            Assert.Empty(annotatable.Annotations);
+            Assert.Empty(annotatable.GetAnnotations());
 
             Assert.Equal(
                 CoreStrings.AnnotationNotFound("Foo"),
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
             var annotation1 = annotatable.AddAnnotation("Z", "Foo");
             var annotation2 = annotatable.AddAnnotation("A", "Bar");
 
-            Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(annotatable.Annotations));
+            Assert.True(new[] { annotation2, annotation1 }.SequenceEqual(annotatable.GetAnnotations()));
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
         [Fact]
         public void Can_get_proper_table_name_for_generic_entityType()
         {
-            var entityType = new EntityType(typeof(A<int>), new Model());
+            var entityType = new Model().AddEntityType(typeof(A<int>));
 
             Assert.Equal(
                 "A<int>",

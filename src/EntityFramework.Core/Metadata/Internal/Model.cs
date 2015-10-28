@@ -17,19 +17,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ImmutableSortedSet<EntityType> _entities
             = ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer());
 
-        public virtual EntityType AddEntityType([NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return AddEntityType(new EntityType(type, this));
-        }
-
         public virtual EntityType AddEntityType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
             return AddEntityType(new EntityType(name, this));
         }
+
+        public virtual EntityType AddEntityType([NotNull] Type type) => (EntityType)((IMutableModel)this).AddEntityType(type);
 
         private EntityType AddEntityType(EntityType entityType)
         {
@@ -119,15 +114,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual IReadOnlyList<EntityType> GetEntityTypes() => _entities;
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
-
         IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
 
         IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
-
         IReadOnlyList<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
-
         IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
-
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
     }
 }

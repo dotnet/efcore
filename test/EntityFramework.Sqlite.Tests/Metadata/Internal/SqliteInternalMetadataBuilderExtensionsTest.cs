@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
 
             Assert.Equal(77, builder.Metadata.Sqlite().FindSequence("Mine").IncrementBy);
 
-            Assert.Equal(1, builder.Metadata.Annotations.Count(
+            Assert.Equal(1, builder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             Assert.False(typeBuilder.Sqlite(ConfigurationSource.Convention).ToTable("Splod"));
             Assert.Equal("Splow", typeBuilder.Metadata.Sqlite().TableName);
 
-            Assert.Equal(1, typeBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, typeBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             Assert.False(propertyBuilder.Sqlite(ConfigurationSource.Convention).ColumnName("Splod"));
             Assert.Equal("Splow", propertyBuilder.Metadata.Sqlite().ColumnName);
 
-            Assert.Equal(1, propertyBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, propertyBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             Assert.False(keyBuilder.Sqlite(ConfigurationSource.Convention).Name("Splod"));
             Assert.Equal("Splow", keyBuilder.Metadata.Sqlite().Name);
 
-            Assert.Equal(1, keyBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, keyBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             indexBuilder.Sqlite(ConfigurationSource.Convention).Name("Splod");
             Assert.Equal("Splow", indexBuilder.Metadata.Sqlite().Name);
 
-            Assert.Equal(1, indexBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, indexBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -125,7 +125,7 @@ namespace Microsoft.Data.Entity.Sqlite.Metadata
             Assert.False(relationshipBuilder.Sqlite(ConfigurationSource.Convention).Name("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.Sqlite().Name);
 
-            Assert.Equal(1, relationshipBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, relationshipBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqliteAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 

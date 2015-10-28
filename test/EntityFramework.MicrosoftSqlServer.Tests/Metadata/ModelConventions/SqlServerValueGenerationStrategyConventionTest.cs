@@ -16,10 +16,10 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
         {
             var model = SqlServerTestHelpers.Instance.CreateConventionBuilder().Model;
 
-            Assert.Equal(1, model.Annotations.Count());
+            Assert.Equal(1, model.GetAnnotations().Count());
 
-            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, model.Annotations.Single().Name);
-            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.Annotations.Single().Value);
+            Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.ValueGenerationStrategy, model.GetAnnotations().Single().Name);
+            Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, model.GetAnnotations().Single().Value);
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata.Conventions
                 .ForSqlServerUseSequenceHiLo()
                 .Model;
 
-            var annotations = model.Annotations.OrderBy(a => a.Name);
+            var annotations = model.GetAnnotations().OrderBy(a => a.Name);
             Assert.Equal(3, annotations.Count());
 
             Assert.Equal(SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.HiLoSequenceName, annotations.ElementAt(0).Name);

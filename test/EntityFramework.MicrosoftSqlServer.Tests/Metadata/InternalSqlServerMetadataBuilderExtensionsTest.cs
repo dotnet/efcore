@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(builder.SqlServer(ConfigurationSource.Convention).ValueGenerationStrategy(SqlServerValueGenerationStrategy.SequenceHiLo));
             Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, builder.Metadata.SqlServer().ValueGenerationStrategy);
 
-            Assert.Equal(1, builder.Metadata.Annotations.Count(
+            Assert.Equal(1, builder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(typeBuilder.SqlServer(ConfigurationSource.Convention).ToTable("Splod"));
             Assert.Equal("Splow", typeBuilder.Metadata.SqlServer().TableName);
 
-            Assert.Equal(1, typeBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, typeBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(propertyBuilder.SqlServer(ConfigurationSource.Convention).HiLoSequenceName("Splod"));
             Assert.Equal("Splow", propertyBuilder.Metadata.SqlServer().HiLoSequenceName);
 
-            Assert.Equal(1, propertyBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, propertyBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.False(keyBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.Equal(1, keyBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, keyBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(indexBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.False(indexBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.Equal(1, indexBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, indexBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(relationshipBuilder.SqlServer(ConfigurationSource.Convention).Name("Splod"));
             Assert.Equal("Splow", relationshipBuilder.Metadata.SqlServer().Name);
 
-            Assert.Equal(1, relationshipBuilder.Metadata.Annotations.Count(
+            Assert.Equal(1, relationshipBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 

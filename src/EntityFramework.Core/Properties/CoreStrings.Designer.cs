@@ -1100,6 +1100,22 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("NavigationForWrongForeignKey", "navigation", "entityType", "targetFk", "actualFk"), navigation, entityType, targetFk, actualFk);
         }
 
+        /// <summary>
+        /// The specified CLR type '{clrType}' does not match the entity type name '{entity}'.
+        /// </summary>
+        public static string ClrTypeWrongName([CanBeNull] object clrType, [CanBeNull] object entity)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ClrTypeWrongName", "clrType", "entity"), clrType, entity);
+        }
+
+        /// <summary>
+        /// The CLR type cannot be set on the entity type '{entityType}' because it has members, base entity type or derived entity types.
+        /// </summary>
+        public static string EntityTypeInUse([CanBeNull] object entityType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeInUse", "entityType"), entityType);
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

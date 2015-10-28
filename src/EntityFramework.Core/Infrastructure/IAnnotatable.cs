@@ -40,6 +40,6 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
-        IEnumerable<IAnnotation> Annotations { get; }
+        IEnumerable<IAnnotation> GetAnnotations();
     }
 }

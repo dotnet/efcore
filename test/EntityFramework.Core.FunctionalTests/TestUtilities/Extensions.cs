@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 clonedProperty.ValueGenerated = property.ValueGenerated;
                 clonedProperty.IsReadOnlyBeforeSave = property.IsReadOnlyBeforeSave;
                 clonedProperty.IsReadOnlyAfterSave = property.IsReadOnlyAfterSave;
-                property.Annotations.ForEach(annotation => clonedProperty[annotation.Name] = annotation.Value);
+                property.GetAnnotations().ForEach(annotation => clonedProperty[annotation.Name] = annotation.Value);
             }
         }
 
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 {
                     targetEntityType.SetPrimaryKey(clonedKey.Properties);
                 }
-                key.Annotations.ForEach(annotation => clonedKey[annotation.Name] = annotation.Value);
+                key.GetAnnotations().ForEach(annotation => clonedKey[annotation.Name] = annotation.Value);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var clonedIndex = targetEntityType.AddIndex(
                     index.Properties.Select(p => targetEntityType.FindProperty(p.Name)).ToList());
                 clonedIndex.IsUnique = index.IsUnique;
-                index.Annotations.ForEach(annotation => clonedIndex[annotation.Name] = annotation.Value);
+                index.GetAnnotations().ForEach(annotation => clonedIndex[annotation.Name] = annotation.Value);
             }
         }
 
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     targetPrincipalEntityType);
                 clonedForeignKey.IsUnique = foreignKey.IsUnique;
                 clonedForeignKey.IsRequired = foreignKey.IsRequired;
-                foreignKey.Annotations.ForEach(annotation => clonedForeignKey[annotation.Name] = annotation.Value);
+                foreignKey.GetAnnotations().ForEach(annotation => clonedForeignKey[annotation.Name] = annotation.Value);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var clonedNavigation = navigation.IsDependentToPrincipal()
                     ? targetForeignKey.HasDependentToPrincipal(navigation.Name)
                     : targetForeignKey.HasPrincipalToDependent(navigation.Name);
-                navigation.Annotations.ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
+                navigation.GetAnnotations().ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
             }
         }
     }

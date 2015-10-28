@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Metadata
         /// <summary>
         ///     Gets all annotations on the current object.
         /// </summary>
-        new IEnumerable<Annotation> Annotations { get; }
+        new IEnumerable<Annotation> GetAnnotations();
 
         /// <summary>
         ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.

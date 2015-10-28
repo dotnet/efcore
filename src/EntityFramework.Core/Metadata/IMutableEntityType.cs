@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
@@ -17,6 +18,18 @@ namespace Microsoft.Data.Entity.Metadata
     /// </summary>
     public interface IMutableEntityType : IEntityType, IMutableAnnotatable
     {
+        /// <summary>
+        ///     <para>
+        ///         Gets or sets the CLR class that is used to represent instances of this entity. Returns null if the entity does not 
+        ///         have a corresponding CLR class (known as a shadow entity).
+        ///     </para>
+        ///     <para>
+        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext"/>. 
+        ///         Therefore, shadow entities will only exist in migration model snapshots, etc.
+        ///     </para>
+        /// </summary>
+        new Type ClrType { get; [param: CanBeNull] set; }
+
         /// <summary>
         ///     Gets the model this entity belongs to.
         /// </summary>
@@ -123,7 +136,7 @@ namespace Microsoft.Data.Entity.Metadata
         /// </param>
         /// <returns></returns>
         IMutableForeignKey RemoveForeignKey([NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType);
-        
+
         /// <summary>
         ///     Adds an index to this entity.
         /// </summary>

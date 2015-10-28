@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(model, nameof(model));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var annotations = model.Annotations.ToArray();
+            var annotations = model.GetAnnotations().ToArray();
             if (annotations.Length != 0)
             {
                 stringBuilder.Append(builderName);
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(property, nameof(property));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            GenerateAnnotations(property.Annotations.ToArray(), stringBuilder);
+            GenerateAnnotations(property.GetAnnotations().ToArray(), stringBuilder);
         }
 
         protected virtual void GenerateKeys(
@@ -284,7 +284,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (stringBuilder.Indent())
             {
-                GenerateAnnotations(key.Annotations.ToArray(), stringBuilder);
+                GenerateAnnotations(key.GetAnnotations().ToArray(), stringBuilder);
             }
 
             stringBuilder.Append(";");
@@ -324,7 +324,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                         .Append(".IsUnique()");
                 }
 
-                GenerateAnnotations(index.Annotations.ToArray(), stringBuilder);
+                GenerateAnnotations(index.GetAnnotations().ToArray(), stringBuilder);
             }
 
             stringBuilder.Append(";");
@@ -335,7 +335,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var annotations = entityType.Annotations.ToArray();
+            var annotations = entityType.GetAnnotations().ToArray();
             if (annotations.Any())
             {
                 foreach (var annotation in annotations)
@@ -441,7 +441,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(foreignKey, nameof(foreignKey));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            GenerateAnnotations(foreignKey.Annotations.ToArray(), stringBuilder);
+            GenerateAnnotations(foreignKey.GetAnnotations().ToArray(), stringBuilder);
         }
 
         protected virtual void GenerateAnnotations(

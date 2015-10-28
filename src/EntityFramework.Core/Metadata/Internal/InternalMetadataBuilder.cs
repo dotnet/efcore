@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         protected virtual void MergeAnnotationsFrom([NotNull] InternalMetadataBuilder annotatableBuilder)
         {
-            foreach (var annotation in annotatableBuilder.Metadata.Annotations)
+            foreach (var annotation in annotatableBuilder.Metadata.GetAnnotations())
             {
                 ConfigurationSource annotationSource;
                 if (!annotatableBuilder._annotationSources.Value.TryGetValue(annotation.Name, out annotationSource))

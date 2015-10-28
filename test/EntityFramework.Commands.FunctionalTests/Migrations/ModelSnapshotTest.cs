@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Commands.Migrations
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.Annotations.Count());
+                        Assert.Equal(1, o.GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o["AnnotationName"]);
                     });
         }
@@ -130,7 +130,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.GetEntityTypes().First().Annotations.Count());
+                        Assert.Equal(1, o.GetEntityTypes().First().GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                     });
         }
