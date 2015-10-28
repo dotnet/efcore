@@ -77,6 +77,7 @@
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ThrowingModelValidatorTest.cs" />
+    <Compile Include="Metadata\Internal\ClrPropertySetterFactoryTest.cs" />
     <Compile Include="Metadata\Internal\CollectionTypeFactoryTest.cs" />
     <Compile Include="Metadata\EntityTypeExtensionsTest.cs" />
     <Compile Include="Metadata\Internal\IndexTest.cs" />
