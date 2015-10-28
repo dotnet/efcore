@@ -147,7 +147,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     targetPrincipalEntityType.FindKey(navigation.ForeignKey.PrincipalKey.Properties.Select(
                         p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
-                var clonedNavigation = targetEntityType.AddNavigation(navigation.Name, targetForeignKey, pointsToPrincipal: navigation.IsDependentToPrincipal());
+                var clonedNavigation = navigation.IsDependentToPrincipal()
+                    ? targetForeignKey.HasDependentToPrincipal(navigation.Name)
+                    : targetForeignKey.HasPrincipalToDependent(navigation.Name);
                 navigation.Annotations.ForEach(annotation => clonedNavigation[annotation.Name] = annotation.Value);
             }
         }

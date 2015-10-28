@@ -635,7 +635,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         foreignKey.DependentToPrincipal,
                         foreignKey.PrincipalToDependent,
                         isDependent: true))
-                .Concat(entityType.FindReferencingForeignKeys().Where(foreignKey => !foreignKey.IsSelfReferencing())
+                .Concat(entityType.GetReferencingForeignKeys().Where(foreignKey => !foreignKey.IsSelfReferencing())
                     .Select(foreignKey =>
                         new RelationshipSnapshot(foreignKey,
                             foreignKey.PrincipalToDependent,
@@ -716,12 +716,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var navigationToDependent = foreignKey.PrincipalToDependent;
-            var removedNavigation = navigationToDependent?.DeclaringEntityType.RemoveNavigation(navigationToDependent.Name);
-            Debug.Assert(removedNavigation == navigationToDependent);
-
             var navigationToPrincipal = foreignKey.DependentToPrincipal;
-            removedNavigation = navigationToPrincipal?.DeclaringEntityType.RemoveNavigation(navigationToPrincipal.Name);
-            Debug.Assert(removedNavigation == navigationToPrincipal);
 
             var removedForeignKey = Metadata.RemoveForeignKey(foreignKey);
             Debug.Assert(removedForeignKey == foreignKey);

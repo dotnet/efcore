@@ -158,10 +158,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var fkProperty = entityType2.AddProperty("CustomerId", typeof(int?));
             var foreignKey = entityType2.GetOrAddForeignKey(fkProperty, entityType1.AddKey(keyProperty), entityType1);
 
-            var referencingForeignKeys = entityType1.FindReferencingForeignKeys();
+            var referencingForeignKeys = entityType1.GetReferencingForeignKeys();
 
             Assert.Same(foreignKey, referencingForeignKeys.Single());
-            Assert.Same(foreignKey, entityType1.FindReferencingForeignKeys().Single());
+            Assert.Same(foreignKey, entityType1.GetReferencingForeignKeys().Single());
         }
 
         private class Customer

@@ -208,7 +208,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata
                 entityType.GetOrSetPrimaryKey(entityType.AddProperty("Id", typeof(int))),
                 entityType);
 
-            return entityType.AddNavigation(navigationName, foreignKey, pointsToPrincipal: false);
+            return foreignKey.HasPrincipalToDependent(navigationName);
         }
 
         private class MyEntity

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -12,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class EntityType : Annotatable, IMutableEntityType
+    public class EntityType : Annotatable, IMutableEntityType, ICanGetNavigations
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
 
@@ -559,34 +560,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
-            CheckForeignKeyNotInUse(foreignKey);
+            foreignKey.HasDependentToPrincipal(null);
+            foreignKey.HasPrincipalToDependent(null);
 
             return _foreignKeys.Remove(foreignKey.Properties) ? foreignKey : null;
         }
 
-        public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys()
-            => ((IEntityType)this).FindReferencingForeignKeys().Cast<ForeignKey>();
+        public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
+            => ((IEntityType)this).GetReferencingForeignKeys().Cast<ForeignKey>();
 
-        public virtual IEnumerable<ForeignKey> FindDeclaredReferencingForeignKeys()
-        {
-            return Model.GetEntityTypes().SelectMany(et => et.GetDeclaredForeignKeys())
-                .Where(fk => fk.PrincipalEntityType == this);
-        }
-
-        private void CheckForeignKeyNotInUse(ForeignKey foreignKey)
-        {
-            var navigation = foreignKey.PrincipalToDependent ?? foreignKey.DependentToPrincipal;
-
-            if (navigation != null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.ForeignKeyInUse(
-                        Property.Format(foreignKey.Properties),
-                        Name,
-                        navigation.Name,
-                        navigation.DeclaringEntityType.Name));
-            }
-        }
+        public virtual IEnumerable<ForeignKey> GetDeclaredReferencingForeignKeys()
+            => ((IEntityType)this).GetDeclaredReferencingForeignKeys().Cast<ForeignKey>();
 
         public virtual IEnumerable<ForeignKey> GetForeignKeys()
             => BaseType?.GetForeignKeys().Concat(_foreignKeys.Values) ?? _foreignKeys.Values;
@@ -603,7 +587,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateNavigation(name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                if (duplicateNavigation.ForeignKey != foreignKey)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationForWrongForeignKey(
+                            duplicateNavigation.Name,
+                            duplicateNavigation.DeclaringEntityType.DisplayName(),
+                            Property.Format(foreignKey.Properties),
+                            Property.Format(duplicateNavigation.ForeignKey.Properties)));
+                }
+                else
+                {
+                    throw new InvalidOperationException(CoreStrings.DuplicateNavigation(name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                }
             }
 
             var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
@@ -613,23 +609,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
-            var otherNavigation = GetNavigations().FirstOrDefault(
-                n => n.ForeignKey == foreignKey
-                     && n.IsDependentToPrincipal() == pointsToPrincipal);
+            Debug.Assert(!GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
+                "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
-            if (otherNavigation != null)
-            {
-                throw new InvalidOperationException(CoreStrings.MultipleNavigations(name, otherNavigation.Name, Name));
-            }
-
-            var declaringTypeFromFk = pointsToPrincipal
-                ? foreignKey.DeclaringEntityType
-                : foreignKey.PrincipalEntityType;
-
-            if (declaringTypeFromFk != this)
-            {
-                throw new InvalidOperationException(CoreStrings.NavigationOnWrongEntityType(name, Name, declaringTypeFromFk.Name));
-            }
+            Debug.Assert((pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
+                "EntityType mismatch");
 
             Navigation.IsCompatible(
                 name,
@@ -640,20 +624,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var navigation = new Navigation(name, foreignKey);
             _navigations.Add(name, navigation);
-            if (pointsToPrincipal)
-            {
-                foreignKey.DependentToPrincipal = navigation;
-            }
-            else
-            {
-                foreignKey.PrincipalToDependent = navigation;
-            }
 
             return navigation;
         }
-
-        public virtual Navigation GetOrAddNavigation([NotNull] string name, [NotNull] ForeignKey foreignKey, bool pointsToPrincipal)
-            => FindNavigation(name) ?? AddNavigation(name, foreignKey, pointsToPrincipal);
 
         public virtual Navigation FindNavigation([NotNull] string name)
         {
@@ -689,25 +662,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
 
             var navigation = FindDeclaredNavigation(name);
-            return navigation == null
-                ? null
-                : RemoveNavigation(navigation);
-        }
-
-        private Navigation RemoveNavigation(Navigation navigation)
-        {
-            _navigations.Remove(navigation.Name);
-
-            if (navigation.IsDependentToPrincipal())
+            if (navigation == null)
             {
-                navigation.ForeignKey.DependentToPrincipal = null;
+                return null;
             }
             else
             {
-                navigation.ForeignKey.PrincipalToDependent = null;
+                _navigations.Remove(name);
+                return navigation;
             }
-
-            return navigation;
         }
 
         public virtual IEnumerable<Navigation> GetNavigations()
@@ -997,14 +960,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             IReadOnlyList<IProperty> properties, IKey principalKey, IEntityType principalEntityType)
             => RemoveForeignKey(properties, principalKey, principalEntityType);
 
-        IMutableNavigation IMutableEntityType.AddNavigation(string name, IMutableForeignKey foreignKey, bool pointsToPrincipal)
-            => AddNavigation(name, (ForeignKey)foreignKey, pointsToPrincipal);
-
-        INavigation IEntityType.FindNavigation(string name) => FindNavigation(name);
-        IMutableNavigation IMutableEntityType.FindNavigation(string name) => FindNavigation(name);
-        IEnumerable<INavigation> IEntityType.GetNavigations() => GetNavigations();
-        IEnumerable<IMutableNavigation> IMutableEntityType.GetNavigations() => GetNavigations();
-        IMutableNavigation IMutableEntityType.RemoveNavigation(string name) => RemoveNavigation(name);
+        IEnumerable<INavigation> ICanGetNavigations.GetNavigations() => GetNavigations();
 
         IMutableIndex IMutableEntityType.AddIndex(IReadOnlyList<IMutableProperty> properties)
             => AddIndex(properties.Cast<Property>().ToList());
@@ -1029,7 +985,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private IEnumerable<T> ToEnumerable<T>(T element)
             where T : class
             => element == null ? Enumerable.Empty<T>() : new[] { element };
-
+        
         private class PropertyComparer : IComparer<string>
         {
             private readonly EntityType _entityType;

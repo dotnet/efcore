@@ -337,7 +337,7 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.FindEntityType(typeof(Pickle));
                 var principalType = model.FindEntityType(typeof(BigMak));
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.Single().Name == "BurgerId");
-                dependentType.RemoveNavigation(fk.DependentToPrincipal.Name);
+                fk.HasDependentToPrincipal(null);
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();

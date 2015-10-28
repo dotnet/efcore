@@ -13,8 +13,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class ForeignKey : Annotatable, IMutableForeignKey
     {
-        private Navigation _dependentToPrincipal;
-        private Navigation _principalToDependent;
         private DeleteBehavior? _deleteBehavior;
 
         public ForeignKey(
@@ -45,61 +43,44 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual Navigation DependentToPrincipal
+        public virtual Navigation DependentToPrincipal { get; private set; }
+
+        public virtual Navigation HasDependentToPrincipal([CanBeNull] string name)
         {
-            get { return _dependentToPrincipal; }
-            [param: CanBeNull]
-            set
+            var oldNavigation = DependentToPrincipal;
+            if (oldNavigation != null)
             {
-                CheckNavigation(value, DeclaringEntityType);
-
-                if (value == null
-                    && _dependentToPrincipal != null
-                    && DeclaringEntityType.GetNavigations().Contains(_dependentToPrincipal))
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NavigationStillOnEntityType(_dependentToPrincipal.Name, DeclaringEntityType.Name));
-                }
-
-                _dependentToPrincipal = value;
+                DeclaringEntityType.RemoveNavigation(oldNavigation.Name);
             }
+
+            Navigation newNavigation = null;
+            if (name != null)
+            {
+                newNavigation = DeclaringEntityType.AddNavigation(name, this, pointsToPrincipal: true);
+            }
+
+            DependentToPrincipal = newNavigation;
+            return newNavigation ?? oldNavigation;
         }
 
-        public virtual Navigation PrincipalToDependent
+        public virtual Navigation PrincipalToDependent { get; private set; }
+
+        public virtual Navigation HasPrincipalToDependent([CanBeNull] string name)
         {
-            get { return _principalToDependent; }
-            [param: CanBeNull]
-            set
+            var oldNavigation = PrincipalToDependent;
+            if (oldNavigation != null)
             {
-                CheckNavigation(value, PrincipalEntityType);
-
-                if (value == null
-                    && _principalToDependent != null
-                    && PrincipalEntityType.GetNavigations().Contains(_principalToDependent))
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NavigationStillOnEntityType(_principalToDependent.Name, PrincipalEntityType.Name));
-                }
-
-                _principalToDependent = value;
+                PrincipalEntityType.RemoveNavigation(oldNavigation.Name);
             }
-        }
 
-        private void CheckNavigation(Navigation value, EntityType entityType)
-        {
-            if (value != null)
+            Navigation navigation = null;
+            if (name != null)
             {
-                if (value.ForeignKey != this)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NavigationForWrongForeignKey(value.Name, value.DeclaringEntityType.DisplayName(), Property.Format(Properties), Property.Format(value.ForeignKey.Properties)));
-                }
-
-                if (!entityType.GetDeclaredNavigations().Contains(value))
-                {
-                    throw new InvalidOperationException(CoreStrings.NavigationNotFound(value.Name, entityType.Name));
-                }
+                navigation = PrincipalEntityType.AddNavigation(name, this, pointsToPrincipal: false);
             }
+
+            PrincipalToDependent = navigation;
+            return navigation ?? oldNavigation;
         }
 
         public virtual IReadOnlyList<Property> Properties { get; }
@@ -161,6 +142,27 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         protected virtual DeleteBehavior DefaultDeleteBehavior => Metadata.DeleteBehavior.Restrict;
 
+        public virtual IEnumerable<Navigation> FindNavigationsFrom([NotNull] EntityType entityType)
+            => ((IForeignKey)this).FindNavigationsFrom(entityType).Cast<Navigation>();
+
+        public virtual IEnumerable<Navigation> FindNavigationsFromInHierarchy([NotNull] EntityType entityType)
+            => ((IForeignKey)this).FindNavigationsFromInHierarchy(entityType).Cast<Navigation>();
+
+        public virtual IEnumerable<Navigation> FindNavigationsTo([NotNull] EntityType entityType)
+            => ((IForeignKey)this).FindNavigationsTo(entityType).Cast<Navigation>();
+
+        public virtual IEnumerable<Navigation> FindNavigationsToInHierarchy([NotNull] EntityType entityType)
+            => ((IForeignKey)this).FindNavigationsToInHierarchy(entityType).Cast<Navigation>();
+
+        public virtual EntityType ResolveOtherEntityTypeInHierarchy([NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)this).ResolveOtherEntityTypeInHierarchy(entityType);
+
+        public virtual EntityType ResolveOtherEntityType([NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)this).ResolveOtherEntityType(entityType);
+
+        public virtual EntityType ResolveEntityTypeInHierarchy([NotNull] EntityType entityType)
+            => (EntityType)((IForeignKey)this).ResolveEntityTypeInHierarchy(entityType);
+
         IReadOnlyList<IProperty> IForeignKey.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableForeignKey.Properties => Properties;
         IKey IForeignKey.PrincipalKey => PrincipalKey;
@@ -169,23 +171,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         IMutableEntityType IMutableForeignKey.DeclaringEntityType => DeclaringEntityType;
         IEntityType IForeignKey.PrincipalEntityType => PrincipalEntityType;
         IMutableEntityType IMutableForeignKey.PrincipalEntityType => PrincipalEntityType;
+
         INavigation IForeignKey.DependentToPrincipal => DependentToPrincipal;
-
-        IMutableNavigation IMutableForeignKey.DependentToPrincipal
-        {
-            get { return DependentToPrincipal; }
-
-            set { DependentToPrincipal = (Navigation)value; }
-        }
-
+        IMutableNavigation IMutableForeignKey.DependentToPrincipal => DependentToPrincipal;
+        IMutableNavigation IMutableForeignKey.HasDependentToPrincipal(string name) => HasDependentToPrincipal(name);
         INavigation IForeignKey.PrincipalToDependent => PrincipalToDependent;
-
-        IMutableNavigation IMutableForeignKey.PrincipalToDependent
-        {
-            get { return PrincipalToDependent; }
-
-            set { PrincipalToDependent = (Navigation)value; }
-        }
+        IMutableNavigation IMutableForeignKey.PrincipalToDependent => PrincipalToDependent;
+        IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
 
         bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
@@ -249,6 +241,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return true;
+        }
+
+        public virtual bool IsCompatible([NotNull] EntityType principalType, [NotNull] EntityType dependentType, bool? unique)
+        {
+            Check.NotNull(principalType, nameof(principalType));
+            Check.NotNull(dependentType, nameof(dependentType));
+
+            return (unique == null || ((IForeignKey)this).IsUnique == unique)
+                   && PrincipalEntityType == principalType
+                   && DeclaringEntityType == dependentType;
         }
 
         public static bool CanPropertiesBeRequired(

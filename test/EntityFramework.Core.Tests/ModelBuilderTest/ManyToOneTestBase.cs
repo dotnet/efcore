@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.Tests
                 var principalType = model.FindEntityType(typeof(Customer));
                 var fk = dependentType.GetForeignKeys().Single();
 
-                var navToPrincipal = dependentType.GetOrAddNavigation("Customer", fk, pointsToPrincipal: true);
-                var navToDependent = principalType.GetOrAddNavigation("Orders", fk, pointsToPrincipal: false);
+                var navToPrincipal = fk.HasDependentToPrincipal("Customer");
+                var navToDependent = fk.HasPrincipalToDependent("Orders");
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
@@ -1079,7 +1079,7 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.FindEntityType(typeof(Tomato));
                 var principalType = model.FindEntityType(typeof(Whoopper));
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.First().Name == "BurgerId1");
-                dependentType.RemoveNavigation(fk.DependentToPrincipal.Name);
+                fk.HasDependentToPrincipal(null);
 
                 var principalKey = principalType.FindPrimaryKey();
                 var dependentKey = dependentType.GetKeys().Single();

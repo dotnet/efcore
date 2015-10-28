@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            var referencingForeignKey = entityType.FindDeclaredReferencingForeignKeys().FirstOrDefault();
+            var referencingForeignKey = entityType.GetDeclaredReferencingForeignKeys().FirstOrDefault();
             if (referencingForeignKey != null)
             {
                 throw new InvalidOperationException(

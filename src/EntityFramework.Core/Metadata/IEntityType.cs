@@ -24,8 +24,6 @@ namespace Microsoft.Data.Entity.Metadata
             [NotNull] IEntityType principalEntityType);
 
         IEnumerable<IForeignKey> GetForeignKeys();
-        INavigation FindNavigation([NotNull] string name);
-        IEnumerable<INavigation> GetNavigations();
         IIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
         IEnumerable<IIndex> GetIndexes();
         IProperty FindProperty([NotNull] string name);

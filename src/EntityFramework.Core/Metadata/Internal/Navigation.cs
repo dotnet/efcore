@@ -60,7 +60,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(CoreStrings.NavigationOnShadowEntity(navigationPropertyName, sourceType.Name));
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationOnShadowEntity(navigationPropertyName, sourceType.DisplayName()));
                 }
                 return false;
             }
@@ -70,7 +71,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(CoreStrings.NavigationToShadowEntity(navigationPropertyName, sourceType.Name, targetType.Name));
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationToShadowEntity(navigationPropertyName, sourceType.DisplayName(), targetType.DisplayName()));
                 }
                 return false;
             }
@@ -80,7 +82,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (shouldThrow)
                 {
-                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(navigationPropertyName, sourceType.Name));
+                    throw new InvalidOperationException(CoreStrings.NoClrNavigation(navigationPropertyName, sourceType.DisplayName()));
                 }
                 return false;
             }
@@ -94,8 +96,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     if (shouldThrow)
                     {
-                        throw new InvalidOperationException(CoreStrings.NavigationCollectionWrongClrType(
-                            navigationProperty.Name, sourceClrType.FullName, navigationProperty.PropertyType.FullName, targetClrType.FullName));
+                        throw new InvalidOperationException(
+                            CoreStrings.NavigationCollectionWrongClrType(
+                            navigationProperty.Name,
+                            sourceClrType.Name,
+                            navigationProperty.PropertyType.FullName,
+                            targetClrType.FullName));
                     }
                     return false;
                 }
@@ -105,7 +111,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     if (shouldThrow)
                     {
                         throw new InvalidOperationException(CoreStrings.NavigationSingleWrongClrType(
-                            navigationProperty.Name, sourceClrType.FullName, navigationProperty.PropertyType.FullName, targetClrType.FullName));
+                            navigationProperty.Name,
+                            sourceClrType.Name,
+                            navigationProperty.PropertyType.FullName,
+                            targetClrType.FullName));
                     }
                     return false;
                 }

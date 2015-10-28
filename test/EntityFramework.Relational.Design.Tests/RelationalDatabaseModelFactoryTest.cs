@@ -311,7 +311,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var children = (EntityType)model.FindEntityType("Children");
 
-            Assert.NotEmpty(parent.FindReferencingForeignKeys());
+            Assert.NotEmpty(parent.GetReferencingForeignKeys());
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.False(fk.IsUnique);
             Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
@@ -384,7 +384,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             var children = (EntityType)model.FindEntityType("Children");
 
-            Assert.NotEmpty(parent.FindReferencingForeignKeys());
+            Assert.NotEmpty(parent.GetReferencingForeignKeys());
 
             var fk = Assert.Single(children.GetForeignKeys());
             Assert.False(fk.IsUnique);
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             var model = _factory.Create(new DatabaseModel { Tables = { table } });
             var list = model.FindEntityType("ItemsList");
 
-            Assert.NotEmpty(list.FindReferencingForeignKeys());
+            Assert.NotEmpty(list.GetReferencingForeignKeys());
             Assert.NotEmpty(list.GetForeignKeys());
 
             var principalKey = list.FindForeignKeys(list.FindProperty("ParentId")).SingleOrDefault().PrincipalKey;

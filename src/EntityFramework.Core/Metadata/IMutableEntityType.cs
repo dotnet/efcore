@@ -29,12 +29,7 @@ namespace Microsoft.Data.Entity.Metadata
 
         new IEnumerable<IMutableForeignKey> GetForeignKeys();
         IMutableForeignKey RemoveForeignKey([NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType);
-
-        IMutableNavigation AddNavigation([NotNull] string name, [NotNull] IMutableForeignKey foreignKey, bool pointsToPrincipal);
-        new IMutableNavigation FindNavigation([NotNull] string name);
-        new IEnumerable<IMutableNavigation> GetNavigations();
-        IMutableNavigation RemoveNavigation([NotNull] string name);
-
+        
         IMutableIndex AddIndex([NotNull] IReadOnlyList<IMutableProperty> properties);
         new IMutableIndex FindIndex([NotNull] IReadOnlyList<IProperty> properties);
         new IEnumerable<IMutableIndex> GetIndexes();
