@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 new[] { dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata },
                 ConfigurationSource.Convention));
         }
-        
+
         [Fact]
         public void Replaces_derived_relationship_of_lower_or_equal_source()
         {
@@ -344,6 +344,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Can_promote_index_to_base_with_facets()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
+            derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.DataAnnotation).IsUnique(true, ConfigurationSource.Convention);
+
+            var indexBuilder = entityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.Convention);
+            Assert.Same(indexBuilder.Metadata.Properties.Single(), entityBuilder.Metadata.FindProperty(Order.IdProperty.Name));
+            Assert.Same(indexBuilder.Metadata, entityBuilder.Metadata.FindIndex(indexBuilder.Metadata.Properties.Single()));
+            Assert.True(indexBuilder.Metadata.IsUnique);
+            Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredIndexes());
+        }
+
+        [Fact]
         public void Can_configure_inherited_index()
         {
             var modelBuilder = CreateModelBuilder();
@@ -359,6 +376,44 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(entityBuilder.Metadata.GetIndexes().Single(), indexBuilder.Metadata);
             Assert.True(indexBuilder.IsUnique(true, ConfigurationSource.Convention));
             Assert.True(indexBuilder.Metadata.IsUnique);
+        }
+
+        [Fact]
+        public void Can_create_index_on_inherited_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.Convention);
+
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
+
+            var indexBuilder = derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.DataAnnotation);
+
+            Assert.Empty(entityBuilder.Metadata.GetIndexes());
+            Assert.Same(derivedEntityBuilder.Metadata.GetDeclaredIndexes().Single(), indexBuilder.Metadata);
+            Assert.Same(entityBuilder.Metadata, indexBuilder.Metadata.Properties.First().DeclaringEntityType);
+        }
+
+        [Fact]
+        public void Can_create_index_on_mix_of_inherited_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+            entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.Convention);
+
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(SpecialOrder.SpecialtyProperty.Name, typeof(string), ConfigurationSource.Convention);
+            derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
+
+            var indexBuilder = derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name, SpecialOrder.SpecialtyProperty.Name }, ConfigurationSource.DataAnnotation);
+
+            Assert.Empty(entityBuilder.Metadata.GetIndexes());
+            Assert.Same(derivedEntityBuilder.Metadata.GetDeclaredIndexes().Single(), indexBuilder.Metadata);
+            Assert.Collection(
+                indexBuilder.Metadata.Properties,
+                t1 => Assert.Same(entityBuilder.Metadata, t1.DeclaringEntityType),
+                t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringEntityType));
         }
 
         [Fact]
@@ -1804,6 +1859,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Setting_base_type_preserves_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            derivedEntityBuilder.Property(Order.IdProperty, ConfigurationSource.Convention);
+            derivedEntityBuilder.HasIndex(new[] { Order.IdProperty.Name }, ConfigurationSource.DataAnnotation).IsUnique(true, ConfigurationSource.Convention);
+            Assert.Equal(1, derivedEntityBuilder.Metadata.GetDeclaredIndexes().Count());
+
+            Assert.Same(derivedEntityBuilder,
+                derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention));
+
+            Assert.Equal(1, derivedEntityBuilder.Metadata.GetDeclaredIndexes().Count());
+            Assert.True(derivedEntityBuilder.Metadata.GetDeclaredIndexes().First().IsUnique);
+        }
+
+        [Fact]
         public void Setting_base_type_preserves_non_conflicting_referencing_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1879,12 +1952,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private class SpecialOrder : Order, IEnumerable<Order>
         {
+            public static readonly PropertyInfo SpecialtyProperty = typeof(SpecialOrder).GetProperty("Specialty");
+
             public IEnumerator<Order> GetEnumerator()
             {
                 yield return this;
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public string Specialty { get; set; }
         }
 
         private class BackOrder : Order

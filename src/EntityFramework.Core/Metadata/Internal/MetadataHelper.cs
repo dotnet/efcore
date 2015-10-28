@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -23,6 +24,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         throw new ArgumentException(
                             CoreStrings.InconsistentEntityType(argumentName));
                     }
+                }
+            }
+        }
+
+        public static void CheckPropertiesInEntityType(IReadOnlyList<Property> properties, EntityType entityType, string argumentName)
+        {
+            foreach (var property in properties)
+            {
+                if (!property.DeclaringEntityType.IsAssignableFrom(entityType))
+                {
+                    throw new ArgumentException(
+                            CoreStrings.InconsistentEntityType(argumentName));
                 }
             }
         }

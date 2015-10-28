@@ -39,6 +39,17 @@ namespace Microsoft.Data.Entity
                 .Where(k => k.Properties.Contains(property));
         }
 
+        public static IEnumerable<IIndex> FindContainingIndexes([NotNull] this IProperty property)
+        {
+            Check.NotNull(property, nameof(property));
+
+            var entityType = property.DeclaringEntityType;
+            return entityType.GetAllBaseTypesInclusive()
+                .Concat(entityType.GetDerivedTypes())
+                .SelectMany(et => et.GetDeclaredIndexes())
+                .Where(k => k.Properties.Contains(property));
+        }
+
         public static IKey FindContainingPrimaryKey([NotNull] this IProperty property)
         {
             Check.NotNull(property, nameof(property));

@@ -1,6 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -34,6 +37,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             return false;
+        }
+
+        public virtual InternalIndexBuilder Attach(ConfigurationSource configurationSource)
+        {
+            var entityTypeBuilder = ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
+            var newIndexBuilder = entityTypeBuilder.HasIndex(Metadata.Properties.Select(p => p.Name).ToList(), configurationSource);
+
+            newIndexBuilder.MergeAnnotationsFrom(this);
+
+            if (_isUniqueConfigurationSource.HasValue)
+            {
+                newIndexBuilder.IsUnique(Metadata.IsUnique, _isUniqueConfigurationSource.Value);
+            }
+
+            return newIndexBuilder;
         }
     }
 }

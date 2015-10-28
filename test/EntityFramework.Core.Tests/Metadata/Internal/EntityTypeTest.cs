@@ -1033,34 +1033,32 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 Assert.Throws<ArgumentException>(() => entityType.AddIndex(new[] { idProperty })).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_an_index_throws_when_parent_type_has_index_on_same_properties()
         {
             var model = new Model();
 
             var orderType = model.AddEntityType(typeof(Order));
             var indexProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddIndex(indexProperty);
+            orderType.AddIndex(indexProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.BaseType = orderType;
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(SpecialOrder).FullName, typeof(Order).FullName),
+                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(SpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    specialOrderType.GetOrAddIndex(indexProperty)).Message);
+                    specialOrderType.AddIndex(indexProperty)).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_an_index_throws_when_grandparent_type_has_index_on_same_properties()
         {
             var model = new Model();
 
             var orderType = model.AddEntityType(typeof(Order));
             var indexProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
-            orderType.GetOrAddIndex(indexProperty);
+            orderType.AddIndex(indexProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
             specialOrderType.BaseType = orderType;
@@ -1069,13 +1067,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             verySpecialOrderType.BaseType = specialOrderType;
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(VerySpecialOrder).FullName, typeof(Order).FullName),
+                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(VerySpecialOrder).Name, typeof(Order).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    verySpecialOrderType.GetOrAddIndex(indexProperty)).Message);
+                    verySpecialOrderType.AddIndex(indexProperty)).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_an_index_throws_when_child_type_has_index_on_same_properties()
         {
             var model = new Model();
@@ -1084,17 +1081,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var indexProperty = orderType.GetOrAddProperty(Order.CustomerIdProperty);
 
             var specialOrderType = model.AddEntityType(typeof(SpecialOrder));
-            specialOrderType.GetOrAddIndex(indexProperty);
             specialOrderType.BaseType = orderType;
+            specialOrderType.AddIndex(indexProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).FullName, typeof(SpecialOrder).FullName),
+                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).Name, typeof(SpecialOrder).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    orderType.GetOrAddIndex(indexProperty)).Message);
+                    orderType.AddIndex(indexProperty)).Message);
         }
 
-        // Issue #2514
-        //[Fact]
+        [Fact]
         public void Adding_an_index_throws_when_grandchild_type_has_index_on_same_properties()
         {
             var model = new Model();
@@ -1107,12 +1103,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var verySpecialOrderType = model.AddEntityType(typeof(VerySpecialOrder));
             verySpecialOrderType.BaseType = specialOrderType;
-            specialOrderType.GetOrAddIndex(indexProperty);
+            verySpecialOrderType.AddIndex(indexProperty);
 
             Assert.Equal(
-                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).FullName, typeof(VerySpecialOrder).FullName),
+                CoreStrings.DuplicateIndex(Property.Format(new[] { indexProperty }), typeof(Order).Name, typeof(VerySpecialOrder).Name),
                 Assert.Throws<InvalidOperationException>(() =>
-                    orderType.GetOrAddIndex(indexProperty)).Message);
+                    orderType.AddIndex(indexProperty)).Message);
         }
 
         [Fact]

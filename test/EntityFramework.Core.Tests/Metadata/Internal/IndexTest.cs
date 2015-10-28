@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
@@ -18,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 });
+            var index = new Index(new[] { property1, property2 }, entityType);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
             Assert.Null(index.IsUnique);
@@ -32,23 +33,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 }) { IsUnique = true };
+            var index = new Index(new[] { property1, property2 }, entityType) { IsUnique = true };
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
             Assert.True(index.IsUnique.Value);
-        }
-
-        [Fact]
-        public void Constructor_check_arguments()
-        {
-            Assert.Equal(
-                "properties",
-                // ReSharper disable once AssignNullToNotNullAttribute
-                Assert.Throws<ArgumentNullException>(() => new Index(null)).ParamName);
-
-            Assert.Equal(
-                CoreStrings.CollectionArgumentIsEmpty("properties"),
-                Assert.Throws<ArgumentException>(() => new Index(new Property[0])).Message);
         }
 
         [Fact]
@@ -59,7 +47,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(CoreStrings.InconsistentEntityType("properties"),
                 Assert.Throws<ArgumentException>(
-                    () => new Index(new[] { property1, property2 })).Message);
+                    () => new Index(new[] { property1, property2 }, property1.DeclaringEntityType)).Message);
         }
 
         private class Customer

@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     var derivedProperties = Metadata.FindDerivedProperties(propertyName);
                     detachedProperties = DetachProperties(derivedProperties);
                 }
-                else if(existingProperty.DeclaringEntityType != Metadata)
+                else if (existingProperty.DeclaringEntityType != Metadata)
                 {
                     return ModelBuilder.Entity(existingProperty.DeclaringEntityType.Name, ConfigurationSource.Convention)
                         .InternalProperty(propertyName, propertyType, configurationSource);
@@ -533,8 +533,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             // TODO: Detach and reattach keys and the referencing FKs
             // Issue #2611
 
-            // TODO: Detach and reattach indexes
-            // Issue #2514
+
+            var detachedIndexes = new List<IndexBuildersSnapshot>();
+            foreach (var propertyToDetach in propertiesToDetachList)
+            {
+                var indexesToDetach = propertyToDetach.FindContainingIndexes().ToList();
+                if (indexesToDetach.Count > 0)
+                {
+                    detachedIndexes.Add(DetachIndexes(indexesToDetach));
+                }
+            }
 
             var detachedProperties = new List<Tuple<InternalPropertyBuilder, ConfigurationSource>>();
             foreach (var propertyToDetach in propertiesToDetachList)
@@ -551,27 +559,35 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            return new PropertyBuildersSnapshot(detachedProperties, detachedRelationships);
+            return new PropertyBuildersSnapshot(detachedProperties, detachedIndexes, detachedRelationships);
         }
 
         private class PropertyBuildersSnapshot
         {
             public PropertyBuildersSnapshot(
                 IReadOnlyList<Tuple<InternalPropertyBuilder, ConfigurationSource>> properties,
+                IReadOnlyList<IndexBuildersSnapshot> indexes,
                 IReadOnlyList<RelationshipBuilderSnapshot> relationships)
             {
                 Properties = properties;
+                Indexes = indexes;
                 Relationships = relationships;
             }
 
             private IReadOnlyList<Tuple<InternalPropertyBuilder, ConfigurationSource>> Properties { get; }
             private IReadOnlyList<RelationshipBuilderSnapshot> Relationships { get; }
+            private IReadOnlyList<IndexBuildersSnapshot> Indexes { get; }
 
             public void Attach(InternalEntityTypeBuilder entityTypeBuilder)
             {
                 foreach (var propertyTuple in Properties)
                 {
                     propertyTuple.Item1.Attach(entityTypeBuilder, propertyTuple.Item2);
+                }
+
+                foreach (var detachedIndexes in Indexes)
+                {
+                    detachedIndexes.Attach();
                 }
 
                 foreach (var detachedRelationship in Relationships)
@@ -815,22 +831,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
+            IndexBuildersSnapshot detachedIndexes = null;
             var existingIndex = Metadata.FindIndex(properties);
-            if (existingIndex != null
-                && existingIndex.DeclaringEntityType != Metadata)
+            if (existingIndex == null)
+            {
+                var derivedIndexes = Metadata.FindDerivedIndexes(properties);
+                detachedIndexes = DetachIndexes(derivedIndexes);
+            }
+            else if (existingIndex.DeclaringEntityType != Metadata)
             {
                 return ModelBuilder.Entity(existingIndex.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .HasIndex(properties, configurationSource);
             }
 
-            // TODO: Lift indexes from derived types
-            // Issue #2514
-
-            return _indexBuilders.Value.GetOrAdd(
+            var indexBuilder = _indexBuilders.Value.GetOrAdd(
                 () => existingIndex,
                 () => Metadata.AddIndex(properties),
                 index => new InternalIndexBuilder(index, ModelBuilder),
                 configurationSource);
+
+            detachedIndexes?.Attach();
+
+            return indexBuilder;
         }
 
         public virtual ConfigurationSource? RemoveIndex([NotNull] Index index, ConfigurationSource configurationSource)
@@ -847,6 +869,46 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             RemoveShadowPropertiesIfUnused(index.Properties);
 
             return removedConfigurationSource;
+        }
+
+        private class IndexBuildersSnapshot
+        {
+            public IndexBuildersSnapshot(IReadOnlyList<Tuple<InternalIndexBuilder, ConfigurationSource>> indexes)
+            {
+                Indexes = indexes;
+            }
+
+            private IReadOnlyList<Tuple<InternalIndexBuilder, ConfigurationSource>> Indexes { get; }
+
+            public void Attach()
+            {
+                foreach (var indexTuple in Indexes)
+                {
+                    indexTuple.Item1.Attach(indexTuple.Item2);
+                }
+            }
+        }
+
+        private IndexBuildersSnapshot DetachIndexes(IEnumerable<Index> indexesToDetach)
+        {
+            var indexesToDetachList = indexesToDetach.ToList();
+            if (indexesToDetachList.Count == 0)
+            {
+                return null;
+            }
+
+            var detachedIndexes = new List<Tuple<InternalIndexBuilder, ConfigurationSource>>();
+            foreach (var indexToDetach in indexesToDetachList)
+            {
+                var entityTypeBuilder = ModelBuilder.Entity(indexToDetach.DeclaringEntityType.Name, ConfigurationSource.Convention);
+                var indexBuilder = entityTypeBuilder.HasIndex(indexToDetach.Properties, ConfigurationSource.Convention);
+                var removedConfigurationSource = entityTypeBuilder.RemoveIndex(indexToDetach, ConfigurationSource.Explicit);
+                Debug.Assert(removedConfigurationSource != null);
+
+                detachedIndexes.Add(Tuple.Create(indexBuilder, removedConfigurationSource.Value));
+            }
+
+            return new IndexBuildersSnapshot(detachedIndexes);
         }
 
         public virtual InternalRelationshipBuilder HasForeignKey(

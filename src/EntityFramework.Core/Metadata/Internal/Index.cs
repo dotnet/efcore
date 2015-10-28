@@ -12,20 +12,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : Annotatable, IMutableIndex
     {
-        public Index([NotNull] IReadOnlyList<Property> properties)
+        public Index([NotNull] IReadOnlyList<Property> properties,
+            [NotNull] EntityType declaringEntityType)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
-            MetadataHelper.CheckSameEntityType(properties, "properties");
+            Check.NotNull(declaringEntityType, nameof(declaringEntityType));
+            MetadataHelper.CheckPropertiesInEntityType(properties, declaringEntityType, "properties");
 
             Properties = properties;
+            DeclaringEntityType = declaringEntityType;
         }
 
         public virtual bool? IsUnique { get; set; }
         protected virtual bool DefaultIsUnique => false;
 
         public virtual IReadOnlyList<Property> Properties { get; }
-        public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
+        public virtual EntityType DeclaringEntityType { get; }
 
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;

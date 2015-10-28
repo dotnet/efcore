@@ -701,7 +701,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.DuplicateIndex(Property.Format(properties), DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
-            var index = new Index(properties);
+            var index = new Index(properties, this);
             _indexes.Add(properties, index);
 
             return index;

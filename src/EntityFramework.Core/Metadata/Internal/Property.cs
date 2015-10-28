@@ -237,6 +237,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual IEnumerable<ForeignKey> FindContainingForeignKeys()
             => ((IProperty)this).FindContainingForeignKeys().Cast<ForeignKey>();
 
+        public virtual IEnumerable<Index> FindContainingIndexes()
+            => ((IProperty)this).FindContainingIndexes().Cast<Index>();
+
         public virtual void SetOriginalValueIndex(int index)
         {
             if (index < -1)
