@@ -23,8 +23,6 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private readonly IStateManager _stateManager;
         private readonly IKeyValueFactorySource _keyValueFactorySource;
-        private readonly IClrCollectionAccessorSource _clrCollectionAccessorSource;
-        private readonly IClrAccessorSource<IClrPropertySetter> _clrPropertySetterSource;
 
         private readonly Dictionary<IKeyValue, WeakReference<object>> _identityMap
             = new Dictionary<IKeyValue, WeakReference<object>>();
@@ -36,14 +34,10 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public QueryBuffer(
             [NotNull] IStateManager stateManager,
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
-            [NotNull] IClrCollectionAccessorSource clrCollectionAccessorSource,
-            [NotNull] IClrAccessorSource<IClrPropertySetter> clrPropertySetterSource)
+            [NotNull] IKeyValueFactorySource keyValueFactorySource)
         {
             _stateManager = stateManager;
             _keyValueFactorySource = keyValueFactorySource;
-            _clrCollectionAccessorSource = clrCollectionAccessorSource;
-            _clrPropertySetterSource = clrPropertySetterSource;
         }
 
         public virtual object GetEntity(
@@ -346,8 +340,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (navigationPath[currentNavigationIndex].IsDependentToPrincipal()
                 && relatedEntities.Any())
             {
-                _clrPropertySetterSource
-                    .GetAccessor(navigationPath[currentNavigationIndex])
+                navigationPath[currentNavigationIndex]
+                    .GetSetter()
                     .SetClrValue(entity, relatedEntities[0]);
 
                 var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
@@ -356,14 +350,14 @@ namespace Microsoft.Data.Entity.Query.Internal
                 {
                     if (inverseNavigation.IsCollection())
                     {
-                        _clrCollectionAccessorSource
-                            .GetAccessor(inverseNavigation)
+                        inverseNavigation
+                            .GetCollectionAccessor()
                             .AddRange(relatedEntities[0], new[] { entity });
                     }
                     else
                     {
-                        _clrPropertySetterSource
-                            .GetAccessor(inverseNavigation)
+                        inverseNavigation
+                            .GetSetter()
                             .SetClrValue(relatedEntities[0], entity);
                     }
                 }
@@ -372,8 +366,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             {
                 if (navigationPath[currentNavigationIndex].IsCollection())
                 {
-                    _clrCollectionAccessorSource
-                        .GetAccessor(navigationPath[currentNavigationIndex])
+                    navigationPath[currentNavigationIndex]
+                        .GetCollectionAccessor()
                         .AddRange(entity, relatedEntities);
 
                     var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
@@ -381,8 +375,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                     if (inverseNavigation != null)
                     {
                         var clrPropertySetter
-                            = _clrPropertySetterSource
-                                .GetAccessor(inverseNavigation);
+                            = inverseNavigation.GetSetter();
 
                         foreach (var relatedEntity in relatedEntities)
                         {
@@ -392,18 +385,14 @@ namespace Microsoft.Data.Entity.Query.Internal
                 }
                 else if (relatedEntities.Any())
                 {
-                    _clrPropertySetterSource
-                        .GetAccessor(navigationPath[currentNavigationIndex])
+                    navigationPath[currentNavigationIndex]
+                        .GetSetter()
                         .SetClrValue(entity, relatedEntities[0]);
 
                     var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
-                    if (inverseNavigation != null)
-                    {
-                        _clrPropertySetterSource
-                            .GetAccessor(inverseNavigation)
-                            .SetClrValue(relatedEntities[0], entity);
-                    }
+                    inverseNavigation?.GetSetter()
+                        .SetClrValue(relatedEntities[0], entity);
                 }
             }
         }

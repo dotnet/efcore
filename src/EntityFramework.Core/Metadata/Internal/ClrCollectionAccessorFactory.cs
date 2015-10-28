@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,25 +10,15 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class ClrCollectionAccessorSource : IClrCollectionAccessorSource
+    public class ClrCollectionAccessorFactory
     {
-        private readonly ICollectionTypeFactory _collectionTypeFactory;
-
         private static readonly MethodInfo _genericCreate
-            = typeof(ClrCollectionAccessorSource).GetTypeInfo().GetDeclaredMethods("CreateGeneric").Single();
+            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateGeneric").Single();
 
         private static readonly MethodInfo _createAndSet
-            = typeof(ClrCollectionAccessorSource).GetTypeInfo().GetDeclaredMethods("CreateAndSet").Single();
+            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateAndSet").Single();
 
-        private readonly ConcurrentDictionary<Tuple<Type, string>, IClrCollectionAccessor> _cache
-            = new ConcurrentDictionary<Tuple<Type, string>, IClrCollectionAccessor>();
-
-        public ClrCollectionAccessorSource([NotNull] ICollectionTypeFactory collectionTypeFactory)
-        {
-            _collectionTypeFactory = collectionTypeFactory;
-        }
-
-        public virtual IClrCollectionAccessor GetAccessor(INavigation navigation)
+        public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
         {
             var accessor = navigation as IClrCollectionAccessor;
 
@@ -38,13 +27,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return accessor;
             }
 
-            return _cache.GetOrAdd(
-                Tuple.Create(navigation.DeclaringEntityType.ClrType, navigation.Name),
-                k => Create(navigation));
-        }
-
-        private IClrCollectionAccessor Create(INavigation navigation)
-        {
             var property = navigation.DeclaringEntityType.ClrType.GetAnyProperty(navigation.Name);
             var elementType = property.PropertyType.TryGetElementType(typeof(ICollection<>));
 
@@ -71,11 +53,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var boundMethod = _genericCreate.MakeGenericMethod(
                 property.DeclaringType, property.PropertyType, elementType);
 
-            return (IClrCollectionAccessor)boundMethod.Invoke(this, new object[] { property });
+            return (IClrCollectionAccessor)boundMethod.Invoke(null, new object[] { property });
         }
 
         // ReSharper disable once UnusedMember.Local
-        private IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
+        private static IClrCollectionAccessor CreateGeneric<TEntity, TCollection, TElement>(PropertyInfo property)
             where TEntity : class
             where TCollection : class, ICollection<TElement>
         {
@@ -89,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 setterDelegate = (Action<TEntity, TCollection>)setter.CreateDelegate(typeof(Action<TEntity, TCollection>));
 
-                var concreteType = _collectionTypeFactory.TryFindTypeToInstantiate(typeof(TCollection));
+                var concreteType = new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(TCollection));
 
                 if (concreteType != null)
                 {

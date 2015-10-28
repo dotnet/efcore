@@ -3,17 +3,22 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public static class NavigationExtensions
     {
+        public static IClrCollectionAccessor GetCollectionAccessor([NotNull] this INavigation navigation)
+        {
+            var accessors = navigation as INavigationAccessors;
+
+            return accessors != null
+                ? accessors.CollectionAccessor
+                : new ClrCollectionAccessorFactory().Create(navigation);
+        }
+
         public static bool IsNonNotifyingCollection([NotNull] this INavigation navigation, [NotNull] InternalEntityEntry entry)
         {
-            Check.NotNull(navigation, nameof(navigation));
-            Check.NotNull(entry, nameof(entry));
-
             if (!navigation.IsCollection())
             {
                 return false;

@@ -4,7 +4,6 @@
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Microsoft.Data.Entity.Query.Internal
@@ -12,14 +11,11 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class EntityTrackingInfoFactory : IEntityTrackingInfoFactory
     {
         private readonly IKeyValueFactorySource _keyValueFactorySource;
-        private readonly IClrAccessorSource<IClrPropertyGetter> _clrPropertyGetterSource;
 
         public EntityTrackingInfoFactory(
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
-            [NotNull] IClrAccessorSource<IClrPropertyGetter> clrPropertyGetterSource)
+            [NotNull] IKeyValueFactorySource keyValueFactorySource)
         {
             _keyValueFactorySource = keyValueFactorySource;
-            _clrPropertyGetterSource = clrPropertyGetterSource;
         }
 
         public virtual EntityTrackingInfo Create(
@@ -29,7 +25,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             var trackingInfo = new EntityTrackingInfo(
                 _keyValueFactorySource,
-                _clrPropertyGetterSource,
                 queryCompilationContext,
                 querySourceReferenceExpression,
                 entityType);
