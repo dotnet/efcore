@@ -339,18 +339,8 @@
     <Compile Include="Extensions\MethodInfoExtensions.cs" />
     <Compile Include="Update\SingularModificationCommandBatch.cs" />
     <Compile Include="Update\UpdateSqlGenerator.cs" />
-    <Compile Include="Utilities\RelationalImplyGen.cs">
-      <DependentUpon>RelationalImplyGen.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Utilities\RelationalImply.cs" />
     <Compile Include="ValueGeneration\Internal\DiscriminatorValueGenerator.cs" />
     <Compile Include="ValueGeneration\RelationalValueGeneratorSelector.cs" />
-    <Content Include="Utilities\RelationalImplyGen.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>RelationalImplyGen.cs</LastGenOutput>
-    </Content>
     <EmbeddedResource Include="Properties\EntityFramework.Relational.rd.xml" />
     <EmbeddedResource Include="Properties\RelationalStrings.resx">
       <LogicalName>EntityFramework.Relational.RelationalStrings.resources</LogicalName>
