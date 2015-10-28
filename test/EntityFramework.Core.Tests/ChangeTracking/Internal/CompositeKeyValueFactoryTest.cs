@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,7 +10,7 @@ using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
-    public class CompositeEntityKeyFactoryTest
+    public class CompositeKeyValueFactoryTest
     {
         [Fact]
         public void Creates_a_new_primary_key_for_key_values_in_the_given_entry()
@@ -25,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (CompositeKeyValue)new CompositeKeyValueFactory(
+            var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
                 .Create(type.FindPrimaryKey().Properties, entry);
 
@@ -44,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (CompositeKeyValue)new CompositeKeyValueFactory(
+            var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
                 .Create(new[] { type.FindProperty("P6"), type.FindProperty("P5") }, entry);
 
@@ -66,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.FindProperty("P4")] = 77;
 
-            var key = (CompositeKeyValue)new CompositeKeyValueFactory(
+            var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
                 .Create(new[] { type.FindProperty("P6"), type.FindProperty("P4"), type.FindProperty("P5") }, sidecar);
 
@@ -85,11 +84,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            Assert.Equal(
-                KeyValue.InvalidKeyValue,
+            Assert.True(
                 new CompositeKeyValueFactory(
                     type.FindPrimaryKey())
-                    .Create(type.FindPrimaryKey().Properties, entry));
+                    .Create(type.FindPrimaryKey().Properties, entry).IsInvalid);
         }
 
         [Fact]
@@ -100,7 +98,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var random = new Random();
 
-            var key = (CompositeKeyValue)new CompositeKeyValueFactory(
+            var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
                 .Create(type.FindPrimaryKey().Properties, new ValueBuffer(new object[] { 7, "Ate", random }));
 
@@ -115,7 +113,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var random = new Random();
 
-            var key = (CompositeKeyValue)new CompositeKeyValueFactory(
+            var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
                 .Create(
                     new[] { type.FindProperty("P6"), type.FindProperty("P5") },
@@ -138,7 +136,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     new[] { type.FindProperty("P6"), type.FindProperty("P5") },
                     new ValueBuffer(new object[] { 7, "Ate", random, 77, null, random }));
 
-            Assert.Equal(KeyValue.InvalidKeyValue, key);
+            Assert.True(key.IsInvalid);
         }
 
         private static Model BuildModel()

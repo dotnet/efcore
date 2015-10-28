@@ -306,7 +306,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.Properties.Single()] = 42;
 
             var keyValue = sidecar.GetDependentKeyValue(foreignKey);
-            Assert.IsType<SimpleKeyValue<int>>(keyValue);
+            Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
 
@@ -321,7 +321,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.PrincipalKey.Properties.Single()] = 42;
 
             var keyValue = sidecar.GetPrincipalKeyValue(foreignKey);
-            Assert.IsType<SimpleKeyValue<int>>(keyValue);
+            Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
 
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[IdProperty] = 42;
 
             var keyValue = sidecar.GetPrimaryKeyValue();
-            Assert.IsType<SimpleKeyValue<int>>(keyValue);
+            Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(42, keyValue.Value);
         }
 
@@ -348,9 +348,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.Properties[0]] = 77;
             sidecar[foreignKey.Properties[1]] = "CheeseAndOnion";
 
-            var keyValue = (CompositeKeyValue)sidecar.GetDependentKeyValue(foreignKey);
-            Assert.Equal(77, keyValue.Value[0]);
-            Assert.Equal("CheeseAndOnion", keyValue.Value[1]);
+            var entityKey = (KeyValue<object[]>)sidecar.GetDependentKeyValue(foreignKey);
+            var keyValue = (object[])entityKey.Value;
+
+            Assert.Equal(77, keyValue[0]);
+            Assert.Equal("CheeseAndOnion", keyValue[1]);
         }
 
         [Fact]
@@ -364,9 +366,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             sidecar[foreignKey.PrincipalKey.Properties[0]] = 77;
             sidecar[foreignKey.PrincipalKey.Properties[1]] = "PrawnCocktail";
 
-            var keyValue = (CompositeKeyValue)sidecar.GetPrincipalKeyValue(foreignKey);
-            Assert.Equal(77, keyValue.Value[0]);
-            Assert.Equal("PrawnCocktail", keyValue.Value[1]);
+            var entityKey = (KeyValue<object[]>)sidecar.GetPrincipalKeyValue(foreignKey);
+            var keyValue = (object[])entityKey.Value;
+
+            Assert.Equal(77, keyValue[0]);
+            Assert.Equal("PrawnCocktail", keyValue[1]);
         }
 
         protected abstract Sidecar CreateSidecar(InternalEntityEntry entry = null);

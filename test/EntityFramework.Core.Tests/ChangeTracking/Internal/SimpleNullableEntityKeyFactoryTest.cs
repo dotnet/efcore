@@ -1,13 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 {
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
+            var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
                 .Create(type.FindPrimaryKey().Properties, entry);
 
             Assert.Equal(7, key.Value);
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7, P2 = null };
             var entry = stateManager.GetOrCreateEntry(entity);
 
-            Assert.Equal(KeyValue.InvalidKeyValue, new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P2") }, entry));
+            Assert.True(new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
+                .Create(new[] { type.FindProperty("P2") }, entry).IsInvalid);
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var type = model.FindEntityType(typeof(Banana));
 
-            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
+            var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
                 .Create(new[] { type.FindProperty("P2") }, new ValueBuffer(new object[] { 7, 77 }));
 
             Assert.Equal(77, key.Value);
@@ -61,10 +61,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var type = model.FindEntityType(typeof(Banana));
 
-            Assert.Equal(
-                KeyValue.InvalidKeyValue,
+            Assert.True(
                 new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P2") }, new ValueBuffer(new object[] { 7, null })));
+                    .Create(new[] { type.FindProperty("P2") }, new ValueBuffer(new object[] { 7, null })).IsInvalid);
         }
 
         [Fact]
@@ -80,7 +79,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var sidecar = new RelationshipsSnapshot(entry);
             sidecar[type.FindProperty("P2")] = 78;
 
-            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
+            var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
                 .Create(new[] { type.FindProperty("P2") }, sidecar);
 
             Assert.Equal(78, key.Value);
@@ -98,7 +97,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var sidecar = new RelationshipsSnapshot(entry);
 
-            var key = (SimpleKeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
+            var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
                 .Create(new[] { type.FindProperty("P2") }, sidecar);
 
             Assert.Equal(77, key.Value);

@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             TEntity entity = null;
 
-            if (ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
+            if (keyValue.IsInvalid)
             {
                 if (!allowNullResult)
                 {

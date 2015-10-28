@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                             object targetEntity = null;
 
-                            if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
+                            if (!keyValue.IsInvalid)
                             {
                                 targetEntity = GetEntity(keyValue, eli, queryStateManager);
                             }
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                             object targetEntity = null;
 
-                            if (!ReferenceEquals(keyValue, KeyValue.InvalidKeyValue))
+                            if (!keyValue.IsInvalid)
                             {
                                 targetEntity = GetEntity(keyValue, eli, queryStateManager);
                             }

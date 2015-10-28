@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 var newKeyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p]).ToList();
 
                 var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
-                if (oldKey != KeyValue.InvalidKeyValue)
+                if (!oldKey.IsInvalid)
                 {
                     foreach (var dependent in entry.StateManager.Entries.Where(
                         e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType)

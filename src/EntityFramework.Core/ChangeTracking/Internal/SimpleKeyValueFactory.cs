@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _index = key.Properties[0].GetIndex();
         }
 
-        public override IKeyValue Create(ValueBuffer valueBuffer) 
+        public override IKeyValue Create(ValueBuffer valueBuffer)
             => Create(valueBuffer[_index]);
 
         public override IKeyValue Create(
@@ -31,9 +31,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(propertyAccessor[properties[0]]);
 
-        private KeyValue Create(object value)
+        private KeyValue<TKey> Create(object value)
             => value != null
-                ? new SimpleKeyValue<TKey>(Key, (TKey)value)
-                : KeyValue.InvalidKeyValue;
+                ? new KeyValue<TKey>(Key, (TKey)value)
+                : new KeyValue<TKey>(null, default(TKey));
     }
 }

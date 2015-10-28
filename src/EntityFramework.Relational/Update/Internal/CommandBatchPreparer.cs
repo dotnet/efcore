@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                             {
                                 var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Current);
 
-                                if (principalKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
+                                if (!principalKeyValue.KeyValue.IsInvalid)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                             {
                                 var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Original);
 
-                                if (dependentKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
+                                if (!dependentKeyValue.KeyValue.IsInvalid)
                                 {
                                     List<ModificationCommand> predecessorCommands;
                                     if (!predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                         {
                             var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Current);
 
-                            if (dependentKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
+                            if (!dependentKeyValue.KeyValue.IsInvalid)
                             {
                                 List<ModificationCommand> predecessorCommands;
                                 if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
@@ -215,7 +215,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                         {
                             var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Original);
 
-                            if (principalKeyValue.KeyValue != ChangeTracking.Internal.KeyValue.InvalidKeyValue)
+                            if (!principalKeyValue.KeyValue.IsInvalid)
                             {
                                 List<ModificationCommand> predecessorCommands;
                                 if (predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))

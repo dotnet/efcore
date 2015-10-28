@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override IKeyValue Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
             => Create(properties, p => propertyAccessor[p]);
 
-        private KeyValue Create<T>(IReadOnlyList<T> ts, Func<T, object> reader)
+        private KeyValue<object[]> Create<T>(IReadOnlyList<T> ts, Func<T, object> reader)
         {
             var components = new object[ts.Count];
 
@@ -41,13 +41,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (value == null)
                 {
-                    return KeyValue.InvalidKeyValue;
+                    return new KeyValue<object[]>(null, null);
                 }
 
                 components[i] = value;
             }
 
-            return new CompositeKeyValue(Key, components);
+            return new KeyValue<object[]>(Key, components);
         }
     }
 }

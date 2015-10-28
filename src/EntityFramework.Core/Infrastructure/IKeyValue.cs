@@ -27,5 +27,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///     If it is a composite key, then an array containing the property values is returned.
         /// </summary>
         object Value { get; }
+
+        bool IsInvalid { get; }
     }
 }

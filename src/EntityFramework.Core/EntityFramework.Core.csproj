@@ -61,6 +61,7 @@
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
+    <Compile Include="ChangeTracking\Internal\KeyValue.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactory.cs" />
@@ -138,11 +139,9 @@
     <Compile Include="ChangeTracking\Internal\IKeyListener.cs" />
     <Compile Include="ChangeTracking\Internal\INavigationListener.cs" />
     <Compile Include="ChangeTracking\Internal\InternalClrEntityEntry.cs" />
-    <Compile Include="ChangeTracking\Internal\CompositeKeyValue.cs" />
     <Compile Include="ChangeTracking\Internal\CompositeKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\DictionarySidecar.cs" />
     <Compile Include="ChangeTracking\Internal\EntityEntryGraphIterator.cs" />
-    <Compile Include="ChangeTracking\Internal\KeyValue.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValueFactorySource.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityStateListener.cs" />
@@ -158,7 +157,6 @@
     <Compile Include="ChangeTracking\Internal\RelationshipsSnapshotFactory.cs" />
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\Sidecar.cs" />
-    <Compile Include="ChangeTracking\Internal\SimpleKeyValue.cs" />
     <Compile Include="ChangeTracking\Internal\StateData.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntry.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryFactory.cs" />

@@ -186,14 +186,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 78;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -294,14 +294,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.Id = 78;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("Id")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -330,7 +330,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var property = entry.EntityType.FindProperty("Id");
             var sidecar = entry.AddSidecar(storeGeneratedValuesFactory.Create(entry, entry.EntityType.GetProperties()));
@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             Assert.Equal(78, entry.RelationshipsSnapshot[property]);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -370,14 +370,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 77;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -836,14 +836,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(product);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
 
             product.Id = 78;
 
             changeDetector.DetectChanges(entry);
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("Id")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 77)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1199,12 +1199,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 78;
 
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1263,12 +1263,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.Id = 78;
 
             Assert.Equal(78, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("Id")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), 78)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
@@ -1296,12 +1296,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entry = stateManager.GetOrCreateEntry(category);
             entry.SetEntityState(EntityState.Added);
 
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             category.PrincipalId = 77;
 
             Assert.Equal(77, entry.RelationshipsSnapshot[entry.EntityType.FindProperty("PrincipalId")]);
-            Assert.Same(entry, stateManager.TryGetEntry(new SimpleKeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
+            Assert.Same(entry, stateManager.TryGetEntry(new KeyValue<int>(entry.EntityType.FindPrimaryKey(), -1)));
 
             var testListener = contextServices.GetRequiredService<TestRelationshipListener>();
 
