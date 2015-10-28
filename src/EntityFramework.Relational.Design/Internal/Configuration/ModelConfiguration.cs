@@ -153,6 +153,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
             AddKeyConfiguration(entityConfiguration);
             AddTableNameConfiguration(entityConfiguration);
+            AddIndexConfigurations(entityConfiguration);
         }
 
         public virtual void AddKeyConfiguration([NotNull] EntityConfiguration entityConfiguration)
@@ -235,6 +236,33 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     _configurationFactory.CreateAttributeConfiguration(
                         nameof(TableAttribute), delimitedTableName));
             }
+        }
+
+        public virtual void AddIndexConfigurations([NotNull] EntityConfiguration entityConfiguration)
+        {
+            Check.NotNull(entityConfiguration, nameof(entityConfiguration));
+
+            var entityType = (EntityType)entityConfiguration.EntityType;
+            var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
+            foreach (var index in entityType.GetIndexes())
+            {
+                // do not add indexes for the primary key
+                if (!index.Properties.SequenceEqual(primaryKeyProperties))
+                {
+                    AddIndexConfiguration(entityConfiguration, index);
+                }
+            }
+        }
+
+        public virtual void AddIndexConfiguration(
+            [NotNull] EntityConfiguration entityConfiguration,
+            [NotNull] Index index)
+        {
+            Check.NotNull(entityConfiguration, nameof(entityConfiguration));
+            Check.NotNull(index, nameof(index));
+
+            entityConfiguration.FluentApiConfigurations.Add(
+                _configurationFactory.CreateIndexConfiguration("e", index));
         }
 
         public virtual void AddPropertyConfiguration([NotNull] PropertyConfiguration propertyConfiguration)

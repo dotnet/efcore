@@ -141,5 +141,15 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             return new AttributeConfiguration(attributeName, attributeArguments);
         }
+
+        public virtual IndexConfiguration CreateIndexConfiguration(
+            [NotNull] string lambdaIdentifier,
+            [NotNull] Index index)
+        {
+            Check.NotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
+            Check.NotNull(index, nameof(index));
+
+            return new IndexConfiguration(lambdaIdentifier, index);
+        }
     }
 }

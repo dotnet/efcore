@@ -13,9 +13,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 {
     public class KeyFluentApiConfiguration : IFluentApiConfiguration
     {
-        private readonly IReadOnlyList<Property> _properties;
-        private readonly string _lambdaIdentifier;
-
         public KeyFluentApiConfiguration(
             [NotNull] string lambdaIdentifier,
             [NotNull] IReadOnlyList<Property> properties)
@@ -23,9 +20,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             Check.NotEmpty(lambdaIdentifier, nameof(lambdaIdentifier));
             Check.NotEmpty(properties, nameof(properties));
 
-            _lambdaIdentifier = lambdaIdentifier;
-            _properties = new List<Property>(properties);
+            LambdaIdentifier = lambdaIdentifier;
+            Properties = new List<Property>(properties);
         }
+
+        public virtual string LambdaIdentifier { get; }
+        public virtual IReadOnlyList<Property> Properties { get; }
 
         public virtual bool HasAttributeEquivalent { get; set; }
         public virtual string For { get; }
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 CultureInfo.InvariantCulture,
                 "{0}({1} => {2})",
                 nameof(EntityTypeBuilder.HasKey),
-                _lambdaIdentifier,
-                new ModelUtilities().GenerateLambdaToKey(_properties, _lambdaIdentifier));
+                LambdaIdentifier,
+                new ModelUtilities().GenerateLambdaToKey(Properties, LambdaIdentifier));
     }
 }
