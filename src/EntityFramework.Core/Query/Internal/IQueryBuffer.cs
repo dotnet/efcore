@@ -20,6 +20,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
     public interface IQueryBuffer
     {
+        void BeginTrackingQuery();
+            
         object GetEntity(
             [NotNull] IKeyValue keyValue,
             EntityLoadInfo entityLoadInfo,

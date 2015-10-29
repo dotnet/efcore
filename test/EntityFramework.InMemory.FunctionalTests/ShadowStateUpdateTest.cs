@@ -1,12 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
@@ -14,68 +11,6 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 {
     public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
     {
-        [Fact]
-        public async Task Can_add_update_delete_end_to_end_using_only_shadow_state()
-        {
-            var model = new Model();
-
-            var customerType = model.AddEntityType("Customer");
-            customerType.GetOrSetPrimaryKey(customerType.AddProperty("Id", typeof(int)));
-            customerType.AddProperty("Name", typeof(string));
-
-            var optionsBuilder = new DbContextOptionsBuilder()
-                .UseModel(model);
-            optionsBuilder.UseInMemoryDatabase();
-
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
-            {
-                // TODO: Better API for shadow state access
-                var customerEntry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(customerType);
-                customerEntry[customerType.FindProperty("Id")] = 42;
-                customerEntry[customerType.FindProperty("Name")] = "Daenerys";
-
-                customerEntry.SetEntityState(EntityState.Added);
-
-                await context.SaveChangesAsync();
-
-                customerEntry[customerType.FindProperty("Name")] = "Changed!";
-            }
-
-            // TODO: Fix this when we can query shadow entities
-            // var customerFromStore = await inMemoryDatabase.Read(customerType).SingleAsync();
-            //
-            // Assert.Equal(new object[] { 42, "Daenerys" }, customerFromStore);
-
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
-            {
-                var customerEntry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(customerType);
-                customerEntry[customerType.FindProperty("Id")] = 42;
-                customerEntry[customerType.FindProperty("Name")] = "Daenerys Targaryen";
-
-                customerEntry.SetEntityState(EntityState.Modified);
-
-                await context.SaveChangesAsync();
-            }
-
-            // TODO: Fix this when we can query shadow entities
-            // customerFromStore = await inMemoryDatabase.Read(customerType).SingleAsync();
-            // 
-            // Assert.Equal(new object[] { 42, "Daenerys Targaryen" }, customerFromStore);
-
-            using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
-            {
-                var customerEntry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(customerType);
-                customerEntry[customerType.FindProperty("Id")] = 42;
-
-                customerEntry.SetEntityState(EntityState.Deleted);
-
-                await context.SaveChangesAsync();
-            }
-
-            // TODO: Fix this when we can query shadow entities
-            // Assert.Equal(0, await inMemoryDatabase.Read(customerType).CountAsync());
-        }
-
         [Fact]
         public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
         {

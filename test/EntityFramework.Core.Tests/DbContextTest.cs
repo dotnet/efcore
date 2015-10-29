@@ -217,6 +217,7 @@ namespace Microsoft.Data.Entity.Tests
             public IEnumerable<InternalEntityEntry> InternalEntries { get; set; }
             public bool SaveChangesCalled { get; set; }
             public bool SaveChangesAsyncCalled { get; set; }
+            public virtual bool? SingleQueryMode { get; set; }
 
             public void UpdateIdentityMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IKey principalKey)
             {
@@ -250,17 +251,21 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry CreateNewEntry(IEntityType entityType)
-            {
-                throw new NotImplementedException();
-            }
-
             public InternalEntityEntry GetOrCreateEntry(object entity)
             {
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry StartTracking(IEntityType entityType, IKeyValue keyValue, object entity, ValueBuffer valueBuffer)
+            public InternalEntityEntry StartTracking(
+                IEntityType entityType, 
+                IKeyValue keyValue, 
+                object entity, 
+                ValueBuffer valueBuffer)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void BeginTrackingQuery()
             {
                 throw new NotImplementedException();
             }

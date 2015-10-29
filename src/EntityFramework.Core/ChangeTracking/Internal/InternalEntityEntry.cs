@@ -121,6 +121,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             // can happen without constraints on changing read-only values kicking in
             _stateData.EntityState = EntityState.Detached;
 
+            StateManager.SingleQueryMode = false;
+
             return true;
         }
 
@@ -149,6 +151,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 {
                     _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isFlagged: true);
                 }
+
+                StateManager.SingleQueryMode = false;
             }
 
             if (oldState == newState)
@@ -199,7 +203,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
-            StateManager.Notify.StateChanged(this, oldState);
+            StateManager.Notify.StateChanged(this,  oldState, StateManager.SingleQueryMode == true);
         }
 
         public virtual EntityState EntityState => _stateData.EntityState;
@@ -240,14 +244,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 StateManager.Notify.StateChanging(this, EntityState.Modified);
                 _stateData.EntityState = EntityState.Modified;
-                StateManager.Notify.StateChanged(this, currentState);
+                StateManager.SingleQueryMode = false;
+                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false);
             }
             else if (!isModified
                      && !_stateData.AnyPropertiesFlagged(PropertyFlag.TemporaryOrModified))
             {
                 StateManager.Notify.StateChanging(this, EntityState.Unchanged);
                 _stateData.EntityState = EntityState.Unchanged;
-                StateManager.Notify.StateChanged(this, currentState);
+                StateManager.Notify.StateChanged(this, currentState, skipInitialFixup: false);
             }
         }
 

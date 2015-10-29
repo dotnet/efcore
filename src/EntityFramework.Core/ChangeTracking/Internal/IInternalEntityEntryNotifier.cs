@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         void StateChanging([NotNull] InternalEntityEntry entry, EntityState newState);
 
-        void StateChanged([NotNull] InternalEntityEntry entry, EntityState oldState);
+        void StateChanged([NotNull] InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup);
 
         void ForeignKeyPropertyChanged(
             [NotNull] InternalEntityEntry entry,

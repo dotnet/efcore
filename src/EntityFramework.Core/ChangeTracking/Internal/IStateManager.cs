@@ -13,8 +13,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public interface IStateManager
     {
-        InternalEntityEntry CreateNewEntry([NotNull] IEntityType entityType);
-
         InternalEntityEntry GetOrCreateEntry([NotNull] object entity);
 
         InternalEntityEntry StartTracking(
@@ -22,6 +20,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IKeyValue keyValue,
             [NotNull] object entity,
             ValueBuffer valueBuffer);
+
+        void BeginTrackingQuery();
 
         InternalEntityEntry TryGetEntry([NotNull] IKeyValue keyValueValue);
 
@@ -52,5 +52,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         void AcceptAllChanges();
 
         DbContext Context { get; }
+
+        bool? SingleQueryMode { get; set; }
     }
 }

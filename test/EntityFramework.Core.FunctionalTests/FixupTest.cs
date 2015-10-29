@@ -1,12 +1,10 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
 
@@ -246,15 +244,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<Product>(b =>
-                    {
-                        b.HasMany(e => e.SpecialOffers).WithOne(e => e.Product);
-                    });
+                modelBuilder.Entity<Product>(b => { b.HasMany(e => e.SpecialOffers).WithOne(e => e.Product); });
 
-                modelBuilder.Entity<Category>(b =>
-                    {
-                        b.HasMany(e => e.Products).WithOne(e => e.Category);
-                    });
+                modelBuilder.Entity<Category>(b => { b.HasMany(e => e.Products).WithOne(e => e.Category); });
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -190,6 +190,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             IList<Func<TIn, object>> entityAccessors)
             where TIn : class
         {
+            queryContext.QueryBuffer.BeginTrackingQuery();
+
             return groupings
                 .Select(g =>
                     new TrackingGrouping<TKey, TOut, TIn>(

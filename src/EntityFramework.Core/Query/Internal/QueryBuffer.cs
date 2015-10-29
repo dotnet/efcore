@@ -40,6 +40,9 @@ namespace Microsoft.Data.Entity.Query.Internal
             _keyValueFactorySource = keyValueFactorySource;
         }
 
+        public virtual void BeginTrackingQuery() 
+            => _stateManager.BeginTrackingQuery();
+
         public virtual object GetEntity(
             IKeyValue keyValue, EntityLoadInfo entityLoadInfo, bool queryStateManager)
         {

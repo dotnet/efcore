@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
         }
 
         private void Can_add_update_delete_end_to_end<T>()
-            where T : class
+            where T : class, new()
         {
             var type = typeof(T);
             var model = new Model();
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             T entity;
             using (var context = new DbContext(_fixture.ServiceProvider, optionsBuilder.Options))
             {
-                var entry = context.ChangeTracker.GetInfrastructure().CreateNewEntry(entityType);
+                var entry = context.ChangeTracker.GetInfrastructure().GetOrCreateEntry(new T());
                 entity = (T)entry.Entity;
 
                 entry[idProperty] = 42;
