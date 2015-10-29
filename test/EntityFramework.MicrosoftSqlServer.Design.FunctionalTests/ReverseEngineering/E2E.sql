@@ -154,6 +154,11 @@ CREATE TABLE "dbo"."PropertyConfiguration" (
 
 GO
 
+CREATE INDEX Test_PropertyConfiguration_Index
+	ON "dbo"."PropertyConfiguration" (A, B)
+
+GO
+
 CREATE TABLE "dbo"."Test Spaces Keywords Table" (
 	"Test Spaces Keywords TableID" "int" PRIMARY KEY,
 	"abstract" "int" NOT NULL,
