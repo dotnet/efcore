@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Metadata
         {
             Check.NotEmpty(annotationName, nameof(annotationName));
 
-            var annotatable = Metadata as Annotatable;
+            var annotatable = Metadata as IMutableAnnotatable;
             Debug.Assert(annotatable != null);
 
             var fullName = (ProviderPrefix ?? RelationalAnnotationNames.Prefix) + annotationName;

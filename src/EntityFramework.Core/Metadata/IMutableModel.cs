@@ -44,6 +44,6 @@ namespace Microsoft.Data.Entity.Metadata
         ///     Gets all entities types defined in the model.
         /// </summary>
         /// <returns> All entities types defined in the model. </returns>
-        new IReadOnlyList<IMutableEntityType> GetEntityTypes();
+        new IEnumerable<IMutableEntityType> GetEntityTypes();
     }
 }

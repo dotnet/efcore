@@ -9,11 +9,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalMetadataBuilderTest
     {
-        private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
-        {
-            return new InternalModelBuilder(new Model(), new ConventionSet());
-        }
-
         [Fact]
         public void Can_only_override_lower_source_annotation()
         {
@@ -59,5 +54,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.HasAnnotation("Foo", null, ConfigurationSource.Explicit));
             Assert.Equal(0, metadata.GetAnnotations().Count());
         }
+
+        private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
+            => new InternalModelBuilder(new Model(), new ConventionSet());
     }
 }

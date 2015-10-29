@@ -882,7 +882,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             return unmatched.Count != 0;
         }
 
-        protected virtual void CopyAnnotations([NotNull] IEnumerable<IAnnotation> annotations, [NotNull] Annotatable annotatable)
+        protected virtual void CopyAnnotations([NotNull] IEnumerable<IAnnotation> annotations, [NotNull] IMutableAnnotatable annotatable)
         {
             foreach (var annotation in annotations)
             {

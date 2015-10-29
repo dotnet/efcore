@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
@@ -18,8 +17,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void NotMappedAttribute_removes_ambiguity_in_conventional_relationship_building()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Book>();
 
                 Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
@@ -30,8 +29,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void NotMappedAttribute_removes_ambiguity_in_conventional_relationship_building_with_base()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BookDetailsBase>();
                 modelBuilder.Entity<Book>();
 
@@ -54,8 +53,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void InversePropertyAttribute_removes_ambiguity_in_conventional_relationalship_building()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Book>();
                 
                 Assert.Equal("Label",
@@ -67,8 +66,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void InversePropertyAttribute_removes_ambiguity_in_conventional_relationalship_building_with_base()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<SpecialBookLabel>();
 
                 Assert.Same(model.FindEntityType(typeof(BookLabel)), model.FindEntityType(typeof(SpecialBookLabel)).BaseType);
@@ -91,8 +90,8 @@ namespace Microsoft.Data.Entity.Tests
             //[Fact]
             public virtual void InversePropertyAttribute_removes_ambiguity_in_conventional_relationalship_building_with_base_ignored()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<SpecialBookLabel>().HasBaseType(null);
                 modelBuilder.Ignore<BookLabel>();
 
@@ -106,8 +105,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_property_on_both_side()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Post>();
 
                 Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("PostDetails").ForeignKey.PrincipalToDependent);
@@ -120,8 +119,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigations_on_both_side_and_values_do_not_match()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Post>();
 
                 Assert.Null(model.FindEntityType(typeof(Post)).FindNavigation("Author").ForeignKey.PrincipalToDependent);
@@ -134,8 +133,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void ForeignKeyAttribute_creates_two_relationships_if_applied_on_navigation_and_property_on_different_side_and_values_do_not_match()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Author>();
 
                 Assert.Null(model.FindEntityType(typeof(AuthorDetails)).FindNavigation("Author").ForeignKey.PrincipalToDependent);

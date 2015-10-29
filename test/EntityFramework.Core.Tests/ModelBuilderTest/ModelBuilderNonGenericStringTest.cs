@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -20,8 +18,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public override void Can_set_foreign_key_property_when_matching_property_added()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<PrincipalEntity>();
 
                 var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
@@ -42,8 +40,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public override void Can_set_foreign_key_property_when_matching_property_added()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<PrincipalEntity>();
 
                 var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();

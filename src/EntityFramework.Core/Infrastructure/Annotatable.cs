@@ -3,79 +3,103 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Base class for types that support reading and writing annotations. 
+    ///         Base class for types that support reading and writing annotations.
     ///     </para>
     ///     <para>
     ///         This type is typically used by database providers (and other extensions). It is generally
     ///         not used in application code.
     ///     </para>
     /// </summary>
-    public class Annotatable : IAnnotatable
+    public class Annotatable : IMutableAnnotatable
     {
-        // TODO: Perf: use a mutable structure before the model is made readonly
-        // Issue #868 
-        private readonly LazyRef<ImmutableSortedSet<Annotation>> _annotations
-            = new LazyRef<ImmutableSortedSet<Annotation>>(
-                () => ImmutableSortedSet<Annotation>.Empty.WithComparer(new AnnotationComparer()));
+        private readonly LazyRef<SortedDictionary<string, Annotation>> _annotations =
+            new LazyRef<SortedDictionary<string, Annotation>>(() => new SortedDictionary<string, Annotation>());
+
+        /// <summary>
+        ///     Gets all annotations on the current object.
+        /// </summary>
+        public virtual IEnumerable<Annotation> GetAnnotations() =>
+            _annotations.HasValue
+                ? _annotations.Value.Values
+                : Enumerable.Empty<Annotation>();
 
         /// <summary>
         ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
         /// </summary>
-        /// <param name="annotationName"> The key of the annotation to be added. </param>
+        /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
         /// <returns> The newly added annotation. </returns>
-        public virtual Annotation AddAnnotation([NotNull] string annotationName, [NotNull] object value)
+        public virtual Annotation AddAnnotation(string name, object value)
         {
-            Check.NotEmpty(annotationName, nameof(annotationName));
+            Check.NotEmpty(name, nameof(name));
             Check.NotNull(value, nameof(value));
 
-            var annotation = new Annotation(annotationName, value);
+            var annotation = CreateAnnotation(name, value);
 
+            return AddAnnotation(name, annotation);
+        }
+
+        protected virtual Annotation AddAnnotation([NotNull] string name, [NotNull] Annotation annotation)
+        {
             var previousLength = _annotations.Value.Count;
-            _annotations.Value = _annotations.Value.Add(annotation);
+            SetAnnotation(name, annotation);
 
             if (previousLength == _annotations.Value.Count)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(annotationName));
+                throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name));
             }
 
             return annotation;
         }
 
+        protected virtual Annotation SetAnnotation([NotNull] string name, [NotNull] Annotation annotation)
+        {
+            _annotations.Value[name] = annotation;
+
+            return annotation;
+        }
+
         /// <summary>
-        ///     Adds an annotation to this object or returns the existing annotation if one with the specified name already exists.
+        ///     Adds an annotation to this object or returns the existing annotation if one with the specified name
+        ///     already exists.
         /// </summary>
-        /// <param name="annotationName"> The key of the annotation to be added. </param>
+        /// <param name="name"> The key of the annotation to be added. </param>
         /// <param name="value"> The value to be stored in the annotation. </param>
-        /// <returns> 
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, the newly added annotation. 
+        /// <returns>
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, the newly
+        ///     added annotation.
         /// </returns>
-        public virtual Annotation GetOrAddAnnotation([NotNull] string annotationName, [NotNull] object value)
-            => FindAnnotation(annotationName) ?? AddAnnotation(annotationName, value);
+        public virtual Annotation GetOrAddAnnotation([NotNull] string name, [NotNull] object value)
+            => FindAnnotation(name) ?? AddAnnotation(name, value);
 
         /// <summary>
         ///     Gets the annotation with the given name, returning null if it does not exist.
         /// </summary>
-        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
-        public virtual Annotation FindAnnotation([NotNull] string annotationName)
+        public virtual Annotation FindAnnotation(string name)
         {
-            Check.NotEmpty(annotationName, nameof(annotationName));
+            Check.NotEmpty(name, nameof(name));
+
+            if (!_annotations.HasValue)
+            {
+                return null;
+            }
 
             Annotation annotation;
-            return _annotations.HasValue
-                   && _annotations.Value.TryGetValue(new Annotation(annotationName, "_"), out annotation)
+            return _annotations.Value.TryGetValue(name, out annotation)
                 ? annotation
                 : null;
         }
@@ -83,63 +107,54 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Removes the given annotation from this object.
         /// </summary>
-        /// <param name="annotationName"> The annotation to remove. </param>
+        /// <param name="name"> The annotation to remove. </param>
         /// <returns> The annotation that was removed. </returns>
-        public virtual Annotation RemoveAnnotation([NotNull] string annotationName)
+        public virtual Annotation RemoveAnnotation(string name)
         {
-            Check.NotNull(annotationName, nameof(annotationName));
+            Check.NotNull(name, nameof(name));
 
-            var previousAnnotations = _annotations.Value;
-            var annotation = new Annotation(annotationName, "_");
-            _annotations.Value = _annotations.Value.Remove(annotation);
-
-            Annotation removedAnnotations = null;
-            if (previousAnnotations.Count != _annotations.Value.Count)
+            var annotation = FindAnnotation(name);
+            if (annotation == null)
             {
-                previousAnnotations.TryGetValue(annotation, out removedAnnotations);
+                return null;
             }
 
-            return removedAnnotations;
+            _annotations.Value.Remove(name);
+
+            return annotation;
         }
 
         /// <summary>
         ///     Gets the value annotation with the given name, returning null if it does not exist.
         /// </summary>
-        /// <param name="annotationName"> The key of the annotation to find. </param>
-        /// <returns>         
-        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// <param name="name"> The key of the annotation to find. </param>
+        /// <returns>
+        ///     The value of the existing annotation if an annotation with the specified name already exists.
+        ///     Otherwise, null.
         /// </returns>
         // ReSharper disable once AnnotationRedundancyInHierarchy
         // TODO: Fix API test to handle indexer
-        public virtual object this[[NotNull] string annotationName]
+        public virtual object this[[NotNull] string name]
         {
-            get { return FindAnnotation(annotationName)?.Value; }
+            get { return FindAnnotation(name)?.Value; }
             [param: CanBeNull]
             set
             {
-                Check.NotEmpty(annotationName, nameof(annotationName));
+                Check.NotEmpty(name, nameof(name));
 
-                _annotations.Value = _annotations.Value.Remove(new Annotation(annotationName, "_"));
-
-                if (value != null)
+                if (value == null)
                 {
-                    AddAnnotation(annotationName, value);
+                    RemoveAnnotation(name);
+                }
+                else
+                {
+                    _annotations.Value[name] = CreateAnnotation(name, value);
                 }
             }
         }
 
-        /// <summary>
-        ///     Gets all annotations on the current object.
-        /// </summary>
-        public virtual IEnumerable<Annotation> GetAnnotations()
-            => _annotations.HasValue
-                ? (IEnumerable<Annotation>)_annotations.Value
-                : ImmutableList<Annotation>.Empty;
-
-        private class AnnotationComparer : IComparer<IAnnotation>
-        {
-            public int Compare(IAnnotation x, IAnnotation y) => StringComparer.Ordinal.Compare(x.Name, y.Name);
-        }
+        protected virtual Annotation CreateAnnotation([NotNull] string name, [NotNull] object value)
+            => new Annotation(name, value);
 
         /// <summary>
         ///     Gets all annotations on the current object.
@@ -149,10 +164,10 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Gets the annotation with the given name, returning null if it does not exist.
         /// </summary>
-        /// <param name="annotationName"> The key of the annotation to find. </param>
+        /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
-        IAnnotation IAnnotatable.FindAnnotation(string annotationName) => FindAnnotation(annotationName);
+        IAnnotation IAnnotatable.FindAnnotation(string name) => FindAnnotation(name);
     }
 }

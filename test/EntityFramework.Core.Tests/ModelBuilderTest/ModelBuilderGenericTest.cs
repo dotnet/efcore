@@ -12,28 +12,11 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public class ModelBuilderGenericTest : ModelBuilderTest
     {
-        [Fact]
-        public void Can_create_a_model_builder_with_given_conventions_and_model()
-        {
-            var convention = new TestConvention();
-            var conventions = new ConventionSet();
-            conventions.EntityTypeAddedConventions.Add(convention);
-
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(conventions, model);
-
-            Assert.Same(model, modelBuilder.Model);
-
-            modelBuilder.Entity<Random>();
-
-            Assert.True(convention.Applied);
-            Assert.NotNull(model.FindEntityType(typeof(Random)));
-        }
-
         [Fact]
         public void Can_create_a_model_builder_with_given_conventions_only()
         {

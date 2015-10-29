@@ -14,12 +14,12 @@ namespace Microsoft.Data.Entity
 {
     /// <summary>
     ///     <para>
-    ///         Provides a simple API surface for configuring a <see cref="Metadata.Internal.Model" /> that defines the shape of your
+    ///         Provides a simple API surface for configuring a <see cref="IMutableModel" /> that defines the shape of your
     ///         entities, the relationships between them, and how they map to the database.
     ///     </para>
     ///     <para>
     ///         You can use <see cref="ModelBuilder" /> to construct a model for a context by overriding
-    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on your derived context. Alternatively you can create the 
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> on your derived context. Alternatively you can create the
     ///         model externally and set it on a <see cref="DbContextOptions" /> instance that is passed to the context constructor.
     ///     </para>
     /// </summary>
@@ -37,20 +37,6 @@ namespace Microsoft.Data.Entity
             Check.NotNull(conventions, nameof(conventions));
 
             _builder = new InternalModelBuilder(new Model(), conventions).Initialize();
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelBuilder" /> class that will
-        ///     configure an existing model and apply a set of conventions.
-        /// </summary>
-        /// <param name="conventions"> The conventions to be applied to the model. </param>
-        /// <param name="model"> The model to be configured. </param>
-        public ModelBuilder([NotNull] ConventionSet conventions, [NotNull] Model model)
-        {
-            Check.NotNull(model, nameof(model));
-            Check.NotNull(conventions, nameof(conventions));
-
-            _builder = new InternalModelBuilder(model, conventions).Initialize();
         }
 
         public virtual ModelBuilder Validate()

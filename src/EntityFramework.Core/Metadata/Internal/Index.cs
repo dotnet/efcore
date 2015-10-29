@@ -4,13 +4,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Index : Annotatable, IMutableIndex
+    public class Index : ConventionalAnnotatable, IMutableIndex
     {
         public Index([NotNull] IReadOnlyList<Property> properties)
         {

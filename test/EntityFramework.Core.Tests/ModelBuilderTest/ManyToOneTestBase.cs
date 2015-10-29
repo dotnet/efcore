@@ -5,11 +5,9 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -19,8 +17,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Finds_existing_navigations_and_uses_associated_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>()
                     .HasMany(e => e.Orders).WithOne(e => e.Customer)
                     .HasForeignKey(e => e.CustomerId);
@@ -57,8 +55,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Finds_existing_navigation_to_principal_and_uses_associated_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder
                     .Entity<Order>().HasOne(o => o.Customer).WithMany()
@@ -87,8 +85,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Finds_existing_navigation_to_dependent_and_uses_associated_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>()
                     .HasOne<Customer>().WithMany(e => e.Orders)
@@ -120,8 +118,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_does_not_use_existing_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>().HasOne<Customer>().WithMany().HasForeignKey(e => e.CustomerId);
                 modelBuilder.Ignore<OrderDetails>();
@@ -151,8 +149,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_creates_new_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -187,8 +185,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_relationship_with_navigation_to_principal()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -219,8 +217,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_relationship_with_navigation_to_dependent()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -251,8 +249,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_relationship_with_no_navigations()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -287,8 +285,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_uses_specified_FK_even_if_found_by_convention()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -325,8 +323,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_with_existing_FK_not_found_by_convention()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -362,8 +360,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_creates_FK_specified()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -399,8 +397,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_specified_FK_with_navigation_to_principal()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -430,8 +428,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_specified_FK_with_navigation_to_dependent()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -463,8 +461,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_relationship_with_no_navigations_and_specified_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -499,8 +497,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_creates_shadow_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -537,8 +535,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_shadow_FK_with_navigation_to_principal()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -571,8 +569,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_shadow_FK_with_navigation_to_dependent()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -605,8 +603,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_shadow_FK_with_no_navigations_with()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -642,8 +640,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_matches_shadow_FK_by_convention()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>().Property<int>("BigMakId");
                 modelBuilder.Ignore<Bun>();
@@ -677,8 +675,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_overrides_existing_FK_if_uniqueness_does_not_match()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder
                     .Entity<Pickle>().HasOne(e => e.BigMak).WithOne()
                     .HasForeignKey<Pickle>(c => c.BurgerId);
@@ -712,8 +710,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_use_explicitly_specified_PK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -752,8 +750,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_use_non_PK_principal()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -801,8 +799,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_have_both_convention_properties_specified()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -842,8 +840,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_have_both_convention_properties_specified_in_any_order()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -883,8 +881,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_have_FK_by_convention_specified_with_explicit_principal_key()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -930,8 +928,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_have_FK_by_convention_specified_with_explicit_principal_key_in_any_order()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -977,8 +975,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_have_principal_key_by_convention_specified_with_explicit_PK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -1022,8 +1020,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_have_principal_key_by_convention_specified_with_explicit_PK_in_any_order()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<BigMak>();
                 modelBuilder.Entity<Pickle>();
                 modelBuilder.Ignore<Bun>();
@@ -1067,8 +1065,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_finds_existing_composite_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
                 modelBuilder
                     .Entity<Tomato>().HasOne(e => e.Whoopper).WithMany()
@@ -1105,8 +1103,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_both_navigations_and_creates_composite_FK_specified()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
@@ -1145,8 +1143,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_use_alternate_composite_key()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
@@ -1195,8 +1193,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_use_alternate_composite_key_in_any_order()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>(b => b.HasKey(c => new { c.Id1, c.Id2 }));
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
@@ -1245,8 +1243,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_specified_composite_FK_with_navigation_to_principal()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
@@ -1281,8 +1279,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_specified_composite_FK_with_navigation_to_dependent()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
                 modelBuilder.Entity<Tomato>();
                 modelBuilder.Ignore<ToastedBun>();
@@ -1317,8 +1315,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_relationship_with_no_navigations_and_specified_composite_FK()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
                 modelBuilder.Entity<Whoopper>().HasMany(w => w.Tomatoes).WithOne(t => t.Whoopper);
                 modelBuilder.Entity<Tomato>();
@@ -1389,8 +1387,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_add_annotations()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<Customer>();
                 modelBuilder.Entity<Order>();
                 modelBuilder.Ignore<OrderDetails>();
@@ -1532,8 +1530,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Can_set_foreign_key_property_when_matching_property_added()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<PrincipalEntity>();
 
                 var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();

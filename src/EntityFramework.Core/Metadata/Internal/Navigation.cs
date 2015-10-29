@@ -7,14 +7,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
-    public class Navigation : Annotatable, IMutableNavigation, INavigationAccessors
+    public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors
     {
         // Warning: Never access this field directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;

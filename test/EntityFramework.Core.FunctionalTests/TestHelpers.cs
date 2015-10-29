@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Tests
             return builder.Model;
         }
 
-        public ModelBuilder CreateConventionBuilder(Model model = null)
+        public ModelBuilder CreateConventionBuilder()
         {
             var contextServices = CreateContextServices();
 
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Tests
             conventionSet = conventionSetBuilder == null
                 ? conventionSet
                 : conventionSetBuilder.AddConventions(conventionSet);
-            return new ModelBuilder(conventionSet, model ?? new Model());
+            return new ModelBuilder(conventionSet);
         }
 
         public InternalEntityEntry CreateInternalEntry<TEntity>(
