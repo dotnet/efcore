@@ -14,10 +14,9 @@ using Microsoft.Data.Entity.Design;
 using Microsoft.Data.Entity.Design.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
-using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Dnx.Runtime.Common.CommandLine;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace Microsoft.Data.Entity.Commands
 {
@@ -33,6 +32,9 @@ namespace Microsoft.Data.Entity.Commands
         public static int Main([NotNull] string[] args)
         {
             Check.NotNull(args, nameof(args));
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            Console.CancelKeyPress += (_, __) => cancellationTokenSource.Cancel();
 
             var app = new CommandLineApplication
             {
@@ -67,6 +69,9 @@ namespace Microsoft.Data.Entity.Commands
                             var context = update.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var targetProject = update.Option(
+                                "-p|--targetProject <project>",
+                                "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = update.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -75,9 +80,21 @@ namespace Microsoft.Data.Entity.Commands
                                 "Show verbose output");
                             update.HelpOption("-?|-h|--help");
                             update.OnExecute(
-                                () => CreateExecutor(environment.Value(), verbose.HasValue()).UpdateDatabase(
-                                    migrationName.Value,
-                                    context.Value()));
+                                () =>
+                                {
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
+
+                                    return CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .UpdateDatabase(
+                                            migrationName.Value,
+                                            context.Value());
+                                });
                         });
                 });
             app.Command(
@@ -92,6 +109,9 @@ namespace Microsoft.Data.Entity.Commands
                         list =>
                         {
                             list.Description = "List your DbContext types";
+                            var targetProject = list.Option(
+                                "-p|--targetProject <project>",
+                                "The project with the DbContext classes. If omitted, the current project is used.");
                             var environment = list.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -103,8 +123,20 @@ namespace Microsoft.Data.Entity.Commands
                                 "Show verbose output");
                             list.HelpOption("-?|-h|--help");
                             list.OnExecute(
-                                () => CreateExecutor(environment.Value(), verbose.HasValue()).ListContexts(
-                                    json.HasValue()));
+                                () =>
+                                {
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
+
+                                    return CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .ListContexts(
+                                            json.HasValue());
+                                });
                         });
                     dbcontext.Command(
                         "scaffold",
@@ -135,6 +167,9 @@ namespace Microsoft.Data.Entity.Commands
                                 "-t|--table <schema_name.table_name>",
                                 "Selects a table for which to generate classes.",
                                 CommandOptionType.MultipleValue);
+                            var targetProject = scaffold.Option(
+                                "-p|--targetProject <project>",
+                                "The project to scaffold the model into. If omitted, the current project is used.");
                             var environment = scaffold.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -161,15 +196,24 @@ namespace Microsoft.Data.Entity.Commands
 
                                         return 1;
                                     }
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
 
-                                    return await CreateExecutor(environment.Value(), verbose.HasValue()).ReverseEngineerAsync(
-                                        connection.Value,
-                                        provider.Value,
-                                        outputDir.Value(),
-                                        dbContextClassName.Value(),
-                                        schemaFilters.Values,
-                                        tableFilters.Values,
-                                        useDataAnnotations.HasValue());
+                                    return await CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .ReverseEngineerAsync(
+                                            connection.Value,
+                                            provider.Value,
+                                            outputDir.Value(),
+                                            dbContextClassName.Value(),
+                                            schemaFilters.Values,
+                                            tableFilters.Values,
+                                            useDataAnnotations.HasValue(),
+                                            cancellationTokenSource.Token);
                                 });
                         });
                 });
@@ -194,6 +238,9 @@ namespace Microsoft.Data.Entity.Commands
                             var context = add.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var targetProject = add.Option(
+                                "-p|--targetProject <project>",
+                                "The project to add the migration to. If omitted, the current project is used.");
                             var environment = add.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -212,11 +259,19 @@ namespace Microsoft.Data.Entity.Commands
 
                                         return 1;
                                     }
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
 
-                                    return CreateExecutor(environment.Value(), verbose.HasValue()).AddMigration(
-                                        name.Value,
-                                        outputDir.Value(),
-                                        context.Value());
+                                    return CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .AddMigration(
+                                            name.Value,
+                                            outputDir.Value(),
+                                            context.Value());
                                 });
                         });
                     migration.Command(
@@ -227,6 +282,9 @@ namespace Microsoft.Data.Entity.Commands
                             var context = list.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var targetProject = list.Option(
+                                "-p|--targetProject <project>",
+                                "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = list.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -238,9 +296,21 @@ namespace Microsoft.Data.Entity.Commands
                                 "Show verbose output");
                             list.HelpOption("-?|-h|--help");
                             list.OnExecute(
-                                () => CreateExecutor(environment.Value(), verbose.HasValue()).ListMigrations(
-                                    context.Value(),
-                                    json.HasValue()));
+                                () =>
+                                {
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
+
+                                    return CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .ListMigrations(
+                                            context.Value(),
+                                            json.HasValue());
+                                });
                         });
                     migration.Command(
                         "remove",
@@ -250,6 +320,9 @@ namespace Microsoft.Data.Entity.Commands
                             var context = remove.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var targetProject = remove.Option(
+                                "-p|--targetProject <project>",
+                                "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = remove.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -258,8 +331,20 @@ namespace Microsoft.Data.Entity.Commands
                                 "Show verbose output");
                             remove.HelpOption("-?|-h|--help");
                             remove.OnExecute(
-                                () => CreateExecutor(environment.Value(), verbose.HasValue()).RemoveMigration(
-                                    context.Value()));
+                                () =>
+                                {
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
+
+                                    return CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .RemoveMigration(
+                                            context.Value());
+                                });
                         });
                     migration.Command(
                         "script",
@@ -281,6 +366,9 @@ namespace Microsoft.Data.Entity.Commands
                             var context = script.Option(
                                 "-c|--context <context>",
                                 "The DbContext to use. If omitted, the default DbContext is used");
+                            var targetProject = script.Option(
+                                "-p|--targetProject <project>",
+                                "The project with the Migration classes. If omitted, the current project is used.");
                             var environment = script.Option(
                                 "-e|--environment <environment>",
                                 "The environment to use. If omitted, \"Development\" is used.");
@@ -297,13 +385,21 @@ namespace Microsoft.Data.Entity.Commands
 
                                         return 1;
                                     }
+                                    if (!ValidateProject(targetProject.Value()))
+                                    {
+                                        return 1;
+                                    }
 
-                                    return CreateExecutor(environment.Value(), verbose.HasValue()).ScriptMigration(
-                                        from.Value,
-                                        to.Value,
-                                        output.Value(),
-                                        idempotent.HasValue(),
-                                        context.Value());
+                                    return CreateExecutor(
+                                            targetProject.Value(),
+                                            environment.Value(),
+                                            verbose.HasValue())
+                                        .ScriptMigration(
+                                            from.Value,
+                                            to.Value,
+                                            output.Value(),
+                                            idempotent.HasValue(),
+                                            context.Value());
                                 });
                         });
                 });
@@ -322,8 +418,8 @@ namespace Microsoft.Data.Entity.Commands
                 "        \x1b[22m\x1b[35m|___||_|  \x1b[1m\x1b[37m     /   \\\\\\/\\\\" + Environment.NewLine +
                 "\x1b[22m\x1b[39m");
 
-        private static Executor CreateExecutor(string environment, bool verbose)
-            => new Executor(environment, verbose);
+        private static Executor CreateExecutor(string targetProject, string environment, bool verbose)
+            => new Executor(targetProject, environment, verbose);
 
         private static void LogError(string format, params object[] arg)
         {
@@ -333,6 +429,27 @@ namespace Microsoft.Data.Entity.Commands
             }
         }
 
+        private static bool ValidateProject(string targetProject)
+        {
+            if (string.IsNullOrEmpty(targetProject))
+            {
+                return true;
+            }
+
+            var libraryManager = PlatformServices.Default.LibraryManager;
+
+            var targetLibrary = libraryManager.GetLibrary(targetProject);
+            if (targetLibrary == null || targetLibrary.Type != LibraryTypes.Project)
+            {
+
+                LogError("The project '" + targetProject + "' wasn't found. Ensure it's referenced by the current project.");
+
+                return false;
+            }
+
+            return true;
+        }
+
         private class Executor
         {
             private readonly LazyRef<ILogger> _logger;
@@ -340,17 +457,21 @@ namespace Microsoft.Data.Entity.Commands
             private readonly LazyRef<DbContextOperations> _contextOperations;
             private readonly LazyRef<DatabaseOperations> _databaseOperations;
 
-            public Executor(string environment, bool verbose)
+            public Executor(string targetProject, string environment, bool verbose)
             {
                 var appEnv = PlatformServices.Default.Application;
+                var libraryManager = PlatformServices.Default.LibraryManager;
 
                 var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose));
                 _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
 
-                var targetName = appEnv.ApplicationName;
+                var targetName = !string.IsNullOrEmpty(targetProject)
+                    ? targetProject
+                    : appEnv.ApplicationName;
                 var startupTargetName = appEnv.ApplicationName;
-                var projectDir = appEnv.ApplicationBasePath;
-                var rootNamespace = appEnv.ApplicationName;
+                var targetLibrary = libraryManager.GetLibrary(targetName);
+                var projectDir = Path.GetDirectoryName(targetLibrary.Path);
+                var rootNamespace = targetLibrary.Name;
 
                 _contextOperations = new LazyRef<DbContextOperations>(
                     () => new DbContextOperations(
