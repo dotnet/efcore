@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Storage
 
         private void CheckForAmbientTransactions()
         {
-#if NET451
+#if NET451 || DNX451
             if (_throwOnAmbientTransaction
                 && System.Transactions.Transaction.Current != null)
             {
