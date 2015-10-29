@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query;
+using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
 using Remotion.Linq.Clauses;
@@ -25,6 +26,7 @@ namespace Microsoft.Data.Entity.Utilities
     internal partial class ImplyTypes
     {
         public ImplyGeneric<ValueBuffer> ValueBufferProp;
+        public ImplyGeneric<ValueBuffer, ValueBuffer> ValueBufferProp2;
         public ImplyGeneric<object> Object;
         public ImplyGeneric<string> String;
     }
@@ -39,7 +41,6 @@ namespace Microsoft.Data.Entity.Utilities
         where TEntity : class
     {
         public ImplyGeneric<TEntity> EntityProp;
-        public ImplyJoin<TEntity, TEntity> Join;
     }
 
     internal partial class ImplyGeneric<T>
@@ -50,7 +51,6 @@ namespace Microsoft.Data.Entity.Utilities
         public ClrPropertyGetter<object, T> GetterProp;
         public ClrPropertySetter<object, T> SetterProp;
 
-        public ImplyJoin<T, T> Join;
         public Func<T> Func;
 
         public void ImplyMethods()
@@ -80,6 +80,9 @@ namespace Microsoft.Data.Entity.Utilities
             AsyncLinqOperatorProvider._ToQueryable<T>(null);
             AsyncLinqOperatorProvider._TrackEntities<T, object>(null, null, null, null);
             AsyncLinqOperatorProvider._Where<T>(null, null);
+
+            EntityQueryModelVisitor.TaskToSequence<T>(null);
+            TaskBlockingExpressionVisitor._Result<T>(null);
         }
     }
 
@@ -92,10 +95,6 @@ namespace Microsoft.Data.Entity.Utilities
 
         public Func<T2, T1, T2> JoinFuncUsedInQueries;
         public Func<T1, T2, T1> JoinFuncUsedInQueries2;
-
-        public ImplyJoin<T1, T2> Join;
-        public ImplyGeneric<EntityQueryModelVisitor.TransparentIdentifier<T1, T2>> TransparentIdentifier1;
-        public ImplyGeneric<EntityQueryModelVisitor.TransparentIdentifier<T2, T1>> TransparentIdentifier2;
 
         public void ImplyMethods()
         {
@@ -112,6 +111,15 @@ namespace Microsoft.Data.Entity.Utilities
             LinqOperatorProvider._ThenBy<T2, T1>(null, null, OrderingDirection.Asc);
             LinqOperatorProvider._TrackGroupedEntities<T1, T2, object>(null, null, null, null);
             LinqOperatorProvider._TrackGroupedEntities<T2, T1, object>(null, null, null, null);
+
+            AsyncLinqOperatorProvider._OrderBy<T1, T2>(null, null, OrderingDirection.Asc);
+            AsyncLinqOperatorProvider._OrderBy<T2, T1>(null, null, OrderingDirection.Asc);
+            AsyncLinqOperatorProvider._Select<T1, T2>(null, null);
+            AsyncLinqOperatorProvider._Select<T2, T1>(null, null);
+            AsyncLinqOperatorProvider._ThenBy<T1, T2>(null, null, OrderingDirection.Asc);
+            AsyncLinqOperatorProvider._ThenBy<T2, T1>(null, null, OrderingDirection.Asc);
+            AsyncLinqOperatorProvider._TrackGroupedEntities<T1, T2, object>(null, null, null, null);
+            AsyncLinqOperatorProvider._TrackGroupedEntities<T2, T1, object>(null, null, null, null);
         }
     }
 

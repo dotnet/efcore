@@ -65,38 +65,6 @@ foreach(var type in systemTypes) {
 }
 #>
 	}
-
-
-	internal partial class ImplyJoin<T1, T2>
-	{
-<#
-var comparableJoinTypes = new [] { 
-		"decimal", 
-		"double",
-		"float", 
-		"char", 
-		"byte",
-		"short",
-		"ushort",
-		"int", 
-		"uint",
-		"long",
-		"ulong"
-	};
-	foreach(var type1 in comparableJoinTypes)
-	{
-		foreach(var type2 in comparableJoinTypes)
-		{
-		#>
-		ImplyGeneric<T1, <#=type1 #>, <#=type2 #>, T2> <#= NewPropName() #>;
-		ImplyGeneric<T1, <#=type1 #>?, <#=type2 #>, T2> <#= NewPropName() #>;
-		ImplyGeneric<T1, <#=type1 #>?, <#=type2 #>?, T2> <#= NewPropName() #>;
-		ImplyGeneric<T1, <#=type1 #>, <#=type2 #>?, T2> <#= NewPropName() #>;
-<#
-		}
-	}
-#>	
-	}
 }
 <#+
 	private static int i = 0;

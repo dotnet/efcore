@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(_ShapedQuery));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<T> _ShapedQuery<T>(
+        internal static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
             Func<ValueBuffer, T> shaper)
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(GetResult));
 
         [UsedImplicitly]
-        private static async Task<TResult> GetResult<TResult>(
+        internal static async Task<TResult> GetResult<TResult>(
             IAsyncEnumerable<ValueBuffer> valueBuffers, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Query
                 .GetDeclaredMethod(nameof(_Include));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<T> _Include<T>(
+        internal static IAsyncEnumerable<T> _Include<T>(
             RelationalQueryContext queryContext,
             IAsyncEnumerable<T> innerResults,
             Func<T, object> entityAccessor,

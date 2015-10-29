@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_TrackGroupedEntities));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TrackingGrouping<TKey, TOut, TIn>> _TrackGroupedEntities<TKey, TOut, TIn>(
+        internal static IAsyncEnumerable<TrackingGrouping<TKey, TOut, TIn>> _TrackGroupedEntities<TKey, TOut, TIn>(
             IAsyncEnumerable<IAsyncGrouping<TKey, TOut>> groupings,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
@@ -347,7 +347,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_Select));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
+        internal static IAsyncEnumerable<TResult> _Select<TSource, TResult>(
             IAsyncEnumerable<TSource> source, Func<TSource, TResult> selector)
             => source.Select(selector);
 
@@ -358,7 +358,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_OrderBy));
 
         [UsedImplicitly]
-        private static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
+        internal static IOrderedAsyncEnumerable<TSource> _OrderBy<TSource, TKey>(
             IAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.OrderBy(expression)
@@ -371,7 +371,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 .GetTypeInfo().GetDeclaredMethod(nameof(_ThenBy));
 
         [UsedImplicitly]
-        private static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
+        internal static IOrderedAsyncEnumerable<TSource> _ThenBy<TSource, TKey>(
             IOrderedAsyncEnumerable<TSource> source, Func<TSource, TKey> expression, OrderingDirection orderingDirection)
             => orderingDirection == OrderingDirection.Asc
                 ? source.ThenBy(expression)
