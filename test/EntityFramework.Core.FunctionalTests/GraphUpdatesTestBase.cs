@@ -2383,7 +2383,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-
         [ConditionalFact]
         public virtual void Required_many_to_one_dependents_with_alternate_key_are_cascade_deleted_in_store()
         {
@@ -2725,11 +2724,16 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected static Root LoadFullGraph(GraphUpdatesContext context, Expression<Func<Root, bool>> predicate = null)
         {
             var query = context.Roots
-                .Include(e => e.RequiredChildren)
-                .Include(e => e.OptionalChildren)
-                .Include(e => e.RequiredSingle)
-                .Include(e => e.RequiredNonPkSingle)
-                .Include(e => e.OptionalSingle);
+                .Include(e => e.RequiredChildren).ThenInclude(e => e.Children)
+                .Include(e => e.OptionalChildren).ThenInclude(e => e.Children)
+                .Include(e => e.RequiredSingle).ThenInclude(e => e.Single)
+                .Include(e => e.RequiredNonPkSingle).ThenInclude(e => e.Single)
+                .Include(e => e.OptionalSingle).ThenInclude(e => e.Single)
+                .Include(e => e.RequiredChildrenAk).ThenInclude(e => e.Children)
+                .Include(e => e.OptionalChildrenAk).ThenInclude(e => e.Children)
+                .Include(e => e.RequiredSingleAk).ThenInclude(e => e.Single)
+                .Include(e => e.RequiredNonPkSingleAk).ThenInclude(e => e.Single)
+                .Include(e => e.OptionalSingleAk).ThenInclude(e => e.Single);
 
             var loadedGraph = predicate == null
                 ? query.Single()

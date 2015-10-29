@@ -58,8 +58,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual void StateChanging(InternalEntityEntry entry, EntityState newState)
             => Dispatch(l => l.StateChanging(entry, newState));
 
-        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState)
-            => Dispatch(l => l.StateChanged(entry, oldState));
+        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup)
+            => Dispatch(l => l.StateChanged(entry, oldState, skipInitialFixup));
 
         public virtual void ForeignKeyPropertyChanged(InternalEntityEntry entry, IProperty property, object oldValue, object newValue)
             => Dispatch(l => l.ForeignKeyPropertyChanged(entry, property, oldValue, newValue));
