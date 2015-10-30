@@ -6,10 +6,20 @@ using System.Threading;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
+    /// <summary>
+    ///     Generates sequential <see cref="Guid"/> values using the same algorithm as NEWSEQUENTIALID()
+    ///     in Microsoft SQL Server. This is useful when entities are being saved to a database where sequential
+    ///     GUIDs will provide a performance benefit. The generated values are non-temporary, meaning they will 
+    ///     be saved to the database.
+    /// </summary>
     public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     {
         private long _counter = DateTime.UtcNow.Ticks;
 
+        /// <summary>
+        ///     Gets a value to be assigned to a property.
+        /// </summary>
+        /// <returns> The value to be assigned to a property. </returns>
         public override Guid Next()
         {
             var guidBytes = Guid.NewGuid().ToByteArray();
@@ -32,6 +42,10 @@ namespace Microsoft.Data.Entity.ValueGeneration
             return new Guid(guidBytes);
         }
 
+        /// <summary>
+        ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation
+        ///     always returns false, meaning the generated values will be saved to the database.
+        /// </summary>
         public override bool GeneratesTemporaryValues => false;
     }
 }
