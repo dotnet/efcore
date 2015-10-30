@@ -8,8 +8,16 @@ using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity
 {
+    /// <summary>
+    ///     Extension methods for <see cref="IMutableKey"/>.
+    /// </summary>
     public static class MutableKeyExtensions
     {
+        /// <summary>
+        ///     Gets all foreign keys that target a given primary or alternate key.
+        /// </summary>
+        /// <param name="key"> The key to find the foreign keys for. </param>
+        /// <returns> The foreign keys that reference the given key. </returns>
         public static IEnumerable<IMutableForeignKey> FindReferencingForeignKeys([NotNull] this IMutableKey key)
             => ((IKey)key).FindReferencingForeignKeys().Cast<IMutableForeignKey>();
     }

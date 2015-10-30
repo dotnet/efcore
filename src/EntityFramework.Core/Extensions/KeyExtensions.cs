@@ -10,8 +10,16 @@ using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity
 {
+    /// <summary>
+    ///     Extension methods for <see cref="IKey"/>.
+    /// </summary>
     public static class KeyExtensions
     {
+        /// <summary>
+        ///     Gets all foreign keys that target a given primary or alternate key.
+        /// </summary>
+        /// <param name="key"> The key to find the foreign keys for. </param>
+        /// <returns> The foreign keys that reference the given key. </returns>
         public static IEnumerable<IForeignKey> FindReferencingForeignKeys([NotNull] this IKey key)
         {
             Check.NotNull(key, nameof(key));

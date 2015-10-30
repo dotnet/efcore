@@ -7,11 +7,30 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
+    /// <summary>
+    ///     Extension methods for <see cref="INavigation"/>.
+    /// </summary>
     public static class NavigationExtensions
     {
+        /// <summary>
+        ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity 
+        ///     type that points to the principal entity.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to check. </param>
+        /// <returns> 
+        ///     True if the given navigation property is the navigation property on the dependent entity 
+        ///     type that points to the principal entity, otherwise false.
+        /// </returns>
         public static bool IsDependentToPrincipal([NotNull] this INavigation navigation)
             => Check.NotNull(navigation, nameof(navigation)).ForeignKey.DependentToPrincipal == navigation;
 
+        /// <summary>
+        ///     Gets a value indicating whether the given navigation property is a collection property.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to check. </param>
+        /// <returns>
+        ///     True if this is a collection property, false if it is a reference property.
+        /// </returns>
         public static bool IsCollection([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
@@ -19,6 +38,14 @@ namespace Microsoft.Data.Entity
             return !navigation.IsDependentToPrincipal() && !navigation.ForeignKey.IsUnique;
         }
 
+        /// <summary>
+        ///     Gets the navigation property on the other end of the relationship. Returns null if
+        ///     there is no navigation property defined on the other end of the relationship.
+        /// </summary>
+        /// <param name="navigation"> The navigation property to find the inverse of. </param>
+        /// <returns>
+        ///     The inverse navigation, or null if none is defined.
+        /// </returns>
         public static INavigation FindInverse([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
@@ -28,6 +55,12 @@ namespace Microsoft.Data.Entity
                 : navigation.ForeignKey.DependentToPrincipal;
         }
 
+        /// <summary>
+        ///     Gets the entity type that a given navigation property will hold an instance of 
+        ///     (or hold instances of if it is a collection navigation).
+        /// </summary>
+        /// <param name="navigation"> The navigation property to find the target entity type of. </param>
+        /// <returns> The target entity type. </returns>
         public static IEntityType GetTargetType([NotNull] this INavigation navigation)
         {
             Check.NotNull(navigation, nameof(navigation));
