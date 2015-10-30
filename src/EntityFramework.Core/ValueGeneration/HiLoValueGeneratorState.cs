@@ -9,12 +9,22 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ValueGeneration
 {
+    /// <summary>
+    ///     The thread safe state used by <see cref="HiLoValueGenerator{TValue}"/>.
+    /// </summary>
     public class HiLoValueGeneratorState
     {
         private readonly object _lock;
         private HiLoValue _currentValue;
         private readonly int _blockSize;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="HiLoValueGeneratorState"/> class.
+        /// </summary>
+        /// <param name="blockSize"> 
+        ///     The number of sequential values that can be used, starting from the low value, before
+        ///     a new low value must be fetched from the database.
+        /// </param>
         public HiLoValueGeneratorState(int blockSize)
         {
             if (blockSize <= 0)
@@ -27,6 +37,14 @@ namespace Microsoft.Data.Entity.ValueGeneration
             _lock = new object();
         }
 
+        /// <summary>
+        ///     Gets a value to be assigned to a property.
+        /// </summary>
+        /// <typeparam name="TValue"> The type of values being generated. </typeparam>
+        /// <param name="getNewLowValue"> 
+        ///     A function to get the next low value if needed.
+        /// </param>
+        /// <returns> The value to be assigned to a property. </returns>
         public virtual TValue Next<TValue>([NotNull] Func<long> getNewLowValue)
         {
             Check.NotNull(getNewLowValue, nameof(getNewLowValue));
