@@ -253,7 +253,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
         }
 
         protected virtual InternalModelBuilder CreateModelBuilder(Model model = null)
-            => new InternalModelBuilder(model ?? new Model(), new ConventionSet());
+            => new InternalModelBuilder(model ?? new Model());
 
         private class Base
         {

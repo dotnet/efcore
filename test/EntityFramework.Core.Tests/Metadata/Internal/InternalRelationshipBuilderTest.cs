@@ -376,7 +376,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
             Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
         }
 
-        private InternalModelBuilder CreateInternalModelBuilder() => new InternalModelBuilder(new Model(), new ConventionSet());
+        private InternalModelBuilder CreateInternalModelBuilder() => new InternalModelBuilder(new Model());
 
         private class Order
         {

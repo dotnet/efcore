@@ -7,23 +7,45 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.Conventions;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class Model : ConventionalAnnotatable, IMutableModel
     {
-        private readonly SortedDictionary<string, EntityType> _entities = new SortedDictionary<string, EntityType>();
+        private readonly SortedDictionary<string, EntityType> _entityTypes = new SortedDictionary<string, EntityType>();
 
-        public virtual EntityType AddEntityType([NotNull] string name)
+        private readonly Dictionary<string, ConfigurationSource> _ignoredEntityTypeNames
+            = new Dictionary<string, ConfigurationSource>();
+
+        public Model()
+            : this(new ConventionSet())
+        {
+        }
+
+        public Model([NotNull] ConventionSet conventions)
+        {
+            ConventionDispatcher = new ConventionDispatcher(conventions);
+            Builder = new InternalModelBuilder(this);
+        }
+
+        public virtual ConventionDispatcher ConventionDispatcher { get; }
+        public virtual InternalModelBuilder Builder { get; }
+
+        public virtual IEnumerable<EntityType> GetEntityTypes() => _entityTypes.Values;
+
+        public virtual EntityType AddEntityType(
+            [NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(name, nameof(name));
 
-            var entityType = new EntityType(name, this);
-            var previousLength = _entities.Count;
-            _entities[name] = entityType;
+            var entityType = new EntityType(name, this, configurationSource);
+            var previousLength = _entityTypes.Count;
+            _entityTypes[name] = entityType;
 
-            if (previousLength == _entities.Count)
+            if (previousLength == _entityTypes.Count)
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
             }
@@ -31,7 +53,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return entityType;
         }
 
-        public virtual EntityType AddEntityType([NotNull] Type type) => (EntityType)((IMutableModel)this).AddEntityType(type);
+        public virtual EntityType AddEntityType(
+            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotNull(type, nameof(type));
+
+            var entityType = AddEntityType(type.DisplayName(), configurationSource);
+            entityType.ClrType = type;
+            return entityType;
+        }
 
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
             => FindEntityType(type) ?? AddEntityType(type);
@@ -47,7 +77,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotEmpty(name, nameof(name));
 
             EntityType entityType;
-            return _entities.TryGetValue(name, out entityType)
+            return _entityTypes.TryGetValue(name, out entityType)
                 ? entityType
                 : null;
         }
@@ -91,13 +121,62 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         derivedEntityType.DisplayName()));
             }
 
-            var removed = _entities.Remove(entityType.Name);
+            var removed = _entityTypes.Remove(entityType.Name);
             Debug.Assert(removed);
 
             return entityType;
         }
 
-        public virtual IEnumerable<EntityType> GetEntityTypes() => _entities.Values;
+        public virtual void Ignore([NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotNull(type, nameof(type));
+            Ignore(type.DisplayName(), configurationSource);
+        }
+
+        public virtual void Ignore([NotNull] string name, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotNull(name, nameof(name));
+
+            ConfigurationSource existingIgnoredConfigurationSource;
+            if (_ignoredEntityTypeNames.TryGetValue(name, out existingIgnoredConfigurationSource))
+            {
+                configurationSource = configurationSource.Max(existingIgnoredConfigurationSource);
+            }
+
+            _ignoredEntityTypeNames[name] = configurationSource;
+        }
+
+        public virtual ConfigurationSource? FindIgnoredEntityTypeConfigurationSource([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+
+            return FindIgnoredEntityTypeConfigurationSource(type.DisplayName());
+        }
+
+        public virtual ConfigurationSource? FindIgnoredEntityTypeConfigurationSource([NotNull] string name)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            ConfigurationSource ignoredConfigurationSource;
+            if (_ignoredEntityTypeNames.TryGetValue(name, out ignoredConfigurationSource))
+            {
+                return ignoredConfigurationSource;
+            }
+
+            return null;
+        }
+
+        public virtual void Unignore([NotNull] Type type)
+        {
+            Check.NotNull(type, nameof(type));
+           Unignore(type.DisplayName());
+        }
+
+        public virtual void Unignore([NotNull] string name)
+        {
+            Check.NotNull(name, nameof(name));
+             _ignoredEntityTypeNames.Remove(name);
+        }
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
         IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();

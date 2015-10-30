@@ -56,6 +56,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
-            => new InternalModelBuilder(new Model(), new ConventionSet());
+            => new InternalModelBuilder(new Model());
     }
 }

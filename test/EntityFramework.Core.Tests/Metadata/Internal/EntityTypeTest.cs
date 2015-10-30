@@ -1180,10 +1180,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Display_name_is_part_of_name_following_final_separator_when_no_CLR_type()
         {
-            Assert.Equal("Everything", new EntityType("Everything", new Model()).DisplayName());
-            Assert.Equal("Is", new EntityType("Everything.Is", new Model()).DisplayName());
-            Assert.Equal("Awesome", new EntityType("Everything.Is.Awesome", new Model()).DisplayName());
-            Assert.Equal("WhenWe`reLivingOurDream", new EntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream", new Model()).DisplayName());
+            Assert.Equal("Everything", new Model().AddEntityType("Everything").DisplayName());
+            Assert.Equal("Is", new Model().AddEntityType("Everything.Is").DisplayName());
+            Assert.Equal("Awesome", new Model().AddEntityType("Everything.Is.Awesome").DisplayName());
+            Assert.Equal("WhenWe`reLivingOurDream", new Model().AddEntityType("Everything.Is.Awesome+WhenWe`reLivingOurDream").DisplayName());
         }
 
         [Fact]
@@ -2578,7 +2578,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         [Fact]
         public void Lazy_original_values_are_used_for_shadow_enties()
         {
-            Assert.False(new EntityType("Z'ha'dum", new Model()).UseEagerSnapshots);
+            Assert.False(new Model().AddEntityType("Z'ha'dum").UseEagerSnapshots);
         }
 
         [Fact]

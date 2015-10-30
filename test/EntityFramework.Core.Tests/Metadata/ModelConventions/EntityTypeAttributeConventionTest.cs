@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void NotMappedAttribute_overrides_configuration_from_convention_source()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
 
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
 
             var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 

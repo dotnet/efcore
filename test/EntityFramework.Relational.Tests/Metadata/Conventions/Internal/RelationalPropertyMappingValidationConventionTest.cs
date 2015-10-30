@@ -3,7 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -17,7 +16,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Throws_when_added_property_is_not_mapped_to_store()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(long), ConfigurationSource.Convention);
 
@@ -28,7 +27,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Throws_when_added_property_is_not_mapped_to_store_even_if_configured_to_use_column_type()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonPrimitiveAsPropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(long), ConfigurationSource.Convention).Relational(ConfigurationSource.Convention).ColumnType("some_int_mapping");
 
@@ -39,7 +38,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Throws_when_primitive_type_is_not_added_or_ignored()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.PropertyNotAdded("Property", typeof(PrimitivePropertyEntity).FullName),
@@ -49,7 +48,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_primitive_type_is_added()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Property", typeof(int), ConfigurationSource.Convention);
 
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_primitive_type_is_ignored()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Ignore("Property", ConfigurationSource.Convention);
 
@@ -69,7 +68,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Throws_when_navigation_is_not_added_or_ignored()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.NavigationNotAdded("Navigation", typeof(NavigationEntity).FullName),
@@ -79,7 +78,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_navigation_is_added()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             var referencedEntityTypeBuilder = modelBuilder.Entity(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
             referencedEntityTypeBuilder.Ignore("Property", ConfigurationSource.Convention);
@@ -91,7 +90,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_navigation_is_ignored()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Ignore("Navigation", ConfigurationSource.Convention);
 
@@ -101,7 +100,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_navigation_target_entity_is_ignored()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationEntity), ConfigurationSource.Convention);
             modelBuilder.Ignore(typeof(PrimitivePropertyEntity), ConfigurationSource.Convention);
 
@@ -111,7 +110,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_interface_or_non_candidate_property_is_not_added()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NonCandidatePropertyEntity), ConfigurationSource.Convention);
 
             new RelationalPropertyMappingValidationConvention(new TestRelationalTypeMapper()).Apply(modelBuilder);
@@ -120,7 +119,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
         [Fact]
         public void Does_not_throw_when_clr_type_is_not_set_for_shadow_property()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(NavigationAsProperty), ConfigurationSource.Convention);
             entityTypeBuilder.Property("ShadowPropertyOfNullType", ConfigurationSource.Convention);
 

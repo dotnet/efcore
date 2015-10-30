@@ -60,7 +60,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }

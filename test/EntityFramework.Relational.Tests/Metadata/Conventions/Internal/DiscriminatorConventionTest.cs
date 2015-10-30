@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Relational.Metadata.Conventions.Internal
 
         private InternalEntityTypeBuilder CreateInternalEntityTypeBuilder<T>()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new CoreConventionSetBuilder().CreateConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model(new CoreConventionSetBuilder().CreateConventionSet()));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }

@@ -404,7 +404,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Throws_an_exception_when_shadow_key_is_defined_by_convention()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
             entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
@@ -416,7 +416,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Does_not_throw_an_exception_when_shadow_key_is_not_defined_by_convention()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
             entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.DataAnnotation);
@@ -427,7 +427,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Does_not_throw_an_exception_when_key_is_defined_on_shadow_properties_which_are_not_defined_by_convention()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
             entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
@@ -438,7 +438,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Throws_an_exception_when_shadow_key_is_referenced_by_foreign_key()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
@@ -456,7 +456,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Does_not_throw_an_exception_when_key_is_referenced_by_foreign_key_and_defined_on_shadow_properties_which_are_not_defined_by_convention()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var principalEntityBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             var referencedEntityBuilder = modelBuilder.Entity(typeof(ReferencedEntity), ConfigurationSource.Convention);
 
@@ -488,7 +488,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             conventions.ForeignKeyRemovedConventions.Add(keyConvention);
             conventions.PrimaryKeySetConventions.Add(keyConvention);
 
-            return new InternalModelBuilder(new Model(), conventions);
+            return new InternalModelBuilder(new Model(conventions));
         }
     }
 }

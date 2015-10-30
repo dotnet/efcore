@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalIndexBuilder CreateInternalIndexBuilder()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
 
             return entityBuilder.HasIndex(new[] { Customer.IdProperty, Customer.NameProperty }, ConfigurationSource.Explicit);

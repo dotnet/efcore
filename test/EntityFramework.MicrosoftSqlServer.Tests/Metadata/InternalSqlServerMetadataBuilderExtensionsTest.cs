@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
     public class InternalSqlServerMetadataBuilderExtensionsTest
     {
         private InternalModelBuilder CreateBuilder()
-            => new InternalModelBuilder(new Model(), new ConventionSet());
+            => new InternalModelBuilder(new Model());
 
         [Fact]
         public void Can_access_model()

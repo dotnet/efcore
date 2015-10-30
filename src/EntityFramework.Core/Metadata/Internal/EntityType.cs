@@ -36,20 +36,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private EntityType _baseType;
 
         private bool _useEagerSnapshots;
-        
+
+        private ConfigurationSource _configurationSource;
+
         /// <summary>
         ///     Creates a new metadata object representing an entity type that will participate in shadow-state
         ///     such that there is no underlying .NET type corresponding to this metadata object.
         /// </summary>
         /// <param name="name">The name of the shadow-state entity type.</param>
         /// <param name="model">The model associated with this entity type.</param>
-        public EntityType([NotNull] string name, [NotNull] Model model)
+        /// <param name="configurationSource">The configuration source that added this entity type.</param>
+        public EntityType([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(model, nameof(model));
 
             _typeOrName = name;
             Model = model;
+            _configurationSource = configurationSource;
+            Builder = new InternalEntityTypeBuilder(this, model.Builder);
 
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
 #if DEBUG
@@ -60,8 +65,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private string DebugName { get; set; }
 #endif
 
-        Type IEntityType.ClrType => ClrType;
-        
+        public virtual InternalEntityTypeBuilder Builder { get; }
+
         /// <summary>
         ///     Gets or sets the associated .NET type.
         /// </summary>
@@ -241,6 +246,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         public override string ToString() => Name;
+
+        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+
+        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual int PropertyCount => (BaseType?.PropertyCount ?? 0) + _properties.Count;
 
@@ -931,12 +941,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         #region Explicit interface implementations
 
-        IEntityType IEntityType.BaseType => BaseType;
-
         IModel IEntityType.Model => Model;
-
         IMutableModel IMutableEntityType.Model => Model;
-
+        Type IEntityType.ClrType => ClrType;
+        IEntityType IEntityType.BaseType => BaseType;
         IMutableEntityType IMutableEntityType.BaseType
         {
             get { return BaseType; }

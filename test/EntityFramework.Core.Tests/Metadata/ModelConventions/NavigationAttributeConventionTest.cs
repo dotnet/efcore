@@ -500,7 +500,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
             conventionSet.EntityTypeAddedConventions.Add(new KeyDiscoveryConvention());
 
-            var modelBuilder = new InternalModelBuilder(new Model(), conventionSet);
+            var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }

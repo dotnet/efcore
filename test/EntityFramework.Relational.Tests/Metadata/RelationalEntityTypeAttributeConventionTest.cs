@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Metadata
             var conventionSet = new ConventionSet();
             conventionSet.EntityTypeAddedConventions.Add(new PropertyDiscoveryConvention());
 
-            var modelBuilder = new InternalModelBuilder(new Model(), conventionSet);
+            var modelBuilder = new InternalModelBuilder(new Model(conventionSet));
 
             return modelBuilder.Entity(typeof(T), ConfigurationSource.Explicit);
         }

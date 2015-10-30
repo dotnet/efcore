@@ -5,8 +5,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public static class ConfigurationSourceExtensions
     {
-        public static bool Overrides(this ConfigurationSource newConfigurationSource, ConfigurationSource oldConfigurationSource)
+        public static bool Overrides(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource)
         {
+            if (oldConfigurationSource == null)
+            {
+                return true;
+            }
+
             if (newConfigurationSource == ConfigurationSource.Explicit)
             {
                 return true;

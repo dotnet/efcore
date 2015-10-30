@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new InternalModelBuilder(new Model(), conventions).Initialize();
+            _builder = new InternalModelBuilder(new Model(conventions)).Initialize();
         }
 
         public virtual ModelBuilder Validate()

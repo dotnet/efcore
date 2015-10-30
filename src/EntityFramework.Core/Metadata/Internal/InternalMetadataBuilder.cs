@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 
@@ -70,6 +71,39 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     annotation.GetConfigurationSource(),
                     canOverrideSameSource: false);
             }
+        }
+
+        protected static TValue GetOrAdd<TKey, TValue, TId>(
+            [NotNull] TId id,
+            [NotNull] Func<TId, TKey> findKey,
+            [NotNull] Action<TKey, ConfigurationSource> updateConfigurationSource,
+            [NotNull] Func<TId, ConfigurationSource, TKey> createKey,
+            [NotNull] Func<TKey, TValue> createValue,
+            ConfigurationSource configurationSource,
+            [CanBeNull] Action<TId> onNewKeyAdding = null,
+            [CanBeNull] Func<TValue, TValue> onNewKeyAdded = null)
+        {
+            var key = findKey(id);
+            var isNewKey = key == null;
+            if (isNewKey)
+            {
+                onNewKeyAdding?.Invoke(id);
+
+                key = createKey(id, configurationSource);
+            }
+            else
+            {
+                updateConfigurationSource(key, configurationSource);
+            }
+
+            var value = createValue(key);
+            if (isNewKey
+                && onNewKeyAdded != null)
+            {
+                value = onNewKeyAdded(value);
+            }
+
+            return value;
         }
     }
 }

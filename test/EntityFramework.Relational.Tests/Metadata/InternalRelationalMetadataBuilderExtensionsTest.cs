@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata
     public class InternalRelationalMetadataBuilderExtensionsTest
     {
         private InternalModelBuilder CreateBuilder()
-            => new InternalModelBuilder(new Model(), new ConventionSet());
+            => new InternalModelBuilder(new Model());
 
         [Fact]
         public void Can_access_model()

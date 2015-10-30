@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var model = new Model();
             model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty);
-            var modelBuilder = new InternalModelBuilder(model, new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(model);
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
 
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var model = new Model();
             model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty);
-            var modelBuilder = new InternalModelBuilder(model, new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(model);
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
 
@@ -300,14 +300,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder()
         {
-            var modelBuilder = new InternalModelBuilder(new Model(), new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(new Model());
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Convention);
             return entityBuilder.Property(Customer.NameProperty, ConfigurationSource.Convention);
         }
 
         private InternalPropertyBuilder CreateInternalPropertyBuilder(Property property)
         {
-            var modelBuilder = new InternalModelBuilder(property.DeclaringEntityType.Model, new ConventionSet());
+            var modelBuilder = new InternalModelBuilder(property.DeclaringEntityType.Model);
             var entityBuilder = modelBuilder.Entity(property.DeclaringEntityType.ClrType, ConfigurationSource.Convention);
             return entityBuilder.Property(property.Name, ConfigurationSource.Convention);
         }

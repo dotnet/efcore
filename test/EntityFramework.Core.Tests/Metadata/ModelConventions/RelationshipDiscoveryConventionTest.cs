@@ -674,7 +674,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         [Fact]
         public void Does_not_throw_on_shadow_entity_types()
         {
-            var entityBuilder = new InternalModelBuilder(new Model(), new ConventionSet())
+            var entityBuilder = new InternalModelBuilder(new Model())
                 .Entity("Shadow", ConfigurationSource.DataAnnotation);
 
             Assert.Same(entityBuilder, new RelationshipDiscoveryConvention().Apply(entityBuilder));
@@ -959,7 +959,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             {
                 conventions.EntityTypeAddedConventions.Add(new TestModelChangeListener(onEntityAdded));
             }
-            var modelBuilder = new InternalModelBuilder(new Model(), conventions);
+            var modelBuilder = new InternalModelBuilder(new Model(conventions));
             var entityBuilder = modelBuilder.Entity(typeof(T), ConfigurationSource.DataAnnotation);
 
             return entityBuilder;

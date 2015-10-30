@@ -1935,7 +1935,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(Order.IdProperty.Name, fk.Properties.Single().Name);
         }
 
-        private InternalModelBuilder CreateModelBuilder() => new InternalModelBuilder(new Model(), new ConventionSet());
+        private InternalModelBuilder CreateModelBuilder() => new InternalModelBuilder(new Model());
 
         private class Order
         {

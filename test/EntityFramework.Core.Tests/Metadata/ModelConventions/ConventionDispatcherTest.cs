@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.EntityTypeAddedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             Assert.Null(builder.Entity(typeof(Order), ConfigurationSource.Convention));
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     });
             conventions.BaseEntityTypeSetConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            var builder = new InternalModelBuilder(new Model(conventions)).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
             Assert.NotNull(builder.HasBaseType(typeof(Order), ConfigurationSource.Convention));
 
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     });
             conventions.EntityTypeMemberIgnoredConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            var builder = new InternalModelBuilder(new Model(conventions)).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
             Assert.NotNull(builder.Ignore("A", ConfigurationSource.Convention));
 
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.PropertyAddedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var explicitKeyBuilder = entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention);
@@ -214,7 +214,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.PropertyAddedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var explicitKeyBuilder = entityBuilder.Property(Order.OrderIdProperty, ConfigurationSource.Convention);
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.ForeignKeyAddedConventions.Add(extraConvention.Object);
 
-            var modelBuilder = new InternalModelBuilder(new Model(), conventions);
+            var modelBuilder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
@@ -294,7 +294,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.KeyAddedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var explicitKeyBuilder = entityBuilder.HasKey(new List<string> { "OrderId" }, ConfigurationSource.Convention);
@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     });
             conventions.PrimaryKeySetConventions.Add(extraConvention.Object);
 
-            var entityBuilder = new InternalModelBuilder(new Model(), conventions)
+            var entityBuilder = new InternalModelBuilder(new Model(conventions))
                 .Entity(typeof(Order), ConfigurationSource.Convention);
 
             entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention);
@@ -360,7 +360,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Callback(() => foreignKeyRemoved = true);
             conventions.ForeignKeyRemovedConventions.Add(convention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var foreignKey = new ForeignKey(
@@ -415,7 +415,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.NavigationAddedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.NavigationRemovedConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(), conventions);
+            var builder = new InternalModelBuilder(new Model(conventions));
 
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
@@ -477,7 +477,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             convention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
+                    modelBuilder = new InternalModelBuilder(b.Metadata);
                     return b;
                 });
             conventions.ModelInitializedConventions.Add(convention.Object);
@@ -517,7 +517,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             convention.Setup(c => c.Apply(It.IsAny<InternalModelBuilder>())).Returns<InternalModelBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    modelBuilder = new InternalModelBuilder(b.Metadata, new ConventionSet());
+                    modelBuilder = new InternalModelBuilder(b.Metadata);
                     return b;
                 });
             conventions.ModelBuiltConventions.Add(convention.Object);
