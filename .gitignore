@@ -13,6 +13,7 @@ obj/
 project.lock.json
 .settings
 *.sublime-*
+*.pfx
 
 # Ignore vagrant - used for cross-platform testing
 .vagrant/

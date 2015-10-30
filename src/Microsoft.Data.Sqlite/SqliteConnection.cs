@@ -4,6 +4,12 @@
 using System;
 using System.Data;
 using System.Data.Common;
+#if NETCORE50
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using Microsoft.Data.Sqlite.Utilities;
+#endif
 using Microsoft.Data.Sqlite.Interop;
 
 namespace Microsoft.Data.Sqlite
@@ -90,10 +96,61 @@ namespace Microsoft.Data.Sqlite
             var flags = Constants.SQLITE_OPEN_READWRITE | Constants.SQLITE_OPEN_CREATE;
             flags |= (ConnectionStringBuilder.Cache == SqliteConnectionCacheMode.Shared) ? Constants.SQLITE_OPEN_SHAREDCACHE : Constants.SQLITE_OPEN_PRIVATECACHE;
 
-            var rc = NativeMethods.sqlite3_open_v2(ConnectionStringBuilder.DataSource, out _db, flags, vfs: null);
+            var path = AdjustForRelativeDirectory(ConnectionStringBuilder.DataSource);
+
+            var rc = NativeMethods.sqlite3_open_v2(path, out _db, flags, vfs: null);
             MarshalEx.ThrowExceptionForRC(rc, _db);
             SetState(ConnectionState.Open);
+
+            SetFolders();
         }
+
+#if !NETCORE50
+        private void SetFolders() { }
+
+        private string AdjustForRelativeDirectory(string path)
+            => path;
+#else
+        private string AdjustForRelativeDirectory(string path)
+        {
+            var appData = GetApplicationData();
+            try
+            {
+                if (appData == null || Path.IsPathRooted(path))
+                {
+                    return path;
+                }
+
+                return Path.GetFullPath(Path.Combine(appData.LocalFolder.Path, path));
+            }
+            catch (NotSupportedException)
+            {
+                Debug.WriteLine("Could not adjust relative path for use on UWP.");
+            }
+            return path;
+        }
+
+        private void SetFolders()
+        {
+            var appData = GetApplicationData();
+
+            if (appData == null)
+            {
+                return;
+            }
+
+            var commandText = "PRAGMA temp_store_directory = '" + appData.TemporaryFolder.Path + "'";
+            DbConnectionExtensions.ExecuteNonQuery(this, commandText);
+        }
+
+        private static dynamic GetApplicationData()
+        {
+            var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime", throwOnError: false);
+            var appData = (dynamic)appDataType?.GetTypeInfo()
+                .GetDeclaredProperty("Current").GetMethod.Invoke(null, null);
+            return appData;
+        }
+#endif
 
         public override void Close()
         {
