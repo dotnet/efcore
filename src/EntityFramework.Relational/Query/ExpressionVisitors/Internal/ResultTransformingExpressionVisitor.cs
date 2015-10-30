@@ -44,6 +44,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             queryArguments));
             }
 
+            // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (var expression in methodCallExpression.Arguments)
             {
                 var newExpression = Visit(expression);

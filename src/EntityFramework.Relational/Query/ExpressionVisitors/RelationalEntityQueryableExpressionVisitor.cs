@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -25,9 +24,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 {
     public class RelationalEntityQueryableExpressionVisitor : EntityQueryableExpressionVisitor
     {
-        private static readonly ParameterExpression _valueBufferParameter
-            = Expression.Parameter(typeof(ValueBuffer), "valueBuffer");
-
         private readonly IModel _model;
         private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
@@ -119,7 +115,6 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(elementType, nameof(elementType));
 
-            var queryMethodInfo = CreateValueBufferMethodInfo;
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = _model.FindEntityType(elementType);
             var selectExpression = _selectExpressionFactory.Create();
@@ -186,13 +181,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             QueryModelVisitor.AddQuery(_querySource, selectExpression);
 
-            var queryMethodArguments
-                = new List<Expression>
-                {
-                    Expression.Constant(_querySource),
-                    _valueBufferParameter,
-                    Expression.Constant(0)
-                };
+            Shaper shaper;
 
             if (QueryModelVisitor.QueryCompilationContext
                 .QuerySourceRequiresMaterialization(_querySource)
@@ -208,22 +197,23 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                     _relationalAnnotationProvider.For(p).ColumnName,
                                     p,
                                     _querySource),
-                            _querySource);
+                            _querySource).Compile();
 
-                queryMethodInfo
-                    = CreateEntityMethodInfo.MakeGenericMethod(elementType);
-
-                queryMethodArguments.AddRange(
-                    new[]
-                    {
-                        EntityQueryModelVisitor.QueryContextParameter,
-                        Expression.Constant(entityType),
-                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsTrackingQuery),
-                        Expression.Constant(_keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey())),
-                        materializer,
-                        Expression.Constant(false),
-                        Expression.Constant(QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired)
-                    });
+                shaper
+                    = (Shaper)_createEntityShaperMethodInfo.MakeGenericMethod(elementType)
+                        .Invoke(null, new object[]
+                        {
+                            _querySource,
+                            entityType.DisplayName(),
+                            QueryModelVisitor.QueryCompilationContext.IsTrackingQuery,
+                            _keyValueFactorySource.GetKeyFactory(entityType.FindPrimaryKey()),
+                            materializer,
+                            QueryModelVisitor.QueryCompilationContext.IsQueryBufferRequired
+                        });
+            }
+            else
+            {
+                shaper = new ValueBufferShaper(_querySource);
             }
 
             Func<ISqlQueryGenerator> sqlQueryGeneratorFunc;
@@ -243,80 +233,31 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return Expression.Call(
                 QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
                     .ShapedQueryMethod
-                    .MakeGenericMethod(queryMethodInfo.ReturnType),
+                    .MakeGenericMethod(shaper.Type),
                 EntityQueryModelVisitor.QueryContextParameter,
                 Expression.Constant(_commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
-                Expression.Lambda(
-                    Expression.Call(queryMethodInfo, queryMethodArguments),
-                    _valueBufferParameter));
+                Expression.Constant(shaper));
         }
 
-        public static bool IsCreateMethod([NotNull] MethodCallExpression methodCallExpression)
-        {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
-
-            return ReferenceEquals(methodCallExpression.Method, CreateValueBufferMethodInfo)
-                   || methodCallExpression.Method.MethodIsClosedFormOf(CreateEntityMethodInfo);
-        }
-
-        public static readonly MethodInfo CreateValueBufferMethodInfo
+        private static readonly MethodInfo _createEntityShaperMethodInfo
             = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateValueBuffer));
+                .GetDeclaredMethod(nameof(CreateEntityShaper));
 
         [UsedImplicitly]
-        private static ValueBuffer CreateValueBuffer(
+        private static EntityShaper<TEntity> CreateEntityShaper<TEntity>(
             IQuerySource querySource,
-            ValueBuffer valueBuffer,
-            int valueBufferOffset)
-            => valueBuffer.WithOffset(valueBufferOffset);
-
-        public static readonly MethodInfo CreateEntityMethodInfo
-            = typeof(RelationalEntityQueryableExpressionVisitor).GetTypeInfo()
-                .GetDeclaredMethod(nameof(CreateEntity));
-
-        [UsedImplicitly]
-        private static TEntity CreateEntity<TEntity>(
-            IQuerySource querySource,
-            ValueBuffer valueBuffer,
-            int valueBufferOffset,
-            QueryContext queryContext,
-            IEntityType entityType,
+            string entityType,
             bool trackingQuery,
             KeyValueFactory keyValueFactory,
             Func<ValueBuffer, object> materializer,
-            bool allowNullResult,
             bool useQueryBuffer)
             where TEntity : class
-        {
-            valueBuffer = valueBuffer.WithOffset(valueBufferOffset);
-
-            var keyValue = keyValueFactory.Create(valueBuffer);
-
-            TEntity entity = null;
-
-            if (keyValue.IsInvalid)
-            {
-                if (!allowNullResult)
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.InvalidKeyValue(entityType.DisplayName()));
-                }
-            }
-            else if (useQueryBuffer)
-            {
-                entity
-                    = (TEntity)queryContext.QueryBuffer
-                        .GetEntity(
-                            keyValue,
-                            new EntityLoadInfo(valueBuffer, materializer),
-                            queryStateManager: trackingQuery);
-            }
-            else
-            {
-                entity = (TEntity)materializer(valueBuffer);
-            }
-
-            return entity;
-        }
+            => new EntityShaper<TEntity>(
+                querySource,
+                entityType,
+                trackingQuery,
+                keyValueFactory,
+                materializer,
+                useQueryBuffer);
     }
 }

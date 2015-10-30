@@ -331,8 +331,10 @@ namespace Microsoft.Data.Entity.Query
                         Expression
                             = _queryFlattenerFactory
                                 .Create(
+                                    fromClause,
                                     QueryCompilationContext,
-                                    QueryCompilationContext.LinqOperatorProvider.SelectMany, readerOffset)
+                                    QueryCompilationContext.LinqOperatorProvider.SelectMany, 
+                                    readerOffset)
                                 .Flatten((MethodCallExpression)Expression);
 
                         RequiresClientSelectMany = false;
@@ -476,8 +478,10 @@ namespace Microsoft.Data.Entity.Query
                         Expression
                             = _queryFlattenerFactory
                                 .Create(
+                                    joinClause,
                                     QueryCompilationContext,
-                                    operatorToFlatten, previousSelectProjectionCount)
+                                    operatorToFlatten, 
+                                    previousSelectProjectionCount)
                                 .Flatten((MethodCallExpression)Expression);
 
                         RequiresClientJoin = false;
@@ -582,9 +586,10 @@ namespace Microsoft.Data.Entity.Query
 
                     AddQuery(querySource, subSelectExpression);
 
-                    var liftSubQuery = new QuerySourceUpdater(
-                        querySource, QueryCompilationContext, subSelectExpression)
-                        .Visit(subQueryModelVisitor.Expression);
+                    var liftSubQuery
+                        = new QuerySourceUpdater(
+                            querySource, QueryCompilationContext, subSelectExpression)
+                            .Visit(subQueryModelVisitor.Expression);
 
                     return
                         liftSubQuery;
@@ -610,41 +615,35 @@ namespace Microsoft.Data.Entity.Query
                 _selectExpression = selectExpression;
             }
 
-            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            protected override Expression VisitConstant(ConstantExpression constantExpression)
             {
-                if (RelationalEntityQueryableExpressionVisitor.IsCreateMethod(methodCallExpression))
-                {
-                    var newArguments = methodCallExpression.Arguments.ToList();
-                    var innerQuerySource = ((ConstantExpression)newArguments[0]).Value;
+                var shaper = constantExpression.Value as Shaper;
 
+                if (shaper != null)
+                {
                     foreach (var queryAnnotation
                         in _relationalQueryCompilationContext.QueryAnnotations
-                            .Where(qa => qa.QuerySource == innerQuerySource))
+                            .Where(qa => shaper.IsShaperForQuerySource(qa.QuerySource)))
                     {
                         queryAnnotation.QuerySource = _querySource;
                     }
 
-                    newArguments[0] = Expression.Constant(_querySource);
-
                     if (!_relationalQueryCompilationContext.QuerySourceRequiresMaterialization(_querySource)
-                        && methodCallExpression.Method
-                            .MethodIsClosedFormOf(RelationalEntityQueryableExpressionVisitor.CreateEntityMethodInfo))
+                        && shaper is EntityShaper)
                     {
-                        var createValueBufferMethod
-                            = RelationalEntityQueryableExpressionVisitor.CreateValueBufferMethodInfo;
-
-                        var parameterCount = createValueBufferMethod.GetParameters().Count();
-
-                        newArguments.RemoveRange(parameterCount, newArguments.Count - parameterCount);
-
-                        return Expression.Call(createValueBufferMethod, newArguments);
+                        return Expression.Constant(new ValueBufferShaper(_querySource));
                     }
 
-                    _selectExpression.ExplodeStarProjection();
+                    shaper.UpdateQuerySource(_querySource);
 
-                    return methodCallExpression.Update(methodCallExpression.Object, newArguments);
+                    _selectExpression.ExplodeStarProjection();
                 }
 
+                return base.VisitConstant(constantExpression);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+            {
                 var arguments = VisitAndConvert(methodCallExpression.Arguments, "VisitMethodCall");
 
                 if (arguments != methodCallExpression.Arguments)
@@ -654,7 +653,7 @@ namespace Microsoft.Data.Entity.Query
                     {
                         return Expression.Call(
                             _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod
-                                .MakeGenericMethod(((LambdaExpression)arguments[2]).ReturnType),
+                                .MakeGenericMethod(((Shaper)(((ConstantExpression)arguments[2]).Value)).Type),
                             arguments);
                     }
 
