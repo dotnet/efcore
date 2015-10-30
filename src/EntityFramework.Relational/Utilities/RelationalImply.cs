@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Utilities
     {
         public void ImplyMethods()
         {
-            QueryMethodProvider._GroupJoin<T1, T2, T3, T4>(null, null, null, null, null);
+            QueryMethodProvider._GroupJoin<T1, T2, T3, T4>(null, null, null, null, null, null);
         }
     }
 }

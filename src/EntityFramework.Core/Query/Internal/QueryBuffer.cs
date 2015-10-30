@@ -331,7 +331,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             return targetEntityType;
         }
 
-        private void LoadNavigationProperties(
+        private static void LoadNavigationProperties(
             object entity,
             IReadOnlyList<INavigation> navigationPath,
             int currentNavigationIndex,

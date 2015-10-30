@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
 
@@ -27,12 +28,12 @@ namespace Microsoft.Data.Entity.Query
         internal static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
-            Func<ValueBuffer, T> shaper)
+            IShaper<T> shaper)
             => new AsyncQueryingEnumerable(
                 (RelationalQueryContext)queryContext,
                 commandBuilder,
                 queryIndex: null)
-                .Select(shaper); // TODO: Pass shaper to underlying enumerable
+                .Select(vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
@@ -83,36 +84,41 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         private static IAsyncEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+            QueryContext queryContext,
             IAsyncEnumerable<ValueBuffer> source,
-            Func<ValueBuffer, TOuter> outerFactory,
-            Func<ValueBuffer, TInner> innerFactory,
+            IShaper<TOuter> outerShaper,
+            IShaper<TInner> innerShaper,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
             => new GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult>(
+                queryContext,
                 source,
-                outerFactory,
-                innerFactory,
+                outerShaper,
+                innerShaper,
                 innerKeySelector,
                 resultSelector);
 
         private class GroupJoinAsyncEnumerable<TOuter, TInner, TKey, TResult> : IAsyncEnumerable<TResult>
         {
+            private readonly QueryContext _queryContext;
             private readonly IAsyncEnumerable<ValueBuffer> _source;
-            private readonly Func<ValueBuffer, TOuter> _outerFactory;
-            private readonly Func<ValueBuffer, TInner> _innerFactory;
+            private readonly IShaper<TOuter> _outerShaper;
+            private readonly IShaper<TInner> _innerShaper;
             private readonly Func<TInner, TKey> _innerKeySelector;
             private readonly Func<TOuter, IAsyncEnumerable<TInner>, TResult> _resultSelector;
 
             public GroupJoinAsyncEnumerable(
+                QueryContext queryContext,
                 IAsyncEnumerable<ValueBuffer> source,
-                Func<ValueBuffer, TOuter> outerFactory,
-                Func<ValueBuffer, TInner> innerFactory,
+                IShaper<TOuter> outerShaper,
+                IShaper<TInner> innerShaper,
                 Func<TInner, TKey> innerKeySelector,
                 Func<TOuter, IAsyncEnumerable<TInner>, TResult> resultSelector)
             {
+                _queryContext = queryContext;
                 _source = source;
-                _outerFactory = outerFactory;
-                _innerFactory = innerFactory;
+                _outerShaper = outerShaper;
+                _innerShaper = innerShaper;
                 _innerKeySelector = innerKeySelector;
                 _resultSelector = resultSelector;
             }
@@ -146,8 +152,14 @@ namespace Microsoft.Data.Entity.Query
 
                     if (_hasNext)
                     {
-                        var outer = _groupJoinAsyncEnumerable._outerFactory(_sourceEnumerator.Current);
-                        var inner = _groupJoinAsyncEnumerable._innerFactory(_sourceEnumerator.Current);
+                        var outer
+                            = _groupJoinAsyncEnumerable._outerShaper
+                                .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
+
+                        var inner
+                            = _groupJoinAsyncEnumerable._innerShaper
+                                .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
+
                         var inners = new List<TInner>();
 
                         if (inner == null)
@@ -174,7 +186,9 @@ namespace Microsoft.Data.Entity.Query
                                 break;
                             }
 
-                            inner = _groupJoinAsyncEnumerable._innerFactory(_sourceEnumerator.Current);
+                            inner
+                                = _groupJoinAsyncEnumerable._innerShaper
+                                    .Shape(_groupJoinAsyncEnumerable._queryContext, _sourceEnumerator.Current);
 
                             if (inner == null)
                             {

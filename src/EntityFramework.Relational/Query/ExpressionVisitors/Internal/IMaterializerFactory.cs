@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public interface IMaterializerFactory
     {
-        Expression CreateMaterializer(
+        LambdaExpression CreateMaterializer(
             [NotNull] IEntityType entityType,
             [NotNull] SelectExpression selectExpression,
             [NotNull] Func<IProperty, SelectExpression, int> projectionAdder,

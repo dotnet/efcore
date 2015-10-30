@@ -8,6 +8,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
 
@@ -25,12 +26,20 @@ namespace Microsoft.Data.Entity.Query
         internal static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
             CommandBuilder commandBuilder,
-            Func<ValueBuffer, T> shaper)
-            => new QueryingEnumerable(
-                (RelationalQueryContext)queryContext,
-                commandBuilder,
-                queryIndex: null)
-                .Select(shaper); // TODO: Pass shaper to underlying enumerable
+            IShaper<T> shaper)
+        {
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            foreach (var valueBuffer
+                in new QueryingEnumerable(
+                    (RelationalQueryContext)queryContext,
+                    commandBuilder,
+                    queryIndex: null))
+            {
+                yield return shaper.Shape(queryContext, valueBuffer);
+            }
+        }
+
+        // TODO: Pass shaper to underlying enumerable
 
         public virtual MethodInfo QueryMethod => _queryMethodInfo;
 
@@ -78,9 +87,10 @@ namespace Microsoft.Data.Entity.Query
 
         [UsedImplicitly]
         internal static IEnumerable<TResult> _GroupJoin<TOuter, TInner, TKey, TResult>(
+            QueryContext queryContext,
             IEnumerable<ValueBuffer> source,
-            Func<ValueBuffer, TOuter> outerFactory,
-            Func<ValueBuffer, TInner> innerFactory,
+            IShaper<TOuter> outerShaper,
+            IShaper<TInner> innerShaper,
             Func<TInner, TKey> innerKeySelector,
             Func<TOuter, IEnumerable<TInner>, TResult> resultSelector)
         {
@@ -91,8 +101,8 @@ namespace Microsoft.Data.Entity.Query
 
                 while (hasNext)
                 {
-                    var outer = outerFactory(sourceEnumerator.Current);
-                    var inner = innerFactory(sourceEnumerator.Current);
+                    var outer = outerShaper.Shape(queryContext, sourceEnumerator.Current);
+                    var inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
                     var inners = new List<TInner>();
 
                     if (inner == null)
@@ -116,7 +126,7 @@ namespace Microsoft.Data.Entity.Query
                                 break;
                             }
 
-                            inner = innerFactory(sourceEnumerator.Current);
+                            inner = innerShaper.Shape(queryContext, sourceEnumerator.Current);
 
                             if (inner == null)
                             {

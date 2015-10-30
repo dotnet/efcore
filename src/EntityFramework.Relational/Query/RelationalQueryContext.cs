@@ -32,7 +32,8 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual IRelationalConnection Connection { get; }
 
-        public virtual void RegisterValueBufferCursor([NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex)
+        public virtual void RegisterValueBufferCursor(
+            [NotNull] IValueBufferCursor valueBufferCursor, int? queryIndex)
         {
             Check.NotNull(valueBufferCursor, nameof(valueBufferCursor));
 
