@@ -1675,8 +1675,7 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_shadow_property_for_foreign_key_according_to_navigation_to_principal_name_when_present()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
                 var entityB = modelBuilder.Entity<EntityB>().Metadata;
 
                 Assert.Equal("FirstNavId", entityB.FindNavigation("FirstNav").ForeignKey.Properties.First().Name);
@@ -1686,8 +1685,7 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public virtual void Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
                 var entityC = modelBuilder.Entity<EntityC>().Metadata;
 
                 Assert.Equal("EntityCId", entityC.FindNavigation("EntityAs").ForeignKey.Properties.First().Name);
