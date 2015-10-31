@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -227,8 +226,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         private static IModel BuildModel()
         {
-            var model = new Model();
-            var builder = TestHelpers.Instance.CreateConventionBuilder(model);
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
 
             builder.Entity<BaseType>();
 
@@ -252,7 +250,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                     b.HasOne(e => e.Detail).WithOne(e => e.OrderLine);
                 });
 
-            return model;
+            return builder.Model;
         }
     }
 }

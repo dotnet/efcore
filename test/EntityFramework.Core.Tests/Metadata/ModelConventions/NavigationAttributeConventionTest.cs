@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void NotMappedAttribute_ignores_navigation_with_conventional_builder()
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet(), model);
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var model = modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>();
 
             Assert.DoesNotContain(model.FindEntityType(typeof(Blog)).GetNavigations(), nav => nav.Name == nameof(Blog.BlogDetails));
@@ -175,8 +175,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
         [Fact]
         public void RequiredAttribute_sets_is_required_with_conventional_builder()
         {
-            var model = new Model();
-            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet(), model);
+            var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
+            var model = (Model)modelBuilder.Model;
             modelBuilder.Entity<BlogDetails>();
 
             Assert.True(model.FindEntityType(typeof(BlogDetails)).GetForeignKeys().Single(fk => fk.PrincipalEntityType?.ClrType == typeof(Blog)).IsRequired);

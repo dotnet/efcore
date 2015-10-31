@@ -9,11 +9,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalMetadataBuilderTest
     {
-        private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
-        {
-            return new InternalModelBuilder(new Model(), new ConventionSet());
-        }
-
         [Fact]
         public void Can_only_override_lower_source_annotation()
         {
@@ -23,10 +18,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
             Assert.True(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
-            Assert.Equal("2", metadata.Annotations.Single().Value);
+            Assert.Equal("2", metadata.GetAnnotations().Single().Value);
 
             Assert.False(builder.HasAnnotation("Foo", "1", ConfigurationSource.Convention));
-            Assert.Equal("2", metadata.Annotations.Single().Value);
+            Assert.Equal("2", metadata.GetAnnotations().Single().Value);
         }
 
         [Fact]
@@ -39,10 +34,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.HasAnnotation("Foo", "1", ConfigurationSource.DataAnnotation));
             Assert.False(builder.HasAnnotation("Foo", "2", ConfigurationSource.DataAnnotation));
 
-            Assert.Equal("1", metadata.Annotations.Single().Value);
+            Assert.Equal("1", metadata.GetAnnotations().Single().Value);
 
             Assert.True(builder.HasAnnotation("Foo", "2", ConfigurationSource.Explicit));
-            Assert.Equal("2", metadata.Annotations.Single().Value);
+            Assert.Equal("2", metadata.GetAnnotations().Single().Value);
         }
 
         [Fact]
@@ -54,10 +49,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.False(builder.HasAnnotation("Foo", null, ConfigurationSource.Convention));
 
-            Assert.Equal("1", metadata.Annotations.Single().Value);
+            Assert.Equal("1", metadata.GetAnnotations().Single().Value);
 
             Assert.True(builder.HasAnnotation("Foo", null, ConfigurationSource.Explicit));
-            Assert.Equal(0, metadata.Annotations.Count());
+            Assert.Equal(0, metadata.GetAnnotations().Count());
         }
+
+        private InternalMetadataBuilder<Model> CreateInternalMetadataBuilder()
+            => new InternalModelBuilder(new Model(), new ConventionSet());
     }
 }

@@ -7,13 +7,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class EntityType : Annotatable, IMutableEntityType, ICanGetNavigations
+    public class EntityType : ConventionalAnnotatable, IMutableEntityType, ICanGetNavigations
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
 
@@ -31,27 +30,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly SortedDictionary<IReadOnlyList<IProperty>, Key> _keys
             = new SortedDictionary<IReadOnlyList<IProperty>, Key>(PropertyListComparer.Instance);
 
-        private readonly object _typeOrName;
+        private object _typeOrName;
 
         private Key _primaryKey;
         private EntityType _baseType;
 
         private bool _useEagerSnapshots;
-
-        /// <summary>
-        ///     Creates a new metadata object representing an entity type associated with the given .NET type.
-        /// </summary>
-        /// <param name="type">The .NET entity type that this metadata object represents.</param>
-        /// <param name="model">The model associated with this entity type.</param>
-        public EntityType([NotNull] Type type, [NotNull] Model model)
-            : this((object)Check.NotNull(type, nameof(type)),
-                Check.NotNull(model, nameof(model)))
-        {
-            Check.ValidEntityType(type, nameof(type));
-
-            _useEagerSnapshots = !this.HasPropertyChangingNotifications();
-        }
-
+        
         /// <summary>
         ///     Creates a new metadata object representing an entity type that will participate in shadow-state
         ///     such that there is no underlying .NET type corresponding to this metadata object.
@@ -59,15 +44,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         /// <param name="name">The name of the shadow-state entity type.</param>
         /// <param name="model">The model associated with this entity type.</param>
         public EntityType([NotNull] string name, [NotNull] Model model)
-            : this((object)Check.NotEmpty(name, nameof(name)),
-                Check.NotNull(model, nameof(model)))
         {
-        }
+            Check.NotEmpty(name, nameof(name));
+            Check.NotNull(model, nameof(model));
 
-        private EntityType(object typeOrName, Model model)
-        {
-            _typeOrName = typeOrName;
-
+            _typeOrName = name;
             Model = model;
 
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
@@ -75,12 +56,47 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             DebugName = DisplayName();
 #endif
         }
-
 #if DEBUG
         private string DebugName { get; set; }
 #endif
 
-        public virtual Type ClrType => _typeOrName as Type;
+        Type IEntityType.ClrType => ClrType;
+        
+        /// <summary>
+        ///     Gets or sets the associated .NET type.
+        /// </summary>
+        public virtual Type ClrType
+        {
+            get { return _typeOrName as Type; }
+            set
+            {
+                if (value == null)
+                {
+                    _typeOrName = Name;
+                    _useEagerSnapshots = false;
+                }
+                else
+                {
+                    Check.ValidEntityType(value, nameof(value));
+
+                    if (Name != value.DisplayName())
+                    {
+                        // Don't use DisplayName for the second argument as it could be ambiguous
+                        throw new InvalidOperationException(CoreStrings.ClrTypeWrongName(value.DisplayName(), Name));
+                    }
+
+                    if (BaseType != null
+                        || GetDirectlyDerivedTypes().Any()
+                        || GetProperties().Any())
+                    {
+                        throw new InvalidOperationException(CoreStrings.EntityTypeInUse(DisplayName()));
+                    }
+
+                    _typeOrName = value;
+                    _useEagerSnapshots = !this.HasPropertyChangingNotifications();
+                }
+            }
+        }
 
         public virtual Model Model { get; }
 

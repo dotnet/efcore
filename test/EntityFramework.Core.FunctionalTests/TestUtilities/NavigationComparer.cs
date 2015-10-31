@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
             }
 
             return x.Name == y.Name
-                   && (!_compareAnnotations || x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
+                   && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(INavigation obj) => obj.Name.GetHashCode();

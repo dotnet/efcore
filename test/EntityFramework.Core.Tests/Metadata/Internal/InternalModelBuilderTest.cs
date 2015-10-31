@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.True(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count);
+            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
             Assert.Same(baseEntityTypeBuilder.Metadata, specialCustomerEntityTypeBuilder.Metadata.BaseType);
         }
 
@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal.Test
 
             Assert.False(modelBuilder.Ignore(typeof(Customer), ConfigurationSource.DataAnnotation));
 
-            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count);
+            Assert.Equal(2, modelBuilder.Metadata.GetEntityTypes().Count());
             Assert.Equal(1, orderEntityTypeBuilder.Metadata.GetForeignKeys().Count());
         }
 

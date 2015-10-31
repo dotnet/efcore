@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Metadata
 
             var startsWith = annotationPrefix + RelationalAnnotationNames.Sequence;
 
-            return model.Annotations
+            return model.GetAnnotations()
                 .Where(a => a.Name.StartsWith(startsWith))
                 .Select(a => new Sequence(model, a.Name));
         }

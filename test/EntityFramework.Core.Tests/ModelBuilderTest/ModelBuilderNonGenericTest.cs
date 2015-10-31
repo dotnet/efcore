@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -21,8 +20,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public void Can_set_model_annotation()
             {
-                var model = new Model();
-                var modelBuilder = (NonGenericTestModelBuilder)CreateModelBuilder(model);
+                var modelBuilder = (NonGenericTestModelBuilder)CreateModelBuilder();
+                var model = modelBuilder.Model;
 
                 modelBuilder = modelBuilder.HasAnnotation("Fus", "Ro");
 
@@ -38,8 +37,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public override void Can_set_foreign_key_property_when_matching_property_added()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<PrincipalEntity>();
 
                 var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();
@@ -60,8 +59,8 @@ namespace Microsoft.Data.Entity.Tests
             [Fact]
             public override void Can_set_foreign_key_property_when_matching_property_added()
             {
-                var model = new Model();
-                var modelBuilder = CreateModelBuilder(model);
+                var modelBuilder = CreateModelBuilder();
+                var model = modelBuilder.Model;
                 modelBuilder.Entity<PrincipalEntity>();
 
                 var foreignKey = model.FindEntityType(typeof(DependentEntity)).GetForeignKeys().Single();

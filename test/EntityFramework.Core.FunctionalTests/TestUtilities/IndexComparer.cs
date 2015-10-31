@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
 
             return PropertyListComparer.Instance.Equals(x.Properties, y.Properties)
                    && x.IsUnique == y.IsUnique
-                   && (!_compareAnnotations || x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
+                   && (!_compareAnnotations || x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IIndex obj) => PropertyListComparer.Instance.GetHashCode(obj.Properties);

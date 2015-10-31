@@ -3,38 +3,25 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class Model : Annotatable, IMutableModel
+    public class Model : ConventionalAnnotatable, IMutableModel
     {
-        private ImmutableSortedSet<EntityType> _entities
-            = ImmutableSortedSet<EntityType>.Empty.WithComparer(new EntityTypeNameComparer());
-
-        public virtual EntityType AddEntityType([NotNull] Type type)
-        {
-            Check.NotNull(type, nameof(type));
-
-            return AddEntityType(new EntityType(type, this));
-        }
+        private readonly SortedDictionary<string, EntityType> _entities = new SortedDictionary<string, EntityType>();
 
         public virtual EntityType AddEntityType([NotNull] string name)
         {
             Check.NotEmpty(name, nameof(name));
 
-            return AddEntityType(new EntityType(name, this));
-        }
-
-        private EntityType AddEntityType(EntityType entityType)
-        {
+            var entityType = new EntityType(name, this);
             var previousLength = _entities.Count;
-            _entities = _entities.Add(entityType);
+            _entities[name] = entityType;
 
             if (previousLength == _entities.Count)
             {
@@ -43,6 +30,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return entityType;
         }
+
+        public virtual EntityType AddEntityType([NotNull] Type type) => (EntityType)((IMutableModel)this).AddEntityType(type);
 
         public virtual EntityType GetOrAddEntityType([NotNull] Type type)
             => FindEntityType(type) ?? AddEntityType(type);
@@ -57,13 +46,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
-            return FindEntityType(new EntityType(name, this));
-        }
-
-        private EntityType FindEntityType(EntityType entityType)
-            => _entities.TryGetValue(entityType, out entityType)
+            EntityType entityType;
+            return _entities.TryGetValue(name, out entityType)
                 ? entityType
                 : null;
+        }
 
         public virtual EntityType RemoveEntityType([NotNull] Type type)
         {
@@ -104,30 +91,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         derivedEntityType.DisplayName()));
             }
 
-            var previousEntities = _entities;
-            _entities = _entities.Remove(entityType);
+            var removed = _entities.Remove(entityType.Name);
+            Debug.Assert(removed);
 
-            EntityType removedEntityType = null;
-            if (previousEntities.Count != _entities.Count)
-            {
-                previousEntities.TryGetValue(entityType, out removedEntityType);
-            }
-
-            return removedEntityType;
+            return entityType;
         }
 
-        public virtual IReadOnlyList<EntityType> GetEntityTypes() => _entities;
+        public virtual IEnumerable<EntityType> GetEntityTypes() => _entities.Values;
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
-
         IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();
 
         IMutableEntityType IMutableModel.AddEntityType(string name) => AddEntityType(name);
-
-        IReadOnlyList<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
-
+        IEnumerable<IMutableEntityType> IMutableModel.GetEntityTypes() => GetEntityTypes();
         IMutableEntityType IMutableModel.FindEntityType(string name) => FindEntityType(name);
-
         IMutableEntityType IMutableModel.RemoveEntityType(string name) => RemoveEntityType(name);
     }
 }

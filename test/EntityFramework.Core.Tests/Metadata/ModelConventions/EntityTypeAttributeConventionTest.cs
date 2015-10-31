@@ -1,7 +1,8 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
@@ -21,7 +22,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new NotMappedEntityTypeAttributeConvention().Apply(entityBuilder);
 
-            Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count);
+            Assert.Equal(0, modelBuilder.Metadata.GetEntityTypes().Count());
         }
 
         [Fact]
@@ -33,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             new NotMappedEntityTypeAttributeConvention().Apply(entityBuilder);
 
-            Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count);
+            Assert.Equal(1, modelBuilder.Metadata.GetEntityTypes().Count());
         }
 
         [Fact]
@@ -42,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
             var modelBuilder = new ModelBuilder(new CoreConventionSetBuilder().CreateConventionSet());
             modelBuilder.Entity<B>();
 
-            Assert.Equal(1, modelBuilder.Model.GetEntityTypes().Count);
+            Assert.Equal(1, modelBuilder.Model.GetEntityTypes().Count());
         }
 
         #endregion

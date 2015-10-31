@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -96,8 +95,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
             bool createProducts = true, bool createCategory = true,
             bool createFeaturedProductCategory = true, bool createFeaturedProduct = true)
         {
-            var model = new Model();
-            var builder = TestHelpers.Instance.CreateConventionBuilder(model);
+            var builder = TestHelpers.Instance.CreateConventionBuilder();
+            var model = builder.Model;
 
             builder.Entity<Product>();
             builder.Entity<Category>();

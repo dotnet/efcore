@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -223,7 +223,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(_code.Literal(operation.Columns))
                     .Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(_code.Literal(operation.Columns))
                     .Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -328,7 +328,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -386,7 +386,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -431,7 +431,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -447,7 +447,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -523,7 +523,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                         using (builder.Indent())
                         {
-                            Annotations(column.Annotations, builder);
+                            Annotations(column.GetAnnotations(), builder);
                         }
 
                         if (i != operation.Columns.Count - 1)
@@ -641,7 +641,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                         using (builder.Indent())
                         {
-                            Annotations(operation.PrimaryKey.Annotations, builder);
+                            Annotations(operation.PrimaryKey.GetAnnotations(), builder);
                         }
 
                         builder.AppendLine(";");
@@ -658,7 +658,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                         using (builder.Indent())
                         {
-                            Annotations(uniqueConstraint.Annotations, builder);
+                            Annotations(uniqueConstraint.GetAnnotations(), builder);
                         }
 
                         builder.AppendLine(";");
@@ -716,7 +716,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                             builder.Append(")");
 
-                            Annotations(foreignKey.Annotations, builder);
+                            Annotations(foreignKey.GetAnnotations(), builder);
                         }
 
                         builder.AppendLine(";");
@@ -725,7 +725,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append("})");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -752,7 +752,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -779,7 +779,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -806,7 +806,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -833,7 +833,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -849,7 +849,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -878,7 +878,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -907,7 +907,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -934,7 +934,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -968,7 +968,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(_code.Literal(operation.NewName))
                     .Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -1002,7 +1002,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(_code.Literal(operation.NewName))
                     .Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -1045,7 +1045,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -1088,7 +1088,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                 builder.Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -1118,7 +1118,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     .Append(_code.Literal(operation.StartValue))
                     .Append(")");
 
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 
@@ -1134,7 +1134,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             using (builder.Indent())
             {
-                Annotations(operation.Annotations, builder);
+                Annotations(operation.GetAnnotations(), builder);
             }
         }
 

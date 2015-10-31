@@ -5,13 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class ForeignKey : Annotatable, IMutableForeignKey
+    public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
 

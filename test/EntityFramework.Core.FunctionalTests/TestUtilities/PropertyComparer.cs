@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestUtilities
                    && x.ValueGenerated == y.ValueGenerated
                    && x.IsReadOnlyBeforeSave == y.IsReadOnlyBeforeSave
                    && x.IsReadOnlyAfterSave == y.IsReadOnlyAfterSave
-                   && (!_compareAnnotations ||x.Annotations.SequenceEqual(y.Annotations, AnnotationComparer.Instance));
+                   && (!_compareAnnotations ||x.GetAnnotations().SequenceEqual(y.GetAnnotations(), AnnotationComparer.Instance));
         }
 
         public int GetHashCode(IProperty obj) => obj.Name.GetHashCode();

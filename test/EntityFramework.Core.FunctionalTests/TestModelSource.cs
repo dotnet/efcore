@@ -26,11 +26,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
         protected override IModel CreateModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
         {
             var conventionSet = CreateConventionSet(conventionSetBuilder);
-            var model = new Model();
 
+            var modelBuilder = new ModelBuilder(conventionSet);
+            var model = (Model)modelBuilder.Model;
             model.SetProductVersion(ProductInfo.GetVersion());
-
-            var modelBuilder = new ModelBuilder(conventionSet, model);
 
             FindSets(modelBuilder, context);
 

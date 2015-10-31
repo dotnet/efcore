@@ -525,4 +525,10 @@
   <data name="NavigationForWrongForeignKey" xml:space="preserve">
     <value>The navigation property '{navigation}' on entity type '{entityType}' cannot be associated with foreign key {targetFk} because it was created for foreign key {actualFk}.</value>
   </data>
+  <data name="ClrTypeWrongName" xml:space="preserve">
+    <value>The specified CLR type '{clrType}' does not match the entity type name '{entity}'.</value>
+  </data>
+  <data name="EntityTypeInUse" xml:space="preserve">
+    <value>The CLR type cannot be set on the entity type '{entityType}' because it has members, base entity type or derived entity types.</value>
+  </data>
 </root>

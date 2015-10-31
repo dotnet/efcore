@@ -7,10 +7,10 @@ using System.Linq.Expressions;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
-using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -89,14 +89,12 @@ namespace Microsoft.Data.Entity.Tests
                     indexComparer);
             }
 
-            protected TestModelBuilder CreateModelBuilder() => CreateModelBuilder(new Model());
-
-            protected virtual TestModelBuilder CreateModelBuilder(Model model)
-                => CreateTestModelBuilder(TestHelpers.Instance.CreateConventionBuilder(model));
+            protected virtual TestModelBuilder CreateModelBuilder()
+                => CreateTestModelBuilder(TestHelpers.Instance.CreateConventionBuilder());
 
             protected TestModelBuilder HobNobBuilder()
             {
-                var builder = CreateModelBuilder(new Model());
+                var builder = CreateModelBuilder();
 
                 builder.Entity<Hob>().HasKey(e => new { e.Id1, e.Id2 });
                 builder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });

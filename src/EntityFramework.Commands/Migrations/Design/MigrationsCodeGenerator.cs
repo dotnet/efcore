@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
         private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
             => from i in items
-               from a in i.Annotations
+               from a in i.GetAnnotations()
                where a.Value != null && !IgnoredAnnotations.Contains(a.Name)
                select a.Value.GetType().Namespace;
     }

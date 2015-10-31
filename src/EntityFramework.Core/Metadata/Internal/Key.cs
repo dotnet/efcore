@@ -5,13 +5,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class Key : Annotatable, IMutableKey
+    public class Key : ConventionalAnnotatable, IMutableKey
     {
         public Key([NotNull] IReadOnlyList<Property> properties)
         {
