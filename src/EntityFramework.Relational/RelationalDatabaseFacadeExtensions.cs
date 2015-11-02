@@ -17,9 +17,19 @@ namespace Microsoft.Data.Entity
 {
     public static class RelationalDatabaseFacadeExtensions
     {
+        /// <summary>
+        ///     Applies any pending migrations for the context to the database.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade"/> for the context. </param>
         public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
+        /// <summary>
+        ///     Asynchronously applies any pending migrations for the context to the database.
+        /// </summary>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade"/> for the context. </param>
+        /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
+        /// <returns> A task that represents the asynchronous migration operation. </returns>
         public static Task MigrateAsync(
             [NotNull] this DatabaseFacade databaseFacade,
             CancellationToken cancellationToken = default(CancellationToken))
