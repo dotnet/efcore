@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if WINDOWS_UWP
+
 using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
@@ -49,3 +51,5 @@ namespace Microsoft.Data.Sqlite.Tests
         }
     }
 }
+
+#endif
