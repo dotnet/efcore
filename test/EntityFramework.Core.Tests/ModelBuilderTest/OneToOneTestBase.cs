@@ -1754,8 +1754,7 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Ignore<Moostard>();
 
                 var principalType = model.FindEntityType(typeof(Whoopper));
-                var fk = dependentType.GetForeignKeys().Single();
-                fk.IsUnique = true;
+                Assert.Equal(2, dependentType.GetForeignKeys().Count());
 
                 var principalKey = principalType.FindPrimaryKey();
                 var dependentKey = dependentType.FindPrimaryKey();
@@ -1764,7 +1763,7 @@ namespace Microsoft.Data.Entity.Tests
                     .Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
                     .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
 
-                Assert.Same(fk, dependentType.GetForeignKeys().Single());
+                var fk = dependentType.GetForeignKeys().Single();
                 Assert.Equal("Whoopper", dependentType.GetNavigations().Single().Name);
                 Assert.Equal("ToastedBun", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);

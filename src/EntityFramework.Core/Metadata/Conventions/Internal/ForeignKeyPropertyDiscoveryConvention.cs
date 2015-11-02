@@ -260,19 +260,15 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (!((IProperty)(propertyBuilder.Metadata)).IsShadowProperty)
             {
                 var entityType = propertyBuilder.Metadata.DeclaringEntityType;
-                var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
 
-                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().Concat(entityType.GetDerivedForeignKeys()).ToList())
                 {
-                    var relationshipBuilder = entityTypeBuilder.Relationship(foreignKey, ConfigurationSource.Convention);
-                    Apply(relationshipBuilder);
+                    Apply(foreignKey.Builder);
                 }
+
                 foreach (var foreignKey in entityType.GetReferencingForeignKeys().ToList())
                 {
-                    var relationshipBuilder = propertyBuilder.ModelBuilder
-                        .Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                        .Relationship(foreignKey, ConfigurationSource.Convention);
-                    Apply(relationshipBuilder);
+                    Apply(foreignKey.Builder);
                 }
             }
             return propertyBuilder;

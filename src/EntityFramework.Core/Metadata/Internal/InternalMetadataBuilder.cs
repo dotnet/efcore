@@ -73,6 +73,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
+        protected static TValue Add<TKey, TValue, TId>(
+            [NotNull] TId id,
+            [NotNull] Action<TKey, ConfigurationSource> updateConfigurationSource,
+            [NotNull] Func<TId, ConfigurationSource, TKey> createKey,
+            [NotNull] Func<TKey, TValue> createValue,
+            ConfigurationSource configurationSource,
+            [CanBeNull] Action<TId> onNewKeyAdding = null,
+            [CanBeNull] Func<TValue, TValue> onNewKeyAdded = null)
+            => GetOrAdd(id,
+                i => default(TKey),
+                updateConfigurationSource,
+                createKey,
+                createValue,
+                configurationSource,
+                onNewKeyAdding,
+                onNewKeyAdded);
+
         protected static TValue GetOrAdd<TKey, TValue, TId>(
             [NotNull] TId id,
             [NotNull] Func<TId, TKey> findKey,
@@ -98,7 +115,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var value = createValue(key);
             if (isNewKey
-                && onNewKeyAdded != null)
+                && onNewKeyAdded != null
+                && value != null)
             {
                 value = onNewKeyAdded(value);
             }

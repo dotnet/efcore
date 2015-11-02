@@ -198,9 +198,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var fk = existingNavigation.ForeignKey;
             return (fk.IsSelfReferencing()
                     || fk.ResolveOtherEntityType(existingNavigation.DeclaringEntityType) == inverseEntityTypeBuilder.Metadata)
-                   && inverseEntityTypeBuilder.ModelBuilder.Entity(fk.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                       .Relationship(fk, ConfigurationSource.Convention)
-                       .CanSetNavigation(inverseName, !existingNavigation.IsDependentToPrincipal(), ConfigurationSource.Convention);
+                   && fk.Builder.CanSetNavigation(inverseName, !existingNavigation.IsDependentToPrincipal(), ConfigurationSource.Convention);
         }
 
         private IReadOnlyList<RelationshipCandidate> RemoveInheritedInverseNavigations(
@@ -333,6 +331,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             InternalEntityTypeBuilder targetEntityTypeBuilder,
             string navigationName)
         {
+            sourceEntityTypeBuilder = sourceEntityTypeBuilder.ModelBuilder.Entity(sourceEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention);
+            if (sourceEntityTypeBuilder == null)
+            {
+                return true;
+            }
+
             if (sourceEntityTypeBuilder.IsIgnored(navigationName, ConfigurationSource.Convention))
             {
                 return true;

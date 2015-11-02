@@ -11,23 +11,35 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : ConventionalAnnotatable, IMutableIndex
     {
-        public Index([NotNull] IReadOnlyList<Property> properties,
-            [NotNull] EntityType declaringEntityType)
+        private ConfigurationSource _configurationSource;
+
+        public Index(
+            [NotNull] IReadOnlyList<Property> properties,
+            [NotNull] EntityType declaringEntityType,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
-            MetadataHelper.CheckPropertiesInEntityType(properties, declaringEntityType, "properties");
 
             Properties = properties;
             DeclaringEntityType = declaringEntityType;
+            _configurationSource = configurationSource;
+
+            Builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
         }
+        
+        public virtual IReadOnlyList<Property> Properties { get; }
+        public virtual EntityType DeclaringEntityType { get; }
+        public virtual InternalIndexBuilder Builder { get; [param: CanBeNull] set; }
+
+        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+
+        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual bool? IsUnique { get; set; }
         protected virtual bool DefaultIsUnique => false;
-
-        public virtual IReadOnlyList<Property> Properties { get; }
-        public virtual EntityType DeclaringEntityType { get; }
 
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;

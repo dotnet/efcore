@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -363,10 +362,9 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var foreignKey = new ForeignKey(
+            var foreignKey = entityBuilder.Metadata.AddForeignKey(
                 new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
                 entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
-                entityBuilder.Metadata,
                 entityBuilder.Metadata);
             var conventionDispatcher = new ConventionDispatcher(conventions);
             conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKey);

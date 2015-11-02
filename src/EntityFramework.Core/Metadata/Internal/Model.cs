@@ -123,6 +123,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var removed = _entityTypes.Remove(entityType.Name);
             Debug.Assert(removed);
+            entityType.Builder = null;
 
             return entityType;
         }

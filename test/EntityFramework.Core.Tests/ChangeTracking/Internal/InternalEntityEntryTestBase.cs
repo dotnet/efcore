@@ -1628,13 +1628,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity));
-            entityType1.BaseType = someSimpleEntityType;
+            entityType1.HasBaseType(someSimpleEntityType);
             var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsShadowProperty = false;
             property3.IsConcurrencyToken = true;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity));
-            entityType2.BaseType = someCompositeEntityType;
+            entityType2.HasBaseType(someCompositeEntityType);
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             fk.IsShadowProperty = false;
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
@@ -1659,7 +1659,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             property9.IsConcurrencyToken = true;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity));
-            entityType5.BaseType = someSimpleEntityType;
+            entityType5.HasBaseType(someSimpleEntityType);
             var fk5a = entityType5.AddProperty("Fk1", typeof(int));
             fk5a.IsShadowProperty = false;
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));

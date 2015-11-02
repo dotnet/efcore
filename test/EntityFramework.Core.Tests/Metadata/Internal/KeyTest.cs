@@ -18,9 +18,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var key = new Key(new[] { property1, property2 });
+            var key = entityType.AddKey(new[] { property1, property2 }, ConfigurationSource.Convention);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(key.Properties));
+            Assert.Equal(ConfigurationSource.Convention, key.GetConfigurationSource());
         }
 
         [Fact]
@@ -31,9 +32,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = entityType1.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType2.GetOrAddProperty(Order.NameProperty);
 
-            Assert.Equal(CoreStrings.InconsistentEntityType("properties"),
+            Assert.Equal(CoreStrings.KeyPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", entityType1.DisplayName()),
                 Assert.Throws<ArgumentException>(
-                    () => new Key(new[] { property1, property2 })).Message);
+                    () => entityType1.AddKey(new[] { property1, property2 })).Message);
         }
 
         private class Customer

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -172,6 +171,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(relationship.Metadata, principalEntityBuilder.Metadata.GetNavigations().Single().ForeignKey);
             Assert.Same(relationship.Metadata, dependentEntityBuilder.Metadata.GetNavigations().Single().ForeignKey);
             Assert.Empty(dependentEntityBuilder.Metadata.GetDeclaredForeignKeys());
+            Assert.Empty(dependentEntityBuilder.Metadata.GetKeys());
+            Assert.Same(relationship.Metadata.PrincipalKey, principalEntityBuilder.Metadata.GetKeys().Single());
         }
 
         [Fact]
@@ -758,7 +759,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
-            var keyBuilder = entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
+            entityBuilder.PrimaryKey(new[] { Order.IdProperty.Name, Order.CustomerIdProperty.Name }, ConfigurationSource.Convention);
 
             var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
             derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
@@ -836,7 +837,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             var entityType = entityBuilder.Metadata;
+
+            Assert.Null(entityType.GetPrimaryKeyConfigurationSource());
+
             entityType.SetPrimaryKey(new[] { entityType.GetOrAddProperty(Order.IdProperty), entityType.GetOrAddProperty(Order.CustomerIdProperty) });
+
+            Assert.Equal(ConfigurationSource.Explicit, entityType.GetPrimaryKeyConfigurationSource());
 
             Assert.Null(entityBuilder.PrimaryKey(new[] { Order.IdProperty }, ConfigurationSource.DataAnnotation));
 
@@ -946,7 +952,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.False(entityBuilder.Ignore(Order.IdProperty.Name, ConfigurationSource.Convention));
             Assert.Empty(derivedEntityBuilder.Metadata.GetDeclaredProperties());
             Assert.Empty(derivedEntityBuilder2.Metadata.GetDeclaredProperties());
-            Assert.Equal(typeof(int), propertyBuilder.Metadata.ClrType);
+            Assert.Equal(typeof(string), propertyBuilder.Metadata.ClrType);
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
             Assert.True(propertyBuilder.Metadata.RequiresValueGenerator);
             Assert.Equal(1, propertyBuilder.Metadata.GetMaxLength());
@@ -1724,7 +1730,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var modelBuilder = CreateModelBuilder();
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
             var derivedEntityBuilder = modelBuilder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
-            derivedEntityBuilder.Metadata.BaseType = entityBuilder.Metadata;
+            derivedEntityBuilder.Metadata.HasBaseType(entityBuilder.Metadata);
 
             Assert.Same(derivedEntityBuilder, derivedEntityBuilder.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention));
             Assert.Null(derivedEntityBuilder.HasBaseType((EntityType)null, ConfigurationSource.Convention));

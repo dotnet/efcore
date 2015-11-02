@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Data.Entity.Internal;
@@ -19,11 +18,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 }, entityType);
+            var index = entityType.AddIndex(new[] { property1, property2 }, ConfigurationSource.Convention);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
             Assert.Null(index.IsUnique);
             Assert.False(((IIndex)index).IsUnique);
+            Assert.Equal(ConfigurationSource.Convention, index.GetConfigurationSource());
         }
 
         [Fact]
@@ -33,7 +33,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = entityType.GetOrAddProperty(Customer.IdProperty);
             var property2 = entityType.GetOrAddProperty(Customer.NameProperty);
 
-            var index = new Index(new[] { property1, property2 }, entityType) { IsUnique = true };
+            var index = entityType.AddIndex(new[] { property1, property2 });
+            index.IsUnique = true;
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
             Assert.True(index.IsUnique.Value);
@@ -45,9 +46,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property1 = new Model().AddEntityType(typeof(Customer)).GetOrAddProperty(Customer.IdProperty);
             var property2 = new Model().AddEntityType(typeof(Order)).GetOrAddProperty(Order.IdProperty);
 
-            Assert.Equal(CoreStrings.InconsistentEntityType("properties"),
+            Assert.Equal(CoreStrings.IndexPropertiesWrongEntity($"{{'{property1.Name}', '{property2.Name}'}}", typeof(Customer).Name),
                 Assert.Throws<ArgumentException>(
-                    () => new Index(new[] { property1, property2 }, property1.DeclaringEntityType)).Message);
+                    () => property1.DeclaringEntityType.AddIndex(new[] { property1, property2 })).Message);
         }
 
         private class Customer

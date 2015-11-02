@@ -340,7 +340,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     }
                 }
                 else if (!ModelBuilder.Entity(conflictingNavigation.ForeignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .CanRemove(conflictingNavigation.ForeignKey, configurationSource))
+                    .CanRemoveForeignKey(conflictingNavigation.ForeignKey, configurationSource))
                 {
                     return false;
                 }
@@ -1014,7 +1014,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var conflictingForeignKey = dependentEntityType.FindForeignKeys(properties).SingleOrDefault();
             if (conflictingForeignKey != null
                 && !ModelBuilder.Entity(dependentEntityType.Name, ConfigurationSource.Convention)
-                    .CanRemove(conflictingForeignKey, configurationSource))
+                    .CanRemoveForeignKey(conflictingForeignKey, configurationSource))
             {
                 return false;
             }
@@ -1317,7 +1317,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var conflictingRelationships = matchingRelationships.Where(r => r != newRelationshipBuilder).ToList();
             if (conflictingRelationships.Any(relationshipBuilder =>
                 !ModelBuilder.Entity(relationshipBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .CanRemove(relationshipBuilder.Metadata, configurationSource)))
+                    .CanRemoveForeignKey(relationshipBuilder.Metadata, configurationSource)))
             {
                 return null;
             }
@@ -1421,8 +1421,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     principalEntityTypeBuilder, dependentEntityTypeBuilder, newForeignKey.PrincipalToDependent.Name);
             }
 
-            newRelationshipBuilder = ModelBuilder.Entity(newRelationshipBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                .Relationship(newRelationshipBuilder.Metadata, newRelationshipConfigurationSource);
+            newRelationshipBuilder.Metadata.UpdateConfigurationSource(newRelationshipConfigurationSource);
 
             newRelationshipBuilder = newRelationshipBuilder.DependentEntityType(
                 dependentEntityTypeBuilder.Metadata,

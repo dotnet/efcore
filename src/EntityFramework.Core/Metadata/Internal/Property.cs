@@ -29,16 +29,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private PropertyFlags _setFlags;
         private Type _clrType;
 
-        public Property([NotNull] string name, [NotNull] EntityType declaringEntityType)
+        private ConfigurationSource _configurationSource;
+
+        public Property([NotNull] string name, [NotNull] EntityType declaringEntityType, ConfigurationSource configurationSource)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
             Name = name;
             DeclaringEntityType = declaringEntityType;
+            _configurationSource = configurationSource;
         }
 
         public virtual string Name { get; }
+        public virtual EntityType DeclaringEntityType { get; }
+        public virtual InternalPropertyBuilder Builder { get; [param: CanBeNull] set; }
+
+        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual Type ClrType
         {
@@ -59,10 +68,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 _clrType = value;
             }
         }
-
         protected virtual Type DefaultClrType => typeof(string);
-
-        public virtual EntityType DeclaringEntityType { get; }
 
         public virtual bool? IsNullable
         {

@@ -23,14 +23,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(typeof(Customer), entityType.ClrType);
             Assert.NotNull(model.FindEntityType(typeof(Customer)));
             Assert.Same(model, entityType.Model);
+            Assert.NotNull(entityType.Builder);
 
             Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer)));
 
             Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
             Assert.Same(entityType, model.RemoveEntityType(entityType.ClrType));
+
             Assert.Null(model.RemoveEntityType(entityType.ClrType));
             Assert.Null(model.FindEntityType(typeof(Customer)));
+            Assert.Null(entityType.Builder);
         }
 
         [Fact]
@@ -46,14 +49,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.NotNull(model.FindEntityType(typeof(Customer).FullName));
             Assert.Same(model, entityType.Model);
+            Assert.NotNull(entityType.Builder);
 
             Assert.Same(entityType, model.GetOrAddEntityType(typeof(Customer).FullName));
 
             Assert.Equal(new[] { entityType }, model.GetEntityTypes().ToArray());
 
             Assert.Same(entityType, model.RemoveEntityType(entityType.Name));
+
             Assert.Null(model.RemoveEntityType(entityType.Name));
             Assert.Null(model.FindEntityType(typeof(Customer).FullName));
+            Assert.Null(entityType.Builder);
         }
 
         [Fact]
@@ -83,7 +89,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var customerType = model.GetOrAddEntityType(typeof(Customer));
             var specialCustomerType = model.GetOrAddEntityType(typeof(SpecialCustomer));
 
-            specialCustomerType.BaseType = customerType;
+            specialCustomerType.HasBaseType(customerType);
 
             Assert.Equal(
                 CoreStrings.EntityTypeInUseByDerived(typeof(Customer).Name, typeof(SpecialCustomer).Name),

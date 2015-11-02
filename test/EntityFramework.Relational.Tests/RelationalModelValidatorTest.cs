@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
-            entityC.BaseType = entityA;
+            entityC.HasBaseType(entityA);
 
             var discriminatorProperty = entityA.AddProperty("D", typeof(int));
             entityA.Relational().DiscriminatorProperty = discriminatorProperty;
@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<>));
-            entityGeneric.BaseType = entityAbstract;
+            entityGeneric.HasBaseType(entityAbstract);
 
             CreateModelValidator().Validate(model);
         }
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityC = model.AddEntityType(typeof(C));
-            entityC.BaseType = entityA;
+            entityC.HasBaseType(entityA);
 
             VerifyError(RelationalStrings.NoDiscriminatorProperty(entityC.DisplayName()), model);
         }
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityA = model.AddEntityType(typeof(A));
             SetPrimaryKey(entityA);
             var entityAbstract = model.AddEntityType(typeof(Abstract));
-            entityAbstract.BaseType = entityA;
+            entityAbstract.HasBaseType(entityA);
 
             var discriminatorProperty = entityA.AddProperty("D", typeof(int));
             entityA.Relational().DiscriminatorProperty = discriminatorProperty;
@@ -142,7 +142,7 @@ namespace Microsoft.Data.Entity.Tests
             var entityAbstract = model.AddEntityType(typeof(Abstract));
             SetPrimaryKey(entityAbstract);
             var entityGeneric = model.AddEntityType(typeof(Generic<string>));
-            entityGeneric.BaseType = entityAbstract;
+            entityGeneric.HasBaseType(entityAbstract);
 
             var discriminatorProperty = entityAbstract.AddProperty("D", typeof(int));
             entityAbstract.Relational().DiscriminatorProperty = discriminatorProperty;

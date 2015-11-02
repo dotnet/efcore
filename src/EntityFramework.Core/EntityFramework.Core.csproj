@@ -231,7 +231,6 @@
     <Compile Include="Metadata\IMutableNavigation.cs" />
     <Compile Include="Metadata\IMutableProperty.cs" />
     <Compile Include="Metadata\Internal\InternalMetadataBuilder`.cs" />
-    <Compile Include="Metadata\Internal\MetadataHelper.cs" />
     <Compile Include="Extensions\MutableEntityTypeExtensions.cs" />
     <Compile Include="Extensions\MutableKeyExtensions.cs" />
     <Compile Include="Extensions\MutableModelExtensions.cs" />
@@ -343,7 +342,6 @@
     <Compile Include="Metadata\Internal\InternalModelBuilder.cs" />
     <Compile Include="Metadata\Internal\InternalPropertyBuilder.cs" />
     <Compile Include="Metadata\Internal\InternalRelationshipBuilder.cs" />
-    <Compile Include="Metadata\Internal\MetadataDictionary.cs" />
     <Compile Include="Infrastructure\TypedAnnotation.cs" />
     <Compile Include="Query\ExpressionVisitors\EntityQueryableExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\DefaultQueryExpressionVisitor.cs" />

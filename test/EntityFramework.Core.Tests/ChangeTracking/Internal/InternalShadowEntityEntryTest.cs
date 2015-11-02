@@ -63,12 +63,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             someCompositeEntityType.GetOrSetPrimaryKey(new[] { compositeKeyProperty1, compositeKeyProperty2 });
 
             var entityType1 = model.AddEntityType(typeof(SomeEntity).FullName);
-            entityType1.BaseType = someSimpleEntityType;
+            entityType1.HasBaseType(someSimpleEntityType);
             var property3 = entityType1.AddProperty("Name", typeof(string));
             property3.IsConcurrencyToken = true;
 
             var entityType2 = model.AddEntityType(typeof(SomeDependentEntity).FullName);
-            entityType2.BaseType = someCompositeEntityType;
+            entityType2.HasBaseType(someCompositeEntityType);
             var fk = entityType2.AddProperty("SomeEntityId", typeof(int));
             entityType2.GetOrAddForeignKey(new[] { fk }, entityType1.FindPrimaryKey(), entityType1);
             var justAProperty = entityType2.AddProperty("JustAProperty", typeof(int));
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             property8.IsConcurrencyToken = true;
 
             var entityType5 = model.AddEntityType(typeof(SomeMoreDependentEntity).FullName);
-            entityType5.BaseType = someSimpleEntityType;
+            entityType5.HasBaseType(someSimpleEntityType);
             var fk5a = entityType5.AddProperty("Fk1", typeof(int));
             var fk5b = entityType5.AddProperty("Fk2", typeof(string));
             entityType5.GetOrAddForeignKey(new[] { fk5a, fk5b }, entityType2.FindPrimaryKey(), entityType2);

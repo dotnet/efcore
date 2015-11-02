@@ -101,14 +101,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The properties provided for the argument '{argumentName}' are declared on different entity types.
-        /// </summary>
-        public static string InconsistentEntityType([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InconsistentEntityType", "argumentName"), argumentName);
-        }
-
-        /// <summary>
         /// The entity type '{entityType}' requires a key to be defined.
         /// </summary>
         public static string EntityRequiresKey([CanBeNull] object entityType)

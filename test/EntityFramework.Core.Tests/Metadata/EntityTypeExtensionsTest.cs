@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var a = model.AddEntityType("A");
             var b = model.AddEntityType("B");
             var c = model.AddEntityType("C");
-            b.BaseType = a;
-            c.BaseType = b;
+            b.HasBaseType(a);
+            c.HasBaseType(b);
 
             Assert.Same(a, a.RootType());
             Assert.Same(a, b.RootType());
@@ -62,9 +62,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var b = model.AddEntityType("B");
             var c = model.AddEntityType("C");
             var d = model.AddEntityType("D");
-            b.BaseType = a;
-            c.BaseType = b;
-            d.BaseType = a;
+            b.HasBaseType(a);
+            c.HasBaseType(b);
+            d.HasBaseType(a);
 
             Assert.Equal(new[] { b, d, c }, a.GetDerivedTypes().ToArray());
             Assert.Equal(new[] { c }, b.GetDerivedTypes().ToArray());
@@ -79,9 +79,9 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var b = model.AddEntityType("B");
             var c = model.AddEntityType("C");
             var d = model.AddEntityType("D");
-            b.BaseType = a;
-            c.BaseType = b;
-            d.BaseType = a;
+            b.HasBaseType(a);
+            c.HasBaseType(b);
+            d.HasBaseType(a);
 
             Assert.True(a.IsAssignableFrom(a));
             Assert.True(a.IsAssignableFrom(b));

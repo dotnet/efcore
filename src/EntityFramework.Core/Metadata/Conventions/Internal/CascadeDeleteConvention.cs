@@ -11,8 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             foreach (var foreignKey in propertyBuilder.Metadata.FindContainingForeignKeys())
             {
-                Apply(propertyBuilder.ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                    .Relationship(foreignKey, ConfigurationSource.Convention));
+                Apply(foreignKey.Builder);
             }
 
             return true;

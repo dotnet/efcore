@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 if (clonedEntityType.Key.BaseType != null)
                 {
-                    clonedEntityType.Value.BaseType = clonedEntityTypes[clonedEntityType.Key.BaseType];
+                    clonedEntityType.Value.HasBaseType(clonedEntityTypes[clonedEntityType.Key.BaseType]);
                 }
             }
 

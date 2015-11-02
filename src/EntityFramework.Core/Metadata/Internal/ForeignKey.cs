@@ -13,16 +13,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class ForeignKey : ConventionalAnnotatable, IMutableForeignKey
     {
         private DeleteBehavior? _deleteBehavior;
+        private ConfigurationSource _configurationSource;
 
         public ForeignKey(
             [NotNull] IReadOnlyList<Property> dependentProperties,
             [NotNull] Key principalKey,
             [NotNull] EntityType dependentEntityType,
-            [NotNull] EntityType principalEntityType)
+            [NotNull] EntityType principalEntityType,
+            ConfigurationSource configurationSource)
         {
             Check.NotEmpty(dependentProperties, nameof(dependentProperties));
             Check.HasNoNulls(dependentProperties, nameof(dependentProperties));
-            MetadataHelper.CheckSameEntityType(dependentProperties, nameof(dependentProperties));
             Check.NotNull(principalKey, nameof(principalKey));
             Check.NotNull(principalEntityType, nameof(principalEntityType));
 
@@ -30,7 +31,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             PrincipalKey = principalKey;
             DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
-
+            _configurationSource = configurationSource;
+            
             AreCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType, shouldThrow: true);
 
             if (!principalEntityType.GetKeys().Contains(principalKey))
@@ -41,6 +43,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         principalEntityType));
             }
         }
+
+        public virtual InternalRelationshipBuilder Builder { get; [param: CanBeNull] set; }
+
+        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+
+        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+            => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual Navigation DependentToPrincipal { get; private set; }
 

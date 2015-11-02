@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var foreignKey = CreateForeignKey();
 
-            var navigation = new Navigation("Deception", foreignKey);
+            var navigation = foreignKey.HasDependentToPrincipal("Deception");
 
             Assert.Same(foreignKey, navigation.ForeignKey);
             Assert.Equal("Deception", navigation.Name);
@@ -22,11 +22,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ForeignKey CreateForeignKey()
         {
             var model = new Model();
-            var entityType = model.AddEntityType("E");
+            var entityType = model.AddEntityType(typeof(E));
             var idProperty = entityType.AddProperty("id", typeof(int));
             var key = entityType.SetPrimaryKey(idProperty);
             var fkProperty = entityType.AddProperty("p", typeof(int));
             return entityType.AddForeignKey(fkProperty, key, entityType);
+        }
+
+        private class E
+        {
+             public E Deception { get; set; }
         }
     }
 }
