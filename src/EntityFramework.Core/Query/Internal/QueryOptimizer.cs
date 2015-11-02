@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Annotations;
+using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -44,10 +45,10 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
         }
 
-        private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
+        private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
 
         public virtual void Optimize(
-            IReadOnlyCollection<QueryAnnotationBase> queryAnnotations,
+            IReadOnlyCollection<IQueryAnnotation> queryAnnotations,
             QueryModel queryModel)
         {
             _queryAnnotations = queryAnnotations;
@@ -74,6 +75,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                             .Where(qa => qa.QuerySource == subQueryExpression.QueryModel.MainFromClause))
                     {
                         queryAnnotation.QuerySource = joinClause;
+                        queryAnnotation.QueryModel = queryModel;
                     }
                 }
             }

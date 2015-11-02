@@ -2423,11 +2423,14 @@ namespace Microsoft.Data.Entity
         /// <returns>
         ///     A new query where the result set will not be tracked by the context.
         /// </returns>
-        [QueryAnnotationMethod]
         public static IQueryable<TEntity> AsNoTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-            => QueryableHelpers.CreateQuery(source, s => s.AsNoTracking());
+            => source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    null,
+                    AsNoTrackingMethodInfo
+                        .MakeGenericMethod(typeof(TEntity)), source.Expression));
 
         internal static readonly MethodInfo AsTrackingMethodInfo
             = typeof(EntityFrameworkQueryableExtensions)
@@ -2448,11 +2451,14 @@ namespace Microsoft.Data.Entity
         /// <returns>
         ///     A new query where the result set will not be tracked by the context.
         /// </returns>
-        [QueryAnnotationMethod]
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-            => QueryableHelpers.CreateQuery(source, s => s.AsTracking());
+             => source.Provider.CreateQuery<TEntity>(
+                Expression.Call(
+                    null,
+                    AsTrackingMethodInfo
+                        .MakeGenericMethod(typeof(TEntity)), source.Expression));
 
         #endregion
 

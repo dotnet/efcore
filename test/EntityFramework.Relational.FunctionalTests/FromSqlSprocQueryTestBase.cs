@@ -8,6 +8,8 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.NorthwindSproc;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 
+// ReSharper disable AccessToDisposedClosure
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -143,11 +145,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(
                     RelationalStrings.StoredProcedureIncludeNotSupported,
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            context.Set<Product>()
-                                .FromSql("SelectStoredProcedure")
-                                .Include(p => p.OrderDetails)
-                                .ToArray()
+                        () => context.Set<Product>()
+                            .FromSql("SelectStoredProcedure")
+                            .Include(p => p.OrderDetails)
+                            .ToArray()
                         ).Message);
             }
         }
@@ -162,7 +163,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                        from b in context.Set<MostExpensiveProduct>().FromSql(TenMostExpensiveProductsSproc)
                        where a.TenMostExpensiveProducts == b.TenMostExpensiveProducts
                        select new { a, b })
-                       .ToArray();
+                        .ToArray();
 
                 Assert.Equal(10, actual.Length);
             }
@@ -200,11 +201,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
-
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         protected FromSqlSprocQueryTestBase(TFixture fixture)
         {

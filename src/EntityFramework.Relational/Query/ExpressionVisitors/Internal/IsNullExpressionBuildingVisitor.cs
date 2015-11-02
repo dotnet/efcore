@@ -121,7 +121,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return expression;
         }
 
-        private Expression CombineExpressions(Expression left, Expression right, ExpressionType expressionType)
+        private static Expression CombineExpressions(
+            Expression left, Expression right, ExpressionType expressionType)
         {
             if (left == null
                 && right == null)

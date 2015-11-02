@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
@@ -32,7 +33,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             _sqlCommandBuilder = sqlCommandBuilder;
         }
 
-        public virtual ISqlQueryGenerator CreateGenerator([NotNull] SelectExpression selectExpression)
+        public virtual ISqlQueryGenerator CreateGenerator(SelectExpression selectExpression)
             => new SqliteQuerySqlGenerator(
                 _commandBuilderFactory,
                 _sqlGenerator,
@@ -40,13 +41,13 @@ namespace Microsoft.Data.Entity.Query.Sql
                 Check.NotNull(selectExpression, nameof(selectExpression)));
 
         public virtual ISqlQueryGenerator CreateRawCommandGenerator(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] string sql,
-            [NotNull] object[] parameters)
+            SelectExpression selectExpression,
+            Expression sql,
+            string argumentsParameterName)
             => new RawSqlQueryGenerator(
                 _sqlCommandBuilder,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotNull(sql, nameof(sql)),
-                Check.NotNull(parameters, nameof(parameters)));
+                Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName)));
     }
 }

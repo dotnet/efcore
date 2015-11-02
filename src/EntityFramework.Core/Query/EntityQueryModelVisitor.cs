@@ -13,9 +13,9 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -289,12 +289,12 @@ namespace Microsoft.Data.Entity.Query
 
             var includeSpecifications
                 = QueryCompilationContext.QueryAnnotations
-                    .OfType<IncludeQueryAnnotation>()
-                    .Select(annotation =>
+                    .OfType<IncludeResultOperator>()
+                    .Select(includeResultOperator =>
                         {
                             var navigationPath
                                 = BindNavigationPathMemberExpression(
-                                    annotation.NavigationPropertyPath,
+                                    includeResultOperator.NavigationPropertyPath,
                                     (ps, _) =>
                                         {
                                             var properties = ps.ToArray();
@@ -303,28 +303,31 @@ namespace Microsoft.Data.Entity.Query
                                             if (properties.Length != navigations.Length)
                                             {
                                                 throw new InvalidOperationException(
-                                                    CoreStrings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
+                                                    CoreStrings.IncludeNonBindableExpression(
+                                                        includeResultOperator.NavigationPropertyPath));
                                             }
 
                                             return BindChainedNavigations(
                                                 navigations,
-                                                annotation.ChainedNavigationProperties)
+                                                includeResultOperator.ChainedNavigationProperties)
                                                 .ToArray();
                                         });
 
                             if (navigationPath == null)
                             {
                                 throw new InvalidOperationException(
-                                    CoreStrings.IncludeNonBindableExpression(annotation.NavigationPropertyPath));
+                                    CoreStrings.IncludeNonBindableExpression(
+                                        includeResultOperator.NavigationPropertyPath));
                             }
 
                             return new
                             {
-                                specification = new IncludeSpecification(annotation.QuerySource, navigationPath),
+                                specification = new IncludeSpecification(includeResultOperator.QuerySource, navigationPath),
                                 order = string.Concat(navigationPath.Select(n => n.IsCollection() ? "1" : "0"))
                             };
                         })
-                    .OrderByDescending(e => e.order).ThenBy(e => e.specification.NavigationPath.First().IsDependentToPrincipal())
+                    .OrderByDescending(e => e.order)
+                    .ThenBy(e => e.specification.NavigationPath.First().IsDependentToPrincipal())
                     .Select(e => e.specification)
                     .ToList();
 
@@ -419,17 +422,14 @@ namespace Microsoft.Data.Entity.Query
 
             var lastTrackingModifier
                 = QueryCompilationContext.QueryAnnotations
-                    .OfType<QueryAnnotation>()
-                    .LastOrDefault(
-                        qa => qa.IsCallTo(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
-                              || qa.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
+                    .OfType<TrackingResultOperator>()
+                    .LastOrDefault();
 
             if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
-                || lastTrackingModifier
-                    ?.IsCallTo(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo) == true
                 || (!QueryCompilationContext.TrackQueryResults
-                    && lastTrackingModifier
-                        ?.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo) != true))
+                    && lastTrackingModifier == null)
+                || (lastTrackingModifier != null
+                    && !lastTrackingModifier.IsTracking))
             {
                 return;
             }

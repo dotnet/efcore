@@ -30,17 +30,21 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class QueryCompiler : IQueryCompiler
     {
         private static MethodInfo CompileQueryMethod { get; }
-            = typeof(IDatabase).GetTypeInfo().GetDeclaredMethod(nameof(IDatabase.CompileQuery));
+            = typeof(IDatabase).GetTypeInfo()
+                .GetDeclaredMethod(nameof(IDatabase.CompileQuery));
 
-        private static readonly INodeTypeProvider _nodeTypeProvider = CreateNodeTypeProvider();
-        private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter = new EvaluatableExpressionFilter();
+        private static readonly IEvaluatableExpressionFilter _evaluatableExpressionFilter
+            = new EvaluatableExpressionFilter();
 
         private readonly IQueryContextFactory _queryContextFactory;
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
         private readonly ILogger _logger;
+        private readonly MethodInfoBasedNodeTypeRegistry _methodInfoBasedNodeTypeRegistry;
         private readonly Type _contextType;
+
+        private INodeTypeProvider _nodeTypeProvider;
 
         public QueryCompiler(
             [NotNull] IQueryContextFactory queryContextFactory,
@@ -48,6 +52,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database,
             [NotNull] ILogger<QueryCompiler> logger,
+            [NotNull] MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry,
             [NotNull] DbContext context)
         {
             Check.NotNull(queryContextFactory, nameof(queryContextFactory));
@@ -62,6 +67,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             _compiledQueryCacheKeyGenerator = compiledQueryCacheKeyGenerator;
             _database = database;
             _logger = logger;
+            _methodInfoBasedNodeTypeRegistry = methodInfoBasedNodeTypeRegistry;
             _contextType = context.GetType();
         }
 
@@ -73,7 +79,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = Preprocess(query, queryContext);
+            query = ExtractParameters(query, queryContext);
 
             return CompileQuery<TResult>(query)(queryContext);
         }
@@ -84,7 +90,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             var queryContext = _queryContextFactory.Create();
 
-            query = Preprocess(query, queryContext);
+            query = ExtractParameters(query, queryContext);
 
             return CompileAsyncQuery<TResult>(query)(queryContext);
         }
@@ -97,7 +103,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             queryContext.CancellationToken = cancellationToken;
 
-            query = Preprocess(query, queryContext);
+            query = ExtractParameters(query, queryContext);
 
             try
             {
@@ -116,12 +122,10 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
         }
 
-        protected virtual Expression Preprocess([NotNull] Expression query, [NotNull] QueryContext queryContext)
+        protected virtual Expression ExtractParameters([NotNull] Expression query, [NotNull] QueryContext queryContext)
         {
             Check.NotNull(query, nameof(query));
             Check.NotNull(queryContext, nameof(queryContext));
-
-            query = new QueryAnnotatingExpressionVisitor().Visit(query);
 
             return ParameterExtractingExpressionVisitor
                 .ExtractParameters(query, queryContext, _evaluatableExpressionFilter);
@@ -135,7 +139,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                 .GetOrAddQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: false),
                     () =>
                         {
-                            var queryModel = CreateQueryParser().GetParsedQuery(query);
+                            var queryModel
+                                = CreateQueryParser(NodeTypeProvider)
+                                    .GetParsedQuery(query);
 
                             var resultItemType
                                 = (queryModel.GetOutputDataInfo()
@@ -189,16 +195,18 @@ namespace Microsoft.Data.Entity.Query.Internal
                 .GetOrAddAsyncQuery(_compiledQueryCacheKeyGenerator.GenerateCacheKey(query, async: true),
                     () =>
                         {
-                            var queryModel = CreateQueryParser().GetParsedQuery(query);
+                            var queryModel
+                                = CreateQueryParser(NodeTypeProvider)
+                                    .GetParsedQuery(query);
 
                             return _database.CompileAsyncQuery<TResult>(queryModel);
                         });
         }
 
-        private static QueryParser CreateQueryParser()
+        private static QueryParser CreateQueryParser(INodeTypeProvider nodeTypeProvider)
             => new QueryParser(
                 new ExpressionTreeParser(
-                    _nodeTypeProvider,
+                    nodeTypeProvider,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                     {
                         new PartialEvaluatingExpressionTreeProcessor(_evaluatableExpressionFilter),
@@ -220,12 +228,16 @@ namespace Microsoft.Data.Entity.Query.Internal
                 => memberExpression.Member != _dateTimeNow && memberExpression.Member != _dateTimeUtcNow;
         }
 
-        private static INodeTypeProvider CreateNodeTypeProvider()
-        {
-            var methodInfoBasedNodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly();
+        private INodeTypeProvider NodeTypeProvider
+            => _nodeTypeProvider
+               ?? (_nodeTypeProvider
+                   = CreateNodeTypeProvider(_methodInfoBasedNodeTypeRegistry));
 
+        private static INodeTypeProvider CreateNodeTypeProvider(
+            MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry)
+        {
             methodInfoBasedNodeTypeRegistry
-                .Register(QueryAnnotationExpressionNode.SupportedMethods, typeof(QueryAnnotationExpressionNode));
+                .Register(TrackingExpressionNode.SupportedMethods, typeof(TrackingExpressionNode));
 
             methodInfoBasedNodeTypeRegistry
                 .Register(IncludeExpressionNode.SupportedMethods, typeof(IncludeExpressionNode));

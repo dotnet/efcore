@@ -747,12 +747,12 @@ namespace Microsoft.Data.Entity.Query.Expressions
             => _sqlQueryGeneratorFactory.CreateGenerator(this);
 
         public virtual ISqlQueryGenerator CreateRawCommandGenerator(
-            [NotNull] string sql,
-            [NotNull] object[] parameters)
+            [NotNull] Expression sql,
+            [NotNull] string argumentsParameterName)
             => _sqlQueryGeneratorFactory.CreateRawCommandGenerator(
                 this,
-                Check.NotEmpty(sql, nameof(sql)),
-                Check.NotNull(parameters, nameof(parameters)));
+                Check.NotNull(sql, nameof(sql)),
+                Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName)));
 
         public override string ToString()
             => CreateGenerator()

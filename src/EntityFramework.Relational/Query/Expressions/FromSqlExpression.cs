@@ -9,27 +9,26 @@ using Remotion.Linq.Clauses;
 
 namespace Microsoft.Data.Entity.Query.Expressions
 {
-    public class RawSqlDerivedTableExpression : TableExpressionBase
+    public class FromSqlExpression : TableExpressionBase
     {
-        public RawSqlDerivedTableExpression(
-            [NotNull] string sql,
-            [NotNull] object[] parameters,
+        public FromSqlExpression(
+            [NotNull] Expression sql,
+            [NotNull] string argumentsParameterName,
             [NotNull] string alias,
             [NotNull] IQuerySource querySource)
             : base(
                 Check.NotNull(querySource, nameof(querySource)),
                 Check.NotEmpty(alias, nameof(alias)))
         {
-            Check.NotEmpty(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
+            Check.NotNull(sql, nameof(sql));
+            Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
 
             Sql = sql;
-            Parameters = parameters;
+            ArgumentsParameterName = argumentsParameterName;
         }
 
-        public virtual string Sql { get; }
-
-        public virtual object[] Parameters { get; }
+        public virtual Expression Sql { get; }
+        public virtual string ArgumentsParameterName { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -38,7 +37,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var specificVisitor = visitor as ISqlExpressionVisitor;
 
             return specificVisitor != null
-                ? specificVisitor.VisitRawSqlDerivedTable(this)
+                ? specificVisitor.VisitFromSql(this)
                 : base.Accept(visitor);
         }
 

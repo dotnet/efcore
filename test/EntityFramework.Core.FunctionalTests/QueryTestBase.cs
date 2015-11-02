@@ -1135,8 +1135,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             AssertQuery<Customer, Employee>((cs, es) =>
                 from c in cs
                 from e in es
+                // ReSharper disable ArrangeRedundantParentheses
                 where (c.City == "London" && c.Country == "UK")
-                      && (e.City == "London" && e.Country == "UK")
+                        && (e.City == "London" && e.Country == "UK")
                 select new { c, e });
         }
 

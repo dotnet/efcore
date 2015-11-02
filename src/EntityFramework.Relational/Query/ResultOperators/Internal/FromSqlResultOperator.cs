@@ -4,30 +4,32 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Annotations;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
 using Remotion.Linq.Clauses.StreamedData;
 
 namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
 {
-    public class QueryAnnotationResultOperator : SequenceTypePreservingResultOperatorBase
+    public class FromSqlResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
-        private readonly ConstantExpression _annotationExpression;
-
-        public QueryAnnotationResultOperator([NotNull] ConstantExpression annotationExpression)
+        public FromSqlResultOperator([NotNull] Expression sql, [NotNull] string argumentsParameterName)
         {
-            _annotationExpression = annotationExpression;
-            Annotation = (QueryAnnotationBase)annotationExpression.Value;
+            Sql = sql;
+            ArgumentsParameterName = argumentsParameterName;
         }
 
-        public virtual QueryAnnotationBase Annotation { get; }
+        public virtual IQuerySource QuerySource { get; [NotNull] set; }
+        public virtual QueryModel QueryModel { get; set; }
 
-        public override string ToString()
-            => "AnnotateQuery(" + _annotationExpression + ")";
+        public virtual Expression Sql { get; }
+
+        public virtual string ArgumentsParameterName { get; }
+
+        public override string ToString() => $"FromSql('{Sql}')";
 
         public override ResultOperatorBase Clone([NotNull] CloneContext cloneContext)
-            => new QueryAnnotationResultOperator(_annotationExpression);
+            => new FromSqlResultOperator(Sql, ArgumentsParameterName);
 
         public override void TransformExpressions([NotNull] Func<Expression, Expression> transformation)
         {

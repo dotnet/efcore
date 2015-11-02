@@ -35,9 +35,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
         public virtual IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
         public virtual IRelationalCommandBuilder AddParameter(
-            [NotNull] string name,
-            [CanBeNull] object value,
-            [NotNull] Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
+            string name, object value,
+            Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
             bool? nullable)
         {
             Check.NotEmpty(name, nameof(name));
@@ -54,11 +53,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
         }
 
         public virtual IRelationalCommand BuildRelationalCommand()
-                => new RelationalCommand(
-                    _logger,
-                    _diagnosticSource,
-                    CommandTextBuilder.ToString(),
-                    _parameters);
+            => new RelationalCommand(
+                _logger,
+                _diagnosticSource,
+                CommandTextBuilder.ToString(),
+                _parameters);
 
         public override string ToString() => CommandTextBuilder.ToString();
     }

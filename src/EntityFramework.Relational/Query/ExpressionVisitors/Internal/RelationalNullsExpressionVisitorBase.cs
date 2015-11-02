@@ -20,10 +20,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         protected override Expression VisitExtension(Expression expression)
-        {
-            return expression is NotNullableExpression
+            => expression is NotNullableExpression
                 ? expression
                 : base.VisitExtension(expression);
-        }
     }
 }

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq.Parsing;
@@ -13,8 +12,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class EqualityPredicateInExpressionOptimizer : RelinqExpressionVisitor
     {
-        protected override Expression VisitBinary(
-            [NotNull] BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
             Check.NotNull(binaryExpression, nameof(binaryExpression));
 

@@ -19,6 +19,7 @@ using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 // ReSharper disable once CheckNamespace
 
@@ -133,6 +134,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return serviceCollection
                 .AddSingleton<IMemoryCache, MemoryCache>()
                 .AddSingleton<ICompiledQueryCache, CompiledQueryCache>()
+                .AddSingleton(_ => MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly())
                 .AddScoped<IAsyncQueryProvider, EntityQueryProvider>()
                 .AddScoped<IQueryCompiler, QueryCompiler>()
                 .AddScoped<IQueryAnnotationExtractor, QueryAnnotationExtractor>()

@@ -7,78 +7,61 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class RelationalNullsOptimizedExpandingVisitor : RelationalNullsExpressionVisitorBase
     {
-        public virtual bool OptimizedExpansionPossible { get; set; }
+        public virtual bool IsOptimalExpansion { get; private set; } = true;
 
-        public RelationalNullsOptimizedExpandingVisitor()
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            OptimizedExpansionPossible = true;
-        }
+            var newLeft = Visit(binaryExpression.Left);
+            var newRight = Visit(binaryExpression.Right);
 
-        protected override Expression VisitBinary(BinaryExpression expression)
-        {
-            var left = Visit(expression.Left);
-            var right = Visit(expression.Right);
-
-            if (!OptimizedExpansionPossible)
+            if (!IsOptimalExpansion)
             {
-                return expression;
+                return binaryExpression;
             }
 
-            if (expression.NodeType == ExpressionType.Equal
-                || expression.NodeType == ExpressionType.NotEqual)
+            if (binaryExpression.NodeType == ExpressionType.Equal
+                || binaryExpression.NodeType == ExpressionType.NotEqual)
             {
-                var leftIsNull = BuildIsNullExpression(left);
-                var rightIsNull = BuildIsNullExpression(right);
+                var leftIsNull = BuildIsNullExpression(newLeft);
+                var rightIsNull = BuildIsNullExpression(newRight);
+
                 var leftNullable = leftIsNull != null;
                 var rightNullable = rightIsNull != null;
 
-                if (expression.NodeType == ExpressionType.Equal
+                if (binaryExpression.NodeType == ExpressionType.Equal
                     && leftNullable
                     && rightNullable)
                 {
                     return Expression.OrElse(
-                        Expression.Equal(left, right),
-                        Expression.AndAlso(
-                            leftIsNull,
-                            rightIsNull
-                            )
-                        );
+                        Expression.Equal(newLeft, newRight),
+                        Expression.AndAlso(leftIsNull, rightIsNull));
                 }
 
-                if (expression.NodeType == ExpressionType.NotEqual
+                if (binaryExpression.NodeType == ExpressionType.NotEqual
                     && (leftNullable || rightNullable))
                 {
-                    OptimizedExpansionPossible = false;
+                    IsOptimalExpansion = false;
                 }
             }
 
-            if (left == expression.Left
-                && right == expression.Right)
-            {
-                return expression;
-            }
-
-            return Expression.MakeBinary(expression.NodeType, left, right, expression.IsLiftedToNull, expression.Method);
+            return binaryExpression.Update(newLeft, binaryExpression.Conversion, newRight);
         }
 
         protected override Expression VisitUnary(UnaryExpression expression)
         {
             var operand = Visit(expression.Operand);
-            if (!OptimizedExpansionPossible)
+
+            if (!IsOptimalExpansion)
             {
                 return expression;
             }
 
             if (expression.NodeType == ExpressionType.Not)
             {
-                OptimizedExpansionPossible = false;
+                IsOptimalExpansion = false;
             }
 
-            if (operand == expression.Operand)
-            {
-                return expression;
-            }
-            return Expression.MakeUnary(expression.NodeType, operand, expression.Type);
+            return expression.Update(operand);
         }
     }
 }

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using JetBrains.Annotations;
 using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
@@ -19,10 +18,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual }
             };
 
-        protected override Expression VisitBinary(
-            [NotNull] BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            var currentExpression = expression;
+            var currentExpression = binaryExpression;
             if (currentExpression.NodeType == ExpressionType.Equal
                 || currentExpression.NodeType == ExpressionType.NotEqual)
             {
@@ -68,7 +66,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return base.VisitBinary(currentExpression);
         }
 
-        private Expression BuildIsNullExpression(Expression expression)
+        private static Expression BuildIsNullExpression(Expression expression)
         {
             var nullableExpressionsExtractor = new IsNullExpressionBuildingVisitor();
             nullableExpressionsExtractor.Visit(expression);
@@ -76,12 +74,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return nullableExpressionsExtractor.ResultExpression;
         }
 
-        protected override Expression VisitUnary(
-            [NotNull] UnaryExpression expression)
+        protected override Expression VisitUnary(UnaryExpression unaryExpression)
         {
-            if (expression.NodeType == ExpressionType.Not)
+            if (unaryExpression.NodeType == ExpressionType.Not)
             {
-                var innerUnary = expression.Operand as UnaryExpression;
+                var innerUnary = unaryExpression.Operand as UnaryExpression;
                 if (innerUnary != null
                     && innerUnary.NodeType == ExpressionType.Not)
                 {
@@ -89,7 +86,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     return Visit(innerUnary.Operand);
                 }
 
-                var innerBinary = expression.Operand as BinaryExpression;
+                var innerBinary = unaryExpression.Operand as BinaryExpression;
                 if (innerBinary != null)
                 {
                     if (innerBinary.NodeType == ExpressionType.Equal
@@ -136,7 +133,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return base.VisitUnary(expression);
+            return base.VisitUnary(unaryExpression);
         }
     }
 }

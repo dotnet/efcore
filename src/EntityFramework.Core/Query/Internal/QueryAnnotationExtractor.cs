@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.Data.Entity.Query.Annotations;
+using Microsoft.Data.Entity.Query.ResultOperators;
 using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
@@ -13,9 +13,9 @@ namespace Microsoft.Data.Entity.Query.Internal
 {
     public class QueryAnnotationExtractor : IQueryAnnotationExtractor
     {
-        public virtual IReadOnlyCollection<QueryAnnotationBase> ExtractQueryAnnotations(QueryModel queryModel)
+        public virtual IReadOnlyCollection<IQueryAnnotation> ExtractQueryAnnotations(QueryModel queryModel)
         {
-            var queryAnnotations = new List<QueryAnnotationBase>();
+            var queryAnnotations = new List<IQueryAnnotation>();
 
             ExtractQueryAnnotations(queryModel, queryAnnotations);
 
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         }
 
         private static void ExtractQueryAnnotations(
-            QueryModel queryModel, ICollection<QueryAnnotationBase> queryAnnotations)
+            QueryModel queryModel, ICollection<IQueryAnnotation> queryAnnotations)
         {
             queryModel.MainFromClause
                 .TransformExpressions(e =>
@@ -36,35 +36,28 @@ namespace Microsoft.Data.Entity.Query.Internal
                         ExtractQueryAnnotations(e, queryAnnotations));
             }
 
-            foreach (var resultOperator
-                in queryModel.ResultOperators
-                    .OfType<QueryAnnotationResultOperator>()
-                    .ToList())
+            foreach (var resultOperator in queryModel.ResultOperators.ToList())
             {
-                resultOperator.Annotation.QueryModel = queryModel;
+                var queryAnnotation = resultOperator as IQueryAnnotation;
 
-                var includeAnnotation = resultOperator.Annotation as IncludeQueryAnnotation;
+                if (queryAnnotation != null)
+                {
+                    queryAnnotations.Add(queryAnnotation);
 
-                resultOperator.Annotation.QuerySource
-                    = includeAnnotation != null
-                        ? ExtractSourceReferenceExpression(includeAnnotation.NavigationPropertyPath)
-                            .ReferencedQuerySource
-                        : queryModel.MainFromClause;
+                    queryAnnotation.QueryModel = queryModel;
 
-                queryAnnotations.Add(resultOperator.Annotation);
-                queryModel.ResultOperators.Remove(resultOperator);
+                    if (queryAnnotation.QuerySource == null)
+                    {
+                        queryAnnotation.QuerySource = queryModel.MainFromClause;
+                    }
+
+                    queryModel.ResultOperators.Remove(resultOperator);
+                }
             }
         }
 
-        private static QuerySourceReferenceExpression ExtractSourceReferenceExpression(MemberExpression expression)
-        {
-            var expressionWithoutConvert = expression.Expression.RemoveConvert();
-            return expressionWithoutConvert as QuerySourceReferenceExpression
-                   ?? ExtractSourceReferenceExpression((MemberExpression)expressionWithoutConvert);
-        }
-
         private static Expression ExtractQueryAnnotations(
-            Expression expression, ICollection<QueryAnnotationBase> queryAnnotations)
+            Expression expression, ICollection<IQueryAnnotation> queryAnnotations)
         {
             var subQueryExpression = expression as SubQueryExpression;
 

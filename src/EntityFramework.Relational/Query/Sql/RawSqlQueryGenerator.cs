@@ -18,31 +18,44 @@ namespace Microsoft.Data.Entity.Query.Sql
     {
         private readonly ISqlCommandBuilder _sqlCommandBuilder;
         private readonly SelectExpression _selectExpression;
-        private readonly string _sql;
-        private readonly object[] _inputParameters;
+        private readonly Expression _sql;
+        private readonly string _argumentsParameterName;
 
         public RawSqlQueryGenerator(
             [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] SelectExpression selectExpression,
-            [NotNull] string sql,
-            [NotNull] object[] parameters)
+            [NotNull] Expression sql,
+            [NotNull] string argumentsParameterName)
         {
             Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
             Check.NotNull(selectExpression, nameof(selectExpression));
             Check.NotNull(sql, nameof(sql));
-            Check.NotNull(parameters, nameof(parameters));
+            Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
 
             _sqlCommandBuilder = sqlCommandBuilder;
             _selectExpression = selectExpression;
             _sql = sql;
-            _inputParameters = parameters;
+            _argumentsParameterName = argumentsParameterName;
         }
 
-        public virtual IRelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            return _sqlCommandBuilder.Build(_sql, _inputParameters);
+            object parameterValue;
+
+            var sql
+                = (_sql as ConstantExpression)?.Value as string
+                  ?? (parameterValues.TryGetValue(
+                      ((ParameterExpression)_sql).Name, out parameterValue)
+                      ? (string)parameterValue
+                      : "?");
+
+            return _sqlCommandBuilder.Build(
+                sql,
+                parameterValues.TryGetValue(_argumentsParameterName, out parameterValue)
+                    ? (object[])parameterValue
+                    : null);
         }
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(

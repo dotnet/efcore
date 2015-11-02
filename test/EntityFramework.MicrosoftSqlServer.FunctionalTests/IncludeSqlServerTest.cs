@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         public override void Include_list()
         {
             base.Include_list();
-
+            
             Assert.Equal(
                 @"SELECT [c].[ProductID], [c].[Discontinued], [c].[ProductName], [c].[UnitsInStock]
 FROM [Products] AS [c]

@@ -43,5 +43,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 ? new IsNullExpression(newExpression)
                 : this;
         }
+
+        public override string ToString() => $"{Operand} IS NULL";
     }
 }

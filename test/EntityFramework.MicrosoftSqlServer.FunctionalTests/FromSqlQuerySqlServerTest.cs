@@ -157,13 +157,13 @@ SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = @p0 OR (""ReportsTo"" IS NULL 
 
             Assert.Equal(
                 @"@p0: London
-@__contactTitle_0: Sales Representative
+@__contactTitle_1: Sales Representative
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     SELECT * FROM ""Customers"" WHERE ""City"" = @p0
 ) AS [c]
-WHERE [c].[ContactTitle] = @__contactTitle_0",
+WHERE [c].[ContactTitle] = @__contactTitle_1",
                 Sql);
         }
 

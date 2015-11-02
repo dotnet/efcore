@@ -19,10 +19,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected TFixture Fixture { get; }
 
-        protected NorthwindContext CreateContext()
-        {
-            return Fixture.CreateContext();
-        }
+        protected NorthwindContext CreateContext() => Fixture.CreateContext();
 
         [Fact]
         public virtual void Include_reference_invalid()

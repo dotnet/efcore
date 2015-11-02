@@ -3,13 +3,14 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Query.Annotations;
+using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
     public interface IQueryAnnotationExtractor
     {
-        IReadOnlyCollection<QueryAnnotationBase> ExtractQueryAnnotations([NotNull] QueryModel queryModel);
+        IReadOnlyCollection<IQueryAnnotation> ExtractQueryAnnotations([NotNull] QueryModel queryModel);
     }
 }

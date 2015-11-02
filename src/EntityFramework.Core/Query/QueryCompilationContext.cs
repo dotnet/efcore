@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Query.ResultOperators;
+using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
 using Remotion.Linq;
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query
         private readonly IRequiresMaterializationExpressionVisitorFactory _requiresMaterializationExpressionVisitorFactory;
         private readonly IEntityQueryModelVisitorFactory _entityQueryModelVisitorFactory;
 
-        private IReadOnlyCollection<QueryAnnotationBase> _queryAnnotations;
+        private IReadOnlyCollection<IQueryAnnotation> _queryAnnotations;
         private IDictionary<IQuerySource, List<IReadOnlyList<INavigation>>> _trackableIncludes;
         private ISet<IQuerySource> _querySourcesRequiringMaterialization;
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual QuerySourceMapping QuerySourceMapping { get; } = new QuerySourceMapping();
 
-        public virtual IReadOnlyCollection<QueryAnnotationBase> QueryAnnotations
+        public virtual IReadOnlyCollection<IQueryAnnotation> QueryAnnotations
         {
             get { return _queryAnnotations; }
             [param: NotNull]
@@ -77,14 +77,10 @@ namespace Microsoft.Data.Entity.Query
             {
                 var lastTrackingModifier
                     = QueryAnnotations
-                        .OfType<QueryAnnotation>()
-                        .LastOrDefault(
-                            qa => qa.IsCallTo(EntityFrameworkQueryableExtensions.AsNoTrackingMethodInfo)
-                                  || qa.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo));
+                        .OfType<TrackingResultOperator>()
+                        .LastOrDefault();
 
-                return lastTrackingModifier
-                    ?.IsCallTo(EntityFrameworkQueryableExtensions.AsTrackingMethodInfo)
-                       ?? TrackQueryResults;
+                return lastTrackingModifier?.IsTracking ?? TrackQueryResults;
             }
         }
 
@@ -96,7 +92,7 @@ namespace Microsoft.Data.Entity.Query
 
             IsQueryBufferRequired
                 = IsTrackingQuery
-                  || QueryAnnotations.OfType<IncludeQueryAnnotation>().Any()
+                  || QueryAnnotations.OfType<IncludeResultOperator>().Any()
                   || new ShadowAccessFindingExpressionVisitor().AnyShadowAccess(queryModel);
         }
 
@@ -131,11 +127,6 @@ namespace Microsoft.Data.Entity.Query
                 return expression;
             }
         }
-
-        public virtual IEnumerable<QueryAnnotation> GetCustomQueryAnnotations([NotNull] MethodInfo methodInfo)
-            => _queryAnnotations
-                .OfType<QueryAnnotation>()
-                .Where(qa => qa.IsCallTo(Check.NotNull(methodInfo, nameof(methodInfo))));
 
         public virtual EntityQueryModelVisitor CreateQueryModelVisitor()
             => CreateQueryModelVisitor(parentEntityQueryModelVisitor: null);

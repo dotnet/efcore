@@ -147,6 +147,8 @@
     <Compile Include="Query\Internal\RelationalResultOperatorHandler.cs" />
     <Compile Include="Query\RelationalQueryModelVisitorFactory.cs" />
     <Compile Include="Query\RelationalQueryCompilationContextFactory.cs" />
+    <Compile Include="Query\ResultOperators\Internal\FromSqlExpressionNode.cs" />
+    <Compile Include="Query\ResultOperators\Internal\FromSqlResultOperator.cs" />
     <Compile Include="Query\Sql\ISqlQueryGeneratorFactory.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Operations\Builders\ColumnsBuilder.cs" />
@@ -262,7 +264,7 @@
     <Compile Include="Query\ExpressionVisitors\Internal\EqualityPredicateInExpressionOptimizer.cs" />
     <Compile Include="Query\Expressions\AggregateExpression.cs" />
     <Compile Include="Query\Expressions\AliasExpression.cs" />
-    <Compile Include="Query\Expressions\RawSqlDerivedTableExpression.cs" />
+    <Compile Include="Query\Expressions\FromSqlExpression.cs" />
     <Compile Include="Query\Expressions\DiscriminatorPredicateExpression.cs" />
     <Compile Include="Query\Expressions\InExpression.cs" />
     <Compile Include="Query\Expressions\JoinExpressionBase.cs" />

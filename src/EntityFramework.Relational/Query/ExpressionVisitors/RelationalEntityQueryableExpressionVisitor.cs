@@ -10,10 +10,10 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Query.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
+using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Microsoft.Data.Entity.Query.Sql;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
@@ -117,7 +117,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var relationalQueryCompilationContext = QueryModelVisitor.QueryCompilationContext;
             var entityType = _model.FindEntityType(elementType);
+
             var selectExpression = _selectExpressionFactory.Create();
+
+            QueryModelVisitor.AddQuery(_querySource, selectExpression);
+
             var name = _relationalAnnotationProvider.For(entityType).TableName;
 
             var tableAlias
@@ -127,12 +131,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var fromSqlAnnotation
                 = relationalQueryCompilationContext
-                    .GetCustomQueryAnnotations(RelationalQueryableExtensions.FromSqlMethodInfo)
+                    .QueryAnnotations
+                    .OfType<FromSqlResultOperator>()
                     .LastOrDefault(a => a.QuerySource == _querySource);
 
-            var composable = true;
-            var sqlString = "";
-            object[] sqlParameters = null;
+            Func<ISqlQueryGenerator> sqlQueryGeneratorFunc = selectExpression.CreateGenerator;
 
             if (fromSqlAnnotation == null)
             {
@@ -145,42 +148,67 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             }
             else
             {
-                sqlString = (string)fromSqlAnnotation.Arguments[1];
-                sqlParameters = (object[])fromSqlAnnotation.Arguments[2];
-
                 selectExpression.AddTable(
-                    new RawSqlDerivedTableExpression(
-                        sqlString,
-                        sqlParameters,
+                    new FromSqlExpression(
+                        fromSqlAnnotation.Sql,
+                        fromSqlAnnotation.ArgumentsParameterName,
                         tableAlias,
                         _querySource));
 
-                var sqlStart = sqlString.SkipWhile(char.IsWhiteSpace).Take(7).ToArray();
+                var useQueryComposition = false;
+                var sqlConstantExpression = fromSqlAnnotation.Sql as ConstantExpression;
 
-                if (sqlStart.Length != 7
-                    || !char.IsWhiteSpace(sqlStart.Last())
-                    || !new string(sqlStart).StartsWith("SELECT", StringComparison.OrdinalIgnoreCase))
+                if (sqlConstantExpression != null)
                 {
-                    if (relationalQueryCompilationContext.QueryAnnotations
-                        .OfType<IncludeQueryAnnotation>().Any())
-                    {
-                        throw new InvalidOperationException(RelationalStrings.StoredProcedureIncludeNotSupported);
-                    }
+                    var fromSql = (string)sqlConstantExpression.Value;
 
-                    QueryModelVisitor.RequiresClientEval = true;
-
-                    composable = false;
+                    useQueryComposition
+                        = fromSql
+                            .TrimStart()
+                            .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
                 }
 
-                if (fromSqlAnnotation.QueryModel.IsIdentityQuery()
+                if (!useQueryComposition)
+                {
+                    if (relationalQueryCompilationContext.QueryAnnotations
+                        .OfType<IncludeResultOperator>().Any())
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureIncludeNotSupported);
+                    }
+                }
+
+                if (useQueryComposition
+                    && fromSqlAnnotation.QueryModel.IsIdentityQuery()
                     && !fromSqlAnnotation.QueryModel.ResultOperators.Any())
                 {
-                    composable = false;
+                    useQueryComposition = false;
+                }
+
+                if (!useQueryComposition)
+                {
+                    QueryModelVisitor.RequiresClientEval = true;
+
+                    sqlQueryGeneratorFunc = ()
+                        => selectExpression.CreateRawCommandGenerator(
+                            fromSqlAnnotation.Sql,
+                            fromSqlAnnotation.ArgumentsParameterName);
                 }
             }
 
-            QueryModelVisitor.AddQuery(_querySource, selectExpression);
+            var shaper = CreateShaper(elementType, entityType, selectExpression);
 
+            return Expression.Call(
+                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
+                    .ShapedQueryMethod
+                    .MakeGenericMethod(shaper.Type),
+                EntityQueryModelVisitor.QueryContextParameter,
+                Expression.Constant(_commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
+                Expression.Constant(shaper));
+        }
+
+        private Shaper CreateShaper(Type elementType, IEntityType entityType, SelectExpression selectExpression)
+        {
             Shaper shaper;
 
             if (QueryModelVisitor.QueryCompilationContext
@@ -216,27 +244,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 shaper = new ValueBufferShaper(_querySource);
             }
 
-            Func<ISqlQueryGenerator> sqlQueryGeneratorFunc;
-
-            if (composable)
-            {
-                sqlQueryGeneratorFunc = selectExpression.CreateGenerator;
-            }
-            else
-            {
-                sqlQueryGeneratorFunc = () =>
-                    selectExpression.CreateRawCommandGenerator(
-                        sqlString,
-                        sqlParameters);
-            }
-
-            return Expression.Call(
-                QueryModelVisitor.QueryCompilationContext.QueryMethodProvider // TODO: Don't use ShapedQuery when projecting
-                    .ShapedQueryMethod
-                    .MakeGenericMethod(shaper.Type),
-                EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(_commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
-                Expression.Constant(shaper));
+            return shaper;
         }
 
         private static readonly MethodInfo _createEntityShaperMethodInfo

@@ -325,6 +325,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private DbCommand CreateCommand(IRelationalConnection connection)
         {
             var command = connection.DbConnection.CreateCommand();
+
             command.CommandText = CommandText;
 
             if (connection.Transaction != null)

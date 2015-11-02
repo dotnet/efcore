@@ -4,28 +4,33 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Internal;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
 {
-    public class QueryAnnotationExpressionNode : ResultOperatorExpressionNodeBase
+    public class FromSqlExpressionNode : ResultOperatorExpressionNodeBase
     {
-        public static readonly MethodInfo[] SupportedMethods = { QueryAnnotationExtensions.QueryAnnotationMethodInfo };
+        public static readonly MethodInfo[] SupportedMethods =
+        {
+            RelationalQueryableExtensions.FromSqlMethodInfo
+        };
 
-        private readonly ConstantExpression _annotationExpression;
+        private readonly Expression _sql;
+        private readonly string _argumentsParameterName;
 
-        public QueryAnnotationExpressionNode(
+        public FromSqlExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
-            [NotNull] ConstantExpression annotationExpression)
+            [NotNull] Expression sql,
+            [NotNull] ParameterExpression arguments)
             : base(parseInfo, null, null)
         {
-            _annotationExpression = annotationExpression;
+            _sql = sql;
+            _argumentsParameterName = arguments.Name;
         }
 
         protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
-            => new QueryAnnotationResultOperator(_annotationExpression);
+            => new FromSqlResultOperator(_sql, _argumentsParameterName);
 
         public override Expression Resolve(
             ParameterExpression inputParameter,

@@ -266,8 +266,6 @@
     <Compile Include="Metadata\Internal\IMemberMapper.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="QueryTrackingBehavior.cs" />
-    <Compile Include="Query\Annotations\QueryAnnotation.cs" />
-    <Compile Include="Query\Annotations\IncludeQueryAnnotation.cs" />
     <Compile Include="EF.cs" />
     <Compile Include="Query\CompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\EntityQueryModelVisitorFactory.cs" />
@@ -280,7 +278,6 @@
     <Compile Include="Query\ExpressionVisitors\Internal\OrderingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\ParameterExtractingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\ProjectionExpressionVisitorFactory.cs" />
-    <Compile Include="Query\ExpressionVisitors\Internal\QueryAnnotatingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\QuerySourceTracingExpressionVisitor.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\QuerySourceTracingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\Internal\ReducingExpressionVisitor.cs" />
@@ -321,12 +318,12 @@
     <Compile Include="Query\IIncludableQueryable.cs" />
     <Compile Include="Query\Internal\IExpressionPrinter.cs" />
     <Compile Include="Query\Internal\IQueryOptimizer.cs" />
-    <Compile Include="Query\QueryableHelpers.cs" />
-    <Compile Include="Query\QueryAnnotationMethodAttribute.cs" />
     <Compile Include="Query\Internal\QueryCompiler.cs" />
     <Compile Include="Query\ResultOperators\Internal\IncludeExpressionNode.cs" />
-    <Compile Include="Query\ResultOperators\Internal\QueryAnnotationExpressionNode.cs" />
-    <Compile Include="Query\ResultOperators\Internal\QueryAnnotationResultOperator.cs" />
+    <Compile Include="Query\ResultOperators\Internal\IncludeResultOperator.cs" />
+    <Compile Include="Query\ResultOperators\Internal\TrackingExpressionNode.cs" />
+    <Compile Include="Query\ResultOperators\IQueryAnnotation.cs" />
+    <Compile Include="Query\ResultOperators\Internal\TrackingResultOperator.cs" />
     <Compile Include="Query\ResultOperators\Internal\ThenIncludeExpressionNode.cs" />
     <Compile Include="Query\QuerySourceExtensions.cs" />
     <Compile Include="DbSet`.cs" />
@@ -354,8 +351,6 @@
     <Compile Include="Query\ExpressionVisitors\ProjectionExpressionVisitor.cs" />
     <Compile Include="Query\IncludeSpecification.cs" />
     <Compile Include="Query\IQueryContextFactory.cs" />
-    <Compile Include="Query\Annotations\QueryAnnotationBase.cs" />
-    <Compile Include="Internal\QueryAnnotationExtensions.cs" />
     <Compile Include="Query\QueryContextFactory.cs" />
     <Compile Include="Query\Internal\IQueryBuffer.cs" />
     <Compile Include="Storage\DatabaseErrorLogState.cs" />

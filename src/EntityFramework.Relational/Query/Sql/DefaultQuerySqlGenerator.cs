@@ -166,22 +166,15 @@ namespace Microsoft.Data.Entity.Query.Sql
                         = new NullComparisonTransformingVisitor(_parameterValues)
                             .Visit(selectExpression.Predicate);
 
-                    // we have to optimize out comparisons to null-valued parameters before we can expand null semantics 
-                    if (_parameterValues.Count > 0)
-                    {
-                        var optimizedNullExpansionVisitor = new RelationalNullsOptimizedExpandingVisitor();
-                        var relationalNullsExpandedOptimized = optimizedNullExpansionVisitor.Visit(predicate);
-                        if (optimizedNullExpansionVisitor.OptimizedExpansionPossible)
-                        {
-                            predicate = relationalNullsExpandedOptimized;
-                        }
-                        else
-                        {
-                            predicate = new RelationalNullsExpandingVisitor()
-                                .Visit(predicate);
-                        }
-                    }
+                    var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
+                    var newPredicate = relationalNullsOptimizedExpandingVisitor.Visit(predicate);
 
+                    predicate
+                        = relationalNullsOptimizedExpandingVisitor.IsOptimalExpansion
+                            ? newPredicate
+                            : new RelationalNullsExpandingVisitor().Visit(predicate);
+
+                    predicate = new PredicateNegationExpressionOptimizer().Visit(predicate);
                     predicate = new ReducingExpressionVisitor().Visit(predicate);
 
                     Visit(predicate);
@@ -199,6 +192,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             if (selectExpression.OrderBy.Any())
             {
                 _sql.AppendLine();
+
                 GenerateOrderBy(selectExpression.OrderBy);
             }
 
@@ -280,36 +274,57 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
         }
 
-        public virtual Expression VisitRawSqlDerivedTable(RawSqlDerivedTableExpression rawSqlDerivedTableExpression)
+        public virtual Expression VisitFromSql(FromSqlExpression fromSqlExpression)
         {
-            Check.NotNull(rawSqlDerivedTableExpression, nameof(rawSqlDerivedTableExpression));
+            Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
 
             _sql.AppendLine("(");
 
             using (_sql.Indent())
             {
-                var substitutions = new string[rawSqlDerivedTableExpression.Parameters.Length];
+                var fromSql = (fromSqlExpression.Sql as ConstantExpression)?.Value as string;
 
-                for (var index = 0; index < substitutions.Length; index++)
+                object parameterValue;
+
+                if (fromSql == null)
                 {
-                    substitutions[index] =
-                        _sqlGenerator.GenerateParameterName(
-                            ParameterNameGenerator.GenerateNext());
+                    var sqlParameterExpression = (ParameterExpression)fromSqlExpression.Sql;
 
-                    _sql.AddParameter(
-                        substitutions[index],
-                        rawSqlDerivedTableExpression.Parameters[index]);
+                    fromSql
+                        = _parameterValues.TryGetValue(sqlParameterExpression.Name, out parameterValue)
+                            ? (string)parameterValue
+                            : sqlParameterExpression.Name;
                 }
 
-                _sql.AppendLines(
-                    // ReSharper disable once CoVariantArrayConversion
-                    string.Format(rawSqlDerivedTableExpression.Sql, substitutions));
+                if (_parameterValues
+                    .TryGetValue(fromSqlExpression.ArgumentsParameterName, out parameterValue))
+                {
+                    var arguments = (object[])parameterValue;
+                    var substitutions = new string[arguments.Length];
+
+                    for (var index = 0; index < substitutions.Length; index++)
+                    {
+                        substitutions[index]
+                            = _sqlGenerator.GenerateParameterName(
+                                ParameterNameGenerator.GenerateNext());
+
+                        _sql.AddParameter(substitutions[index], arguments[index]);
+                    }
+
+                    _sql.AppendLines(
+                        // ReSharper disable once CoVariantArrayConversion
+                        string.Format(fromSql, substitutions));
+                }
+                else
+                {
+                    _sql.AppendLines(fromSql);
+                }
             }
 
             _sql.Append(") AS ")
-                .Append(_sqlGenerator.DelimitIdentifier(rawSqlDerivedTableExpression.Alias));
+                .Append(_sqlGenerator.DelimitIdentifier(fromSqlExpression.Alias));
 
-            return rawSqlDerivedTableExpression;
+            return fromSqlExpression;
         }
 
         public virtual Expression VisitTable(TableExpression tableExpression)
@@ -402,7 +417,9 @@ namespace Microsoft.Data.Entity.Query.Sql
         public virtual Expression VisitStringCompare(StringCompareExpression stringCompareExpression)
         {
             Visit(stringCompareExpression.Left);
+
             _sql.Append(GenerateBinaryOperator(stringCompareExpression.Operator));
+
             Visit(stringCompareExpression.Right);
 
             return stringCompareExpression;
@@ -417,11 +434,12 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (inValues.Count != inValuesNotNull.Count)
                 {
-                    var relatioalNullsInExpression = Expression.OrElse(
-                        new InExpression(inExpression.Operand, inValuesNotNull),
-                        new IsNullExpression(inExpression.Operand));
+                    var relationalNullsInExpression
+                        = Expression.OrElse(
+                            new InExpression(inExpression.Operand, inValuesNotNull),
+                            new IsNullExpression(inExpression.Operand));
 
-                    return Visit(relatioalNullsInExpression);
+                    return Visit(relationalNullsInExpression);
                 }
 
                 if (inValuesNotNull.Count > 0)
@@ -539,19 +557,24 @@ namespace Microsoft.Data.Entity.Query.Sql
             [NotNull] IReadOnlyList<Expression> inExpressionValues)
         {
             var inValuesNotNull = new List<Expression>();
+
             foreach (var inValue in inExpressionValues)
             {
                 var inConstant = inValue as ConstantExpression;
+
                 if (inConstant?.Value != null)
                 {
                     inValuesNotNull.Add(inValue);
+
                     continue;
                 }
 
                 var inParameter = inValue as ParameterExpression;
+
                 if (inParameter != null)
                 {
                     object parameterValue;
+
                     if (_parameterValues.TryGetValue(inParameter.Name, out parameterValue))
                     {
                         if (parameterValue != null)

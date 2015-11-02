@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TFixture : NorthwindQueryFixtureBase, new()
     {
         [Fact]
-        public virtual void Entity_not_added_to_state_manager()
+        public virtual void Entity_added_to_state_manager()
         {
             using (var context = CreateContext())
             {

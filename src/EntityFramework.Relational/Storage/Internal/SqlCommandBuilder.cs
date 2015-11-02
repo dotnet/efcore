@@ -28,8 +28,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         }
 
         public virtual IRelationalCommand Build(
-            [NotNull] string sql,
-            [CanBeNull] IReadOnlyList<object> parameters = null)
+            string sql, IReadOnlyList<object> parameters = null)
         {
             Check.NotEmpty(sql, nameof(sql));
 
@@ -52,6 +51,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                         parameters[index]);
                 }
 
+                // ReSharper disable once CoVariantArrayConversion
                 sql = string.Format(sql, substitutions);
             }
 
