@@ -24,6 +24,35 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class SqlServerEntityFrameworkServicesBuilderExtensions
     {
+        /// <summary>
+        ///     <para>
+        ///         Adds the services required by the Microsoft SQL Server database provider for Entity Framework 
+        ///         to an <see cref="IServiceCollection" />. You use this method when using dependency injection 
+        ///         in your application, such as with ASP.NET. For more information on setting up dependency 
+        ///         injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
+        ///     </para>
+        ///     <para>
+        ///         You only need to use this functionality when you want Entity Framework to resolve the services it uses
+        ///         from an external <see cref="IServiceCollection" />. If you are not using an external
+        ///         <see cref="IServiceCollection" /> Entity Framework will take care of creating the services it requires.
+        ///     </para>
+        /// </summary>
+        /// <example>
+        ///     <code>
+        ///         public void ConfigureServices(IServiceCollection services) 
+        ///         {
+        ///             var connectionString = "connection string to database";
+        /// 
+        ///             services.AddEntityFramework() 
+        ///                 .AddSqlServer()
+        ///                 .AddDbContext&lt;MyContext&gt;(options => options.UseSqlServer(connectionString)); 
+        ///         }
+        ///     </code>
+        /// </example>
+        /// <param name="serviceCollection"> The <see cref="IServiceCollection" /> to add services to. </param>
+        /// <returns>
+        ///     A builder that allows further Entity Framework specific setup of the <see cref="IServiceCollection" />.
+        /// </returns>
         public static EntityFrameworkServicesBuilder AddSqlServer([NotNull] this EntityFrameworkServicesBuilder builder)
         {
             Check.NotNull(builder, nameof(builder));

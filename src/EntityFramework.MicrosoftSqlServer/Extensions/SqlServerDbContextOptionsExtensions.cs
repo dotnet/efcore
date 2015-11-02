@@ -13,6 +13,12 @@ namespace Microsoft.Data.Entity
 {
     public static class SqlServerDbContextOptionsExtensions
     {
+        /// <summary>
+        ///     Configures the context to connect to a Microsoft SQL Server database.
+        /// </summary>
+        /// <param name="optionsBuilder"> The options for the context. </param>
+        /// <param name="connectionString"> The connection string of the database to connect to. </param>
+        /// <returns> An options builder to allow additional SQL Server specific configuration. </returns>
         public static SqlServerDbContextOptionsBuilder UseSqlServer(
             [NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString)
         {
@@ -27,6 +33,16 @@ namespace Microsoft.Data.Entity
         }
 
         // Note: Decision made to use DbConnection not SqlConnection: Issue #772
+        /// <summary>
+        ///     Configures the context to connect to a Microsoft SQL Server database.
+        /// </summary>
+        /// <param name="optionsBuilder"> The options for the context. </param>
+        /// <param name="connection"> 
+        ///     An existing <see cref="DbConnection"/> to be used to connect to the database. If the connection is
+        ///     in the open state then EF will not open or close the connection. If the connection is in the closed
+        ///     state then EF will open and close the connection as needed.
+        /// </param>
+        /// <returns> An options builder to allow additional SQL Server specific configuration. </returns>
         public static SqlServerDbContextOptionsBuilder UseSqlServer(
             [NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection)
         {
