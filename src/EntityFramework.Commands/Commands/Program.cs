@@ -22,11 +22,12 @@ namespace Microsoft.Data.Entity.Commands
 {
     public class Program
     {
-        private static readonly bool _useConsoleColors;
+        private static readonly AnsiConsole _ansiConsole;
 
         static Program()
         {
-            _useConsoleColors = PlatformServices.Default.Runtime.OperatingSystem == "Windows";
+            var useConsoleColors = PlatformServices.Default.Runtime.OperatingSystem == "Windows";
+            _ansiConsole = AnsiConsole.GetOutput(useConsoleColors);
         }
 
         public static int Main([NotNull] string[] args)
@@ -408,7 +409,7 @@ namespace Microsoft.Data.Entity.Commands
         }
 
         private static void ShowLogo()
-            => AnsiConsole.GetOutput(_useConsoleColors).WriteLine(
+            => _ansiConsole.WriteLine(
                 "\x1b[1m\x1b[37m" + Environment.NewLine +
                 "                     _/\\__" + Environment.NewLine +
                 "               ---==/    \\\\" + Environment.NewLine +
@@ -422,12 +423,7 @@ namespace Microsoft.Data.Entity.Commands
             => new Executor(targetProject, environment, verbose);
 
         private static void LogError(string format, params object[] arg)
-        {
-            using (new ColorScope(ConsoleColor.Red))
-            {
-                Console.WriteLine(format, arg);
-            }
-        }
+            => _ansiConsole.WriteLine("\x1b[1m\x1b[31m" + string.Format(format, arg) + "\x1b[22m\x1b[39m");
 
         private static bool ValidateProject(string targetProject)
         {
@@ -462,7 +458,7 @@ namespace Microsoft.Data.Entity.Commands
                 var appEnv = PlatformServices.Default.Application;
                 var libraryManager = PlatformServices.Default.LibraryManager;
 
-                var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose));
+                var loggerProvider = new LoggerProvider(name => new ConsoleCommandLogger(name, verbose, _ansiConsole));
                 _logger = new LazyRef<ILogger>(() => loggerProvider.CreateCommandsLogger());
 
                 var targetName = !string.IsNullOrEmpty(targetProject)
