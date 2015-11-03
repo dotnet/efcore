@@ -81,7 +81,6 @@
     <Compile Include="..\Shared\Check.cs">
       <Link>Utilities\Check.cs</Link>
     </Compile>
-    <Compile Include="Design\Internal\ColorScope.cs" />
     <Compile Include="Design\Internal\CommandLogger.cs" />
     <Compile Include="Design\Internal\CommandLoggerAdapter.cs" />
     <Compile Include="Design\Internal\ConsoleCommandLogger.cs" />
