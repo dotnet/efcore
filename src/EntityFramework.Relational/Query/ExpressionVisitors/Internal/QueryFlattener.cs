@@ -62,9 +62,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     innerEntityShaper.AllowNullResult = true;
                 }
 
-                var materializer
-                    = ((LambdaExpression)methodCallExpression.Arguments.Last()).Compile();
-
+                var materializerLambda = (LambdaExpression)methodCallExpression.Arguments.Last();
+                var materializerReturnType = materializerLambda.ReturnType;
+                var materializer = materializerLambda.Compile();
+                
                 if (_operatorToFlatten.Name != "_GroupJoin")
                 {
                     var compositeShaper
@@ -72,7 +73,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             .MakeGenericMethod(
                                 outerShaper.Type,
                                 innerShaper.Type,
-                                materializer.Method.ReturnType)
+                                materializerReturnType)
                             .Invoke(
                                 null,
                                 new object[]
@@ -86,7 +87,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     return Expression.Call(
                         outerShapedQuery.Method
                             .GetGenericMethodDefinition()
-                            .MakeGenericMethod(materializer.Method.ReturnType),
+                            .MakeGenericMethod(materializerReturnType),
                         outerShapedQuery.Arguments[0],
                         outerShapedQuery.Arguments[1],
                         Expression.Constant(compositeShaper));
@@ -99,7 +100,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             outerShaper.Type,
                             innerShaper.Type,
                             ((LambdaExpression)methodCallExpression.Arguments[2]).ReturnType,
-                            materializer.Method.ReturnType);
+                            materializerReturnType);
 
                 var newShapedQueryMethod
                     = Expression.Call(
