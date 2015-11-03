@@ -94,5 +94,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         protected override Expression VisitLambda<T>(Expression<T> expression) => expression;
 
         protected override Expression VisitInvocation(InvocationExpression expression) => expression;
+
+        protected override Expression VisitMethodCall(MethodCallExpression expression)
+        {
+            var isPropertyMethod = expression.Method.IsGenericMethod
+                && expression.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo;
+
+            return isPropertyMethod ? expression : base.VisitMethodCall(expression);
+        }
     }
 }

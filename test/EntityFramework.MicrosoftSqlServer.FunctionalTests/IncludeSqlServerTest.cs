@@ -899,6 +899,16 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void Include_with_complex_projection()
+        {
+            base.Include_with_complex_projection();
+
+            Assert.Equal(
+                @"SELECT [o].[CustomerID]
+FROM [Orders] AS [o]",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }
