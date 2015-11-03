@@ -4,11 +4,12 @@
 using System;
 using System.Data;
 using System.Data.Common;
-#if NETCORE50
-using System.Diagnostics;
 using System.IO;
+#if NETCORE50
 using System.Reflection;
 using Microsoft.Data.Sqlite.Utilities;
+#else
+using Microsoft.Extensions.PlatformAbstractions;
 #endif
 using Microsoft.Data.Sqlite.Interop;
 
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Sqlite
     /// <summary>
     /// Represents a connection with a SQLite database.
     /// </summary>
-    public class SqliteConnection : DbConnection
+    public partial class SqliteConnection : DbConnection
     {
         private const string MainDatabaseName = "main";
 
@@ -96,7 +97,12 @@ namespace Microsoft.Data.Sqlite
             var flags = Constants.SQLITE_OPEN_READWRITE | Constants.SQLITE_OPEN_CREATE;
             flags |= (ConnectionStringBuilder.Cache == SqliteConnectionCacheMode.Shared) ? Constants.SQLITE_OPEN_SHAREDCACHE : Constants.SQLITE_OPEN_PRIVATECACHE;
 
-            var path = AdjustForRelativeDirectory(ConnectionStringBuilder.DataSource);
+            var path = ConnectionStringBuilder.DataSource;
+
+            if (!path.Equals(":memory:", StringComparison.OrdinalIgnoreCase))
+            {
+                path = AdjustForRelativeDirectory(path);
+            }
 
             var rc = NativeMethods.sqlite3_open_v2(path, out _db, flags, vfs: null);
             MarshalEx.ThrowExceptionForRC(rc, _db);
@@ -105,52 +111,71 @@ namespace Microsoft.Data.Sqlite
             SetFolders();
         }
 
-#if !NETCORE50
-        private void SetFolders() { }
+        partial void SetFolders();
 
-        private string AdjustForRelativeDirectory(string path)
-            => path;
-#else
-        private string AdjustForRelativeDirectory(string path)
+#if NETCORE50
+        partial void SetFolders()
         {
-            var appData = GetApplicationData();
-            try
+            if (TemporaryFolderPath != null)
             {
-                if (appData == null || Path.IsPathRooted(path))
+                DbConnectionExtensions.ExecuteNonQuery(this, "PRAGMA temp_store_directory = '" + TemporaryFolderPath + "'");
+            }
+        }
+        
+        private readonly static string DefaultBasePath = AppData?.LocalFolder.Path;
+        private readonly static string TemporaryFolderPath = AppData?.TemporaryFolder.Path;
+
+        private static dynamic AppData
+        {
+            get
+            {
+                var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime", throwOnError: false);
+                var appData = (dynamic)appDataType?.GetTypeInfo()
+                    .GetDeclaredProperty("Current").GetMethod.Invoke(null, null);
+                return appData;
+            }
+        }
+#else
+        private readonly static string DefaultBasePath = PlatformServices.Default.Application.ApplicationBasePath;
+#endif
+
+        internal static string AdjustForRelativeDirectory(string path)
+        {
+            if (DefaultBasePath == null)
+            {
+                return path;
+            }
+
+            if (path.StartsWith("file:"))
+            {
+#if NETCORE50
+                // UWP cannot adjust for URI on UWP
+                return path;
+#else
+                // is this already absolute?
+                if (path.StartsWith("file:/"))
                 {
                     return path;
                 }
-
-                return Path.GetFullPath(Path.Combine(appData.LocalFolder.Path, path));
-            }
-            catch (NotSupportedException)
-            {
-                Debug.WriteLine("Could not adjust relative path for use on UWP.");
-            }
-            return path;
-        }
-
-        private void SetFolders()
-        {
-            var appData = GetApplicationData();
-
-            if (appData == null)
-            {
-                return;
-            }
-
-            var commandText = "PRAGMA temp_store_directory = '" + appData.TemporaryFolder.Path + "'";
-            DbConnectionExtensions.ExecuteNonQuery(this, commandText);
-        }
-
-        private static dynamic GetApplicationData()
-        {
-            var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime", throwOnError: false);
-            var appData = (dynamic)appDataType?.GetTypeInfo()
-                .GetDeclaredProperty("Current").GetMethod.Invoke(null, null);
-            return appData;
-        }
+                var prefix = PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase) ? "file:///" : "file://";
+                return prefix + DefaultBasePath + "/" + path.Replace("file:", "");
 #endif
+            }
+
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            try
+            {
+                return Path.GetFullPath(Path.Combine(DefaultBasePath, path));
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is NotSupportedException)
+            {
+                return path;
+            }
+        }
 
         public override void Close()
         {

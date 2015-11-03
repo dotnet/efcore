@@ -4,6 +4,9 @@
 using System;
 using System.Data;
 using System.IO;
+#if !NETCORE50
+using Microsoft.Extensions.PlatformAbstractions;
+#endif
 using Microsoft.AspNet.Testing.xunit;
 using Xunit;
 
@@ -103,6 +106,32 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Equal(Strings.OpenRequiresSetConnectionString, ex.Message);
         }
+
+#if !NETCORE50
+        [Fact]
+        public void Open_adjusts_relative_path()
+        {
+            var connection = new SqliteConnection("Filename=./local.db");
+            connection.Open();
+            Assert.Equal(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, "local.db"), connection.DataSource);
+        }
+
+        [Theory]
+        [InlineData("file:data.db","file://{relativePath}/data.db")]
+        [InlineData("file:data.db?mode=ro&cache=private", "file://{relativePath}/data.db?mode=ro&cache=private")]
+        [InlineData("file:/home/data.db", "file:/home/data.db")]
+        public void AdjustForRelativeDirectory_handles_uri_format(string inputPath, string adjustedPath)
+        {
+            var relativePath = PlatformServices.Default.Application.ApplicationBasePath;
+            if(PlatformServices.Default.Runtime.OperatingSystem == "Windows")
+            {
+                relativePath = "/" + relativePath;
+            }
+
+            var expected = adjustedPath.Replace("{relativePath}", relativePath);
+            Assert.Equal(expected, SqliteConnection.AdjustForRelativeDirectory(inputPath));
+        }
+#endif
 
         [Fact]
         public void Open_throws_when_error()

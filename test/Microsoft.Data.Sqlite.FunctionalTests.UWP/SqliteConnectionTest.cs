@@ -3,6 +3,7 @@
 
 #if WINDOWS_UWP
 
+using System;
 using System.IO;
 using Windows.Storage;
 using Xunit;
@@ -21,6 +22,12 @@ namespace Microsoft.Data.Sqlite.Tests
             var connectionString = "Filename=" + relativePath;
 
             AssertConnectionOpens(connectionString, expectedPath);
+        }
+
+        [Fact]
+        public void Open_fails_with_file_uri()
+        {
+            Assert.Throws<SqliteException>(() => new SqliteConnection("Filename=file:test.db").Open());
         }
 
         [Fact]
