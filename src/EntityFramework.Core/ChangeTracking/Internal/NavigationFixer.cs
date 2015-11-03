@@ -166,9 +166,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
         }
 
-        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState)
+        public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup)
         {
-            if (oldState == EntityState.Detached)
+            if (oldState == EntityState.Detached
+                && !skipInitialFixup)
             {
                 PerformFixup(() => InitialFixup(entry));
             }

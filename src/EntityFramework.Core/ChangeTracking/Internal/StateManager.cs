@@ -54,18 +54,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             Context = context;
         }
 
+        public virtual bool? SingleQueryMode { get; set; }
+
         public virtual IInternalEntityEntryNotifier Notify { get; }
 
         public virtual IValueGenerationManager ValueGeneration { get; }
-
-        public virtual InternalEntityEntry CreateNewEntry(IEntityType entityType)
-        {
-            // TODO: Consider entities without parameterless constructor--use o/c mapping info?
-            // Issue #240
-            var entity = entityType.HasClrType() ? Activator.CreateInstance(entityType.ClrType) : null;
-
-            return _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
-        }
 
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
         {
@@ -88,6 +81,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
                 }
 
+                SingleQueryMode = false;
+
                 var entityType = _model.FindEntityType(entity.GetType());
 
                 entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
@@ -98,7 +93,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual InternalEntityEntry StartTracking(
-            IEntityType entityType, IKeyValue keyValue, object entity, ValueBuffer valueBuffer)
+            IEntityType entityType, 
+            IKeyValue keyValue, 
+            object entity, 
+            ValueBuffer valueBuffer,
+            EntityTrackingSource entityTrackingSource)
         {
             if (keyValue == KeyValue.InvalidKeyValue)
             {
@@ -115,6 +114,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 return existingEntry;
             }
+
+            if (entityTrackingSource != EntityTrackingSource.ContinuingQuery)
+            {
+                SingleQueryMode = entityTrackingSource == EntityTrackingSource.NewQuery
+                                   && SingleQueryMode == null;
+            }
+
+            Debug.Assert(SingleQueryMode != null);
 
             var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer), valueBuffer);
 

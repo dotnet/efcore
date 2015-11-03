@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         public virtual IQuerySource QuerySource => QuerySourceReferenceExpression.ReferencedQuerySource;
 
         public virtual void StartTracking(
-            [NotNull] IStateManager stateManager, [NotNull] object entity, ValueBuffer valueBuffer)
+            [NotNull] IStateManager stateManager, [NotNull] object entity, ValueBuffer valueBuffer, EntityTrackingSource entityTrackingSource)
         {
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(entity, nameof(entity));
@@ -80,7 +80,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                 _entityType,
                 _keyValueFactory.Create(valueBuffer),
                 entity,
-                valueBuffer);
+                valueBuffer,
+                entityTrackingSource);
         }
 
         public class IncludedEntityTrackingInfo
@@ -119,7 +120,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             private IncludedEntityTrackingInfo IncludedEntityTrackingInfo { get; }
 
-            public void StartTracking([NotNull] IStateManager stateManager, ValueBuffer valueBuffer)
+            public void StartTracking([NotNull] IStateManager stateManager, ValueBuffer valueBuffer, EntityTrackingSource entityTrackingSource)
             {
                 Check.NotNull(stateManager, nameof(stateManager));
 
@@ -127,7 +128,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                     IncludedEntityTrackingInfo.EntityType,
                     IncludedEntityTrackingInfo.CreateKeyValue(valueBuffer),
                     Entity,
-                    valueBuffer);
+                    valueBuffer,
+                    entityTrackingSource);
             }
         }
 

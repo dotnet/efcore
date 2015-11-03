@@ -32,6 +32,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private int _identityMapGarbageCollectionIterations;
 
+        private EntityTrackingSource _entityTrackingSource = EntityTrackingSource.NewQuery;
+
         public QueryBuffer(
             [NotNull] IStateManager stateManager,
             [NotNull] IKeyValueFactorySource keyValueFactorySource)
@@ -130,7 +132,9 @@ namespace Microsoft.Data.Entity.Query.Internal
             if (_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
             {
                 entityTrackingInfo
-                    .StartTracking(_stateManager, entity, (ValueBuffer)boxedValueBuffer);
+                    .StartTracking(_stateManager, entity, (ValueBuffer)boxedValueBuffer, _entityTrackingSource);
+
+                _entityTrackingSource = EntityTrackingSource.ContinuingQuery;
             }
 
             foreach (var includedEntity 
@@ -138,7 +142,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                     .Where(includedEntity
                         => _valueBuffers.TryGetValue(includedEntity.Entity, out boxedValueBuffer)))
             {
-                includedEntity.StartTracking(_stateManager, (ValueBuffer)boxedValueBuffer);
+                includedEntity.StartTracking(_stateManager, (ValueBuffer)boxedValueBuffer, _entityTrackingSource);
+
+                _entityTrackingSource = EntityTrackingSource.ContinuingQuery;
             }
         }
 

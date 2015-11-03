@@ -43,12 +43,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityKey = new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
+            stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer, EntityTrackingSource.NonQuery);
 
             Assert.Equal(
                 CoreStrings.IdentityConflict("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer)).Message);
+                    () => stateManager.StartTracking(
+                        categoryType,
+                        entityKey,
+                        new Category { Id = 77 },
+                        valueBuffer,
+                        EntityTrackingSource.NonQuery)).Message);
         }
 
         [Fact]
@@ -62,9 +67,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entityKey = new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer);
+            var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer, EntityTrackingSource.NonQuery);
 
-            Assert.Same(entry, stateManager.StartTracking(categoryType, entityKey, category, valueBuffer));
+            Assert.Same(entry, stateManager.StartTracking(categoryType, entityKey, category, valueBuffer, EntityTrackingSource.NonQuery));
         }
 
         [Fact]
@@ -79,43 +84,177 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Equal(
                 CoreStrings.InvalidPrimaryKey("Category"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, KeyValue.InvalidKeyValue, new Category { Id = 0 }, valueBuffer)).Message);
+                    () => stateManager.StartTracking(
+                        categoryType,
+                        KeyValue.InvalidKeyValue,
+                        new Category { Id = 0 },
+                        valueBuffer,
+                        EntityTrackingSource.NonQuery)).Message);
         }
 
         [Fact]
-        public void Can_explicitly_create_new_entry_for_shadow_state_entity()
+        public void State_manager_switches_out_of_single_query_mode_when_second_query_begins()
         {
             var model = BuildModel();
+            var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
-            var entityType = model.FindEntityType("Location");
-            var entry = stateManager.CreateNewEntry(entityType);
-            entry[entityType.FindPrimaryKey().Properties.Single()] = 42;
 
-            Assert.Equal(EntityState.Detached, entry.EntityState);
-            Assert.Null(entry.Entity);
-            Assert.Equal(0, stateManager.Entries.Count());
+            Assert.Null(stateManager.SingleQueryMode);
 
-            stateManager.StartTracking(entry);
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77),
+                new Category { Id = 77 },
+                new ValueBuffer(new object[] { 77, "Bjork", null }),
+                EntityTrackingSource.NewQuery);
 
-            Assert.Equal(1, stateManager.Entries.Count());
+            Assert.True(stateManager.SingleQueryMode);
+
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 78),
+                new Category { Id = 78 },
+                new ValueBuffer(new object[] { 78, "Beck", null }),
+                EntityTrackingSource.ContinuingQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 79),
+                new Category { Id = 79 },
+                new ValueBuffer(new object[] { 79, "Bush", null }),
+                EntityTrackingSource.NewQuery);
+
+            Assert.False(stateManager.SingleQueryMode);
         }
 
         [Fact]
-        public void Can_explicitly_create_new_entry_for_normal_state_entity()
+        public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Modified()
         {
             var model = BuildModel();
+            var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var entry = stateManager.CreateNewEntry(model.FindEntityType(typeof(Category)));
+            Assert.Null(stateManager.SingleQueryMode);
 
-            Assert.Equal(EntityState.Detached, entry.EntityState);
-            Assert.IsType<Category>(entry.Entity);
-            Assert.Equal(0, stateManager.Entries.Count());
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77),
+                new Category { Id = 77 },
+                new ValueBuffer(new object[] { 77, "Bjork", null }),
+                EntityTrackingSource.NewQuery);
 
-            ((Category)entry.Entity).Id = 1;
-            stateManager.StartTracking(entry);
+            Assert.True(stateManager.SingleQueryMode);
 
-            Assert.Equal(1, stateManager.Entries.Count());
+            var entry = stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 78),
+                new Category { Id = 78 },
+                new ValueBuffer(new object[] { 78, "Beck", null }),
+                EntityTrackingSource.ContinuingQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            entry.SetEntityState(EntityState.Modified);
+
+            Assert.False(stateManager.SingleQueryMode);
+        }
+
+        [Fact]
+        public void State_manager_switches_out_of_single_query_mode_when_tracked_state_changes_to_Added()
+        {
+            var model = BuildModel();
+            var categoryType = model.FindEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
+
+            Assert.Null(stateManager.SingleQueryMode);
+
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77),
+                new Category { Id = 77 },
+                new ValueBuffer(new object[] { 77, "Bjork", null }),
+                EntityTrackingSource.NewQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            var entry = stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 78),
+                new Category { Id = 78 },
+                new ValueBuffer(new object[] { 78, "Beck", null }),
+                EntityTrackingSource.ContinuingQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            entry.SetEntityState(EntityState.Added);
+
+            Assert.False(stateManager.SingleQueryMode);
+        }
+
+        [Fact]
+        public void State_manager_switches_out_of_single_query_mode_when_entity_comes_from_non_query()
+        {
+            var model = BuildModel();
+            var categoryType = model.FindEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
+
+            Assert.Null(stateManager.SingleQueryMode);
+
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77),
+                new Category { Id = 77 },
+                new ValueBuffer(new object[] { 77, "Bjork", null }),
+                EntityTrackingSource.NewQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 78),
+                new Category { Id = 78 },
+                new ValueBuffer(new object[] { 78, "Beck", null }),
+                EntityTrackingSource.ContinuingQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            stateManager.GetOrCreateEntry(new Category { Id = 79 });
+
+            Assert.False(stateManager.SingleQueryMode);
+        }
+
+        [Fact]
+        public void State_manager_does_not_switch_out_of_single_query_mode_when_getting_existing_entry()
+        {
+            var model = BuildModel();
+            var categoryType = model.FindEntityType(typeof(Category));
+            var stateManager = CreateStateManager(model);
+
+            Assert.Null(stateManager.SingleQueryMode);
+
+            var entry = stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 77),
+                new Category { Id = 77 },
+                new ValueBuffer(new object[] { 77, "Bjork", null }),
+                EntityTrackingSource.NewQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            stateManager.StartTracking(
+                categoryType,
+                new SimpleKeyValue<int>(categoryType.FindPrimaryKey(), 78),
+                new Category { Id = 78 },
+                new ValueBuffer(new object[] { 78, "Beck", null }),
+                EntityTrackingSource.ContinuingQuery);
+
+            Assert.True(stateManager.SingleQueryMode);
+
+            stateManager.GetOrCreateEntry(entry.Entity);
+
+            Assert.True(stateManager.SingleQueryMode);
         }
 
         [Fact]
@@ -271,11 +410,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         public void Listeners_are_notified_when_entity_states_change()
         {
             var listeners = new[]
-                {
-                    new Mock<IEntityStateListener>(),
-                    new Mock<IEntityStateListener>(),
-                    new Mock<IEntityStateListener>()
-                };
+            {
+                new Mock<IEntityStateListener>(),
+                new Mock<IEntityStateListener>(),
+                new Mock<IEntityStateListener>()
+            };
 
             var services = new ServiceCollection()
                 .AddInstance(listeners[0].Object)
@@ -292,10 +431,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             foreach (var listener in listeners)
             {
                 listener.Verify(m => m.StateChanging(entry, It.IsAny<EntityState>()), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>()), Times.Once);
+                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false), Times.Once);
 
                 listener.Verify(m => m.StateChanging(entry, EntityState.Added), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, EntityState.Detached), Times.Once);
+                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false), Times.Once);
             }
 
             entry.SetEntityState(EntityState.Modified);
@@ -303,10 +442,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             foreach (var listener in listeners)
             {
                 listener.Verify(m => m.StateChanging(entry, It.IsAny<EntityState>()), Times.Exactly(2));
-                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>()), Times.Exactly(2));
+                listener.Verify(m => m.StateChanged(entry, It.IsAny<EntityState>(), false), Times.Exactly(2));
 
                 listener.Verify(m => m.StateChanging(entry, EntityState.Modified), Times.Once);
-                listener.Verify(m => m.StateChanged(entry, EntityState.Detached), Times.Once);
+                listener.Verify(m => m.StateChanged(entry, EntityState.Detached, false), Times.Once);
             }
         }
 
