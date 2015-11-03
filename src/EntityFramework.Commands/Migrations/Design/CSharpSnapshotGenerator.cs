@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            foreach (var annotation in annotations.Where(annotation => !MigrationsCodeGenerator.IgnoredAnnotations.Contains(annotation.Name)))
+            foreach (var annotation in annotations)
             {
                 stringBuilder.AppendLine();
                 GenerateAnnotation(annotation, stringBuilder);

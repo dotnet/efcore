@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             StateManager = stateManager;
             MetadataServices = metadataServices;
             EntityType = entityType;
-            _stateData = new StateData(entityType.GetProperties().Count());
+            _stateData = new StateData(entityType.PropertyCount());
         }
 
         public abstract object Entity { get; }
@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (EntityState == EntityState.Modified)
             {
-                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), PropertyFlag.TemporaryOrModified, flagged: false);
+                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified, flagged: false);
             }
 
             // Temporarily change the internal state to unknown so that key generation, including setting key values
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             if (newState == EntityState.Unchanged)
             {
-                _stateData.FlagAllProperties(EntityType.GetProperties().Count(), PropertyFlag.TemporaryOrModified, flagged: false);
+                _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.TemporaryOrModified, flagged: false);
             }
 
             StateManager.Notify.StateChanging(this, newState);
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         this[property] = property.ClrType.GetDefaultValue();
                     }
                 }
-                var propertyCount = EntityType.GetProperties().Count();
+                var propertyCount = EntityType.PropertyCount();
 
                 _stateData.FlagAllProperties(propertyCount, PropertyFlag.TemporaryOrModified, flagged: false);
                 _stateData.FlagAllProperties(propertyCount, PropertyFlag.Null, flagged: false);

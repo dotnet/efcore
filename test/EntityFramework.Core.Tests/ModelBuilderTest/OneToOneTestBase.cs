@@ -1037,8 +1037,8 @@ namespace Microsoft.Data.Entity.Tests
                 var fkProperty = dependentType.FindProperty("OrderId");
                 var principalProperty = principalType.FindProperty("OrderId");
 
-                var principalPropertyCount = principalType.PropertyCount;
-                var dependentPropertyCount = dependentType.PropertyCount;
+                var principalPropertyCount = principalType.PropertyCount();
+                var dependentPropertyCount = dependentType.PropertyCount();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -1055,8 +1055,8 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("Details", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                Assert.Equal(principalPropertyCount, principalType.PropertyCount);
-                Assert.Equal(dependentPropertyCount, dependentType.PropertyCount);
+                Assert.Equal(principalPropertyCount, principalType.PropertyCount());
+                Assert.Equal(dependentPropertyCount, dependentType.PropertyCount());
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());
@@ -1079,8 +1079,8 @@ namespace Microsoft.Data.Entity.Tests
                 var fkProperty = dependentType.FindProperty("OrderId");
                 var principalProperty = principalType.FindProperty("OrderId");
 
-                var principalPropertyCount = principalType.PropertyCount;
-                var dependentPropertyCount = dependentType.PropertyCount;
+                var principalPropertyCount = principalType.PropertyCount();
+                var dependentPropertyCount = dependentType.PropertyCount();
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();
 
@@ -1097,8 +1097,8 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("Details", principalType.GetNavigations().Single().Name);
                 Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
                 Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-                Assert.Equal(principalPropertyCount, principalType.PropertyCount);
-                Assert.Equal(dependentPropertyCount, dependentType.PropertyCount);
+                Assert.Equal(principalPropertyCount, principalType.PropertyCount());
+                Assert.Equal(dependentPropertyCount, dependentType.PropertyCount());
                 Assert.Empty(principalType.GetForeignKeys());
                 Assert.Same(principalKey, principalType.GetKeys().Single());
                 Assert.Same(dependentKey, dependentType.GetKeys().Single());

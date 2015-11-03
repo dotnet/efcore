@@ -25,12 +25,6 @@ namespace Microsoft.Data.Entity.Scaffolding
         internal const string NavigationNameUniquifyingPattern = "{0}Navigation";
         internal const string SelfReferencingPrincipalEndNavigationNamePattern = "Inverse{0}";
 
-        internal static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
-        {
-            CoreAnnotationNames.OriginalValueIndexAnnotation,
-            CoreAnnotationNames.ShadowIndexAnnotation
-        };
-
         protected virtual ILogger Logger { get; }
 
         private Dictionary<TableModel, CSharpUniqueNamer<ColumnModel>> _columnNamers;

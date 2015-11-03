@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 using Moq;
@@ -79,6 +80,8 @@ namespace Microsoft.Data.Entity.Tests.Update
         {
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new[] { property });
+
+            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0));
 
             var internalEntryMock = new Mock<InternalEntityEntry>(
                 Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());

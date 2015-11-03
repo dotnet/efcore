@@ -540,7 +540,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var indexesToDetach = propertyToDetach.FindContainingIndexes().ToList();
                 if (indexesToDetach.Count > 0)
                 {
-                    detachedIndexes.Add(DetachIndexes(indexesToDetach));
+                    detachedIndexes.Add(DetachIndexes(indexesToDetach.OfType<Index>()));
                 }
             }
 

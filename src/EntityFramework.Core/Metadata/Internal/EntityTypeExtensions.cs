@@ -71,20 +71,57 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return (entityType as EntityType)?.UseEagerSnapshots ?? false;
         }
 
-        public static int OriginalValueCount([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+        public static int RelationshipPropertyCount([NotNull] this IEntityType entityType)
+            => GetCounts(entityType).RelationshipCount;
 
-            return entityType.GetProperties().Count(p => p.GetOriginalValueIndex() >= 0);
-        }
+        public static int OriginalValueCount([NotNull] this IEntityType entityType)
+            => GetCounts(entityType).OriginalValueCount;
 
         public static int ShadowPropertyCount([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
+            => GetCounts(entityType).ShadowCount;
 
-            return entityType.GetProperties().Count(p => p.IsShadowProperty);
+        public static int NavigationCount([NotNull] this IEntityType entityType)
+            => GetCounts(entityType).NavigationCount;
+
+        public static int PropertyCount([NotNull] this IEntityType entityType) 
+            => GetCounts(entityType).PropertyCount;
+
+        public static PropertyCounts GetCounts([NotNull] this IEntityType entityType)
+        {
+            var countsAccessor = entityType as IPropertyCountsAccessor;
+
+            return countsAccessor != null
+                ? countsAccessor.Counts
+                : entityType.CalculateCounts();
         }
 
+        public static PropertyCounts CalculateCounts([NotNull] this IEntityType entityType)
+        {
+            var properties = entityType.GetDeclaredProperties().ToList();
+
+            var propertyCount = properties.Count();
+            var navigationCount = entityType.GetDeclaredNavigations().Count();
+            var originalValueCount = properties.Count(p => p.RequiresOriginalValue());
+            var shadowCount = properties.Count(p => p.IsShadowProperty);
+            var relationshipCount = navigationCount + properties.Count(p => p.RequiresRelationshipSnapshot());
+
+            var baseCounts = entityType.BaseType?.CalculateCounts();
+
+            return baseCounts == null
+                ? new PropertyCounts(
+                    propertyCount,
+                    navigationCount,
+                    originalValueCount,
+                    shadowCount,
+                    relationshipCount)
+                : new PropertyCounts(
+                    baseCounts.PropertyCount + propertyCount,
+                    baseCounts.NavigationCount + navigationCount,
+                    baseCounts.OriginalValueCount + originalValueCount,
+                    baseCounts.ShadowCount + shadowCount,
+                    baseCounts.RelationshipCount + relationshipCount);
+        }
+        
         public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

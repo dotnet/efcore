@@ -6,9 +6,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public static class CoreAnnotationNames
     {
         public const string MaxLengthAnnotation = "MaxLength";
-        public const string OriginalValueIndexAnnotation = "OriginalValueIndex";
         public const string ProductVersionAnnotation = "ProductVersion";
-        public const string ShadowIndexAnnotation = "ShadowIndex";
-        public const string IndexAnnotation = "Index";
     }
 }

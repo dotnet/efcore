@@ -14,13 +14,6 @@ namespace Microsoft.Data.Entity.Migrations.Design
 {
     public abstract class MigrationsCodeGenerator
     {
-        public static IReadOnlyList<string> IgnoredAnnotations { get; } = new List<string>
-        {
-            CoreAnnotationNames.OriginalValueIndexAnnotation,
-            CoreAnnotationNames.ShadowIndexAnnotation,
-            CoreAnnotationNames.IndexAnnotation
-        };
-
         public abstract string FileExtension { get; }
 
         public abstract string GenerateMigration(
@@ -110,7 +103,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         private IEnumerable<string> GetAnnotationNamespaces(IEnumerable<IAnnotatable> items)
             => from i in items
                from a in i.GetAnnotations()
-               where a.Value != null && !IgnoredAnnotations.Contains(a.Name)
+               where a.Value != null
                select a.Value.GetType().Namespace;
     }
 }

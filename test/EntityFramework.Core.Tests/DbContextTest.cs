@@ -2521,6 +2521,8 @@ namespace Microsoft.Data.Entity.Tests
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new IProperty[0]);
 
+            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0));
+
             var internalEntryMock = new Mock<InternalEntityEntry>(
                 Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
             return internalEntryMock;

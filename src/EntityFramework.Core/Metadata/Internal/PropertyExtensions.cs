@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
@@ -69,37 +68,98 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return null;
         }
 
+        public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.GetPropertyIndexes().RelationshipIndex;
+
         public static int GetShadowIndex([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-
-            if (!property.IsShadowProperty)
-            {
-                return -1;
-            }
-
-            if (property[CoreAnnotationNames.ShadowIndexAnnotation] == null)
-            {
-                return 0;
-            }
-
-            return (int)property[CoreAnnotationNames.ShadowIndexAnnotation];
-        }
+            => property.GetPropertyIndexes().ShadowIndex;
 
         public static int GetOriginalValueIndex([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
-            Debug.Assert(property[CoreAnnotationNames.OriginalValueIndexAnnotation] != null);
-
-            return (int)property[CoreAnnotationNames.OriginalValueIndexAnnotation];
-        }
+            => property.GetPropertyIndexes().OriginalValueIndex;
 
         public static int GetIndex([NotNull] this IProperty property)
-        {
-            Check.NotNull(property, nameof(property));
+            => property.GetPropertyIndexes().Index;
 
-            return (int)property[CoreAnnotationNames.IndexAnnotation];
+        private static PropertyIndexes GetPropertyIndexes(this IPropertyBase propertyBase)
+        {
+            var indexesAccessor = propertyBase as IPropertyIndexesAccessor;
+
+            return indexesAccessor != null
+                ? indexesAccessor.Indexes
+                : propertyBase.DeclaringEntityType.CalculateIndexes(propertyBase);
         }
+
+        public static PropertyIndexes CalculateIndexes([NotNull] this IEntityType entityType, [NotNull] IPropertyBase propertyBase)
+        {
+            var index = 0;
+            var shadowIndex = 0;
+            var originalValueIndex = 0;
+            var relationshipIndex = 0;
+
+            var baseCounts = entityType.BaseType?.GetCounts();
+            if (baseCounts != null)
+            {
+                index = baseCounts.PropertyCount;
+                shadowIndex = baseCounts.ShadowCount;
+                originalValueIndex = baseCounts.OriginalValueCount;
+                relationshipIndex = baseCounts.RelationshipCount;
+            }
+
+            PropertyIndexes callingPropertyIndexes = null;
+
+            foreach (var property in entityType.GetDeclaredProperties())
+            {
+                var indexes = new PropertyIndexes(
+                    index++,
+                    property.RequiresOriginalValue() ? originalValueIndex++ : -1,
+                    property.IsShadowProperty ? shadowIndex++ : -1,
+                    property.RequiresRelationshipSnapshot() ? relationshipIndex++ : -1);
+
+                TrySetIndexes(property, indexes);
+
+                if (propertyBase == property)
+                {
+                    callingPropertyIndexes = indexes;
+                }
+            }
+
+            foreach (var navigation in entityType.GetDeclaredNavigations())
+            {
+                var indexes = new PropertyIndexes(index++, -1, -1, relationshipIndex++);
+
+                TrySetIndexes(navigation, indexes);
+
+                if (propertyBase == navigation)
+                {
+                    callingPropertyIndexes = indexes;
+                }
+            }
+
+            foreach (var derivedType in entityType.GetDirectlyDerivedTypes())
+            {
+                derivedType.CalculateIndexes(propertyBase);
+            }
+
+            return callingPropertyIndexes;
+        }
+
+        private static void TrySetIndexes(IPropertyBase propertyBase, PropertyIndexes indexes)
+        {
+            var indexAccessor = propertyBase as IPropertyIndexesAccessor;
+            if (indexAccessor != null)
+            {
+                indexAccessor.Indexes = indexes;
+            }
+        }
+
+        public static bool RequiresOriginalValue([NotNull] this IProperty property)
+            => property.DeclaringEntityType.UseEagerSnapshots()
+               || property.IsConcurrencyToken
+               || property.IsForeignKey();
+
+        public static bool RequiresRelationshipSnapshot([NotNull] this IProperty property)
+            => property.IsKey()
+               || property.IsForeignKey();
 
         public static bool IsForeignKey([NotNull] this IProperty property, [NotNull] IEntityType entityType)
             => FindContainingForeignKeys(property, entityType).Any();

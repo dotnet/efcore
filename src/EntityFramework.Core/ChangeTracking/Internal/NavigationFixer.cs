@@ -385,7 +385,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             foreach (var navigation in navigations)
             {
                 Unfixup(navigation, oldPrincipalEntry, dependentEntry);
-                oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+
+                if (!navigation.IsDependentToPrincipal())
+                {
+                    oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+                }
             }
         }
 

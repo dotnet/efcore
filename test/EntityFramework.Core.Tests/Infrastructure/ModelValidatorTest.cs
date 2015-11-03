@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         {
             if (startingPropertyIndex == -1)
             {
-                startingPropertyIndex = entityType.PropertyCount - 1;
+                startingPropertyIndex = entityType.PropertyCount() - 1;
             }
             var keyProperties = new Property[propertyCount];
             for (var i = 0; i < propertyCount; i++)

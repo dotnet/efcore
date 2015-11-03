@@ -14,13 +14,16 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq} ({ClrType?.Name,nq})")]
-    public class Property : ConventionalAnnotatable, IMutableProperty, IPropertyBaseAccessors
+    public class Property : ConventionalAnnotatable, IMutableProperty, IPropertyBaseAccessors, IPropertyIndexesAccessor
     {
         // Warning: Never access this field directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
 
         // Warning: Never access this field directly as access needs to be thread-safe
         private IClrPropertySetter _setter;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private PropertyIndexes _indexes;
 
         private PropertyFlags _flags;
         private PropertyFlags _setFlags;
@@ -191,7 +194,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                     SetFlag(value, PropertyFlags.IsShadowProperty);
 
-                    DeclaringEntityType.PropertyMetadataChanged(this);
+                    DeclaringEntityType.PropertyMetadataChanged();
                 }
 
                 SetFlag(value, PropertyFlags.IsShadowProperty);
@@ -209,7 +212,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     SetFlag(value, PropertyFlags.IsConcurrencyToken);
 
-                    DeclaringEntityType.PropertyMetadataChanged(this);
+                    DeclaringEntityType.PropertyMetadataChanged();
                 }
             }
         }
@@ -225,7 +228,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 {
                     SetFlag(value, PropertyFlags.StoreGeneratedAlways);
 
-                    DeclaringEntityType.PropertyMetadataChanged(this);
+                    DeclaringEntityType.PropertyMetadataChanged();
                 }
             }
         }
@@ -235,40 +238,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IEnumerable<ForeignKey> FindContainingForeignKeys()
             => ((IProperty)this).FindContainingForeignKeys().Cast<ForeignKey>();
-
-        public virtual IEnumerable<Index> FindContainingIndexes()
-            => ((IProperty)this).FindContainingIndexes().Cast<Index>();
-
-        public virtual void SetOriginalValueIndex(int index)
-        {
-            if (index < -1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-
-            this[CoreAnnotationNames.OriginalValueIndexAnnotation] = index;
-        }
-
-        public virtual void SetShadowIndex(int index)
-        {
-            if (index < 0
-                || !((IProperty)this).IsShadowProperty)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-
-            this[CoreAnnotationNames.ShadowIndexAnnotation] = index;
-        }
-
-        public virtual void SetIndex(int value)
-        {
-            if (value < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(value));
-            }
-
-            this[CoreAnnotationNames.IndexAnnotation] = value;
-        }
 
         private bool? GetFlag(PropertyFlags flag) => (_setFlags & flag) != 0 ? (_flags & flag) != 0 : (bool?)null;
 
@@ -324,5 +293,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IClrPropertySetter Setter 
             => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
+
+
+        public virtual PropertyIndexes Indexes
+        {
+            get { return LazyInitializer.EnsureInitialized(ref _indexes, CalculateIndexes); }
+
+            set
+            {
+                if (value == null)
+                {
+                    // This path should only kick in when the model is still mutable and therefore access does not need
+                    // to be thread-safe.
+                    _indexes = null;
+                }
+                else
+                {
+                    LazyInitializer.EnsureInitialized(ref _indexes, () => value);
+                }
+            }
+        }
+
+        private PropertyIndexes CalculateIndexes() 
+            => DeclaringEntityType.CalculateIndexes(this);
     }
 }

@@ -1,33 +1,28 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Utilities;
+using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    // TODO: Consider using ArraySidecar with pre-defined indexes
-    // Issue #741
-    public class RelationshipsSnapshot : DictionarySidecar
+    public class RelationshipsSnapshot : ArraySidecar
     {
         public RelationshipsSnapshot([NotNull] InternalEntityEntry entry)
-            : base(entry, GetProperties(Check.NotNull(entry, nameof(entry))))
+            : base(entry, entry.EntityType.RelationshipPropertyCount())
         {
         }
 
-        private static IEnumerable<IPropertyBase> GetProperties(InternalEntityEntry entry)
-        {
-            var entityType = entry.EntityType;
+        protected override int Index(IPropertyBase property) => property.GetRelationshipIndex();
 
-            return entityType.GetKeys().SelectMany(k => k.Properties)
-                .Concat(entityType.GetForeignKeys().SelectMany(fk => fk.Properties))
-                .Distinct()
-                .Concat<IPropertyBase>(entityType.GetNavigations());
+        protected override void ThrowInvalidIndexException(IPropertyBase property)
+        {
+            throw new InvalidOperationException();
         }
 
         protected override object CopyValueFromEntry(IPropertyBase property)

@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
     [DebuggerDisplay("{DeclaringEntityType.Name,nq}.{Name,nq}")]
-    public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors
+    public class Navigation : ConventionalAnnotatable, IMutableNavigation, INavigationAccessors, IPropertyIndexesAccessor
     {
         // Warning: Never access this field directly as access needs to be thread-safe
         private IClrPropertyGetter _getter;
@@ -23,6 +23,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         // Warning: Never access this field directly as access needs to be thread-safe
         private IClrCollectionAccessor _collectionAccessor;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private PropertyIndexes _indexes;
 
         public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
         {
@@ -161,6 +164,25 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual IClrCollectionAccessor CollectionAccessor 
             => LazyInitializer.EnsureInitialized(ref _collectionAccessor, () => new ClrCollectionAccessorFactory().Create(this));
+
+        public virtual PropertyIndexes Indexes
+        {
+            get { return LazyInitializer.EnsureInitialized(ref _indexes, () => DeclaringEntityType.CalculateIndexes(this)); }
+
+            set
+            {
+                if (value == null)
+                {
+                    // This path should only kick in when the model is still mutable and therefore access does not need
+                    // to be thread-safe.
+                    _indexes = null;
+                }
+                else
+                {
+                    LazyInitializer.EnsureInitialized(ref _indexes, () => value);
+                }
+            }
+        }
 
         IForeignKey INavigation.ForeignKey => ForeignKey;
         IMutableForeignKey IMutableNavigation.ForeignKey => ForeignKey;
