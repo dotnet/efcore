@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
@@ -19,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+                foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
                     if (foreignKey.PrincipalToDependent == null
                         && foreignKey.DependentToPrincipal == null)
