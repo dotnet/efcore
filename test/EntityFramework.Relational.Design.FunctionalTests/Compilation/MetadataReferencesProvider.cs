@@ -8,9 +8,9 @@ using Microsoft.CodeAnalysis;
 #if DNX451 || DNXCORE50
 using System;
 using System.IO;
+using Microsoft.Extensions.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Dnx.Compilation;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Dnx.Compilation.CSharp;
 #endif
