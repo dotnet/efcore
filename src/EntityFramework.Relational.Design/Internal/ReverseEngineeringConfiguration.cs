@@ -3,16 +3,15 @@
 
 using System;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
     public class ReverseEngineeringConfiguration
     {
-        public virtual string ConnectionString { get; [param: NotNull] set; }
+        public virtual string ConnectionString { get;[param: NotNull] set; }
         public virtual string ContextClassName { get;[param: CanBeNull] set; }
-        public virtual string CustomTemplatePath { get; [param: NotNull] set; }
+        public virtual string CustomTemplatePath { get;[param: NotNull] set; }
         public virtual string ProjectPath { get;[param: NotNull] set; }
         public virtual string ProjectRootNamespace { get;[param: NotNull] set; }
         public virtual string OutputPath { get;[param: CanBeNull] set; }
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             }
 
             if (!string.IsNullOrWhiteSpace(ContextClassName)
-                && (!SyntaxFacts.IsValidIdentifier(ContextClassName)
+                && (!CSharpUtilities.Instance.IsValidIdentifier(ContextClassName)
                     || CSharpUtilities.Instance.IsCSharpKeyword(ContextClassName)))
             {
                 throw new ArgumentException(

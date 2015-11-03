@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -15,7 +14,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 {
     public class CSharpHelper
     {
-        private static readonly IDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
+        private static readonly IReadOnlyDictionary<Type, string> _builtInTypes = new Dictionary<Type, string>
         {
             { typeof(bool), "bool" },
             { typeof(byte), "byte" },
@@ -32,6 +31,139 @@ namespace Microsoft.Data.Entity.Migrations.Design
             { typeof(double), "double" },
             { typeof(string), "string" },
             { typeof(object), "object" }
+        };
+
+        private static readonly IReadOnlyCollection<string> _keywords = new[]
+        {
+            "__arglist",
+            "__makeref",
+            "__reftype",
+            "__refvalue",
+            "abstract",
+            "add",
+            "alias",
+            "as",
+            "ascending",
+            "assembly",
+            "async",
+            "await",
+            "base",
+            "bool",
+            "break",
+            "by",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "checked",
+            "checksum",
+            "class",
+            "const",
+            "continue",
+            "decimal",
+            "default",
+            "define",
+            "delegate",
+            "descending",
+            "disable",
+            "do",
+            "double",
+            "elif",
+            "else",
+            "endif",
+            "endregion",
+            "enum",
+            "equals",
+            "error",
+            "event",
+            "explicit",
+            "extern",
+            "false",
+            "field",
+            "finally",
+            "fixed",
+            "float",
+            "for",
+            "foreach",
+            "from",
+            "get",
+            "global",
+            "goto",
+            "group",
+            "hidden",
+            "if",
+            "implicit",
+            "in",
+            "int",
+            "interface",
+            "internal",
+            "into",
+            "is",
+            "join",
+            "let",
+            "line",
+            "lock",
+            "long",
+            "method",
+            "module",
+            "nameof",
+            "namespace",
+            "new",
+            "null",
+            "object",
+            "on",
+            "operator",
+            "orderby",
+            "out",
+            "override",
+            "param",
+            "params",
+            "partial",
+            "pragma",
+            "private",
+            "property",
+            "protected",
+            "public",
+            "r",
+            "readonly",
+            "ref",
+            "region",
+            "remove",
+            "restore",
+            "return",
+            "sbyte",
+            "sealed",
+            "select",
+            "set",
+            "short",
+            "sizeof",
+            "stackalloc",
+            "static",
+            "string",
+            "struct",
+            "switch",
+            "this",
+            "throw",
+            "true",
+            "try",
+            "type",
+            "typeof",
+            "typevar",
+            "uint",
+            "ulong",
+            "unchecked",
+            "undef",
+            "unsafe",
+            "ushort",
+            "using",
+            "virtual",
+            "void",
+            "volatile",
+            "warning",
+            "when",
+            "where",
+            "while",
+            "yield"
         };
 
         private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> _literalFuncs =
@@ -123,7 +255,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
             for (var i = 0; i < name.Length; i++)
             {
-                if (!SyntaxFacts.IsIdentifierPartCharacter(name[i]))
+                if (!IsIdentifierPartCharacter(name[i]))
                 {
                     if (partStart != i)
                     {
@@ -139,7 +271,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 builder.Append(name.Substring(partStart));
             }
 
-            if (builder.Length == 0 || !SyntaxFacts.IsIdentifierStartCharacter(builder[0]))
+            if (builder.Length == 0 || !IsIdentifierStartCharacter(builder[0]))
             {
                 builder.Insert(0, "_");
             }
@@ -157,9 +289,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 identifier = uniqueIdentifier;
             }
 
-            if (SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None
-                || SyntaxFacts.GetPreprocessorKeywordKind(identifier) != SyntaxKind.None
-                || SyntaxFacts.GetContextualKeywordKind(identifier) != SyntaxKind.None)
+            if (_keywords.Contains(identifier))
             {
                 return "@" + identifier;
             }
@@ -255,6 +385,87 @@ namespace Microsoft.Data.Entity.Migrations.Design
             }
 
             throw new InvalidOperationException(CommandsStrings.UnknownLiteral(value.GetType()));
+        }
+
+        private static bool IsIdentifierStartCharacter(char ch)
+        {
+            if (ch < 'a')
+            {
+                if (ch < 'A')
+                {
+                    return false;
+                }
+
+                return ch <= 'Z'
+                    || ch == '_';
+            }
+            if (ch <= 'z')
+            {
+                return true;
+            }
+            if (ch <= '\u007F') // max ASCII
+            {
+                return false;
+            }
+
+            return IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+        }
+
+        private static bool IsIdentifierPartCharacter(char ch)
+        {
+            if (ch < 'a')
+            {
+                if (ch < 'A')
+                {
+                    return ch >= '0'
+                        && ch <= '9';
+                }
+
+                return ch <= 'Z'
+                    || ch == '_';
+            }
+            if (ch <= 'z')
+            {
+                return true;
+            }
+            if (ch <= '\u007F')
+            {
+                return false;
+            }
+
+            var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (IsLetterChar(cat))
+            {
+                return true;
+            }
+
+            switch (cat)
+            {
+                case UnicodeCategory.DecimalDigitNumber:
+                case UnicodeCategory.ConnectorPunctuation:
+                case UnicodeCategory.NonSpacingMark:
+                case UnicodeCategory.SpacingCombiningMark:
+                case UnicodeCategory.Format:
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsLetterChar(UnicodeCategory cat)
+        {
+            switch (cat)
+            {
+                case UnicodeCategory.UppercaseLetter:
+                case UnicodeCategory.LowercaseLetter:
+                case UnicodeCategory.TitlecaseLetter:
+                case UnicodeCategory.ModifierLetter:
+                case UnicodeCategory.OtherLetter:
+                case UnicodeCategory.LetterNumber:
+                    return true;
+            }
+
+            return false;
         }
     }
 }
