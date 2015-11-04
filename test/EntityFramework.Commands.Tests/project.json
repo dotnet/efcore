@@ -1,6 +1,7 @@
 {
   "compilationOptions": {
-    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ]
+    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ],
+    "keyFile":  "../../tools/Key.snk"
   },
   "dependencies": {
     "EntityFramework.Commands": "7.0.0-*",

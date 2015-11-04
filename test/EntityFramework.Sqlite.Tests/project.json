@@ -1,4 +1,7 @@
 {
+  "compilationOptions": {
+    "keyFile":  "../../tools/Key.snk"
+  },
   "dependencies": {
     "EntityFramework.Relational.Tests": "1.0.0",
     "EntityFramework.Sqlite": "7.0.0-*",
