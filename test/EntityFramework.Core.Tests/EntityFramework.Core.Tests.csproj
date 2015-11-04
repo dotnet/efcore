@@ -94,6 +94,7 @@
     <Compile Include="Metadata\ModelConventions\ForeignKeyPropertyDiscoveryConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\KeyConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\EntityTypeAttributeConventionTest.cs" />
+    <Compile Include="Metadata\ModelConventions\ModelCleanupConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\NavigationAttributeConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\PropertyAttributeConventionTest.cs" />
     <Compile Include="Metadata\ModelConventions\PropertyMappingValidationConventionTest.cs" />
