@@ -3521,6 +3521,18 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 entryCount: 91);
         }
 
+        [Fact]
+        public virtual void String_Compare_multi_predicate()
+        {
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.CustomerID, "ALFKI") > -1).Where(c => string.Compare(c.CustomerID, "CACTU") == -1),
+                entryCount: 11);
+
+            AssertQuery<Customer>(
+                cs => cs.Where(c => string.Compare(c.ContactTitle, "Owner") == 0).Where(c => string.Compare(c.Country, "USA") != 0),
+                entryCount: 15);
+        }
+
         protected static string LocalMethod1()
         {
             return "M";

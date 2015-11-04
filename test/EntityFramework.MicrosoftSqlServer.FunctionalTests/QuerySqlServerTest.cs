@@ -3248,6 +3248,21 @@ WHERE [c].[CustomerID] < REPLACE('ALFKI', UPPER('ALF'), [c].[CustomerID])",
                 Sql);
         }
 
+        public override void String_Compare_multi_predicate()
+        {
+            base.String_Compare_multi_predicate();
+
+            Assert.Equal(
+                @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] >= 'ALFKI' AND [c].[CustomerID] < 'CACTU'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactTitle] = 'Owner' AND [c].[Country] <> 'USA'",
+                Sql);
+        }
+
         public override void Where_math_abs1()
         {
             base.Where_math_abs1();
