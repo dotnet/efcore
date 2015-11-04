@@ -313,5 +313,109 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             return typeName;
         }
+
+        public virtual bool IsValidIdentifier([CanBeNull] string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+            if (!IsIdentifierStartCharacter(name[0]))
+            {
+                return false;
+            }
+
+            var nameLength = name.Length;
+            for (int i = 1; i < nameLength; i++)
+            {
+                if (!IsIdentifierPartCharacter(name[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsIdentifierStartCharacter(char ch)
+        {
+            if (ch < 'a')
+            {
+                if (ch < 'A')
+                {
+                    return false;
+                }
+
+                return ch <= 'Z'
+                    || ch == '_';
+            }
+            if (ch <= 'z')
+            {
+                return true;
+            }
+            if (ch <= '\u007F') // max ASCII
+            {
+                return false;
+            }
+
+            return IsLetterChar(CharUnicodeInfo.GetUnicodeCategory(ch));
+        }
+
+        private static bool IsIdentifierPartCharacter(char ch)
+        {
+            if (ch < 'a')
+            {
+                if (ch < 'A')
+                {
+                    return ch >= '0'
+                        && ch <= '9';
+                }
+
+                return ch <= 'Z'
+                    || ch == '_';
+            }
+            if (ch <= 'z')
+            {
+                return true;
+            }
+            if (ch <= '\u007F')
+            {
+                return false;
+            }
+
+            var cat = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (IsLetterChar(cat))
+            {
+                return true;
+            }
+
+            switch (cat)
+            {
+                case UnicodeCategory.DecimalDigitNumber:
+                case UnicodeCategory.ConnectorPunctuation:
+                case UnicodeCategory.NonSpacingMark:
+                case UnicodeCategory.SpacingCombiningMark:
+                case UnicodeCategory.Format:
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsLetterChar(UnicodeCategory cat)
+        {
+            switch (cat)
+            {
+                case UnicodeCategory.UppercaseLetter:
+                case UnicodeCategory.LowercaseLetter:
+                case UnicodeCategory.TitlecaseLetter:
+                case UnicodeCategory.ModifierLetter:
+                case UnicodeCategory.OtherLetter:
+                case UnicodeCategory.LetterNumber:
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

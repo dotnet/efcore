@@ -3,6 +3,8 @@
   <PropertyGroup>
     <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)..\</SolutionDir>
     <ResolveNuGetPackages>false</ResolveNuGetPackages>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Key.snk</AssemblyOriginatorKeyFile>
     <CustomAfterMicrosoftCommonTargets>$(MSBuildThisFileDirectory)EntityFramework.targets</CustomAfterMicrosoftCommonTargets>
   </PropertyGroup>
 </Project>

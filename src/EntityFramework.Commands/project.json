@@ -14,8 +14,7 @@
     "EntityFramework.Commands.CommandsStrings": "Properties/CommandsStrings.resx"
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*",
-    "Microsoft.CodeAnalysis.CSharp": "1.1.0-rc1-*"
+    "EntityFramework.Relational": "7.0.0-*"
   },
   "frameworks": {
     "net451": {
@@ -27,14 +26,23 @@
       "dependencies": {
         "EntityFramework.Relational.Design": "7.0.0-*",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
+        "Microsoft.Extensions.CommandLineUtils.Sources": {
+          "version": "1.0.0-*",
+          "type": "build"
+        },
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
       }
     },
     "dnxcore50": {
       "dependencies": {
         "EntityFramework.Relational.Design": "7.0.0-*",
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
-        "Microsoft.Extensions.CommandLineUtils.Sources": { "version": "1.0.0-*", "type": "build" }
+        "Microsoft.Extensions.CommandLineUtils.Sources": {
+          "version": "1.0.0-*",
+          "type": "build"
+        },
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
+        "System.Console": "4.0.0-*"
       }
     },
     "uap10.0": {
