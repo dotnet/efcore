@@ -6,7 +6,8 @@
     "url": "git://github.com/aspnet/entityframework"
   },
   "compilationOptions": {
-    "warningsAsErrors": true
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
