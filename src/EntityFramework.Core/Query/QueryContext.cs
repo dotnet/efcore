@@ -13,8 +13,8 @@ namespace Microsoft.Data.Entity.Query
     public class QueryContext
     {
         private readonly Func<IQueryBuffer> _queryBufferFactory;
+        private readonly IDictionary<string, object> _parameterValues = new Dictionary<string, object>();
 
-        private IDictionary<string, object> _parameterValues;
         private IQueryBuffer _queryBuffer;
 
         public QueryContext([NotNull] Func<IQueryBuffer> queryBufferFactory)
@@ -24,11 +24,19 @@ namespace Microsoft.Data.Entity.Query
             _queryBufferFactory = queryBufferFactory;
         }
 
-        public virtual IQueryBuffer QueryBuffer => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
+        public virtual IQueryBuffer QueryBuffer
+            => _queryBuffer ?? (_queryBuffer = _queryBufferFactory());
 
         public virtual CancellationToken CancellationToken { get; set; }
 
-        public virtual IDictionary<string, object> ParameterValues
-            => _parameterValues ?? (_parameterValues = new Dictionary<string, object>());
+        public virtual IReadOnlyDictionary<string, object> ParameterValues
+            => (IReadOnlyDictionary<string, object>)_parameterValues;
+
+        public virtual void AddParameter([NotNull] string name, [CanBeNull] object value)
+        {
+            Check.NotEmpty(name, nameof(name));
+
+            _parameterValues.Add(name, value);
+        }
     }
 }

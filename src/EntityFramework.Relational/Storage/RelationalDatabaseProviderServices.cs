@@ -55,6 +55,6 @@ namespace Microsoft.Data.Entity.Storage
         public abstract IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
         public abstract IRelationalDatabaseCreator RelationalDatabaseCreator { get; }
         public abstract IRelationalAnnotationProvider AnnotationProvider { get; }
-        public abstract ISqlQueryGeneratorFactory SqlQueryGeneratorFactory { get; }
+        public abstract IQuerySqlGeneratorFactory QuerySqlGeneratorFactory { get; }
     }
 }

@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Storage
         public override IMethodCallTranslator CompositeMethodCallTranslator => GetService<SqliteCompositeMethodCallTranslator>();
         public override IMemberTranslator CompositeMemberTranslator => GetService<SqliteCompositeMemberTranslator>();
         public override IMigrationsAnnotationProvider MigrationsAnnotationProvider => GetService<SqliteMigrationsAnnotationProvider>();
-        public override ISqlQueryGeneratorFactory SqlQueryGeneratorFactory => GetService<SqliteQuerySqlGeneratorFactory>();
+        public override IQuerySqlGeneratorFactory QuerySqlGeneratorFactory => GetService<SqliteQuerySqlGeneratorFactory>();
         public override IModelValidator ModelValidator => GetService<SqliteModelValidator>();
     }
 }

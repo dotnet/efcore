@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         {
             if (_commandBuilder.GetLength() != 0)
             {
-                _commands.Add(_commandBuilder.BuildRelationalCommand());
+                _commands.Add(_commandBuilder.Build());
                 _commandBuilder = _commandBuilderFactory.Create();
             }
 

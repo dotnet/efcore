@@ -16,16 +16,16 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
             RelationalQueryableExtensions.FromSqlMethodInfo
         };
 
-        private readonly Expression _sql;
+        private readonly string _sql;
         private readonly string _argumentsParameterName;
 
         public FromSqlExpressionNode(
             MethodCallExpressionParseInfo parseInfo,
-            [NotNull] Expression sql,
+            [NotNull] ConstantExpression sql,
             [NotNull] ParameterExpression arguments)
             : base(parseInfo, null, null)
         {
-            _sql = sql;
+            _sql = (string)sql.Value;
             _argumentsParameterName = arguments.Name;
         }
 

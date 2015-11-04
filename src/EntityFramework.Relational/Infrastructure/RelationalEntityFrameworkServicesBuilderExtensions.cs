@@ -83,7 +83,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private static IServiceCollection AddQuery(this IServiceCollection serviceCollection)
             => serviceCollection
                 .AddScoped<IMaterializerFactory, MaterializerFactory>()
-                .AddScoped<ICommandBuilderFactory, CommandBuilderFactory>()
+                .AddScoped<IShaperCommandContextFactory, ShaperCommandContextFactory>()
                 .AddScoped<ICompositePredicateExpressionVisitorFactory, CompositePredicateExpressionVisitorFactory>()
                 .AddScoped<IIncludeExpressionVisitorFactory, IncludeExpressionVisitorFactory>()
                 .AddScoped<IQueryFlattenerFactory, QueryFlattenerFactory>()
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 .AddScoped<RelationalProjectionExpressionVisitorFactory>()
                 .AddScoped<RelationalCompiledQueryCacheKeyGenerator>()
                 .AddScoped<RelationalCompositeExpressionFragmentTranslator>()
-                .AddScoped(p => GetProviderServices(p).SqlQueryGeneratorFactory);
+                .AddScoped(p => GetProviderServices(p).QuerySqlGeneratorFactory);
 
         private static IRelationalDatabaseProviderServices GetProviderServices(IServiceProvider serviceProvider)
         {

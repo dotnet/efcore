@@ -9,21 +9,21 @@ namespace Microsoft.Data.Entity.Query.Expressions
 {
     public class SelectExpressionFactory : ISelectExpressionFactory
     {
-        private readonly ISqlQueryGeneratorFactory _sqlQueryGeneratorFactory;
+        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
 
-        public SelectExpressionFactory([NotNull] ISqlQueryGeneratorFactory sqlQueryGeneratorFactory)
+        public SelectExpressionFactory([NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
         {
-            Check.NotNull(sqlQueryGeneratorFactory, nameof(sqlQueryGeneratorFactory));
+            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
 
-            _sqlQueryGeneratorFactory = sqlQueryGeneratorFactory;
+            _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
         public virtual SelectExpression Create()
-            => new SelectExpression(_sqlQueryGeneratorFactory);
+            => new SelectExpression(_querySqlGeneratorFactory);
 
         public virtual SelectExpression Create([NotNull] string alias)
             => new SelectExpression(
-                _sqlQueryGeneratorFactory,
+                _querySqlGeneratorFactory,
                 Check.NotEmpty(alias, nameof(alias)));
     }
 }

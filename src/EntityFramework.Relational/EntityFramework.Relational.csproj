@@ -117,7 +117,7 @@
     <Compile Include="Query\ExpressionVisitors\Shaper.cs" />
     <Compile Include="Query\ExpressionVisitors\SqlTranslatingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\ValueBufferShaper.cs" />
-    <Compile Include="Query\Internal\ICommandBuilderFactory.cs" />
+    <Compile Include="Query\Internal\IShaperCommandContextFactory.cs" />
     <Compile Include="Query\Expressions\StringCompareExpression.cs" />
     <Compile Include="Query\ExpressionTranslators\ContainsTranslator.cs" />
     <Compile Include="Query\ExpressionTranslators\EndsWithTranslator.cs" />
@@ -136,8 +136,8 @@
     <Compile Include="Query\ExpressionTranslators\StringCompareTranslator.cs" />
     <Compile Include="Query\Internal\AsyncIncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\AsyncQueryingEnumerable.cs" />
-    <Compile Include="Query\Internal\CommandBuilder.cs" />
-    <Compile Include="Query\Internal\CommandBuilderFactory.cs" />
+    <Compile Include="Query\Internal\ShaperCommandContext.cs" />
+    <Compile Include="Query\Internal\ShaperCommandContextFactory.cs" />
     <Compile Include="Query\Internal\IncludeCollectionIterator.cs" />
     <Compile Include="Query\Internal\IValueBufferCursor.cs" />
     <Compile Include="Query\Internal\QueryingEnumerable.cs" />
@@ -149,7 +149,8 @@
     <Compile Include="Query\RelationalQueryCompilationContextFactory.cs" />
     <Compile Include="Query\ResultOperators\Internal\FromSqlExpressionNode.cs" />
     <Compile Include="Query\ResultOperators\Internal\FromSqlResultOperator.cs" />
-    <Compile Include="Query\Sql\ISqlQueryGeneratorFactory.cs" />
+    <Compile Include="Query\Sql\IQuerySqlGeneratorFactory.cs" />
+    <Compile Include="Query\Sql\QuerySqlGeneratorFactoryBase.cs" />
     <Compile Include="RelationalReferenceReferenceBuilderExtensions.cs" />
     <Compile Include="Migrations\Operations\Builders\ColumnsBuilder.cs" />
     <Compile Include="Migrations\Operations\Builders\CreateTableBuilder.cs" />
@@ -221,6 +222,7 @@
     <Compile Include="Migrations\MigrationsSqlGenerator.cs" />
     <Compile Include="Migrations\Internal\MigrationsModelDiffer.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
+    <Compile Include="Storage\CompositeRelationalParameter.cs" />
     <Compile Include="Storage\DbContextTransactionExtensions.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
@@ -232,6 +234,7 @@
     <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
     <Compile Include="Storage\IRelationalDatabaseProviderServices.cs" />
     <Compile Include="Infrastructure\RelationalSqlExecutor.cs" />
+    <Compile Include="Storage\IRelationalParameter.cs" />
     <Compile Include="Storage\IRelationalTransactionManager.cs" />
     <Compile Include="Storage\IRelationalTypeMapper.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
@@ -302,9 +305,9 @@
     <Compile Include="Query\Sql\ISqlExpressionVisitor.cs" />
     <Compile Include="Query\RelationalQueryCompilationContext.cs" />
     <Compile Include="Query\RelationalQueryModelVisitor.cs" />
-    <Compile Include="Query\Sql\ISqlQueryGenerator.cs" />
+    <Compile Include="Query\Sql\IQuerySqlGenerator.cs" />
     <Compile Include="Query\Sql\DefaultQuerySqlGenerator.cs" />
-    <Compile Include="Query\Sql\RawSqlQueryGenerator.cs" />
+    <Compile Include="Query\Sql\Internal\FromSqlNonComposedQuerySqlGenerator.cs" />
     <Compile Include="RelationalDatabaseFacadeExtensions.cs" />
     <Compile Include="RelationalQueryableExtensions.cs" />
     <Compile Include="RelationalMetadataExtensions.cs" />

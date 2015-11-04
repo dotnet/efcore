@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
-        private readonly ICommandBuilderFactory _commandBuilderFactory;
+        private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
 
         public RelationalEntityQueryableExpressionVisitorFactory(
@@ -27,21 +27,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] ICommandBuilderFactory commandBuilderFactory,
+            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider)
         {
             Check.NotNull(model, nameof(model));
             Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
             _model = model;
             _keyValueFactorySource = keyValueFactorySource;
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
-            _commandBuilderFactory = commandBuilderFactory;
+            _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
         }
 
@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 _keyValueFactorySource,
                 _selectExpressionFactory,
                 _materializerFactory,
-                _commandBuilderFactory,
+                _shaperCommandContextFactory,
                 _relationalAnnotationProvider,
                 (RelationalQueryModelVisitor)Check.NotNull(queryModelVisitor, nameof(queryModelVisitor)),
                 querySource);

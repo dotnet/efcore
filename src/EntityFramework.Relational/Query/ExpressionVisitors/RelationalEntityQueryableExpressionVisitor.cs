@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
-        private readonly ICommandBuilderFactory _commandBuilderFactory;
+        private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
         private readonly IQuerySource _querySource;
 
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] ICommandBuilderFactory commandBuilderFactory,
+            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
             [NotNull] RelationalQueryModelVisitor queryModelVisitor,
             [CanBeNull] IQuerySource querySource)
@@ -47,14 +47,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
 
             _model = model;
             _keyValueFactorySource = keyValueFactorySource;
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
-            _commandBuilderFactory = commandBuilderFactory;
+            _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
             _querySource = querySource;
         }
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     .OfType<FromSqlResultOperator>()
                     .LastOrDefault(a => a.QuerySource == _querySource);
 
-            Func<ISqlQueryGenerator> sqlQueryGeneratorFunc = selectExpression.CreateGenerator;
+            Func<IQuerySqlGenerator> querySqlGeneratorFunc = selectExpression.CreateDefaultQuerySqlGenerator;
 
             if (fromSqlAnnotation == null)
             {
@@ -155,19 +155,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         tableAlias,
                         _querySource));
 
-                var useQueryComposition = false;
-                var sqlConstantExpression = fromSqlAnnotation.Sql as ConstantExpression;
-
-                if (sqlConstantExpression != null)
-                {
-                    var fromSql = (string)sqlConstantExpression.Value;
-
-                    useQueryComposition
-                        = fromSql
-                            .TrimStart()
-                            .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
-                }
-
+                var useQueryComposition
+                    = fromSqlAnnotation.Sql
+                        .TrimStart()
+                        .StartsWith("SELECT ", StringComparison.OrdinalIgnoreCase);
+                
                 if (!useQueryComposition)
                 {
                     if (relationalQueryCompilationContext.QueryAnnotations
@@ -189,8 +181,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 {
                     QueryModelVisitor.RequiresClientEval = true;
 
-                    sqlQueryGeneratorFunc = ()
-                        => selectExpression.CreateRawCommandGenerator(
+                    querySqlGeneratorFunc = ()
+                        => selectExpression.CreateFromSqlQuerySqlGenerator(
                             fromSqlAnnotation.Sql,
                             fromSqlAnnotation.ArgumentsParameterName);
                 }
@@ -203,7 +195,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     .ShapedQueryMethod
                     .MakeGenericMethod(shaper.Type),
                 EntityQueryModelVisitor.QueryContextParameter,
-                Expression.Constant(_commandBuilderFactory.Create(sqlQueryGeneratorFunc)),
+                Expression.Constant(_shaperCommandContextFactory.Create(querySqlGeneratorFunc)),
                 Expression.Constant(shaper));
         }
 

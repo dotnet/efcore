@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
@@ -12,53 +11,41 @@ using Microsoft.Data.Entity.Query.Expressions;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Query.Sql
+namespace Microsoft.Data.Entity.Query.Sql.Internal
 {
-    public class RawSqlQueryGenerator : ISqlQueryGenerator
+    public class FromSqlNonComposedQuerySqlGenerator : DefaultQuerySqlGenerator
     {
-        private readonly ISqlCommandBuilder _sqlCommandBuilder;
-        private readonly SelectExpression _selectExpression;
-        private readonly Expression _sql;
+        private readonly string _sql;
         private readonly string _argumentsParameterName;
 
-        public RawSqlQueryGenerator(
-            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
+        public FromSqlNonComposedQuerySqlGenerator(
+            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
+            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression,
-            [NotNull] Expression sql,
+            [NotNull] string sql,
             [NotNull] string argumentsParameterName)
+            : base(
+                Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory)),
+                Check.NotNull(sqlGenerator, nameof(sqlGenerator)),
+                Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)),
+                Check.NotNull(selectExpression, nameof(selectExpression)))
         {
-            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
-            Check.NotNull(selectExpression, nameof(selectExpression));
-            Check.NotNull(sql, nameof(sql));
+            Check.NotEmpty(sql, nameof(sql));
             Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
 
-            _sqlCommandBuilder = sqlCommandBuilder;
-            _selectExpression = selectExpression;
             _sql = sql;
             _argumentsParameterName = argumentsParameterName;
         }
 
-        public virtual IRelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
+        public override Expression Visit(Expression expression)
         {
-            Check.NotNull(parameterValues, nameof(parameterValues));
+            GenerateFromSql(_sql, _argumentsParameterName, ParameterValues);
 
-            object parameterValue;
-
-            var sql
-                = (_sql as ConstantExpression)?.Value as string
-                  ?? (parameterValues.TryGetValue(
-                      ((ParameterExpression)_sql).Name, out parameterValue)
-                      ? (string)parameterValue
-                      : "?");
-
-            return _sqlCommandBuilder.Build(
-                sql,
-                parameterValues.TryGetValue(_argumentsParameterName, out parameterValue)
-                    ? (object[])parameterValue
-                    : null);
+            return expression;
         }
 
-        public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
+        public override IRelationalValueBufferFactory CreateValueBufferFactory(
             IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
         {
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
@@ -74,12 +61,12 @@ namespace Microsoft.Data.Entity.Query.Sql
                     })
                     .ToList();
 
-            var types = new Type[_selectExpression.Projection.Count];
-            var indexMap = new int[_selectExpression.Projection.Count];
+            var types = new Type[SelectExpression.Projection.Count];
+            var indexMap = new int[SelectExpression.Projection.Count];
 
-            for (var i = 0; i < _selectExpression.Projection.Count; i++)
+            for (var i = 0; i < SelectExpression.Projection.Count; i++)
             {
-                var aliasExpression = _selectExpression.Projection[i] as AliasExpression;
+                var aliasExpression = SelectExpression.Projection[i] as AliasExpression;
 
                 if (aliasExpression != null)
                 {
@@ -98,7 +85,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                             throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(columnName));
                         }
 
-                        types[i] = _selectExpression.Projection[i].Type;
+                        types[i] = SelectExpression.Projection[i].Type;
                         indexMap[i] = readerColumn.Ordinal;
                     }
                 }

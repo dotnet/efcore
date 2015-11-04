@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             [NotNull] ISensitiveDataLogger logger,
             [NotNull] DiagnosticSource diagnosticSource,
             [NotNull] string commandText,
-            [NotNull] IReadOnlyList<RelationalParameter> parameters)
+            [NotNull] IReadOnlyList<IRelationalParameter> parameters)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(diagnosticSource, nameof(diagnosticSource));
@@ -35,12 +35,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
         }
 
         protected virtual ISensitiveDataLogger Logger { get; }
-
         protected virtual DiagnosticSource DiagnosticSource { get; }
 
         public virtual string CommandText { get; }
 
-        public virtual IReadOnlyList<RelationalParameter> Parameters { get; }
+        public virtual IReadOnlyList<IRelationalParameter> Parameters { get; }
 
         public virtual void ExecuteNonQuery(
             IRelationalConnection connection,
@@ -112,7 +111,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public virtual RelationalDataReader ExecuteReader(
             IRelationalConnection connection,
-            bool manageConnection = true)
+            bool manageConnection = true,
+            IReadOnlyDictionary<string, object> parameterValues = null)
             => Execute(
                 Check.NotNull(connection, nameof(connection)),
                 (cmd, con) =>
@@ -134,12 +134,14 @@ namespace Microsoft.Data.Entity.Storage.Internal
                     },
                 RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                 openConnection: manageConnection,
-                closeConnection: false);
+                closeConnection: false,
+                parameterValues: parameterValues);
 
         public virtual async Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken),
-            bool manageConnection = true)
+            bool manageConnection = true,
+            IReadOnlyDictionary<string, object> parameterValues = null)
             => await ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 async (cmd, con, ct) =>
@@ -162,16 +164,18 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 RelationalDiagnostics.ExecuteMethod.ExecuteReader,
                 openConnection: manageConnection,
                 closeConnection: false,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken,
+                parameterValues: parameterValues);
 
         protected virtual T Execute<T>(
             [NotNull] IRelationalConnection connection,
             [NotNull] Func<DbCommand, IRelationalConnection, T> action,
             [NotNull] string executeMethod,
             bool openConnection,
-            bool closeConnection)
+            bool closeConnection,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
         {
-            var dbCommand = CreateCommand(connection);
+            var dbCommand = CreateCommand(connection, parameterValues);
 
             WriteDiagnostic(
                 RelationalDiagnostics.BeforeExecuteCommand,
@@ -242,9 +246,10 @@ namespace Microsoft.Data.Entity.Storage.Internal
             [NotNull] string executeMethod,
             bool openConnection,
             bool closeConnection,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default(CancellationToken),
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null)
         {
-            var dbCommand = CreateCommand(connection);
+            var dbCommand = CreateCommand(connection, parameterValues);
 
             WriteDiagnostic(
                 RelationalDiagnostics.BeforeExecuteCommand,
@@ -322,7 +327,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 executeMethod,
                 async: async);
 
-        private DbCommand CreateCommand(IRelationalConnection connection)
+        private DbCommand CreateCommand(
+            IRelationalConnection connection,
+            IReadOnlyDictionary<string, object> parameterValues)
         {
             var command = connection.DbConnection.CreateCommand();
 
@@ -340,12 +347,11 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             foreach (var parameter in Parameters)
             {
-                command.Parameters.Add(
-                    parameter.RelationalTypeMapping.CreateParameter(
-                        command,
-                        parameter.Name,
-                        parameter.Value,
-                        parameter.Nullable));
+                parameter.AddDbParameter(
+                    command,
+                    parameterValues?.Count > 0
+                        ? parameterValues[parameter.InvariantName]
+                        : null);
             }
 
             return command;

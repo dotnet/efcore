@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     TRACKED: True
 (QueryContext prm0) => IEnumerable<Customer> _ShapedQuery(
     queryContext: prm0, 
-    commandBuilder: SelectExpression: 
+    shaperCommandContext: SelectExpression: 
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
     , 
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     queryContext: (RelationalQueryContext) prm0, 
     innerResults: IEnumerable<Customer> _ShapedQuery(
         queryContext: prm0, 
-        commandBuilder: SelectExpression: 
+        shaperCommandContext: SelectExpression: 
             SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     includeRelatedValuesStrategyFactories: new Func<IIncludeRelatedValuesStrategy>[]{ () => IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
             relatedValueBuffers: IEnumerable<ValueBuffer> _Query(
                 queryContext: prm0, 
-                commandBuilder: SelectExpression: 
+                shaperCommandContext: SelectExpression: 
                     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
                     FROM [Orders] AS [o]
                     INNER JOIN (

@@ -9,19 +9,19 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
-    public class CommandBuilderFactory : ICommandBuilderFactory
+    public class ShaperCommandContextFactory : IShaperCommandContextFactory
     {
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
 
-        public CommandBuilderFactory([NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
+        public ShaperCommandContextFactory([NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
-        public virtual CommandBuilder Create(Func<ISqlQueryGenerator> sqlGeneratorFunc)
-            => new CommandBuilder(
+        public virtual ShaperCommandContext Create(Func<IQuerySqlGenerator> sqlGeneratorFunc)
+            => new ShaperCommandContext(
                 _valueBufferFactoryFactory,
                 sqlGeneratorFunc);
     }

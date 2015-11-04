@@ -16,6 +16,7 @@ using Microsoft.Data.Entity.Tests;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
+// ReSharper disable UnassignedGetOnlyAutoProperty
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable MemberCanBePrivate.Local
@@ -126,8 +127,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private class FakeSqlServerConnection : SqlServerConnection
         {
-            private IDbContextOptions _options;
-            private ILoggerFactory _loggerFactory;
+            private readonly IDbContextOptions _options;
+            private readonly ILoggerFactory _loggerFactory;
 
             public FakeSqlServerConnection(IDbContextOptions options, ILoggerFactory loggerFactory)
                 : base(options, new Logger<SqlServerConnection>(loggerFactory))
@@ -158,40 +159,36 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 return Task.FromResult(0);
             }
 
-            public override ISqlServerConnection CreateMasterConnection()
-            {
-                return new FakeSqlServerConnection(_options, _loggerFactory);
-            }
+            public override ISqlServerConnection CreateMasterConnection() => new FakeSqlServerConnection(_options, _loggerFactory);
         }
 
         private class FakeRelationalCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
-            public IRelationalCommandBuilder Create()
-            {
-                return new FakeRelationalCommandBuilder();
-            }
+            public IRelationalCommandBuilder Create() => new FakeRelationalCommandBuilder();
         }
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
             public IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
-            public IRelationalCommandBuilder AddParameter(string name, object value, Func<IRelationalTypeMapper, RelationalTypeMapping> mapType, bool? nullable)
+            public void AddParameter(IRelationalParameter relationalParameter)
             {
                 throw new NotImplementedException();
             }
 
-            public IRelationalCommand BuildRelationalCommand()
+            public IRelationalParameter CreateParameter(string name, object value, Func<IRelationalTypeMapper, RelationalTypeMapping> mapType, bool? nullable, string invariantName)
             {
-                return new FakeRelationalCommand();
+                throw new NotImplementedException();
             }
+
+            public IRelationalCommand Build() => new FakeRelationalCommand();
         }
 
         private class FakeRelationalCommand : IRelationalCommand
         {
             public string CommandText { get; }
 
-            public IReadOnlyList<RelationalParameter> Parameters { get; }
+            public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
             public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
             {
@@ -200,12 +197,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
                 => Task.FromResult(0);
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true)
+            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
             {
                 throw new NotImplementedException();
             }

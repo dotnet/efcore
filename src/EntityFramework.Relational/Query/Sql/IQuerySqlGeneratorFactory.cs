@@ -1,19 +1,18 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {
-    public interface ISqlQueryGeneratorFactory
+    public interface IQuerySqlGeneratorFactory
     {
-        ISqlQueryGenerator CreateGenerator([NotNull] SelectExpression selectExpression);
+        IQuerySqlGenerator CreateDefault([NotNull] SelectExpression selectExpression);
 
-        ISqlQueryGenerator CreateRawCommandGenerator(
+        IQuerySqlGenerator CreateFromSql(
             [NotNull] SelectExpression selectExpression,
-            [NotNull] Expression sql,
+            [NotNull] string sql,
             [NotNull] string argumentsParameterName);
     }
 }

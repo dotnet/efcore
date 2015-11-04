@@ -17,16 +17,16 @@ using Remotion.Linq.Parsing;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {
-    public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, ISqlQueryGenerator
+    public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, IQuerySqlGenerator
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+        private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
-        private IRelationalCommandBuilder _sql;
+        private IRelationalCommandBuilder _relationalCommandBuilder;
+        private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
-        private IDictionary<string, object> _parameterValues;
-
+        
         private static readonly Dictionary<ExpressionType, string> _binaryOperatorMap = new Dictionary<ExpressionType, string>
         {
             { ExpressionType.Equal, " = " },
@@ -44,19 +44,20 @@ namespace Microsoft.Data.Entity.Query.Sql
         };
 
         public DefaultQuerySqlGenerator(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            _commandBuilderFactory = commandBuilderFactory;
+            _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _sqlGenerator = sqlGenerator;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
+
             SelectExpression = selectExpression;
         }
 
@@ -64,19 +65,20 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual ISqlGenerator SqlGenerator => _sqlGenerator;
 
-        protected virtual ParameterNameGenerator ParameterNameGenerator => _parameterNameGenerator;
+        protected virtual IReadOnlyDictionary<string, object> ParameterValues => _parametersValues;
 
-        public virtual IRelationalCommand GenerateSql(IDictionary<string, object> parameterValues)
+        public virtual IRelationalCommand GenerateSql(IReadOnlyDictionary<string, object> parameterValues)
         {
             Check.NotNull(parameterValues, nameof(parameterValues));
 
-            _sql = _commandBuilderFactory.Create();
+            _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
             _parameterNameGenerator = _parameterNameGeneratorFactory.Create();
-            _parameterValues = parameterValues;
+
+            _parametersValues = parameterValues;
 
             Visit(SelectExpression);
 
-            return _sql.BuildRelationalCommand();
+            return _relationalCommandBuilder.Build();
         }
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
@@ -88,7 +90,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 .Create(SelectExpression.GetProjectionTypes().ToArray(), indexMap: null);
         }
 
-        protected virtual IRelationalCommandBuilder Sql => _sql;
+        protected virtual IRelationalCommandBuilder Sql => _relationalCommandBuilder;
 
         protected virtual string ConcatOperator => "+";
         protected virtual string TrueLiteral => "1";
@@ -104,16 +106,16 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (selectExpression.Alias != null)
             {
-                _sql.AppendLine("(");
+                _relationalCommandBuilder.AppendLine("(");
 
-                subQueryIndent = _sql.Indent();
+                subQueryIndent = _relationalCommandBuilder.Indent();
             }
 
-            _sql.Append("SELECT ");
+            _relationalCommandBuilder.Append("SELECT ");
 
             if (selectExpression.IsDistinct)
             {
-                _sql.Append("DISTINCT ");
+                _relationalCommandBuilder.Append("DISTINCT ");
             }
 
             GenerateTop(selectExpression);
@@ -121,7 +123,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             var projectionAdded = false;
             if (selectExpression.IsProjectStar)
             {
-                _sql.Append(_sqlGenerator.DelimitIdentifier(selectExpression.Tables.Single().Alias))
+                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(selectExpression.Tables.Single().Alias))
                     .Append(".*");
                 projectionAdded = true;
             }
@@ -130,7 +132,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             {
                 if (selectExpression.IsProjectStar)
                 {
-                    _sql.Append(", ");
+                    _relationalCommandBuilder.Append(", ");
                 }
                 VisitJoin(selectExpression.Projection);
                 projectionAdded = true;
@@ -138,12 +140,12 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (!projectionAdded)
             {
-                _sql.Append("1");
+                _relationalCommandBuilder.Append("1");
             }
 
             if (selectExpression.Tables.Any())
             {
-                _sql.AppendLine()
+                _relationalCommandBuilder.AppendLine()
                     .Append("FROM ");
 
                 VisitJoin(selectExpression.Tables, sql => sql.AppendLine());
@@ -151,19 +153,19 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (selectExpression.Predicate != null)
             {
-                _sql.AppendLine()
+                _relationalCommandBuilder.AppendLine()
                     .Append("WHERE ");
 
                 var constantExpression = selectExpression.Predicate as ConstantExpression;
 
                 if (constantExpression != null)
                 {
-                    _sql.Append((bool)constantExpression.Value ? "1 = 1" : "1 = 0");
+                    _relationalCommandBuilder.Append((bool)constantExpression.Value ? "1 = 1" : "1 = 0");
                 }
                 else
                 {
                     var predicate
-                        = new NullComparisonTransformingVisitor(_parameterValues)
+                        = new NullComparisonTransformingVisitor(_parametersValues)
                             .Visit(selectExpression.Predicate);
 
                     var relationalNullsOptimizedExpandingVisitor = new RelationalNullsOptimizedExpandingVisitor();
@@ -183,15 +185,15 @@ namespace Microsoft.Data.Entity.Query.Sql
                         || selectExpression.Predicate.IsAliasWithColumnExpression()
                         || selectExpression.Predicate is SelectExpression)
                     {
-                        _sql.Append(" = ");
-                        _sql.Append(TrueLiteral);
+                        _relationalCommandBuilder.Append(" = ");
+                        _relationalCommandBuilder.Append(TrueLiteral);
                     }
                 }
             }
 
             if (selectExpression.OrderBy.Any())
             {
-                _sql.AppendLine();
+                _relationalCommandBuilder.AppendLine();
 
                 GenerateOrderBy(selectExpression.OrderBy);
             }
@@ -202,12 +204,12 @@ namespace Microsoft.Data.Entity.Query.Sql
             {
                 subQueryIndent.Dispose();
 
-                _sql.AppendLine()
+                _relationalCommandBuilder.AppendLine()
                     .Append(")");
 
                 if (selectExpression.Alias.Length > 0)
                 {
-                    _sql.Append(" AS ")
+                    _relationalCommandBuilder.Append(" AS ")
                         .Append(_sqlGenerator.DelimitIdentifier(selectExpression.Alias));
                 }
             }
@@ -217,7 +219,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual void GenerateOrderBy([NotNull] IReadOnlyList<Ordering> orderings)
         {
-            _sql.Append("ORDER BY ");
+            _relationalCommandBuilder.Append("ORDER BY ");
 
             VisitJoin(orderings, t =>
                 {
@@ -231,11 +233,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                             if (columnExpression != null)
                             {
-                                _sql.Append(_sqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
+                                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
                                     .Append(".");
                             }
 
-                            _sql.Append(_sqlGenerator.DelimitIdentifier(aliasExpression.Alias));
+                            _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(aliasExpression.Alias));
                         }
                         else
                         {
@@ -249,7 +251,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                     if (t.OrderingDirection == OrderingDirection.Desc)
                     {
-                        _sql.Append(" DESC");
+                        _relationalCommandBuilder.Append(" DESC");
                     }
                 });
         }
@@ -267,7 +269,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             {
                 if (i > 0)
                 {
-                    joinAction(_sql);
+                    joinAction(_relationalCommandBuilder);
                 }
 
                 itemAction(items[i]);
@@ -278,53 +280,67 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(fromSqlExpression, nameof(fromSqlExpression));
 
-            _sql.AppendLine("(");
+            _relationalCommandBuilder.AppendLine("(");
 
-            using (_sql.Indent())
+            using (_relationalCommandBuilder.Indent())
             {
-                var fromSql = (fromSqlExpression.Sql as ConstantExpression)?.Value as string;
-
-                object parameterValue;
-
-                if (fromSql == null)
-                {
-                    var sqlParameterExpression = (ParameterExpression)fromSqlExpression.Sql;
-
-                    fromSql
-                        = _parameterValues.TryGetValue(sqlParameterExpression.Name, out parameterValue)
-                            ? (string)parameterValue
-                            : sqlParameterExpression.Name;
-                }
-
-                if (_parameterValues
-                    .TryGetValue(fromSqlExpression.ArgumentsParameterName, out parameterValue))
-                {
-                    var arguments = (object[])parameterValue;
-                    var substitutions = new string[arguments.Length];
-
-                    for (var index = 0; index < substitutions.Length; index++)
-                    {
-                        substitutions[index]
-                            = _sqlGenerator.GenerateParameterName(
-                                ParameterNameGenerator.GenerateNext());
-
-                        _sql.AddParameter(substitutions[index], arguments[index]);
-                    }
-
-                    _sql.AppendLines(
-                        // ReSharper disable once CoVariantArrayConversion
-                        string.Format(fromSql, substitutions));
-                }
-                else
-                {
-                    _sql.AppendLines(fromSql);
-                }
+                GenerateFromSql(fromSqlExpression.Sql, fromSqlExpression.ArgumentsParameterName, _parametersValues);
             }
 
-            _sql.Append(") AS ")
+            _relationalCommandBuilder.Append(") AS ")
                 .Append(_sqlGenerator.DelimitIdentifier(fromSqlExpression.Alias));
 
             return fromSqlExpression;
+        }
+
+        protected virtual void GenerateFromSql(
+           [NotNull] string sql,
+           [NotNull] string argumentsParameterName,
+           [NotNull] IReadOnlyDictionary<string, object> parameters)
+        {
+            Check.NotEmpty(sql, nameof(sql));
+            Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
+            Check.NotNull(parameters, nameof(parameters));
+
+            object parameterValue;
+
+            if (parameters.TryGetValue(argumentsParameterName, out parameterValue))
+            {
+                var arguments = (object[])parameterValue;
+                var substitutions = new string[arguments.Length];
+                var relationalParameters = new IRelationalParameter[arguments.Length];
+
+                for (var i = 0; i < arguments.Length; i++)
+                {
+                    var parameterName = _parameterNameGenerator.GenerateNext();
+
+                    substitutions[i] = SqlGenerator.GenerateParameterName(parameterName);
+
+                    var value = arguments[i];
+
+                    relationalParameters[i]
+                        = _relationalCommandBuilder
+                            .CreateParameter(
+                                substitutions[i],
+                                value,
+                                t => t.GetMappingForValue(value),
+                                value?.GetType().IsNullableType(),
+                                parameterName);
+                }
+
+                _relationalCommandBuilder.AddParameter(
+                    new CompositeRelationalParameter(
+                        argumentsParameterName,
+                        relationalParameters));
+
+                _relationalCommandBuilder.AppendLines(
+                    // ReSharper disable once CoVariantArrayConversion
+                    string.Format(sql, substitutions));
+            }
+            else
+            {
+                _relationalCommandBuilder.AppendLines(sql);
+            }
         }
 
         public virtual Expression VisitTable(TableExpression tableExpression)
@@ -333,11 +349,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (tableExpression.Schema != null)
             {
-                _sql.Append(_sqlGenerator.DelimitIdentifier(tableExpression.Schema))
+                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(tableExpression.Schema))
                     .Append(".");
             }
 
-            _sql.Append(_sqlGenerator.DelimitIdentifier(tableExpression.Table))
+            _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(tableExpression.Table))
                 .Append(" AS ")
                 .Append(_sqlGenerator.DelimitIdentifier(tableExpression.Alias));
 
@@ -348,7 +364,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(crossJoinExpression, nameof(crossJoinExpression));
 
-            _sql.Append("CROSS JOIN ");
+            _relationalCommandBuilder.Append("CROSS JOIN ");
 
             Visit(crossJoinExpression.TableExpression);
 
@@ -359,7 +375,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(lateralJoinExpression, nameof(lateralJoinExpression));
 
-            _sql.Append("CROSS JOIN LATERAL ");
+            _relationalCommandBuilder.Append("CROSS JOIN LATERAL ");
 
             Visit(lateralJoinExpression.TableExpression);
 
@@ -370,7 +386,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(countExpression, nameof(countExpression));
 
-            _sql.Append("COUNT(*)");
+            _relationalCommandBuilder.Append("COUNT(*)");
 
             return countExpression;
         }
@@ -379,11 +395,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(sumExpression, nameof(sumExpression));
 
-            _sql.Append("SUM(");
+            _relationalCommandBuilder.Append("SUM(");
 
             Visit(sumExpression.Expression);
 
-            _sql.Append(")");
+            _relationalCommandBuilder.Append(")");
 
             return sumExpression;
         }
@@ -392,11 +408,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(minExpression, nameof(minExpression));
 
-            _sql.Append("MIN(");
+            _relationalCommandBuilder.Append("MIN(");
 
             Visit(minExpression.Expression);
 
-            _sql.Append(")");
+            _relationalCommandBuilder.Append(")");
 
             return minExpression;
         }
@@ -405,11 +421,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(maxExpression, nameof(maxExpression));
 
-            _sql.Append("MAX(");
+            _relationalCommandBuilder.Append("MAX(");
 
             Visit(maxExpression.Expression);
 
-            _sql.Append(")");
+            _relationalCommandBuilder.Append(")");
 
             return maxExpression;
         }
@@ -418,7 +434,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Visit(stringCompareExpression.Left);
 
-            _sql.Append(GenerateBinaryOperator(stringCompareExpression.Operator));
+            _relationalCommandBuilder.Append(GenerateBinaryOperator(stringCompareExpression.Operator));
 
             Visit(stringCompareExpression.Right);
 
@@ -446,22 +462,22 @@ namespace Microsoft.Data.Entity.Query.Sql
                 {
                     Visit(inExpression.Operand);
 
-                    _sql.Append(" IN (");
+                    _relationalCommandBuilder.Append(" IN (");
 
                     VisitJoin(inValuesNotNull);
 
-                    _sql.Append(")");
+                    _relationalCommandBuilder.Append(")");
                 }
                 else
                 {
-                    _sql.Append("1 = 0");
+                    _relationalCommandBuilder.Append("1 = 0");
                 }
             }
             else
             {
                 Visit(inExpression.Operand);
 
-                _sql.Append(" IN ");
+                _relationalCommandBuilder.Append(" IN ");
 
                 Visit(inExpression.SubQuery);
             }
@@ -489,22 +505,22 @@ namespace Microsoft.Data.Entity.Query.Sql
                 {
                     Visit(inExpression.Operand);
 
-                    _sql.Append(" NOT IN (");
+                    _relationalCommandBuilder.Append(" NOT IN (");
 
                     VisitJoin(inValues);
 
-                    _sql.Append(")");
+                    _relationalCommandBuilder.Append(")");
                 }
                 else
                 {
-                    _sql.Append("1 = 1");
+                    _relationalCommandBuilder.Append("1 = 1");
                 }
             }
             else
             {
                 Visit(inExpression.Operand);
 
-                _sql.Append(" NOT IN ");
+                _relationalCommandBuilder.Append(" NOT IN ");
 
                 Visit(inExpression.SubQuery);
             }
@@ -532,7 +548,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 if (inParameter != null)
                 {
                     object parameterValue;
-                    if (_parameterValues.TryGetValue(inParameter.Name, out parameterValue))
+                    if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
                     {
                         var valuesCollection = parameterValue as IEnumerable;
 
@@ -575,7 +591,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 {
                     object parameterValue;
 
-                    if (_parameterValues.TryGetValue(inParameter.Name, out parameterValue))
+                    if (_parametersValues.TryGetValue(inParameter.Name, out parameterValue))
                     {
                         if (parameterValue != null)
                         {
@@ -592,11 +608,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(innerJoinExpression, nameof(innerJoinExpression));
 
-            _sql.Append("INNER JOIN ");
+            _relationalCommandBuilder.Append("INNER JOIN ");
 
             Visit(innerJoinExpression.TableExpression);
 
-            _sql.Append(" ON ");
+            _relationalCommandBuilder.Append(" ON ");
 
             Visit(innerJoinExpression.Predicate);
 
@@ -607,11 +623,11 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(leftOuterJoinExpression, nameof(leftOuterJoinExpression));
 
-            _sql.Append("LEFT JOIN ");
+            _relationalCommandBuilder.Append("LEFT JOIN ");
 
             Visit(leftOuterJoinExpression.TableExpression);
 
-            _sql.Append(" ON ");
+            _relationalCommandBuilder.Append(" ON ");
 
             Visit(leftOuterJoinExpression.Predicate);
 
@@ -625,7 +641,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             if (selectExpression.Limit != null
                 && selectExpression.Offset == null)
             {
-                _sql.Append("TOP(")
+                _relationalCommandBuilder.Append("TOP(")
                     .Append(selectExpression.Limit)
                     .Append(") ");
             }
@@ -637,14 +653,14 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (selectExpression.Offset != null)
             {
-                _sql.AppendLine()
+                _relationalCommandBuilder.AppendLine()
                     .Append("OFFSET ")
                     .Append(selectExpression.Offset)
                     .Append(" ROWS");
 
                 if (selectExpression.Limit != null)
                 {
-                    _sql.Append(" FETCH NEXT ")
+                    _relationalCommandBuilder.Append(" FETCH NEXT ")
                         .Append(selectExpression.Limit)
                         .Append(" ROWS ONLY");
                 }
@@ -655,47 +671,47 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(expression, nameof(expression));
 
-            _sql.AppendLine("CASE");
+            _relationalCommandBuilder.AppendLine("CASE");
 
-            using (_sql.Indent())
+            using (_relationalCommandBuilder.Indent())
             {
-                _sql.Append("WHEN ");
+                _relationalCommandBuilder.Append("WHEN ");
 
                 Visit(expression.Test);
 
-                _sql.AppendLine();
-                _sql.Append("THEN ");
+                _relationalCommandBuilder.AppendLine();
+                _relationalCommandBuilder.Append("THEN ");
 
                 var constantIfTrue = expression.IfTrue as ConstantExpression;
 
                 if (constantIfTrue != null
                     && constantIfTrue.Type == typeof(bool))
                 {
-                    _sql.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                    _relationalCommandBuilder.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
                 else
                 {
                     Visit(expression.IfTrue);
                 }
 
-                _sql.Append(" ELSE ");
+                _relationalCommandBuilder.Append(" ELSE ");
 
                 var constantIfFalse = expression.IfFalse as ConstantExpression;
 
                 if (constantIfFalse != null
                     && constantIfFalse.Type == typeof(bool))
                 {
-                    _sql.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
+                    _relationalCommandBuilder.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
                 else
                 {
                     Visit(expression.IfFalse);
                 }
 
-                _sql.AppendLine();
+                _relationalCommandBuilder.AppendLine();
             }
 
-            _sql.Append("END");
+            _relationalCommandBuilder.Append("END");
 
             return expression;
         }
@@ -704,14 +720,14 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(existsExpression, nameof(existsExpression));
 
-            _sql.AppendLine("EXISTS (");
+            _relationalCommandBuilder.AppendLine("EXISTS (");
 
-            using (_sql.Indent())
+            using (_relationalCommandBuilder.Indent())
             {
                 Visit(existsExpression.Expression);
             }
 
-            _sql.Append(")");
+            _relationalCommandBuilder.Append(")");
 
             return existsExpression;
         }
@@ -722,11 +738,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (binaryExpression.NodeType == ExpressionType.Coalesce)
             {
-                _sql.Append("COALESCE(");
+                _relationalCommandBuilder.Append("COALESCE(");
                 Visit(binaryExpression.Left);
-                _sql.Append(", ");
+                _relationalCommandBuilder.Append(", ");
                 Visit(binaryExpression.Right);
-                _sql.Append(")");
+                _relationalCommandBuilder.Append(")");
             }
             else
             {
@@ -734,21 +750,21 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (needParens)
                 {
-                    _sql.Append("(");
+                    _relationalCommandBuilder.Append("(");
                 }
 
                 Visit(binaryExpression.Left);
 
                 if (needParens)
                 {
-                    _sql.Append(")");
+                    _relationalCommandBuilder.Append(")");
                 }
 
                 if (binaryExpression.IsLogicalOperation()
                     && binaryExpression.Left.IsSimpleExpression())
                 {
-                    _sql.Append(" = ");
-                    _sql.Append(TrueLiteral);
+                    _relationalCommandBuilder.Append(" = ");
+                    _relationalCommandBuilder.Append(TrueLiteral);
                 }
 
                 string op;
@@ -766,27 +782,27 @@ namespace Microsoft.Data.Entity.Query.Sql
                     }
                 }
 
-                _sql.Append(op);
+                _relationalCommandBuilder.Append(op);
 
                 needParens = binaryExpression.Right is BinaryExpression;
 
                 if (needParens)
                 {
-                    _sql.Append("(");
+                    _relationalCommandBuilder.Append("(");
                 }
 
                 Visit(binaryExpression.Right);
 
                 if (needParens)
                 {
-                    _sql.Append(")");
+                    _relationalCommandBuilder.Append(")");
                 }
 
                 if (binaryExpression.IsLogicalOperation()
                     && binaryExpression.Right.IsSimpleExpression())
                 {
-                    _sql.Append(" = ");
-                    _sql.Append(TrueLiteral);
+                    _relationalCommandBuilder.Append(" = ");
+                    _relationalCommandBuilder.Append(TrueLiteral);
                 }
             }
 
@@ -797,7 +813,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
 
-            _sql.Append(_sqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
+            _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
                 .Append(".")
                 .Append(_sqlGenerator.DelimitIdentifier(columnExpression.Name));
 
@@ -814,13 +830,13 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (aliasExpression.Alias != null)
                 {
-                    _sql.Append(" AS ");
+                    _relationalCommandBuilder.Append(" AS ");
                 }
             }
 
             if (aliasExpression.Alias != null)
             {
-                _sql.Append(_sqlGenerator.DelimitIdentifier(aliasExpression.Alias));
+                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(aliasExpression.Alias));
             }
 
             return aliasExpression;
@@ -832,7 +848,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             Visit(isNullExpression.Operand);
 
-            _sql.Append(" IS NULL");
+            _relationalCommandBuilder.Append(" IS NULL");
 
             return isNullExpression;
         }
@@ -843,7 +859,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             Visit(isNotNullExpression.Operand);
 
-            _sql.Append(" IS NOT NULL");
+            _relationalCommandBuilder.Append(" IS NOT NULL");
 
             return isNotNullExpression;
         }
@@ -854,7 +870,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             Visit(likeExpression.Match);
 
-            _sql.Append(" LIKE ");
+            _relationalCommandBuilder.Append(" LIKE ");
 
             Visit(likeExpression.Pattern);
 
@@ -865,19 +881,19 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(literalExpression, nameof(literalExpression));
 
-            _sql.Append(_sqlGenerator.GenerateLiteral(literalExpression.Literal));
+            _relationalCommandBuilder.Append(_sqlGenerator.GenerateLiteral(literalExpression.Literal));
 
             return literalExpression;
         }
 
         public virtual Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
         {
-            _sql.Append(sqlFunctionExpression.FunctionName);
-            _sql.Append("(");
+            _relationalCommandBuilder.Append(sqlFunctionExpression.FunctionName);
+            _relationalCommandBuilder.Append("(");
 
             VisitJoin(sqlFunctionExpression.Arguments.ToList());
 
-            _sql.Append(")");
+            _relationalCommandBuilder.Append(")");
 
             return sqlFunctionExpression;
         }
@@ -907,15 +923,15 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 if (!isColumnOrParameterOperand)
                 {
-                    _sql.Append("NOT (");
+                    _relationalCommandBuilder.Append("NOT (");
                     Visit(unaryExpression.Operand);
-                    _sql.Append(")");
+                    _relationalCommandBuilder.Append(")");
                 }
                 else
                 {
                     Visit(unaryExpression.Operand);
-                    _sql.Append(" = ");
-                    _sql.Append(FalseLiteral);
+                    _relationalCommandBuilder.Append(" = ");
+                    _relationalCommandBuilder.Append(FalseLiteral);
                 }
 
                 return unaryExpression;
@@ -935,7 +951,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(constantExpression, nameof(constantExpression));
 
-            _sql.Append(constantExpression.Value == null
+            _relationalCommandBuilder.Append(constantExpression.Value == null
                 ? "NULL"
                 : _sqlGenerator.GenerateLiteral(constantExpression.Value));
 
@@ -947,16 +963,14 @@ namespace Microsoft.Data.Entity.Query.Sql
             Check.NotNull(parameterExpression, nameof(parameterExpression));
 
             object value;
-            if (!_parameterValues.TryGetValue(parameterExpression.Name, out value))
+            if (!_parametersValues.TryGetValue(parameterExpression.Name, out value))
             {
                 value = string.Empty;
             }
 
             var name = _sqlGenerator.GenerateParameterName(parameterExpression.Name);
 
-            _sql.Append(name);
-
-            _sql.AddParameter(name, value, parameterExpression.Type);
+            _relationalCommandBuilder.AppendParameter(name, value, parameterExpression.Type, parameterExpression.Name);
 
             return parameterExpression;
         }
@@ -971,9 +985,9 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         private class NullComparisonTransformingVisitor : RelinqExpressionVisitor
         {
-            private readonly IDictionary<string, object> _parameterValues;
+            private readonly IReadOnlyDictionary<string, object> _parameterValues;
 
-            public NullComparisonTransformingVisitor(IDictionary<string, object> parameterValues)
+            public NullComparisonTransformingVisitor(IReadOnlyDictionary<string, object> parameterValues)
             {
                 _parameterValues = parameterValues;
             }

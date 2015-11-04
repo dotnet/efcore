@@ -277,7 +277,6 @@
     <Compile Include="Query\Internal\CompiledQueryCache.cs" />
     <Compile Include="Query\Internal\EntityQueryProvider.cs" />
     <Compile Include="Query\Internal\EntityTrackingInfoFactory.cs" />
-    <Compile Include="Query\Internal\ExpressionEvaluationHelpers.cs" />
     <Compile Include="Query\Internal\ICompiledQueryCache.cs" />
     <Compile Include="Query\Internal\QueryAnnotationExtractor.cs" />
     <Compile Include="Query\Internal\QueryBuffer.cs" />
@@ -303,6 +302,7 @@
     <Compile Include="Query\Internal\IExpressionPrinter.cs" />
     <Compile Include="Query\Internal\IQueryOptimizer.cs" />
     <Compile Include="Query\Internal\QueryCompiler.cs" />
+    <Compile Include="Query\NotParameterizedAttribute.cs" />
     <Compile Include="Query\ResultOperators\Internal\IncludeExpressionNode.cs" />
     <Compile Include="Query\ResultOperators\Internal\IncludeResultOperator.cs" />
     <Compile Include="Query\ResultOperators\Internal\TrackingExpressionNode.cs" />

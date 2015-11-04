@@ -14,16 +14,16 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class AsyncQueryingEnumerable : IAsyncEnumerable<ValueBuffer>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly CommandBuilder _commandBuilder;
+        private readonly ShaperCommandContext _shaperCommandContext;
         private readonly int? _queryIndex;
 
         public AsyncQueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] CommandBuilder commandBuilder,
+            [NotNull] ShaperCommandContext shaperCommandContext,
             int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;
-            _commandBuilder = commandBuilder;
+            _shaperCommandContext = shaperCommandContext;
             _queryIndex = queryIndex;
         }
 
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             public AsyncEnumerator(AsyncQueryingEnumerable queryingEnumerable)
             {
                 _queryingEnumerable = queryingEnumerable;
-                _valueBufferFactory = _queryingEnumerable._commandBuilder.ValueBufferFactory;
+                _valueBufferFactory = _queryingEnumerable._shaperCommandContext.ValueBufferFactory;
             }
 
             public async Task<bool> MoveNext(CancellationToken cancellationToken)
@@ -60,22 +60,23 @@ namespace Microsoft.Data.Entity.Query.Internal
                         await _queryingEnumerable._relationalQueryContext.Connection
                             .OpenAsync(cancellationToken);
 
-                        var command
-                            = _queryingEnumerable._commandBuilder
-                                .Build(_queryingEnumerable._relationalQueryContext.ParameterValues);
+                        var relationalCommand
+                            = _queryingEnumerable._shaperCommandContext
+                                .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         await _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursorAsync(this, _queryingEnumerable._queryIndex, cancellationToken);
 
                         _dataReader
-                            = await command.ExecuteReaderAsync(
+                            = await relationalCommand.ExecuteReaderAsync(
                                 _queryingEnumerable._relationalQueryContext.Connection,
                                 cancellationToken, 
-                                manageConnection: false);
+                                manageConnection: false, 
+                                parameters: _queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         _dbDataReader = _dataReader.DbDataReader;
-                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dbDataReader);
-                        _valueBufferFactory = _queryingEnumerable._commandBuilder.ValueBufferFactory;
+                        _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);
+                        _valueBufferFactory = _queryingEnumerable._shaperCommandContext.ValueBufferFactory;
                     }
 
                     var hasNext = await _dbDataReader.ReadAsync(cancellationToken);

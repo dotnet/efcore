@@ -17,28 +17,28 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     {
         private readonly ISelectExpressionFactory _selectExpressionFactory;
         private readonly IMaterializerFactory _materializerFactory;
-        private readonly ICommandBuilderFactory _commandBuilderFactory;
+        private readonly IShaperCommandContextFactory _shaperCommandContextFactory;
         private readonly IRelationalAnnotationProvider _relationalAnnotationProvider;
-        private readonly ISqlQueryGeneratorFactory _sqlQueryGeneratorFactory;
+        private readonly IQuerySqlGeneratorFactory _querySqlGeneratorFactory;
 
         public IncludeExpressionVisitorFactory(
             [NotNull] ISelectExpressionFactory selectExpressionFactory,
             [NotNull] IMaterializerFactory materializerFactory,
-            [NotNull] ICommandBuilderFactory commandBuilderFactory,
+            [NotNull] IShaperCommandContextFactory shaperCommandContextFactory,
             [NotNull] IRelationalAnnotationProvider relationalAnnotationProvider,
-            [NotNull] ISqlQueryGeneratorFactory sqlQueryGeneratorFactory)
+            [NotNull] IQuerySqlGeneratorFactory querySqlGeneratorFactory)
         {
             Check.NotNull(selectExpressionFactory, nameof(selectExpressionFactory));
             Check.NotNull(materializerFactory, nameof(materializerFactory));
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(shaperCommandContextFactory, nameof(shaperCommandContextFactory));
             Check.NotNull(relationalAnnotationProvider, nameof(relationalAnnotationProvider));
-            Check.NotNull(sqlQueryGeneratorFactory, nameof(sqlQueryGeneratorFactory));
+            Check.NotNull(querySqlGeneratorFactory, nameof(querySqlGeneratorFactory));
 
             _selectExpressionFactory = selectExpressionFactory;
             _materializerFactory = materializerFactory;
-            _commandBuilderFactory = commandBuilderFactory;
+            _shaperCommandContextFactory = shaperCommandContextFactory;
             _relationalAnnotationProvider = relationalAnnotationProvider;
-            _sqlQueryGeneratorFactory = sqlQueryGeneratorFactory;
+            _querySqlGeneratorFactory = querySqlGeneratorFactory;
         }
 
         public virtual ExpressionVisitor Create(
@@ -50,9 +50,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             => new IncludeExpressionVisitor(
                 _selectExpressionFactory,
                 _materializerFactory,
-                _commandBuilderFactory,
+                _shaperCommandContextFactory,
                 _relationalAnnotationProvider,
-                _sqlQueryGeneratorFactory,
+                _querySqlGeneratorFactory,
                 Check.NotNull(querySource, nameof(querySource)),
                 Check.NotNull(navigationPath, nameof(navigationPath)),
                 Check.NotNull(relationalQueryCompilationContext, nameof(relationalQueryCompilationContext)),

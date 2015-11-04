@@ -7,6 +7,9 @@ using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 
+// ReSharper disable ConvertToConstant.Local
+// ReSharper disable AccessToDisposedClosure
+
 namespace Microsoft.Data.Entity.FunctionalTests
 {
     public abstract class FromSqlQueryTestBase<TFixture> : IClassFixture<TFixture>
@@ -62,10 +65,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 Assert.Equal(
                     RelationalStrings.FromSqlMissingColumn("Region"),
                     Assert.Throws<InvalidOperationException>(
-                        () =>
-                            context.Set<Customer>()
-                                .FromSql(@"SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
-                                .ToArray()
+                        () => context.Set<Customer>()
+                            .FromSql(@"SELECT ""PostalCode"", ""Phone"", ""Fax"", ""CustomerID"", ""Country"", ""ContactTitle"", ""ContactName"", ""CompanyName"", ""City"", ""Address"" FROM ""Customers""")
+                            .ToArray()
                         ).Message);
             }
         }
@@ -91,9 +93,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
-                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders""")
-                        where c.CustomerID == o.CustomerID
-                        select new { c, o })
+                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders""")
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
                         .ToArray();
 
                 Assert.Equal(830, actual.Length);
@@ -110,11 +112,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers""")
-                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
-                            startDate,
-                            endDate)
-                        where c.CustomerID == o.CustomerID
-                        select new { c, o })
+                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                           startDate,
+                           endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
                         .ToArray();
 
                 Assert.Equal(411, actual.Length);
@@ -133,11 +135,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 var actual
                     = (from c in context.Set<Customer>().FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
                         city)
-                        from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
-                            startDate,
-                            endDate)
-                        where c.CustomerID == o.CustomerID
-                        select new { c, o })
+                       from o in context.Set<Order>().FromSql(@"SELECT * FROM ""Orders"" WHERE ""OrderDate"" BETWEEN {0} AND {1}",
+                           startDate,
+                           endDate)
+                       where c.CustomerID == o.CustomerID
+                       select new { c, o })
                         .ToArray();
 
                 Assert.Equal(25, actual.Length);
@@ -185,7 +187,8 @@ FROM ""Customers""")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}",
+                    .FromSql(
+                        @"SELECT * FROM ""Customers"" WHERE ""City"" = {0} AND ""ContactTitle"" = {1}",
                         city,
                         contactTitle)
                     .ToArray();
@@ -204,7 +207,9 @@ FROM ""Customers""")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Employee>()
-                    .FromSql(@"SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = {0} OR (""ReportsTo"" IS NULL AND {0} IS NULL)",
+                    .FromSql(
+                        @"SELECT * FROM ""Employees"" WHERE ""ReportsTo"" = {0} OR (""ReportsTo"" IS NULL AND {0} IS NULL)",
+                        // ReSharper disable once ExpressionIsAlwaysNull
                         reportsTo)
                     .ToArray();
 
@@ -221,8 +226,7 @@ FROM ""Customers""")
             using (var context = CreateContext())
             {
                 var actual = context.Set<Customer>()
-                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}",
-                        city)
+                    .FromSql(@"SELECT * FROM ""Customers"" WHERE ""City"" = {0}", city)
                     .Where(c => c.ContactTitle == contactTitle)
                     .ToArray();
 

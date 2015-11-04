@@ -25,14 +25,14 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         internal static IEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
-            CommandBuilder commandBuilder,
+            ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var valueBuffer
                 in new QueryingEnumerable(
                     (RelationalQueryContext)queryContext,
-                    commandBuilder,
+                    shaperCommandContext,
                     queryIndex: null))
             {
                 yield return shaper.Shape(queryContext, valueBuffer);
@@ -50,11 +50,11 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
-            CommandBuilder commandBuilder,
+            ShaperCommandContext shaperCommandContext,
             int? queryIndex)
             => new QueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
-                commandBuilder,
+                shaperCommandContext,
                 queryIndex);
 
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;

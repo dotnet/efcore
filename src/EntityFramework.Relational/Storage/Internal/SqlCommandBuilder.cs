@@ -9,30 +9,29 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqlCommandBuilder : ISqlCommandBuilder
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
+        private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
         private readonly ISqlGenerator _sqlGenerator;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
         public SqlCommandBuilder(
-            [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
+            [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
-            Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
+            Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
 
-            _commandBuilderFactory = commandBuilderFactory;
+            _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
             _sqlGenerator = sqlGenerator;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
-        public virtual IRelationalCommand Build(
-            string sql, IReadOnlyList<object> parameters = null)
+        public virtual IRelationalCommand Build(string sql, IReadOnlyList<object> parameters = null)
         {
             Check.NotEmpty(sql, nameof(sql));
 
-            var builder = _commandBuilderFactory.Create();
+            var relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
             if (parameters != null)
             {
@@ -40,22 +39,23 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
                 var parameterNameGenerator = _parameterNameGeneratorFactory.Create();
 
-                for (var index = 0; index < substitutions.Length; index++)
+                for (var i = 0; i < substitutions.Length; i++)
                 {
-                    substitutions[index] =
-                        _sqlGenerator.GenerateParameterName(
-                            parameterNameGenerator.GenerateNext());
+                    var parameterName = parameterNameGenerator.GenerateNext();
 
-                    builder.AddParameter(
-                        substitutions[index],
-                        parameters[index]);
+                    substitutions[i] = _sqlGenerator.GenerateParameterName(parameterName);
+
+                    relationalCommandBuilder.AddParameter(
+                        substitutions[i],
+                        parameters[i],
+                        parameterName);
                 }
 
                 // ReSharper disable once CoVariantArrayConversion
                 sql = string.Format(sql, substitutions);
             }
 
-            return builder.Append(sql).BuildRelationalCommand();
+            return relationalCommandBuilder.Append(sql).Build();
         }
     }
 }

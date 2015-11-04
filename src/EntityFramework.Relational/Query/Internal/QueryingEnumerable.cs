@@ -15,16 +15,16 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class QueryingEnumerable : IEnumerable<ValueBuffer>
     {
         private readonly RelationalQueryContext _relationalQueryContext;
-        private readonly CommandBuilder _commandBuilder;
+        private readonly ShaperCommandContext _shaperCommandContext;
         private readonly int? _queryIndex;
 
         public QueryingEnumerable(
             [NotNull] RelationalQueryContext relationalQueryContext,
-            [NotNull] CommandBuilder commandBuilder,
+            [NotNull] ShaperCommandContext shaperCommandContext,
             int? queryIndex)
         {
             _relationalQueryContext = relationalQueryContext;
-            _commandBuilder = commandBuilder;
+            _shaperCommandContext = shaperCommandContext;
             _queryIndex = queryIndex;
         }
 
@@ -59,21 +59,22 @@ namespace Microsoft.Data.Entity.Query.Internal
                     {
                         _queryingEnumerable._relationalQueryContext.Connection.Open();
 
-                        var command
-                            = _queryingEnumerable._commandBuilder
-                                .Build(_queryingEnumerable._relationalQueryContext.ParameterValues);
+                        var relationalCommand
+                            = _queryingEnumerable._shaperCommandContext
+                                .GetRelationalCommand(_queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
 
                         _dataReader 
-                            = command.ExecuteReader(
+                            = relationalCommand.ExecuteReader(
                                 _queryingEnumerable._relationalQueryContext.Connection, 
-                                manageConnection: false);
+                                manageConnection: false,
+                                parameters: _queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         _dbDataReader = _dataReader.DbDataReader;
-                        _queryingEnumerable._commandBuilder.NotifyReaderCreated(_dbDataReader);
-                        _valueBufferFactory = _queryingEnumerable._commandBuilder.ValueBufferFactory;
+                        _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);
+                        _valueBufferFactory = _queryingEnumerable._shaperCommandContext.ValueBufferFactory;
                     }
 
                     var hasNext = _dbDataReader.Read();

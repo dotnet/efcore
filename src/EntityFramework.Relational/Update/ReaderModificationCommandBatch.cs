@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Update
                 }
             }
 
-            return commandBuilder.BuildRelationalCommand();
+            return commandBuilder.Build();
         }
 
         public override void Execute(IRelationalConnection connection)

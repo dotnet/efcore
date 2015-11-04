@@ -61,18 +61,6 @@ namespace Microsoft.Data.Entity.Storage
 
             Assert.Equal("SQL COMMAND TEXT @p0 @p1 @p2", command.CommandText);
             Assert.Equal(3, command.Parameters.Count);
-
-            Assert.Equal("@p0", command.Parameters[0].Name);
-            Assert.Equal("@p1", command.Parameters[1].Name);
-            Assert.Equal("@p2", command.Parameters[2].Name);
-
-            Assert.Equal(1, command.Parameters[0].Value);
-            Assert.Equal(2L, command.Parameters[1].Value);
-            Assert.Equal("three", command.Parameters[2].Value);
-
-            Assert.Equal(DbType.Int32, command.Parameters[0].RelationalTypeMapping.StoreType);
-            Assert.Equal(DbType.Int64, command.Parameters[1].RelationalTypeMapping.StoreType);
-            Assert.Equal(DbType.String, command.Parameters[2].RelationalTypeMapping.StoreType);
         }
     }
 }

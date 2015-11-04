@@ -7,8 +7,8 @@ using Microsoft.Data.Entity.Query.Sql;
 
 namespace Microsoft.Data.Entity.Query.Internal
 {
-    public interface ICommandBuilderFactory
+    public interface IShaperCommandContextFactory
     {
-        CommandBuilder Create([NotNull] Func<ISqlQueryGenerator> sqlGeneratorFunc);
+        ShaperCommandContext Create([NotNull] Func<IQuerySqlGenerator> sqlGeneratorFunc);
     }
 }

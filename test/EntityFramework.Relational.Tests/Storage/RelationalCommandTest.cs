@@ -104,9 +104,9 @@ namespace Microsoft.Data.Entity.Storage
                 "CommandText",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false),
-                    new RelationalParameter("SecondParameter", 18L,  new RelationalTypeMapping("long", typeof(long), DbType.Int64), true),
-                    new RelationalParameter("ThirdParameter", null,  RelationalTypeMapping.NullMapping, null)
+                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null),
+                    new RelationalParameter("SecondParameter", 18L,  new RelationalTypeMapping("long", typeof(long), DbType.Int64), true, null),
+                    new RelationalParameter("ThirdParameter", null,  RelationalTypeMapping.NullMapping, null, null)
                 });
 
             relationalCommand.ExecuteNonQuery(fakeConnection);
@@ -632,7 +632,7 @@ namespace Microsoft.Data.Entity.Storage
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
                 });
 
             if (async)
@@ -678,7 +678,7 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
                 });
 
             if (async)
@@ -729,7 +729,7 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
                 });
 
             if (async)
@@ -775,7 +775,7 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
                 });
 
             if (async)
@@ -839,7 +839,7 @@ Command Text",
                 "Command Text",
                 new[]
                 {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false)
+                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
                 });
 
             if (async)

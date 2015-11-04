@@ -16,7 +16,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private readonly ISensitiveDataLogger _logger;
         private readonly DiagnosticSource _diagnosticSource;
         private readonly IRelationalTypeMapper _typeMapper;
-        private readonly List<RelationalParameter> _parameters = new List<RelationalParameter>();
+
+        private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
 
         public RelationalCommandBuilder(
             [NotNull] ISensitiveDataLogger logger,
@@ -34,25 +35,27 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public virtual IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
-        public virtual IRelationalCommandBuilder AddParameter(
-            string name, object value,
+        public virtual IRelationalParameter CreateParameter(
+            string name,
+            object value,
             Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
-            bool? nullable)
+            bool? nullable,
+            string invariantName)
+            => new RelationalParameter(
+                name,
+                value,
+                mapType(_typeMapper),
+                nullable,
+                invariantName);
+
+        public virtual void AddParameter([NotNull] IRelationalParameter relationalParameter)
         {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(mapType, nameof(mapType));
+            Check.NotNull(relationalParameter, nameof(relationalParameter));
 
-            _parameters.Add(
-                new RelationalParameter(
-                    name,
-                    value,
-                    mapType(_typeMapper),
-                    nullable));
-
-            return this;
+            _parameters.Add(relationalParameter);
         }
 
-        public virtual IRelationalCommand BuildRelationalCommand()
+        public virtual IRelationalCommand Build()
             => new RelationalCommand(
                 _logger,
                 _diagnosticSource,

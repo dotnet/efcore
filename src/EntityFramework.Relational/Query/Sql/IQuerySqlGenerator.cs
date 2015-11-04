@@ -8,9 +8,9 @@ using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Query.Sql
 {
-    public interface ISqlQueryGenerator
+    public interface IQuerySqlGenerator
     {
-        IRelationalCommand GenerateSql([NotNull] IDictionary<string, object> parameterValues);
+        IRelationalCommand GenerateSql([NotNull] IReadOnlyDictionary<string, object> parameterValues);
 
         IRelationalValueBufferFactory CreateValueBufferFactory(
             [NotNull] IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory,

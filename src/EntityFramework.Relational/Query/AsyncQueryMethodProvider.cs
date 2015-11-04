@@ -27,11 +27,11 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         internal static IAsyncEnumerable<T> _ShapedQuery<T>(
             QueryContext queryContext,
-            CommandBuilder commandBuilder,
+            ShaperCommandContext shaperCommandContext,
             IShaper<T> shaper)
             => new AsyncQueryingEnumerable(
                 (RelationalQueryContext)queryContext,
-                commandBuilder,
+                shaperCommandContext,
                 queryIndex: null)
                 .Select(vb => shaper.Shape(queryContext, vb)); // TODO: Pass shaper to underlying enumerable
 
@@ -44,11 +44,11 @@ namespace Microsoft.Data.Entity.Query
         [UsedImplicitly]
         private static IAsyncEnumerable<ValueBuffer> _Query(
             QueryContext queryContext,
-            CommandBuilder commandBuilder,
+            ShaperCommandContext shaperCommandContext,
             int? queryIndex)
             => new AsyncQueryingEnumerable(
                 ((RelationalQueryContext)queryContext),
-                commandBuilder,
+                shaperCommandContext,
                 queryIndex);
 
         public virtual MethodInfo GetResultMethod => _getResultMethodInfo;

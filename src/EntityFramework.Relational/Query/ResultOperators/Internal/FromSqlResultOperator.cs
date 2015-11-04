@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
 {
     public class FromSqlResultOperator : SequenceTypePreservingResultOperatorBase, IQueryAnnotation
     {
-        public FromSqlResultOperator([NotNull] Expression sql, [NotNull] string argumentsParameterName)
+        public FromSqlResultOperator([NotNull] string sql, [NotNull] string argumentsParameterName)
         {
             Sql = sql;
             ArgumentsParameterName = argumentsParameterName;
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
         public virtual IQuerySource QuerySource { get; [NotNull] set; }
         public virtual QueryModel QueryModel { get; set; }
 
-        public virtual Expression Sql { get; }
+        public virtual string Sql { get; }
 
         public virtual string ArgumentsParameterName { get; }
 

@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Storage
     {
         string CommandText { get; }
 
-        IReadOnlyList<RelationalParameter> Parameters { get; }
+        IReadOnlyList<IRelationalParameter> Parameters { get; }
 
         void ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
@@ -34,11 +34,13 @@ namespace Microsoft.Data.Entity.Storage
 
         RelationalDataReader ExecuteReader(
             [NotNull] IRelationalConnection connection,
-            bool manageConnection = true);
+            bool manageConnection = true,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameters = null);
 
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken),
-            bool manageConnection = true);
+            bool manageConnection = true,
+            [CanBeNull] IReadOnlyDictionary<string, object> parameters = null);
     }
 }

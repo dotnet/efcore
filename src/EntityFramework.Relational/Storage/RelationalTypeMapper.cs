@@ -76,12 +76,10 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(clrType, nameof(clrType));
 
             RelationalTypeMapping mapping;
-            if (SimpleMappings.TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping))
-            {
-                return mapping;
-            }
 
-            return null;
+            return SimpleMappings.TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping) 
+                ? mapping 
+                : null;
         }
 
         public virtual RelationalTypeMapping GetMapping(Type clrType)

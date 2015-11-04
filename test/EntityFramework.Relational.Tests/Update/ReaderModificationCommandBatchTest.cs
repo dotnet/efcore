@@ -16,6 +16,8 @@ using Microsoft.Data.Entity.TestUtilities.FakeProvider;
 using Microsoft.Data.Entity.Update;
 using Moq;
 using Xunit;
+// ReSharper disable MemberCanBePrivate.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Microsoft.Data.Entity.Tests.Update
 {
@@ -563,24 +565,15 @@ namespace Microsoft.Data.Entity.Tests.Update
                 ShouldValidateSql = true;
             }
 
-            public string CommandText
-            {
-                get { return GetCommandText(); }
-            }
+            public string CommandText => GetCommandText();
 
             public bool ShouldAddCommand { get; set; }
 
-            protected override bool CanAddCommand(ModificationCommand modificationCommand)
-            {
-                return ShouldAddCommand;
-            }
+            protected override bool CanAddCommand(ModificationCommand modificationCommand) => ShouldAddCommand;
 
             public bool ShouldValidateSql { get; set; }
 
-            protected override bool IsCommandTextValid()
-            {
-                return ShouldValidateSql;
-            }
+            protected override bool IsCommandTextValid() => ShouldValidateSql;
 
             protected override void UpdateCachedCommandText(int commandIndex)
             {
@@ -588,15 +581,9 @@ namespace Microsoft.Data.Entity.Tests.Update
                 CachedCommandText.Append(".");
             }
 
-            public void UpdateCachedCommandTextBase(int commandIndex)
-            {
-                base.UpdateCachedCommandText(commandIndex);
-            }
+            public void UpdateCachedCommandTextBase(int commandIndex) => base.UpdateCachedCommandText(commandIndex);
 
-            public IRelationalCommand CreateStoreCommandBase()
-            {
-                return base.CreateStoreCommand();
-            }
+            public IRelationalCommand CreateStoreCommandBase() => CreateStoreCommand();
         }
 
         private class FakeModificationCommand : ModificationCommand
@@ -617,7 +604,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private class FakeCommandBuilderFactory : IRelationalCommandBuilderFactory
         {
-            private DbDataReader _reader;
+            private readonly DbDataReader _reader;
 
             public FakeCommandBuilderFactory(DbDataReader reader = null)
             {
@@ -629,8 +616,8 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private class FakeCommandBuilder : IRelationalCommandBuilder
         {
-            private DbDataReader _reader;
-            private List<RelationalParameter> _parameters = new List<RelationalParameter>();
+            private readonly DbDataReader _reader;
+            private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
 
             public FakeCommandBuilder(DbDataReader reader = null)
             {
@@ -639,18 +626,12 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
 
-            public IRelationalCommandBuilder AddParameter(
-                string name,
-                object value,
-                Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
-                bool? nullable)
-            {
-                _parameters.Add(new RelationalParameter(name, value, new RelationalTypeMapping("name", typeof(Type)), null));
+            public void AddParameter(IRelationalParameter relationalParameter) => _parameters.Add(relationalParameter);
 
-                return this;
-            }
+            public IRelationalParameter CreateParameter(string name, object value, Func<IRelationalTypeMapper, RelationalTypeMapping> mapType, bool? nullable, string invariantName) 
+                => new RelationalParameter(name, value, new RelationalTypeMapping("name", typeof(Type)), null, invariantName);
 
-            public IRelationalCommand BuildRelationalCommand()
+            public IRelationalCommand Build()
                 => new FakeRelationalCommand(
                     CommandTextBuilder.ToString(),
                     _parameters,
@@ -659,11 +640,11 @@ namespace Microsoft.Data.Entity.Tests.Update
 
         private class FakeRelationalCommand : IRelationalCommand
         {
-            private DbDataReader _reader;
+            private readonly DbDataReader _reader;
 
             public FakeRelationalCommand(
                 string commandText,
-                IReadOnlyList<RelationalParameter> parameters,
+                IReadOnlyList<IRelationalParameter> parameters,
                 DbDataReader reader)
             {
                 CommandText = commandText;
@@ -674,7 +655,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public string CommandText { get; }
 
-            public IReadOnlyList<RelationalParameter> Parameters { get; }
+            public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
             public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
             {
@@ -696,10 +677,10 @@ namespace Microsoft.Data.Entity.Tests.Update
                 throw new NotImplementedException();
             }
 
-            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true)
+            public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
                 => new RelationalDataReader(null, new FakeDbCommand(), _reader);
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
                 => Task.FromResult(new RelationalDataReader(null, new FakeDbCommand(), _reader));
         }
 

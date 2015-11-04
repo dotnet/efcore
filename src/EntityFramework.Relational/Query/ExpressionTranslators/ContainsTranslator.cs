@@ -22,6 +22,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
 
             return ReferenceEquals(methodCallExpression.Method, _methodInfo)
                 ? new LikeExpression(
+                    // ReSharper disable once AssignNullToNotNullAttribute
                     methodCallExpression.Object,
                     Expression.Add(
                         Expression.Add(

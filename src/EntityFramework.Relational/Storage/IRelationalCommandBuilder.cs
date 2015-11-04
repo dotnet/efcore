@@ -11,12 +11,15 @@ namespace Microsoft.Data.Entity.Storage
     {
         IndentedStringBuilder CommandTextBuilder { get; }
 
-        IRelationalCommandBuilder AddParameter(
+        void AddParameter([NotNull] IRelationalParameter relationalParameter);
+
+        IRelationalParameter CreateParameter(
             [NotNull] string name,
             [CanBeNull] object value,
             [NotNull] Func<IRelationalTypeMapper, RelationalTypeMapping> mapType,
-            bool? nullable);
+            bool? nullable,
+            [CanBeNull] string invariantName);
 
-        IRelationalCommand BuildRelationalCommand();
+        IRelationalCommand Build();
     }
 }
