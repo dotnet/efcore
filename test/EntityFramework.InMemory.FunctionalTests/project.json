@@ -1,4 +1,7 @@
 {
+  "compilationOptions": {
+    "keyFile": "../../tools/Key.snk"
+  },
   "dependencies": {
     "EntityFramework.Core.FunctionalTests": "7.0.0-*"
   },
