@@ -472,10 +472,27 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
-        
+
+        [Fact]
+        public void ExecuteReader_supports_CloseConnection()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT 0;";
+                connection.Open();
+
+                using (var reader = command.ExecuteReader(CommandBehavior.CloseConnection))
+                {
+                    var hasResult = reader.NextResult();
+                    Assert.False(hasResult);
+                }
+                Assert.Equal(ConnectionState.Closed, connection.State);
+            }
+        }
+
         [Theory]
         [InlineData(CommandBehavior.KeyInfo)]
-        [InlineData(CommandBehavior.CloseConnection)]
         [InlineData(CommandBehavior.SchemaOnly)]
         [InlineData(CommandBehavior.SingleResult)]
         [InlineData(CommandBehavior.SingleRow)]

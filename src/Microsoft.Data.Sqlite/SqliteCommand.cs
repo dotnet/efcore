@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,7 +87,7 @@ namespace Microsoft.Data.Sqlite
 
         public new virtual SqliteDataReader ExecuteReader(CommandBehavior behavior)
         {
-            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess)) != 0)
+            if ((behavior & ~(CommandBehavior.Default | CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection)) != 0)
             {
                 throw new ArgumentException(Strings.FormatInvalidCommandBehavior(behavior));
             }
@@ -192,7 +191,9 @@ namespace Microsoft.Data.Sqlite
             }
             while (!string.IsNullOrEmpty(tail));
 
-            return new SqliteDataReader(Connection.DbHandle, stmts, hasChanges ? changes : -1);
+            var closeConnection = (behavior & CommandBehavior.CloseConnection) != 0;
+
+            return new SqliteDataReader(Connection, stmts, hasChanges ? changes : -1, closeConnection);
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => ExecuteReader(behavior);

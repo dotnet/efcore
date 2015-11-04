@@ -21,7 +21,8 @@ namespace Microsoft.Data.Sqlite
     /// </summary>
     public class SqliteDataReader : DbDataReader
     {
-        private readonly Sqlite3Handle _db;
+        private readonly SqliteConnection _connection;
+        private readonly bool _closeConnection;
         private readonly Queue<Tuple<Sqlite3StmtHandle, bool>> _stmtQueue;
         private Sqlite3StmtHandle _stmt;
         private bool _hasRows;
@@ -30,9 +31,10 @@ namespace Microsoft.Data.Sqlite
         private bool _closed;
 
         internal SqliteDataReader(
-            Sqlite3Handle db,
+            SqliteConnection connection,
             Queue<Tuple<Sqlite3StmtHandle, bool>> stmtQueue,
-            int recordsAffected)
+            int recordsAffected,
+            bool closeConnection)
         {
             if (stmtQueue.Count != 0)
             {
@@ -41,9 +43,10 @@ namespace Microsoft.Data.Sqlite
                 _hasRows = tuple.Item2;
             }
 
-            _db = db;
+            _connection = connection;
             _stmtQueue = stmtQueue;
             RecordsAffected = recordsAffected;
+            _closeConnection = closeConnection;
         }
 
         public override int Depth => 0;
@@ -100,7 +103,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var rc = NativeMethods.sqlite3_step(_stmt);
-            MarshalEx.ThrowExceptionForRC(rc, _db);
+            MarshalEx.ThrowExceptionForRC(rc, _connection.DbHandle);
 
             _done = rc == SQLITE_DONE;
 
@@ -154,6 +157,11 @@ namespace Microsoft.Data.Sqlite
             }
 
             _closed = true;
+
+            if (_closeConnection)
+            {
+                _connection.Close();
+            }
         }
 
         public override string GetName(int ordinal)
