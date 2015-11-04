@@ -28,8 +28,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public override IKeyValue Create(IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(properties, p => valueBuffer[p.GetIndex()]);
 
-        public override IKeyValue Create(IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
-            => Create(properties, p => propertyAccessor[p]);
+        public override IKeyValue Create(object value)
+        {
+            var components = value as object[] ?? new[] { value };
+
+            return components.Any(t => t == null) 
+                ? new KeyValue<object[]>(null, null) 
+                : new KeyValue<object[]>(Key, components);
+        }
 
         private KeyValue<object[]> Create<T>(IReadOnlyList<T> ts, Func<T, object> reader)
         {

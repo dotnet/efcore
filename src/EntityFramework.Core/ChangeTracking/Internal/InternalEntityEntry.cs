@@ -10,23 +10,24 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract partial class InternalEntityEntry : IPropertyAccessor, IUpdateEntry
+    public abstract partial class InternalEntityEntry : IUpdateEntry
     {
         private StateData _stateData;
-        private Sidecar[] _sidecars;
+        private OriginalValues _originalValues;
+        private RelationshipsSnapshot _relationshipsSnapshot;
+        private StoreGeneratedValues _storeGeneratedValues;
 
         protected InternalEntityEntry(
             [NotNull] IStateManager stateManager,
-            [NotNull] IEntityType entityType,
-            [NotNull] IEntityEntryMetadataServices metadataServices)
+            [NotNull] IEntityType entityType)
         {
             StateManager = stateManager;
-            MetadataServices = metadataServices;
             EntityType = entityType;
             _stateData = new StateData(entityType.PropertyCount());
         }
@@ -36,61 +37,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual IEntityType EntityType { get; }
 
         public virtual IStateManager StateManager { get; }
-
-        protected virtual IEntityEntryMetadataServices MetadataServices { get; }
-
-        public virtual Sidecar OriginalValues
-        {
-            get
-            {
-                return TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)
-                       ?? AddSidecar(MetadataServices.CreateOriginalValues(this));
-            }
-            [param: NotNull] set { AddSidecar(value); }
-        }
-
-        public virtual Sidecar RelationshipsSnapshot => TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                                                        ?? AddSidecar(MetadataServices.CreateRelationshipSnapshot(this));
-
-        public virtual Sidecar AddSidecar([NotNull] Sidecar sidecar)
-        {
-            var newArray = new[] { sidecar };
-            _sidecars = _sidecars == null
-                ? newArray
-                : newArray.Concat(_sidecars).ToArray();
-
-            if (sidecar.TransparentRead
-                || sidecar.TransparentWrite
-                || sidecar.AutoCommit)
-            {
-                _stateData.TransparentSidecarInUse = true;
-            }
-
-            return sidecar;
-        }
-
-        public virtual Sidecar TryGetSidecar([NotNull] string name) => _sidecars?.FirstOrDefault(s => s.Name == name);
-
-        public virtual void RemoveSidecar([NotNull] string name)
-        {
-            if (_sidecars == null)
-            {
-                return;
-            }
-
-            _sidecars = _sidecars.Where(v => v.Name != name).ToArray();
-
-            if (_sidecars.Length == 0)
-            {
-                _sidecars = null;
-                _stateData.TransparentSidecarInUse = false;
-            }
-            else
-            {
-                _stateData.TransparentSidecarInUse
-                    = _sidecars.Any(s => s.TransparentRead || s.TransparentWrite || s.AutoCommit);
-            }
-        }
 
         public virtual void SetEntityState(EntityState entityState, bool acceptChanges = false)
         {
@@ -172,11 +118,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (acceptChanges)
                 {
-                    SetOriginalValue();
+                    _originalValues.AcceptChanges(this);
                 }
                 else
                 {
-                    ResetToOriginalValue();
+                    _originalValues.RejectChanges(this);
                 }
             }
             _stateData.EntityState = newState;
@@ -203,7 +149,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 StateManager.StopTracking(this);
             }
 
-            StateManager.Notify.StateChanged(this,  oldState, StateManager.SingleQueryMode == true);
+            StateManager.Notify.StateChanged(this, oldState, StateManager.SingleQueryMode == true);
         }
 
         public virtual EntityState EntityState => _stateData.EntityState;
@@ -223,7 +169,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 || currentState == EntityState.Detached)
             {
                 MarkAsTemporary(property, isTemporary: false);
-                OriginalValues.TakeSnapshot(property);
+
+                SetValue(property, this[property], ValueSource.Original);
             }
 
             if (currentState != EntityState.Modified
@@ -289,97 +236,184 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             propertyBase.GetSetter().SetClrValue(Entity, value);
         }
 
-        public virtual object GetOriginalValue(IProperty property) => OriginalValues[property];
+        public virtual object GetValue(IPropertyBase propertyBase, ValueSource valueSource = ValueSource.Current)
+        {
+            switch (valueSource)
+            {
+                case ValueSource.Original:
+                    return _originalValues.GetValue(this, (IProperty)propertyBase);
+                case ValueSource.RelationshipSnapshot:
+                    return _relationshipsSnapshot.GetValue(this, propertyBase);
+            }
+            return this[propertyBase];
+        }
 
-        public virtual IKeyValue GetPrimaryKeyValue(bool originalValue = false)
-            => (originalValue ? OriginalValues : (IPropertyAccessor)this).GetPrimaryKeyValue();
+        public virtual void SetValue(IPropertyBase propertyBase, object value, ValueSource valueSource = ValueSource.Current)
+        {
+            switch (valueSource)
+            {
+                case ValueSource.Original:
+                    EnsureOriginalValues();
+                    _originalValues.SetValue((IProperty)propertyBase, value);
+                    break;
+                case ValueSource.RelationshipSnapshot:
+                    EnsureRelationshipSnapshot();
+                    _relationshipsSnapshot.SetValue(propertyBase, value);
+                    break;
+                default:
+                    this[propertyBase] = value;
+                    break;
+            }
+        }
 
-        public virtual IKeyValue GetPrincipalKeyValue(IForeignKey foreignKey, bool originalValue = false)
-            => (originalValue ? OriginalValues : (IPropertyAccessor)this).GetPrincipalKeyValue(foreignKey);
+        public virtual void EnsureOriginalValues()
+        {
+            if (_originalValues.IsEmpty)
+            {
+                _originalValues = new OriginalValues(this);
+            }
+        }
 
-        public virtual IKeyValue GetDependentKeyValue(IForeignKey foreignKey, bool originalValue = false)
-            => (originalValue ? OriginalValues : (IPropertyAccessor)this).GetDependentKeyValue(foreignKey);
+        public virtual void EnsureOriginalValues(ValueBuffer valueBuffer)
+        {
+            if (_originalValues.IsEmpty)
+            {
+                _originalValues = new OriginalValues(valueBuffer);
+            }
+        }
 
-        public virtual object this[IPropertyBase propertyBase]
+        public virtual void EnsureRelationshipSnapshot()
+        {
+            if (_relationshipsSnapshot.IsEmpty)
+            {
+                _relationshipsSnapshot = new RelationshipsSnapshot(this);
+            }
+        }
+
+        public virtual bool HasRelationshipSnapshot => !_relationshipsSnapshot.IsEmpty;
+
+        public virtual void RemoveFromCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] object removedEntity)
+        {
+            EnsureRelationshipSnapshot();
+            _relationshipsSnapshot.RemoveFromCollection(propertyBase, removedEntity);
+        }
+
+        public virtual void AddToCollectionSnapshot([NotNull] IPropertyBase propertyBase, [NotNull] object addedEntity)
+        {
+            EnsureRelationshipSnapshot();
+            _relationshipsSnapshot.AddToCollection(propertyBase, addedEntity);
+        }
+
+        public virtual IKeyValue GetPrimaryKeyValue(ValueSource valueSource = ValueSource.Current)
+        {
+            var key = EntityType.FindPrimaryKey();
+            return CreateKey(key, key.Properties, valueSource);
+        }
+
+        public virtual IKeyValue GetPrincipalKeyValue(IKey key, ValueSource valueSource = ValueSource.Current)
+            => CreateKey(key, key.Properties, valueSource);
+
+        public virtual IKeyValue GetPrincipalKeyValue(IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
+        {
+            var key = foreignKey.PrincipalKey;
+            return CreateKey(key, key.Properties, valueSource);
+        }
+
+        public virtual IKeyValue GetDependentKeyValue(IForeignKey foreignKey, ValueSource valueSource = ValueSource.Current)
+        {
+            var key = foreignKey.PrincipalKey;
+            return CreateKey(key, foreignKey.Properties, valueSource);
+        }
+
+        private IKeyValue CreateKey(
+            [NotNull] IKey key,
+            [NotNull] IReadOnlyList<IProperty> properties,
+            ValueSource valueSource = ValueSource.Current)
+        {
+            var value = properties.Count == 1
+                ? (valueSource == ValueSource.Current
+                    ? this[properties[0]]
+                    : valueSource == ValueSource.Original
+                        ? _originalValues.GetValue(this, properties[0])
+                        : _relationshipsSnapshot.GetValue(this, properties[0]))
+                : (valueSource == ValueSource.Current
+                    ? properties.Select(p => this[p]).ToArray()
+                    : valueSource == ValueSource.Original
+                        ? properties.Select(p => _originalValues.GetValue(this, p)).ToArray()
+                        : properties.Select(p => _relationshipsSnapshot.GetValue(this, p)).ToArray());
+
+            return StateManager.CreateKey(key, value);
+        }
+
+        public virtual object this[[NotNull] IPropertyBase propertyBase]
         {
             get
             {
-                if (_stateData.TransparentSidecarInUse)
-                {
-                    foreach (var sidecar in _sidecars)
-                    {
-                        if (sidecar.TransparentRead
-                            && sidecar.HasValue(propertyBase))
-                        {
-                            return sidecar[propertyBase];
-                        }
-                    }
-                }
-
-                return ReadPropertyValue(propertyBase);
+                object value;
+                return _storeGeneratedValues.TryGetValue(propertyBase, out value)
+                       ? value
+                       : ReadPropertyValue(propertyBase);
             }
-            set
+            [param: CanBeNull]
+            set 
             {
-                if (_stateData.TransparentSidecarInUse)
+                if (_storeGeneratedValues.CanStoreValue(propertyBase))
                 {
-                    var wrote = false;
-                    foreach (var sidecar in _sidecars)
+                    StateManager.Notify.PropertyChanging(this, propertyBase);
+                    _storeGeneratedValues.SetValue(propertyBase, value);
+                    StateManager.Notify.PropertyChanged(this, propertyBase);
+                }
+                else
+                {
+                    var currentValue = this[propertyBase];
+
+                    if (!Equals(currentValue, value))
                     {
-                        if (sidecar.TransparentWrite
-                            && sidecar.CanStoreValue(propertyBase))
+                        var writeValue = true;
+                        var asProperty = propertyBase as IProperty;
+
+                        if (asProperty != null
+                            && !asProperty.IsNullable)
+                        {
+                            if (value == null)
+                            {
+                                _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: true);
+                                writeValue = false;
+                            }
+                            else
+                            {
+                                _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: false);
+                            }
+                        }
+
+                        if (writeValue)
                         {
                             StateManager.Notify.PropertyChanging(this, propertyBase);
-
-                            sidecar[propertyBase] = value;
-                            wrote = true;
-
+                            WritePropertyValue(propertyBase, value);
                             StateManager.Notify.PropertyChanged(this, propertyBase);
                         }
-                    }
-                    if (wrote)
-                    {
-                        return;
-                    }
-                }
-
-                var currentValue = this[propertyBase];
-
-                if (!Equals(currentValue, value))
-                {
-                    var writeValue = true;
-                    var asProperty = propertyBase as IProperty;
-
-                    if (asProperty != null
-                        && !asProperty.IsNullable)
-                    {
-                        if (value == null)
-                        {
-                            _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: true);
-                            writeValue = false;
-                        }
-                        else
-                        {
-                            _stateData.FlagProperty(asProperty.GetIndex(), PropertyFlag.Null, isFlagged: false);
-                        }
-                    }
-
-                    if (writeValue)
-                    {
-                        StateManager.Notify.PropertyChanging(this, propertyBase);
-                        WritePropertyValue(propertyBase, value);
-                        StateManager.Notify.PropertyChanged(this, propertyBase);
                     }
                 }
             }
         }
 
-        public virtual IKeyValue CreateKey(
-            [NotNull] IKey key,
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyAccessor) => MetadataServices.CreateKey(key, properties, propertyAccessor);
-
         public virtual void AcceptChanges()
         {
+            if (!_storeGeneratedValues.IsEmpty)
+            {
+                var storeGeneratedValues = _storeGeneratedValues;
+                _storeGeneratedValues = new StoreGeneratedValues();
+
+                foreach (var property in EntityType.GetProperties())
+                {
+                    object value;
+                    if (storeGeneratedValues.TryGetValue(property, out value))
+                    {
+                        this[property] = value;
+                    }
+                }
+            }
+
             var currentState = EntityState;
             if (currentState == EntityState.Unchanged
                 || currentState == EntityState.Detached)
@@ -390,27 +424,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             if (currentState == EntityState.Added
                 || currentState == EntityState.Modified)
             {
-                TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)?.UpdateSnapshot();
+                _originalValues.AcceptChanges(this);
 
                 SetEntityState(EntityState.Unchanged, true);
             }
             else if (currentState == EntityState.Deleted)
             {
                 SetEntityState(EntityState.Detached);
-            }
-        }
-
-        public virtual void AutoCommitSidecars()
-        {
-            if (_stateData.TransparentSidecarInUse)
-            {
-                foreach (var sidecar in _sidecars)
-                {
-                    if (sidecar.AutoCommit)
-                    {
-                        sidecar.Commit();
-                    }
-                }
             }
         }
 
@@ -433,10 +453,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 }
             }
 
-            var properties = FindPropertiesThatMayGetStoreValue();
-            if (properties.Any())
+            if (EntityType.StoreGeneratedCount() > 0)
             {
-                AddSidecar(MetadataServices.CreateStoreGeneratedValues(this, properties));
+                _storeGeneratedValues = new StoreGeneratedValues(this);
             }
 
             return this;
@@ -532,58 +551,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                && (property.ValueGenerated != ValueGenerated.Never
                    || StateManager.ValueGeneration.MayGetTemporaryValue(property, entityType));
 
-        public virtual void AutoRollbackSidecars()
-        {
-            if (_stateData.TransparentSidecarInUse)
-            {
-                foreach (var sidecar in _sidecars)
-                {
-                    if (sidecar.AutoCommit)
-                    {
-                        sidecar.Rollback();
-                    }
-                }
-            }
-        }
-
-        public virtual void SetOriginalValue()
-        {
-            var entityType = EntityType;
-            var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-
-            if (originalValues == null)
-            {
-                return;
-            }
-
-            foreach (var property in entityType.GetProperties())
-            {
-                if (originalValues.HasValue(property)
-                    && !Equals(originalValues[property], this[property]))
-                {
-                    originalValues[property] = this[property];
-                }
-            }
-        }
-
-        public virtual void ResetToOriginalValue()
-        {
-            var entityType = EntityType;
-            var originalValues = TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-
-            if (originalValues == null)
-            {
-                return;
-            }
-
-            foreach (var property in entityType.GetProperties())
-            {
-                if (!Equals(this[property], originalValues[property]))
-                {
-                    this[property] = originalValues[property];
-                }
-            }
-        }
+        public virtual void DiscardStoreGeneratedValues() => _storeGeneratedValues = new StoreGeneratedValues();
 
         public virtual bool IsStoreGenerated(IProperty property)
             => property.ValueGenerated != ValueGenerated.Never
@@ -601,8 +569,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         [UsedImplicitly]
         private string DebuggerDisplay => GetPrimaryKeyValue() + " - " + EntityState;
-
-        InternalEntityEntry IPropertyAccessor.InternalEntityEntry => this;
 
         public virtual EntityEntry ToEntityEntry() => new EntityEntry(this);
     }

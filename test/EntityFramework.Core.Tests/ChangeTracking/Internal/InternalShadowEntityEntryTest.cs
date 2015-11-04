@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
@@ -19,33 +16,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                 configuration,
-                 model.FindEntityType(typeof(SomeEntity).FullName),
-                 null,
-                 new ValueBuffer(new object[] { 1, "Kool" }));
-
-            Assert.Null(entry.Entity);
-        }
-
-        [Fact]
-        public void Original_values_are_not_tracked_unless_needed_by_default_for_shadow_properties()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(
-                configuration, 
-                entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
+                configuration,
+                model.FindEntityType(typeof(SomeEntity).FullName),
+                null,
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
-            Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Id", typeof(SomeEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
-
-            Assert.Equal(1, entry.OriginalValues[idProperty]);
+            Assert.Null(entry.Entity);
         }
 
         protected override Model BuildModel()

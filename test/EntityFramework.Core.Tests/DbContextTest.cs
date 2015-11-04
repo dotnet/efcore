@@ -219,6 +219,11 @@ namespace Microsoft.Data.Entity.Tests
             public bool SaveChangesAsyncCalled { get; set; }
             public virtual bool? SingleQueryMode { get; set; }
 
+            public IKeyValue CreateKey(IKey key, object value)
+            {
+                throw new NotImplementedException();
+            }
+
             public void UpdateIdentityMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IKey principalKey)
             {
                 throw new NotImplementedException();
@@ -302,7 +307,7 @@ namespace Microsoft.Data.Entity.Tests
                 throw new NotImplementedException();
             }
 
-            public InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
+            public InternalEntityEntry GetPrincipal(InternalEntityEntry entityEntry, IForeignKey foreignKey, ValueSource valueSource)
             {
                 throw new NotImplementedException();
             }
@@ -1765,7 +1770,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_start_with_custom_services_by_passing_in_base_service_provider()
         {
-            var factory = Mock.Of<IOriginalValuesFactory>();
+            var factory = Mock.Of<INavigationFixer>();
             var serviceCollection = new ServiceCollection()
                 .AddSingleton<IDbSetFinder, DbSetFinder>()
                 .AddSingleton<IDbSetSource, DbSetSource>()
@@ -1782,7 +1787,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                Assert.Same(factory, context.GetService<IOriginalValuesFactory>());
+                Assert.Same(factory, context.GetService<INavigationFixer>());
             }
         }
 
@@ -1834,7 +1839,7 @@ namespace Microsoft.Data.Entity.Tests
         [Fact]
         public void Can_replace_already_registered_service_with_new_service()
         {
-            var factory = Mock.Of<IOriginalValuesFactory>();
+            var factory = Mock.Of<INavigationFixer>();
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddEntityFramework();
             serviceCollection.AddInstance(factory);
@@ -1843,7 +1848,7 @@ namespace Microsoft.Data.Entity.Tests
 
             using (var context = new EarlyLearningCenter(provider))
             {
-                Assert.Same(factory, context.GetService<IOriginalValuesFactory>());
+                Assert.Same(factory, context.GetService<INavigationFixer>());
             }
         }
 
@@ -2521,10 +2526,10 @@ namespace Microsoft.Data.Entity.Tests
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new IProperty[0]);
 
-            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0));
+            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
 
             var internalEntryMock = new Mock<InternalEntityEntry>(
-                Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
+                Mock.Of<IStateManager>(), entityTypeMock.Object);
             return internalEntryMock;
         }
 

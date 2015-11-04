@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -24,9 +26,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
+            var properties = type.FindPrimaryKey().Properties;
+
             var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
-                .Create(type.FindPrimaryKey().Properties, entry);
+                .Create(properties.Select(p => entry[p]).ToArray());
 
             Assert.Equal(new object[] { 7, "Ate", random }, key.Value);
         }
@@ -43,33 +47,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
+            var properties = new[] { type.FindProperty("P6"), type.FindProperty("P5") };
+
             var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
                 type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P6"), type.FindProperty("P5") }, entry);
+                .Create(properties.Select(p => entry[p]).ToArray());
 
             Assert.Equal(new object[] { random, "Ate" }, key.Value);
-        }
-
-        [Fact]
-        public void Creates_a_new_key_for_values_from_a_sidecar()
-        {
-            var model = BuildModel();
-            var type = model.FindEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
-
-            var random = new Random();
-            var entity = new Banana { P4 = 7, P5 = "Ate", P6 = random };
-
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            var sidecar = new RelationshipsSnapshot(entry);
-            sidecar[type.FindProperty("P4")] = 77;
-
-            var key = (KeyValue<object[]>)new CompositeKeyValueFactory(
-                type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P6"), type.FindProperty("P4"), type.FindProperty("P5") }, sidecar);
-
-            Assert.Equal(new object[] { random, 77, "Ate" }, key.Value);
         }
 
         [Fact]
@@ -84,10 +68,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.GetOrCreateEntry(entity);
 
+            var properties = type.FindPrimaryKey().Properties;
+
             Assert.True(
                 new CompositeKeyValueFactory(
                     type.FindPrimaryKey())
-                    .Create(type.FindPrimaryKey().Properties, entry).IsInvalid);
+                    .Create(properties.Select(p => entry[p]).ToArray()).IsInvalid);
         }
 
         [Fact]

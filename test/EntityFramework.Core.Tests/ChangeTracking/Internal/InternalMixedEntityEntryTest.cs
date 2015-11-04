@@ -1,9 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Xunit;
@@ -54,10 +51,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                 configuration,
-                 entityType,
-                 new SomeEntity { Id = 1, Name = "Kool" },
-                 new ValueBuffer(new object[] { 1, "Kool" }));
+                configuration,
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var entity = (SomeEntity)entry.Entity;
 
@@ -85,47 +82,20 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
         [Fact]
         public void Setting_CLR_property_with_snapshot_change_tracking_requires_DetectChanges()
-        {
-            SetPropertyClrTest(new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
-        }
+            => SetPropertyClrTest(new SomeEntity { Id = 1, Name = "Kool" }, needsDetectChanges: true);
 
         [Fact]
         public void Setting_CLR_property_with_changed_only_notifications_does_not_require_DetectChanges()
-        {
-            SetPropertyClrTest(new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
-        }
+            => SetPropertyClrTest(new ChangedOnlyEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
         [Fact]
         public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
-        {
-            SetPropertyClrTest(new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
-        }
-
-        [Fact]
-        public void Original_values_are_not_tracked_unless_needed_by_default_for_properties_of_full_notifications_entity()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(FullNotificationEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                new FullNotificationEntity { Id = 1, Name = "Kool" }, 
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
-
-            Assert.Equal(1, entry.OriginalValues[idProperty]);
-        }
+            => SetPropertyClrTest(new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
 
         protected override Model BuildModel()
         {
             var model = base.BuildModel();
-            
+
             model.FindEntityType(typeof(SomeSimpleEntityBase)).FindProperty("Id").IsShadowProperty = true;
             model.FindEntityType(typeof(SomeEntity)).FindProperty("Name").IsConcurrencyToken = false;
             model.FindEntityType(typeof(SomeDependentEntity)).FindProperty("SomeEntityId").IsShadowProperty = true;

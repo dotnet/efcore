@@ -82,5 +82,7 @@ namespace Microsoft.Data.Entity.Storage
                 ? new ValueBuffer(_values, offset)
                 : this;
         }
+
+        public bool IsEmpty => _values == null;
     }
 }

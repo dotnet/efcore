@@ -7,6 +7,7 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -84,8 +85,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// </summary>
         public virtual object OriginalValue
         {
-            get { return _internalEntry.OriginalValues[Metadata]; }
-            [param: CanBeNull] set { _internalEntry.OriginalValues[Metadata] = value; }
+            get { return _internalEntry.GetValue(Metadata, ValueSource.Original); }
+            [param: CanBeNull] set { _internalEntry.SetValue(Metadata, value, ValueSource.Original); }
         }
     }
 }

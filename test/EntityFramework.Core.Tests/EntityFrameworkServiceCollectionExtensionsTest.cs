@@ -51,10 +51,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifySingleton<IEntityMaterializerSource>();
             VerifySingleton<IMemberMapper>();
             VerifySingleton<IFieldMatcher>();
-            VerifySingleton<IOriginalValuesFactory>();
-            VerifySingleton<IRelationshipsSnapshotFactory>();
-            VerifySingleton<IStoreGeneratedValuesFactory>();
-            VerifySingleton<IEntityEntryMetadataServices>();
             VerifySingleton<ILoggerFactory>();
             VerifySingleton<ICoreConventionSetBuilder>();
             VerifySingleton<LoggingModelValidator>();

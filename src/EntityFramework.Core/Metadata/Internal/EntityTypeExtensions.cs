@@ -71,6 +71,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return (entityType as EntityType)?.UseEagerSnapshots ?? false;
         }
 
+        public static int StoreGeneratedCount([NotNull] this IEntityType entityType)
+            => GetCounts(entityType).StoreGeneratedCount;
+
         public static int RelationshipPropertyCount([NotNull] this IEntityType entityType)
             => GetCounts(entityType).RelationshipCount;
 
@@ -103,7 +106,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var navigationCount = entityType.GetDeclaredNavigations().Count();
             var originalValueCount = properties.Count(p => p.RequiresOriginalValue());
             var shadowCount = properties.Count(p => p.IsShadowProperty);
-            var relationshipCount = navigationCount + properties.Count(p => p.RequiresRelationshipSnapshot());
+            var relationshipCount = navigationCount + properties.Count(p => p.IsKeyOrForeignKey());
+            var storeGeneratedCount = properties.Count(p => p.MayBeStoreGenerated());
 
             var baseCounts = entityType.BaseType?.CalculateCounts();
 
@@ -113,15 +117,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     navigationCount,
                     originalValueCount,
                     shadowCount,
-                    relationshipCount)
+                    relationshipCount,
+                    storeGeneratedCount)
                 : new PropertyCounts(
                     baseCounts.PropertyCount + propertyCount,
                     baseCounts.NavigationCount + navigationCount,
                     baseCounts.OriginalValueCount + originalValueCount,
                     baseCounts.ShadowCount + shadowCount,
-                    baseCounts.RelationshipCount + relationshipCount);
+                    baseCounts.RelationshipCount + relationshipCount,
+                    baseCounts.StoreGeneratedCount + storeGeneratedCount);
         }
-        
+
         public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)
         {
             Check.NotNull(entityType, nameof(entityType));

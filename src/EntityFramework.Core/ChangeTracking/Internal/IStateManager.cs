@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -37,7 +38,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         void StopTracking([NotNull] InternalEntityEntry entry);
 
-        InternalEntityEntry GetPrincipal([NotNull] IPropertyAccessor dependentEntry, [NotNull] IForeignKey foreignKey);
+        InternalEntityEntry GetPrincipal([NotNull] InternalEntityEntry dependentEntry, [NotNull] IForeignKey foreignKey, ValueSource valueSource);
 
         void UpdateIdentityMap([NotNull] InternalEntityEntry entry, [NotNull] IKeyValue oldKeyValue, [NotNull] IKey principalKey);
 
@@ -54,5 +55,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         DbContext Context { get; }
 
         bool? SingleQueryMode { get; set; }
+
+        IKeyValue CreateKey([NotNull] IKey key, [CanBeNull] object value);
     }
 }

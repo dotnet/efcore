@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             private const int BitsForPropertyFlags = 2;
             private const int BitsForAdditionalState = BitsForEntityState + BitsForEntityFlags;
             private const int EntityStateMask = 0x07;
-            private const int TransparentSidecarMask = 0x08;
-            private const int AdditionalStateMask = EntityStateMask | TransparentSidecarMask;
+            private const int UnusedStateMask = 0x08; // So entity state uses even number of bits
+            private const int AdditionalStateMask = EntityStateMask | UnusedStateMask;
 
             private readonly int[] _bits;
 
@@ -50,12 +50,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 get { return (EntityState)(_bits[0] & EntityStateMask); }
                 set { _bits[0] = (_bits[0] & ~EntityStateMask) | (int)value; }
-            }
-
-            public bool TransparentSidecarInUse
-            {
-                get { return (_bits[0] & TransparentSidecarMask) != 0; }
-                set { _bits[0] = (_bits[0] & ~TransparentSidecarMask) | (value ? TransparentSidecarMask : 0); }
             }
 
             public bool IsPropertyFlagged(int propertyIndex, PropertyFlag propertyFlag)

@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -22,25 +23,22 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void PropertyChanged(InternalEntityEntry entry, IPropertyBase propertyBase)
         {
-            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
-
             var property = propertyBase as IProperty;
             if (property != null)
             {
                 entry.SetPropertyModified(property);
 
-                if (snapshot != null)
+                if (property.GetRelationshipIndex() != -1)
                 {
-                    DetectKeyChange(entry, property, snapshot);
+                    DetectKeyChange(entry, property);
                 }
             }
             else
             {
                 var navigation = propertyBase as INavigation;
-                if (navigation != null
-                    && snapshot != null)
+                if (navigation != null)
                 {
-                    DetectNavigationChange(entry, navigation, snapshot);
+                    DetectNavigationChange(entry, navigation);
                 }
             }
         }
@@ -49,20 +47,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             if (!entry.EntityType.UseEagerSnapshots())
             {
-                var property = propertyBase as IProperty;
-                if (property != null
-                    && property.GetOriginalValueIndex() >= 0)
-                {
-                    entry.OriginalValues.EnsureSnapshot(property);
-                }
+                entry.EnsureOriginalValues();
 
-                var navigation = propertyBase as INavigation;
-                if ((navigation != null && !navigation.IsCollection())
-                    || (property != null && (property.IsKey() || property.IsForeignKey(entry.EntityType))))
+                if (propertyBase.GetRelationshipIndex() != -1)
                 {
-                    // TODO: Consider making snapshot temporary here since it is no longer required after PropertyChanged is called
-                    // See issue #730
-                    entry.RelationshipsSnapshot.TakeSnapshot(propertyBase);
+                    entry.EnsureRelationshipSnapshot();
                 }
             }
         }
@@ -90,16 +79,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return;
             }
 
-            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-            if (snapshot == null)
-            {
-                return;
-            }
-
             foreach (var property in entityType.GetProperties())
             {
                 if (property.GetOriginalValueIndex() >= 0
-                    && !Equals(entry[property], snapshot[property]))
+                    && !Equals(entry[property], entry.GetValue(property, ValueSource.Original)))
                 {
                     entry.SetPropertyModified(property);
                 }
@@ -108,15 +91,20 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private void DetectRelationshipChanges(InternalEntityEntry entry)
         {
-            var snapshot = entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot);
-            if (snapshot != null)
+            var entityType = entry.EntityType;
+
+            if (!entityType.HasPropertyChangedNotifications())
             {
-                DetectKeyChanges(entry, snapshot);
-                DetectNavigationChanges(entry, snapshot);
+                DetectKeyChanges(entry);
+            }
+
+            if (entry.HasRelationshipSnapshot)
+            {
+                DetectNavigationChanges(entry);
             }
         }
 
-        private void DetectKeyChanges(InternalEntityEntry entry, Sidecar snapshot)
+        private void DetectKeyChanges(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 
@@ -124,12 +112,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 foreach (var property in entityType.GetProperties())
                 {
-                    DetectKeyChange(entry, property, snapshot);
+                    DetectKeyChange(entry, property);
                 }
             }
         }
 
-        private void DetectNavigationChanges(InternalEntityEntry entry, Sidecar snapshot)
+        private void DetectNavigationChanges(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 
@@ -138,25 +126,20 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 foreach (var navigation in entityType.GetNavigations())
                 {
-                    DetectNavigationChange(entry, navigation, snapshot);
+                    DetectNavigationChange(entry, navigation);
                 }
             }
         }
 
-        private void DetectKeyChange(InternalEntityEntry entry, IProperty property, Sidecar snapshot)
+        private void DetectKeyChange(InternalEntityEntry entry, IProperty property)
         {
-            if (!snapshot.HasValue(property))
-            {
-                return;
-            }
-
             var keys = property.FindContainingKeys().ToList();
             var foreignKeys = property.FindContainingForeignKeys(entry.EntityType).ToList();
 
             if (keys.Count > 0
                 || foreignKeys.Count > 0)
             {
-                var snapshotValue = snapshot[property];
+                var snapshotValue = entry.GetValue(property, ValueSource.RelationshipSnapshot);
                 var currentValue = entry[property];
 
                 // Note that mutation of a byte[] key is not supported or detected, but two different instances
@@ -171,7 +154,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                         foreach (var foreignKey in foreignKeys)
                         {
-                            stateManager.UpdateDependentMap(entry, snapshot.GetDependentKeyValue(foreignKey), foreignKey);
+                            stateManager.UpdateDependentMap(
+                                entry, 
+                                entry.GetDependentKeyValue(foreignKey, ValueSource.RelationshipSnapshot), 
+                                foreignKey);
                         }
                     }
 
@@ -179,20 +165,23 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     {
                         foreach (var key in keys)
                         {
-                            stateManager.UpdateIdentityMap(entry, snapshot.GetPrincipalKeyValue(key), key);
+                            stateManager.UpdateIdentityMap(
+                                entry, 
+                                entry.GetPrincipalKeyValue(key, ValueSource.RelationshipSnapshot), 
+                                key);
                         }
 
                         stateManager.Notify.PrincipalKeyPropertyChanged(entry, property, snapshotValue, currentValue);
                     }
 
-                    snapshot.TakeSnapshot(property);
+                    entry.SetValue(property, currentValue, ValueSource.RelationshipSnapshot);
                 }
             }
         }
 
-        private void DetectNavigationChange(InternalEntityEntry entry, INavigation navigation, Sidecar snapshot)
+        private void DetectNavigationChange(InternalEntityEntry entry, INavigation navigation)
         {
-            var snapshotValue = snapshot[navigation];
+            var snapshotValue = entry.GetValue(navigation, ValueSource.RelationshipSnapshot);
             var currentValue = entry[navigation];
             var stateManager = entry.StateManager;
 
@@ -228,7 +217,15 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 {
                     stateManager.Notify.NavigationCollectionChanged(entry, navigation, added, removed);
 
-                    snapshot.TakeSnapshot(navigation);
+                    foreach (var addedEntity in added)
+                    {
+                        entry.AddToCollectionSnapshot(navigation, addedEntity);
+                    }
+
+                    foreach (var removedEntity in removed)
+                    {
+                        entry.RemoveFromCollectionSnapshot(navigation, removedEntity);
+                    }
                 }
             }
             else if (!ReferenceEquals(currentValue, snapshotValue))
@@ -240,7 +237,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     added.Add(currentValue);
                 }
 
-                snapshot.TakeSnapshot(navigation);
+                entry.SetValue(navigation, currentValue, ValueSource.RelationshipSnapshot);
             }
 
             foreach (var addedEntity in added)

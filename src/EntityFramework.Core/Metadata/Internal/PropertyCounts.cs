@@ -5,13 +5,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class PropertyCounts
     {
-        public PropertyCounts(int propertyCount, int navigationCount, int originalValueCount, int shadowCount, int relationshipCount)
+        public PropertyCounts(
+            int propertyCount, 
+            int navigationCount, 
+            int originalValueCount, 
+            int shadowCount, 
+            int relationshipCount,
+            int storeGeneratedCount)
         {
             PropertyCount = propertyCount;
             NavigationCount = navigationCount;
             OriginalValueCount = originalValueCount;
             ShadowCount = shadowCount;
             RelationshipCount = relationshipCount;
+            StoreGeneratedCount = storeGeneratedCount;
         }
 
         public virtual int PropertyCount { get; }
@@ -19,5 +26,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual int OriginalValueCount { get; }
         public virtual int ShadowCount { get; }
         public virtual int RelationshipCount { get; }
+        public virtual int StoreGeneratedCount { get; }
     }
 }

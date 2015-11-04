@@ -24,8 +24,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IReadOnlyList<IProperty> properties,
             ValueBuffer valueBuffer);
 
-        public abstract IKeyValue Create(
-            [NotNull] IReadOnlyList<IProperty> properties,
-            [NotNull] IPropertyAccessor propertyAccessor);
+        public abstract IKeyValue Create([CanBeNull] object value);
     }
 }

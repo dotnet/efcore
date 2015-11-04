@@ -13,6 +13,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -33,6 +34,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
+        private readonly IKeyValueFactorySource _keyValueFactorySource;
         private readonly IModel _model;
         private readonly IDatabase _database;
 
@@ -41,12 +43,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IInternalEntityEntrySubscriber subscriber,
             [NotNull] IInternalEntityEntryNotifier notifier,
             [NotNull] IValueGenerationManager valueGeneration,
+            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] IModel model,
             [NotNull] IDatabase database,
             [NotNull] DbContext context)
         {
             _factory = factory;
             _subscriber = subscriber;
+            _keyValueFactorySource = keyValueFactorySource;
             Notify = notifier;
             ValueGeneration = valueGeneration;
             _model = model;
@@ -59,6 +63,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual IInternalEntityEntryNotifier Notify { get; }
 
         public virtual IValueGenerationManager ValueGeneration { get; }
+
+        public virtual IKeyValue CreateKey(IKey key, object value)
+            => _keyValueFactorySource.GetKeyFactory(key).Create(value);
 
         public virtual InternalEntityEntry GetOrCreateEntry(object entity)
         {
@@ -278,9 +285,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual InternalEntityEntry GetPrincipal(IPropertyAccessor dependentEntry, IForeignKey foreignKey)
+        public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey, ValueSource valueSource)
         {
-            var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey);
+            var dependentKeyValue = dependentEntry.GetDependentKeyValue(foreignKey, valueSource);
             if (dependentKeyValue.IsInvalid)
             {
                 return null;
@@ -397,7 +404,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 : Enumerable.Empty<InternalEntityEntry>();
         }
 
-        [DebuggerStepThrough]
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             var entriesToSave = GetEntriesToSave();
@@ -421,7 +427,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 foreach (var entry in entriesToSave)
                 {
-                    entry.AutoRollbackSidecars();
+                    entry.DiscardStoreGeneratedValues();
                 }
                 throw;
             }
@@ -471,7 +477,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 foreach (var entry in entriesToSave)
                 {
-                    entry.AutoRollbackSidecars();
+                    entry.DiscardStoreGeneratedValues();
                 }
                 throw;
             }
@@ -501,7 +507,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var entry in changedEntries)
             {
-                entry.AutoCommitSidecars();
                 entry.AcceptChanges();
             }
         }

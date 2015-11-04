@@ -10,6 +10,7 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.ConcurrencyModel;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Update;
 using Xunit;
 
 namespace Microsoft.Data.Entity.FunctionalTests
@@ -27,11 +28,9 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         public static void SetOriginalValues(this InternalEntityEntry internalEntry, Dictionary<IProperty, object> values)
         {
-            var originalValues = internalEntry.OriginalValues;
-
             foreach (var value in values)
             {
-                originalValues[value.Key] = value.Value;
+                internalEntry.SetValue(value.Key, value.Value, ValueSource.Original);
             }
         }
 

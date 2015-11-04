@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -68,6 +69,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return null;
         }
 
+        public static int GetStoreGeneratedIndex([NotNull] this IPropertyBase propertyBase)
+            => propertyBase.GetPropertyIndexes().StoreGenerationIndex;
+
         public static int GetRelationshipIndex([NotNull] this IPropertyBase propertyBase)
             => propertyBase.GetPropertyIndexes().RelationshipIndex;
 
@@ -95,6 +99,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var shadowIndex = 0;
             var originalValueIndex = 0;
             var relationshipIndex = 0;
+            var storeGenerationIndex = 0;
 
             var baseCounts = entityType.BaseType?.GetCounts();
             if (baseCounts != null)
@@ -103,6 +108,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 shadowIndex = baseCounts.ShadowCount;
                 originalValueIndex = baseCounts.OriginalValueCount;
                 relationshipIndex = baseCounts.RelationshipCount;
+                storeGenerationIndex = baseCounts.StoreGeneratedCount;
             }
 
             PropertyIndexes callingPropertyIndexes = null;
@@ -113,7 +119,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     index++,
                     property.RequiresOriginalValue() ? originalValueIndex++ : -1,
                     property.IsShadowProperty ? shadowIndex++ : -1,
-                    property.RequiresRelationshipSnapshot() ? relationshipIndex++ : -1);
+                    property.IsKeyOrForeignKey() ? relationshipIndex++ : -1,
+                    MayBeStoreGenerated(property) ? storeGenerationIndex++ : -1);
 
                 TrySetIndexes(property, indexes);
 
@@ -125,7 +132,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var navigation in entityType.GetDeclaredNavigations())
             {
-                var indexes = new PropertyIndexes(index++, -1, -1, relationshipIndex++);
+                var indexes = new PropertyIndexes(index++, -1, -1, relationshipIndex++, -1);
 
                 TrySetIndexes(navigation, indexes);
 
@@ -143,6 +150,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return callingPropertyIndexes;
         }
 
+        public static bool MayBeStoreGenerated([NotNull] this IProperty property)
+        {
+            if (property.ValueGenerated != ValueGenerated.Never)
+            {
+                return true;
+            }
+
+            if (property.IsKeyOrForeignKey())
+            {
+                var generationProperty = property.GetGenerationProperty();
+                return generationProperty != null
+                       && generationProperty.ValueGenerated != ValueGenerated.Never;
+            }
+
+            return false;
+        }
+
         private static void TrySetIndexes(IPropertyBase propertyBase, PropertyIndexes indexes)
         {
             var indexAccessor = propertyBase as IPropertyIndexesAccessor;
@@ -157,7 +181,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                || property.IsConcurrencyToken
                || property.IsForeignKey();
 
-        public static bool RequiresRelationshipSnapshot([NotNull] this IProperty property)
+        public static bool IsKeyOrForeignKey([NotNull] this IProperty property)
             => property.IsKey()
                || property.IsForeignKey();
 

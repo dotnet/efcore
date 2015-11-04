@@ -134,28 +134,5 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             data.EntityState = EntityState.Detached;
             Assert.Equal(EntityState.Detached, data.EntityState);
         }
-
-        [Fact]
-        public void Can_get_and_set_sidecar_flag()
-        {
-            var data = new InternalEntityEntry.StateData(70);
-
-            Assert.False(data.TransparentSidecarInUse);
-
-            data.TransparentSidecarInUse = true;
-            Assert.True(data.TransparentSidecarInUse);
-
-            data.TransparentSidecarInUse = false;
-            Assert.False(data.TransparentSidecarInUse);
-
-            data.FlagAllProperties(70, InternalEntityEntry.PropertyFlag.TemporaryOrModified, flagged: true);
-
-            Assert.False(data.TransparentSidecarInUse);
-
-            data.TransparentSidecarInUse = true;
-            Assert.True(data.TransparentSidecarInUse);
-
-            data.TransparentSidecarInUse = false;
-        }
     }
 }

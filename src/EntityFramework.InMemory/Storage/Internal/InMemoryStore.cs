@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             }
 
             private static object[] CreateValueBuffer(IUpdateEntry entry) 
-                => entry.EntityType.GetProperties().Select(p => entry[p]).ToArray();
+                => entry.EntityType.GetProperties().Select(p => entry.GetValue(p)).ToArray();
 
             public virtual IEnumerator<object[]> GetEnumerator()
                 => _rows.HasValue

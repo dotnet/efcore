@@ -1,10 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -55,10 +52,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                 configuration,
-                 entityType,
-                 new SomeEntity { Id = 1, Name = "Kool" },
-                 new ValueBuffer(new object[] { 1, "Kool" }));
+                configuration,
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
+                new ValueBuffer(new object[] { 1, "Kool" }));
 
             var entity = (SomeEntity)entry.Entity;
 
@@ -95,27 +92,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Setting_CLR_property_with_full_notifications_does_not_require_DetectChanges()
             => SetPropertyClrTest(new FullNotificationEntity { Id = 1, Name = "Kool" }, needsDetectChanges: false);
-
-        [Fact]
-        public void Original_values_are_not_tracked_unless_needed_by_default_for_properties_of_full_notifications_entity()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(FullNotificationEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var configuration = TestHelpers.Instance.CreateContextServices(model);
-
-            var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                new FullNotificationEntity { Id = 1, Name = "Kool" }, 
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            Assert.Equal(
-                CoreStrings.OriginalValueNotTracked("Id", typeof(FullNotificationEntity).FullName),
-                Assert.Throws<InvalidOperationException>(() => entry.OriginalValues[idProperty] = 1).Message);
-
-            Assert.Equal(1, entry.OriginalValues[idProperty]);
-        }
 
         [Fact]
         public void Setting_an_explicit_value_on_the_entity_marks_property_as_not_temporary()

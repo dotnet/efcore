@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -32,13 +33,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var navigations = foreignKey.GetNavigations().ToList();
 
-                var oldPrincipalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
+                var oldPrincipalEntry = entry.StateManager.GetPrincipal(entry, foreignKey, ValueSource.RelationshipSnapshot);
                 if (oldPrincipalEntry != null)
                 {
                     Unfixup(navigations, oldPrincipalEntry, entry);
                 }
 
-                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey);
+                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey, ValueSource.Current);
                 if (principalEntry != null)
                 {
                     if (foreignKey.IsUnique)
@@ -149,7 +150,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var newKeyValues = foreignKey.PrincipalKey.Properties.Select(p => entry[p]).ToList();
 
-                var oldKey = entry.RelationshipsSnapshot.GetPrincipalKeyValue(foreignKey);
+                var oldKey = entry.GetPrincipalKeyValue(foreignKey, ValueSource.RelationshipSnapshot);
                 if (!oldKey.IsInvalid)
                 {
                     foreach (var dependent in entry.StateManager.Entries.Where(
@@ -302,7 +303,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
-                var principalEntry = entry.StateManager.GetPrincipal(entry.RelationshipsSnapshot, foreignKey);
+                var principalEntry = entry.StateManager.GetPrincipal(entry, foreignKey, ValueSource.RelationshipSnapshot);
                 if (principalEntry != null)
                 {
                     DoFixup(foreignKey, principalEntry, new[] { entry });
@@ -352,7 +353,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     foreach (var dependent in dependentEntries)
                     {
                         setter.SetClrValue(dependent.Entity, principalEntry.Entity);
-                        dependent.RelationshipsSnapshot.TakeSnapshot(navigation);
+                        dependent.SetValue(navigation, principalEntry.Entity, ValueSource.RelationshipSnapshot);
                     }
                 }
                 else
@@ -363,9 +364,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                         foreach (var dependent in dependentEntries)
                         {
-                            if (!collectionAccessor.Contains(principalEntry.Entity, dependent.Entity))
+                            var dependentEntity = dependent.Entity;
+                            if (!collectionAccessor.Contains(principalEntry.Entity, dependentEntity))
                             {
-                                collectionAccessor.Add(principalEntry.Entity, dependent.Entity);
+                                collectionAccessor.Add(principalEntry.Entity, dependentEntity);
+                                principalEntry.AddToCollectionSnapshot(navigation, dependentEntity);
                             }
                         }
                     }
@@ -373,9 +376,10 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     {
                         // TODO: Decide how to handle case where multiple values match non-collection nav prop
                         // Issue #739
-                        navigation.GetSetter().SetClrValue(principalEntry.Entity, dependentEntries.Single().Entity);
+                        var value = dependentEntries.Single().Entity;
+                        navigation.GetSetter().SetClrValue(principalEntry.Entity, value);
+                        principalEntry.SetValue(navigation, value, ValueSource.RelationshipSnapshot);
                     }
-                    principalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
                 }
             }
         }
@@ -385,35 +389,34 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             foreach (var navigation in navigations)
             {
                 Unfixup(navigation, oldPrincipalEntry, dependentEntry);
-
-                if (!navigation.IsDependentToPrincipal())
-                {
-                    oldPrincipalEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
-                }
             }
         }
 
         private void Unfixup(INavigation navigation, InternalEntityEntry oldPrincipalEntry, InternalEntityEntry dependentEntry)
         {
+            var dependentEntity = dependentEntry.Entity;
+
             if (navigation.IsDependentToPrincipal())
             {
-                navigation.GetSetter().SetClrValue(dependentEntry.Entity, null);
+                navigation.GetSetter().SetClrValue(dependentEntity, null);
 
-                dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+                dependentEntry.SetValue(navigation, null, ValueSource.RelationshipSnapshot);
             }
             else
             {
                 if (navigation.IsCollection())
                 {
                     var collectionAccessor = navigation.GetCollectionAccessor();
-                    if (collectionAccessor.Contains(oldPrincipalEntry.Entity, dependentEntry.Entity))
+                    if (collectionAccessor.Contains(oldPrincipalEntry.Entity, dependentEntity))
                     {
-                        collectionAccessor.Remove(oldPrincipalEntry.Entity, dependentEntry.Entity);
+                        collectionAccessor.Remove(oldPrincipalEntry.Entity, dependentEntity);
+                        oldPrincipalEntry.RemoveFromCollectionSnapshot(navigation, dependentEntity);
                     }
                 }
                 else
                 {
                     navigation.GetSetter().SetClrValue(oldPrincipalEntry.Entity, null);
+                    oldPrincipalEntry.SetValue(navigation, null, ValueSource.RelationshipSnapshot);
                 }
             }
         }
@@ -425,7 +428,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 if (navigation.IsDependentToPrincipal())
                 {
                     navigation.GetSetter().SetClrValue(dependentEntry.Entity, null);
-                    dependentEntry.RelationshipsSnapshot.TakeSnapshot(navigation);
+                    dependentEntry.SetValue(navigation, null, ValueSource.RelationshipSnapshot);
                 }
             }
 
@@ -449,12 +452,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
+                var principalValue = principalValues[i];
                 if (foreignKey.Properties[i].GetGenerationProperty() == null
-                    || !foreignKey.PrincipalKey.Properties[i].ClrType.IsDefaultValue(principalValues[i]))
+                    || !foreignKey.PrincipalKey.Properties[i].ClrType.IsDefaultValue(principalValue))
                 {
                     var dependentProperty = foreignKey.Properties[i];
-                    dependentEntry[dependentProperty] = principalValues[i];
-                    dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
+                    dependentEntry[dependentProperty] = principalValue;
+                    dependentEntry.SetValue(dependentProperty, principalValue, ValueSource.RelationshipSnapshot);
                 }
             }
         }
@@ -479,7 +483,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             foreach (var dependentProperty in dependentProperties)
             {
                 dependentEntry[dependentProperty] = null;
-                dependentEntry.RelationshipsSnapshot.TakeSnapshot(dependentProperty);
+                dependentEntry.SetValue(dependentProperty, null, ValueSource.RelationshipSnapshot);
             }
         }
 
@@ -498,6 +502,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     if (!collectionAccessor.Contains(entity, entry.Entity))
                     {
                         collectionAccessor.Add(entity, entry.Entity);
+                        inverseEntry.AddToCollectionSnapshot(inverse, entry.Entity);
                     }
                 }
                 else
@@ -519,9 +524,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     }
 
                     inverse.GetSetter().SetClrValue(entity, entry.Entity);
+                    inverseEntry.SetValue(inverse, entry.Entity, ValueSource.RelationshipSnapshot);
                 }
-
-                inverseEntry.RelationshipsSnapshot.TakeSnapshot(inverse);
             }
         }
 
@@ -534,16 +538,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 if (inverse.IsCollection())
                 {
                     inverse.GetCollectionAccessor().Remove(entity, entry.Entity);
+                    entry.StateManager.GetOrCreateEntry(entity).RemoveFromCollectionSnapshot(inverse, entry.Entity);
                 }
                 else
                 {
                     if (ReferenceEquals(inverse.GetGetter().GetClrValue(entity), entry.Entity))
                     {
                         inverse.GetSetter().SetClrValue(entity, null);
+                        entry.StateManager.GetOrCreateEntry(entity).SetValue(inverse, null, ValueSource.RelationshipSnapshot);
                     }
                 }
 
-                entry.StateManager.GetOrCreateEntry(entity).RelationshipsSnapshot.TakeSnapshot(inverse);
             }
         }
     }

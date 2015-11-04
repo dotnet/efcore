@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Update;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -19,15 +20,19 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         [Fact]
         public void Snapshots_are_created_for_entities_without_changing_notifications()
         {
+            var entity = new ChangedOnlyNotificationEntity { Name = "Palmer", Id = 1 };
             var entry = TestHelpers.Instance.CreateInternalEntry(
                 BuildModel(),
                 EntityState.Unchanged,
-                new ChangedOnlyNotificationEntity { Name = "Palmer", Id = 1 });
+                entity);
 
-            Assert.True(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues).HasValue(entry.EntityType.FindProperty("Name")));
-            Assert.Equal("Palmer", entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues)[entry.EntityType.FindProperty("Name")]);
-            Assert.True(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot).HasValue(entry.EntityType.FindProperty("Id")));
-            Assert.Equal(1, entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)[entry.EntityType.FindProperty("Id")]);
+            Assert.True(entry.HasRelationshipSnapshot);
+
+            Assert.Equal("Palmer", entry.GetValue(entry.EntityType.FindProperty("Name"), ValueSource.Original));
+
+            entity.Name = "Luckey";
+
+            Assert.Equal("Palmer", entry.GetValue(entry.EntityType.FindProperty("Name"), ValueSource.Original));
         }
 
         [Fact]
@@ -35,9 +40,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
         {
             var entry = TestHelpers.Instance.CreateInternalEntry<FullNotificationEntity>(BuildModel());
 
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            // TODO: The following assert should be changed to Null once INotifyCollectionChanged is supported (Issue #445)
-            Assert.NotNull(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
+            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
+            Assert.True(entry.HasRelationshipSnapshot);
         }
 
         [Fact]
@@ -48,16 +52,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 EntityState.Unchanged,
                 new FullNotificationEntity { Name = "Palmer", Id = 1, RelatedCollection = new List<ChangedOnlyNotificationEntity>() });
 
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-
-            Assert.False(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                .HasValue(entry.EntityType.FindProperty("Id")));
-
-            Assert.True(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                .HasValue(entry.EntityType.FindNavigation("RelatedCollection")));
-
-            Assert.NotNull(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot)
-                [entry.EntityType.FindNavigation("RelatedCollection")]);
+            Assert.True(entry.HasRelationshipSnapshot);
         }
 
         [Fact]
@@ -68,9 +63,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
                 EntityState.Unchanged,
                 new FullNotificationEntity { Id = -1, Name = "Palmer", RelatedCollection = new ObservableCollection<ChangedOnlyNotificationEntity>() });
 
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            // TODO: The following assert should be changed to Null once INotifyCollectionChanged is supported (Issue #445)
-            Assert.NotNull(entry.TryGetSidecar(Sidecar.WellKnownNames.RelationshipsSnapshot));
+            // TODO: The following assert should be changed to False once INotifyCollectionChanged is supported (Issue #445)
+            Assert.True(entry.HasRelationshipSnapshot);
         }
 
         [Fact]
@@ -211,15 +205,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+            private void NotifyChanged(string propertyName) 
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-            private void NotifyChanging(string propertyName)
-            {
-                PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
-            }
+            private void NotifyChanging(string propertyName) 
+                => PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(propertyName));
         }
 
         private class ChangedOnlyNotificationEntity : INotifyPropertyChanged
@@ -264,10 +254,8 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
+            private void NotifyChanged(string propertyName) 
+                => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

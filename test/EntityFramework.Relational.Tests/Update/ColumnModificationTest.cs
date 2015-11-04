@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var value = columnModification.Value;
 
-            internalEntryMock.Verify(m => m[It.IsAny<IPropertyBase>()], Times.Once);
+            internalEntryMock.Verify(m => m.GetValue(It.IsAny<IPropertyBase>(), ValueSource.Current), Times.Once);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             columnModification.Value = value;
 
-            internalEntryMock.VerifySet(m => m[property] = It.IsAny<object>(), Times.Once);
+            internalEntryMock.Verify(m => m.SetValue(property, It.IsAny<object>(), ValueSource.Current), Times.Once);
         }
 
         private static Mock<InternalEntityEntry> CreateInternalEntryMock(IProperty property)
@@ -81,10 +81,10 @@ namespace Microsoft.Data.Entity.Tests.Update
             var entityTypeMock = new Mock<IEntityType>();
             entityTypeMock.Setup(e => e.GetProperties()).Returns(new[] { property });
 
-            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0));
+            entityTypeMock.As<IPropertyCountsAccessor>().Setup(e => e.Counts).Returns(new PropertyCounts(0, 0, 0, 0, 0, 0));
 
             var internalEntryMock = new Mock<InternalEntityEntry>(
-                Mock.Of<IStateManager>(), entityTypeMock.Object, Mock.Of<IEntityEntryMetadataServices>());
+                Mock.Of<IStateManager>(), entityTypeMock.Object);
             return internalEntryMock;
         }
     }

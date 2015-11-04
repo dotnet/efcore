@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Threading.Tasks;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
@@ -47,10 +46,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         private static string CreateConnectionString(string name)
         {
             var connStrBuilder = new SqlConnectionStringBuilder
-                {
-                    MultipleActiveResultSets = true,
-                    InitialCatalog = name
-                };
+            {
+                MultipleActiveResultSets = true,
+                InitialCatalog = name
+            };
             return connStrBuilder.ApplyConfiguration().ConnectionString;
         }
 

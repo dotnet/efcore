@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -23,8 +24,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7 };
             var entry = stateManager.GetOrCreateEntry(entity);
 
+            var property = type.FindPrimaryKey().Properties.Single();
+
             var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
-                .Create(type.FindPrimaryKey().Properties, entry);
+                .Create(entry[property]);
 
             Assert.Equal(7, key.Value);
         }
@@ -39,8 +42,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new Banana { P1 = 7, P2 = null };
             var entry = stateManager.GetOrCreateEntry(entity);
 
+            var property = type.FindProperty("P2");
+
             Assert.True(new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P2") }, entry).IsInvalid);
+                .Create(entry[property]).IsInvalid);
         }
 
         [Fact]
@@ -64,43 +69,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.True(
                 new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
                     .Create(new[] { type.FindProperty("P2") }, new ValueBuffer(new object[] { 7, null })).IsInvalid);
-        }
-
-        [Fact]
-        public void Creates_a_new_key_from_a_sidecar_value()
-        {
-            var model = BuildModel();
-            var type = model.FindEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
-
-            var entity = new Banana { P1 = 7, P2 = 77 };
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            var sidecar = new RelationshipsSnapshot(entry);
-            sidecar[type.FindProperty("P2")] = 78;
-
-            var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P2") }, sidecar);
-
-            Assert.Equal(78, key.Value);
-        }
-
-        [Fact]
-        public void Creates_a_new_key_from_current_value_when_value_not_yet_set_in_sidecar()
-        {
-            var model = BuildModel();
-            var type = model.FindEntityType(typeof(Banana));
-            var stateManager = TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
-
-            var entity = new Banana { P1 = 7, P2 = 77 };
-            var entry = stateManager.GetOrCreateEntry(entity);
-
-            var sidecar = new RelationshipsSnapshot(entry);
-
-            var key = (KeyValue<int>)new SimpleKeyValueFactory<int>(type.FindPrimaryKey())
-                .Create(new[] { type.FindProperty("P2") }, sidecar);
-
-            Assert.Equal(77, key.Value);
         }
 
         private static Model BuildModel()

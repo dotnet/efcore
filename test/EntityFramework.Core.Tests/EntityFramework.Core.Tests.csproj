@@ -45,10 +45,7 @@
     <Compile Include="ChangeTracking\Internal\EntityKeyFactorySourceTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalMixedEntityEntryTest.cs" />
     <Compile Include="ChangeTracking\Internal\NavigationFixerTest.cs" />
-    <Compile Include="ChangeTracking\Internal\OriginalValuesTest.cs" />
-    <Compile Include="ChangeTracking\Internal\RelationshipsSnapshotTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalShadowEntityEntryTest.cs" />
-    <Compile Include="ChangeTracking\Internal\SidecarTest.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactoryTest.cs" />
     <Compile Include="ChangeTracking\Internal\EntityKeyTest.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleNullableEntityKeyFactoryTest.cs" />
@@ -57,7 +54,6 @@
     <Compile Include="ChangeTracking\Internal\InternalEntryEntrySubscriberTest.cs" />
     <Compile Include="ChangeTracking\Internal\InternalEntityEntryTestBase.cs" />
     <Compile Include="ChangeTracking\Internal\StateManagerTest.cs" />
-    <Compile Include="ChangeTracking\Internal\StoreGeneratedValuesTest.cs" />
     <Compile Include="ContextConfigurationTest.cs" />
     <Compile Include="DatabaseFacadeTest.cs" />
     <Compile Include="DbContextTest.cs" />

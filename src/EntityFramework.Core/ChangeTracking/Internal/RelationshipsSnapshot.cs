@@ -1,60 +1,98 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Diagnostics;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class RelationshipsSnapshot : ArraySidecar
+    public abstract partial class InternalEntityEntry
     {
-        public RelationshipsSnapshot([NotNull] InternalEntityEntry entry)
-            : base(entry, entry.EntityType.RelationshipPropertyCount())
+        private struct RelationshipsSnapshot
         {
-        }
+            private readonly object[] _values;
 
-        protected override int Index(IPropertyBase property) => property.GetRelationshipIndex();
-
-        protected override void ThrowInvalidIndexException(IPropertyBase property)
-        {
-            throw new InvalidOperationException();
-        }
-
-        protected override object CopyValueFromEntry(IPropertyBase property)
-        {
-            var value = base.CopyValueFromEntry(property);
-
-            var navigation = property as INavigation;
-            if (value == null
-                || navigation == null
-                || !navigation.IsCollection())
+            public RelationshipsSnapshot(InternalEntityEntry entry)
             {
-                return value;
+                var entityType = entry.EntityType;
+                _values = new object[entityType.RelationshipPropertyCount()];
+
+                foreach (var propertyBase in entityType.GetPropertiesAndNavigations())
+                {
+                    var index = propertyBase.GetRelationshipIndex();
+
+                    if (index >= 0)
+                    {
+                        var value = entry[propertyBase];
+
+                        if (value != null)
+                        {
+                            var navigation = propertyBase as INavigation;
+
+                            if (navigation == null
+                                || !navigation.IsCollection())
+                            {
+                                _values[index] = value;
+                            }
+                            else
+                            {
+                                var snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+
+                                foreach (var entity in (IEnumerable)value)
+                                {
+                                    snapshot.Add(entity);
+                                }
+
+                                _values[index] = snapshot;
+                            }
+                        }
+                    }
+                }
             }
 
-            // TODO: Perf: Consider updating the snapshot with what has changed rather than making a new snapshot every time.
-            // TODO: This may need to be strongly typed to entity type--not just object
-            var snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+            public object GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)
+                => IsEmpty ? entry[propertyBase] : _values[propertyBase.GetRelationshipIndex()];
 
-            foreach (var entity in (IEnumerable)value)
+            public void SetValue(IPropertyBase propertyBase, object value)
             {
-                snapshot.Add(entity);
+                if (value == null)
+                {
+                    var property = propertyBase as IProperty;
+                    if (property != null
+                        && !property.IsNullable)
+                    {
+                        return;
+                    }
+                }
+
+                Debug.Assert(!IsEmpty);
+                Debug.Assert(!(propertyBase is INavigation) || !((INavigation)propertyBase).IsCollection());
+
+                _values[propertyBase.GetRelationshipIndex()] = value;
             }
 
-            return snapshot;
+            public void RemoveFromCollection(IPropertyBase propertyBase, object removedEntity)
+                => ((HashSet<object>)_values[propertyBase.GetRelationshipIndex()]).Remove(removedEntity);
+
+            public void AddToCollection(IPropertyBase propertyBase, object addedEntity)
+            {
+                var index = propertyBase.GetRelationshipIndex();
+
+                var snapshot = ((HashSet<object>)_values[index]);
+                if (snapshot == null)
+                {
+                    snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
+                    _values[index] = snapshot;
+                }
+
+                snapshot.Add(addedEntity);
+            }
+
+            public bool IsEmpty => _values == null;
         }
-
-        public override string Name => WellKnownNames.RelationshipsSnapshot;
-
-        public override bool TransparentRead => false;
-
-        public override bool TransparentWrite => false;
-
-        public override bool AutoCommit => false;
     }
 }

@@ -27,21 +27,18 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (values != null)
                 {
-                    entry.OriginalValues = new ValueBufferOriginalValues(entry, values.Value);
+                    entry.EnsureOriginalValues(values.Value);
                 }
                 else
                 {
-                    entry.OriginalValues.TakeSnapshot();
+                    entry.EnsureOriginalValues();
                 }
 
-                entry.RelationshipsSnapshot.TakeSnapshot();
+                entry.EnsureRelationshipSnapshot();
             }
-            else
+            else if (entityType.GetNavigations().Any(n => n.IsNonNotifyingCollection(entry)))
             {
-                foreach (var navigation in entityType.GetNavigations().Where(n => n.IsNonNotifyingCollection(entry)))
-                {
-                    entry.RelationshipsSnapshot.TakeSnapshot(navigation);
-                }
+                entry.EnsureRelationshipSnapshot();
             }
 
             var changing = entry.Entity as INotifyPropertyChanging;

@@ -27,11 +27,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             IReadOnlyList<IProperty> properties, ValueBuffer valueBuffer)
             => Create(valueBuffer[properties[0].GetIndex()]);
 
-        public override IKeyValue Create(
-            IReadOnlyList<IProperty> properties, IPropertyAccessor propertyAccessor)
-            => Create(propertyAccessor[properties[0]]);
-
-        private KeyValue<TKey> Create(object value)
+        public override IKeyValue Create(object value)
             => value != null
                 ? new KeyValue<TKey>(Key, (TKey)value)
                 : new KeyValue<TKey>(null, default(TKey));

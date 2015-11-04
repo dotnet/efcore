@@ -120,7 +120,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                             if (command.EntityState == EntityState.Added
                                 || candidateKeyValueColumnModifications.Count != 0)
                             {
-                                var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Current);
+                                var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueSource.Current);
 
                                 if (!principalKeyValue.KeyValue.IsInvalid)
                                 {
@@ -153,7 +153,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                             if (command.EntityState == EntityState.Deleted
                                 || foreignKeyValueColumnModifications.Any())
                             {
-                                var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Original);
+                                var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueSource.Original);
 
                                 if (!dependentKeyValue.KeyValue.IsInvalid)
                                 {
@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
-                            var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueType.Current);
+                            var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueSource.Current);
 
                             if (!dependentKeyValue.KeyValue.IsInvalid)
                             {
@@ -213,7 +213,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                     {
                         foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
-                            var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueType.Original);
+                            var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueSource.Original);
 
                             if (!principalKeyValue.KeyValue.IsInvalid)
                             {
@@ -235,43 +235,37 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
         }
 
-        private KeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueType valueType)
-            => new KeyValueIndex(foreignKey, entry.GetPrincipalKeyValue(foreignKey, valueType == ValueType.Original), valueType);
+        private KeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
+            => new KeyValueIndex(foreignKey, entry.GetPrincipalKeyValue(foreignKey, valueSource), valueSource);
 
-        private KeyValueIndex CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueType valueType)
-            => new KeyValueIndex(foreignKey, entry.GetDependentKeyValue(foreignKey, valueType == ValueType.Original), valueType);
-
-        private enum ValueType
-        {
-            Original,
-            Current
-        }
+        private KeyValueIndex CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
+            => new KeyValueIndex(foreignKey, entry.GetDependentKeyValue(foreignKey, valueSource), valueSource);
 
         private struct KeyValueIndex
         {
-            public KeyValueIndex([NotNull] IForeignKey foreignKey, IKeyValue keyValueValue, ValueType valueType)
+            public KeyValueIndex([NotNull] IForeignKey foreignKey, IKeyValue keyValueValue, ValueSource valueSource)
             {
                 ForeignKey = foreignKey;
                 KeyValue = keyValueValue;
-                ValueType = valueType;
+                ValueSource = valueSource;
             }
 
             internal readonly IForeignKey ForeignKey;
 
             internal readonly IKeyValue KeyValue;
 
-            internal readonly ValueType ValueType;
+            internal readonly ValueSource ValueSource;
         }
 
         private class KeyValueIndexComparer : IEqualityComparer<KeyValueIndex>
         {
             public bool Equals(KeyValueIndex x, KeyValueIndex y)
-                => x.ValueType == y.ValueType
+                => x.ValueSource == y.ValueSource
                    && x.ForeignKey == y.ForeignKey
                    && x.KeyValue.Equals(y.KeyValue);
 
             public int GetHashCode(KeyValueIndex obj)
-                => (((obj.ValueType.GetHashCode() * 397)
+                => (((obj.ValueSource.GetHashCode() * 397)
                      ^ obj.ForeignKey.GetHashCode()) * 397)
                    ^ obj.KeyValue.GetHashCode();
         }

@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             var relatedentry = stateManager.GetOrCreateEntry(new RelatedFakeEntity { Id = 1, RelatedId = 3 });
             relatedentry.SetEntityState(EntityState.Modified);
-            relatedentry.OriginalValues[relatedentry.EntityType.FindProperty("RelatedId")] = 42;
+            relatedentry.SetValue(relatedentry.EntityType.FindProperty("RelatedId"), 42, ValueSource.Original);
             relatedentry.SetPropertyModified(relatedentry.EntityType.FindPrimaryKey().Properties.Single(), isModified: false);
 
             var commandBatches = CreateCommandBatchPreparer().BatchCommands(new[] { relatedentry, previousParent, newParent }).ToArray();

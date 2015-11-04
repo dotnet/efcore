@@ -2,20 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
+using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Data.Entity.ValueGeneration.Internal;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.ChangeTracking
@@ -213,7 +211,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
                 Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
 
-
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsModified(keyProperty));
         }
@@ -370,7 +367,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             {
                 Assert.Equal(0, entry[keyProperty]);
             }
-            
+
             Assert.Null(entry[nonKeyProperty]);
 
             entry.SetEntityState(EntityState.Added);
@@ -524,7 +521,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.RelationshipsSnapshot[fkProperty] = 78;
+            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
 
             var keyValue = entry.GetDependentKeyValue(fk);
             Assert.IsType<KeyValue<int>>(keyValue);
@@ -543,9 +540,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.RelationshipsSnapshot[fkProperty] = 78;
+            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
 
-            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(fk);
+            var keyValue = entry.GetDependentKeyValue(fk, ValueSource.RelationshipSnapshot);
             Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
             Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), keyValue.Key);
@@ -563,7 +560,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
 
-            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(fk);
+            var keyValue = entry.GetDependentKeyValue(fk, ValueSource.RelationshipSnapshot);
             Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(77, keyValue.Value);
             Assert.Same(fk.PrincipalEntityType.FindPrimaryKey(), keyValue.Key);
@@ -579,11 +576,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.RelationshipsSnapshot[fkProperty] = 78;
+            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
 
             entry[fkProperty] = 79;
 
-            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(entityType.GetForeignKeys().Single());
+            var keyValue = entry.GetDependentKeyValue(entityType.GetForeignKeys().Single(), ValueSource.RelationshipSnapshot);
             Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(79, keyValue.Value);
         }
@@ -598,11 +595,11 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());
             entry[fkProperty] = 77;
-            entry.RelationshipsSnapshot[fkProperty] = 78;
+            entry.SetValue(fkProperty, 78, ValueSource.RelationshipSnapshot);
 
             entry[fkProperty] = 77;
 
-            var keyValue = entry.RelationshipsSnapshot.GetDependentKeyValue(entityType.GetForeignKeys().Single());
+            var keyValue = entry.GetDependentKeyValue(entityType.GetForeignKeys().Single(), ValueSource.RelationshipSnapshot);
             Assert.IsType<KeyValue<int>>(keyValue);
             Assert.Equal(78, keyValue.Value);
         }
@@ -721,6 +718,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(77, entry[keyProperty]);
         }
+
         [Fact]
         public virtual void Can_set_and_get_property_values()
         {
@@ -757,7 +755,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         }
 
         private static object[] CreateValueBuffer(IUpdateEntry entry)
-            => entry.EntityType.GetProperties().Select(p => entry[p]).ToArray();
+            => entry.EntityType.GetProperties().Select(p => entry.GetValue(p)).ToArray();
 
         [Fact]
         public virtual void All_original_values_can_be_accessed_for_entity_that_does_full_change_tracking_if_eager_values_on()
@@ -776,30 +774,30 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                entity, 
+                configuration,
+                entityType,
+                entity,
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Equal(1, entry.OriginalValues[idProperty]);
-            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal(1, entry.GetValue(idProperty, ValueSource.Original));
+            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
 
             entry[nameProperty] = "Beans";
 
-            Assert.Equal(1, entry.OriginalValues[idProperty]);
-            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal(1, entry.GetValue(idProperty, ValueSource.Original));
+            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.OriginalValues[idProperty] = 3;
-            entry.OriginalValues[nameProperty] = "Franks";
+            entry.SetValue(idProperty, 3, ValueSource.Original);
+            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
 
-            Assert.Equal(3, entry.OriginalValues[idProperty]);
-            Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
+            Assert.Equal(3, entry.GetValue(idProperty, ValueSource.Original));
+            Assert.Equal("Franks", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Beans", entry[nameProperty]);
         }
@@ -833,17 +831,17 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, "Kool" }));
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Kool", entry[nameProperty]);
 
             entry[nameProperty] = "Beans";
 
-            Assert.Equal("Kool", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Kool", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.OriginalValues[nameProperty] = "Franks";
+            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
 
-            Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Franks", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
@@ -876,22 +874,22 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entry = CreateInternalEntry(configuration, entityType, entity, new ValueBuffer(new object[] { 1, null }));
             entry.SetEntityState(EntityState.Unchanged);
 
-            Assert.Null(entry.OriginalValues[nameProperty]);
+            Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Null(entry[nameProperty]);
 
             entry[nameProperty] = "Beans";
 
-            Assert.Null(entry.OriginalValues[nameProperty]);
+            Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.OriginalValues[nameProperty] = "Franks";
+            entry.SetValue(nameProperty, "Franks", ValueSource.Original);
 
-            Assert.Equal("Franks", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Franks", entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Beans", entry[nameProperty]);
 
-            entry.OriginalValues[nameProperty] = null;
+            entry.SetValue(nameProperty, null, ValueSource.Original);
 
-            Assert.Null(entry.OriginalValues[nameProperty]);
+            Assert.Null(entry.GetValue(nameProperty, ValueSource.Original));
             Assert.Equal("Beans", entry[nameProperty]);
         }
 
@@ -980,9 +978,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
+                configuration,
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
@@ -1012,21 +1010,21 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
+                configuration,
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(entityState);
 
             entry[nameProperty] = "Pickle";
-            entry.OriginalValues[nameProperty] = "Cheese";
+            entry.SetValue(nameProperty, "Cheese", ValueSource.Original);
 
             entry.AcceptChanges();
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal("Pickle", entry[nameProperty]);
-            Assert.Equal("Pickle", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Pickle", entry.GetValue(nameProperty, ValueSource.Original));
         }
 
         [Fact]
@@ -1038,9 +1036,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
+                configuration,
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Modified);
@@ -1051,7 +1049,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.Equal("Pickle", entry[nameProperty]);
-            Assert.Equal("Pickle", entry.OriginalValues[nameProperty]);
+            Assert.Equal("Pickle", entry.GetValue(nameProperty, ValueSource.Original));
         }
 
         [Fact]
@@ -1062,9 +1060,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(
-                configuration, 
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
+                configuration,
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
 
             entry.SetEntityState(EntityState.Deleted);
@@ -1072,70 +1070,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.AcceptChanges();
 
             Assert.Equal(EntityState.Detached, entry.EntityState);
-        }
-
-        [Fact]
-        public virtual void Can_add_and_remove_sidecars()
-        {
-            var model = BuildModel();
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                model.FindEntityType(typeof(SomeEntity).FullName),
-                new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            var sidecarMock1 = new Mock<Sidecar>(entry);
-            sidecarMock1.Setup(m => m.Name).Returns("IMZ-Ural");
-            sidecarMock1.Setup(m => m.AutoCommit).Returns(true);
-
-            var sidecarMock2 = new Mock<Sidecar>(entry);
-            sidecarMock2.Setup(m => m.Name).Returns("GG Duetto");
-
-            var originalValues = entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues);
-
-            Assert.True(entry.EntityType.HasClrType() == (originalValues != null));
-            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Null(entry.TryGetSidecar("GG Duetto"));
-
-            entry.AddSidecar(sidecarMock1.Object);
-            entry.AddSidecar(sidecarMock2.Object);
-
-            Assert.Same(originalValues, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            Assert.Same(sidecarMock1.Object, entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Same(sidecarMock2.Object, entry.TryGetSidecar("GG Duetto"));
-
-            entry.RemoveSidecar("IMZ-Ural");
-            entry.RemoveSidecar("GG Duetto");
-
-            Assert.Same(originalValues, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Null(entry.TryGetSidecar("GG Duetto"));
-
-            entry.RemoveSidecar("IMZ-Ural");
-            entry.RemoveSidecar("GG Duetto");
-
-            Assert.Same(originalValues, entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Null(entry.TryGetSidecar("GG Duetto"));
-
-            entry.RemoveSidecar(Sidecar.WellKnownNames.OriginalValues);
-
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Null(entry.TryGetSidecar("GG Duetto"));
-
-            entry.RemoveSidecar("IMZ-Ural");
-            entry.RemoveSidecar("GG Duetto");
-
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            Assert.Null(entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Null(entry.TryGetSidecar("GG Duetto"));
-
-            entry.AddSidecar(sidecarMock1.Object);
-
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.OriginalValues));
-            Assert.Same(sidecarMock1.Object, entry.TryGetSidecar("IMZ-Ural"));
-            Assert.Null(entry.TryGetSidecar("GG Duetto"));
         }
 
         [Fact]
@@ -1148,16 +1082,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(
                 TestHelpers.Instance.CreateContextServices(model),
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
+                entityType,
+                new SomeEntity { Id = 1, Name = "Kool" },
                 new ValueBuffer(new object[] { 1, "Kool" }));
-
-            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }));
 
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
 
-            sidecar[idProperty] = 7;
+            entry.SetValue(idProperty, 7, ValueSource.Original);
 
             Assert.Equal(1, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
@@ -1166,292 +1098,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             Assert.Equal(77, entry[idProperty]);
             Assert.Equal("Kool", entry[nameProperty]);
-        }
-
-        [Fact]
-        public virtual void Can_read_values_from_sidecar_transparently()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var nameProperty = entityType.FindProperty("Name");
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, transparentRead: true));
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal(1, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            sidecar[idProperty] = 7;
-
-            Assert.Equal(7, entry[idProperty]);
-            Assert.Equal(7, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            entry[idProperty] = 77;
-
-            Assert.Equal(7, entry[idProperty]);
-            Assert.Equal(7, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            entry.RemoveSidecar(sidecar.Name);
-
-            Assert.Equal(77, entry[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-        }
-
-        [Fact]
-        public virtual void Can_write_values_to_sidecar_transparently()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var nameProperty = entityType.FindProperty("Name");
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType, 
-                new SomeEntity { Id = 1, Name = "Kool" }, 
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, transparentWrite: true));
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            entry[idProperty] = 7;
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal(7, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            sidecar[idProperty] = 77;
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal(77, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            entry.RemoveSidecar(sidecar.Name);
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-        }
-
-        [Fact]
-        public virtual void Can_auto_commit_sidecars()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var nameProperty = entityType.FindProperty("Name");
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, autoCommit: true));
-
-            sidecar[idProperty] = 77;
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal(77, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            entry.AutoCommitSidecars();
-
-            Assert.Equal(77, entry[idProperty]);
-
-            Assert.Null(entry.TryGetSidecar(sidecar.Name));
-        }
-
-        [Fact]
-        public virtual void Can_auto_rollback_sidecars()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var idProperty = entityType.FindProperty("Id");
-            var nameProperty = entityType.FindProperty("Name");
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            var sidecar = entry.AddSidecar(new TheWasp(entry, new[] { idProperty }, autoCommit: true));
-
-            sidecar[idProperty] = 77;
-
-            Assert.Equal(1, entry[idProperty]);
-            Assert.Equal(77, sidecar[idProperty]);
-            Assert.Equal("Kool", entry[nameProperty]);
-
-            entry.AutoRollbackSidecars();
-
-            Assert.Equal(1, entry[idProperty]);
-
-            Assert.Null(entry.TryGetSidecar(sidecar.Name));
-        }
-
-        private class TheWasp : DictionarySidecar
-        {
-            public TheWasp(
-                InternalEntityEntry entry, IEnumerable<IProperty> properties,
-                bool transparentRead = false, bool transparentWrite = false, bool autoCommit = false)
-                : base(entry, properties)
-            {
-                TransparentRead = transparentRead;
-                TransparentWrite = transparentWrite;
-                AutoCommit = autoCommit;
-            }
-
-            public override string Name
-            {
-                get { return "Wasp Motorcycles"; }
-            }
-
-            public override bool TransparentRead { get; }
-
-            public override bool TransparentWrite { get; }
-
-            public override bool AutoCommit { get; }
-        }
-
-        [Fact]
-        public virtual void Sidecars_are_added_for_store_generated_values_when_preparing_to_save()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-
-            var customServices = new ServiceCollection()
-                .AddScoped<IValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(customServices, model),
-                entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            entry.SetEntityState(EntityState.Added);
-            entry.PrepareToSave();
-
-            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
-            Assert.NotNull(storeGenValues);
-            Assert.True(storeGenValues.CanStoreValue(entityType.FindProperty("Id")));
-            Assert.False(storeGenValues.CanStoreValue(entityType.FindProperty("Name")));
-        }
-
-        [Fact]
-        public virtual void Sidecars_are_not_added_for_when_no_store_generated_values_will_be_used()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType,
-                new SomeEntity { Id = 1, Name = "Kool" },
-                new ValueBuffer(new object[] { 1, "Kool" }));
-
-            entry.SetEntityState(EntityState.Added);
-            entry.PrepareToSave();
-
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues));
-        }
-
-        [Fact]
-        public virtual void Sidecars_are_added_for_computed_properties_when_preparing_to_save()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            entityType.FindProperty("Name").ValueGenerated = ValueGenerated.OnAddOrUpdate;
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType,
-                new SomeEntity { Id = 1 },
-                new ValueBuffer(new object[] { 1, null }));
-
-            entry.SetEntityState(EntityState.Added);
-            entry.PrepareToSave();
-
-            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
-            Assert.NotNull(storeGenValues);
-            Assert.False(storeGenValues.CanStoreValue(entityType.FindProperty("Id")));
-            Assert.True(storeGenValues.CanStoreValue(entityType.FindProperty("Name")));
-        }
-
-        [Fact]
-        public virtual void Sidecars_are_added_for_store_default_properties_when_preparing_to_save()
-        {
-            var model = BuildModel();
-            var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            entityType.FindProperty("Name").ValueGenerated = ValueGenerated.OnAddOrUpdate;
-            entityType.FindProperty("Name").IsReadOnlyAfterSave = false;
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType,
-                new SomeEntity { Id = 1 },
-                new ValueBuffer(new object[] { 1, null }));
-
-            entry.SetEntityState(EntityState.Added);
-            entry.PrepareToSave();
-
-            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
-            Assert.NotNull(storeGenValues);
-            Assert.False(storeGenValues.CanStoreValue(entityType.FindProperty("Id")));
-            Assert.True(storeGenValues.CanStoreValue(entityType.FindProperty("Name")));
-        }
-
-        [Fact]
-        public virtual void Sidecars_are_added_for_foreign_key_properties_with_root_principals_that_may_get_store_generated_values()
-        {
-            var model = BuildOneToOneModel();
-            var entityType = model.FindEntityType(typeof(SecondDependent));
-
-            var customServices = new ServiceCollection()
-                .AddScoped<IValueGeneratorSelector, TestInMemoryValueGeneratorSelector>();
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(customServices, model),
-                entityType,
-                new SecondDependent { Id = 1 },
-                new ValueBuffer(new object[] { 1 }));
-
-            entry.SetEntityState(EntityState.Added);
-            entry.PrepareToSave();
-
-            var storeGenValues = entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues);
-
-            Assert.NotNull(storeGenValues);
-            Assert.True(storeGenValues.CanStoreValue(entityType.FindProperty("Id")));
-        }
-
-        [Fact]
-        public virtual void Sidecars_are_not_added_for_foreign_key_properties_with_root_principals_that_will_not_get_store_generated_values()
-        {
-            var model = BuildOneToOneModel();
-            var entityType = model.FindEntityType(typeof(SecondDependent));
-
-            var entry = CreateInternalEntry(
-                TestHelpers.Instance.CreateContextServices(model),
-                entityType,
-                new SecondDependent { Id = 1 },
-                new ValueBuffer(new object[] { 1 }));
-
-            entry.SetEntityState(EntityState.Added);
-            entry.PrepareToSave();
-
-            Assert.Null(entry.TryGetSidecar(Sidecar.WellKnownNames.StoreGeneratedValues));
         }
 
         private static IModel BuildOneToOneModel()
@@ -1473,9 +1119,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                         b.HasOne(e => e.First)
                             .WithOne(e => e.Root)
                             .HasForeignKey<FirstDependent>(e => e.Id);
-
                     });
-
 
             return modelBuilder.Model;
         }
@@ -1600,14 +1244,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity)
             => contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
-                new InternalEntityEntryFactory(
-                    contextServices.GetRequiredService<IEntityEntryMetadataServices>())
+                new InternalEntityEntryFactory()
                     .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity), null);
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, ValueBuffer valueBuffer)
             => contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
-                new InternalEntityEntryFactory(
-                    contextServices.GetRequiredService<IEntityEntryMetadataServices>())
+                new InternalEntityEntryFactory()
                     .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer), null);
 
         protected virtual Model BuildModel()
@@ -1691,13 +1333,13 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public string Id2 { get; set; }
         }
 
-        protected class SomeDependentEntity: SomeCompositeEntityBase
+        protected class SomeDependentEntity : SomeCompositeEntityBase
         {
             public int SomeEntityId { get; set; }
             public int JustAProperty { get; set; }
         }
 
-        protected class SomeMoreDependentEntity: SomeSimpleEntityBase
+        protected class SomeMoreDependentEntity : SomeSimpleEntityBase
         {
             public int Fk1 { get; set; }
             public string Fk2 { get; set; }
