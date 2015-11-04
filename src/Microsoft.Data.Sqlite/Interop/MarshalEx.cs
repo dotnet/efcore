@@ -60,11 +60,7 @@ namespace Microsoft.Data.Sqlite.Interop
                 return;
             }
 
-            var message = db == null || db.IsInvalid
-                ? NativeMethods.sqlite3_errstr(rc)
-                : NativeMethods.sqlite3_errmsg(db);
-
-            throw new SqliteException(Strings.FormatSqliteNativeError(rc, message), rc);
+            throw new SqliteException(VersionedMethods.SqliteErrorMessage(rc, db), rc);
         }
     }
 }

@@ -1,19 +1,21 @@
 language: csharp
 sudo: false
+env:
+  - MONO_THREADS_PER_CPU=2000 MONO_MANAGED_WATCHER=disabled
 mono:
   - beta
 os:
   - linux
+  - osx
 
 addons:
   apt:
-    sources:
-    - debian-sid
     packages:
     - libunwind8
-    - sqlite3
-
+    
 before_script:
   - sqlite3 -version
+before_install:
+  - if test "$TRAVIS_OS_NAME" == "osx"; then brew update; brew install icu4c; fi
 script:
   - ./build.sh --quiet verify

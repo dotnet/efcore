@@ -181,6 +181,9 @@
     <value>No mapping exists from object type {typeName} to a known managed provider native type.</value>
   </data>
   <data name="SqliteNativeError" xml:space="preserve">
-    <value>SQLite Error {errorCode}: '{message}'</value>
+    <value>SQLite Error {errorCode}: '{message}'.</value>
+  </data>
+  <data name="DefaultNativeError" xml:space="preserve">
+    <value>For more information on this error code see https://www.sqlite.org/rescode.html</value>
   </data>
 </root>

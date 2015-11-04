@@ -62,7 +62,7 @@ namespace Microsoft.Data.Sqlite
 
         public override string DataSource =>
             State == ConnectionState.Open
-                ? NativeMethods.sqlite3_db_filename(_db, MainDatabaseName)
+                ? VersionedMethods.SqliteDbFilename(_db, MainDatabaseName) ?? ConnectionStringBuilder.DataSource
                 : ConnectionStringBuilder.DataSource;
 
         /// <summary>

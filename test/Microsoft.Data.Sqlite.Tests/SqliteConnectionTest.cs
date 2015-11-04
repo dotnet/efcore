@@ -4,6 +4,7 @@
 using System;
 using System.Data;
 using System.IO;
+using Microsoft.AspNet.Testing.xunit;
 using Xunit;
 
 namespace Microsoft.Data.Sqlite
@@ -60,7 +61,8 @@ namespace Microsoft.Data.Sqlite
             Assert.Equal("test.db", connection.DataSource);
         }
 
-        [Fact]
+        [ConditionalFact]
+        [SqliteVersionCondition(Min = "3.7.10")]
         public void DataSource_returns_actual_filename_when_open()
         {
             using (var connection = new SqliteConnection("Data Source=test.db"))

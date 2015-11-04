@@ -92,6 +92,9 @@ namespace Microsoft.Data.Sqlite.Interop
         [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
         public static extern int sqlite3_close_v2(IntPtr db);
 
+        [DllImport("sqlite3", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int sqlite3_close(IntPtr db);
+
         [DllImport("sqlite3", EntryPoint = "sqlite3_column_blob", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr sqlite3_column_blob_raw(Sqlite3StmtHandle pStmt, int iCol);
 

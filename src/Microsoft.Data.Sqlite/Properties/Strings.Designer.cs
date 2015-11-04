@@ -362,6 +362,22 @@ namespace Microsoft.Data.Sqlite
             return string.Format(CultureInfo.CurrentCulture, GetString("SqliteNativeError", "errorCode", "message"), errorCode, message);
         }
 
+        /// <summary>
+        /// For more information on this error code see https://www.sqlite.org/rescode.html
+        /// </summary>
+        internal static string DefaultNativeError
+        {
+            get { return GetString("DefaultNativeError"); }
+        }
+
+        /// <summary>
+        /// For more information on this error code see https://www.sqlite.org/rescode.html
+        /// </summary>
+        internal static string FormatDefaultNativeError()
+        {
+            return GetString("DefaultNativeError");
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

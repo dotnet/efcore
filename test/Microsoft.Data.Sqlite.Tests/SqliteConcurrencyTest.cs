@@ -116,8 +116,12 @@ INSERT INTO a VALUES (2);";
                         var ex = Assert.Throws<SqliteException>(() => dropCommand.ExecuteNonQuery());
 
                         Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
-                        var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                        Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                        
+                        if (CurrentVersion >= new Version("3.7.15"))
+                        {
+                            var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
+                            Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                        }
                     }
 
                     dropCommand.ExecuteNonQuery();
@@ -191,8 +195,12 @@ INSERT INTO a VALUES (2);";
                             waitHandle.Release();
 
                             Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
-                            var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
-                            Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                            
+                            if (CurrentVersion >= new Version("3.7.15"))
+                            {
+                                var message = NativeMethods.sqlite3_errstr(SQLITE_BUSY);
+                                Assert.Equal(Strings.FormatSqliteNativeError(SQLITE_BUSY, message), ex.Message);
+                            }
                         });
 
                     t1.Start();
@@ -202,6 +210,8 @@ INSERT INTO a VALUES (2);";
                 }
             }
         }
+        
+        private Version CurrentVersion => new Version(NativeMethods.sqlite3_libversion());
 
         private const string FileName = "./concurrency.db";
 
