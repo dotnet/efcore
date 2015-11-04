@@ -1,6 +1,10 @@
 {
   "version": "1.0.0-*",
   "description": "SQLite implementation of the System.Data.Common provider model.",
+  "compilationOptions": {
+    "warningsAsErrors": true,
+    "keyFile": "../../tools/Key.snk"
+  },
   "frameworks": {
     "net451": {
       "dependencies": {
