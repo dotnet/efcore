@@ -12,9 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public class RelationalTransaction : IRelationalTransaction
+    public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTransaction>
     {
-        private readonly DbTransaction _transaction;
+        private readonly IRelationalConnection _relationalConnection;
+        private readonly DbTransaction _dbTransaction;
         private readonly ILogger _logger;
         private readonly bool _transactionOwned;
 
@@ -35,14 +36,12 @@ namespace Microsoft.Data.Entity.Storage
                 throw new InvalidOperationException(RelationalStrings.TransactionAssociatedWithDifferentConnection);
             }
 
-            Connection = connection;
+            _relationalConnection = connection;
 
-            _transaction = transaction;
+            _dbTransaction = transaction;
             _logger = logger;
             _transactionOwned = transactionOwned;
         }
-
-        public virtual IRelationalConnection Connection { get; }
 
         public virtual void Commit()
         {
@@ -50,7 +49,7 @@ namespace Microsoft.Data.Entity.Storage
                 RelationalLoggingEventId.CommittingTransaction,
                 () => RelationalStrings.RelationalLoggerCommittingTransaction);
 
-            _transaction.Commit();
+            _dbTransaction.Commit();
 
             ClearTransaction();
         }
@@ -61,7 +60,7 @@ namespace Microsoft.Data.Entity.Storage
                 RelationalLoggingEventId.RollingbackTransaction,
                 () => RelationalStrings.RelationalLoggerRollingbackTransaction);
 
-            _transaction.Rollback();
+            _dbTransaction.Rollback();
 
             ClearTransaction();
         }
@@ -74,7 +73,7 @@ namespace Microsoft.Data.Entity.Storage
 
                 if (_transactionOwned)
                 {
-                    _transaction.Dispose();
+                    _dbTransaction.Dispose();
                 }
 
                 ClearTransaction();
@@ -83,11 +82,11 @@ namespace Microsoft.Data.Entity.Storage
 
         private void ClearTransaction()
         {
-            Debug.Assert(Connection.Transaction == null || Connection.Transaction == this);
+            Debug.Assert(_relationalConnection.CurrentTransaction == null || _relationalConnection.CurrentTransaction == this);
 
-            Connection.UseTransaction(null);
+            _relationalConnection.UseTransaction(null);
         }
 
-        DbTransaction IInfrastructure<DbTransaction>.Instance => _transaction;
+        DbTransaction IInfrastructure<DbTransaction>.Instance => _dbTransaction;
     }
 }

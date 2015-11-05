@@ -68,7 +68,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual DbConnection DbConnection => _connection.Value;
 
-        public virtual IRelationalTransaction Transaction { get; [param: NotNull] protected set; }
+        public virtual IDbContextTransaction CurrentTransaction { get;[param: NotNull] protected set; }
 
         public virtual int? CommandTimeout
         {
@@ -85,19 +85,17 @@ namespace Microsoft.Data.Entity.Storage
             }
         }
 
-        public virtual DbTransaction DbTransaction => Transaction?.GetInfrastructure();
+        [NotNull]
+        public virtual IDbContextTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
 
         [NotNull]
-        public virtual IRelationalTransaction BeginTransaction() => BeginTransaction(IsolationLevel.Unspecified);
+        public virtual async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
+            => await BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
 
         [NotNull]
-        public virtual Task<IRelationalTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => BeginTransactionAsync(IsolationLevel.Unspecified, cancellationToken);
-
-        [NotNull]
-        public virtual IRelationalTransaction BeginTransaction(IsolationLevel isolationLevel)
+        public virtual IDbContextTransaction BeginTransaction(IsolationLevel isolationLevel)
         {
-            if (Transaction != null)
+            if (CurrentTransaction != null)
             {
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
@@ -108,11 +106,11 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         [NotNull]
-        public virtual async Task<IRelationalTransaction> BeginTransactionAsync(
+        public virtual async Task<IDbContextTransaction> BeginTransactionAsync(
             IsolationLevel isolationLevel,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (Transaction != null)
+            if (CurrentTransaction != null)
             {
                 throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
             }
@@ -122,7 +120,7 @@ namespace Microsoft.Data.Entity.Storage
             return BeginTransactionWithNoPreconditions(isolationLevel);
         }
 
-        private IRelationalTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
+        private IDbContextTransaction BeginTransactionWithNoPreconditions(IsolationLevel isolationLevel)
         {
             Check.NotNull(_logger, nameof(_logger));
 
@@ -131,40 +129,60 @@ namespace Microsoft.Data.Entity.Storage
                 isolationLevel,
                 il => RelationalStrings.RelationalLoggerBeginningTransaction(il.ToString("G")));
 
-            Transaction
+            CurrentTransaction
                 = new RelationalTransaction(
                     this,
                     DbConnection.BeginTransaction(isolationLevel),
                      _logger,
                     transactionOwned: true);
 
-            return Transaction;
+            return CurrentTransaction;
         }
 
-        public virtual IRelationalTransaction UseTransaction(DbTransaction transaction)
+        public virtual IDbContextTransaction UseTransaction(DbTransaction transaction)
         {
             if (transaction == null)
             {
-                if (Transaction != null)
+                if (CurrentTransaction != null)
                 {
-                    Transaction = null;
+                    CurrentTransaction = null;
 
                     Close();
                 }
             }
             else
             {
-                if (Transaction != null)
+                if (CurrentTransaction != null)
                 {
                     throw new InvalidOperationException(RelationalStrings.TransactionAlreadyStarted);
                 }
 
                 Open();
 
-                Transaction = new RelationalTransaction(this, transaction, _logger, transactionOwned: false);
+                CurrentTransaction = new RelationalTransaction(this, transaction, _logger, transactionOwned: false);
             }
 
-            return Transaction;
+            return CurrentTransaction;
+        }
+
+        public virtual void CommitTransaction()
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            CurrentTransaction.Commit();
+        }
+
+        public virtual void RollbackTransaction()
+        {
+            if (CurrentTransaction == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.NoActiveTransaction);
+            }
+
+            CurrentTransaction.Rollback();
         }
 
         public virtual void Open()
@@ -237,7 +255,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual void Dispose()
         {
-            Transaction?.Dispose();
+            CurrentTransaction?.Dispose();
 
             if (_connectionOwned && _connection.HasValue)
             {

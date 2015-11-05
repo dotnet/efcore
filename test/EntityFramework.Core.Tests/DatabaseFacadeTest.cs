@@ -83,6 +83,69 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
+        public void Can_begin_transaction()
+        {
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
+
+            transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
+
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
+
+            Assert.Same(transaction, context.Database.BeginTransaction());
+
+            transactionManagerMock.Verify(m => m.BeginTransaction(), Times.Once);
+        }
+
+        [Fact]
+        public void Can_begin_transaction_async()
+        {
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
+
+            var transactionTask = new Task<IDbContextTransaction>(() => transaction);
+
+            transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                .Returns(transactionTask);
+
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
+
+            var cancellationToken = new CancellationToken();
+
+            Assert.Same(transactionTask, context.Database.BeginTransactionAsync(cancellationToken));
+
+            transactionManagerMock.Verify(m => m.BeginTransactionAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public void Can_commit_transaction()
+        {
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
+
+            context.Database.CommitTransaction();
+
+            transactionManagerMock.Verify(m => m.CommitTransaction(), Times.Once);
+        }
+
+        [Fact]
+        public void Can_roll_back_transaction()
+        {
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+
+            var context = TestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
+
+            context.Database.RollbackTransaction();
+
+            transactionManagerMock.Verify(m => m.RollbackTransaction(), Times.Once);
+        }
+
+        [Fact]
         public void Cannot_use_DatabaseFacade_after_dispose()
         {
             var context = TestHelpers.Instance.CreateContext();

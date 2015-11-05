@@ -214,6 +214,7 @@
     <Compile Include="Migrations\MigrationsSqlGenerator.cs" />
     <Compile Include="Migrations\Internal\MigrationsModelDiffer.cs" />
     <Compile Include="Query\Expressions\SqlFunctionExpression.cs" />
+    <Compile Include="Storage\DbContextTransactionExtensions.cs" />
     <Compile Include="Storage\Internal\RemappingUntypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\TypedRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\Internal\UntypedRelationalValueBufferFactory.cs" />
@@ -224,7 +225,7 @@
     <Compile Include="Storage\IRelationalDatabaseCreator.cs" />
     <Compile Include="Storage\IRelationalDatabaseProviderServices.cs" />
     <Compile Include="Infrastructure\RelationalSqlExecutor.cs" />
-    <Compile Include="Storage\IRelationalTransaction.cs" />
+    <Compile Include="Storage\IRelationalTransactionManager.cs" />
     <Compile Include="Storage\IRelationalTypeMapper.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactory.cs" />
     <Compile Include="Storage\IRelationalValueBufferFactoryFactory.cs" />

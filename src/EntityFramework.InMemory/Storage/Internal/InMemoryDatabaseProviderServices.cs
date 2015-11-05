@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
         public override IDatabase Database => GetService<IInMemoryDatabase>();
+        public override IDbContextTransactionManager TransactionManager => GetService<InMemoryTransactionManager>();
         public override IQueryContextFactory QueryContextFactory => GetService<InMemoryQueryContextFactory>();
         public override IDatabaseCreator Creator => GetService<InMemoryDatabaseCreator>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<InMemoryValueGeneratorSelector>();

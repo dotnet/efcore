@@ -101,6 +101,15 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// The connection does not have any active transactions.
+        /// </summary>
+        public static string NoActiveTransaction
+        {
+            get { return GetString("NoActiveTransaction"); }
+        }
+
+
+        /// <summary>
         /// The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.
         /// </summary>
         public static string TransactionAssociatedWithDifferentConnection

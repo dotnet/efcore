@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         public override IDatabase Database => GetService<RelationalDatabase>();
+        public override IDbContextTransactionManager TransactionManager => GetService<IRelationalConnection>();
         public override IModelValidator ModelValidator => GetService<RelationalModelValidator>();
         public override ICompiledQueryCacheKeyGenerator CompiledQueryCacheKeyGenerator => GetService<RelationalCompiledQueryCacheKeyGenerator>();
         public override IValueGeneratorSelector ValueGeneratorSelector => GetService<RelationalValueGeneratorSelector>();

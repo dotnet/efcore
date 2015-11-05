@@ -82,129 +82,118 @@ namespace Microsoft.Data.Entity.Tests
         }
 
         [Fact]
-        public void Can_begin_transaction()
-        {
-            var connectionMock = new Mock<IRelationalConnection>();
-            var transaction = Mock.Of<IRelationalTransaction>();
-
-            connectionMock.Setup(m => m.BeginTransaction()).Returns(transaction);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
-
-            Assert.Same(transaction, context.Database.BeginTransaction());
-
-            connectionMock.Verify(m => m.BeginTransaction(), Times.Once);
-        }
-
-        [Fact]
         public void Can_begin_transaction_with_isolation_level()
         {
-            var connectionMock = new Mock<IRelationalConnection>();
-            var transaction = Mock.Of<IRelationalTransaction>();
+            var transactionManagerMock = new Mock<IRelationalTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
 
-            connectionMock.Setup(m => m.BeginTransaction(It.IsAny<IsolationLevel>())).Returns(transaction);
+            transactionManagerMock.Setup(m => m.BeginTransaction(It.IsAny<IsolationLevel>())).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
+                new ServiceCollection().AddInstance<IDbContextTransactionManager>(transactionManagerMock.Object));
 
             var isolationLevel = IsolationLevel.Chaos;
 
             Assert.Same(transaction, context.Database.BeginTransaction(isolationLevel));
 
-            connectionMock.Verify(m => m.BeginTransaction(isolationLevel), Times.Once);
-        }
-
-        [Fact]
-        public void Can_begin_transaction_async()
-        {
-            var connectionMock = new Mock<IRelationalConnection>();
-            var transaction = Mock.Of<IRelationalTransaction>();
-
-            var transactionTask = new Task<IRelationalTransaction>(() => transaction);
-
-            connectionMock.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-                .Returns(transactionTask);
-
-            var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
-
-            var cancellationToken = new CancellationToken();
-
-            Assert.Same(transactionTask, context.Database.BeginTransactionAsync(cancellationToken));
-
-            connectionMock.Verify(m => m.BeginTransactionAsync(cancellationToken), Times.Once);
+            transactionManagerMock.Verify(m => m.BeginTransaction(isolationLevel), Times.Once);
         }
 
         [Fact]
         public void Can_begin_transaction_with_isolation_level_async()
         {
-            var connectionMock = new Mock<IRelationalConnection>();
-            var transaction = Mock.Of<IRelationalTransaction>();
+            var transactionManagerMock = new Mock<IRelationalTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
 
-            var transactionTask = new Task<IRelationalTransaction>(() => transaction);
+            var transactionTask = new Task<IDbContextTransaction>(() => transaction);
 
-            connectionMock.Setup(m => m.BeginTransactionAsync(It.IsAny<IsolationLevel>(), It.IsAny<CancellationToken>()))
+            transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<IsolationLevel>(), It.IsAny<CancellationToken>()))
                 .Returns(transactionTask);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
+                new ServiceCollection().AddInstance<IDbContextTransactionManager>(transactionManagerMock.Object));
 
             var cancellationToken = new CancellationToken();
             var isolationLevel = IsolationLevel.Chaos;
 
             Assert.Same(transactionTask, context.Database.BeginTransactionAsync(isolationLevel, cancellationToken));
 
-            connectionMock.Verify(m => m.BeginTransactionAsync(isolationLevel, cancellationToken), Times.Once);
+            transactionManagerMock.Verify(m => m.BeginTransactionAsync(isolationLevel, cancellationToken), Times.Once);
         }
 
         [Fact]
         public void Can_use_transaction()
         {
-            var connectionMock = new Mock<IRelationalConnection>();
+            var transactionManagerMock = new Mock<IRelationalTransactionManager>();
             var dbTransaction = Mock.Of<DbTransaction>();
-            var transaction = Mock.Of<IRelationalTransaction>();
+            var transaction = Mock.Of<IDbContextTransaction>();
 
-            connectionMock.Setup(m => m.UseTransaction(dbTransaction)).Returns(transaction);
+            transactionManagerMock.Setup(m => m.UseTransaction(dbTransaction)).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
+                new ServiceCollection().AddInstance<IDbContextTransactionManager>(transactionManagerMock.Object));
 
             Assert.Same(transaction, context.Database.UseTransaction(dbTransaction));
 
-            connectionMock.Verify(m => m.UseTransaction(dbTransaction), Times.Once);
+            transactionManagerMock.Verify(m => m.UseTransaction(dbTransaction), Times.Once);
         }
 
         [Fact]
-        public void Can_commit_transaction()
+        public void Begin_transaction_ignores_isolation_level_on_non_relational_provider()
         {
-            var connectionMock = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<IRelationalTransaction>();
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
 
-            connectionMock.Setup(m => m.Transaction).Returns(transactionMock.Object);
+            transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
 
-            context.Database.CommitTransaction();
+            var isolationLevel = IsolationLevel.Chaos;
 
-            transactionMock.Verify(m => m.Commit(), Times.Once);
+            Assert.Same(transaction, context.Database.BeginTransaction(isolationLevel));
+
+            transactionManagerMock.Verify(m => m.BeginTransaction(), Times.Once);
         }
 
         [Fact]
-        public void Can_roll_back_transaction()
+        public void Begin_transaction_ignores_isolation_level_on_non_relational_provider_async()
         {
-            var connectionMock = new Mock<IRelationalConnection>();
-            var transactionMock = new Mock<IRelationalTransaction>();
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var transaction = Mock.Of<IDbContextTransaction>();
 
-            connectionMock.Setup(m => m.Transaction).Returns(transactionMock.Object);
+            var transactionTask = new Task<IDbContextTransaction>(() => transaction);
+
+            transactionManagerMock.Setup(m => m.BeginTransactionAsync(It.IsAny<CancellationToken>()))
+                .Returns(transactionTask);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddInstance(connectionMock.Object));
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
 
-            context.Database.RollbackTransaction();
+            var cancellationToken = new CancellationToken();
+            var isolationLevel = IsolationLevel.Chaos;
 
-            transactionMock.Verify(m => m.Rollback(), Times.Once);
+            Assert.Same(transactionTask, context.Database.BeginTransactionAsync(isolationLevel, cancellationToken));
+
+            transactionManagerMock.Verify(m => m.BeginTransactionAsync(cancellationToken), Times.Once);
+        }
+
+        [Fact]
+        public void use_transaction_throws_on_non_relational_provider()
+        {
+            var transactionManagerMock = new Mock<IDbContextTransactionManager>();
+            var dbTransaction = Mock.Of<DbTransaction>();
+            var transaction = Mock.Of<IDbContextTransaction>();
+
+            transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
+
+            var context = RelationalTestHelpers.Instance.CreateContext(
+                new ServiceCollection().AddInstance(transactionManagerMock.Object));
+
+            Assert.Equal(
+                RelationalStrings.RelationalNotInUse,
+                Assert.Throws<InvalidOperationException>(
+                    () => context.Database.UseTransaction(dbTransaction)).Message);
         }
     }
 }

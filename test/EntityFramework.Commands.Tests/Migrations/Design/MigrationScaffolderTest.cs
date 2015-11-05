@@ -97,6 +97,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         {
             public string InvariantName => "Mock.Provider";
             public IDatabase Database => null;
+            public IDbContextTransactionManager TransactionManager => null;
             public IDatabaseCreator Creator => null;
             public IValueGeneratorSelector ValueGeneratorSelector => null;
             public IConventionSetBuilder ConventionSetBuilder => null;

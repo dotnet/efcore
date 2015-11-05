@@ -34,6 +34,11 @@ namespace Microsoft.Data.Entity.Storage
         IDatabase Database { get; }
 
         /// <summary>
+        ///     Gets the <see cref="IDbContextTransactionManager"/> for the database provider.
+        /// </summary>
+        IDbContextTransactionManager TransactionManager { get; }
+
+        /// <summary>
         ///     Gets the <see cref="IDatabaseCreator"/> for the database provider.
         /// </summary>
         IDatabaseCreator Creator { get; }

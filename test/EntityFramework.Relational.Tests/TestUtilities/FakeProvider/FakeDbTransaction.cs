@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data;
 using System.Data.Common;
 
@@ -9,29 +8,40 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 {
     public class FakeDbTransaction : DbTransaction
     {
-        public FakeDbTransaction(FakeDbConnection connection)
+        public FakeDbTransaction(FakeDbConnection connection, IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         {
             DbConnection = connection;
+            IsolationLevel = isolationLevel;
         }
 
         protected override DbConnection DbConnection { get; }
 
-        public override IsolationLevel IsolationLevel
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public override IsolationLevel IsolationLevel { get; }
+
+        public int CommitCount { get; private set; }
 
         public override void Commit()
         {
-            throw new NotImplementedException();
+            CommitCount++;
         }
+
+        public int RollbackCount { get; private set; }
 
         public override void Rollback()
         {
-            throw new NotImplementedException();
+            RollbackCount++;
+        }
+
+        public int DisposeCount { get; private set; }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                DisposeCount++;
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
