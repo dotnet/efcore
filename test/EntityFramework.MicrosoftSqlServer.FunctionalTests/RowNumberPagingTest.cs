@@ -172,6 +172,10 @@ WHERE [t1].[__RowNumber__] > 5", Sql);
             // base.String_Contains_Literal()
         }
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+
+        private static string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

@@ -4077,6 +4077,9 @@ ORDER BY COALESCE([c].[Region], 'ZZ')",
                 Sql);
         }
 
-        private static string Sql => TestSqlLoggerFactory.Sql;
+        private static string FileLineEnding = @"
+";
+
+        private static string Sql => TestSqlLoggerFactory.Sql.Replace(Environment.NewLine, FileLineEnding);
     }
 }

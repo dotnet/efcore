@@ -21,6 +21,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     public class TestSqlLoggerFactory : ILoggerFactory
     {
         private static SqlLogger _logger;
+        private static string EOL = Environment.NewLine;
 
         public LogLevel MinimumLevel { get; set; }
 
@@ -52,7 +53,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         public static string Log => Logger.SqlLoggerData._log.ToString();
 
         public static string Sql
-            => string.Join("\r\n\r\n", Logger.SqlLoggerData._sqlStatements);
+            => string.Join(EOL + EOL, Logger.SqlLoggerData._sqlStatements);
 
         public static List<string> SqlStatements => Logger.SqlLoggerData._sqlStatements;
 
@@ -129,11 +130,11 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         {
                             parameters
                                 = string.Join(
-                                    "\r\n",
+                                    EOL,
                                     commandLogData.Parameters
                                         .Select(kv => kv.Key + ": "
                                                       + Convert.ToString(kv.Value, CultureInfo.InvariantCulture)))
-                                  + "\r\n\r\n";
+                                  + EOL + EOL;
                         }
 
                         sqlLoggerData._sqlStatements.Add(parameters + commandLogData.CommandText);
