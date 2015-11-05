@@ -112,7 +112,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildProjectDirectory)\..\..\src\Microsoft.Data.Sqlite\runtimes\win10-$(Platform)\native\sqlite3.dll">
+    <Content Include="$(MSBuildProjectDirectory)\..\..\src\Microsoft.Data.Sqlite\build\netcore50\win10-$(Platform)\native\sqlite3.dll">
       <Visible>False</Visible>
     </Content>
     <Content Include="Assets\logo.png" />
@@ -124,8 +124,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Data.Sqlite, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Microsoft.Data.Sqlite">
       <HintPath>..\..\artifacts\bin\Microsoft.Data.Sqlite\$(Configuration)\netcore50\Microsoft.Data.Sqlite.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -137,6 +136,6 @@
     <BuildDependsOn>CheckPackageReferences;$(BuildDependsOn)</BuildDependsOn>
   </PropertyGroup>
   <Target Name="CheckPackageReferences">
-    <Error Text="sqlite3.dll not found. Run 'build initialize' to install." Condition="!Exists('$(MSBuildProjectDirectory)\..\..\src\Microsoft.Data.Sqlite\runtimes\win10-$(Platform)\native\sqlite3.dll')" />
+    <Error Text="sqlite3.dll not found. Run 'build initialize' to install." Condition="!Exists('$(MSBuildProjectDirectory)\..\..\src\Microsoft.Data.Sqlite\build\netcore50\win10-$(Platform)\native\sqlite3.dll')" />
   </Target>
 </Project>
