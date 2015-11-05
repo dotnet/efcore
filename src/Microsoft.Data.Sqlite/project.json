@@ -33,7 +33,7 @@
         "System.Threading.Tasks": "4.0.11-*"
       }
     },
-    "uap10.0": {
+    "netcore50": {
       "dependencies": {
         "Microsoft.CSharp": "4.0.0",
         "System.Collections": "4.0.10",
@@ -54,10 +54,10 @@
   },
   "packInclude": {
     "build/net451/": "build/net451/**",
-    "build/uap10.0/Microsoft.Data.Sqlite.targets": "build/uap10.0/Microsoft.Data.Sqlite.targets",
-    "build/uap10.0/win10-arm/": "build/uap10.0/win10-arm/**",
-    "build/uap10.0/win10-x64/": "build/uap10.0/win10-x64/**",
-    "build/uap10.0/win10-x86/": "build/uap10.0/win10-x86/**",
+    "build/netcore50/Microsoft.Data.Sqlite.targets": "build/netcore50/Microsoft.Data.Sqlite.targets",
+    "build/netcore50/win10-arm/": "build/netcore50/win10-arm/**",
+    "build/netcore50/win10-x64/": "build/netcore50/win10-x64/**",
+    "build/netcore50/win10-x86/": "build/netcore50/win10-x86/**",
     "runtimes/": "runtimes/**"
   }
 }
