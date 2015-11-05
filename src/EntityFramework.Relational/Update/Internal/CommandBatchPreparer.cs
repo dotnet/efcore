@@ -78,10 +78,13 @@ namespace Microsoft.Data.Entity.Update.Internal
         // according to these rules:
         //
         // 1. Commands adding rows or modifying the candidate key values (when supported) must precede
-        //     commands modifying or adding rows that will be referencing the former
+        //     commands adding or modifying rows that will be referencing the former
         // 2. Commands deleting rows or modifying the foreign key values must precede
         //     commands deleting rows or modifying the candidate key values (when supported) of rows
         //     that are currently being referenced by the former
+        // 3. Commands deleting rows or modifying the foreign key values must precede
+        //     commands adding or modifying the foreign key values to the same values
+        //     if foreign key is unique
         protected virtual IReadOnlyList<List<ModificationCommand>> TopologicalSort([NotNull] IEnumerable<ModificationCommand> commands)
         {
             var modificationCommandGraph = new Multigraph<ModificationCommand, IForeignKey>();
@@ -202,6 +205,29 @@ namespace Microsoft.Data.Entity.Update.Internal
                                     }
                                 }
                             }
+
+                            if (foreignKey.IsUnique)
+                            {
+                                // If the current value set is in use by another entry which is being deleted
+                                // then the CurrentValue of this entry matches with the OriginalValue of entry being deleted
+                                // To compare both the KeyValueIndex as same, set the ValueType to Original while the values are Current
+                                dependentKeyValue.ValueSource = ValueSource.Original;
+
+                                if (!dependentKeyValue.KeyValue.IsInvalid)
+                                {
+                                    List<ModificationCommand> predecessorCommands;
+                                    if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
+                                    {
+                                        foreach (var predecessor in predecessorCommands)
+                                        {
+                                            if (predecessor != command)
+                                            {
+                                                commandGraph.AddEdge(predecessor, command, foreignKey);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -254,7 +280,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             internal readonly IKeyValue KeyValue;
 
-            internal readonly ValueSource ValueSource;
+            internal ValueSource ValueSource { get; set; }
         }
 
         private class KeyValueIndexComparer : IEqualityComparer<KeyValueIndex>
