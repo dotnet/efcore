@@ -45,9 +45,9 @@
         "System.Console": "4.0.0-*"
       }
     },
-    "uap10.0": {
+    "netcore50": {
       "bin": {
-        "assembly": "lib\\uap10.0\\_._"
+        "assembly": "lib\\netcore50\\_._"
       }
     }
   },
