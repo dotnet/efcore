@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="FixResolvedSqliteNuGetPackageAssets" AfterTargets="ResolveNuGetPackageAssets">
+    <ItemGroup>
+      <WrongSqliteNuGetPackageAssets Include="$(MSBuildThisFileDirectory)..\..\runtimes\win7-$(Platform)\native\*" />
+      <ReferenceCopyLocalPaths Remove="%(WrongSqliteNuGetPackageAssets.FullPath)" />
+      <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)win10-$(Platform)\native\*" />
+    </ItemGroup>
+  </Target>
+</Project>

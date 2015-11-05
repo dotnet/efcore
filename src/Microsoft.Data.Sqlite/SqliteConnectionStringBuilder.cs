@@ -41,13 +41,13 @@ namespace Microsoft.Data.Sqlite
             _validKeywords = validKeywords;
 
             _keywords = new Dictionary<string, Keywords>(3, StringComparer.OrdinalIgnoreCase)
-                {
-                    [DataSourceKeyword] = Keywords.DataSource,
-                    [CacheKeyword] = Keywords.Cache,
+            {
+                [DataSourceKeyword] = Keywords.DataSource,
+                [CacheKeyword] = Keywords.Cache,
 
-                    // aliases
-                    [FilenameKeyword] = Keywords.DataSource,
-                    [DataSourceNoSpaceKeyword] = Keywords.DataSource
+                // aliases
+                [FilenameKeyword] = Keywords.DataSource,
+                [DataSourceNoSpaceKeyword] = Keywords.DataSource
             };
         }
 
@@ -208,11 +208,9 @@ namespace Microsoft.Data.Sqlite
                     _cacheMode = SqliteConnectionCacheMode.Private;
                     return;
 
-#if NET451 || DOTNET5_4
                 default:
                     Debug.Fail("Unexpected keyword: " + index);
                     return;
-#endif
             }
         }
     }

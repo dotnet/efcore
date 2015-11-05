@@ -7,16 +7,11 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteFactory : DbProviderFactory
     {
-        static SqliteFactory()
-        {
-            Instance = new SqliteFactory();
-        }
-
         private SqliteFactory()
         {
         }
 
-        public readonly static SqliteFactory Instance;
+        public readonly static SqliteFactory Instance = new SqliteFactory();
 
         public override DbCommand CreateCommand()
             => new SqliteCommand();

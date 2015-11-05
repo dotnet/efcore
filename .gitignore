@@ -7,6 +7,7 @@
 /.vs/
 /artifacts/
 /packages/
+/src/Microsoft.Data.Sqlite/build/uap10.0/win10-*/
 /src/Microsoft.Data.Sqlite/runtimes/
 bin/
 obj/

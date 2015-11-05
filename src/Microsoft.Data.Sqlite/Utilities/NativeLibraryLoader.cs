@@ -1,16 +1,15 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-#if NET451 || DOTNET5_4
+#if NET451
 
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.Internal
+namespace Microsoft.Data.Sqlite.Utilities
 {
     internal static class NativeLibraryLoader
     {
@@ -30,33 +29,9 @@ namespace Microsoft.Extensions.Internal
 
         public static bool TryLoad(string dllName)
         {
-            string applicationBase;
-#if NET451
-            applicationBase = AppDomain.CurrentDomain.BaseDirectory;
-#elif DOTNET5_4
-
-            if (!PlatformServices.Default.Runtime.OperatingSystem.Equals("Windows", StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            applicationBase = PlatformServices.Default.Application.ApplicationBasePath;
-#else
-            applicationBase = AppContext.BaseDirectory;
-#endif
-
-            return TryLoad(dllName, applicationBase);
-        }
-
-        public static bool TryLoad(string dllName, string applicationBase)
-        {
             if (dllName == null)
             {
                 throw new ArgumentNullException(nameof(dllName));
-            }
-            if (applicationBase == null)
-            {
-                throw new ArgumentNullException(nameof(applicationBase));
             }
             if (IsLoaded(dllName))
             {
@@ -67,6 +42,8 @@ namespace Microsoft.Extensions.Internal
             {
                 dllName += ".dll";
             }
+
+            var applicationBase = AppDomain.CurrentDomain.BaseDirectory;
 
             if (File.Exists(Path.Combine(applicationBase, dllName)))
             {
@@ -92,7 +69,7 @@ namespace Microsoft.Extensions.Internal
             {
                 throw new ArgumentNullException(nameof(dllName));
             }
-            if (IsMono())
+            if (IsDNX() || IsMono())
             {
                 return true;
             }
@@ -102,6 +79,9 @@ namespace Microsoft.Extensions.Internal
 
             return handle != IntPtr.Zero;
         }
+
+        private static bool IsDNX()
+            => PlatformServices.Default?.Application.RuntimeFramework.Identifier == "DNX";
 
         private static bool IsMono() => Type.GetType("Mono.Runtime") != null;
 

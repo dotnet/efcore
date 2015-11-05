@@ -8,8 +8,7 @@
   "frameworks": {
     "net451": {
       "dependencies": {
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-        "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*"
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
       },
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0"
@@ -17,8 +16,6 @@
     },
     "dotnet5.4": {
       "dependencies": {
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-        "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*",
         "System.Collections": "4.0.11-*",
         "System.ComponentModel": "4.0.1-*",
         "System.Data.Common": "4.0.1-*",
@@ -36,7 +33,7 @@
         "System.Threading.Tasks": "4.0.11-*"
       }
     },
-    "netcore50": {
+    "uap10.0": {
       "dependencies": {
         "Microsoft.CSharp": "4.0.0",
         "System.Collections": "4.0.10",
@@ -56,7 +53,11 @@
     }
   },
   "packInclude": {
-    "runtimes/": "runtimes/**",
-    "runtimes/win/native/x86/": "runtimes/win/native/x86/*"
+    "build/net451/": "build/net451/**",
+    "build/uap10.0/Microsoft.Data.Sqlite.targets": "build/uap10.0/Microsoft.Data.Sqlite.targets",
+    "build/uap10.0/win10-arm/": "build/uap10.0/win10-arm/**",
+    "build/uap10.0/win10-x64/": "build/uap10.0/win10-x64/**",
+    "build/uap10.0/win10-x86/": "build/uap10.0/win10-x86/**",
+    "runtimes/": "runtimes/**"
   }
 }

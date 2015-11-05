@@ -5,27 +5,31 @@ use namespace='System.Net.Http'
 
 var VERSION='0.1'
 var FULL_VERSION='0.1'
-var AUTHORS='Microsoft Open Technologies, Inc.'
+var AUTHORS='.NET Foundation'
 
 use-standard-lifecycle
 k-standard-goals
 
-var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win-x86/native/sqlite3.dll'
+var sqliteDllPath='src/Microsoft.Data.Sqlite/runtimes/win7-x86/native/sqlite3.dll'
 #sqlite-download target='initialize' if='!File.Exists(sqliteDllPath)'
     @{
         DownloadAndExtract(
             "https://www.sqlite.org/2015/sqlite-dll-win32-x86-3090000.zip",
-            Tuple.Create("sqlite3.dll", sqliteDllPath),
-            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win/native/x86/sqlite3.dll"));
+            Tuple.Create("sqlite3.dll", sqliteDllPath));
         DownloadAndExtract(
             "https://www.sqlite.org/2015/sqlite-dll-win64-x64-3090000.zip",
-            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win-x64/native/sqlite3.dll"),
-            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win/native/x64/sqlite3.dll"));
+            Tuple.Create("sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win7-x64/native/sqlite3.dll"));
         DownloadAndExtract(
             "https://www.sqlite.org/2015/sqlite-uap-3090000.vsix",
-            Tuple.Create("Redist/Retail/x86/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-x86/native/sqlite3.dll"),
-            Tuple.Create("Redist/Retail/x64/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-x64/native/sqlite3.dll"),
-            Tuple.Create("Redist/Retail/ARM/sqlite3.dll", "src/Microsoft.Data.Sqlite/runtimes/win10-arm/native/sqlite3.dll"));
+            Tuple.Create(
+                "Redist/Retail/x86/sqlite3.dll",
+                "src/Microsoft.Data.Sqlite/build/uap10.0/win10-x86/native/sqlite3.dll"),
+            Tuple.Create(
+                "Redist/Retail/x64/sqlite3.dll",
+                "src/Microsoft.Data.Sqlite/build/uap10.0/win10-x64/native/sqlite3.dll"),
+            Tuple.Create(
+                "Redist/Retail/ARM/sqlite3.dll",
+                "src/Microsoft.Data.Sqlite/build/uap10.0/win10-arm/native/sqlite3.dll"));
     }
 
 functions
