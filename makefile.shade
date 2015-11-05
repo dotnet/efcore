@@ -42,8 +42,8 @@ k-standard-goals
 }
 
 var sqliteTestDir='test/EntityFramework.Sqlite.FunctionalTests/bin/${E("Configuration")}'
-#copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/x86/sqlite3.dll")'
-    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win/native"}'
+#copy-sqlite target='initialize' if='!IsMono && !IsTeamCity && !File.Exists(sqliteTestDir + "/sqlite3.dll")'
+    var sourceDir='${Directory.EnumerateDirectories(packagesDir, "Microsoft.Data.Sqlite/*").OrderByDescending(d => d).First() + "/runtimes/win7-x86/native"}'
     copy outputDir='${sqliteTestDir}'
     copy outputDir='test/EntityFramework.CrossStore.FunctionalTests/bin/${E("Configuration")}'
     copy outputDir='test/EntityFramework.Sqlite.Design.FunctionalTests/bin/${E("Configuration")}'
