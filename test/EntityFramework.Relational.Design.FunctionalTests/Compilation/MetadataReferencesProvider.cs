@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis;
 #if DNX451 || DNXCORE50
 using System;
 using System.IO;
-using Microsoft.Extensions.Compilation;
+using Microsoft.Extensions.CompilationAbstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Data.Entity.Internal;
