@@ -115,6 +115,8 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
+    <None Include="build\netcore50\EntityFramework.Relational.Design.props" />
+    <None Include="lib\netcore50\_._" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
