@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     {
                         foreach (var clrProperty in clrProperties)
                         {
-                            var actualProperty = entityType.ClrType.GetRuntimeProperty(clrProperty);
+                            var actualProperty = entityType.ClrType.GetRuntimeProperties().First(p => p.Name == clrProperty);
                             var targetType = FindCandidateNavigationPropertyType(actualProperty);
                             if (targetType != null)
                             {

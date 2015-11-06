@@ -55,6 +55,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         }
 
         [Fact]
+        public void Throws_when_non_public_primitive_type_is_not_added_or_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NonPublicPrimitivePropertyEntity), ConfigurationSource.Convention);
+
+            Assert.Equal(CoreStrings.PropertyNotAdded("ProtectedPrimitive", typeof(NonPublicPrimitivePropertyEntity).FullName),
+                Assert.Throws<InvalidOperationException>(() => new PropertyMappingValidationConvention().Apply(modelBuilder)).Message);
+        }
+
+        [Fact]
         public void Throws_when_navigation_is_not_added_or_ignored()
         {
             var modelBuilder = new InternalModelBuilder(new Model());
@@ -115,6 +125,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             new PropertyMappingValidationConvention().Apply(modelBuilder);
         }
 
+        [Fact]
+        public void Throws_when_non_public_navigation_is_not_added_or_ignored()
+        {
+            var modelBuilder = new InternalModelBuilder(new Model());
+            var entityTypeBuilder = modelBuilder.Entity(typeof(NonPublicNavigationEntity), ConfigurationSource.Convention);
+
+            Assert.Equal(CoreStrings.NavigationNotAdded("ProtectedNavigation", typeof(NonPublicNavigationEntity).FullName),
+                Assert.Throws<InvalidOperationException>(() => new PropertyMappingValidationConvention().Apply(modelBuilder)).Message);
+        }
+
         private class NonPrimitiveAsPropertyEntity
         {
             public NavigationAsProperty Property { get; set; }
@@ -143,6 +163,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             {
                 set { _writeOnlyField = value; }
             }
+        }
+
+        private class NonPublicPrimitivePropertyEntity
+        {
+            protected int ProtectedPrimitive { get; set; }
+        }
+
+        private class NonPublicNavigationEntity
+        {
+            protected PrimitivePropertyEntity ProtectedNavigation { get; set; }
         }
     }
 }
