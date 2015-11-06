@@ -124,16 +124,10 @@
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
-    <data name="InvalidEnumValue" xml:space="preserve">
-    <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
-  </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
-  </data>
-  <data name="SqlServerNotInUse" xml:space="preserve">
-    <value>SQL Server-specific methods can only be used when the context is using a SQL Server database provider.</value>
   </data>
 </root>

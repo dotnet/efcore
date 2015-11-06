@@ -13,14 +13,6 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.MicrosoftSqlServer.SqlServerStrings", typeof(SqlServerStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
-        /// </summary>
-        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
-        }
-
-        /// <summary>
         /// Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
         public static string IdentityBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
@@ -34,14 +26,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string SequenceBadType([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("SequenceBadType", "property", "entityType", "propertyType"), property, entityType, propertyType);
-        }
-
-        /// <summary>
-        /// SQL Server-specific methods can only be used when the context is using a SQL Server database provider.
-        /// </summary>
-        public static string SqlServerNotInUse
-        {
-            get { return GetString("SqlServerNotInUse"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

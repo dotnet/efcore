@@ -13,14 +13,6 @@ namespace Microsoft.Data.Entity.Internal
             = new ResourceManager("EntityFramework.InMemory.InMemoryStrings", typeof(InMemoryStrings).GetTypeInfo().Assembly);
 
         /// <summary>
-        /// The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.
-        /// </summary>
-        public static string InvalidEnumValue([CanBeNull] object argumentName, [CanBeNull] object enumType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEnumValue", "argumentName", "enumType"), argumentName, enumType);
-        }
-
-        /// <summary>
         /// Saved {count} entities to in-memory store.
         /// </summary>
         public static string LogSavedChanges([CanBeNull] object count)
@@ -34,14 +26,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string TransactionsNotSupported
         {
             get { return GetString("TransactionsNotSupported"); }
-        }
-
-        /// <summary>
-        /// In-Memory-specific methods can only be used when the context is using an In-Memory database.
-        /// </summary>
-        public static string InMemoryNotInUse
-        {
-            get { return GetString("InMemoryNotInUse"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

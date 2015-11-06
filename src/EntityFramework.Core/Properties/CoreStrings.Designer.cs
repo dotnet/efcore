@@ -93,38 +93,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Sequence contains no elements.
-        /// </summary>
-        public static string EmptySequence
-        {
-            get { return GetString("EmptySequence"); }
-        }
-
-        /// <summary>
-        /// Sequence contains more than one element.
-        /// </summary>
-        public static string MoreThanOneElement
-        {
-            get { return GetString("MoreThanOneElement"); }
-        }
-
-        /// <summary>
-        /// Sequence contains more than one matching element.
-        /// </summary>
-        public static string MoreThanOneMatch
-        {
-            get { return GetString("MoreThanOneMatch"); }
-        }
-
-        /// <summary>
-        /// Sequence contains no matching element.
-        /// </summary>
-        public static string NoMatch
-        {
-            get { return GetString("NoMatch"); }
-        }
-
-        /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
         public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
@@ -269,14 +237,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.
-        /// </summary>
-        public static string MultiplePropertiesMatchedAsKeys([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("MultiplePropertiesMatchedAsKeys", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
         /// The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.
         /// </summary>
         public static string NoValueGenerator([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object propertyType)
@@ -290,30 +250,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string TempValuePersists([CanBeNull] object property, [CanBeNull] object entityType, [CanBeNull] object state)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("TempValuePersists", "property", "entityType", "state"), property, entityType, state);
-        }
-
-        /// <summary>
-        /// A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.
-        /// </summary>
-        public static string PropertyWithStorageNameNotFound([CanBeNull] object property, [CanBeNull] object entityType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("PropertyWithStorageNameNotFound", "property", "entityType"), property, entityType);
-        }
-
-        /// <summary>
-        /// CurrentValues are always in sync with the entity state.
-        /// </summary>
-        public static string CurrentValuesAlwaysInSync
-        {
-            get { return GetString("CurrentValuesAlwaysInSync"); }
-        }
-
-        /// <summary>
-        /// An error occurred while running a database operation. See InnerException for details.
-        /// </summary>
-        public static string DatabaseException
-        {
-            get { return GetString("DatabaseException"); }
         }
 
         /// <summary>
@@ -565,14 +501,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The collection argument '{argumentName}' must not contain any null references.
-        /// </summary>
-        public static string CollectionArgumentContainsNulls([CanBeNull] object argumentName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("CollectionArgumentContainsNulls", "argumentName"), argumentName);
-        }
-
-        /// <summary>
         /// The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.
         /// </summary>
         public static string EntityTypeNotInRelationship([CanBeNull] object entityType, [CanBeNull] object dependentType, [CanBeNull] object principalType)
@@ -645,14 +573,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Compiled query expression.
-        /// </summary>
-        public static string LogCompiledQueryFunction
-        {
-            get { return GetString("LogCompiledQueryFunction"); }
-        }
-
-        /// <summary>
         /// Including navigation: '{navigation}'
         /// </summary>
         public static string LogIncludingNavigation([CanBeNull] object navigation)
@@ -714,38 +634,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string InvalidEntityType([CanBeNull] object type, [CanBeNull] object argumentName)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("InvalidEntityType", "type", "argumentName"), type, argumentName);
-        }
-
-        /// <summary>
-        /// The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.
-        /// </summary>
-        public static string IntegerConfigurationValueFormatError([CanBeNull] object configurationKey, [CanBeNull] object invalidValue)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("IntegerConfigurationValueFormatError", "configurationKey", "invalidValue"), configurationKey, invalidValue);
-        }
-
-        /// <summary>
-        /// No connection string named '{connectionString}' could be found in configuration.
-        /// </summary>
-        public static string ConnectionStringNotFound([CanBeNull] object connectionString)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ConnectionStringNotFound", "connectionString"), connectionString);
-        }
-
-        /// <summary>
-        /// Unhandled binding type: '{type}'.
-        /// </summary>
-        public static string UnhandledBindingType([CanBeNull] object type)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledBindingType", "type"), type);
-        }
-
-        /// <summary>
-        /// Unhandled expression type: '{type}'.
-        /// </summary>
-        public static string UnhandledExpressionType([CanBeNull] object type)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "type"), type);
         }
 
         /// <summary>

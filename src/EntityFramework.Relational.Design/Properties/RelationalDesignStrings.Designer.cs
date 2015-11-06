@@ -37,22 +37,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// There was an error running the DbContext template. Message: {errorMessage}
-        /// </summary>
-        public static string ErrorRunningDbContextTemplate([CanBeNull] object errorMessage)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorRunningDbContextTemplate", "errorMessage"), errorMessage);
-        }
-
-        /// <summary>
-        /// There was an error running the EntityType template. Message: {errorMessage}
-        /// </summary>
-        public static string ErrorRunningEntityTypeTemplate([CanBeNull] object errorMessage)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ErrorRunningEntityTypeTemplate", "errorMessage"), errorMessage);
-        }
-
-        /// <summary>
         /// Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.
         /// </summary>
         public static string ForeignKeyScaffoldErrorPrincipalKeyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnsList, [CanBeNull] object principalEntityType)
@@ -109,14 +93,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Provider is required to generate code.
-        /// </summary>
-        public static string ProviderRequired
-        {
-            get { return GetString("ProviderRequired"); }
-        }
-
-        /// <summary>
         /// Metadata model returned should not be null. Provider: {providerTypeName} , connection string: {connectionString}.
         /// </summary>
         public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName, [CanBeNull] object connectionString)
@@ -138,30 +114,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string RootNamespaceRequired
         {
             get { return GetString("RootNamespaceRequired"); }
-        }
-
-        /// <summary>
-        /// Template Processing Failed: {errorMessages}
-        /// </summary>
-        public static string TemplateProcessingFailed([CanBeNull] object errorMessages)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("TemplateProcessingFailed", "errorMessages"), errorMessages);
-        }
-
-        /// <summary>
-        /// Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.
-        /// </summary>
-        public static string UnableToAddNavigationProperty([CanBeNull] object referencedEntityTypeName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToAddNavigationProperty", "referencedEntityTypeName"), referencedEntityTypeName);
-        }
-
-        /// <summary>
-        /// Unable to create metadata reference from name {metadataReferenceName}.
-        /// </summary>
-        public static string UnableToCreateMetadataReference([CanBeNull] object metadataReferenceName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnableToCreateMetadataReference", "metadataReferenceName"), metadataReferenceName);
         }
 
         /// <summary>

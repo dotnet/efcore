@@ -147,18 +147,6 @@
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists and has been included in the model.</value>
   </data>
-  <data name="EmptySequence" xml:space="preserve">
-    <value>Sequence contains no elements.</value>
-  </data>
-  <data name="MoreThanOneElement" xml:space="preserve">
-    <value>Sequence contains more than one element.</value>
-  </data>
-  <data name="MoreThanOneMatch" xml:space="preserve">
-    <value>Sequence contains more than one matching element.</value>
-  </data>
-  <data name="NoMatch" xml:space="preserve">
-    <value>Sequence contains no matching element.</value>
-  </data>
   <data name="CollectionArgumentIsEmpty" xml:space="preserve">
     <value>The collection argument '{argumentName}' must contain at least one element.</value>
   </data>
@@ -213,23 +201,11 @@
   <data name="MultipleProvidersAvailable" xml:space="preserve">
     <value>The database providers {storeNames}are available. A context can only be configured to use a single database provider. Configure a database provider by overriding OnConfiguring in your DbContext class or in the AddDbContext method when setting up services.</value>
   </data>
-  <data name="MultiplePropertiesMatchedAsKeys" xml:space="preserve">
-    <value>Multiple potential primary key properties named '{property}' but differing only by case were found on entity type '{entityType}'. Configure the primary key explicitly using the SetKey fluent API.</value>
-  </data>
   <data name="NoValueGenerator" xml:space="preserve">
     <value>The '{property}' on entity type '{entityType}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}'.</value>
   </data>
   <data name="TempValuePersists" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' has a temporary value while attempting to change the entity's state to '{state}'. Either set a permanent value explicitly or ensure that the database is configured to generate values for this property.</value>
-  </data>
-  <data name="PropertyWithStorageNameNotFound" xml:space="preserve">
-    <value>A property with the storage name '{property}' on entity type '{entityType}' could not be found. Ensure that the property exists, has been included in the model, and has been configured with storage name specified.</value>
-  </data>
-  <data name="CurrentValuesAlwaysInSync" xml:space="preserve">
-    <value>CurrentValues are always in sync with the entity state.</value>
-  </data>
-  <data name="DatabaseException" xml:space="preserve">
-    <value>An error occurred while running a database operation. See InnerException for details.</value>
   </data>
   <data name="LogExceptionDuringQueryIteration" xml:space="preserve">
     <value>An exception occurred in the database while iterating the results of a query.{newline}{error}</value>
@@ -324,9 +300,6 @@
   <data name="NavigationToShadowEntity" xml:space="preserve">
     <value>The navigation property '{navigation}' cannot be added to the entity type '{entityType}' because the target entity type '{targetType}' is defined in shadow state and navigations properties cannot point to shadow state entities.</value>
   </data>
-  <data name="CollectionArgumentContainsNulls" xml:space="preserve">
-    <value>The collection argument '{argumentName}' must not contain any null references.</value>
-  </data>
   <data name="EntityTypeNotInRelationship" xml:space="preserve">
     <value>The specified entity type '{entityType}' is invalid. It should be either the dependent entity type '{dependentType}' or the principal entity type '{principalType}' or an entity type derived from one of them.</value>
   </data>
@@ -354,9 +327,6 @@
   <data name="LogOptimizedQueryModel" xml:space="preserve">
     <value>Optimized query model: '{queryModel}'</value>
   </data>
-  <data name="LogCompiledQueryFunction" xml:space="preserve">
-    <value>Compiled query expression.</value>
-  </data>
   <data name="LogIncludingNavigation" xml:space="preserve">
     <value>Including navigation: '{navigation}'</value>
   </data>
@@ -380,18 +350,6 @@
   </data>
   <data name="InvalidEntityType" xml:space="preserve">
     <value>The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.</value>
-  </data>
-  <data name="IntegerConfigurationValueFormatError" xml:space="preserve">
-    <value>The value for the configuration entry '{configurationKey}' is '{invalidValue}', but an integer is expected.</value>
-  </data>
-  <data name="ConnectionStringNotFound" xml:space="preserve">
-    <value>No connection string named '{connectionString}' could be found in configuration.</value>
-  </data>
-  <data name="UnhandledBindingType" xml:space="preserve">
-    <value>Unhandled binding type: '{type}'.</value>
-  </data>
-  <data name="UnhandledExpressionType" xml:space="preserve">
-    <value>Unhandled expression type: '{type}'.</value>
   </data>
   <data name="ReferencedShadowKey" xml:space="preserve">
     <value>The key {key} on entity type '{entityType}' contains properties in shadow state - {shadowProperties} and it is referenced by the foreign key {foreignKey} from entity type '{referencingEntityType}'."</value>

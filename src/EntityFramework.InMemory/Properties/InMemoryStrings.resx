@@ -117,14 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="InvalidEnumValue" xml:space="preserve">
-    <value>The value provided for argument '{argumentName}' must be a valid value of enum type '{enumType}'.</value>
-  </data>
   <data name="LogSavedChanges" xml:space="preserve">
     <value>Saved {count} entities to in-memory store.</value>
-  </data>
-  <data name="InMemoryNotInUse" xml:space="preserve">
-    <value>In-Memory-specific methods can only be used when the context is using an In-Memory database.</value>
   </data>
   <data name="TransactionsNotSupported" xml:space="preserve">
     <value>Transactions are not supported by the in-memory store. To suppress this Exception call IgnoreTransactions() when overriding DbContext.OnConfiguring.</value>

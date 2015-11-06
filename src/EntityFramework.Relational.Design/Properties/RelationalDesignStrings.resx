@@ -126,12 +126,6 @@
   <data name="ContextClassNotValidCSharpIdentifier" xml:space="preserve">
     <value>The context class name passed in, {contextClassName}, is not a valid C# identifier.</value>
   </data>
-  <data name="ErrorRunningDbContextTemplate" xml:space="preserve">
-    <value>There was an error running the DbContext template. Message: {errorMessage}</value>
-  </data>
-  <data name="ErrorRunningEntityTypeTemplate" xml:space="preserve">
-    <value>There was an error running the EntityType template. Message: {errorMessage}</value>
-  </data>
   <data name="ForeignKeyScaffoldErrorPrincipalKeyNotFound" xml:space="preserve">
     <value>Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.</value>
   </data>
@@ -153,9 +147,6 @@
   <data name="ProjectPathRequired" xml:space="preserve">
     <value>ProjectPath is required to generate code.</value>
   </data>
-  <data name="ProviderRequired" xml:space="preserve">
-    <value>Provider is required to generate code.</value>
-  </data>
   <data name="ProviderReturnedNullModel" xml:space="preserve">
     <value>Metadata model returned should not be null. Provider: {providerTypeName} , connection string: {connectionString}.</value>
   </data>
@@ -164,15 +155,6 @@
   </data>
   <data name="RootNamespaceRequired" xml:space="preserve">
     <value>Root namespace of the project is required to generate code.</value>
-  </data>
-  <data name="TemplateProcessingFailed" xml:space="preserve">
-    <value>Template Processing Failed: {errorMessages}</value>
-  </data>
-  <data name="UnableToAddNavigationProperty" xml:space="preserve">
-    <value>Unable to add a Navigation Property referencing type {referencedEntityTypeName} because of errors generating that EntityType.</value>
-  </data>
-  <data name="UnableToCreateMetadataReference" xml:space="preserve">
-    <value>Unable to create metadata reference from name {metadataReferenceName}.</value>
   </data>
   <data name="UnableToGenerateEntityType" xml:space="preserve">
     <value>Unable to generate entity type for table '{tableName}'.</value>
