@@ -186,4 +186,7 @@
   <data name="DefaultNativeError" xml:space="preserve">
     <value>For more information on this error code see https://www.sqlite.org/rescode.html</value>
   </data>
+  <data name="AmbiguousParameterName" xml:space="preserve">
+    <value>Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.</value>
+  </data>
 </root>

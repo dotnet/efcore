@@ -347,7 +347,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// SQLite Error {errorCode}: '{message}'
+        /// SQLite Error {errorCode}: '{message}'.
         /// </summary>
         internal static string SqliteNativeError
         {
@@ -355,7 +355,7 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        /// SQLite Error {errorCode}: '{message}'
+        /// SQLite Error {errorCode}: '{message}'.
         /// </summary>
         internal static string FormatSqliteNativeError(object errorCode, object message)
         {
@@ -376,6 +376,22 @@ namespace Microsoft.Data.Sqlite
         internal static string FormatDefaultNativeError()
         {
             return GetString("DefaultNativeError");
+        }
+
+        /// <summary>
+        /// Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.
+        /// </summary>
+        internal static string AmbiguousParameterName
+        {
+            get { return GetString("AmbiguousParameterName"); }
+        }
+
+        /// <summary>
+        /// Cannot bind the value for parameter '{parameterName}' because multiple matching parameters were found in the command text. Specify the parameter name with the symbol prefix, e.g. '@{parameterName}'.
+        /// </summary>
+        internal static string FormatAmbiguousParameterName(object parameterName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("AmbiguousParameterName", "parameterName"), parameterName);
         }
 
         private static string GetString(string name, params string[] formatterNames)

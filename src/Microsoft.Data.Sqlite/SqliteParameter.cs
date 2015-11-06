@@ -5,6 +5,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using Microsoft.Data.Sqlite.Interop;
 using Microsoft.Data.Sqlite.Utilities;
 
@@ -132,7 +133,8 @@ namespace Microsoft.Data.Sqlite
             }
 
             var index = NativeMethods.sqlite3_bind_parameter_index(stmt, _parameterName);
-            if (index == 0)
+            if (index == 0 &&
+                (index = FindPrefixedParameter(stmt)) == 0)
             {
                 return false;
             }
@@ -262,5 +264,40 @@ namespace Microsoft.Data.Sqlite
 
         private static void BindText(Sqlite3StmtHandle stmt, int index, string value) =>
             NativeMethods.sqlite3_bind_text(stmt, index, value, Constants.SQLITE_TRANSIENT);
+
+        private readonly static char[] _parameterPrefixes = { '@', '$', ':' };
+
+        private int FindPrefixedParameter(Sqlite3StmtHandle stmt)
+        {
+            var count = NativeMethods.sqlite3_bind_parameter_count(stmt);
+            var index = 0;
+            int nextIndex;
+
+            foreach (var prefix in _parameterPrefixes)
+            {
+                if (_parameterName[0] == prefix)
+                {
+                    // If name already has a prefix characters, the first call to sqlite3_bind_parameter_index
+                    // would have worked if the parameter name was in the statement
+                    return 0;
+                }
+
+                nextIndex = NativeMethods.sqlite3_bind_parameter_index(stmt, prefix + _parameterName);
+
+                if (nextIndex == 0)
+                {
+                    continue;
+                }
+
+                if (index != 0)
+                {
+                    throw new InvalidOperationException(Strings.FormatAmbiguousParameterName(_parameterName));
+                }
+
+                index = nextIndex;
+            }
+
+            return index;
+        }
     }
 }

@@ -73,10 +73,10 @@ namespace Microsoft.Data.Sqlite
         public void ResetDbType_works()
         {
             var parameter = new SqliteParameter
-                {
-                    DbType = DbType.Int64,
-                    SqliteType = SqliteType.Integer
-                };
+            {
+                DbType = DbType.Int64,
+                SqliteType = SqliteType.Integer
+            };
 
             parameter.ResetDbType();
 
@@ -88,10 +88,10 @@ namespace Microsoft.Data.Sqlite
         public void ResetSqliteType_works()
         {
             var parameter = new SqliteParameter
-                {
-                    DbType = DbType.Int64,
-                    SqliteType = SqliteType.Integer
-                };
+            {
+                DbType = DbType.Int64,
+                SqliteType = SqliteType.Integer
+            };
 
             parameter.ResetSqliteType();
 
@@ -238,6 +238,64 @@ namespace Microsoft.Data.Sqlite
                 var result = command.ExecuteScalar();
 
                 Assert.Equal("testing", result);
+            }
+        }
+
+        [Theory]
+        [InlineData("@Parameter")]
+        [InlineData("$Parameter")]
+        [InlineData(":Parameter")]
+        public void Bind_does_not_require_prefix(string parameterName)
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT " + parameterName;
+                command.Parameters.AddWithValue("Parameter", "harvest");
+                connection.Open();
+
+                var result = command.ExecuteScalar();
+
+                Assert.Equal("harvest", result);
+            }
+        }
+
+        [Fact]
+        public void Bind_throws_for_ambiguous_parameters()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Param, $Param";
+                command.Parameters.AddWithValue("Param", 1);
+                connection.Open();
+
+                var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
+
+                Assert.Equal(Strings.FormatAmbiguousParameterName("Param"), ex.Message);
+            }
+        }
+
+
+        [Fact]
+        public void Bind_with_prefixed_names()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                var command = connection.CreateCommand();
+                command.CommandText = "SELECT @Param, $Param, :Param";
+                command.Parameters.AddWithValue("@Param", 1);
+                command.Parameters.AddWithValue("$Param", 2);
+                command.Parameters.AddWithValue(":Param", 3);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal(1, reader.GetFieldValue<int>(0));
+                    Assert.Equal(2, reader.GetFieldValue<int>(1));
+                    Assert.Equal(3, reader.GetFieldValue<int>(2));
+                }
             }
         }
 
