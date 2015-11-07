@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     .Entity(property.DeclaringEntityType.Name, ConfigurationSource.Convention)
                     .Property(property.Name, ConfigurationSource.Convention);
 
-                propertyBuilder.UseValueGenerator(false, ConfigurationSource.Convention);
+                propertyBuilder.RequiresValueGenerator(false, ConfigurationSource.Convention);
                 propertyBuilder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.Convention);
             }
 
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 ConfigurationSource.Convention);
             foreach (var propertyBuilder in propertyBuilders)
             {
-                propertyBuilder?.UseValueGenerator(true, ConfigurationSource.Convention);
+                propertyBuilder?.RequiresValueGenerator(true, ConfigurationSource.Convention);
             }
         }
 
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 ConfigurationSource.Convention);
 
             propertyBuilder?.ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Convention);
-            propertyBuilder?.UseValueGenerator(true, ConfigurationSource.Convention);
+            propertyBuilder?.RequiresValueGenerator(true, ConfigurationSource.Convention);
         }
 
         public virtual InternalModelBuilder Apply(InternalModelBuilder modelBuilder)

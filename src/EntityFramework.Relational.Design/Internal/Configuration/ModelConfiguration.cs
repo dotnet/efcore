@@ -12,7 +12,6 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
@@ -325,7 +324,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
-            var valueGenerated = ((Property)propertyConfiguration.Property).ValueGenerated;
+            if (!((Property)propertyConfiguration.Property).GetValueGeneratedConfigurationSource().HasValue)
+            {
+                return;
+            }
+
+            var valueGenerated = propertyConfiguration.Property.ValueGenerated;
 
             switch (valueGenerated)
             {
@@ -359,9 +363,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                             nameof(PropertyBuilder.ValueGeneratedNever)));
                     break;
 
-                case null:
-                    // do nothing
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

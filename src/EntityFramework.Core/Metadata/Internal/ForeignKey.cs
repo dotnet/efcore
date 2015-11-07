@@ -103,8 +103,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             get
             {
-                return Properties.Any(p => p.IsNullable.HasValue)
-                    ? !Properties.Any(p => ((IProperty)p).IsNullable) as bool?
+                return Properties.Any(p => p.GetIsNullableConfigurationSource().HasValue)
+                    ? !Properties.Any(p => p.IsNullable) as bool?
                     : null;
             }
             set
@@ -126,9 +126,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     // If no properties can be made nullable, let it fail
                 }
 
-                foreach (var property in properties)
+                if (value.HasValue)
                 {
-                    property.IsNullable = !value;
+                    foreach (var property in properties)
+                    {
+                        property.IsNullable = !value.Value;
+                    }
                 }
             }
         }

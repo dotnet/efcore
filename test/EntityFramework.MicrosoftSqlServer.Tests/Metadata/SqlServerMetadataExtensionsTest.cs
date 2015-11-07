@@ -583,21 +583,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.RequiresValueGenerator);
-            Assert.False(((IProperty)property).RequiresValueGenerator);
+            Assert.False(property.RequiresValueGenerator);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, ((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.RequiresValueGenerator);
+            Assert.False(property.RequiresValueGenerator);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.RequiresValueGenerator);
+            Assert.False(property.RequiresValueGenerator);
         }
 
         [Fact]
@@ -612,21 +609,18 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
                 .Metadata;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.RequiresValueGenerator);
-            Assert.False(((IProperty)property).RequiresValueGenerator);
+            Assert.False(property.RequiresValueGenerator);
 
             property.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;
 
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, property.SqlServer().ValueGenerationStrategy);
             Assert.Equal(SqlServerValueGenerationStrategy.SequenceHiLo, ((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.RequiresValueGenerator);
+            Assert.False(property.RequiresValueGenerator);
 
             property.SqlServer().ValueGenerationStrategy = null;
 
             Assert.Null(property.SqlServer().ValueGenerationStrategy);
-            Assert.Null(((IProperty)property).SqlServer().ValueGenerationStrategy);
-            Assert.Null(property.RequiresValueGenerator);
+            Assert.False(property.RequiresValueGenerator);
         }
 
         [Fact]

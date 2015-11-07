@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var property in key.Properties)
                 {
-                    property.IsNullable = null;
+                    property.IsNullable = false;
                     _properties.Add(property.Name, property);
                 }
             }

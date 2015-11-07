@@ -47,8 +47,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.NotNull(keyProperties[0].RequiresValueGenerator);
-            Assert.Null(keyProperties[1].RequiresValueGenerator);
+            Assert.True(keyProperties[0].RequiresValueGenerator);
+            Assert.False(keyProperties[1].RequiresValueGenerator);
 
             Assert.True(((IProperty)keyProperties[0]).RequiresValueGenerator);
             Assert.False(((IProperty)keyProperties[1]).RequiresValueGenerator);
@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.Null(keyProperties[0].RequiresValueGenerator);
+            Assert.False(keyProperties[0].RequiresValueGenerator);
         }
 
         [Fact]
@@ -106,7 +106,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var keyProperties = keyBuilder.Metadata.Properties;
 
             Assert.True(keyProperties[0].RequiresValueGenerator);
-            Assert.Null(keyProperties[1].RequiresValueGenerator);
+            Assert.False(keyProperties[1].RequiresValueGenerator);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.Null(keyProperties[0].RequiresValueGenerator);
+            Assert.False(keyProperties[0].RequiresValueGenerator);
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             entityBuilder.Property(properties[0], ConfigurationSource.Convention)
                 .ValueGenerated(ValueGenerated.OnAdd, ConfigurationSource.Explicit);
 
-            entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).UseValueGenerator(false, ConfigurationSource.Explicit);
+            entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).RequiresValueGenerator(false, ConfigurationSource.Explicit);
 
             var keyBuilder = entityBuilder.HasKey(properties, ConfigurationSource.Convention);
 
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var keyProperties = keyBuilder.Metadata.Properties;
 
-            Assert.False(keyProperties[0].RequiresValueGenerator.Value);
+            Assert.False(keyProperties[0].RequiresValueGenerator);
         }
 
         [Fact]
@@ -257,7 +257,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Null(property.ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
         [Fact]
@@ -286,7 +286,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var property = keyBuilder.Metadata.Properties.First();
 
-            Assert.Null(property.ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
         [Fact]
@@ -302,7 +302,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(numberProperty, entityBuilder.Metadata.FindProperty("Number"));
 
             Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
-            Assert.Null(numberProperty.ValueGenerated);
+            Assert.Equal(ValueGenerated.Never, numberProperty.ValueGenerated);
 
             var keyBuilder = entityBuilder.PrimaryKey(new List<string> { "Number" }, ConfigurationSource.Convention);
 

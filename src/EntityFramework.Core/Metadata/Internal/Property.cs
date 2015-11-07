@@ -30,6 +30,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private Type _clrType;
 
         private ConfigurationSource _configurationSource;
+        private ConfigurationSource? _clrTypeConfigurationSource;
+        private ConfigurationSource? _isReadOnlyAfterSaveConfigurationSource;
+        private ConfigurationSource? _isReadOnlyBeforeSaveConfigurationSource;
+        private ConfigurationSource? _isNullableConfigurationSource;
+        private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
+        private ConfigurationSource? _isShadowPropertyConfigurationSource;
+        private ConfigurationSource? _isStoreGeneratedAlwaysConfigurationSource;
+        private ConfigurationSource? _requiresValueGeneratorConfigurationSource;
+        private ConfigurationSource? _valueGeneratedConfigurationSource;
 
         public Property([NotNull] string name, [NotNull] EntityType declaringEntityType, ConfigurationSource configurationSource)
         {
@@ -39,6 +48,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Name = name;
             DeclaringEntityType = declaringEntityType;
             _configurationSource = configurationSource;
+
+            Builder = new InternalPropertyBuilder(this, declaringEntityType.Model.Builder);
         }
 
         public virtual string Name { get; }
@@ -46,57 +57,73 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalPropertyBuilder Builder { get; [param: CanBeNull] set; }
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
+
         public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual Type ClrType
         {
-            get { return _clrType; }
-            [param: NotNull]
-            set
-            {
-                Check.NotNull(value, nameof(value));
-                if (value != ((IProperty)this).ClrType)
-                {
-                    var foreignKey = this.FindReferencingForeignKeys().FirstOrDefault();
-                    if (foreignKey != null)
-                    {
-                        throw new InvalidOperationException(
-                            CoreStrings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
-                    }
-                }
-                _clrType = value;
-            }
+            get { return _clrType ?? DefaultClrType; }
+            [param: NotNull] set { HasClrType(value, ConfigurationSource.Explicit); }
         }
-        protected virtual Type DefaultClrType => typeof(string);
 
-        public virtual bool? IsNullable
+        public virtual void HasClrType([NotNull] Type type, ConfigurationSource configurationSource)
         {
-            get { return GetFlag(PropertyFlags.IsNullable); }
-            set
+            Check.NotNull(type, nameof(type));
+            if (type != ((IProperty)this).ClrType)
             {
-                if (value.HasValue
-                    && value.Value)
+                var foreignKey = this.FindReferencingForeignKeys().FirstOrDefault();
+                if (foreignKey != null)
                 {
-                    if (!((IProperty)this).ClrType.IsNullableType())
-                    {
-                        throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ((IProperty)this).ClrType.Name));
-                    }
-
-                    if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
-                    {
-                        throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
-                    }
+                    throw new InvalidOperationException(
+                        CoreStrings.PropertyClrTypeCannotBeChangedWhenReferenced(Name, Format(foreignKey.Properties), foreignKey.DeclaringEntityType.Name));
                 }
-
-                SetFlag(value, PropertyFlags.IsNullable);
             }
+            _clrType = type;
+            UpdateClrTypeConfigurationSource(configurationSource);
         }
 
-        protected virtual bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this)) != true
-                                                    && ((IProperty)this).ClrType.IsNullableType();
+        private Type DefaultClrType => typeof(string);
 
-        public virtual ValueGenerated? ValueGenerated
+        public virtual ConfigurationSource? GetClrTypeConfigurationSource() => _clrTypeConfigurationSource;
+
+        private void UpdateClrTypeConfigurationSource(ConfigurationSource configurationSource)
+            => _clrTypeConfigurationSource = configurationSource.Max(_clrTypeConfigurationSource);
+
+        public virtual bool IsNullable
+        {
+            get { return GetFlag(PropertyFlags.IsNullable) ?? DefaultIsNullable; }
+            set { SetIsNullable(value, ConfigurationSource.Explicit); }
+        }
+
+        public virtual void SetIsNullable(bool nullable, ConfigurationSource configurationSource)
+        {
+            if (nullable)
+            {
+                if (!((IProperty)this).ClrType.IsNullableType())
+                {
+                    throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ((IProperty)this).ClrType.Name));
+                }
+
+                if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
+                {
+                    throw new InvalidOperationException(CoreStrings.CannotBeNullablePK(Name, DeclaringEntityType.DisplayName()));
+                }
+            }
+
+            SetFlag(nullable, PropertyFlags.IsNullable);
+            UpdateIsNullableConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this)) != true
+                                          && ((IProperty)this).ClrType.IsNullableType();
+
+        public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
+
+        private void UpdateIsNullableConfigurationSource(ConfigurationSource configurationSource)
+            => _isNullableConfigurationSource = configurationSource.Max(_isNullableConfigurationSource);
+
+        public virtual ValueGenerated ValueGenerated
         {
             get
             {
@@ -104,143 +131,202 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var isComputed = GetFlag(PropertyFlags.ValueGeneratedOnAddOrUpdate);
 
                 return isIdentity == null && isComputed == null
-                    ? (ValueGenerated?)null
+                    ? DefaultValueGenerated
                     : isIdentity.HasValue && isIdentity.Value
-                        ? Metadata.ValueGenerated.OnAdd
+                        ? ValueGenerated.OnAdd
                         : isComputed.HasValue && isComputed.Value
-                            ? Metadata.ValueGenerated.OnAddOrUpdate
-                            : Metadata.ValueGenerated.Never;
+                            ? ValueGenerated.OnAddOrUpdate
+                            : ValueGenerated.Never;
             }
-            set
-            {
-                if (value == null)
-                {
-                    SetFlag(null, PropertyFlags.ValueGeneratedOnAdd);
-                    SetFlag(null, PropertyFlags.ValueGeneratedOnAddOrUpdate);
-                }
-                else
-                {
-                    Check.IsDefined(value.Value, nameof(value));
-
-                    SetFlag(value.Value == Metadata.ValueGenerated.OnAdd, PropertyFlags.ValueGeneratedOnAdd);
-                    SetFlag(value.Value == Metadata.ValueGenerated.OnAddOrUpdate, PropertyFlags.ValueGeneratedOnAddOrUpdate);
-                }
-            }
+            set { SetValueGenerated(value, ConfigurationSource.Explicit); }
         }
 
-        protected virtual ValueGenerated DefaultValueGenerated => Metadata.ValueGenerated.Never;
-
-        public virtual bool? IsReadOnlyBeforeSave
+        public virtual void SetValueGenerated(ValueGenerated? valueGenerated, ConfigurationSource configurationSource)
         {
-            get { return GetFlag(PropertyFlags.IsReadOnlyBeforeSave); }
-            set { SetFlag(value, PropertyFlags.IsReadOnlyBeforeSave); }
+            if (valueGenerated == null)
+            {
+                SetFlag(null, PropertyFlags.ValueGeneratedOnAdd);
+                SetFlag(null, PropertyFlags.ValueGeneratedOnAddOrUpdate);
+                _valueGeneratedConfigurationSource = null;
+            }
+            else
+            {
+                Check.IsDefined(valueGenerated.Value, nameof(valueGenerated));
+
+                SetFlag(valueGenerated.Value == ValueGenerated.OnAdd, PropertyFlags.ValueGeneratedOnAdd);
+                SetFlag(valueGenerated.Value == ValueGenerated.OnAddOrUpdate, PropertyFlags.ValueGeneratedOnAddOrUpdate);
+                UpdateValueGeneratedConfigurationSource(configurationSource);
+            }
         }
 
-        protected virtual bool DefaultIsReadOnlyBeforeSave
-            => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate
+        private ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
+        public virtual ConfigurationSource? GetValueGeneratedConfigurationSource() => _valueGeneratedConfigurationSource;
+
+        private void UpdateValueGeneratedConfigurationSource(ConfigurationSource configurationSource)
+            => _valueGeneratedConfigurationSource = configurationSource.Max(_valueGeneratedConfigurationSource);
+
+        public virtual bool IsReadOnlyBeforeSave
+        {
+            get { return GetFlag(PropertyFlags.IsReadOnlyBeforeSave) ?? DefaultIsReadOnlyBeforeSave; }
+            set { SetIsReadOnlyBeforeSave(value, ConfigurationSource.Explicit); }
+        }
+
+        public virtual void SetIsReadOnlyBeforeSave(bool readOnlyBeforeSave, ConfigurationSource configurationSource)
+        {
+            SetFlag(readOnlyBeforeSave, PropertyFlags.IsReadOnlyBeforeSave);
+            UpdateIsReadOnlyBeforeSaveConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultIsReadOnlyBeforeSave
+            => ValueGenerated == ValueGenerated.OnAddOrUpdate
                && !((IProperty)this).IsStoreGeneratedAlways;
 
-        public virtual bool? IsReadOnlyAfterSave
+        public virtual ConfigurationSource? GetIsReadOnlyBeforeSaveConfigurationSource() => _isReadOnlyBeforeSaveConfigurationSource;
+
+        private void UpdateIsReadOnlyBeforeSaveConfigurationSource(ConfigurationSource configurationSource)
+            => _isReadOnlyBeforeSaveConfigurationSource = configurationSource.Max(_isReadOnlyBeforeSaveConfigurationSource);
+
+        public virtual bool IsReadOnlyAfterSave
         {
-            get { return GetFlag(PropertyFlags.IsReadOnlyAfterSave); }
-            set
-            {
-                if (value.HasValue
-                    && !value.Value
-                    && this.IsKey())
-                {
-                    throw new NotSupportedException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
-                }
-                SetFlag(value, PropertyFlags.IsReadOnlyAfterSave);
-            }
+            get { return GetFlag(PropertyFlags.IsReadOnlyAfterSave) ?? DefaultIsReadOnlyAfterSave; }
+            set { SetIsReadOnlyAfterSave(value, ConfigurationSource.Explicit); }
         }
 
-        protected virtual bool DefaultIsReadOnlyAfterSave
-            => (ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate
+        public virtual void SetIsReadOnlyAfterSave(bool readOnlyAfterSave, ConfigurationSource configurationSource)
+        {
+            if (!readOnlyAfterSave
+                && this.IsKey())
+            {
+                throw new NotSupportedException(CoreStrings.KeyPropertyMustBeReadOnly(Name, DeclaringEntityType.Name));
+            }
+            SetFlag(readOnlyAfterSave, PropertyFlags.IsReadOnlyAfterSave);
+            UpdateIsReadOnlyAfterSaveConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultIsReadOnlyAfterSave
+            => (ValueGenerated == ValueGenerated.OnAddOrUpdate
                 && !((IProperty)this).IsStoreGeneratedAlways)
                || this.IsKey();
 
-        public virtual bool? RequiresValueGenerator
+        public virtual ConfigurationSource? GetIsReadOnlyAfterSaveConfigurationSource() => _isReadOnlyAfterSaveConfigurationSource;
+
+        private void UpdateIsReadOnlyAfterSaveConfigurationSource(ConfigurationSource configurationSource)
+            => _isReadOnlyAfterSaveConfigurationSource = configurationSource.Max(_isReadOnlyAfterSaveConfigurationSource);
+
+        public virtual bool RequiresValueGenerator
         {
-            get { return GetFlag(PropertyFlags.RequiresValueGenerator); }
-            set { SetFlag(value, PropertyFlags.RequiresValueGenerator); }
+            get { return GetFlag(PropertyFlags.RequiresValueGenerator) ?? DefaultRequiresValueGenerator; }
+            set { SetRequiresValueGenerator(value, ConfigurationSource.Explicit); }
         }
 
-        protected virtual bool DefaultRequiresValueGenerator => false;
-
-        public virtual bool? IsShadowProperty
+        public virtual void SetRequiresValueGenerator(bool requiresValueGenerator, ConfigurationSource configurationSource)
         {
-            get { return GetFlag(PropertyFlags.IsShadowProperty); }
-            set
+            SetFlag(requiresValueGenerator, PropertyFlags.RequiresValueGenerator);
+            UpdateRequiresValueGeneratorConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultRequiresValueGenerator => false;
+        public virtual ConfigurationSource? GetRequiresValueGeneratorConfigurationSource() => _requiresValueGeneratorConfigurationSource;
+
+        private void UpdateRequiresValueGeneratorConfigurationSource(ConfigurationSource configurationSource)
+            => _requiresValueGeneratorConfigurationSource = configurationSource.Max(_requiresValueGeneratorConfigurationSource);
+
+        public virtual bool IsShadowProperty
+        {
+            get { return GetFlag(PropertyFlags.IsShadowProperty) ?? DefaultIsShadowProperty; }
+            set { SetIsShadowProperty(value, ConfigurationSource.Explicit); }
+        }
+
+        public virtual void SetIsShadowProperty(bool shadowProperty, ConfigurationSource configurationSource)
+        {
+            if (IsShadowProperty != shadowProperty)
             {
-                if (IsShadowProperty != value)
+                if (shadowProperty == false)
                 {
-                    if (value == false)
+                    if (DeclaringEntityType.ClrType == null)
                     {
-                        if (DeclaringEntityType.ClrType == null)
-                        {
-                            throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(Name, DeclaringEntityType.DisplayName()));
-                        }
-
-                        var clrProperty = DeclaringEntityType.ClrType.GetPropertiesInHierarchy(Name).FirstOrDefault();
-                        if (clrProperty == null)
-                        {
-                            throw new InvalidOperationException(CoreStrings.NoClrProperty(Name, DeclaringEntityType.DisplayName()));
-                        }
-
-                        if (ClrType == null)
-                        {
-                            ClrType = clrProperty.PropertyType;
-                        }
-                        else if (ClrType != clrProperty.PropertyType)
-                        {
-                            throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(Name, DeclaringEntityType.DisplayName()));
-                        }
+                        throw new InvalidOperationException(CoreStrings.ClrPropertyOnShadowEntity(Name, DeclaringEntityType.DisplayName()));
                     }
 
-                    SetFlag(value, PropertyFlags.IsShadowProperty);
+                    var clrProperty = DeclaringEntityType.ClrType.GetPropertiesInHierarchy(Name).FirstOrDefault();
+                    if (clrProperty == null)
+                    {
+                        throw new InvalidOperationException(CoreStrings.NoClrProperty(Name, DeclaringEntityType.DisplayName()));
+                    }
 
-                    DeclaringEntityType.PropertyMetadataChanged();
+                    if (ClrType == null)
+                    {
+                        ClrType = clrProperty.PropertyType;
+                    }
+                    else if (ClrType != clrProperty.PropertyType)
+                    {
+                        throw new InvalidOperationException(CoreStrings.PropertyWrongClrType(Name, DeclaringEntityType.DisplayName()));
+                    }
                 }
 
-                SetFlag(value, PropertyFlags.IsShadowProperty);
+                SetFlag(shadowProperty, PropertyFlags.IsShadowProperty);
+
+                DeclaringEntityType.PropertyMetadataChanged();
             }
-        }
-
-        protected virtual bool DefaultIsShadowProperty => true;
-
-        public virtual bool? IsConcurrencyToken
-        {
-            get { return GetFlag(PropertyFlags.IsConcurrencyToken); }
-            set
+            else
             {
-                if (IsConcurrencyToken != value)
-                {
-                    SetFlag(value, PropertyFlags.IsConcurrencyToken);
-
-                    DeclaringEntityType.PropertyMetadataChanged();
-                }
+                SetFlag(shadowProperty, PropertyFlags.IsShadowProperty);
             }
+
+            UpdateIsShadowPropertyConfigurationSource(configurationSource);
         }
 
-        protected virtual bool DefaultIsConcurrencyToken => false;
+        private bool DefaultIsShadowProperty => true;
+        public virtual ConfigurationSource? GetIsShadowPropertyConfigurationSource() => _isShadowPropertyConfigurationSource;
 
-        public virtual bool? IsStoreGeneratedAlways
+        private void UpdateIsShadowPropertyConfigurationSource(ConfigurationSource configurationSource)
+            => _isShadowPropertyConfigurationSource = configurationSource.Max(_isShadowPropertyConfigurationSource);
+
+        public virtual bool IsConcurrencyToken
         {
-            get { return GetFlag(PropertyFlags.StoreGeneratedAlways); }
-            set
-            {
-                if (IsStoreGeneratedAlways != value)
-                {
-                    SetFlag(value, PropertyFlags.StoreGeneratedAlways);
-
-                    DeclaringEntityType.PropertyMetadataChanged();
-                }
-            }
+            get { return GetFlag(PropertyFlags.IsConcurrencyToken) ?? DefaultIsConcurrencyToken; }
+            set { SetIsConcurrencyToken(value, ConfigurationSource.Explicit); }
         }
 
-        protected virtual bool DefaultStoreGeneratedAlways
-            => ValueGenerated == Metadata.ValueGenerated.OnAddOrUpdate && IsConcurrencyToken == true;
+        public virtual void SetIsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
+        {
+            if (IsConcurrencyToken != concurrencyToken)
+            {
+                SetFlag(concurrencyToken, PropertyFlags.IsConcurrencyToken);
+
+                DeclaringEntityType.PropertyMetadataChanged();
+            }
+            UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultIsConcurrencyToken => false;
+        public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource() => _isConcurrencyTokenConfigurationSource;
+
+        private void UpdateIsConcurrencyTokenConfigurationSource(ConfigurationSource configurationSource)
+            => _isConcurrencyTokenConfigurationSource = configurationSource.Max(_isConcurrencyTokenConfigurationSource);
+
+        public virtual bool IsStoreGeneratedAlways
+        {
+            get { return GetFlag(PropertyFlags.StoreGeneratedAlways) ?? DefaultStoreGeneratedAlways; }
+            set { SetIsStoreGeneratedAlways(value, ConfigurationSource.Explicit); }
+        }
+
+        public virtual void SetIsStoreGeneratedAlways(bool storeGeneratedAlways, ConfigurationSource configurationSource)
+        {
+            if (IsStoreGeneratedAlways != storeGeneratedAlways)
+            {
+                SetFlag(storeGeneratedAlways, PropertyFlags.StoreGeneratedAlways);
+
+                DeclaringEntityType.PropertyMetadataChanged();
+            }
+            UpdateIsStoreGeneratedAlwaysConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultStoreGeneratedAlways => ValueGenerated == ValueGenerated.OnAddOrUpdate && IsConcurrencyToken;
+        public virtual ConfigurationSource? GetIsStoreGeneratedAlwaysConfigurationSource() => _isStoreGeneratedAlwaysConfigurationSource;
+
+        private void UpdateIsStoreGeneratedAlwaysConfigurationSource(ConfigurationSource configurationSource)
+            => _isStoreGeneratedAlwaysConfigurationSource = configurationSource.Max(_isStoreGeneratedAlwaysConfigurationSource);
 
         public virtual IEnumerable<ForeignKey> FindContainingForeignKeys()
             => ((IProperty)this).FindContainingForeignKeys().Cast<ForeignKey>();
@@ -255,17 +341,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         internal static string Format(IEnumerable<IProperty> properties)
             => "{" + String.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
-
-        Type IProperty.ClrType => ClrType ?? DefaultClrType;
-        bool IProperty.IsConcurrencyToken => IsConcurrencyToken ?? DefaultIsConcurrencyToken;
-        bool IProperty.IsReadOnlyBeforeSave => IsReadOnlyBeforeSave ?? DefaultIsReadOnlyBeforeSave;
-        bool IProperty.IsReadOnlyAfterSave => IsReadOnlyAfterSave ?? DefaultIsReadOnlyAfterSave;
-        bool IProperty.IsShadowProperty => IsShadowProperty ?? DefaultIsShadowProperty;
-        bool IProperty.IsNullable => IsNullable ?? DefaultIsNullable;
-        ValueGenerated IProperty.ValueGenerated => ValueGenerated ?? DefaultValueGenerated;
-        bool IProperty.RequiresValueGenerator => RequiresValueGenerator ?? DefaultRequiresValueGenerator;
-
-        bool IProperty.IsStoreGeneratedAlways => IsStoreGeneratedAlways ?? DefaultStoreGeneratedAlways;
+        
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
 
@@ -294,12 +370,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
         }
 
-        public virtual IClrPropertyGetter Getter 
+        public virtual IClrPropertyGetter Getter
             => LazyInitializer.EnsureInitialized(ref _getter, () => new ClrPropertyGetterFactory().Create(this));
 
-        public virtual IClrPropertySetter Setter 
+        public virtual IClrPropertySetter Setter
             => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
-
 
         public virtual PropertyIndexes Indexes
         {
@@ -320,7 +395,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        private PropertyIndexes CalculateIndexes() 
-            => DeclaringEntityType.CalculateIndexes(this);
+        private PropertyIndexes CalculateIndexes() => DeclaringEntityType.CalculateIndexes(this);
     }
 }

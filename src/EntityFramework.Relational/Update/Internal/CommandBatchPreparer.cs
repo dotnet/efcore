@@ -190,44 +190,23 @@ namespace Microsoft.Data.Entity.Update.Internal
                         foreach (var foreignKey in entry.EntityType.GetForeignKeys())
                         {
                             var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueSource.Current);
-
-                            if (!dependentKeyValue.KeyValue.IsInvalid)
+                            if (dependentKeyValue.KeyValue.IsInvalid)
                             {
-                                List<ModificationCommand> predecessorCommands;
-                                if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
-                                {
-                                    foreach (var predecessor in predecessorCommands)
-                                    {
-                                        if (predecessor != command)
-                                        {
-                                            commandGraph.AddEdge(predecessor, command, foreignKey);
-                                        }
-                                    }
-                                }
+                                continue;
                             }
 
-                            if (foreignKey.IsUnique)
-                            {
-                                // If the current value set is in use by another entry which is being deleted
-                                // then the CurrentValue of this entry matches with the OriginalValue of entry being deleted
-                                // To compare both the KeyValueIndex as same, set the ValueType to Original while the values are Current
-                                dependentKeyValue.ValueSource = ValueSource.Original;
+                            AddMatchingPredecessorEdge(predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey);
 
-                                if (!dependentKeyValue.KeyValue.IsInvalid)
-                                {
-                                    List<ModificationCommand> predecessorCommands;
-                                    if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
-                                    {
-                                        foreach (var predecessor in predecessorCommands)
-                                        {
-                                            if (predecessor != command)
-                                            {
-                                                commandGraph.AddEdge(predecessor, command, foreignKey);
-                                            }
-                                        }
-                                    }
-                                }
+                            if (!foreignKey.IsUnique)
+                            {
+                                continue;
                             }
+
+                            // If the current value set is in use by another entry which is being deleted then the
+                            // CurrentValue of this entry matches with the OriginalValue of entry being deleted.
+                            // To compare both the KeyValueIndex as same, set the ValueType to Original while the values are Current
+                            dependentKeyValue.ValueSource = ValueSource.Original;
+                            AddMatchingPredecessorEdge(predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey);
                         }
                     }
                 }
@@ -240,22 +219,31 @@ namespace Microsoft.Data.Entity.Update.Internal
                         foreach (var foreignKey in entry.EntityType.GetReferencingForeignKeys())
                         {
                             var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueSource.Original);
-
                             if (!principalKeyValue.KeyValue.IsInvalid)
                             {
-                                List<ModificationCommand> predecessorCommands;
-                                if (predecessorsMap.TryGetValue(principalKeyValue, out predecessorCommands))
-                                {
-                                    foreach (var predecessor in predecessorCommands)
-                                    {
-                                        if (predecessor != command)
-                                        {
-                                            commandGraph.AddEdge(predecessor, command, foreignKey);
-                                        }
-                                    }
-                                }
+                                AddMatchingPredecessorEdge(predecessorsMap, principalKeyValue, commandGraph, command, foreignKey);
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        private static void AddMatchingPredecessorEdge(
+            Dictionary<KeyValueIndex,List<ModificationCommand>> predecessorsMap,
+            KeyValueIndex dependentKeyValue,
+            Multigraph<ModificationCommand, IForeignKey> commandGraph,
+            ModificationCommand command,
+            IForeignKey foreignKey)
+        {
+            List<ModificationCommand> predecessorCommands;
+            if (predecessorsMap.TryGetValue(dependentKeyValue, out predecessorCommands))
+            {
+                foreach (var predecessor in predecessorCommands)
+                {
+                    if (predecessor != command)
+                    {
+                        commandGraph.AddEdge(predecessor, command, foreignKey);
                     }
                 }
             }

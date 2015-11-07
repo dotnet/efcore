@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Reflection;
-using Microsoft.Data.Entity.Metadata.Conventions;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -15,37 +14,56 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.ClrType(typeof(int), ConfigurationSource.DataAnnotation));
+            Assert.True(builder.HasClrType(typeof(int), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(typeof(int), metadata.ClrType);
 
-            Assert.True(builder.ClrType(typeof(string), ConfigurationSource.DataAnnotation));
+            Assert.True(builder.HasClrType(typeof(string), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(typeof(string), metadata.ClrType);
 
-            Assert.False(builder.ClrType(typeof(int), ConfigurationSource.Convention));
+            Assert.False(builder.HasClrType(typeof(int), ConfigurationSource.Convention));
 
             Assert.Equal(typeof(string), metadata.ClrType);
 
-            Assert.True(builder.ClrType(typeof(string), ConfigurationSource.Convention));
+            Assert.True(builder.HasClrType(typeof(string), ConfigurationSource.Convention));
         }
 
         [Fact]
         public void Can_only_override_existing_ClrType_value_explicitly()
         {
             var model = new Model();
-            model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty);
+            model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty.Name);
             var modelBuilder = new InternalModelBuilder(model);
             var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
             var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
+            Assert.Null(builder.Metadata.GetClrTypeConfigurationSource());
 
-            Assert.True(builder.ClrType(typeof(string), ConfigurationSource.DataAnnotation));
-            Assert.False(builder.ClrType(typeof(int), ConfigurationSource.DataAnnotation));
+            builder.Metadata.ClrType = typeof(string);
+
+            Assert.Equal(ConfigurationSource.Explicit, builder.Metadata.GetClrTypeConfigurationSource());
+            Assert.True(builder.HasClrType(typeof(string), ConfigurationSource.DataAnnotation));
+            Assert.False(builder.HasClrType(typeof(int), ConfigurationSource.DataAnnotation));
 
             Assert.Equal(typeof(string), builder.Metadata.ClrType);
 
-            Assert.True(builder.ClrType(typeof(int), ConfigurationSource.Explicit));
+            Assert.True(builder.HasClrType(typeof(int), ConfigurationSource.Explicit));
             Assert.Equal(typeof(int), builder.Metadata.ClrType);
+        }
+
+        [Fact]
+        public void Property_added_by_name_is_shadow_even_if_matches_Clr_type()
+        {
+            var model = new Model();
+            var modelBuilder = new InternalModelBuilder(model);
+            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
+            var property = builder.Metadata;
+
+            Assert.Equal(typeof(string), property.ClrType);
+            Assert.True(property.IsShadowProperty);
+            Assert.Null(property.GetClrTypeConfigurationSource());
+            Assert.Null(property.GetIsShadowPropertyConfigurationSource());
         }
 
         [Fact]
@@ -57,26 +75,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.IsConcurrencyToken(true, ConfigurationSource.DataAnnotation));
             Assert.True(builder.IsConcurrencyToken(false, ConfigurationSource.DataAnnotation));
 
-            Assert.False(metadata.IsConcurrencyToken.Value);
+            Assert.False(metadata.IsConcurrencyToken);
 
             Assert.False(builder.IsConcurrencyToken(true, ConfigurationSource.Convention));
-            Assert.False(metadata.IsConcurrencyToken.Value);
+            Assert.False(metadata.IsConcurrencyToken);
         }
 
         [Fact]
         public void Can_only_override_existing_ConcurrencyToken_value_explicitly()
         {
             var metadata = CreateProperty();
+            Assert.Null(metadata.GetIsConcurrencyTokenConfigurationSource());
             metadata.IsConcurrencyToken = true;
             var builder = CreateInternalPropertyBuilder(metadata);
 
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsConcurrencyTokenConfigurationSource());
             Assert.True(builder.IsConcurrencyToken(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsConcurrencyToken(false, ConfigurationSource.DataAnnotation));
 
-            Assert.True(metadata.IsConcurrencyToken.Value);
+            Assert.True(metadata.IsConcurrencyToken);
 
             Assert.True(builder.IsConcurrencyToken(false, ConfigurationSource.Explicit));
-            Assert.False(metadata.IsConcurrencyToken.Value);
+            Assert.False(metadata.IsConcurrencyToken);
         }
 
         [Fact]
@@ -85,28 +105,30 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.UseValueGenerator(true, ConfigurationSource.DataAnnotation));
-            Assert.True(builder.UseValueGenerator(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.RequiresValueGenerator(true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.RequiresValueGenerator(false, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(false, metadata.RequiresValueGenerator);
 
-            Assert.False(builder.UseValueGenerator(true, ConfigurationSource.Convention));
+            Assert.False(builder.RequiresValueGenerator(true, ConfigurationSource.Convention));
             Assert.Equal(false, metadata.RequiresValueGenerator);
         }
 
         [Fact]
-        public void Can_only_override_existing_UseValueGenerator_value_explicitly()
+        public void Can_only_override_existing_RequiresValueGenerator_value_explicitly()
         {
             var metadata = CreateProperty();
+            Assert.Null(metadata.GetRequiresValueGeneratorConfigurationSource());
             metadata.RequiresValueGenerator = true;
             var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.True(builder.UseValueGenerator(true, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.UseValueGenerator(false, ConfigurationSource.DataAnnotation));
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetRequiresValueGeneratorConfigurationSource());
+            Assert.True(builder.RequiresValueGenerator(true, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.RequiresValueGenerator(false, ConfigurationSource.DataAnnotation));
 
             Assert.Equal(true, metadata.RequiresValueGenerator);
 
-            Assert.True(builder.UseValueGenerator(false, ConfigurationSource.Explicit));
+            Assert.True(builder.RequiresValueGenerator(false, ConfigurationSource.Explicit));
             Assert.Equal(false, metadata.RequiresValueGenerator);
         }
 
@@ -129,9 +151,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_only_override_existing_ValueGenerated_value_explicitly()
         {
             var metadata = CreateProperty();
+            Assert.Null(metadata.GetValueGeneratedConfigurationSource());
             metadata.ValueGenerated = ValueGenerated.OnAddOrUpdate;
             var builder = CreateInternalPropertyBuilder(metadata);
 
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetValueGeneratedConfigurationSource());
             Assert.True(builder.ValueGenerated(ValueGenerated.OnAddOrUpdate, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ValueGenerated(ValueGenerated.Never, ConfigurationSource.DataAnnotation));
 
@@ -181,26 +205,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.IsRequired(true, ConfigurationSource.DataAnnotation));
             Assert.True(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
-            Assert.True(metadata.IsNullable.Value);
+            Assert.True(metadata.IsNullable);
 
             Assert.False(builder.IsRequired(true, ConfigurationSource.Convention));
-            Assert.True(metadata.IsNullable.Value);
+            Assert.True(metadata.IsNullable);
         }
 
         [Fact]
         public void Can_only_override_existing_Required_value_explicitly()
         {
             var metadata = CreateProperty();
+            Assert.Null(metadata.GetIsNullableConfigurationSource());
             metadata.IsNullable = false;
             var builder = CreateInternalPropertyBuilder(metadata);
 
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsNullableConfigurationSource());
             Assert.True(builder.IsRequired(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsRequired(false, ConfigurationSource.DataAnnotation));
 
-            Assert.False(metadata.IsNullable.Value);
+            Assert.False(metadata.IsNullable);
 
             Assert.True(builder.IsRequired(false, ConfigurationSource.Explicit));
-            Assert.True(metadata.IsNullable.Value);
+            Assert.True(metadata.IsNullable);
         }
 
         [Fact]
@@ -212,26 +238,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.ReadOnlyAfterSave(true, ConfigurationSource.DataAnnotation));
             Assert.True(builder.ReadOnlyAfterSave(false, ConfigurationSource.DataAnnotation));
 
-            Assert.False(metadata.IsReadOnlyAfterSave.Value);
+            Assert.False(metadata.IsReadOnlyAfterSave);
 
             Assert.False(builder.ReadOnlyAfterSave(true, ConfigurationSource.Convention));
-            Assert.False(metadata.IsReadOnlyAfterSave.Value);
+            Assert.False(metadata.IsReadOnlyAfterSave);
         }
 
         [Fact]
         public void Can_only_override_existing_ReadOnlyAfterSave_value_explicitly()
         {
             var metadata = CreateProperty();
+            Assert.Null(metadata.GetIsReadOnlyAfterSaveConfigurationSource());
             metadata.IsReadOnlyAfterSave = false;
             var builder = CreateInternalPropertyBuilder(metadata);
 
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsReadOnlyAfterSaveConfigurationSource());
             Assert.True(builder.ReadOnlyAfterSave(false, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ReadOnlyAfterSave(true, ConfigurationSource.DataAnnotation));
 
-            Assert.False(metadata.IsReadOnlyAfterSave.Value);
+            Assert.False(metadata.IsReadOnlyAfterSave);
 
             Assert.True(builder.ReadOnlyAfterSave(true, ConfigurationSource.Explicit));
-            Assert.True(metadata.IsReadOnlyAfterSave.Value);
+            Assert.True(metadata.IsReadOnlyAfterSave);
         }
 
         [Fact]
@@ -243,26 +271,28 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.ReadOnlyBeforeSave(true, ConfigurationSource.DataAnnotation));
             Assert.True(builder.ReadOnlyBeforeSave(false, ConfigurationSource.DataAnnotation));
 
-            Assert.False(metadata.IsReadOnlyBeforeSave.Value);
+            Assert.False(metadata.IsReadOnlyBeforeSave);
 
             Assert.False(builder.ReadOnlyBeforeSave(true, ConfigurationSource.Convention));
-            Assert.False(metadata.IsReadOnlyBeforeSave.Value);
+            Assert.False(metadata.IsReadOnlyBeforeSave);
         }
 
         [Fact]
         public void Can_only_override_existing_ReadOnlyBeforeSave_value_explicitly()
         {
             var metadata = CreateProperty();
+            Assert.Null(metadata.GetIsReadOnlyBeforeSaveConfigurationSource());
             metadata.IsReadOnlyBeforeSave = true;
             var builder = CreateInternalPropertyBuilder(metadata);
 
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsReadOnlyBeforeSaveConfigurationSource());
             Assert.True(builder.ReadOnlyBeforeSave(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.ReadOnlyBeforeSave(false, ConfigurationSource.DataAnnotation));
 
-            Assert.True(metadata.IsReadOnlyBeforeSave.Value);
+            Assert.True(metadata.IsReadOnlyBeforeSave);
 
             Assert.True(builder.ReadOnlyBeforeSave(false, ConfigurationSource.Explicit));
-            Assert.False(metadata.IsReadOnlyBeforeSave.Value);
+            Assert.False(metadata.IsReadOnlyBeforeSave);
         }
 
         [Fact]
@@ -271,12 +301,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var builder = CreateInternalPropertyBuilder();
             var metadata = builder.Metadata;
 
-            Assert.True(builder.Shadow(true, ConfigurationSource.DataAnnotation));
-            Assert.True(builder.Shadow(false, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.IsShadow(true, ConfigurationSource.DataAnnotation));
+            Assert.True(builder.IsShadow(false, ConfigurationSource.DataAnnotation));
 
             Assert.False(metadata.IsShadowProperty);
 
-            Assert.False(builder.Shadow(true, ConfigurationSource.Convention));
+            Assert.False(builder.IsShadow(true, ConfigurationSource.Convention));
             Assert.False(metadata.IsShadowProperty);
         }
 
@@ -284,17 +314,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public void Can_only_override_existing_Shadow_value_explicitly()
         {
             var model = new Model();
-            model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty);
-            var modelBuilder = new InternalModelBuilder(model);
-            var entityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
-            var builder = entityBuilder.Property(Customer.NameProperty.Name, ConfigurationSource.Convention);
+            var metadata = model.AddEntityType(typeof(Customer)).AddProperty(Customer.NameProperty.Name);
+            Assert.Null(metadata.GetIsShadowPropertyConfigurationSource());
+            metadata.IsShadowProperty = false;
+            var builder = CreateInternalPropertyBuilder(metadata);
 
-            Assert.True(builder.Shadow(false, ConfigurationSource.DataAnnotation));
-            Assert.False(builder.Shadow(true, ConfigurationSource.DataAnnotation));
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetIsShadowPropertyConfigurationSource());
+            Assert.True(builder.IsShadow(false, ConfigurationSource.DataAnnotation));
+            Assert.False(builder.IsShadow(true, ConfigurationSource.DataAnnotation));
 
             Assert.False(builder.Metadata.IsShadowProperty);
 
-            Assert.True(builder.Shadow(true, ConfigurationSource.Explicit));
+            Assert.True(builder.IsShadow(true, ConfigurationSource.Explicit));
             Assert.True(builder.Metadata.IsShadowProperty);
         }
 

@@ -161,7 +161,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var configurationSource = Annotations.ConfigurationSource;
             if (propertyType != null)
             {
-                if (!propertyBuilder.ClrType(propertyType, configurationSource))
+                if (!propertyBuilder.HasClrType(propertyType, configurationSource))
                 {
                     return null;
                 }
@@ -177,7 +177,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             propertyBuilder.IsRequired(true, configurationSource);
             //propertyBuilder.ReadOnlyBeforeSave(true, configurationSource);// #2132
             propertyBuilder.ReadOnlyAfterSave(true, configurationSource);
-            propertyBuilder.UseValueGenerator(true, configurationSource);
+            propertyBuilder.RequiresValueGenerator(true, configurationSource);
 
             return new DiscriminatorBuilder(this);
         }

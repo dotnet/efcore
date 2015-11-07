@@ -370,7 +370,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             Check.NotEmpty(propertyName, nameof(propertyName));
 
             var builder = Builder.Property(propertyName, ConfigurationSource.Explicit);
-            var clrTypeSet = builder.ClrType(propertyType, ConfigurationSource.Explicit);
+            var clrTypeSet = builder.HasClrType(propertyType, ConfigurationSource.Explicit);
             Debug.Assert(clrTypeSet);
             return builder;
         }

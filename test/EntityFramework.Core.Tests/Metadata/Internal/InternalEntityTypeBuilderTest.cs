@@ -944,7 +944,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var derivedEntityBuilder2 = modelBuilder.Entity(typeof(BackOrder), ConfigurationSource.Convention);
             derivedEntityBuilder2.HasBaseType(entityBuilder.Metadata, ConfigurationSource.Convention);
             var derivedProperty2 = derivedEntityBuilder2.Property(Order.IdProperty.Name, typeof(string), ConfigurationSource.Convention);
-            derivedProperty2.UseValueGenerator(true, ConfigurationSource.Convention);
+            derivedProperty2.RequiresValueGenerator(true, ConfigurationSource.Convention);
             derivedProperty2.HasMaxLength(2, ConfigurationSource.Convention);
 
             var propertyBuilder = entityBuilder.Property(Order.IdProperty.Name, typeof(int), ConfigurationSource.Convention);
@@ -974,7 +974,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(entityBuilder.Metadata.FindProperty(Order.IdProperty.Name), propertyBuilder.Metadata);
             Assert.True(propertyBuilder.IsConcurrencyToken(true, ConfigurationSource.Convention));
             Assert.True(propertyBuilder.Metadata.IsConcurrencyToken);
-            Assert.False(propertyBuilder.ClrType(typeof(string), ConfigurationSource.DataAnnotation));
+            Assert.False(propertyBuilder.HasClrType(typeof(string), ConfigurationSource.DataAnnotation));
         }
 
         [Fact]

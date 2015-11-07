@@ -2428,7 +2428,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.False(entityType.FindProperty("Name").IsShadowProperty);
             Assert.False(entityType.FindProperty("Id").IsShadowProperty);
-            Assert.Null(entityType.FindProperty("Mane").IsShadowProperty);
+            Assert.True(entityType.FindProperty("Mane").IsShadowProperty);
         }
 
         [Fact]

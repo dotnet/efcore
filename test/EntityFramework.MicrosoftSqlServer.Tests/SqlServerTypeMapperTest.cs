@@ -398,7 +398,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             if (isNullable.HasValue)
             {
-                property.IsNullable = isNullable;
+                property.IsNullable = isNullable.Value;
             }
 
             if (maxLength.HasValue)

@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     Assert.NotNull(b);
                     Assert.Equal("OrderId", b.Metadata.Name);
                     Assert.Equal(typeof(int), b.Metadata.ClrType);
-                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder, true);
+                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder);
                     return propertyBuilder;
                 });
             conventions.PropertyAddedConventions.Add(convention.Object);
@@ -192,7 +192,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     Assert.Equal("OrderId", b.Metadata.Name);
                     Assert.Equal(typeof(int), b.Metadata.ClrType);
                     Assert.False(b.Metadata.IsShadowProperty);
-                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder, true);
+                    propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder);
                     return propertyBuilder;
                 });
             conventions.PropertyAddedConventions.Add(convention.Object);

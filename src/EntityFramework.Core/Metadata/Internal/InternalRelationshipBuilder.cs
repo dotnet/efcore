@@ -381,7 +381,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var propertyBuilders = InternalEntityTypeBuilder.GetPropertyBuilders(
                 ModelBuilder,
-                Metadata.Properties.Where(p => ((IProperty)p).ClrType.IsNullableType()),
+                Metadata.Properties.Where(p => p.ClrType.IsNullableType()),
                 ConfigurationSource.Convention);
 
             foreach (var property in propertyBuilders)

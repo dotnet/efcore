@@ -238,8 +238,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreignKey.IsRequired = true;
 
             Assert.True(foreignKey.IsRequired.Value);
-            Assert.False(dependentProp1.IsNullable.Value);
-            Assert.False(dependentProp2.IsNullable.Value);
+            Assert.False(dependentProp1.IsNullable);
+            Assert.False(dependentProp2.IsNullable);
         }
 
         [Fact]
@@ -261,8 +261,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreignKey.IsRequired = false;
 
             Assert.False(foreignKey.IsRequired.Value);
-            Assert.True(dependentProp1.IsNullable.Value);
-            Assert.True(dependentProp2.IsNullable.Value);
+            Assert.True(dependentProp1.IsNullable);
+            Assert.True(dependentProp2.IsNullable);
         }
 
         private ForeignKey CreateOneToManyFK()

@@ -175,7 +175,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return Add(
                     propertyName,
                     (p, c) => p.UpdateConfigurationSource(c),
-                    AddProperty,
+                    Metadata.AddProperty,
                     p => ConfigureProperty(p.Builder, propertyType, shadowProperty, configurationSource),
                     configurationSource,
                     Unignore,
@@ -183,18 +183,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             existingProperty.UpdateConfigurationSource(configurationSource);
-            if (existingProperty.Builder == null)
-            {
-                existingProperty.Builder = new InternalPropertyBuilder(existingProperty, ModelBuilder, existing: true);
-            }
             return ConfigureProperty(existingProperty.Builder, propertyType, shadowProperty, configurationSource);
-        }
-
-        private Property AddProperty(string propertyName, ConfigurationSource configurationSource)
-        {
-            var property = Metadata.AddProperty(propertyName, configurationSource);
-            property.Builder = new InternalPropertyBuilder(property, ModelBuilder, existing: false);
-            return property;
         }
 
         private InternalPropertyBuilder ConfigureProperty(
@@ -206,13 +195,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             if (propertyType != null
-                && !builder.ClrType(propertyType, configurationSource))
+                && !builder.HasClrType(propertyType, configurationSource))
             {
                 return null;
             }
 
             if (shadowProperty.HasValue
-                && !builder.Shadow(shadowProperty.Value, configurationSource))
+                && !builder.IsShadow(shadowProperty.Value, configurationSource))
             {
                 return null;
             }
