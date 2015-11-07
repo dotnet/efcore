@@ -11,7 +11,8 @@
         "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
       },
       "frameworkAssemblies": {
-        "System.Data": "4.0.0.0"
+        "System.Data": "",
+        "System.Xml": ""
       }
     },
     "dotnet5.4": {

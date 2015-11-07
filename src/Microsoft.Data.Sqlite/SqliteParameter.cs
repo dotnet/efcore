@@ -269,7 +269,6 @@ namespace Microsoft.Data.Sqlite
 
         private int FindPrefixedParameter(Sqlite3StmtHandle stmt)
         {
-            var count = NativeMethods.sqlite3_bind_parameter_count(stmt);
             var index = 0;
             int nextIndex;
 
