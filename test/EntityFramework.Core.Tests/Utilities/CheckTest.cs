@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
@@ -66,6 +67,15 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         {
             // ReSharper disable once NotResolvedInText
             Assert.Throws<ArgumentException>(() => Check.IsDefined((EntityState)42, "foo"));
+        }
+
+        [Fact]
+        public void Valid_entity_type_throws_when_type_is_not_class()
+        {
+            Assert.Equal(
+                CoreStrings.InvalidEntityType(typeof(IComparable), "foo"),
+                Assert.Throws<ArgumentException>(
+                    () => Check.ValidEntityType(typeof(IComparable), "foo")).Message);
         }
     }
 }
