@@ -26,7 +26,12 @@ namespace Microsoft.Data.Entity.Commands.TestUtilities
             _domain = AppDomain.CreateDomain(
                 "ExecutorWrapper",
                 null,
-                new AppDomainSetup { ApplicationBase = targetDir, ShadowCopyFiles = "true" });
+                new AppDomainSetup
+                {
+                    ApplicationBase = targetDir,
+                    ConfigurationFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile,
+                    ShadowCopyFiles = "true"
+                });
             _executor = _domain.CreateInstanceAndUnwrap(
                 AssemblyName,
                 TypeName,

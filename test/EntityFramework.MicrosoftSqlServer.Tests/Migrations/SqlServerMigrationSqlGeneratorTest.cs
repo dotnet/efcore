@@ -86,6 +86,15 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_maxLength()
+        {
+            base.AddColumnOperation_with_maxLength();
+
+            Assert.Equal(
+                "ALTER TABLE [Person] ADD [Name] nvarchar(30);" + EOL,
+                Sql);
+        }
+
         [Fact]
         public virtual void AddPrimaryKeyOperation_nonclustered()
         {

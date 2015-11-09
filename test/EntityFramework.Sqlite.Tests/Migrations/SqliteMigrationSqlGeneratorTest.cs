@@ -203,6 +203,16 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql);
         }
 
+        public override void AddColumnOperation_with_maxLength()
+        {
+            base.AddColumnOperation_with_maxLength();
+
+            // See issue #3698
+            Assert.Equal(
+                "ALTER TABLE \"Person\" ADD \"Name\" TEXT;" + EOL,
+                Sql);
+        }
+
         [Fact]
         public override void AddColumnOperation_with_computed_column_SQL()
         {

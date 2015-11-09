@@ -48,6 +48,7 @@
     <Compile Include="TestUtilities\WrappedOperationException.cs" />
     <Compile Include="TestUtilities\OperationExecutorWrapper.cs" />
     <Compile Include="TestUtilities\TempDirectory.cs" />
+    <None Include="App.config" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

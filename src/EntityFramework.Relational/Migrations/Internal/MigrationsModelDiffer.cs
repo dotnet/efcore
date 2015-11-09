@@ -11,6 +11,7 @@ using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Operations;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Migrations.Internal
@@ -45,16 +46,20 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         };
 
         public MigrationsModelDiffer(
+            [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations,
             [NotNull] IMigrationsAnnotationProvider migrationsAnnotations)
         {
+            Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(annotations, nameof(annotations));
             Check.NotNull(migrationsAnnotations, nameof(migrationsAnnotations));
 
+            TypeMapper = typeMapper;
             Annotations = annotations;
             MigrationsAnnotations = migrationsAnnotations;
         }
 
+        protected virtual IRelationalTypeMapper TypeMapper { get; }
         protected virtual IRelationalAnnotationProvider Annotations { get; }
         protected virtual IMigrationsAnnotationProvider MigrationsAnnotations { get; }
 
@@ -414,15 +419,18 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 };
             }
 
-            var targetClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType();
+            var sourceColumnType = sourceAnnotations.ColumnType
+                ?? TypeMapper.GetMapping(source).DefaultTypeName;
+            var targetColumnType = targetAnnotations.ColumnType
+                ?? TypeMapper.GetMapping(target).DefaultTypeName;
 
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target);
 
             var isSourceColumnNullable = source.IsColumnNullable();
             var isTargetColumnNullable = target.IsColumnNullable();
             var isNullableChanged = isSourceColumnNullable != isTargetColumnNullable;
-            var columnTypeChanged = source.ClrType.UnwrapNullableType().UnwrapEnumType() != targetClrType
-                                    || sourceAnnotations.ColumnType != targetAnnotations.ColumnType;
+            var columnTypeChanged = sourceColumnType != targetColumnType;
+
             if (isNullableChanged
                 || columnTypeChanged
                 || sourceAnnotations.GeneratedValueSql != targetAnnotations.GeneratedValueSql
@@ -431,14 +439,14 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
                     // TODO: Detect type narrowing
-                                          || columnTypeChanged;
+                    || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
                 {
                     Schema = sourceEntityTypeAnnotations.Schema,
                     Table = sourceEntityTypeAnnotations.TableName,
                     Name = sourceAnnotations.ColumnName,
-                    ClrType = targetClrType,
+                    ClrType = target.ClrType.UnwrapNullableType().UnwrapEnumType(),
                     ColumnType = targetAnnotations.ColumnType,
                     IsNullable = isTargetColumnNullable,
                     DefaultValue = targetAnnotations.DefaultValue,

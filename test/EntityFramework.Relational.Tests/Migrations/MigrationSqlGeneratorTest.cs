@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
@@ -68,6 +69,15 @@ namespace Microsoft.Data.Entity.Migrations
 
             Assert.Equal(
                 "ALTER TABLE \"People\" ADD \"Alias\" nvarchar(max) NOT NULL;" + EOL,
+                Sql);
+        }
+
+        public override void AddColumnOperation_with_maxLength()
+        {
+            base.AddColumnOperation_with_maxLength();
+
+            Assert.Equal(
+                "ALTER TABLE \"Person\" ADD \"Name\" nvarchar(30);" + EOL,
                 Sql);
         }
 
@@ -287,14 +297,26 @@ namespace Microsoft.Data.Entity.Migrations
             protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
-                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) },
-                    { typeof(string), new RelationalTypeMapping("nvarchar(max)", typeof(string)) }
+                    { typeof(int), new RelationalTypeMapping("int", typeof(int)) }
                 };
 
             protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
-                = new Dictionary<string, RelationalTypeMapping>();
+                = new Dictionary<string, RelationalTypeMapping>
+                {
+                    { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string)) }
+                };
 
-            protected override string GetColumnType(IProperty property) => null;
+            protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
+
+            public override RelationalTypeMapping FindMapping([NotNull] Type clrType)
+                => clrType == typeof(string)
+                    ? new RelationalTypeMapping("nvarchar(max)", typeof(string))
+                    : base.FindMapping(clrType);
+
+            protected override RelationalTypeMapping FindCustomMapping([NotNull] IProperty property)
+                => property.ClrType == typeof(string) && property.GetMaxLength().HasValue
+                    ? new RelationalTypeMapping("nvarchar(" + property.GetMaxLength() + ")", typeof(string))
+                    : base.FindCustomMapping(property);
         }
 
         private class ConcreteMigrationSqlGenerator : MigrationsSqlGenerator

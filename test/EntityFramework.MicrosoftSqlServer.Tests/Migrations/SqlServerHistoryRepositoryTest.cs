@@ -123,6 +123,7 @@ namespace Microsoft.Data.Entity.Migrations
                         { typeof(SqlServerOptionsExtension), new SqlServerOptionsExtension() }
                     }),
                 new MigrationsModelDiffer(
+                    new SqlServerTypeMapper(),
                     annotationsProvider,
                     new SqlServerMigrationsAnnotationProvider()),
                 new SqlServerMigrationsSqlGenerator(

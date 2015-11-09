@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name")
-                            .HasColumnType("nvarchar(30)")
+                            .HasColumnType("varchar(30)")
                             .IsRequired()
                             .HasDefaultValue("Puff")
                             .HasDefaultValueSql("CreatePumaName()");
@@ -515,7 +515,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         x.Property<int>("Id");
                         x.HasKey("Id");
                         x.Property<string>("Name")
-                            .HasColumnType("nvarchar(450)")
+                            .HasColumnType("varchar(450)")
                             .IsRequired()
                             .HasDefaultValue("Puff")
                             .HasDefaultValueSql("CreatePumaName()");
@@ -529,10 +529,40 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Assert.Equal("Puma", operation.Table);
                     Assert.Equal("Name", operation.Name);
                     Assert.Equal(typeof(string), operation.ClrType);
-                    Assert.Equal("nvarchar(450)", operation.ColumnType);
+                    Assert.Equal("varchar(450)", operation.ColumnType);
                     Assert.False(operation.IsNullable);
                     Assert.Equal("Puff", operation.DefaultValue);
                     Assert.Equal("CreatePumaName()", operation.DefaultValueSql);
+                });
+        }
+
+        [Fact]
+        public void Alter_column_max_length()
+        {
+            Execute(
+                source => source.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name");
+                    }),
+                target => target.Entity(
+                    "Toad",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("Name")
+                            .HasMaxLength(30);
+                    }),
+                operations =>
+                {
+                    Assert.Equal(1, operations.Count);
+
+                    var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                    Assert.Equal("Toad", operation.Table);
+                    Assert.Equal("Name", operation.Name);
+                    Assert.True(operation.IsDestructiveChange);
                 });
         }
 
@@ -1886,7 +1916,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     {
                         x.Property<int>("Id");
                         x.HasKey("Id");
-                        x.Property<int>("Value").HasColumnType("integer");
+                        x.Property<int>("Value").HasColumnType("bigint");
                     }),
                 operations =>
                 {

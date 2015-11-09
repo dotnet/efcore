@@ -113,6 +113,7 @@ namespace Microsoft.Data.Entity.Migrations
                         { typeof(SqliteOptionsExtension), new SqliteOptionsExtension() }
                     }),
                 new MigrationsModelDiffer(
+                    new SqliteTypeMapper(),
                     annotationsProvider,
                     new SqliteMigrationsAnnotationProvider()),
                 new SqliteMigrationsSqlGenerator(

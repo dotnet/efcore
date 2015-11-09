@@ -49,6 +49,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     new DbContextOptions<TContext>().WithExtension(new MockRelationalOptionsExtension()),
                     idGenerator),
                 new MigrationsModelDiffer(
+                    new TestRelationalTypeMapper(),
                     new TestAnnotationProvider(),
                     new MigrationsAnnotationProvider()),
                 idGenerator,
