@@ -345,7 +345,6 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Extensions\SharedTypeExtensions.cs</Link>
     </Compile>
-    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
     <Compile Include="Extensions\MethodInfoExtensions.cs" />
     <Compile Include="Update\SingularModificationCommandBatch.cs" />

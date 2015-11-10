@@ -68,21 +68,5 @@ namespace Microsoft.Data.Entity.Internal
 
             return !secondEnumerator.MoveNext();
         }
-
-        public static IEnumerable<TSource> Finally<TSource>(
-            [NotNull] this IEnumerable<TSource> source, [NotNull] Action finallyAction)
-        {
-            try
-            {
-                foreach (var item in source)
-                {
-                    yield return item;
-                }
-            }
-            finally
-            {
-                finallyAction();
-            }
-        }
     }
 }
