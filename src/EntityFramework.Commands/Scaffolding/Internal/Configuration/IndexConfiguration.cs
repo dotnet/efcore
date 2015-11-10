@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 sb.Append(nameof(EntityTypeBuilder<EntityType>.HasIndex) + "(");
                 sb.Append(LambdaIdentifier);
                 sb.Append(" => ");
-                sb.Append(new ModelUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier));
+                sb.Append(new ScaffoldingUtilities().GenerateLambdaToKey(Index.Properties, LambdaIdentifier));
                 sb.Append(")");
 
                 if (!string.IsNullOrEmpty(Index.Relational().Name))

@@ -22,12 +22,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         {
             if (string.IsNullOrEmpty(ConnectionString))
             {
-                throw new ArgumentException(RelationalDesignStrings.ConnectionStringRequired);
+                throw new ArgumentException(CommandsStrings.ConnectionStringRequired);
             }
 
             if (string.IsNullOrEmpty(ProjectPath))
             {
-                throw new ArgumentException(RelationalDesignStrings.ProjectPathRequired);
+                throw new ArgumentException(CommandsStrings.ProjectPathRequired);
             }
 
             if (!string.IsNullOrWhiteSpace(ContextClassName)
@@ -35,12 +35,12 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     || CSharpUtilities.Instance.IsCSharpKeyword(ContextClassName)))
             {
                 throw new ArgumentException(
-                    RelationalDesignStrings.ContextClassNotValidCSharpIdentifier(ContextClassName));
+                    CommandsStrings.ContextClassNotValidCSharpIdentifier(ContextClassName));
             }
 
             if (string.IsNullOrEmpty(ProjectRootNamespace))
             {
-                throw new ArgumentException(RelationalDesignStrings.RootNamespaceRequired);
+                throw new ArgumentException(CommandsStrings.RootNamespaceRequired);
             }
         }
     }

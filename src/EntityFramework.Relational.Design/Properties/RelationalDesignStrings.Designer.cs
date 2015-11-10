@@ -21,22 +21,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// ConnectionString is required to generate code.
-        /// </summary>
-        public static string ConnectionStringRequired
-        {
-            get { return GetString("ConnectionStringRequired"); }
-        }
-
-        /// <summary>
-        /// The context class name passed in, {contextClassName}, is not a valid C# identifier.
-        /// </summary>
-        public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ContextClassNotValidCSharpIdentifier", "contextClassName"), contextClassName);
-        }
-
-        /// <summary>
         /// Could not scaffold the foreign key '{foreignKeyName}'. A key for '{columnsList}' was not found in the principal entity type '{principalEntityType}'.
         /// </summary>
         public static string ForeignKeyScaffoldErrorPrincipalKeyNotFound([CanBeNull] object foreignKeyName, [CanBeNull] object columnsList, [CanBeNull] object principalEntityType)
@@ -85,14 +69,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// ProjectPath is required to generate code.
-        /// </summary>
-        public static string ProjectPathRequired
-        {
-            get { return GetString("ProjectPathRequired"); }
-        }
-
-        /// <summary>
         /// Metadata model returned should not be null. Provider: {providerTypeName} , connection string: {connectionString}.
         /// </summary>
         public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName, [CanBeNull] object connectionString)
@@ -106,14 +82,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string ReadOnlyFiles([CanBeNull] object outputDirectoryName, [CanBeNull] object readOnlyFiles)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ReadOnlyFiles", "outputDirectoryName", "readOnlyFiles"), outputDirectoryName, readOnlyFiles);
-        }
-
-        /// <summary>
-        /// Root namespace of the project is required to generate code.
-        /// </summary>
-        public static string RootNamespaceRequired
-        {
-            get { return GetString("RootNamespaceRequired"); }
         }
 
         /// <summary>

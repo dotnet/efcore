@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -15,19 +14,19 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
     {
         private const string EntityLambdaIdentifier = "entity";
 
-        private ModelUtilities ModelUtilities { get; }
+        private ScaffoldingUtilities ScaffoldingUtilities { get; }
         private IndentedStringBuilder _sb;
         private ModelConfiguration _model;
         private bool _foundFirstFluentApiForEntity;
 
         public DbContextWriter(
-            [NotNull] ModelUtilities modelUtilities,
+            [NotNull] ScaffoldingUtilities scaffoldingUtilities,
             [NotNull] CSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
-            ModelUtilities = modelUtilities;
+            ScaffoldingUtilities = scaffoldingUtilities;
         }
 
         public virtual string WriteCode(
@@ -153,7 +152,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             foreach (var propertyConfig in propertyConfigurations)
             {
                 var propertyConfigurationLines =
-                    ModelUtilities.LayoutPropertyConfigurationLines(
+                    ScaffoldingUtilities.LayoutPropertyConfigurationLines(
                         propertyConfig, "property", "    ", _model.CustomConfiguration.UseFluentApiOnly);
                 if (_foundFirstFluentApiForEntity)
                 {
@@ -202,7 +201,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                     _sb.AppendLine();
                 }
                 _foundFirstFluentApiForEntity = true;
-                ModelUtilities.LayoutRelationshipConfigurationLines(
+                ScaffoldingUtilities.LayoutRelationshipConfigurationLines(
                     _sb, EntityLambdaIdentifier, relationshipConfig, "d", "p");
             }
         }

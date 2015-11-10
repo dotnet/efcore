@@ -35,6 +35,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                 "{0}({1} => {2})",
                 nameof(EntityTypeBuilder.HasKey),
                 LambdaIdentifier,
-                new ModelUtilities().GenerateLambdaToKey(Properties, LambdaIdentifier));
+                new ScaffoldingUtilities().GenerateLambdaToKey(Properties, LambdaIdentifier));
     }
 }

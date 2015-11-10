@@ -14,25 +14,25 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
     {
         public ConfigurationFactory([NotNull] IRelationalAnnotationProvider extensionsProvider,
             [NotNull] CSharpUtilities cSharpUtilities,
-            [NotNull] ModelUtilities modelUtilities)
+            [NotNull] ScaffoldingUtilities scaffoldingUtilities)
         {
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
-            Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
 
             ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
-            ModelUtilities = modelUtilities;
+            ScaffoldingUtilities = scaffoldingUtilities;
         }
 
         protected virtual IRelationalAnnotationProvider ExtensionsProvider { get;[param: NotNull] private set; }
         protected virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
-        protected virtual ModelUtilities ModelUtilities { get;[param: NotNull] private set; }
+        protected virtual ScaffoldingUtilities ScaffoldingUtilities { get;[param: NotNull] private set; }
 
         public virtual ModelConfiguration CreateModelConfiguration(
             [NotNull] IModel model,
             [NotNull] CustomConfiguration customConfiguration) 
-            => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ModelUtilities);
+            => new ModelConfiguration(this, model, customConfiguration, ExtensionsProvider, CSharpUtilities, ScaffoldingUtilities);
 
         public virtual CustomConfiguration CreateCustomConfiguration(
             [NotNull] string connectionString, [CanBeNull] string contextClassName,

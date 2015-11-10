@@ -29,9 +29,7 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddLogging()
-                .AddSingleton<ModelUtilities>()
-                .AddSingleton<CSharpUtilities>();
+            serviceCollection.AddLogging();
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(serviceCollection);
             serviceCollection.AddSingleton<IFileService, FileSystemFileService>();
 

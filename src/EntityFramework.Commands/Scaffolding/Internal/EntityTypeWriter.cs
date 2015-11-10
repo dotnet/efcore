@@ -11,19 +11,19 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
     public class EntityTypeWriter
     {
-        private ModelUtilities ModelUtilities { get; }
+        private ScaffoldingUtilities ScaffoldingUtilities { get; }
         private CSharpUtilities CSharpUtilities { get; }
         private IndentedStringBuilder _sb;
         private EntityConfiguration _entity;
 
         public EntityTypeWriter(
-            [NotNull] ModelUtilities modelUtilities,
+            [NotNull] ScaffoldingUtilities scaffoldingUtilities,
             [NotNull] CSharpUtilities cSharpUtilities)
         {
-            Check.NotNull(modelUtilities, nameof(modelUtilities));
+            Check.NotNull(scaffoldingUtilities, nameof(scaffoldingUtilities));
             Check.NotNull(cSharpUtilities, nameof(cSharpUtilities));
 
-            ModelUtilities = modelUtilities;
+            ScaffoldingUtilities = scaffoldingUtilities;
             CSharpUtilities = cSharpUtilities;
         }
 
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
         public virtual void AddProperties()
         {
-            foreach (var property in ModelUtilities.OrderedProperties(_entity.EntityType))
+            foreach (var property in ScaffoldingUtilities.OrderedProperties(_entity.EntityType))
             {
                 PropertyConfiguration propertyConfiguration = _entity.FindPropertyConfiguration(property);
                 if (propertyConfiguration != null)

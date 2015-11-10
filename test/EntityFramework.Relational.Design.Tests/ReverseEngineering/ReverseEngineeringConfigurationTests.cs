@@ -20,43 +20,43 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 OutputPath = null
             };
 
-            Assert.Equal(RelationalDesignStrings.ConnectionStringRequired,
+            Assert.Equal(CommandsStrings.ConnectionStringRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ConnectionString = "NonEmptyConnectionString";
-            Assert.Equal(RelationalDesignStrings.ProjectPathRequired,
+            Assert.Equal(CommandsStrings.ProjectPathRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ProjectPath = "NonEmptyProjectPath";
-            Assert.Equal(RelationalDesignStrings.RootNamespaceRequired,
+            Assert.Equal(CommandsStrings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = @"Invalid!CSharp*Class&Name";
-            Assert.Equal(RelationalDesignStrings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
+            Assert.Equal(CommandsStrings.ContextClassNotValidCSharpIdentifier(@"Invalid!CSharp*Class&Name"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = "1CSharpClassNameCannotStartWithNumber";
-            Assert.Equal(RelationalDesignStrings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
+            Assert.Equal(CommandsStrings.ContextClassNotValidCSharpIdentifier("1CSharpClassNameCannotStartWithNumber"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = "volatile";  // cannot be C# keyword
-            Assert.Equal(RelationalDesignStrings.ContextClassNotValidCSharpIdentifier("volatile"),
+            Assert.Equal(CommandsStrings.ContextClassNotValidCSharpIdentifier("volatile"),
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.ContextClassName = "GoodClassName";
             configuration.OutputPath = @"\AnAbsolutePath";
-            Assert.Equal(RelationalDesignStrings.RootNamespaceRequired,
+            Assert.Equal(CommandsStrings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
 
             configuration.OutputPath = @"A\Relative\Path";
-            Assert.Equal(RelationalDesignStrings.RootNamespaceRequired,
+            Assert.Equal(CommandsStrings.RootNamespaceRequired,
                 Assert.Throws<ArgumentException>(
                     () => configuration.CheckValidity()).Message);
         }

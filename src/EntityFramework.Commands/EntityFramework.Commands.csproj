@@ -35,6 +35,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -87,6 +88,33 @@
     <Compile Include="Migrations\Design\CSharpHelper.cs" />
     <Compile Include="Design\Internal\ForwardingProxy`.cs" />
     <Compile Include="Design\Internal\LoggerProvider.cs" />
+    <Compile Include="Scaffolding\Internal\CodeWriter.cs" />
+    <Compile Include="Scaffolding\Internal\ScaffoldingServiceCollectionExtensions.cs" />
+    <Compile Include="Scaffolding\Internal\ScaffoldingUtilities.cs" />
+    <Compile Include="Scaffolding\Internal\ConfigurationFactory.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\AttributeConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\CustomConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\EntityConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\FluentApiConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\IAttributeConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\IFluentApiConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\IndexConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\KeyFluentApiConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\ModelConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\NavigationPropertyConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\NavigationPropertyInitializerConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\OptionsBuilderConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\PropertyConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\Configuration\RelationshipConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\CSharpUtilities.cs" />
+    <Compile Include="Scaffolding\Internal\DbContextWriter.cs" />
+    <Compile Include="Scaffolding\Internal\EntityTypeWriter.cs" />
+    <Compile Include="Scaffolding\Internal\FileSystemFileService.cs" />
+    <Compile Include="Scaffolding\Internal\IFileService.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineerFiles.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringConfiguration.cs" />
+    <Compile Include="Scaffolding\Internal\ReverseEngineeringGenerator.cs" />
+    <Compile Include="Scaffolding\Internal\StringBuilderCodeWriter.cs" />
     <EmbeddedResource Include="Properties\CommandsStrings.resx">
       <LogicalName>EntityFramework.Commands.CommandsStrings.resources</LogicalName>
       <SubType>Designer</SubType>

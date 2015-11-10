@@ -268,6 +268,38 @@ namespace Microsoft.Data.Entity.Internal
             return string.Format(CultureInfo.CurrentCulture, GetString("ForeignMigrations", "migrationsNamespace"), migrationsNamespace);
         }
 
+        /// <summary>
+        /// ConnectionString is required to generate code.
+        /// </summary>
+        public static string ConnectionStringRequired
+        {
+            get { return GetString("ConnectionStringRequired"); }
+        }
+
+        /// <summary>
+        /// The context class name passed in, {contextClassName}, is not a valid C# identifier.
+        /// </summary>
+        public static string ContextClassNotValidCSharpIdentifier([CanBeNull] object contextClassName)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ContextClassNotValidCSharpIdentifier", "contextClassName"), contextClassName);
+        }
+
+        /// <summary>
+        /// ProjectPath is required to generate code.
+        /// </summary>
+        public static string ProjectPathRequired
+        {
+            get { return GetString("ProjectPathRequired"); }
+        }
+
+        /// <summary>
+        /// Root namespace of the project is required to generate code.
+        /// </summary>
+        public static string RootNamespaceRequired
+        {
+            get { return GetString("RootNamespaceRequired"); }
+        }
+
         private static string GetString(string name, params string[] formatterNames)
         {
             var value = _resourceManager.GetString(name);

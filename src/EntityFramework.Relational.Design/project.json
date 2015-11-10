@@ -17,44 +17,8 @@
     "EntityFramework.Relational.Design.RelationalDesignStrings": "Properties/RelationalDesignStrings.resx"
   },
   "frameworks": {
-    "net451": {
-      "frameworkAssemblies": {
-        "System.ComponentModel.DataAnnotations": "4.0.0.0",
-        "System.IO": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Text.Encoding": {
-          "version": "4.0.0.0",
-          "type": "build"
-        },
-        "System.Threading.Tasks": {
-          "version": "4.0.0.0",
-          "type": "build"
-        }
-      }
-    },
-    "dnx451": {
-      "frameworkAssemblies": {
-        "System.ComponentModel.DataAnnotations": "4.0.0.0",
-        "System.IO": "4.0.0.0",
-        "System.Text.Encoding": "4.0.0.0",
-        "System.Threading.Tasks": "4.0.0.0"
-      }
-    },
-    "dnxcore50": {
-      "dependencies": {
-        "System.ComponentModel.Annotations": "4.0.11-beta-*"
-      }
-    },
-    "netcore50": {
-      "bin": {
-        "assembly": "lib\\netcore50\\_._"
-      }
-    }
-  },
-  "packInclude": {
-    "build/": "build/**",
-    "lib/": "lib/**"
+    "net451": { },
+    "dotnet5.4": { },
+    "netcore50": { }
   }
 }

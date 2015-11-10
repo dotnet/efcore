@@ -33,27 +33,27 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             [NotNull] CustomConfiguration customConfiguration, 
             [NotNull] IRelationalAnnotationProvider extensionsProvider, 
             [NotNull] CSharpUtilities cSharpUtilities, 
-            [NotNull] ModelUtilities modelUtilities)
+            [NotNull] ScaffoldingUtilities scaffoldingUtilities)
         {
             Check.NotNull(configurationFactory, nameof(configurationFactory));
             Check.NotNull(model, nameof(model));
             Check.NotNull(customConfiguration, nameof(customConfiguration));
             Check.NotNull(extensionsProvider, nameof(extensionsProvider));
-            Check.NotNull(cSharpUtilities, nameof(modelUtilities));
-            Check.NotNull(modelUtilities, nameof(cSharpUtilities));
+            Check.NotNull(cSharpUtilities, nameof(scaffoldingUtilities));
+            Check.NotNull(scaffoldingUtilities, nameof(cSharpUtilities));
 
             _configurationFactory = configurationFactory;
             Model = model;
             CustomConfiguration = customConfiguration;
             ExtensionsProvider = extensionsProvider;
             CSharpUtilities = cSharpUtilities;
-            ModelUtilities = modelUtilities;
+            ScaffoldingUtilities = scaffoldingUtilities;
         }
 
         public virtual IModel Model { get;[param: NotNull] private set; }
         public virtual IRelationalAnnotationProvider ExtensionsProvider { get; private set; }
         public virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
-        public virtual ModelUtilities ModelUtilities { get;[param: NotNull] private set; }
+        public virtual ScaffoldingUtilities ScaffoldingUtilities { get;[param: NotNull] private set; }
         public virtual CustomConfiguration CustomConfiguration { get;[param: NotNull] set; }
         public virtual string ClassName()
         {
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         {
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
-            foreach (var property in ModelUtilities.OrderedProperties(entityConfiguration.EntityType))
+            foreach (var property in ScaffoldingUtilities.OrderedProperties(entityConfiguration.EntityType))
             {
                 var propertyConfiguration =
                     _configurationFactory.CreatePropertyConfiguration(entityConfiguration, property);

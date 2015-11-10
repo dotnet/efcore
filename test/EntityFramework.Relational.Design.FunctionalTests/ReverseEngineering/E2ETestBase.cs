@@ -23,14 +23,16 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
         protected readonly ReverseEngineeringGenerator Generator;
         protected readonly IScaffoldingModelFactory ScaffoldingModelFactory;
 
-        public E2ETestBase(ITestOutputHelper output)
+        protected E2ETestBase(ITestOutputHelper output)
         {
             _output = output;
 
             var serviceCollection = new ServiceCollection()
-                .AddLogging();
+                .AddLogging()
+                .AddScaffolding();
+
             ConfigureDesignTimeServices(serviceCollection);
-            AddScaffolding(serviceCollection);
+
             serviceCollection.AddSingleton(typeof(IFileService), sp => InMemoryFiles = new InMemoryFileService());
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -42,30 +44,10 @@ namespace Microsoft.Data.Entity.Relational.Design.FunctionalTests.ReverseEnginee
             ScaffoldingModelFactory = serviceProvider.GetRequiredService<IScaffoldingModelFactory>();
         }
 
-        private void AddScaffolding(IServiceCollection serviceCollection)
-        {
-            serviceCollection.AddSingleton<CSharpHelper>()
-                .AddSingleton<CSharpMigrationOperationGenerator>()
-                .AddSingleton<CSharpSnapshotGenerator>()
-                .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                .AddSingleton<IFileService, FileSystemFileService>()
-                .AddSingleton<ModelUtilities>()
-                .AddSingleton<ReverseEngineeringGenerator>()
-                .AddSingleton<CSharpUtilities>()
-                .AddSingleton<ConfigurationFactory>()
-                .AddSingleton<DbContextWriter>()
-                .AddSingleton<EntityTypeWriter>()
-                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
-        }
-
         protected abstract E2ECompiler GetCompiler();
         protected abstract string ProviderName { get; }
 
-        protected virtual void ConfigureDesignTimeServices(IServiceCollection services)
-            => services
-                .AddSingleton<ModelUtilities>()
-                .AddSingleton<ReverseEngineeringGenerator>()
-                .AddSingleton<CSharpUtilities>();
+        protected abstract void ConfigureDesignTimeServices(IServiceCollection services);
 
         protected virtual void AssertEqualFileContents(FileSet expected, FileSet actual)
         {

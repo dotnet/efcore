@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Scaffolding.Internal
 {
-    internal class CSharpUtilities
+    public class CSharpUtilities
     {
         private static readonly HashSet<string> _cSharpKeywords = new HashSet<string>
         {

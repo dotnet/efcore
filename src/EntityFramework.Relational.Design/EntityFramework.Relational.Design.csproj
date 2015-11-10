@@ -35,7 +35,6 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\tools\Resources.cs">
@@ -47,10 +46,11 @@
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Utilities\LoggingExtensions.cs</Link>
     </Compile>
-    <Compile Include="Internal\Configuration\IndexConfiguration.cs" />
+    <Compile Include="IDatabaseModelFactory.cs" />
     <Compile Include="Internal\CSharpNamer.cs" />
     <Compile Include="Internal\CSharpUniqueNamer.cs" />
-    <Compile Include="IDatabaseModelFactory.cs" />
+    <Compile Include="Internal\CSharpUtilities.cs" />
+    <Compile Include="Internal\ModelUtilities.cs" />
     <Compile Include="Metadata\ColumnModel.cs" />
     <Compile Include="Metadata\DatabaseModel.cs" />
     <Compile Include="Metadata\ForeignKeyModel.cs" />
@@ -74,37 +74,12 @@
     <Compile Include="..\Shared\SharedTypeExtensions.cs">
       <Link>Utilities\SharedTypeExtensions.cs</Link>
     </Compile>
-    <Compile Include="Internal\CodeWriter.cs" />
-    <Compile Include="Internal\ConfigurationFactory.cs" />
-    <Compile Include="Internal\Configuration\AttributeConfiguration.cs" />
-    <Compile Include="Internal\Configuration\CustomConfiguration.cs" />
-    <Compile Include="Internal\Configuration\EntityConfiguration.cs" />
-    <Compile Include="Internal\Configuration\FluentApiConfiguration.cs" />
-    <Compile Include="Internal\Configuration\IAttributeConfiguration.cs" />
-    <Compile Include="Internal\Configuration\IFluentApiConfiguration.cs" />
-    <Compile Include="Internal\Configuration\KeyFluentApiConfiguration.cs" />
-    <Compile Include="Internal\Configuration\ModelConfiguration.cs" />
-    <Compile Include="Internal\Configuration\NavigationPropertyConfiguration.cs" />
-    <Compile Include="Internal\Configuration\NavigationPropertyInitializerConfiguration.cs" />
-    <Compile Include="Internal\Configuration\OptionsBuilderConfiguration.cs" />
-    <Compile Include="Internal\Configuration\PropertyConfiguration.cs" />
-    <Compile Include="Internal\Configuration\RelationshipConfiguration.cs" />
-    <Compile Include="Internal\FileSystemFileService.cs" />
     <Compile Include="Metadata\ScaffoldingMetadataExtensions.cs" />
     <Compile Include="Metadata\ScaffoldingForeignKeyAnnotations.cs" />
     <Compile Include="IScaffoldingModelFactory.cs" />
-    <Compile Include="Internal\IFileService.cs" />
-    <Compile Include="Internal\DbContextWriter.cs" />
-    <Compile Include="Internal\EntityTypeWriter.cs" />
-    <Compile Include="Internal\StringBuilderCodeWriter.cs" />
     <Compile Include="TableSelectionSet.cs" />
-    <Compile Include="Internal\ReverseEngineerFiles.cs" />
-    <Compile Include="Internal\ReverseEngineeringConfiguration.cs" />
-    <Compile Include="Internal\ReverseEngineeringGenerator.cs" />
     <Compile Include="RelationalScaffoldingModelFactory.cs" />
     <Compile Include="Metadata\Internal\ScaffoldingAnnotationNames.cs" />
-    <Compile Include="Internal\CSharpUtilities.cs" />
-    <Compile Include="Internal\ModelUtilities.cs" />
     <EmbeddedResource Include="Properties\RelationalDesignStrings.resx">
       <LogicalName>EntityFramework.Relational.Design.RelationalDesignStrings.resources</LogicalName>
       <SubType>Designer</SubType>
@@ -115,8 +90,6 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.Data.Entity.Internal</CustomToolNamespace>
     </Content>
-    <None Include="build\netcore50\EntityFramework.Relational.Design.props" />
-    <None Include="lib\netcore50\_._" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

@@ -17,7 +17,23 @@
     "EntityFramework.Relational.Design": "7.0.0-*"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.ComponentModel.DataAnnotations": "4.0.0.0",
+        "System.IO": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Text.Encoding": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Threading.Tasks": {
+          "version": "4.0.0.0",
+          "type": "build"
+        }
+      }
+    },
     "dnx451": {
       "dependencies": {
         "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",

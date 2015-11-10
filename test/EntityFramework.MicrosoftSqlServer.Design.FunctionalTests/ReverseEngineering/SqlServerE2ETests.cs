@@ -23,11 +23,8 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
     {
         protected override string ProviderName => "EntityFramework.MicrosoftSqlServer.Design";
 
-        protected override void ConfigureDesignTimeServices(IServiceCollection services)
-        {
-            base.ConfigureDesignTimeServices(services);
-            new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
-        }
+        protected override void ConfigureDesignTimeServices(IServiceCollection services) 
+            => new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
 
         public virtual string TestNamespace => "E2ETest.Namespace";
         public virtual string TestProjectDir => Path.Combine("E2ETest", "Output");

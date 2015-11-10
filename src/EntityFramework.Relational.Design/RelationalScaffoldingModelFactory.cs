@@ -413,8 +413,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                 var existingIdentifiers = new List<string>();
                 entityTypeToExistingIdentifiers.Add(entityType, existingIdentifiers);
                 existingIdentifiers.Add(entityType.Name);
-                existingIdentifiers.AddRange(
-                    modelUtilities.OrderedProperties(entityType).Select(p => p.Name));
+                existingIdentifiers.AddRange(entityType.GetProperties().Select(p => p.Name));
             }
 
             foreach (var entityType in model.GetEntityTypes())

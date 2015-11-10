@@ -4,8 +4,7 @@
   },
   "dependencies": {
     "EntityFramework.Core.Tests": "1.0.0",
-    "EntityFramework.Core": "7.0.0-*",
-    "EntityFramework.Relational.Design": "7.0.0-*"
+    "EntityFramework.Commands": "7.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"

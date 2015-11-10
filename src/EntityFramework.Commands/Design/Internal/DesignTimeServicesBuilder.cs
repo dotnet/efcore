@@ -68,14 +68,7 @@ namespace Microsoft.Data.Entity.Design.Internal
                 .AddSingleton<CSharpMigrationOperationGenerator>()
                 .AddSingleton<CSharpSnapshotGenerator>()
                 .AddSingleton<MigrationsCodeGenerator, CSharpMigrationsGenerator>()
-                .AddSingleton<IFileService, FileSystemFileService>()
-                .AddSingleton<ModelUtilities>()
-                .AddSingleton<ReverseEngineeringGenerator>()
-                .AddSingleton<CSharpUtilities>()
-                .AddSingleton<ConfigurationFactory>()
-                .AddSingleton<DbContextWriter>()
-                .AddSingleton<EntityTypeWriter>()
-                .AddSingleton<CodeWriter, StringBuilderCodeWriter>();
+                .AddScaffolding();
 
         partial void ConfigureDnxServices(IServiceCollection services);
 

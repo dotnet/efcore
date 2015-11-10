@@ -421,10 +421,7 @@ CREATE TABLE Comment (
         protected abstract string ExpectedResultsParentDir { get; }
         protected abstract bool UseFluentApiOnly { get; }
 
-        protected override void ConfigureDesignTimeServices(IServiceCollection services)
-        {
-            base.ConfigureDesignTimeServices(services);
-            new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
-        }
+        protected override void ConfigureDesignTimeServices(IServiceCollection services) 
+            => new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
     }
 }
