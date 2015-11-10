@@ -658,6 +658,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             Assert.Empty(stateManager.GetDependents(categoryEntry4, fk).ToArray());
         }
 
+        [Fact] // Issue #743
+        public void Throws_when_instance_of_unmapped_derived_type_is_used()
+        {
+            var model = BuildModel();
+            var stateManager = CreateStateManager(model);
+            Assert.Equal(CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
+                    Assert.Throws<InvalidOperationException>(() => stateManager.GetOrCreateEntry(new SpecialProduct())).Message);
+        }
+
         private static IStateManager CreateStateManager(IModel model)
         {
             return TestHelpers.Instance.CreateContextServices(model).GetRequiredService<IStateManager>();
@@ -676,6 +685,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             public int? DependentId { get; set; }
             public string Name { get; set; }
             public decimal Price { get; set; }
+        }
+
+        private class SpecialProduct : Product
+        {
         }
 
         private class Dogegory

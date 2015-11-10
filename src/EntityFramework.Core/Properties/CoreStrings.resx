@@ -486,4 +486,7 @@
   <data name="EntityTypeInUse" xml:space="preserve">
     <value>The CLR type cannot be set on the entity type '{entityType}' because it has members, base entity type or derived entity types.</value>
   </data>
+  <data name="EntityTypeNotFound" xml:space="preserve">
+    <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
+  </data>
 </root>

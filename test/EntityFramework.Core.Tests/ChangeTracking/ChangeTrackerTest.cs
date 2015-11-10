@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -936,6 +937,16 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             }
         }
 
+        [Fact] // Issue #743
+        public void Throws_when_instance_of_unmapped_derived_type_is_used()
+        {
+            using (var context = new EarlyLearningCenter())
+            {
+                Assert.Equal(CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
+                    Assert.Throws<InvalidOperationException>(() => context.Add(new SpecialProduct())).Message);
+            }
+        }
+
         private static Product CreateSimpleGraph(int id) 
             => new Product { Id = id, Category = new Category { Id = id } };
 
@@ -980,6 +991,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public ProductDetails Details { get; set; }
 
             public List<OrderDetails> OrderDetails { get; set; }
+        }
+
+        private class SpecialProduct : Product
+        {
         }
 
         private class ProductDetails

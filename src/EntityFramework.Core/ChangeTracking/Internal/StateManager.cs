@@ -92,6 +92,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 var entityType = _model.FindEntityType(entity.GetType());
 
+                if (entityType == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().DisplayName(false)));
+                }
+
                 entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
 
                 _detachedEntityReferenceMap[entity] = new WeakReference<InternalEntityEntry>(entry);
