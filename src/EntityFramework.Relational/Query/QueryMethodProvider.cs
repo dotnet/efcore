@@ -8,7 +8,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -177,27 +176,24 @@ namespace Microsoft.Data.Entity.Query
                     .Select<IIncludeRelatedValuesStrategy, RelatedEntitiesLoader>(s => s.GetRelatedValues)
                     .ToArray();
 
-            return innerResults
-                .Select(r =>
-                    {
-                        queryContext.QueryBuffer
-                            .Include(
-                                entityAccessor == null ? r : entityAccessor(r), // TODO: Compile time?
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                querySourceRequiresTracking);
+            foreach (var innerResult in innerResults)
+            {
+                queryContext.QueryBuffer
+                    .Include(
+                        entityAccessor == null ? innerResult : entityAccessor(innerResult), // TODO: Compile time?
+                        navigationPath,
+                        relatedEntitiesLoaders,
+                        querySourceRequiresTracking);
 
-                        return r;
-                    })
-                .Finally(() =>
-                    {
-                        foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
-                        {
-                            includeRelatedValuesStrategy.Dispose();
-                        }
+                yield return innerResult;
+            }
 
-                        queryContext.EndIncludeScope();
-                    });
+            foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
+            {
+                includeRelatedValuesStrategy.Dispose();
+            }
+
+            queryContext.EndIncludeScope();
         }
 
         public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod
