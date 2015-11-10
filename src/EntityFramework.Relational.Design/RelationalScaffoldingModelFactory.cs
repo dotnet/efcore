@@ -88,10 +88,16 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(column, nameof(column));
 
             var table = column.Table ?? _nullTable;
+            var usedNames = new List<string>();
+            // TODO - need to clean up the way CSharpNamer & CSharpUniqueNamer work (see issue #3711)
+            if (column.Table != null)
+            {
+                usedNames.Add(_tableNamer.GetName(table));
+            }
 
             if (!_columnNamers.ContainsKey(table))
             {
-                _columnNamers.Add(table, new CSharpUniqueNamer<ColumnModel>(c => c.Name));
+                _columnNamers.Add(table, new CSharpUniqueNamer<ColumnModel>(c => c.Name, usedNames));
             }
 
             return _columnNamers[table].GetName(column);

@@ -12,8 +12,21 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         private readonly HashSet<string> _usedNames = new HashSet<string>();
 
         public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter)
+            : this(nameGetter, null)
+        {
+        }
+
+        public CSharpUniqueNamer([NotNull] Func<T, string> nameGetter,
+            [CanBeNull] IEnumerable<string> usedNames)
             : base(nameGetter)
         {
+            if (usedNames != null)
+            {
+                foreach (var name in usedNames)
+                {
+                    _usedNames.Add(name);
+                }
+            }
         }
 
         public override string GetName([NotNull] T item)

@@ -167,6 +167,8 @@ namespace E2ETest.Namespace
             {
                 entity.HasIndex(e => new { e.A, e.B }).HasName("Test_PropertyConfiguration_Index");
 
+                entity.Property(e => e.PropertyConfiguration1).HasColumnName("PropertyConfiguration");
+
                 entity.Property(e => e.RowversionColumn)
                     .IsRequired()
                     .HasColumnType("timestamp")
