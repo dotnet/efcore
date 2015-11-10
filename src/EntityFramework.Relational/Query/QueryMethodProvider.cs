@@ -176,27 +176,24 @@ namespace Microsoft.Data.Entity.Query
                     .Select<IIncludeRelatedValuesStrategy, RelatedEntitiesLoader>(s => s.GetRelatedValues)
                     .ToArray();
 
-            return innerResults
-                .Select(r =>
+            foreach (var innerResult in innerResults)
                     {
                         queryContext.QueryBuffer
                             .Include(
-                                entityAccessor == null ? r : entityAccessor(r), // TODO: Compile time?
+                        entityAccessor == null ? innerResult : entityAccessor(innerResult), // TODO: Compile time?
                                 navigationPath,
                                 relatedEntitiesLoaders,
                                 querySourceRequiresTracking);
 
-                        return r;
-                    })
-                .Finally(() =>
-                    {
+                yield return innerResult;
+            }
+
                         foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
                         {
                             includeRelatedValuesStrategy.Dispose();
                         }
 
                         queryContext.EndIncludeScope();
-                    });
         }
 
         public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod
