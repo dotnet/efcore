@@ -155,6 +155,7 @@ CREATE TABLE "dbo"."PropertyConfiguration" (
 	"B" "int" NOT NULL,
 	"SumOfAAndB" AS A + B PERSISTED, -- tests StoreGeneratedPattern
 	"RowversionColumn" "rowversion" NOT NULL,
+	"PropertyConfiguration" "int" NULL -- tests column with same name as its table
 )
 
 GO
