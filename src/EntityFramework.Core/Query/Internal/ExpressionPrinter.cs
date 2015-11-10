@@ -264,25 +264,12 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             _stringBuilder.Append("(");
 
-            foreach (var prm in node.Parameters)
+            foreach (var parameter in node.Parameters)
             {
-                string prmName = null;
+                _parametersInScope.Add(parameter, parameter.Name);
+                _stringBuilder.Append(parameter.Type.DisplayName(fullName: false) + " " + parameter.Name);
 
-                // we seem to be reusing the parameters when building the query 
-                // so we need to check whether the parameter is already in the scope before adding it
-                if (_parametersInScope.ContainsKey(prm))
-                {
-                    prmName = _parametersInScope[prm];
-                }
-                else
-                {
-                    prmName = "prm" + _parametersInScope.Count;
-                    _parametersInScope.Add(prm, prmName);
-                }
-
-                _stringBuilder.Append(prm.Type.DisplayName(fullName: false) + " " + prmName);
-
-                if (prm != node.Parameters.Last())
+                if (parameter != node.Parameters.Last())
                 {
                     _stringBuilder.Append(", ");
                 }
@@ -292,12 +279,10 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             Visit(node.Body);
 
-            // we seem to be reusing the parameters when building the query 
-            // so it is not safe to remove parameters after processing the body
-            ////foreach (var prm in node.Parameters)
-            ////{
-            ////    _parametersInScope.Remove(prm);
-            ////}
+            foreach (var parameter in node.Parameters)
+            {
+                _parametersInScope.Remove(parameter);
+            }
 
             return node;
         }
@@ -454,7 +439,14 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            _stringBuilder.Append(_parametersInScope[node]);
+            if (_parametersInScope.ContainsKey(node))
+            {
+                _stringBuilder.Append(_parametersInScope[node]);
+            }
+            else
+            {
+                _stringBuilder.Append("Unhandled parameter: " + node.ToString());
+            }
 
             return node;
         }

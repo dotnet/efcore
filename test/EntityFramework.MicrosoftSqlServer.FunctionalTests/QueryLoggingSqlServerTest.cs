@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     @"    Compiling query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Optimized query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     TRACKED: True
-(QueryContext prm0) => IEnumerable<Customer> _ShapedQuery(
-    queryContext: prm0, 
+(QueryContext queryContext) => IEnumerable<Customer> _ShapedQuery(
+    queryContext: queryContext, 
     shaperCommandContext: SelectExpression: 
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
@@ -74,10 +74,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     Optimized query model: 'value(Microsoft.Data.Entity.Query.Internal.EntityQueryable`1[Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer])'
     Including navigation: 'Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind.Customer.Orders'
     TRACKED: True
-(QueryContext prm0) => IEnumerable<Customer> _Include(
-    queryContext: (RelationalQueryContext) prm0, 
+(QueryContext queryContext) => IEnumerable<Customer> _Include(
+    queryContext: (RelationalQueryContext) queryContext, 
     innerResults: IEnumerable<Customer> _ShapedQuery(
-        queryContext: prm0, 
+        queryContext: queryContext, 
         shaperCommandContext: SelectExpression: 
             SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
             FROM [Customers] AS [c]
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
     navigationPath: INavigation[] { Customer.Orders, }, 
     includeRelatedValuesStrategyFactories: new Func<IIncludeRelatedValuesStrategy>[]{ () => IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
             relatedValueBuffers: IEnumerable<ValueBuffer> _Query(
-                queryContext: prm0, 
+                queryContext: queryContext, 
                 shaperCommandContext: SelectExpression: 
                     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
                     FROM [Orders] AS [o]
@@ -104,14 +104,14 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 queryIndex: 1
             )
             , 
-            materializer: (ValueBuffer prm1) => 
+            materializer: (ValueBuffer valueBuffer) => 
             {
                 var var2
                 var2 = new Order()
-                var2.OrderID = (int) object prm1.get_Item(0)
-                var2.CustomerID = (string) object prm1.get_Item(1)
-                var2.EmployeeID = (Nullable<int>) object prm1.get_Item(2)
-                var2.OrderDate = (Nullable<DateTime>) object prm1.get_Item(3)
+                var2.OrderID = (int) object valueBuffer.get_Item(0)
+                var2.CustomerID = (string) object valueBuffer.get_Item(1)
+                var2.EmployeeID = (Nullable<int>) object valueBuffer.get_Item(2)
+                var2.OrderDate = (Nullable<DateTime>) object valueBuffer.get_Item(3)
                 var2
             }
         )
