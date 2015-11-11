@@ -630,8 +630,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = model.FindEntityType(typeof(Customer));
 
-                var index = entityType.GetIndexes().Single();
-                Assert.Equal(Customer.NameProperty.Name, index.Properties.Single().Name);
+                Assert.Contains(Customer.NameProperty.Name, entityType.GetIndexes().Select(index => index.Properties.Single().Name));
             }
 
             [Fact]
@@ -649,8 +648,7 @@ namespace Microsoft.Data.Entity.Tests
 
                 var entityType = model.FindEntityType(typeof(Customer));
 
-                var index = entityType.GetIndexes().Single();
-                Assert.Equal("Index", index.Properties.Single().Name);
+                Assert.Contains("Index", entityType.GetIndexes().Select(index => index.Properties.Single().Name));
             }
 
             [Fact]

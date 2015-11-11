@@ -47,6 +47,11 @@ namespace Microsoft.Data.Entity.Metadata
         INavigation PrincipalToDependent { get; }
 
         /// <summary>
+        ///     Gets the index object defined on the foreign key properties.
+        /// </summary>
+        IIndex Index { get; }
+
+        /// <summary>
         ///     Gets a value indicating whether the values assigned to the foreign key properties are unique.
         /// </summary>
         bool IsUnique { get; }

@@ -174,7 +174,8 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         protected ForeignKey CreateForeignKey(EntityType dependEntityType, IReadOnlyList<Property> dependentProperties, Key principalKey)
         {
             var foreignKey = dependEntityType.AddForeignKey(dependentProperties, principalKey, principalKey.DeclaringEntityType);
-            foreignKey.IsUnique = true;
+            var index = dependEntityType.AddIndex(dependentProperties);
+            index.IsUnique = true;
             foreignKey.IsRequired = false;
             foreach (var property in dependentProperties)
             {

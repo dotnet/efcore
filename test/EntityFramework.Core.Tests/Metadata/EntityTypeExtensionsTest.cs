@@ -18,7 +18,8 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             var fkProp = entityType.AddProperty(SelfRef.SelfRefIdProperty);
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, pk, entityType);
-            fk.IsUnique = true;
+            var index = entityType.AddIndex(fkProp);
+            index.IsUnique = true;
             var dependentToPrincipal = fk.HasDependentToPrincipal(nameof(SelfRef.SelfRefPrincipal));
             var principalToDependent = fk.HasPrincipalToDependent(nameof(SelfRef.SelfRefDependent));
 

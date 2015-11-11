@@ -387,7 +387,6 @@ namespace Microsoft.Data.Entity.Tests
                 var dependentType = model.FindEntityType(typeof(Bun));
                 var principalType = model.FindEntityType(typeof(BigMak));
                 var fk = dependentType.GetForeignKeys().Single(foreignKey => foreignKey.Properties.All(p => p.Name == "BurgerId"));
-                fk.IsUnique = true;
 
                 var principalKey = principalType.GetKeys().Single();
                 var dependentKey = dependentType.GetKeys().Single();

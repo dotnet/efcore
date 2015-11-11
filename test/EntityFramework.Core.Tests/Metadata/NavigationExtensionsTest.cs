@@ -106,7 +106,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata
 
             var categoryFk = productType.GetOrAddForeignKey(productType.FindProperty("CategoryId"), categoryType.FindPrimaryKey(), categoryType);
             var featuredProductFk = categoryType.GetOrAddForeignKey(categoryType.FindProperty("FeaturedProductId"), productType.FindPrimaryKey(), productType);
-            featuredProductFk.IsUnique = true;
+            var featuredProductIndex = categoryType.GetOrAddIndex(categoryType.FindProperty("FeaturedProductId"));
+            featuredProductIndex.IsUnique = true;
 
             if (createProducts)
             {

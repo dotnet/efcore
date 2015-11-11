@@ -2087,7 +2087,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalKeyProperty = entityType.AddProperty(SelfRef.IdProperty);
             var referencedKey = entityType.SetPrimaryKey(principalKeyProperty);
             var fk = entityType.AddForeignKey(fkProperty, referencedKey, entityType);
-            fk.IsUnique = true;
+            var index = entityType.AddIndex(fkProperty);
+            index.IsUnique = true;
 
             var navigationToDependent = fk.HasPrincipalToDependent("SelfRef1");
             var navigationToPrincipal = fk.HasDependentToPrincipal("SelfRef2");
@@ -2105,7 +2106,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalKeyProperty = entityType.AddProperty(SelfRef.IdProperty);
             var referencedKey = entityType.SetPrimaryKey(principalKeyProperty);
             var fk = entityType.AddForeignKey(fkProperty, referencedKey, entityType);
-            fk.IsUnique = true;
+            var index = entityType.AddIndex(fkProperty);
+            index.IsUnique = true;
 
             fk.HasPrincipalToDependent("SelfRef1");
             Assert.Equal(CoreStrings.DuplicateNavigation("SelfRef1", typeof(SelfRef).Name, typeof(SelfRef).Name),

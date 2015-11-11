@@ -78,6 +78,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             var entityTypeBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
             var idProperty = entityTypeBuilder.Property("Id", ConfigurationSource.Convention).Metadata;
             var keyBuilder = entityTypeBuilder.HasKey(new[] { idProperty.Name }, ConfigurationSource.Convention);
+            var indexBuilder = entityTypeBuilder.HasIndex(new[] { idProperty.Name }, ConfigurationSource.Convention);
 
             Assert.True(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.True(keyBuilder.Metadata.SqlServer().IsClustered);
@@ -88,7 +89,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Metadata
             Assert.False(keyBuilder.SqlServer(ConfigurationSource.Convention).Clustered(true));
             Assert.False(keyBuilder.Metadata.SqlServer().IsClustered);
 
-            Assert.Equal(1, keyBuilder.Metadata.GetAnnotations().Count(
+            Assert.Equal(1, indexBuilder.Metadata.GetAnnotations().Count(
                 a => a.Name.StartsWith(SqlServerAnnotationNames.Prefix, StringComparison.Ordinal)));
         }
 

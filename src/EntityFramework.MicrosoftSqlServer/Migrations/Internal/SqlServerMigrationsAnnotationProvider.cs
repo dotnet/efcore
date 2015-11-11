@@ -10,16 +10,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 {
     public class SqlServerMigrationsAnnotationProvider : MigrationsAnnotationProvider
     {
-        public override IEnumerable<IAnnotation> For(IKey key)
-        {
-            if (key.SqlServer().IsClustered.HasValue)
-            {
-                yield return new Annotation(
-                     SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
-                     key.SqlServer().IsClustered.Value);
-            }
-        }
-
         public override IEnumerable<IAnnotation> For(IIndex index)
         {
             if (index.SqlServer().IsClustered.HasValue)

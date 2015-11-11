@@ -38,10 +38,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual IEnumerable<ForeignKey> FindReferencingForeignKeys()
             => ((IKey)this).FindReferencingForeignKeys().Cast<ForeignKey>();
 
+        public virtual Index Index => DeclaringEntityType.FindIndex(Properties);
         IReadOnlyList<IProperty> IKey.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableKey.Properties => Properties;
         IEntityType IKey.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableKey.DeclaringEntityType => DeclaringEntityType;
+        IIndex IKey.Index => Index;
+        IMutableIndex IMutableKey.Index => Index;
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);

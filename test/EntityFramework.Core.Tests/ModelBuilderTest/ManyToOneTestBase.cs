@@ -337,7 +337,8 @@ namespace Microsoft.Data.Entity.Tests
 
                 var property = dependentType.GetOrAddProperty(Ingredient.BurgerIdProperty);
                 var fk = dependentType.AddForeignKey(property, principalKey, principalType);
-                fk.IsUnique = false;
+                var index = dependentType.AddIndex(property);
+                index.IsUnique = false;
 
                 modelBuilder
                     .Entity<Pickle>().HasOne(e => e.BigMak).WithMany(e => e.Pickles)

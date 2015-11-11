@@ -207,7 +207,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
                 },
                 customerKeyBuilder.Metadata,
                 customerEntityBuilder.Metadata);
-            foreignKey.IsUnique = true;
+            var index = orderEntityBuilder.Metadata.AddIndex(
+                new[]
+                {
+                    orderEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                    orderEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                });
+            index.IsUnique = true;
 
             var relationshipBuilder = orderEntityBuilder.HasForeignKey(customerEntityBuilder, foreignKey.Properties, ConfigurationSource.Convention);
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);

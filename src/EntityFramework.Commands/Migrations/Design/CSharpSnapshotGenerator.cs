@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
 
                     GenerateKeys(entityType.GetDeclaredKeys(), entityType.FindDeclaredPrimaryKey(), stringBuilder);
 
-                    GenerateIndexes(entityType.GetDeclaredIndexes(), stringBuilder);
+                    GenerateIndexes(entityType.GetDeclaredIndexes().Except(entityType.GetKeys().Select(key => key.Index)), stringBuilder);
 
                     GenerateEntityTypeAnnotations(entityType, stringBuilder);
                 }
