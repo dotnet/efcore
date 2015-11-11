@@ -53,7 +53,6 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                     context.Customers.AddRange(customers);
                 }
             }
-
         }
 
         [Benchmark]
@@ -87,7 +86,7 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
                 context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChanges;
 
                 var customers = _fixture.CreateCustomers(1000, setPrimaryKeys: true);
-               
+
                 using (collector.StartCollection())
                 {
                     context.Customers.AttachRange(customers);
@@ -181,7 +180,8 @@ namespace EntityFramework.Microbenchmarks.ChangeTracker
         {
             public DbSetOperationFixture()
                 : base("Perf_ChangeTracker_DbSetOperation", 0, 0, 0, 0)
-            { }
+            {
+            }
         }
     }
 }

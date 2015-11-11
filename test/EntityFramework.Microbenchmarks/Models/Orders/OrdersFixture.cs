@@ -1,20 +1,18 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Data.SqlClient;
+using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Storage;
-using System;
-using System.Data.SqlClient;
-using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {
     public class OrdersFixture : OrdersFixtureBase
     {
-        private readonly string _connectionString;
         private readonly int _productCount;
         private readonly int _customerCount;
         private readonly int _ordersPerCustomer;
@@ -22,7 +20,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
         public OrdersFixture(string databaseName, int productCount, int customerCount, int ordersPerCustomer, int linesPerOrder)
         {
-            _connectionString = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database={databaseName};Integrated Security=True;MultipleActiveResultSets=true;";
+            ConnectionString = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database={databaseName};Integrated Security=True;MultipleActiveResultSets=true;";
             _productCount = productCount;
             _customerCount = customerCount;
             _ordersPerCustomer = ordersPerCustomer;
@@ -31,18 +29,18 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
             EnsureDatabaseCreated();
         }
 
-        public string ConnectionString => _connectionString;
+        public string ConnectionString { get; }
 
         public OrdersContext CreateContext(bool disableBatching = false)
         {
-            return new OrdersContext(_connectionString, disableBatching);
+            return new OrdersContext(ConnectionString, disableBatching);
         }
 
         private void EnsureDatabaseCreated()
         {
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = new OrdersContext(ConnectionString))
             {
-                var database = ((IInfrastructure<IServiceProvider>)context).GetService<IRelationalDatabaseCreator>();
+                var database = context.GetService<IRelationalDatabaseCreator>();
                 if (!database.Exists())
                 {
                     context.Database.EnsureCreated();
@@ -74,30 +72,30 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
                 return false;
             }
 
-            return _productCount == context.Products.Count()
-                && _customerCount == context.Customers.Count()
-                && _customerCount * _ordersPerCustomer == context.Orders.Count()
-                && _customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count();
+            return (_productCount == context.Products.Count())
+                   && (_customerCount == context.Customers.Count())
+                   && (_customerCount * _ordersPerCustomer == context.Orders.Count())
+                   && (_customerCount * _ordersPerCustomer * _linesPerOrder == context.OrderLines.Count());
         }
 
         private void InsertSeedData()
         {
             var products = CreateProducts(_productCount, setPrimaryKeys: false);
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = new OrdersContext(ConnectionString))
             {
                 context.Products.AddRange(products);
                 context.SaveChanges();
             }
 
             var customers = CreateCustomers(_customerCount, setPrimaryKeys: false);
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = new OrdersContext(ConnectionString))
             {
                 context.Customers.AddRange(customers);
                 context.SaveChanges();
             }
 
             var orders = CreateOrders(customers, _ordersPerCustomer, setPrimaryKeys: false);
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = new OrdersContext(ConnectionString))
             {
                 context.Orders.AddRange(orders);
                 context.SaveChanges();
@@ -105,7 +103,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
 
             var lines = CreateOrderLines(products, orders, _linesPerOrder, setPrimaryKeys: false);
 
-            using (var context = new OrdersContext(_connectionString))
+            using (var context = new OrdersContext(ConnectionString))
             {
                 context.OrderLines.AddRange(lines);
                 context.SaveChanges();

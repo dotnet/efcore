@@ -21,7 +21,6 @@ namespace EntityFramework.Microbenchmarks
         [Benchmark]
         public void Calibration_100ms_controlled(IMetricCollector collector)
         {
-
             Thread.Sleep(100);
             using (collector.StartCollection())
             {
@@ -40,7 +39,7 @@ namespace EntityFramework.Microbenchmarks
             }
         }
 
-        private partial class ColdStartEnabledTests : MarshalByRefObject
+        private class ColdStartEnabledTests : MarshalByRefObject
         {
             public void Sleep100ms(IMetricCollector collector)
             {

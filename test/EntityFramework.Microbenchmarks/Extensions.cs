@@ -9,11 +9,11 @@ namespace EntityFramework.Microbenchmarks
     public static class Extensions
     {
         public static IQueryable<TEntity> ApplyTracking<TEntity>(this IQueryable<TEntity> query, bool tracking)
-       where TEntity : class
+            where TEntity : class
         {
             return tracking
-                    ? query
-                    : query.AsNoTracking();
+                ? query
+                : query.AsNoTracking();
         }
     }
 }

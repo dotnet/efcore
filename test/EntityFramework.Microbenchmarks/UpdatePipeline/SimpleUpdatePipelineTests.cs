@@ -3,9 +3,7 @@
 
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
-using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using EntityFramework.Microbenchmarks.Models.Orders;
-using Microsoft.Data.Entity;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.UpdatePipeline
@@ -120,7 +118,8 @@ namespace EntityFramework.Microbenchmarks.UpdatePipeline
         {
             public SimpleUpdatePipelineFixture()
                 : base("Perf_UpdatePipeline_Simple", 0, 1000, 0, 0)
-            { }
+            {
+            }
         }
     }
 }

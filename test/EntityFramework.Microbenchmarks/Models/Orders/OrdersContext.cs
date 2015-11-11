@@ -1,9 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
 using Microsoft.Data.Entity;
-using System;
 
 namespace EntityFramework.Microbenchmarks.Models.Orders
 {
@@ -19,7 +19,7 @@ namespace EntityFramework.Microbenchmarks.Models.Orders
         }
 
         public OrdersContext(IServiceProvider serviceProvider, string connectionString, bool disableBatching = false)
-            :base(serviceProvider)
+            : base(serviceProvider)
         {
             _connectionString = connectionString;
             _disableBatching = disableBatching;

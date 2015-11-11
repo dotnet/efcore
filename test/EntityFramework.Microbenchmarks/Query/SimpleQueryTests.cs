@@ -1,13 +1,13 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
@@ -34,14 +34,14 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
                 }
 
                 Assert.Equal(1000, query.Count());
-                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
@@ -60,14 +60,14 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
                 }
 
                 Assert.Equal(500, query.Count());
-                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
@@ -86,14 +86,14 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
                 }
 
                 Assert.Equal(1000, query.Count());
-                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
@@ -108,7 +108,7 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.Count();
                     }
@@ -134,14 +134,14 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
                 }
 
                 Assert.Equal(500, query.Count());
-                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
@@ -162,7 +162,7 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
@@ -189,7 +189,7 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
@@ -198,7 +198,7 @@ namespace EntityFramework.Microbenchmarks.Query
                 var result = query.ToList();
                 Assert.Equal(1000, result.Count);
                 Assert.Equal(2000, result.SelectMany(c => c.Orders).Count());
-                Assert.False(tracking && queriesPerIteration != 1, "Multiple queries per iteration not valid for tracking queries");
+                Assert.False(tracking && (queriesPerIteration != 1), "Multiple queries per iteration not valid for tracking queries");
             }
         }
 
@@ -223,7 +223,7 @@ namespace EntityFramework.Microbenchmarks.Query
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
@@ -246,16 +246,15 @@ namespace EntityFramework.Microbenchmarks.Query
                         CustomerTitle = o.Customer.Title,
                         CustomerFirstName = o.Customer.FirstName,
                         CustomerLastName = o.Customer.LastName,
-                        OrderDate = o.Date,
-                        OrderDiscount = o.OrderDiscount,
+                        OrderDate = o.Date, o.OrderDiscount,
                         OrderDiscountReason = o.DiscountReason,
                         OrderTax = o.Tax,
-                        OrderSpecialRequests = o.SpecialRequests,
+                        OrderSpecialRequests = o.SpecialRequests
                     });
 
                 using (collector.StartCollection())
                 {
-                    for (int i = 0; i < queriesPerIteration; i++)
+                    for (var i = 0; i < queriesPerIteration; i++)
                     {
                         query.ToList();
                     }
@@ -302,7 +301,8 @@ namespace EntityFramework.Microbenchmarks.Query
                 }
 
                 public void Remove(object key)
-                { }
+                {
+                }
 
                 public IEntryLink CreateLinkingScope()
                 {
@@ -310,7 +310,8 @@ namespace EntityFramework.Microbenchmarks.Query
                 }
 
                 public void Dispose()
-                { }
+                {
+                }
             }
         }
     }
