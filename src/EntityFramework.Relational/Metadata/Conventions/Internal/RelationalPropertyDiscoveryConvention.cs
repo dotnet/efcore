@@ -11,6 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
     public class RelationalPropertyDiscoveryConvention : PropertyDiscoveryConvention
     {
         private readonly IRelationalTypeMapper _typeMapper;
+
         public RelationalPropertyDiscoveryConvention([NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));

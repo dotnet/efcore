@@ -15,6 +15,6 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
             Sequence = sequence;
         }
 
-        public virtual ISequence Sequence{ get; }
+        public virtual ISequence Sequence { get; }
     }
 }

@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
 
@@ -62,7 +61,7 @@ namespace Microsoft.Data.Entity.Update
                         : ConsumeResultSetWithoutPropagation(commandIndex, reader);
                     actualResultSetCount++;
                 }
-                while (commandIndex < ResultSetEnds.Count
+                while ((commandIndex < ResultSetEnds.Count)
                        && reader.NextResult());
 
                 Debug.Assert(commandIndex == ModificationCommands.Count,
@@ -105,7 +104,7 @@ namespace Microsoft.Data.Entity.Update
                         : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, cancellationToken);
                     actualResultSetCount++;
                 }
-                while (commandIndex < ResultSetEnds.Count
+                while ((commandIndex < ResultSetEnds.Count)
                        && await reader.NextResultAsync(cancellationToken));
 
                 Debug.Assert(commandIndex == ModificationCommands.Count, "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
@@ -140,7 +139,7 @@ namespace Microsoft.Data.Entity.Update
                 if (!reader.Read())
                 {
                     var expectedRowsAffected = rowsAffected + 1;
-                    while (++commandIndex < ResultSetEnds.Count
+                    while ((++commandIndex < ResultSetEnds.Count)
                            && !ResultSetEnds[commandIndex - 1])
                     {
                         expectedRowsAffected++;
@@ -154,7 +153,7 @@ namespace Microsoft.Data.Entity.Update
                 tableModification.PropagateResults(valueBufferFactory.Create(reader));
                 rowsAffected++;
             }
-            while (++commandIndex < ResultSetEnds.Count
+            while ((++commandIndex < ResultSetEnds.Count)
                    && !ResultSetEnds[commandIndex - 1]);
 
             return commandIndex;
@@ -172,7 +171,7 @@ namespace Microsoft.Data.Entity.Update
                 if (!await reader.ReadAsync(cancellationToken))
                 {
                     var expectedRowsAffected = rowsAffected + 1;
-                    while (++commandIndex < ResultSetEnds.Count
+                    while ((++commandIndex < ResultSetEnds.Count)
                            && !ResultSetEnds[commandIndex - 1])
                     {
                         expectedRowsAffected++;
@@ -186,7 +185,7 @@ namespace Microsoft.Data.Entity.Update
                 tableModification.PropagateResults(valueBufferFactory.Create(reader));
                 rowsAffected++;
             }
-            while (++commandIndex < ResultSetEnds.Count
+            while ((++commandIndex < ResultSetEnds.Count)
                    && !ResultSetEnds[commandIndex - 1]);
 
             return commandIndex;
@@ -195,7 +194,7 @@ namespace Microsoft.Data.Entity.Update
         protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, [NotNull] DbDataReader reader)
         {
             var expectedRowsAffected = 1;
-            while (++commandIndex < ResultSetEnds.Count
+            while ((++commandIndex < ResultSetEnds.Count)
                    && !ResultSetEnds[commandIndex - 1])
             {
                 Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);
@@ -223,7 +222,7 @@ namespace Microsoft.Data.Entity.Update
             int commandIndex, [NotNull] DbDataReader reader, CancellationToken cancellationToken)
         {
             var expectedRowsAffected = 1;
-            while (++commandIndex < ResultSetEnds.Count
+            while ((++commandIndex < ResultSetEnds.Count)
                    && !ResultSetEnds[commandIndex - 1])
             {
                 Debug.Assert(!ModificationCommands[commandIndex].RequiresResultPropagation);

@@ -44,8 +44,8 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var newMatchExpression = visitor.Visit(Match);
             var newPatternExpression = visitor.Visit(Pattern);
 
-            return newMatchExpression != Match
-                   || newPatternExpression != Pattern
+            return (newMatchExpression != Match)
+                   || (newPatternExpression != Pattern)
                 ? new LikeExpression(newMatchExpression, newPatternExpression)
                 : this;
         }

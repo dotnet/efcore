@@ -45,13 +45,11 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
 
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj)
-                   && (obj is RelationalCompiledQueryCacheKey
-                       && Equals((RelationalCompiledQueryCacheKey)obj));
+                => !ReferenceEquals(null, obj) && obj is RelationalCompiledQueryCacheKey && Equals((RelationalCompiledQueryCacheKey)obj);
 
             private bool Equals(RelationalCompiledQueryCacheKey other)
                 => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                   && _useRelationalNulls == other._useRelationalNulls;
+                   && (_useRelationalNulls == other._useRelationalNulls);
 
             public override int GetHashCode()
             {

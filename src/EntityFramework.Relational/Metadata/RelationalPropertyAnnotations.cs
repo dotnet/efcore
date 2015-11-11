@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata
             : this(new RelationalAnnotations(property, providerPrefix))
         {
         }
-        
+
         protected RelationalPropertyAnnotations([NotNull] RelationalAnnotations annotations)
         {
             Annotations = annotations;
@@ -59,8 +59,7 @@ namespace Microsoft.Data.Entity.Metadata
                     (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValueType),
                     (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultValue)).Value;
             }
-            [param: CanBeNull]
-            set { SetDefaultValue(value); }
+            [param: CanBeNull] set { SetDefaultValue(value); }
         }
 
         protected virtual bool SetDefaultValue([CanBeNull] object value)

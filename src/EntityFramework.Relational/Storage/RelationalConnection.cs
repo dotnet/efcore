@@ -6,11 +6,13 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -68,7 +70,7 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual DbConnection DbConnection => _connection.Value;
 
-        public virtual IDbContextTransaction CurrentTransaction { get;[param: NotNull] protected set; }
+        public virtual IDbContextTransaction CurrentTransaction { get; [param: NotNull] protected set; }
 
         public virtual int? CommandTimeout
         {
@@ -76,7 +78,7 @@ namespace Microsoft.Data.Entity.Storage
             set
             {
                 if (value.HasValue
-                    && value < 0)
+                    && (value < 0))
                 {
                     throw new ArgumentException(RelationalStrings.InvalidCommandTimeout);
                 }
@@ -133,7 +135,7 @@ namespace Microsoft.Data.Entity.Storage
                 = new RelationalTransaction(
                     this,
                     DbConnection.BeginTransaction(isolationLevel),
-                     _logger,
+                    _logger,
                     transactionOwned: true);
 
             return CurrentTransaction;
@@ -189,7 +191,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             CheckForAmbientTransactions();
 
-            if (_openedCount == 0 && _connection.Value.State != ConnectionState.Open)
+            if ((_openedCount == 0)
+                && (_connection.Value.State != ConnectionState.Open))
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.OpeningConnection,
@@ -207,7 +210,8 @@ namespace Microsoft.Data.Entity.Storage
         {
             CheckForAmbientTransactions();
 
-            if (_openedCount == 0 && _connection.Value.State != ConnectionState.Open)
+            if ((_openedCount == 0)
+                && (_connection.Value.State != ConnectionState.Open))
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.OpeningConnection,
@@ -225,7 +229,7 @@ namespace Microsoft.Data.Entity.Storage
         {
 #if NET451 || DNX451
             if (_throwOnAmbientTransaction
-                && System.Transactions.Transaction.Current != null)
+                && (Transaction.Current != null))
             {
                 throw new InvalidOperationException(RelationalStrings.AmbientTransaction);
             }
@@ -237,8 +241,8 @@ namespace Microsoft.Data.Entity.Storage
             // TODO: Consider how to handle open/closing to make sure that a connection that is passed in
             // as open is never erroneously closed without placing undue burdon on users of the connection.
 
-            if (_openedCount > 0
-                && --_openedCount == 0
+            if ((_openedCount > 0)
+                && (--_openedCount == 0)
                 && _openedInternally)
             {
                 _logger.LogVerbose(

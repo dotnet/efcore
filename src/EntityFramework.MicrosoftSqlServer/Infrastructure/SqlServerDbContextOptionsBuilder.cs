@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Infrastructure
 {
-    public class SqlServerDbContextOptionsBuilder 
+    public class SqlServerDbContextOptionsBuilder
         : RelationalDbContextOptionsBuilder<SqlServerDbContextOptionsBuilder, SqlServerOptionsExtension>
     {
         public SqlServerDbContextOptionsBuilder([NotNull] DbContextOptionsBuilder optionsBuilder)

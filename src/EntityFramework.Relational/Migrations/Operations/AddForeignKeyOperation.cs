@@ -7,13 +7,13 @@ namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class AddForeignKeyOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
-        public virtual string Schema { get;[param: CanBeNull] set; }
-        public virtual string Table { get;[param: NotNull] set; }
-        public virtual string[] Columns { get;[param: NotNull] set; }
-        public virtual string PrincipalSchema { get;[param: CanBeNull] set; }
-        public virtual string PrincipalTable { get;[param: NotNull] set; }
-        public virtual string[] PrincipalColumns { get;[param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
+        public virtual string Schema { get; [param: CanBeNull] set; }
+        public virtual string Table { get; [param: NotNull] set; }
+        public virtual string[] Columns { get; [param: NotNull] set; }
+        public virtual string PrincipalSchema { get; [param: CanBeNull] set; }
+        public virtual string PrincipalTable { get; [param: NotNull] set; }
+        public virtual string[] PrincipalColumns { get; [param: NotNull] set; }
         public virtual ReferentialAction OnUpdate { get; set; }
         public virtual ReferentialAction OnDelete { get; set; }
     }

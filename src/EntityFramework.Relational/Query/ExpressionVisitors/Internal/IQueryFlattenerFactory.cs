@@ -10,9 +10,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     public interface IQueryFlattenerFactory
     {
         QueryFlattener Create(
-            [NotNull] IQuerySource querySource, 
-            [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext, 
-            [NotNull] MethodInfo operatorToFlatten, 
+            [NotNull] IQuerySource querySource,
+            [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext,
+            [NotNull] MethodInfo operatorToFlatten,
             int readerOffset);
     }
 }

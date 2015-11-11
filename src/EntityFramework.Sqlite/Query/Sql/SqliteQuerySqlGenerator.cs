@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
+            if ((selectExpression.Limit != null)
+                || (selectExpression.Offset != null))
             {
                 Sql.AppendLine()
                     .Append("LIMIT ")

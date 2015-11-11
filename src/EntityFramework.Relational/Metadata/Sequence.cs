@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Metadata
                 });
             }
         }
-        
+
         private Sequence(IModel model, string annotationName)
         {
             _model = model;
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Metadata
         public static ISequence FindSequence(
             [NotNull] IModel model,
             [NotNull] string annotationPrefix,
-            [NotNull] string name, 
+            [NotNull] string name,
             [CanBeNull] string schema = null)
         {
             Check.NotNull(model, nameof(model));
@@ -137,10 +137,10 @@ namespace Microsoft.Data.Entity.Metadata
             [param: NotNull]
             set
             {
-                if (value != typeof(byte)
-                    && value != typeof(long)
-                    && value != typeof(int)
-                    && value != typeof(short))
+                if ((value != typeof(byte))
+                    && (value != typeof(long))
+                    && (value != typeof(int))
+                    && (value != typeof(short)))
                 {
                     throw new ArgumentException(RelationalStrings.BadSequenceType);
                 }
@@ -256,8 +256,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 var end = value.IndexOf('\'', position);
 
-                while (end + 1 < value.Length
-                       && value[end + 1] == '\'')
+                while ((end + 1 < value.Length)
+                       && (value[end + 1] == '\''))
                 {
                     end = value.IndexOf('\'', end + 2);
                 }
@@ -281,7 +281,7 @@ namespace Microsoft.Data.Entity.Metadata
                             : typeof(byte);
 
             private static bool AsBool(string value)
-                => value != null && bool.Parse(value);
+                => (value != null) && bool.Parse(value);
 
             private static void EscapeAndQuote(StringBuilder builder, object value)
             {

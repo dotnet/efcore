@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
         {
             _supportedMethods = _typeMapping.Keys
                 .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
-                    .Where(m => m.GetParameters().Count() == 1
+                    .Where(m => (m.GetParameters().Count() == 1)
                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
         }
 

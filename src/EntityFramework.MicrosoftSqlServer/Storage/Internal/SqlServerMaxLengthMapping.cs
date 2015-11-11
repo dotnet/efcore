@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
             : base(defaultTypeName, clrType, storeType)
         {
             _maxSpecificSize =
-                storeType == DbType.AnsiString
-                || storeType == DbType.AnsiStringFixedLength
-                || storeType == DbType.Binary
+                (storeType == DbType.AnsiString)
+                || (storeType == DbType.AnsiStringFixedLength)
+                || (storeType == DbType.Binary)
                     ? 8000
                     : 4000;
         }
@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             var length = (parameter.Value as string)?.Length ?? (parameter.Value as byte[])?.Length;
 
-            parameter.Size = length != null && length <= _maxSpecificSize
+            parameter.Size = (length != null) && (length <= _maxSpecificSize)
                 ? _maxSpecificSize
                 : -1;
         }

@@ -43,9 +43,9 @@ namespace Microsoft.Data.Entity.Metadata
         {
             get
             {
-                if (Property.ValueGenerated != ValueGenerated.OnAdd
+                if ((Property.ValueGenerated != ValueGenerated.OnAdd)
                     || !Property.ClrType.UnwrapNullableType().IsInteger()
-                    || Property.SqlServer().GeneratedValueSql != null)
+                    || (Property.SqlServer().GeneratedValueSql != null))
                 {
                     return null;
                 }
@@ -54,8 +54,7 @@ namespace Microsoft.Data.Entity.Metadata
 
                 return value ?? Property.DeclaringEntityType.Model.SqlServer().ValueGenerationStrategy;
             }
-            [param: CanBeNull]
-            set { SetValueGenerationStrategy(value); }
+            [param: CanBeNull] set { SetValueGenerationStrategy(value); }
         }
 
         protected virtual bool SetValueGenerationStrategy(SqlServerValueGenerationStrategy? value)
@@ -64,16 +63,16 @@ namespace Microsoft.Data.Entity.Metadata
             {
                 var propertyType = Property.ClrType;
 
-                if (value == SqlServerValueGenerationStrategy.IdentityColumn
+                if ((value == SqlServerValueGenerationStrategy.IdentityColumn)
                     && (!propertyType.IsInteger()
-                        || propertyType == typeof(byte)
-                        || propertyType == typeof(byte?)))
+                        || (propertyType == typeof(byte))
+                        || (propertyType == typeof(byte?))))
                 {
                     throw new ArgumentException(SqlServerStrings.IdentityBadType(
                         Property.Name, Property.DeclaringEntityType.Name, propertyType.Name));
                 }
 
-                if (value == SqlServerValueGenerationStrategy.SequenceHiLo
+                if ((value == SqlServerValueGenerationStrategy.SequenceHiLo)
                     && !propertyType.IsInteger())
                 {
                     throw new ArgumentException(SqlServerStrings.SequenceBadType(

@@ -22,14 +22,14 @@ namespace Microsoft.Data.Entity
         /// <summary>
         ///     Applies any pending migrations for the context to the database.
         /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade"/> for the context. </param>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         public static void Migrate([NotNull] this DatabaseFacade databaseFacade)
             => Check.NotNull(databaseFacade, nameof(databaseFacade)).GetService<IMigrator>().Migrate();
 
         /// <summary>
         ///     Asynchronously applies any pending migrations for the context to the database.
         /// </summary>
-        /// <param name="databaseFacade"> The <see cref="DatabaseFacade"/> for the context. </param>
+        /// <param name="databaseFacade"> The <see cref="DatabaseFacade" /> for the context. </param>
         /// <param name="cancellationToken"> A <see cref="CancellationToken" /> to observe while waiting for the task to complete. </param>
         /// <returns> A task that represents the asynchronous migration operation. </returns>
         public static Task MigrateAsync(
@@ -44,9 +44,9 @@ namespace Microsoft.Data.Entity
             [NotNull] params object[] parameters)
             => Check.NotNull(databaseFacade, nameof(databaseFacade))
                 .GetService<RelationalSqlExecutor>()
-                    .ExecuteSqlCommand(
-                        sql,
-                        parameters);
+                .ExecuteSqlCommand(
+                    sql,
+                    parameters);
 
         public static Task ExecuteSqlCommandAsync(
             [NotNull] this DatabaseFacade databaseFacade,
@@ -55,10 +55,10 @@ namespace Microsoft.Data.Entity
             [NotNull] params object[] parameters)
             => Check.NotNull(databaseFacade, nameof(databaseFacade))
                 .GetService<RelationalSqlExecutor>()
-                    .ExecuteSqlCommandAsync(
-                        sql,
-                        cancellationToken,
-                        parameters);
+                .ExecuteSqlCommandAsync(
+                    sql,
+                    cancellationToken,
+                    parameters);
 
         public static DbConnection GetDbConnection([NotNull] this DatabaseFacade databaseFacade)
             => GetRelationalConnection(databaseFacade).DbConnection;
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity
 
             var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
 
-            return (relationalTransactionManager != null)
+            return relationalTransactionManager != null
                 ? relationalTransactionManager.BeginTransaction(isolationLevel)
                 : transactionManager.BeginTransaction();
         }
@@ -94,7 +94,7 @@ namespace Microsoft.Data.Entity
 
             var relationalTransactionManager = transactionManager as IRelationalTransactionManager;
 
-            return (relationalTransactionManager != null)
+            return relationalTransactionManager != null
                 ? relationalTransactionManager.BeginTransactionAsync(isolationLevel, cancellationToken)
                 : transactionManager.BeginTransactionAsync(cancellationToken);
         }

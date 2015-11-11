@@ -77,8 +77,8 @@ namespace Microsoft.Data.Entity.Migrations
                 model,
                 builder);
 
-            if (operation.DefaultValue != null
-                || operation.DefaultValueSql != null)
+            if ((operation.DefaultValue != null)
+                || (operation.DefaultValueSql != null))
             {
                 builder
                     .AppendLine(";")
@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             var clustered = operation[SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered] as bool?;
             if (operation.IsUnique
-                && clustered != true)
+                && (clustered != true))
             {
                 builder.Append(" WHERE ");
                 for (var i = 0; i < operation.Columns.Length; i++)

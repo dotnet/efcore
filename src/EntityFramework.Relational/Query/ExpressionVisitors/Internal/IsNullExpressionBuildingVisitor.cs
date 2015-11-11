@@ -44,8 +44,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             // a && b == null <-> a == null && b != false || a != false && b == null
             // this transformation would produce a query that is too complex
             // so we just wrap the whole expression into IsNullExpression instead.
-            if (expression.NodeType == ExpressionType.AndAlso
-                || expression.NodeType == ExpressionType.OrElse)
+            if ((expression.NodeType == ExpressionType.AndAlso)
+                || (expression.NodeType == ExpressionType.OrElse))
             {
                 AddToResult(new IsNullExpression(expression));
             }
@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             var columnExpression = expression as ColumnExpression
                                    ?? expression.TryGetColumnExpression();
 
-            if (columnExpression != null
+            if ((columnExpression != null)
                 && columnExpression.Property.IsNullable)
             {
                 AddToResult(new IsNullExpression(expression));
@@ -112,8 +112,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             // so we just wrap the whole expression into IsNullExpression instead.
             //
             // small optimization: expression can only be nullable if either (or both) of the possible results (ifTrue, ifFalse) can be nullable
-            if (ifTrue != null
-                || ifFalse != null)
+            if ((ifTrue != null)
+                || (ifFalse != null))
             {
                 AddToResult(new IsNullExpression(expression));
             }
@@ -124,14 +124,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private static Expression CombineExpressions(
             Expression left, Expression right, ExpressionType expressionType)
         {
-            if (left == null
-                && right == null)
+            if ((left == null)
+                && (right == null))
             {
                 return null;
             }
 
-            if (left != null
-                && right != null)
+            if ((left != null)
+                && (right != null))
             {
                 return expressionType == ExpressionType.AndAlso
                     ? Expression.AndAlso(left, right)

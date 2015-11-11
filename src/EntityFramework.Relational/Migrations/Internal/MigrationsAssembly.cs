@@ -37,19 +37,19 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             _idGenerator = idGenerator;
             _migrations = new LazyRef<IReadOnlyDictionary<string, TypeInfo>>(
                 () => (
-                        from t in Assembly.GetConstructibleTypes()
-                        where t.IsSubclassOf(typeof(Migration))
-                            && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType
-                        let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
-                        orderby id
-                        select new { Key = id, Element = t })
+                    from t in Assembly.GetConstructibleTypes()
+                    where t.IsSubclassOf(typeof(Migration))
+                          && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
+                    let id = t.GetCustomAttribute<MigrationAttribute>()?.Id
+                    orderby id
+                    select new { Key = id, Element = t })
                     .ToDictionary(i => i.Key, i => i.Element));
             _modelSnapshot = new LazyRef<ModelSnapshot>(
                 () => (
-                        from t in Assembly.GetConstructibleTypes()
-                        where t.IsSubclassOf(typeof(ModelSnapshot))
-                              && t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType
-                        select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
+                    from t in Assembly.GetConstructibleTypes()
+                    where t.IsSubclassOf(typeof(ModelSnapshot))
+                          && (t.GetCustomAttribute<DbContextAttribute>()?.ContextType == contextType)
+                    select (ModelSnapshot)Activator.CreateInstance(t.AsType()))
                     .FirstOrDefault());
         }
 

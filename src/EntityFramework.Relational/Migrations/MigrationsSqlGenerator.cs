@@ -745,7 +745,7 @@ namespace Microsoft.Data.Entity.Migrations
             [CanBeNull] string schema,
             [NotNull] string tableName)
             => model?.GetEntityTypes().FirstOrDefault(
-                t => _annotations.For(t).TableName == tableName && _annotations.For(t).Schema == schema);
+                t => (_annotations.For(t).TableName == tableName) && (_annotations.For(t).Schema == schema));
 
         protected virtual IProperty FindProperty(
             [CanBeNull] IModel model,

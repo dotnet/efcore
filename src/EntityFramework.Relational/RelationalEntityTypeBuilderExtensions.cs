@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity
             [CanBeNull] string schema)
             where TEntity : class
             => (EntityTypeBuilder<TEntity>)ToTable((EntityTypeBuilder)entityTypeBuilder, name, schema);
-        
+
         public static DiscriminatorBuilder HasDiscriminator([NotNull] this EntityTypeBuilder entityTypeBuilder)
         {
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));

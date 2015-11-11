@@ -72,7 +72,7 @@ namespace Microsoft.Data.Entity.Storage
                     return other.IndexMap == null;
                 }
 
-                return other.IndexMap != null
+                return (other.IndexMap != null)
                        && IndexMap.SequenceEqual(other.IndexMap);
             }
 

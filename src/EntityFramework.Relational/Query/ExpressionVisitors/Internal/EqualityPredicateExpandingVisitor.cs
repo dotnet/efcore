@@ -13,10 +13,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             var newLeft = Visit(binaryExpression.Left);
             var newRight = Visit(binaryExpression.Right);
 
-            if ((binaryExpression.NodeType == ExpressionType.Equal
-                 || binaryExpression.NodeType == ExpressionType.NotEqual)
-                && binaryExpression.Left.Type == typeof(bool)
-                && binaryExpression.Right.Type == typeof(bool))
+            if (((binaryExpression.NodeType == ExpressionType.Equal)
+                 || (binaryExpression.NodeType == ExpressionType.NotEqual))
+                && (binaryExpression.Left.Type == typeof(bool))
+                && (binaryExpression.Right.Type == typeof(bool)))
             {
                 var simpleLeft = binaryExpression.Left.IsSimpleExpression();
                 var simpleRight = binaryExpression.Right.IsSimpleExpression();

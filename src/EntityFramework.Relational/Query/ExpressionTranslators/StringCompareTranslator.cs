@@ -63,11 +63,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             MethodCallExpression methodCall,
             ConstantExpression constant)
         {
-            if (methodCall != null
-                && methodCall.Method == _methodInfo
-                && methodCall.Type == typeof(int)
-                && constant != null
-                && constant.Type == typeof(int))
+            if ((methodCall != null)
+                && (methodCall.Method == _methodInfo)
+                && (methodCall.Type == typeof(int))
+                && (constant != null)
+                && (constant.Type == typeof(int)))
             {
                 var arguments = methodCall.Arguments.ToList();
                 var leftString = arguments[0];

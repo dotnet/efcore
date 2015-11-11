@@ -70,8 +70,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                         _dataReader
                             = await relationalCommand.ExecuteReaderAsync(
                                 _queryingEnumerable._relationalQueryContext.Connection,
-                                cancellationToken, 
-                                manageConnection: false, 
+                                cancellationToken,
+                                manageConnection: false,
                                 parameters: _queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         _dbDataReader = _dataReader.DbDataReader;
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 return false;
             }
-            
+
             // ReSharper disable once ConvertToAutoPropertyWithPrivateSetter
             public ValueBuffer Current => _current;
 

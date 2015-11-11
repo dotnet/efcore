@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Query.Expressions.Internal
             }
 
             if (recreate ||
-                (newColumnExpression != null && ColumnExpression != newColumnExpression))
+                ((newColumnExpression != null) && (ColumnExpression != newColumnExpression)))
             {
                 return new RowNumberExpression(newColumnExpression, newOrderings);
             }

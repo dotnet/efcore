@@ -140,8 +140,8 @@ namespace Microsoft.Data.Entity
 
             name = name ?? SqlServerAnnotationNames.DefaultHiLoSequenceName;
 
-            var sequence = 
-                model.SqlServer().FindSequence(name, schema) ?? 
+            var sequence =
+                model.SqlServer().FindSequence(name, schema) ??
                 modelBuilder.ForSqlServerHasSequence(name, schema).IncrementsBy(10).Metadata;
 
             model.SqlServer().ValueGenerationStrategy = SqlServerValueGenerationStrategy.SequenceHiLo;

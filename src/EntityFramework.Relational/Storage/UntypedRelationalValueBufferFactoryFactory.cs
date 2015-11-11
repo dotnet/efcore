@@ -25,9 +25,7 @@ namespace Microsoft.Data.Entity.Storage
             private bool Equals(CacheKey other) => ValueTypes.SequenceEqual(other.ValueTypes);
 
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj)
-                   && (obj is CacheKey
-                       && Equals((CacheKey)obj));
+                => !ReferenceEquals(null, obj) && obj is CacheKey && Equals((CacheKey)obj);
 
             public override int GetHashCode()
             {

@@ -8,7 +8,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -54,7 +53,7 @@ namespace Microsoft.Data.Entity.Query
             ShaperCommandContext shaperCommandContext,
             int? queryIndex)
             => new QueryingEnumerable(
-                ((RelationalQueryContext)queryContext),
+                (RelationalQueryContext)queryContext,
                 shaperCommandContext,
                 queryIndex);
 
@@ -178,23 +177,23 @@ namespace Microsoft.Data.Entity.Query
                     .ToArray();
 
             foreach (var innerResult in innerResults)
-                    {
-                        queryContext.QueryBuffer
-                            .Include(
+            {
+                queryContext.QueryBuffer
+                    .Include(
                         entityAccessor == null ? innerResult : entityAccessor(innerResult), // TODO: Compile time?
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                querySourceRequiresTracking);
+                        navigationPath,
+                        relatedEntitiesLoaders,
+                        querySourceRequiresTracking);
 
                 yield return innerResult;
             }
 
-                        foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
-                        {
-                            includeRelatedValuesStrategy.Dispose();
-                        }
+            foreach (var includeRelatedValuesStrategy in includeRelatedValuesStrategies)
+            {
+                includeRelatedValuesStrategy.Dispose();
+            }
 
-                        queryContext.EndIncludeScope();
+            queryContext.EndIncludeScope();
         }
 
         public virtual MethodInfo CreateReferenceIncludeRelatedValuesStrategyMethod

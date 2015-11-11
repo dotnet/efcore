@@ -27,6 +27,6 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
         }
 
         private static string GetSequenceName(ISequence sequence)
-            => (sequence.Schema == null ? "" : (sequence.Schema + ".")) + sequence.Name;
+            => (sequence.Schema == null ? "" : sequence.Schema + ".") + sequence.Name;
     }
 }

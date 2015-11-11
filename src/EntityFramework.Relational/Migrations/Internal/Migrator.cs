@@ -169,25 +169,25 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 var migration = migrationsToRevert[i];
 
                 yield return () =>
-                {
-                    _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
+                    {
+                        _logger.LogInformation(RelationalStrings.RevertingMigration(migration.GetId()));
 
-                    return GenerateDownSql(
-                        migration,
-                        i != migrationsToRevert.Count - 1
-                            ? migrationsToRevert[i + 1]
-                            : null);
-                };
+                        return GenerateDownSql(
+                            migration,
+                            i != migrationsToRevert.Count - 1
+                                ? migrationsToRevert[i + 1]
+                                : null);
+                    };
             }
 
             foreach (var migration in migrationsToApply)
             {
                 yield return () =>
-                {
-                    _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
+                    {
+                        _logger.LogInformation(RelationalStrings.ApplyingMigration(migration.GetId()));
 
-                    return GenerateUpSql(migration);
-                };
+                        return GenerateUpSql(migration);
+                    };
             }
         }
 
@@ -222,8 +222,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             if (string.Compare(fromMigration, toMigration, StringComparison.OrdinalIgnoreCase) <= 0)
             {
                 var migrationsToApply = migrations.Where(
-                    m => string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) > 0
-                        && string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) <= 0)
+                    m => (string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) > 0)
+                         && (string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) <= 0))
                     .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider));
                 var checkFirst = true;
                 foreach (var migration in migrationsToApply)
@@ -264,12 +264,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             else // If going down...
             {
                 var migrationsToRevert = migrations
-                        .Where(
-                            m => string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) > 0
-                                && string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) <= 0)
-                        .OrderByDescending(m => m.Key)
-                        .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider))
-                        .ToList();
+                    .Where(
+                        m => (string.Compare(m.Key, toMigration, StringComparison.OrdinalIgnoreCase) > 0)
+                             && (string.Compare(m.Key, fromMigration, StringComparison.OrdinalIgnoreCase) <= 0))
+                    .OrderByDescending(m => m.Key)
+                    .Select(m => _migrationsAssembly.CreateMigration(m.Value, _activeProvider))
+                    .ToList();
                 for (var i = 0; i < migrationsToRevert.Count; i++)
                 {
                     var migration = migrationsToRevert[i];
@@ -343,7 +343,6 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             IEnumerable<IRelationalCommand> relationalCommands,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-
             using (var transaction = await _connection.BeginTransactionAsync(cancellationToken))
             {
                 await relationalCommands.ExecuteNonQueryAsync(_connection, cancellationToken);

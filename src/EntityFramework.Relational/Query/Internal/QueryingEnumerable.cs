@@ -66,9 +66,9 @@ namespace Microsoft.Data.Entity.Query.Internal
                         _queryingEnumerable._relationalQueryContext
                             .RegisterValueBufferCursor(this, _queryingEnumerable._queryIndex);
 
-                        _dataReader 
+                        _dataReader
                             = relationalCommand.ExecuteReader(
-                                _queryingEnumerable._relationalQueryContext.Connection, 
+                                _queryingEnumerable._relationalQueryContext.Connection,
                                 manageConnection: false,
                                 parameters: _queryingEnumerable._relationalQueryContext.ParameterValues);
 

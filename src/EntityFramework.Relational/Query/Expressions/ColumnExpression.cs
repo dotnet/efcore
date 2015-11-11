@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
                 return true;
             }
 
-            return obj.GetType() == GetType()
+            return (obj.GetType() == GetType())
                    && Equals((ColumnExpression)obj);
         }
 

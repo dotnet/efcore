@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             ReplaceConvention(conventionSet.NavigationRemovedConventions, relationshipDiscoveryConvention);
 
-            ReplaceConvention(conventionSet.ModelBuiltConventions, (PropertyMappingValidationConvention) new RelationalPropertyMappingValidationConvention(_typeMapper));
+            ReplaceConvention(conventionSet.ModelBuiltConventions, (PropertyMappingValidationConvention)new RelationalPropertyMappingValidationConvention(_typeMapper));
 
             conventionSet.PropertyAddedConventions.Add(new RelationalColumnAttributeConvention());
 

@@ -15,7 +15,7 @@ namespace Microsoft.Data.Entity.Metadata
             : this(new RelationalAnnotations(key, providerPrefix))
         {
         }
-        
+
         protected RelationalKeyAnnotations([NotNull] RelationalAnnotations annotations)
         {
             Annotations = annotations;

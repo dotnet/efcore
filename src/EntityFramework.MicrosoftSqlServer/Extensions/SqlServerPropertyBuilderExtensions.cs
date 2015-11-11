@@ -133,7 +133,6 @@ namespace Microsoft.Data.Entity
             [CanBeNull] string schema = null)
             => (PropertyBuilder<TProperty>)ForSqlServerUseSequenceHiLo((PropertyBuilder)propertyBuilder, name, schema);
 
-
         public static PropertyBuilder UseSqlServerIdentityColumn(
             [NotNull] this PropertyBuilder propertyBuilder)
         {

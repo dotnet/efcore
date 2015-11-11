@@ -54,7 +54,7 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
                 return;
             }
 
-            if (selectExpression.Offset != null
+            if ((selectExpression.Offset != null)
                 && !selectExpression.OrderBy.Any())
             {
                 Sql.AppendLine().Append("ORDER BY @@ROWCOUNT");

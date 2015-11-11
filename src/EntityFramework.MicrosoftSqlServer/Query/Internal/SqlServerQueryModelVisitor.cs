@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             private static bool RequiresRowNumberPaging(SelectExpression selectExpression)
                 => selectExpression.Offset.HasValue
-                   && selectExpression.Offset != 0
+                   && (selectExpression.Offset != 0)
                    && !selectExpression.Projection.Any(p => p is RowNumberExpression);
 
             private Expression VisitSelectExpression(SelectExpression selectExpression)

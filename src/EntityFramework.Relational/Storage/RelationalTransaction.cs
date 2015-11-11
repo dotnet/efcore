@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Storage
 
         private void ClearTransaction()
         {
-            Debug.Assert(_relationalConnection.CurrentTransaction == null || _relationalConnection.CurrentTransaction == this);
+            Debug.Assert((_relationalConnection.CurrentTransaction == null) || (_relationalConnection.CurrentTransaction == this));
 
             _relationalConnection.UseTransaction(null);
         }

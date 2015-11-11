@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, providerPrefix))
         {
         }
-        
+
         public new virtual bool ColumnName([CanBeNull] string value) => SetColumnName(value);
 
         public new virtual bool ColumnType([CanBeNull] string value) => SetColumnType(value);

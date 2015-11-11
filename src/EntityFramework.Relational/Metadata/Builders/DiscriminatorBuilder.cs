@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
         public virtual DiscriminatorBuilder HasValue([CanBeNull] object value)
             => HasValue(AnnotationsBuilder.EntityTypeBuilder, value);
-        
+
         public virtual DiscriminatorBuilder HasValue<TEntity>([CanBeNull] object value)
             => HasValue(typeof(TEntity), value);
 
@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         {
             var baseEntityTypeBuilder = AnnotationsBuilder.EntityTypeBuilder;
             if (!baseEntityTypeBuilder.Metadata.IsAssignableFrom(entityTypeBuilder.Metadata)
-                && entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.Annotations.ConfigurationSource) == null)
+                && (entityTypeBuilder.HasBaseType(baseEntityTypeBuilder.Metadata, AnnotationsBuilder.Annotations.ConfigurationSource) == null))
             {
                 throw new InvalidOperationException(RelationalStrings.DiscriminatorEntityTypeNotDerived(
                     entityTypeBuilder.Metadata.DisplayName(),

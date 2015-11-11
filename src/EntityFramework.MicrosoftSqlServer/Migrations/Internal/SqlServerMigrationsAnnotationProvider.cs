@@ -15,8 +15,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             if (key.SqlServer().IsClustered.HasValue)
             {
                 yield return new Annotation(
-                     SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
-                     key.SqlServer().IsClustered.Value);
+                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
+                    key.SqlServer().IsClustered.Value);
             }
         }
 
@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             if (index.SqlServer().IsClustered.HasValue)
             {
                 yield return new Annotation(
-                     SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
-                     index.SqlServer().IsClustered.Value);
+                    SqlServerAnnotationNames.Prefix + SqlServerAnnotationNames.Clustered,
+                    index.SqlServer().IsClustered.Value);
             }
         }
 

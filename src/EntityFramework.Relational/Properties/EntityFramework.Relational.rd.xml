@@ -1,28 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
-  <Library>
-    <!-- TODO optimize this for types that actually need reflection -->
-    <Assembly Name="EntityFramework.Relational" Dynamic="Required All" />
+﻿<?xml version="1.0" encoding="utf-8"?>
 
-    <!-- TODO will be unnecessary after https://github.com/dotnet/corefx/pull/3917 -->
-    <Type Name="System.Data.Common.DbDataReader">
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Byte" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Int16" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.UInt16" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Int32" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.UInt32" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Int64" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.UInt64" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.String" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Single" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Double" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Decimal" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.TimeSpan" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.DateTime" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.DateTimeOffset" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Guid" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Boolean" Dynamic="Required"/>
-      <MethodInstantiation Name="GetFieldValue" Arguments="System.Char" Dynamic="Required"/>
-    </Type>
-  </Library>
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+    <Library>
+        <!-- TODO optimize this for types that actually need reflection -->
+        <Assembly Name="EntityFramework.Relational" Dynamic="Required All" />
+
+        <!-- TODO will be unnecessary after https://github.com/dotnet/corefx/pull/3917 -->
+        <Type Name="System.Data.Common.DbDataReader">
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Byte" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Int16" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.UInt16" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Int32" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.UInt32" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Int64" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.UInt64" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.String" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Single" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Double" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Decimal" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.TimeSpan" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.DateTime" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.DateTimeOffset" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Guid" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Boolean" Dynamic="Required" />
+            <MethodInstantiation Name="GetFieldValue" Arguments="System.Char" Dynamic="Required" />
+        </Type>
+    </Library>
 </Directives>

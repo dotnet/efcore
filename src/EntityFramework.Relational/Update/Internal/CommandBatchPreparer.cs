@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -62,16 +61,16 @@ namespace Microsoft.Data.Entity.Update.Internal
             // TODO: Handle multiple state entries that update the same row
             return entries.Select(
                 e =>
-                {
-                    var command = new ModificationCommand(
-                        _annotationProvider.For(e.EntityType).TableName,
-                        _annotationProvider.For(e.EntityType).Schema,
-                        parameterNameGenerator,
-                        _annotationProvider.For);
+                    {
+                        var command = new ModificationCommand(
+                            _annotationProvider.For(e.EntityType).TableName,
+                            _annotationProvider.For(e.EntityType).Schema,
+                            parameterNameGenerator,
+                            _annotationProvider.For);
 
-                    command.AddEntry(e);
-                    return command;
-                });
+                        command.AddEntry(e);
+                        return command;
+                    });
         }
 
         // To avoid violating store constraints the modification commands must be sorted
@@ -107,8 +106,8 @@ namespace Microsoft.Data.Entity.Update.Internal
             var predecessorsMap = new Dictionary<KeyValueIndex, List<ModificationCommand>>(new KeyValueIndexComparer());
             foreach (var command in commandGraph.Vertices)
             {
-                if (command.EntityState == EntityState.Modified
-                    || command.EntityState == EntityState.Added)
+                if ((command.EntityState == EntityState.Modified)
+                    || (command.EntityState == EntityState.Added))
                 {
                     foreach (var entry in command.Entries)
                     {
@@ -120,8 +119,8 @@ namespace Microsoft.Data.Entity.Update.Internal
                                     foreignKey.PrincipalKey.Properties.Contains(cm.Property)
                                     && (cm.IsWrite || cm.IsRead)).ToList();
 
-                            if (command.EntityState == EntityState.Added
-                                || candidateKeyValueColumnModifications.Count != 0)
+                            if ((command.EntityState == EntityState.Added)
+                                || (candidateKeyValueColumnModifications.Count != 0))
                             {
                                 var principalKeyValue = CreatePrincipalKeyValue(entry, foreignKey, ValueSource.Current);
 
@@ -140,8 +139,8 @@ namespace Microsoft.Data.Entity.Update.Internal
                     }
                 }
 
-                if (command.EntityState == EntityState.Modified
-                    || command.EntityState == EntityState.Deleted)
+                if ((command.EntityState == EntityState.Modified)
+                    || (command.EntityState == EntityState.Deleted))
                 {
                     foreach (var entry in command.Entries)
                     {
@@ -153,7 +152,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                                     currentForeignKey.Properties.Contains(cm.Property)
                                     && (cm.IsWrite || cm.IsRead));
 
-                            if (command.EntityState == EntityState.Deleted
+                            if ((command.EntityState == EntityState.Deleted)
                                 || foreignKeyValueColumnModifications.Any())
                             {
                                 var dependentKeyValue = CreateDependentKeyValue(entry, foreignKey, ValueSource.Original);
@@ -182,8 +181,8 @@ namespace Microsoft.Data.Entity.Update.Internal
         {
             foreach (var command in commandGraph.Vertices)
             {
-                if (command.EntityState == EntityState.Modified
-                    || command.EntityState == EntityState.Added)
+                if ((command.EntityState == EntityState.Modified)
+                    || (command.EntityState == EntityState.Added))
                 {
                     foreach (var entry in command.Entries)
                     {
@@ -230,7 +229,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         }
 
         private static void AddMatchingPredecessorEdge(
-            Dictionary<KeyValueIndex,List<ModificationCommand>> predecessorsMap,
+            Dictionary<KeyValueIndex, List<ModificationCommand>> predecessorsMap,
             KeyValueIndex dependentKeyValue,
             Multigraph<ModificationCommand, IForeignKey> commandGraph,
             ModificationCommand command,
@@ -274,8 +273,8 @@ namespace Microsoft.Data.Entity.Update.Internal
         private class KeyValueIndexComparer : IEqualityComparer<KeyValueIndex>
         {
             public bool Equals(KeyValueIndex x, KeyValueIndex y)
-                => x.ValueSource == y.ValueSource
-                   && x.ForeignKey == y.ForeignKey
+                => (x.ValueSource == y.ValueSource)
+                   && (x.ForeignKey == y.ForeignKey)
                    && x.KeyValue.Equals(y.KeyValue);
 
             public int GetHashCode(KeyValueIndex obj)

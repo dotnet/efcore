@@ -26,9 +26,9 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         /// <summary>
         ///     <para>
-        ///         Adds the services required by the Microsoft SQL Server database provider for Entity Framework 
-        ///         to an <see cref="IServiceCollection" />. You use this method when using dependency injection 
-        ///         in your application, such as with ASP.NET. For more information on setting up dependency 
+        ///         Adds the services required by the Microsoft SQL Server database provider for Entity Framework
+        ///         to an <see cref="IServiceCollection" />. You use this method when using dependency injection
+        ///         in your application, such as with ASP.NET. For more information on setting up dependency
         ///         injection, see http://go.microsoft.com/fwlink/?LinkId=526890.
         ///     </para>
         ///     <para>

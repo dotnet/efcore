@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata
                     : (IList<ISequence>)ImmutableList<ISequence>.Empty;
 
                 return Sequence.GetSequences(Model, RelationalAnnotationNames.Prefix)
-                    .Where(rs => !providerSequences.Any(ss => ss.Name == rs.Name && ss.Schema == rs.Schema))
+                    .Where(rs => !providerSequences.Any(ss => (ss.Name == rs.Name) && (ss.Schema == rs.Schema)))
                     .Concat(providerSequences)
                     .ToList();
             }
@@ -54,19 +54,13 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual string DefaultSchema
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultSchema);
-            }
+            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DefaultSchema); }
             [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DefaultSchema, Check.NullButNotEmpty(value, nameof(value))); }
         }
 
         public virtual string DatabaseName
         {
-            get
-            {
-                return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DatabaseName);
-            }
+            get { return (string)Annotations.GetAnnotation(RelationalAnnotationNames.DatabaseName); }
             [param: CanBeNull] set { Annotations.SetAnnotation(RelationalAnnotationNames.DatabaseName, Check.NullButNotEmpty(value, nameof(value))); }
         }
     }

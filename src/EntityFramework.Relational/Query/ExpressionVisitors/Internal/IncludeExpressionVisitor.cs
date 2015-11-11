@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     = ((ConstantExpression)methodCallExpression.Arguments[2]).Value
                         as Shaper;
 
-                if (entityShaper != null
+                if ((entityShaper != null)
                     && entityShaper.IsShaperForQuerySource(_querySource))
                 {
                     var resultType = methodCallExpression.Method.GetGenericArguments()[0];
@@ -145,9 +145,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     var valueBufferOffset = selectExpression.Projection.Count;
 
                     canProduceInnerJoin
-                        = canProduceInnerJoin
-                          && (navigation.ForeignKey.IsRequired
-                              && navigation.IsDependentToPrincipal());
+                        = canProduceInnerJoin && navigation.ForeignKey.IsRequired && navigation.IsDependentToPrincipal();
 
                     var joinExpression
                         = canProduceInnerJoin

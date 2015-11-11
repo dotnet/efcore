@@ -81,7 +81,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
             return _default;
         }
 
-
         private readonly Func<string, RelationalTypeMapping>[] _typeRules =
         {
             name => Contains(name, "INT") ? _integer : null,

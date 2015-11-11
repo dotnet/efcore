@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalSizedTypeMapping : RelationalTypeMapping
     {
-        public RelationalSizedTypeMapping([NotNull] string defaultTypeName, 
-            [NotNull] Type clrType, 
-            DbType? storeType, 
+        public RelationalSizedTypeMapping([NotNull] string defaultTypeName,
+            [NotNull] Type clrType,
+            DbType? storeType,
             int size)
             : base(defaultTypeName, clrType, storeType)
         {

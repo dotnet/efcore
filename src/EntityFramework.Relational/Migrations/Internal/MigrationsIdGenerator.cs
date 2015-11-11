@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
         private DateTime _lastTimestamp = DateTime.MinValue;
 
         public virtual string GetName(string id) => id.Substring(Format.Length + 1);
+
         public virtual bool IsValidId(string value)
             => Regex.IsMatch(value, $"[0-9]{{{Format.Length}}}_.+", default(RegexOptions), TimeSpan.FromMilliseconds(1000.0));
 

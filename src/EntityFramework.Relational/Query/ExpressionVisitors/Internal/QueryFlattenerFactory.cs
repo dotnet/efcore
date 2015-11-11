@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     public class QueryFlattenerFactory : IQueryFlattenerFactory
     {
         public virtual QueryFlattener Create(
-            IQuerySource querySource, 
-            RelationalQueryCompilationContext relationalQueryCompilationContext, 
+            IQuerySource querySource,
+            RelationalQueryCompilationContext relationalQueryCompilationContext,
             MethodInfo operatorToFlatten,
             int readerOffset)
             => new QueryFlattener(

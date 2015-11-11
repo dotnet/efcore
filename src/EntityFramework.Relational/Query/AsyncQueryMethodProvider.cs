@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -48,7 +47,7 @@ namespace Microsoft.Data.Entity.Query
             ShaperCommandContext shaperCommandContext,
             int? queryIndex)
             => new AsyncQueryingEnumerable(
-                ((RelationalQueryContext)queryContext),
+                (RelationalQueryContext)queryContext,
                 shaperCommandContext,
                 queryIndex);
 

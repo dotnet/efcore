@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Metadata
     public static class RelationalPropertyExtensions
     {
         public static bool IsColumnNullable([NotNull] this IProperty property)
-            => property.DeclaringEntityType.BaseType != null || property.IsNullable;
+            => (property.DeclaringEntityType.BaseType != null) || property.IsNullable;
     }
 }

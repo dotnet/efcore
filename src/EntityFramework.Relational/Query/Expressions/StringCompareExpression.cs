@@ -44,7 +44,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
             var newLeft = visitor.Visit(Left);
             var newRight = visitor.Visit(Right);
 
-            return newLeft != Left || newRight != Right
+            return (newLeft != Left) || (newRight != Right)
                 ? new StringCompareExpression(Operator, newLeft, newRight)
                 : this;
         }

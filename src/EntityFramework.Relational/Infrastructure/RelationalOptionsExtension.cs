@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             set
             {
                 if (value.HasValue
-                    && value <= 0)
+                    && (value <= 0))
                 {
                     throw new InvalidOperationException(RelationalStrings.InvalidCommandTimeout);
                 }
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             set
             {
                 if (value.HasValue
-                    && value <= 0)
+                    && (value <= 0))
                 {
                     throw new InvalidOperationException(RelationalStrings.InvalidMaxBatchSize);
                 }

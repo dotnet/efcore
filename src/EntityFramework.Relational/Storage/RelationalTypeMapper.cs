@@ -77,8 +77,8 @@ namespace Microsoft.Data.Entity.Storage
 
             RelationalTypeMapping mapping;
 
-            return SimpleMappings.TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping) 
-                ? mapping 
+            return SimpleMappings.TryGetValue(clrType.UnwrapNullableType().UnwrapEnumType(), out mapping)
+                ? mapping
                 : null;
         }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Storage
                 ? maxLength <= maxBoundedLength
                     ? _boundedStringMappings.GetOrAdd(maxLength.Value, boundedMapping)
                     : unboundedMapping
-                : (keyMapping != null
+                : ((keyMapping != null)
                    && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
                     ? keyMapping
                     : defaultMapping);
@@ -148,8 +148,8 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(defaultMapping, nameof(defaultMapping));
 
             if (property.IsConcurrencyToken
-                && property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                && rowVersionMapping != null)
+                && (property.ValueGenerated == ValueGenerated.OnAddOrUpdate)
+                && (rowVersionMapping != null))
             {
                 return rowVersionMapping;
             }
@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.Storage
                 ? maxLength <= maxBoundedLength
                     ? _boundedBinaryMappings.GetOrAdd(maxLength.Value, boundedMapping)
                     : unboundedMapping
-                : (keyMapping != null
+                : ((keyMapping != null)
                    && (property.IsKey() || property.FindContainingEntityTypes().Any(property.IsForeignKey))
                     ? keyMapping
                     : defaultMapping);

@@ -25,14 +25,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
         {
             Check.NotNull(methodCallExpression, nameof(methodCallExpression));
 
-            if (methodCallExpression.Method.Name == nameof(object.Equals)
-                && methodCallExpression.Arguments.Count == 1
-                && methodCallExpression.Object != null)
+            if ((methodCallExpression.Method.Name == nameof(object.Equals))
+                && (methodCallExpression.Arguments.Count == 1)
+                && (methodCallExpression.Object != null))
             {
                 var argument = methodCallExpression.Arguments[0];
 
-                if (methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object)
-                    && methodCallExpression.Object.Type != argument.Type)
+                if ((methodCallExpression.Method.GetParameters()[0].ParameterType == typeof(object))
+                    && (methodCallExpression.Object.Type != argument.Type))
                 {
                     argument = argument.RemoveConvert();
 

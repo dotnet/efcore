@@ -152,15 +152,15 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             {
                 foreach (var addForeignKeyOperation in createTableOperation.ForeignKeys)
                 {
-                    if (addForeignKeyOperation.Table == addForeignKeyOperation.PrincipalTable
-                        && addForeignKeyOperation.Schema == addForeignKeyOperation.PrincipalSchema)
+                    if ((addForeignKeyOperation.Table == addForeignKeyOperation.PrincipalTable)
+                        && (addForeignKeyOperation.Schema == addForeignKeyOperation.PrincipalSchema))
                     {
                         continue;
                     }
 
                     var principalCreateTableOperation = createTableOperations.FirstOrDefault(
-                        o => o.Name == addForeignKeyOperation.PrincipalTable
-                             && o.Schema == addForeignKeyOperation.PrincipalSchema);
+                        o => (o.Name == addForeignKeyOperation.PrincipalTable)
+                             && (o.Schema == addForeignKeyOperation.PrincipalSchema));
                     if (principalCreateTableOperation != null)
                     {
                         createTableGraph.AddEdge(principalCreateTableOperation, createTableOperation, addForeignKeyOperation);
@@ -229,7 +229,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             [CanBeNull] IModel source,
             [CanBeNull] IModel target,
             [NotNull] DiffContext diffContext)
-            => source != null && target != null
+            => (source != null) && (target != null)
                 ? Diff(GetSchemas(source), GetSchemas(target))
                     .Concat(Diff(source.GetRootEntityTypes(), target.GetRootEntityTypes(), diffContext))
                     .Concat(
@@ -420,9 +420,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             }
 
             var sourceColumnType = sourceAnnotations.ColumnType
-                ?? TypeMapper.GetMapping(source).DefaultTypeName;
+                                   ?? TypeMapper.GetMapping(source).DefaultTypeName;
             var targetColumnType = targetAnnotations.ColumnType
-                ?? TypeMapper.GetMapping(target).DefaultTypeName;
+                                   ?? TypeMapper.GetMapping(target).DefaultTypeName;
 
             var targetMigrationsAnnotations = MigrationsAnnotations.For(target);
 
@@ -433,13 +433,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             if (isNullableChanged
                 || columnTypeChanged
-                || sourceAnnotations.GeneratedValueSql != targetAnnotations.GeneratedValueSql
+                || (sourceAnnotations.GeneratedValueSql != targetAnnotations.GeneratedValueSql)
                 || !Equals(sourceAnnotations.DefaultValue, targetAnnotations.DefaultValue)
                 || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
                     // TODO: Detect type narrowing
-                    || columnTypeChanged;
+                                          || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
                 {
@@ -508,9 +508,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             => DiffCollection(
                 source, target,
                 Diff, Add, Remove,
-                (s, t) => Annotations.For(s).Name == Annotations.For(t).Name
+                (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                          && s.IsPrimaryKey() == t.IsPrimaryKey());
+                          && (s.IsPrimaryKey() == t.IsPrimaryKey()));
 
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IKey source, [NotNull] IKey target)
             => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
@@ -587,11 +587,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 (s, t) => Diff(s, t, diffContext),
                 t => Add(t, diffContext),
                 s => Remove(s, diffContext),
-                (s, t) => Annotations.For(s).Name == Annotations.For(t).Name
+                (s, t) => (Annotations.For(s).Name == Annotations.For(t).Name)
                           && s.Properties.Select(diffContext.FindTarget).SequenceEqual(t.Properties)
-                          && diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType()
+                          && (diffContext.FindTarget(s.PrincipalEntityType.RootType()) == t.PrincipalEntityType.RootType())
                           && s.PrincipalKey.Properties.Select(diffContext.FindTarget).SequenceEqual(t.PrincipalKey.Properties)
-                          && s.DeleteBehavior == t.DeleteBehavior);
+                          && (s.DeleteBehavior == t.DeleteBehavior));
 
         protected virtual IEnumerable<MigrationOperation> Diff(
             [NotNull] IForeignKey source, [NotNull] IForeignKey target, [NotNull] DiffContext diffContext)
@@ -685,7 +685,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 };
             }
 
-            if (source.IsUnique != target.IsUnique
+            if ((source.IsUnique != target.IsUnique)
                 || HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target)))
             {
                 var operations = Remove(source).Concat(Add(target));
@@ -737,9 +737,9 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 Diff, Add, Remove,
                 (s, t) => string.Equals(s.Schema, t.Schema, StringComparison.OrdinalIgnoreCase)
                           && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                          && s.ClrType == t.ClrType,
+                          && (s.ClrType == t.ClrType),
                 (s, t) => string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
-                          && s.ClrType == t.ClrType);
+                          && (s.ClrType == t.ClrType));
 
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] ISequence source, [NotNull] ISequence target)
         {
@@ -766,10 +766,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 };
             }
 
-            if (source.IncrementBy != target.IncrementBy
-                || source.MaxValue != target.MaxValue
-                || source.MinValue != target.MinValue
-                || source.IsCyclic != target.IsCyclic)
+            if ((source.IncrementBy != target.IncrementBy)
+                || (source.MaxValue != target.MaxValue)
+                || (source.MinValue != target.MinValue)
+                || (source.IsCyclic != target.IsCyclic))
             {
                 yield return new AlterSequenceOperation
                 {
@@ -878,7 +878,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             foreach (var annotation in source)
             {
-                var index = unmatched.FindIndex(a => a.Name == annotation.Name && Equals(a.Value, annotation.Value));
+                var index = unmatched.FindIndex(a => (a.Name == annotation.Name) && Equals(a.Value, annotation.Value));
                 if (index == -1)
                 {
                     return true;

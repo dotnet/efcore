@@ -99,9 +99,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
 
-            if (expression != null
+            if ((expression != null)
                 && !(expression is ConstantExpression)
-                && selectExpression != null)
+                && (selectExpression != null))
             {
                 var sqlExpression
                     = _sqlTranslatingExpressionVisitorFactory

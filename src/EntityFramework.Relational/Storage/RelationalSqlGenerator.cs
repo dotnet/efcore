@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Storage
             { DbType.Int16, "smallint" },
             { DbType.Int32, "int" },
             { DbType.Int64, "bigint" },
-            { DbType.String, "nvarchar" },
+            { DbType.String, "nvarchar" }
         };
 
         public virtual string BatchCommandSeparator => ";";
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Storage
         public virtual string GenerateParameterName([NotNull] string name)
             => $"@{Check.NotEmpty(name, nameof(name))}";
 
-        public virtual string GenerateLiteral([CanBeNull]object value)
+        public virtual string GenerateLiteral([CanBeNull] object value)
             => value != null
                 ? GenerateLiteralValue((dynamic)value)
                 : "NULL";
@@ -51,9 +51,9 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema)
             => (!string.IsNullOrEmpty(schema)
-                    ? DelimitIdentifier(schema) + "."
-                    : string.Empty)
-                + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
+                ? DelimitIdentifier(schema) + "."
+                : string.Empty)
+               + DelimitIdentifier(Check.NotEmpty(name, nameof(name)));
 
         protected virtual string GenerateLiteralValue(int value)
             => value.ToString();

@@ -11,9 +11,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
     {
         public virtual Expression Translate([NotNull] MemberExpression memberExpression)
         {
-            if (memberExpression.Expression != null
-                && memberExpression.Expression.Type == typeof(string)
-                && memberExpression.Member.Name == "Length")
+            if ((memberExpression.Expression != null)
+                && (memberExpression.Expression.Type == typeof(string))
+                && (memberExpression.Member.Name == "Length"))
             {
                 return new SqlFunctionExpression("length", memberExpression.Type, new[] { memberExpression.Expression });
             }

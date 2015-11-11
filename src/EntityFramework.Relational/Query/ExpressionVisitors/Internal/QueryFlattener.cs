@@ -64,7 +64,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 var materializerLambda = (LambdaExpression)methodCallExpression.Arguments.Last();
                 var materializerReturnType = materializerLambda.ReturnType;
                 var materializer = materializerLambda.Compile();
-                
+
                 if (_operatorToFlatten.Name != "_GroupJoin")
                 {
                     var compositeShaper

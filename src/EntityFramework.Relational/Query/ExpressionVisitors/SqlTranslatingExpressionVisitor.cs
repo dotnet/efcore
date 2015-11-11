@@ -67,8 +67,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             var translatedExpression = _compositeExpressionFragmentTranslator.Translate(expression);
 
-            if (translatedExpression != null
-                && translatedExpression != expression)
+            if ((translatedExpression != null)
+                && (translatedExpression != expression))
             {
                 return Visit(translatedExpression);
             }
@@ -116,8 +116,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     if (binaryExpression == _topLevelPredicate)
                     {
-                        if (left != null
-                            && right != null)
+                        if ((left != null)
+                            && (right != null))
                         {
                             return Expression.AndAlso(left, right);
                         }
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         return null;
                     }
 
-                    return left != null && right != null
+                    return (left != null) && (right != null)
                         ? Expression.AndAlso(left, right)
                         : null;
                 }
@@ -152,8 +152,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     var leftExpression = Visit(binaryExpression.Left);
                     var rightExpression = Visit(binaryExpression.Right);
 
-                    return leftExpression != null
-                           && rightExpression != null
+                    return (leftExpression != null)
+                           && (rightExpression != null)
                         ? Expression.MakeBinary(
                             binaryExpression.NodeType,
                             leftExpression,
@@ -175,9 +175,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var ifTrue = Visit(conditionalExpression.IfTrue);
             var ifFalse = Visit(conditionalExpression.IfFalse);
 
-            if (test != null
-                && ifTrue != null
-                && ifFalse != null)
+            if ((test != null)
+                && (ifTrue != null)
+                && (ifFalse != null))
             {
                 return conditionalExpression.Update(test, ifTrue, ifFalse);
             }
@@ -193,9 +193,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var rightConstantExpression = binaryExpression?.Right as ConstantExpression;
             var rightExpressions = rightConstantExpression?.Value as Expression[];
 
-            if (leftExpressions != null
-                && (rightConstantExpression != null
-                    && rightConstantExpression.Value == null))
+            if ((leftExpressions != null)
+                && (rightConstantExpression != null)
+                && (rightConstantExpression.Value == null))
             {
                 rightExpressions
                     = Enumerable
@@ -203,9 +203,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         .ToArray();
             }
 
-            if (rightExpressions != null
-                && (leftConstantExpression != null
-                    && leftConstantExpression.Value == null))
+            if ((rightExpressions != null)
+                && (leftConstantExpression != null)
+                && (leftConstantExpression.Value == null))
             {
                 leftExpressions
                     = Enumerable
@@ -213,9 +213,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         .ToArray();
             }
 
-            if (leftExpressions != null
-                && rightExpressions != null
-                && leftExpressions.Length == rightExpressions.Length)
+            if ((leftExpressions != null)
+                && (rightExpressions != null)
+                && (leftExpressions.Length == rightExpressions.Length))
             {
                 return leftExpressions
                     .Zip(rightExpressions, (l, r) =>
@@ -235,8 +235,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var leftExpression = Visit(binaryExpression.Left);
             var rightExpression = Visit(binaryExpression.Right);
 
-            if (leftExpression == null
-                || rightExpression == null)
+            if ((leftExpression == null)
+                || (rightExpression == null))
             {
                 return null;
             }
@@ -251,15 +251,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private static Expression TransformNullComparison(
             Expression left, Expression right, ExpressionType expressionType)
         {
-            if (expressionType == ExpressionType.Equal
-                || expressionType == ExpressionType.NotEqual)
+            if ((expressionType == ExpressionType.Equal)
+                || (expressionType == ExpressionType.NotEqual))
             {
                 var constantExpression
                     = right as ConstantExpression
                       ?? left as ConstantExpression;
 
-                if (constantExpression != null
-                    && constantExpression.Value == null)
+                if ((constantExpression != null)
+                    && (constantExpression.Value == null))
                 {
                     var columnExpression
                         = left.RemoveConvert().TryGetColumnExpression()
@@ -283,8 +283,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var operand = Visit(methodCallExpression.Object);
 
-            if (operand != null
-                || methodCallExpression.Object == null)
+            if ((operand != null)
+                || (methodCallExpression.Object == null))
             {
                 var arguments
                     = methodCallExpression.Arguments
@@ -315,7 +315,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 = _queryModelVisitor
                     .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression);
 
-            if (aliasExpression == null
+            if ((aliasExpression == null)
                 && _bindParentQueries)
             {
                 aliasExpression
@@ -335,8 +335,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             {
                 var newExpression = Visit(memberExpression.Expression);
 
-                if (newExpression != null
-                    || memberExpression.Expression == null)
+                if ((newExpression != null)
+                    || (memberExpression.Expression == null))
                 {
                     var newMemberExpression
                         = newExpression != memberExpression.Expression
@@ -356,7 +356,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 = _queryModelVisitor
                     .BindMemberExpression(memberExpression, CreateAliasedColumnExpression);
 
-            if (aliasExpression == null
+            if ((aliasExpression == null)
                 && _bindParentQueries)
             {
                 aliasExpression
@@ -390,8 +390,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private AliasExpression CreateAliasedColumnExpression(
             IProperty property, IQuerySource querySource, SelectExpression selectExpression)
         {
-            if (_targetSelectExpression != null
-                && selectExpression != _targetSelectExpression)
+            if ((_targetSelectExpression != null)
+                && (selectExpression != _targetSelectExpression))
             {
                 selectExpression?.AddToProjection(
                     _relationalAnnotationProvider.For(property).ColumnName,
@@ -447,9 +447,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
             Check.NotNull(newExpression, nameof(newExpression));
 
-            if (newExpression.Members != null
+            if ((newExpression.Members != null)
                 && newExpression.Arguments.Any()
-                && newExpression.Arguments.Count == newExpression.Members.Count)
+                && (newExpression.Arguments.Count == newExpression.Members.Count))
             {
                 var memberBindings
                     = newExpression.Arguments
@@ -489,7 +489,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             var subQueryModel = subQueryExpression.QueryModel;
 
             if (subQueryModel.IsIdentityQuery()
-                && subQueryModel.ResultOperators.Count == 1)
+                && (subQueryModel.ResultOperators.Count == 1))
             {
                 var contains = subQueryModel.ResultOperators.First() as ContainsResultOperator;
 
@@ -498,8 +498,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     var parameter = subQueryModel.MainFromClause.FromExpression as ParameterExpression;
                     var memberItem = contains.Item as MemberExpression;
 
-                    if (parameter != null
-                        && memberItem != null)
+                    if ((parameter != null)
+                        && (memberItem != null))
                     {
                         var aliasExpression = (AliasExpression)VisitMember(memberItem);
 
@@ -518,10 +518,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 var querySourceReferenceExpression
                     = subQueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
 
-                if (querySourceReferenceExpression == null
-                    || (_inProjection
-                        || !_queryModelVisitor.QueryCompilationContext
-                            .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource)))
+                if ((querySourceReferenceExpression == null)
+                    || _inProjection
+                    || !_queryModelVisitor.QueryCompilationContext
+                        .QuerySourceRequiresMaterialization(querySourceReferenceExpression.ReferencedQuerySource))
                 {
                     var queryModelVisitor
                         = (RelationalQueryModelVisitor)_queryModelVisitor.QueryCompilationContext
@@ -529,7 +529,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                     queryModelVisitor.VisitSubQueryModel(subQueryModel);
 
-                    if (queryModelVisitor.Queries.Count == 1
+                    if ((queryModelVisitor.Queries.Count == 1)
                         && !queryModelVisitor.RequiresClientFilter
                         && !queryModelVisitor.RequiresClientProjection
                         && !queryModelVisitor.RequiresClientResultOperator)
@@ -616,13 +616,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 var newLeft = Visit(stringCompare.Left);
                 var newRight = Visit(stringCompare.Right);
 
-                if (newLeft == null
-                    || newRight == null)
+                if ((newLeft == null)
+                    || (newRight == null))
                 {
                     return null;
                 }
 
-                return newLeft != stringCompare.Left || newRight != stringCompare.Right
+                return (newLeft != stringCompare.Left) || (newRight != stringCompare.Right)
                     ? new StringCompareExpression(stringCompare.Operator, newLeft, newRight)
                     : expression;
             }

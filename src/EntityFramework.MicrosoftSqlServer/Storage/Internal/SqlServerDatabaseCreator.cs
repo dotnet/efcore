@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
             => (int)CreateHasTablesCommand().ExecuteScalar(_connection) != 0;
 
         protected override async Task<bool> HasTablesAsync(CancellationToken cancellationToken = default(CancellationToken))
-            => (int)(await CreateHasTablesCommand().ExecuteScalarAsync(_connection, cancellationToken)) != 0;
+            => (int)await CreateHasTablesCommand().ExecuteScalarAsync(_connection, cancellationToken) != 0;
 
         private IRelationalCommand CreateHasTablesCommand()
             => _sqlCommandBuilder
@@ -151,8 +151,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
             // And (Number 4060):
             //   System.Data.SqlClient.SqlException: Cannot open database "X" requested by the login. The
             //   login failed.
-            if ((exception.Number == 233 || exception.Number == -2 || exception.Number == 4060)
-                && ++retryCount < 30)
+            if (((exception.Number == 233) || (exception.Number == -2) || (exception.Number == 4060))
+                && (++retryCount < 30))
             {
                 ClearPool();
                 Thread.Sleep(100);

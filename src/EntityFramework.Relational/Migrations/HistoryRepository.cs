@@ -63,17 +63,17 @@ namespace Microsoft.Data.Entity.Migrations
             TableSchema = relationalOptions.MigrationsHistoryTableSchema;
             _model = new LazyRef<IModel>(
                 () =>
-                {
-                    var modelBuilder = new ModelBuilder(new ConventionSet());
-                    modelBuilder.Entity<HistoryRow>(
-                        x =>
-                        {
-                            ConfigureTable(x);
-                            x.ToTable(TableName, TableSchema);
-                        });
+                    {
+                        var modelBuilder = new ModelBuilder(new ConventionSet());
+                        modelBuilder.Entity<HistoryRow>(
+                            x =>
+                                {
+                                    ConfigureTable(x);
+                                    x.ToTable(TableName, TableSchema);
+                                });
 
-                    return modelBuilder.Model;
-                });
+                        return modelBuilder.Model;
+                    });
             var entityType = new LazyRef<IEntityType>(() => _model.Value.FindEntityType(typeof(HistoryRow)));
             _migrationIdColumnName = new LazyRef<string>(
                 () => annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.MigrationId))).ColumnName);
@@ -91,13 +91,13 @@ namespace Microsoft.Data.Entity.Migrations
 
         public virtual bool Exists()
             => _databaseCreator.Exists()
-                && InterpretExistsResult(
-                    _sqlCommandBuilder.Build(ExistsSql).ExecuteScalar(_connection));
+               && InterpretExistsResult(
+                   _sqlCommandBuilder.Build(ExistsSql).ExecuteScalar(_connection));
 
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             => await _databaseCreator.ExistsAsync(cancellationToken)
-                && InterpretExistsResult(
-                    await _sqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(_connection, cancellationToken));
+               && InterpretExistsResult(
+                   await _sqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(_connection, cancellationToken));
 
         /// <returns>true if the table exists; otherwise, false.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);

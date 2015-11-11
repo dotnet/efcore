@@ -109,7 +109,8 @@ namespace Microsoft.Data.Entity.Metadata
                     RelationalStrings.NoDiscriminatorForValue(EntityType.DisplayName(), EntityType.RootType().DisplayName()));
             }
 
-            if (value != null && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
+            if ((value != null)
+                && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
                 throw new InvalidOperationException(RelationalStrings.DiscriminitatorValueIncompatible(
                     value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));

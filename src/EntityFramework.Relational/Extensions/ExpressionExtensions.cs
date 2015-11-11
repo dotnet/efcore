@@ -15,8 +15,8 @@ namespace System.Linq.Expressions
         {
             Check.NotNull(expression, nameof(expression));
 
-            return expression.NodeType == ExpressionType.AndAlso
-                   || expression.NodeType == ExpressionType.OrElse;
+            return (expression.NodeType == ExpressionType.AndAlso)
+                   || (expression.NodeType == ExpressionType.OrElse);
         }
 
         public static ColumnExpression TryGetColumnExpression([NotNull] this Expression expression)

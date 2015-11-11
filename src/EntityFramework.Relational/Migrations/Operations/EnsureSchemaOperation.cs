@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class EnsureSchemaOperation : MigrationOperation
     {
-        public virtual string Name { get;[param: NotNull] set; }
+        public virtual string Name { get; [param: NotNull] set; }
     }
 }

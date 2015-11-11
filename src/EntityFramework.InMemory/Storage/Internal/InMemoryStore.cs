@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Extensions.Internal;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -118,7 +117,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             _logger.LogInformation<object>(
                 InMemoryLoggingEventId.SavedChanges,
-                rowsAffected, 
+                rowsAffected,
                 InMemoryStrings.LogSavedChanges);
 
             return rowsAffected;
@@ -161,7 +160,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 _rows.ExchangeValue(rs => rs.SetItem(entry.GetPrimaryKeyValue(), CreateValueBuffer(entry)));
             }
 
-            private static object[] CreateValueBuffer(IUpdateEntry entry) 
+            private static object[] CreateValueBuffer(IUpdateEntry entry)
                 => entry.EntityType.GetProperties().Select(p => entry.GetValue(p)).ToArray();
 
             public virtual IEnumerator<object[]> GetEnumerator()

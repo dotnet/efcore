@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         private IRelationalCommandBuilder _relationalCommandBuilder;
         private IReadOnlyDictionary<string, object> _parametersValues;
         private ParameterNameGenerator _parameterNameGenerator;
-        
+
         private static readonly Dictionary<ExpressionType, string> _binaryOperatorMap = new Dictionary<ExpressionType, string>
         {
             { ExpressionType.Equal, " = " },
@@ -294,9 +294,9 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         protected virtual void GenerateFromSql(
-           [NotNull] string sql,
-           [NotNull] string argumentsParameterName,
-           [NotNull] IReadOnlyDictionary<string, object> parameters)
+            [NotNull] string sql,
+            [NotNull] string argumentsParameterName,
+            [NotNull] IReadOnlyDictionary<string, object> parameters)
         {
             Check.NotEmpty(sql, nameof(sql));
             Check.NotEmpty(argumentsParameterName, nameof(argumentsParameterName));
@@ -552,9 +552,9 @@ namespace Microsoft.Data.Entity.Query.Sql
                     {
                         var valuesCollection = parameterValue as IEnumerable;
 
-                        if (valuesCollection != null
-                            && parameterValue.GetType() != typeof(string)
-                            && parameterValue.GetType() != typeof(byte[]))
+                        if ((valuesCollection != null)
+                            && (parameterValue.GetType() != typeof(string))
+                            && (parameterValue.GetType() != typeof(byte[])))
                         {
                             inConstants.AddRange(valuesCollection.Cast<object>().Select(Expression.Constant));
                         }
@@ -638,8 +638,8 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(selectExpression, nameof(selectExpression));
 
-            if (selectExpression.Limit != null
-                && selectExpression.Offset == null)
+            if ((selectExpression.Limit != null)
+                && (selectExpression.Offset == null))
             {
                 _relationalCommandBuilder.Append("TOP(")
                     .Append(selectExpression.Limit)
@@ -684,8 +684,8 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 var constantIfTrue = expression.IfTrue as ConstantExpression;
 
-                if (constantIfTrue != null
-                    && constantIfTrue.Type == typeof(bool))
+                if ((constantIfTrue != null)
+                    && (constantIfTrue.Type == typeof(bool)))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfTrue.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -698,8 +698,8 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 var constantIfFalse = expression.IfFalse as ConstantExpression;
 
-                if (constantIfFalse != null
-                    && constantIfFalse.Type == typeof(bool))
+                if ((constantIfFalse != null)
+                    && (constantIfFalse.Type == typeof(bool)))
                 {
                     _relationalCommandBuilder.Append((bool)constantIfFalse.Value ? TypedTrueLiteral : TypedFalseLiteral);
                 }
@@ -994,17 +994,17 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             protected override Expression VisitBinary(BinaryExpression expression)
             {
-                if (expression.NodeType == ExpressionType.Equal
-                    || expression.NodeType == ExpressionType.NotEqual)
+                if ((expression.NodeType == ExpressionType.Equal)
+                    || (expression.NodeType == ExpressionType.NotEqual))
                 {
                     var parameter
                         = expression.Right as ParameterExpression
                           ?? expression.Left as ParameterExpression;
 
                     object parameterValue;
-                    if (parameter != null
+                    if ((parameter != null)
                         && _parameterValues.TryGetValue(parameter.Name, out parameterValue)
-                        && parameterValue == null)
+                        && (parameterValue == null))
                     {
                         var columnExpression
                             = expression.Left.RemoveConvert().TryGetColumnExpression()

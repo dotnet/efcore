@@ -13,8 +13,10 @@ namespace Microsoft.Data.Entity.Migrations
         bool Exists();
         Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken));
         IReadOnlyList<HistoryRow> GetAppliedMigrations();
+
         Task<IReadOnlyList<HistoryRow>> GetAppliedMigrationsAsync(
             CancellationToken cancellationToken = default(CancellationToken));
+
         string GetCreateScript();
         string GetCreateIfNotExistsScript();
         string GetInsertScript([NotNull] HistoryRow row);

@@ -27,8 +27,8 @@ namespace Microsoft.Data.Entity.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(entityType, nameof(entityType));
 
-            if (property.DeclaringEntityType.BaseType == null
-                && RelationalExtensions.For(property.DeclaringEntityType).DiscriminatorProperty == property)
+            if ((property.DeclaringEntityType.BaseType == null)
+                && (RelationalExtensions.For(property.DeclaringEntityType).DiscriminatorProperty == property))
             {
                 return new DiscriminatorValueGenerator(RelationalExtensions.For(entityType).DiscriminatorValue);
             }

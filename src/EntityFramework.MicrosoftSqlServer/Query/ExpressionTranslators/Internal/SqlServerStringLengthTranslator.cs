@@ -9,9 +9,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
     public class SqlServerStringLengthTranslator : IMemberTranslator
     {
         public virtual Expression Translate(MemberExpression memberExpression)
-            => memberExpression.Expression != null
-               && memberExpression.Expression.Type == typeof(string)
-               && memberExpression.Member.Name == nameof(string.Length)
+            => (memberExpression.Expression != null)
+               && (memberExpression.Expression.Type == typeof(string))
+               && (memberExpression.Member.Name == nameof(string.Length))
                 ? new SqlFunctionExpression("LEN", memberExpression.Type, new[] { memberExpression.Expression })
                 : null;
     }

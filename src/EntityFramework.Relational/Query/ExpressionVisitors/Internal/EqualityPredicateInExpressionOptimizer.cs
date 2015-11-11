@@ -122,8 +122,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     inArguments);
             }
 
-            if (leftExpression != binaryExpression.Left
-                || rightExpression != binaryExpression.Right)
+            if ((leftExpression != binaryExpression.Left)
+                || (rightExpression != binaryExpression.Right))
             {
                 return Expression.MakeBinary(
                     binaryExpression.NodeType,
@@ -185,8 +185,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             var unaryExpression = expression as UnaryExpression;
 
-            return unaryExpression != null
-                   && unaryExpression.NodeType == ExpressionType.Not
+            return (unaryExpression != null)
+                   && (unaryExpression.NodeType == ExpressionType.Not)
                 ? MatchInExpression(unaryExpression.Operand, ref values)
                 : null;
         }

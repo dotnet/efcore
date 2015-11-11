@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             : base(new RelationalAnnotationsBuilder(internalBuilder, configurationSource, providerPrefix))
         {
         }
-        
+
         public new virtual bool Name([CanBeNull] string value) => SetName(value);
     }
 }

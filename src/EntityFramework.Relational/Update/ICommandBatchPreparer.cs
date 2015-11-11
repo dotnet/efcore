@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 
 namespace Microsoft.Data.Entity.Update
 {

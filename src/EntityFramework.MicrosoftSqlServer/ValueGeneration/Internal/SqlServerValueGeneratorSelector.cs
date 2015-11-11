@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             return property.ClrType.UnwrapNullableType() == typeof(Guid)
-                ? (property.ValueGenerated == ValueGenerated.Never
-                   || property.SqlServer().GeneratedValueSql != null)
+                ? (property.ValueGenerated == ValueGenerated.Never)
+                  || (property.SqlServer().GeneratedValueSql != null)
                     ? _tempraryGuidFactory.Create(property)
                     : _sequentialGuidFactory.Create(property)
                 : base.Create(property, entityType);

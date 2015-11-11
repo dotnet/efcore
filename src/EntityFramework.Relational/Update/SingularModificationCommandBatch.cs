@@ -14,10 +14,10 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             : base(
-                  commandBuilderFactory,
-                  sqlGenerator,
-                  updateSqlGenerator,
-                  valueBufferFactoryFactory)
+                commandBuilderFactory,
+                sqlGenerator,
+                updateSqlGenerator,
+                valueBufferFactoryFactory)
         {
         }
 

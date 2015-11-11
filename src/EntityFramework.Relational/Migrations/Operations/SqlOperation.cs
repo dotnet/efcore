@@ -7,6 +7,6 @@ namespace Microsoft.Data.Entity.Migrations.Operations
 {
     public class SqlOperation : MigrationOperation
     {
-        public virtual string Sql { get;[param: NotNull] set; }
+        public virtual string Sql { get; [param: NotNull] set; }
     }
 }

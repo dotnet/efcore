@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                         }
 
                         if (value is IEnumerable
-                            && value.GetType() != typeof(string)
-                            && value.GetType() != typeof(byte[]))
+                            && (value.GetType() != typeof(string))
+                            && (value.GetType() != typeof(byte[])))
                         {
                             // TODO: This doesn't always need to be deep.
                             // We could add a LINQ operator parameter attribute to tell us.
