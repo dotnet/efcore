@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 var property = TryGetProperty(dependentEntityType,
                     baseName + "Id",
-                    ((IProperty)propertiesToReference.Single()).ClrType.UnwrapNullableType());
+                    propertiesToReference.Single().ClrType.UnwrapNullableType());
 
                 if (property != null)
                 {

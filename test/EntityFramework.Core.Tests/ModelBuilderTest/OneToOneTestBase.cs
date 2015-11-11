@@ -2169,7 +2169,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
                 Assert.Equal(navigationToDependent.Name, newFk.PrincipalToDependent.Name);
                 Assert.Equal(navigationToPrincipal.Name, newFk.DependentToPrincipal.Name);
-                Assert.True(((IForeignKey)newFk).IsRequired);
+                Assert.True(newFk.IsRequired);
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef2).WithOne(e => e.SelfRef1);
 
@@ -2178,7 +2178,7 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal(fk.PrincipalKey, newFk.PrincipalKey);
                 Assert.Equal(navigationToPrincipal.Name, newFk.PrincipalToDependent.Name);
                 Assert.Equal(navigationToDependent.Name, newFk.DependentToPrincipal.Name);
-                Assert.True(((IForeignKey)newFk).IsRequired);
+                Assert.True(newFk.IsRequired);
             }
 
             [Fact]
@@ -2195,16 +2195,15 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<SelfRef>().HasOne(e => e.SelfRef1).WithOne();
 
-                var fk = ((IEntityType)entityType).FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
-                var navigationToPrincipal = fk.DependentToPrincipal;
-                var navigationToDependent = fk.PrincipalToDependent;
+                var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
+                var conventionFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey;
 
+                Assert.NotEqual(fk, conventionFk);
                 Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey().Properties);
                 Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
-                Assert.Equal(null, navigationToDependent?.Name);
-                Assert.Equal(nameof(SelfRef.SelfRef1), navigationToPrincipal?.Name);
+                Assert.Equal(null, fk.PrincipalToDependent);
+                Assert.Equal(nameof(SelfRef.SelfRef1), fk.DependentToPrincipal?.Name);
                 Assert.Equal(2, entityType.GetNavigations().Count());
-                Assert.True(fk.IsRequired);
             }
 
             [Fact]
@@ -2221,16 +2220,15 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<SelfRef>().HasOne<SelfRef>().WithOne(e => e.SelfRef1);
 
-                var fk = ((IEntityType)entityType).FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
-                var navigationToPrincipal = fk.DependentToPrincipal;
-                var navigationToDependent = fk.PrincipalToDependent;
+                var fk = entityType.FindNavigation(nameof(SelfRef.SelfRef1)).ForeignKey;
+                var conventionFk = entityType.FindNavigation(nameof(SelfRef.SelfRef2)).ForeignKey;
 
+                Assert.NotEqual(fk, conventionFk);
                 Assert.NotEqual(fk.Properties, entityType.FindPrimaryKey().Properties);
                 Assert.Equal(fk.PrincipalKey, entityType.FindPrimaryKey());
-                Assert.Equal(nameof(SelfRef.SelfRef1), navigationToDependent?.Name);
-                Assert.Equal(null, navigationToPrincipal?.Name);
+                Assert.Equal(nameof(SelfRef.SelfRef1), fk.PrincipalToDependent?.Name);
+                Assert.Equal(null, fk.DependentToPrincipal);
                 Assert.Equal(2, entityType.GetNavigations().Count());
-                Assert.True(fk.IsRequired);
             }
 
             [Fact]
@@ -2745,11 +2743,11 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
 
-                var dependentEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var dependentEntityType = modelBuilder.Model.FindEntityType(typeof(Nob));
                 var fk = dependentEntityType.GetForeignKeys().Single();
                 AssertEqual(new[] { dependentEntityType.FindProperty("HobId1"), dependentEntityType.FindProperty("HobId2") }, fk.Properties);
                 Assert.False(fk.IsRequired);
-                var principalEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var principalEntityType = modelBuilder.Model.FindEntityType(typeof(Hob));
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }
 
@@ -2770,11 +2768,11 @@ namespace Microsoft.Data.Entity.Tests
 
                 modelBuilder.Entity<Nob>().HasKey(e => new { e.Id1, e.Id2 });
 
-                var dependentEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var dependentEntityType = modelBuilder.Model.FindEntityType(typeof(Hob));
                 var fk = dependentEntityType.GetForeignKeys().Single();
                 AssertEqual(new[] { dependentEntityType.FindProperty("NobId1"), dependentEntityType.FindProperty("NobId2") }, fk.Properties);
                 Assert.True(fk.IsRequired);
-                var principalEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Nob));
+                var principalEntityType = modelBuilder.Model.FindEntityType(typeof(Nob));
                 AssertEqual(fk.PrincipalKey.Properties, principalEntityType.GetKeys().Single().Properties);
             }
 
@@ -2782,25 +2780,25 @@ namespace Microsoft.Data.Entity.Tests
             public virtual void Can_change_delete_behavior()
             {
                 var modelBuilder = HobNobBuilder();
-                var dependentType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Hob));
+                var dependentType = modelBuilder.Model.FindEntityType(typeof(Hob));
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                Assert.Equal(DeleteBehavior.Cascade, dependentType.GetForeignKeys().Single().DeleteBehavior);
+                Assert.Equal(DeleteBehavior.Cascade, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                Assert.Equal(DeleteBehavior.Restrict, dependentType.GetForeignKeys().Single().DeleteBehavior);
+                Assert.Equal(DeleteBehavior.Restrict, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
 
                 modelBuilder
                     .Entity<Hob>().HasOne(e => e.Nob).WithOne(e => e.Hob)
                     .OnDelete(DeleteBehavior.SetNull);
 
-                Assert.Equal(DeleteBehavior.SetNull, dependentType.GetForeignKeys().Single().DeleteBehavior);
+                Assert.Equal(DeleteBehavior.SetNull, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
             }
         }
     }

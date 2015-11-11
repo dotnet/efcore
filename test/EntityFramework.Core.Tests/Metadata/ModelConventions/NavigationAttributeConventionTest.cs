@@ -144,11 +144,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var navigation = dependentEntityTypeBuilder.Metadata.FindNavigation(nameof(Dependent.Principal));
 
-            Assert.Null(relationshipBuilder.Metadata.IsRequired);
+            Assert.False(relationshipBuilder.Metadata.IsRequired);
 
             relationshipBuilder = new RequiredNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
 
-            Assert.Null(relationshipBuilder.Metadata.IsRequired);
+            Assert.False(relationshipBuilder.Metadata.IsRequired);
         }
 
         [Fact]
@@ -165,11 +165,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             var navigation = principalEntityTypeBuilder.Metadata.FindNavigation(nameof(Principal.Dependent));
 
-            Assert.Null(relationshipBuilder.Metadata.IsRequired);
+            Assert.False(relationshipBuilder.Metadata.IsRequired);
 
             relationshipBuilder = new RequiredNavigationAttributeConvention().Apply(relationshipBuilder, navigation);
 
-            Assert.Null(relationshipBuilder.Metadata.IsRequired);
+            Assert.False(relationshipBuilder.Metadata.IsRequired);
         }
 
         [Fact]

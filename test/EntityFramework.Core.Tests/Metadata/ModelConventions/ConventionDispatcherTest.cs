@@ -232,7 +232,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>())).Returns<InternalRelationshipBuilder>(b =>
                 {
                     Assert.NotNull(b);
-                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, null);
+                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder);
                     return relationshipBuilder;
                 });
             conventions.ForeignKeyAddedConventions.Add(convention.Object);
@@ -384,7 +384,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             convention.Setup(c => c.Apply(It.IsAny<InternalRelationshipBuilder>(), It.IsAny<Navigation>())).Returns((InternalRelationshipBuilder b, Navigation n) =>
                 {
                     Assert.NotNull(b);
-                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder, ConfigurationSource.Convention);
+                    relationshipBuilder = new InternalRelationshipBuilder(b.Metadata, b.ModelBuilder);
                     return relationshipBuilder;
                 });
             conventions.NavigationAddedConventions.Add(convention.Object);

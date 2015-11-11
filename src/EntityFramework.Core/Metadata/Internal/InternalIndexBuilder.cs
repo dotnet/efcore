@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual InternalIndexBuilder Attach(ConfigurationSource configurationSource)
         {
-            var entityTypeBuilder = ModelBuilder.Entity(Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
+            var entityTypeBuilder = Metadata.DeclaringEntityType.Builder;
             var newIndexBuilder = entityTypeBuilder.HasIndex(Metadata.Properties.Select(p => p.Name).ToList(), configurationSource);
 
             newIndexBuilder.MergeAnnotationsFrom(this);

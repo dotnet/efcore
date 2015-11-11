@@ -27,16 +27,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         // Warning: Never access this field directly as access needs to be thread-safe
         private PropertyIndexes _indexes;
 
-        private ConfigurationSource _configurationSource;
-
-        public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey, ConfigurationSource configurationSource)
+        public Navigation([NotNull] string name, [NotNull] ForeignKey foreignKey)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
 
             Name = name;
             ForeignKey = foreignKey;
-            _configurationSource = configurationSource;
         }
 
         public virtual string Name { get; }
@@ -46,11 +43,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => this.IsDependentToPrincipal()
                 ? ForeignKey.DeclaringEntityType
                 : ForeignKey.PrincipalEntityType;
-
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
-
-        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
-            => _configurationSource = _configurationSource.Max(configurationSource);
 
         public override string ToString() => DeclaringEntityType + "." + Name;
 

@@ -22,11 +22,10 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 foreach (var foreignKey in entityType.GetDeclaredForeignKeys().ToList())
                 {
-                    if ((foreignKey.PrincipalToDependent == null)
-                        && (foreignKey.DependentToPrincipal == null))
+                    if (foreignKey.PrincipalToDependent == null
+                        && foreignKey.DependentToPrincipal == null)
                     {
-                        modelBuilder.Entity(entityType.Name, ConfigurationSource.Convention)
-                            .RemoveForeignKey(foreignKey, ConfigurationSource.DataAnnotation);
+                        entityType.Builder.RemoveForeignKey(foreignKey, ConfigurationSource.DataAnnotation);
                     }
                 }
             }
