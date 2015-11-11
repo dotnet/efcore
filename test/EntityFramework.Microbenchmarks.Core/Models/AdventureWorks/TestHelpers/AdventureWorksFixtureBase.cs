@@ -5,8 +5,6 @@ namespace EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers
 {
     public class AdventureWorksFixtureBase
     {
-        private static readonly string _connectionString = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=AdventureWorks2014;Integrated Security=True;MultipleActiveResultSets=true;";
-
-        public static string ConnectionString => _connectionString;
+        public static string ConnectionString { get; } = $@"Server={BenchmarkConfig.Instance.BenchmarkDatabaseInstance};Database=AdventureWorks2014;Integrated Security=True;MultipleActiveResultSets=true;";
     }
 }

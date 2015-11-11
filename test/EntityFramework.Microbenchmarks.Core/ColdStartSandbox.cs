@@ -10,9 +10,9 @@ namespace EntityFramework.Microbenchmarks.Core
     public class ColdStartSandbox : IDisposable
     {
         private AppDomain _domain = AppDomain.CreateDomain(
-                "Cold Start Sandbox",
-                null,
-                new AppDomainSetup { ApplicationBase =  AppDomain.CurrentDomain.BaseDirectory });
+            "Cold Start Sandbox",
+            null,
+            new AppDomainSetup { ApplicationBase = AppDomain.CurrentDomain.BaseDirectory });
 
         ~ColdStartSandbox()
         {
@@ -47,7 +47,7 @@ namespace EntityFramework.Microbenchmarks.Core
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing && _domain != null)
+            if (disposing && (_domain != null))
             {
                 AppDomain.Unload(_domain);
                 _domain = null;

@@ -110,7 +110,8 @@ namespace EntityFramework.Microbenchmarks.EF6.UpdatePipeline
         {
             public SimpleUpdatePipelineFixture()
                 : base("Perf_UpdatePipeline_Simple_EF6", 0, 1000, 0, 0)
-            { }
+            {
+            }
         }
     }
 }

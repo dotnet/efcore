@@ -19,9 +19,9 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
                     Title = c % 2 == 0 ? "Mr" : "Mrs",
                     FirstName = "Customer " + c,
                     LastName = "Customer " + c,
-                    DateOfBirth = new DateTime(1980, (c % 12 + 1), 1),
+                    DateOfBirth = new DateTime(1980, c % 12 + 1, 1),
                     IsLoyaltyMember = c % 3 == 0,
-                    Joined = new DateTime(2000, (c % 12 + 1), 1),
+                    Joined = new DateTime(2000, c % 12 + 1, 1),
                     OptedOutOfMarketing = c % 7 == 0,
                     Phone = "555-555-5555",
                     Email = $"customer{c}@sample.com",
@@ -47,13 +47,13 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
                     Name = "Product " + i,
                     Description = "A product for testing purposes.",
                     SKU = "PROD" + i,
-                    Retail = (i % 10) + 10,
-                    CurrentPrice = (i % 10) + 10,
+                    Retail = i % 10 + 10,
+                    CurrentPrice = i % 10 + 10,
                     TargetStockLevel = i % 20,
                     ActualStockLevel = i % 7,
                     QuantityOnOrder = i % 3,
                     NextShipmentExpected = i % 3 == 0 ? (DateTime?)null : DateTime.Today,
-                    IsDiscontinued = i % 20 == 0,
+                    IsDiscontinued = i % 20 == 0
                 });
             }
 
@@ -63,7 +63,7 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
         public virtual List<Order> CreateOrders(List<Customer> customers, int ordersPerCustomer, bool setPrimaryKeys)
         {
             var orders = new List<Order>();
-            for (int c = 0; c < customers.Count; c++)
+            for (var c = 0; c < customers.Count; c++)
             {
                 for (var i = 0; i < ordersPerCustomer; i++)
                 {
@@ -105,7 +105,7 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
                         Price = product.Retail * quantity,
                         Quantity = quantity,
                         IsSubjectToTax = o % 3 == 0,
-                        IsShipped = o % 5 == 0,
+                        IsShipped = o % 5 == 0
                     });
                 }
             }

@@ -12,5 +12,4 @@ namespace EntityFramework.Microbenchmarks.Core
         public int Iterations { get; set; } = 100;
         public int WarmupIterations { get; set; } = 1;
     }
-
 }

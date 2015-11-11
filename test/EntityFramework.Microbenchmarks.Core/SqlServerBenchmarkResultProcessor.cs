@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
     public class SqlServerBenchmarkResultProcessor
     {
         private readonly string _connectionString;
+
         private static readonly string _insertCommand =
             @"INSERT INTO [dbo].[Runs]
            ([TestClassFullName]
@@ -59,7 +60,7 @@ namespace EntityFramework.Microbenchmarks.Core
            ,@MemoryDeltaStandardDeviation)";
 
         private static readonly string _tableCreationCommand =
-@"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='runs' and xtype='U')
+            @"IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='runs' and xtype='U')
 	CREATE TABLE [dbo].[Runs](
 		[Id] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
 		[TestClassFullName] [nvarchar](max) NULL,

@@ -26,6 +26,6 @@ namespace EntityFramework.Microbenchmarks.Core.Models.Orders
         public string ZipOrPostalCode { get; set; }
         public string Country { get; set; }
 
-        public ICollection<Order> Orders { get; set; } 
+        public ICollection<Order> Orders { get; set; }
     }
 }

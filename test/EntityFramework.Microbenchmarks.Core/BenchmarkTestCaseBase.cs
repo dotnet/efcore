@@ -1,25 +1,23 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using TestMethodDisplay = Xunit.Sdk.TestMethodDisplay;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
     public abstract class BenchmarkTestCaseBase : XunitTestCase
     {
         public BenchmarkTestCaseBase(
-               string variation,
-               IMessageSink diagnosticMessageSink,
-               ITestMethod testMethod,
-               object[] testMethodArguments)
-            : base(diagnosticMessageSink, Xunit.Sdk.TestMethodDisplay.Method, testMethod, null)
+            string variation,
+            IMessageSink diagnosticMessageSink,
+            ITestMethod testMethod,
+            object[] testMethodArguments)
+            : base(diagnosticMessageSink, TestMethodDisplay.Method, testMethod, null)
         {
             // Override display name to avoid getting info about TestMethodArguments in the
             // name (this is covered by the concept of Variation for benchmarks)

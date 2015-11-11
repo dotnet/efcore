@@ -17,12 +17,11 @@ namespace EntityFramework.Microbenchmarks.Core
 
         public string VariationName { get; private set; }
 
-        public object[] Data { get; private set; }
+        public object[] Data { get; }
 
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
             return new[] { Data };
         }
     }
-
 }

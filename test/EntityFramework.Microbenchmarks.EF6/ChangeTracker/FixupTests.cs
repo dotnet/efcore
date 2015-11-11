@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Core.Models.Orders;
@@ -129,7 +128,8 @@ namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
         {
             public FixupFixture()
                 : base("Perf_ChangeTracker_Fixup_EF6", 0, 1000, 1, 0)
-            { }
+            {
+            }
         }
     }
 }

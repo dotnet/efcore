@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 
 namespace EntityFramework.Microbenchmarks.Core
 {
@@ -30,10 +29,12 @@ namespace EntityFramework.Microbenchmarks.Core
         }
 
         public void StopCollection()
-        { }
+        {
+        }
 
         public void Reset()
-        { }
+        {
+        }
 
         public long TimeElapsed => 0;
 
@@ -41,12 +42,9 @@ namespace EntityFramework.Microbenchmarks.Core
 
         private partial class Scope : IDisposable
         {
-            public Scope()
-            { }
-
             public void Dispose()
-            { }
+            {
+            }
         }
-
     }
 }

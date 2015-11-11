@@ -11,27 +11,27 @@ namespace EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers
 {
     public class AdventureWorksDatabaseTestDiscoverer : BenchmarkTestCaseDiscoverer
     {
-        private static Lazy<bool> _databaseExists = new Lazy<bool>(() =>
-        {
-            using (var connection = new SqlConnection(AdventureWorksFixtureBase.ConnectionString))
+        private static readonly Lazy<bool> _databaseExists = new Lazy<bool>(() =>
             {
-                try
+                using (var connection = new SqlConnection(AdventureWorksFixtureBase.ConnectionString))
                 {
-                    connection.Open();
-                    connection.Close();
-                    return true;
+                    try
+                    {
+                        connection.Open();
+                        connection.Close();
+                        return true;
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
-                catch (Exception)
-                {
-                    return false;
-                }
-            }
-        });
+            });
 
         private readonly IMessageSink _diagnosticMessageSink;
 
         public AdventureWorksDatabaseTestDiscoverer(IMessageSink diagnosticMessageSink)
-            :base(diagnosticMessageSink)
+            : base(diagnosticMessageSink)
         {
             _diagnosticMessageSink = diagnosticMessageSink;
         }
@@ -42,15 +42,12 @@ namespace EntityFramework.Microbenchmarks.Core.Models.AdventureWorks.TestHelpers
             {
                 return base.Discover(discoveryOptions, testMethod, factAttribute);
             }
-            else
-            {
-                return new IXunitTestCase[] { new SkippedTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod) };
-            }
+            return new IXunitTestCase[] { new SkippedTestCase(_diagnosticMessageSink, discoveryOptions.MethodDisplayOrDefault(), testMethod) };
         }
 
         private class SkippedTestCase : XunitTestCase
         {
-            public SkippedTestCase(IMessageSink diagnosticMessageSink, Xunit.Sdk.TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
+            public SkippedTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, ITestMethod testMethod)
                 : base(diagnosticMessageSink, defaultMethodDisplay, testMethod)
             {
                 SkipReason = $"AdventureWorks2014 database does not exist on {BenchmarkConfig.Instance.BenchmarkDatabaseInstance}. Download the AdventureWorks backup from https://msftdbprodsamples.codeplex.com/downloads/get/880661 and restore it to {BenchmarkConfig.Instance.BenchmarkDatabaseInstance} to enable these tests.";

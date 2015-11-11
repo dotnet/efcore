@@ -22,10 +22,10 @@ namespace EntityFramework.Microbenchmarks.Core
             var variations = testMethod.Method
                 .GetCustomAttributes(typeof(BenchmarkVariationAttribute))
                 .Select(a => new
-                    {
-                        Name = a.GetNamedArgument<string>(nameof(BenchmarkVariationAttribute.VariationName)),
-                        TestMethodArguments = a.GetNamedArgument<object[]>(nameof(BenchmarkVariationAttribute.Data))
-                    })
+                {
+                    Name = a.GetNamedArgument<string>(nameof(BenchmarkVariationAttribute.VariationName)),
+                    TestMethodArguments = a.GetNamedArgument<object[]>(nameof(BenchmarkVariationAttribute.Data))
+                })
                 .ToList();
 
             if (!variations.Any())
@@ -54,8 +54,8 @@ namespace EntityFramework.Microbenchmarks.Core
                 {
                     tests.Add(new NonCollectingBenchmarkTestCase(
                         variation.Name,
-                        _diagnosticMessageSink, 
-                        testMethod, 
+                        _diagnosticMessageSink,
+                        testMethod,
                         variation.TestMethodArguments));
                 }
             }

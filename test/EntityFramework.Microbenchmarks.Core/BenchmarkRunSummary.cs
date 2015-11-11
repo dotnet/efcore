@@ -10,7 +10,7 @@ namespace EntityFramework.Microbenchmarks.Core
 {
     public class BenchmarkRunSummary : RunSummary
     {
-        private List<BenchmarkIterationSummary> _iterations = new List<BenchmarkIterationSummary>();
+        private readonly List<BenchmarkIterationSummary> _iterations = new List<BenchmarkIterationSummary>();
 
         // Dimensions
         public string TestClassFullName { get; set; }
@@ -49,7 +49,7 @@ namespace EntityFramework.Microbenchmarks.Core
 
         public void PopulateMetrics()
         {
-            if(_iterations.Count != Iterations)
+            if (_iterations.Count != Iterations)
             {
                 throw new InvalidOperationException($"Recorded iterations ({_iterations.Count}) does not match expected iterations ({Iterations})");
             }
@@ -89,7 +89,7 @@ namespace EntityFramework.Microbenchmarks.Core
                 .Select(r => r - average)
                 .Select(r => r * r)
                 .Sum()
-                / results.Count());
+                             / results.Count());
         }
     }
 }

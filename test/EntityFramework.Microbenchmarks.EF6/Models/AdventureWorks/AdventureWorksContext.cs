@@ -1,17 +1,18 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks;
-using System.Data.Entity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
+using EntityFramework.Microbenchmarks.Core.Models.AdventureWorks;
 
 namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 {
-    public partial class AdventureWorksContext : DbContext
+    public class AdventureWorksContext : DbContext
     {
         public AdventureWorksContext(string connectionString)
             : base(connectionString)
-        { }
+        {
+        }
 
         public virtual DbSet<Address> Address { get; set; }
         public virtual DbSet<AddressType> AddressType { get; set; }
@@ -105,7 +106,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.Address)
                 .HasForeignKey(d => d.StateProvinceID);
 
-
             modelBuilder.Entity<AddressType>().ToTable("AddressType", "Person");
 
             modelBuilder.Entity<AddressType>().Property(e => e.Name).IsRequired();
@@ -113,7 +113,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<AddressType>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<AddressType>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<BillOfMaterials>().ToTable("BillOfMaterials", "Production");
 
@@ -140,13 +139,11 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.BillOfMaterials)
                 .HasForeignKey(d => d.UnitMeasureCode);
 
-
             modelBuilder.Entity<BusinessEntity>().ToTable("BusinessEntity", "Person");
 
             modelBuilder.Entity<BusinessEntity>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<BusinessEntity>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<BusinessEntityAddress>().HasKey(e => new
             {
@@ -176,7 +173,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.BusinessEntityAddress)
                 .HasForeignKey(d => d.BusinessEntityID);
 
-
             modelBuilder.Entity<BusinessEntityContact>().HasKey(e => new { e.BusinessEntityID, e.PersonID, e.ContactTypeID });
 
             modelBuilder.Entity<BusinessEntityContact>().ToTable("BusinessEntityContact", "Person");
@@ -200,13 +196,11 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.BusinessEntityContact)
                 .HasForeignKey(d => d.PersonID);
 
-
             modelBuilder.Entity<ContactType>().ToTable("ContactType", "Person");
 
             modelBuilder.Entity<ContactType>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<ContactType>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<CountryRegion>().HasKey(e => e.CountryRegionCode);
 
@@ -215,7 +209,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<CountryRegion>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<CountryRegion>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<CountryRegionCurrency>().HasKey(e => new { e.CountryRegionCode, e.CurrencyCode });
 
@@ -233,7 +226,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.CountryRegionCurrency)
                 .HasForeignKey(d => d.CurrencyCode);
 
-
             modelBuilder.Entity<CreditCard>().ToTable("CreditCard", "Sales");
 
             modelBuilder.Entity<CreditCard>().Property(e => e.CardNumber).IsRequired();
@@ -242,13 +234,11 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<CreditCard>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
-
             modelBuilder.Entity<Culture>().ToTable("Culture", "Production");
 
             modelBuilder.Entity<Culture>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<Culture>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<Currency>().HasKey(e => e.CurrencyCode);
 
@@ -257,7 +247,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Currency>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<Currency>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<CurrencyRate>().ToTable("CurrencyRate", "Sales");
 
@@ -276,7 +265,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.ToCurrencyCodeNavigation)
                 .WithMany(p => p.CurrencyRateNavigation)
                 .HasForeignKey(d => d.ToCurrencyCode);
-
 
             modelBuilder.Entity<Customer>().ToTable("Customer", "Sales");
 
@@ -303,7 +291,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.Customer)
                 .HasForeignKey(d => d.TerritoryID);
 
-
             modelBuilder.Entity<Department>().ToTable("Department", "HumanResources");
 
             modelBuilder.Entity<Department>().Property(e => e.GroupName).IsRequired();
@@ -311,7 +298,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Department>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<Department>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<EmailAddress>().HasKey(e => new { e.BusinessEntityID, e.EmailAddressID });
 
@@ -327,7 +313,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.BusinessEntity)
                 .WithMany(p => p.EmailAddress)
                 .HasForeignKey(d => d.BusinessEntityID);
-
 
             modelBuilder.Entity<Employee>().HasKey(e => e.BusinessEntityID);
 
@@ -353,7 +338,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Employee);
 
-
             modelBuilder.Entity<EmployeeDepartmentHistory>().HasKey(e => new { e.BusinessEntityID, e.StartDate, e.DepartmentID, e.ShiftID });
 
             modelBuilder.Entity<EmployeeDepartmentHistory>().ToTable("EmployeeDepartmentHistory", "HumanResources");
@@ -375,7 +359,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.EmployeeDepartmentHistory)
                 .HasForeignKey(d => d.ShiftID);
 
-
             modelBuilder.Entity<EmployeePayHistory>().HasKey(e => new { e.BusinessEntityID, e.RateChangeDate });
 
             modelBuilder.Entity<EmployeePayHistory>().ToTable("EmployeePayHistory", "HumanResources");
@@ -383,15 +366,13 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<EmployeePayHistory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<EmployeePayHistory>()
-            .HasRequired(d => d.BusinessEntity)
-                                  .WithMany(p => p.EmployeePayHistory)
-                                  .HasForeignKey(d => d.BusinessEntityID);
-
+                .HasRequired(d => d.BusinessEntity)
+                .WithMany(p => p.EmployeePayHistory)
+                .HasForeignKey(d => d.BusinessEntityID);
 
             modelBuilder.Entity<Illustration>().ToTable("Illustration", "Production");
 
             modelBuilder.Entity<Illustration>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<JobCandidate>().ToTable("JobCandidate", "HumanResources");
 
@@ -402,7 +383,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.JobCandidate)
                 .HasForeignKey(d => d.BusinessEntityID);
 
-
             modelBuilder.Entity<Location>().ToTable("Location", "Production");
 
             modelBuilder.Entity<Location>().Property(e => e.Availability).HasPrecision(8, 2);
@@ -410,7 +390,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Location>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<Location>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<Password>().HasKey(e => e.BusinessEntityID);
 
@@ -427,7 +406,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Password>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Password);
-
 
             modelBuilder.Entity<Person>().HasKey(e => e.BusinessEntityID);
 
@@ -447,7 +425,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Person);
 
-
             modelBuilder.Entity<PersonCreditCard>().HasKey(e => new { e.BusinessEntityID, e.CreditCardID });
 
             modelBuilder.Entity<PersonCreditCard>().ToTable("PersonCreditCard", "Sales");
@@ -463,7 +440,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.CreditCard)
                 .WithMany(p => p.PersonCreditCard)
                 .HasForeignKey(d => d.CreditCardID);
-
 
             modelBuilder.Entity<PersonPhone>().HasKey(e => new { e.BusinessEntityID, e.PhoneNumber, e.PhoneNumberTypeID });
 
@@ -481,13 +457,11 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.PersonPhone)
                 .HasForeignKey(d => d.PhoneNumberTypeID);
 
-
             modelBuilder.Entity<PhoneNumberType>().ToTable("PhoneNumberType", "Person");
 
             modelBuilder.Entity<PhoneNumberType>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<PhoneNumberType>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<Product>().ToTable("Product", "Production");
 
@@ -520,7 +494,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductNavigation)
                 .HasForeignKey(d => d.WeightUnitMeasureCode);
 
-
             modelBuilder.Entity<ProductCategory>().ToTable("ProductCategory", "Production");
 
             modelBuilder.Entity<ProductCategory>().Property(e => e.Name).IsRequired();
@@ -528,7 +501,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductCategory>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductCategory>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<ProductCostHistory>().HasKey(e => new { e.ProductID, e.StartDate });
 
@@ -541,7 +513,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductCostHistory)
                 .HasForeignKey(d => d.ProductID);
 
-
             modelBuilder.Entity<ProductDescription>().ToTable("ProductDescription", "Production");
 
             modelBuilder.Entity<ProductDescription>().Property(e => e.Description).IsRequired();
@@ -549,7 +520,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductDescription>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductDescription>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<ProductDocument>().HasKey(e => new { e.ProductID, e.DocumentNode });
 
@@ -561,7 +531,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.Product)
                 .WithMany(p => p.ProductDocument)
                 .HasForeignKey(d => d.ProductID);
-
 
             modelBuilder.Entity<ProductInventory>().HasKey(e => new { e.ProductID, e.LocationID });
 
@@ -583,7 +552,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductInventory)
                 .HasForeignKey(d => d.ProductID);
 
-
             modelBuilder.Entity<ProductListPriceHistory>().HasKey(e => new { e.ProductID, e.StartDate });
 
             modelBuilder.Entity<ProductListPriceHistory>().ToTable("ProductListPriceHistory", "Production");
@@ -595,7 +563,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductListPriceHistory)
                 .HasForeignKey(d => d.ProductID);
 
-
             modelBuilder.Entity<ProductModel>().ToTable("ProductModel", "Production");
 
             modelBuilder.Entity<ProductModel>().Property(e => e.Name).IsRequired();
@@ -603,7 +570,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ProductModel>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ProductModel>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<ProductModelIllustration>().HasKey(e => new { e.ProductModelID, e.IllustrationID });
 
@@ -620,7 +586,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.ProductModel)
                 .WithMany(p => p.ProductModelIllustration)
                 .HasForeignKey(d => d.ProductModelID);
-
 
             modelBuilder.Entity<ProductModelProductDescriptionCulture>().HasKey(e => new { e.ProductModelID, e.ProductDescriptionID, e.CultureID });
 
@@ -643,11 +608,9 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductModelProductDescriptionCulture)
                 .HasForeignKey(d => d.ProductModelID);
 
-
             modelBuilder.Entity<ProductPhoto>().ToTable("ProductPhoto", "Production");
 
             modelBuilder.Entity<ProductPhoto>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<ProductProductPhoto>().HasKey(e => new { e.ProductID, e.ProductPhotoID });
 
@@ -665,7 +628,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductProductPhoto)
                 .HasForeignKey(d => d.ProductPhotoID);
 
-
             modelBuilder.Entity<ProductReview>().ToTable("ProductReview", "Production");
 
             modelBuilder.Entity<ProductReview>().Property(e => e.EmailAddress).IsRequired();
@@ -681,7 +643,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ProductReview)
                 .HasForeignKey(d => d.ProductID);
 
-
             modelBuilder.Entity<ProductSubcategory>().ToTable("ProductSubcategory", "Production");
 
             modelBuilder.Entity<ProductSubcategory>().Property(e => e.Name).IsRequired();
@@ -694,7 +655,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.ProductCategory)
                 .WithMany(p => p.ProductSubcategory)
                 .HasForeignKey(d => d.ProductCategoryID);
-
 
             modelBuilder.Entity<ProductVendor>().HasKey(e => new { e.ProductID, e.BusinessEntityID });
 
@@ -718,7 +678,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.UnitMeasureCodeNavigation)
                 .WithMany(p => p.ProductVendor)
                 .HasForeignKey(d => d.UnitMeasureCode);
-
 
             modelBuilder.Entity<PurchaseOrderDetail>().HasKey(e => new { e.PurchaseOrderID, e.PurchaseOrderDetailID });
 
@@ -744,7 +703,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.PurchaseOrderDetail)
                 .HasForeignKey(d => d.PurchaseOrderID);
 
-
             modelBuilder.Entity<PurchaseOrderHeader>().HasKey(e => e.PurchaseOrderID);
 
             modelBuilder.Entity<PurchaseOrderHeader>().ToTable("PurchaseOrderHeader", "Purchasing");
@@ -767,9 +725,8 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<PurchaseOrderHeader>()
                 .HasRequired(d => d.Vendor)
-            .WithMany(p => p.PurchaseOrderHeader)
-            .HasForeignKey(d => d.VendorID);
-
+                .WithMany(p => p.PurchaseOrderHeader)
+                .HasForeignKey(d => d.VendorID);
 
             modelBuilder.Entity<SalesOrderDetail>().HasKey(e => new { e.SalesOrderID, e.SalesOrderDetailID });
 
@@ -793,7 +750,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.SpecialOfferProduct)
                 .WithMany(p => p.SalesOrderDetail)
                 .HasForeignKey(d => new { d.SpecialOfferID, d.ProductID });
-
 
             modelBuilder.Entity<SalesOrderHeader>().HasKey(e => e.SalesOrderID);
 
@@ -851,7 +807,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.SalesOrderHeader)
                 .HasForeignKey(d => d.TerritoryID);
 
-
             modelBuilder.Entity<SalesOrderHeaderSalesReason>().HasKey(e => new { e.SalesOrderID, e.SalesReasonID });
 
             modelBuilder.Entity<SalesOrderHeaderSalesReason>().ToTable("SalesOrderHeaderSalesReason", "Sales");
@@ -867,7 +822,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.SalesReason)
                 .WithMany(p => p.SalesOrderHeaderSalesReason)
                 .HasForeignKey(d => d.SalesReasonID);
-
 
             modelBuilder.Entity<SalesPerson>().HasKey(e => e.BusinessEntityID);
 
@@ -886,7 +840,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.SalesPerson)
                 .HasForeignKey(d => d.TerritoryID);
 
-
             modelBuilder.Entity<SalesPersonQuotaHistory>().HasKey(e => new { e.BusinessEntityID, e.QuotaDate });
 
             modelBuilder.Entity<SalesPersonQuotaHistory>().ToTable("SalesPersonQuotaHistory", "Sales");
@@ -900,7 +853,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.SalesPersonQuotaHistory)
                 .HasForeignKey(d => d.BusinessEntityID);
 
-
             modelBuilder.Entity<SalesReason>().ToTable("SalesReason", "Sales");
 
             modelBuilder.Entity<SalesReason>().Property(e => e.Name).IsRequired();
@@ -908,7 +860,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<SalesReason>().Property(e => e.ReasonType).IsRequired();
 
             modelBuilder.Entity<SalesReason>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<SalesTaxRate>().ToTable("SalesTaxRate", "Sales");
 
@@ -922,7 +873,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.StateProvince)
                 .WithMany(p => p.SalesTaxRate)
                 .HasForeignKey(d => d.StateProvinceID);
-
 
             modelBuilder.Entity<SalesTerritory>().HasKey(e => e.TerritoryID);
 
@@ -943,7 +893,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.SalesTerritory)
                 .HasForeignKey(d => d.CountryRegionCode);
 
-
             modelBuilder.Entity<SalesTerritoryHistory>().HasKey(e => new { e.BusinessEntityID, e.StartDate, e.TerritoryID });
 
             modelBuilder.Entity<SalesTerritoryHistory>().ToTable("SalesTerritoryHistory", "Sales");
@@ -962,20 +911,17 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.SalesTerritoryHistory)
                 .HasForeignKey(d => d.TerritoryID);
 
-
             modelBuilder.Entity<ScrapReason>().ToTable("ScrapReason", "Production");
 
             modelBuilder.Entity<ScrapReason>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<ScrapReason>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
-
             modelBuilder.Entity<Shift>().ToTable("Shift", "HumanResources");
 
             modelBuilder.Entity<Shift>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<Shift>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<ShipMethod>().ToTable("ShipMethod", "Purchasing");
 
@@ -984,7 +930,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<ShipMethod>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<ShipMethod>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<ShoppingCartItem>().ToTable("ShoppingCartItem", "Sales");
 
@@ -997,7 +942,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.ShoppingCartItem)
                 .HasForeignKey(d => d.ProductID);
 
-
             modelBuilder.Entity<SpecialOffer>().ToTable("SpecialOffer", "Sales");
 
             modelBuilder.Entity<SpecialOffer>().Property(e => e.Category).IsRequired();
@@ -1009,7 +953,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<SpecialOffer>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
 
             modelBuilder.Entity<SpecialOffer>().Property(e => e.rowguid).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<SpecialOfferProduct>().HasKey(e => new { e.SpecialOfferID, e.ProductID });
 
@@ -1028,7 +971,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasRequired(d => d.SpecialOffer)
                 .WithMany(p => p.SpecialOfferProduct)
                 .HasForeignKey(d => d.SpecialOfferID);
-
 
             modelBuilder.Entity<StateProvince>().ToTable("StateProvince", "Person");
 
@@ -1052,7 +994,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.StateProvince)
                 .HasForeignKey(d => d.TerritoryID);
 
-
             modelBuilder.Entity<Store>().HasKey(e => e.BusinessEntityID);
 
             modelBuilder.Entity<Store>().ToTable("Store", "Sales");
@@ -1072,7 +1013,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.Store)
                 .HasForeignKey(d => d.SalesPersonID);
 
-
             modelBuilder.Entity<TransactionHistory>().HasKey(e => e.TransactionID);
 
             modelBuilder.Entity<TransactionHistory>().ToTable("TransactionHistory", "Production");
@@ -1088,7 +1028,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .WithMany(p => p.TransactionHistory)
                 .HasForeignKey(d => d.ProductID);
 
-
             modelBuilder.Entity<TransactionHistoryArchive>().HasKey(e => e.TransactionID);
 
             modelBuilder.Entity<TransactionHistoryArchive>().ToTable("TransactionHistoryArchive", "Production");
@@ -1099,7 +1038,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
 
             modelBuilder.Entity<TransactionHistoryArchive>().Property(e => e.TransactionDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
-
             modelBuilder.Entity<UnitMeasure>().HasKey(e => e.UnitMeasureCode);
 
             modelBuilder.Entity<UnitMeasure>().ToTable("UnitMeasure", "Production");
@@ -1107,7 +1045,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<UnitMeasure>().Property(e => e.Name).IsRequired();
 
             modelBuilder.Entity<UnitMeasure>().Property(e => e.ModifiedDate).HasDatabaseGeneratedOption(DatabaseGeneratedOption.Computed);
-
 
             modelBuilder.Entity<Vendor>().HasKey(e => e.BusinessEntityID);
 
@@ -1122,7 +1059,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
             modelBuilder.Entity<Vendor>()
                 .HasRequired(d => d.BusinessEntity)
                 .WithOptional(p => p.Vendor);
-
 
             modelBuilder.Entity<WorkOrder>().ToTable("WorkOrder", "Production");
 
@@ -1139,7 +1075,6 @@ namespace EntityFramework.Microbenchmarks.EF6.Models.AdventureWorks
                 .HasOptional(d => d.ScrapReason)
                 .WithMany(p => p.WorkOrder)
                 .HasForeignKey(d => d.ScrapReasonID);
-
 
             modelBuilder.Entity<WorkOrderRouting>().HasKey(e => new { e.WorkOrderID, e.ProductID, e.OperationSequence });
 

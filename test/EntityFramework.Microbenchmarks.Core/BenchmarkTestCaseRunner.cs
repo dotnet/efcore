@@ -2,54 +2,53 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-
 #if DNXCORE50 || DNX451
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;
 using XunitDiagnosticMessage = Xunit.DiagnosticMessage;
 #else
 using XunitDiagnosticMessage = Xunit.Sdk.DiagnosticMessage;
+
 #endif
 
 namespace EntityFramework.Microbenchmarks.Core
 {
     public class BenchmarkTestCaseRunner : XunitTestCaseRunner
     {
-        private static string _machineName = GetMachineName();
-        private static string _framework = GetFramework();
+        private static readonly string _machineName = GetMachineName();
+        private static readonly string _framework = GetFramework();
         private readonly IMessageSink _diagnosticMessageSink;
 
         public BenchmarkTestCaseRunner(
-                BenchmarkTestCase testCase,
-                string displayName,
-                string skipReason,
-                object[] constructorArguments,
-                object[] testMethodArguments,
-                IMessageBus messageBus,
-                ExceptionAggregator aggregator,
-                CancellationTokenSource cancellationTokenSource,
-                IMessageSink diagnosticMessageSink)
+            BenchmarkTestCase testCase,
+            string displayName,
+            string skipReason,
+            object[] constructorArguments,
+            object[] testMethodArguments,
+            IMessageBus messageBus,
+            ExceptionAggregator aggregator,
+            CancellationTokenSource cancellationTokenSource,
+            IMessageSink diagnosticMessageSink)
             : base(
-                  testCase,
-                  displayName,
-                  skipReason,
-                  constructorArguments,
-                  testMethodArguments,
-                  messageBus,
-                  aggregator,
-                  cancellationTokenSource)
+                testCase,
+                displayName,
+                skipReason,
+                constructorArguments,
+                testMethodArguments,
+                messageBus,
+                aggregator,
+                cancellationTokenSource)
         {
             TestCase = testCase;
             _diagnosticMessageSink = diagnosticMessageSink;
         }
 
-        public new BenchmarkTestCase TestCase { get; private set; }
+        public new BenchmarkTestCase TestCase { get; }
 
         protected override async Task<RunSummary> RunTestAsync()
         {
@@ -69,13 +68,13 @@ namespace EntityFramework.Microbenchmarks.Core
                 CustomData = BenchmarkConfig.Instance.CustomData
             };
 
-            for (int i = 0; i < TestCase.WarmupIterations; i++)
+            for (var i = 0; i < TestCase.WarmupIterations; i++)
             {
                 var runner = CreateRunner(i + 1, TestCase.WarmupIterations, TestCase.Variation, warmup: true);
                 runSummary.Aggregate(await runner.RunAsync());
             }
 
-            for (int i = 0; i < TestCase.Iterations; i++)
+            for (var i = 0; i < TestCase.Iterations; i++)
             {
                 TestCase.MetricCollector.Reset();
                 var runner = CreateRunner(i + 1, TestCase.Iterations, TestCase.Variation, warmup: false);
@@ -101,7 +100,7 @@ namespace EntityFramework.Microbenchmarks.Core
                     }
                     catch (Exception ex)
                     {
-                        _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage($"Failed to save results to {database}{Environment.NewLine} {ex.ToString()}"));
+                        _diagnosticMessageSink.OnMessage(new XunitDiagnosticMessage($"Failed to save results to {database}{Environment.NewLine} {ex}"));
                         throw;
                     }
                 }

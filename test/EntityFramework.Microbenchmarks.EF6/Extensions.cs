@@ -11,7 +11,7 @@ namespace EntityFramework.Microbenchmarks.EF6
 {
     public static class Extensions
     {
-        private static MethodInfo _getObjectQueryMethodInfo = typeof(DbQuery).Assembly
+        private static readonly MethodInfo _getObjectQueryMethodInfo = typeof(DbQuery).Assembly
             .GetType("System.Data.Entity.Internal.Linq.IInternalQuery", throwOnError: true)
             .GetProperty("ObjectQuery")
             .GetMethod;
@@ -38,8 +38,8 @@ namespace EntityFramework.Microbenchmarks.EF6
             where TEntity : class
         {
             return tracking
-                    ? query
-                    : query.AsNoTracking();
+                ? query
+                : query.AsNoTracking();
         }
     }
 }
