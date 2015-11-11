@@ -262,4 +262,7 @@
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
   </data>
+  <data name="ConflictingRowUpdates" xml:space="preserve">
+    <value>Two entities cannot make conflicting updates to the same row.</value>
+  </data>
 </root>

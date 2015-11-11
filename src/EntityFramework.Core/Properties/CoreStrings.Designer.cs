@@ -53,6 +53,30 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Unhandled node type: {nodeType}
+        /// </summary>
+        public static string UnhandledNodeType([CanBeNull] object nodeType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
+        }
+
+        /// <summary>
+        /// Unhandled expression type: {expressionType}
+        /// </summary>
+        public static string UnhandledExpressionType([CanBeNull] object expressionType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "expressionType"), expressionType);
+        }
+
+        /// <summary>
+        /// Unhandled operation: MemberInitExpression binding is not a MemberAssignment
+        /// </summary>
+        public static string InvalidMemberInitBinding
+        {
+            get { return GetString("InvalidMemberInitBinding"); }
+        }
+
+        /// <summary>
         /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
         /// </summary>
         public static string IdentityConflict([CanBeNull] object entityType)

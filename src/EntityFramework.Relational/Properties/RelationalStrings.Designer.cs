@@ -21,6 +21,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Two entities cannot make conflicting updates to the same row.
+        /// </summary>
+        public static string ConflictingRowUpdates
+        {
+            get { return GetString("ConflictingRowUpdates"); }
+        }
+
+        /// <summary>
         /// Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
         /// </summary>
         public static string UpdateConcurrencyException([CanBeNull] object expectedRows, [CanBeNull] object actualRows)

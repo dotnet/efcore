@@ -321,7 +321,8 @@ namespace Microsoft.Data.Entity.Query.Internal
                 }
                 else
                 {
-                    UnhandledOperation("MemberInitExpression binding is not a MemberAssignment");
+                    ////throw new NotSupportedException(CoreStrings.InvalidMemberInitBinding);
+                    _stringBuilder.AppendLine(CoreStrings.InvalidMemberInitBinding);
                 }
             }
 
@@ -470,7 +471,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 return node;
             }
 
-            _stringBuilder.AppendLine("Unhandled node type: " + node.NodeType);
+            _stringBuilder.AppendLine(CoreStrings.UnhandledNodeType(node.NodeType));
 
             return node;
         }
@@ -487,14 +488,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private void UnhandledExpressionType(ExpressionType expressionType)
         {
-            ////throw new NotSupportedException("Unhandled expression type: " + expressionType);
-            _stringBuilder.AppendLine("Unhandled expression type: " + expressionType);
-        }
-
-        private void UnhandledOperation(string operation)
-        {
-            ////throw new NotSupportedException("Unhandled operation: " + operation);
-            _stringBuilder.AppendLine("Unhandled operation: " + operation);
+            ////throw new NotSupportedException(CoreStrings.UnhandledExpressionType(expressionType));
+            _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
         }
 
         public interface IConstantPrinter

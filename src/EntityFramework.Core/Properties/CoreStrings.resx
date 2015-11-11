@@ -489,4 +489,13 @@
   <data name="EntityTypeNotFound" xml:space="preserve">
     <value>The entity type '{entityType}' was not found. Ensure that the entity type has been added to the model.</value>
   </data>
+  <data name="InvalidMemberInitBinding" xml:space="preserve">
+    <value>Unhandled operation: MemberInitExpression binding is not a MemberAssignment</value>
+  </data>
+  <data name="UnhandledExpressionType" xml:space="preserve">
+    <value>Unhandled expression type: {expressionType}</value>
+  </data>
+  <data name="UnhandledNodeType" xml:space="preserve">
+    <value>Unhandled node type: {nodeType}</value>
+  </data>
 </root>
