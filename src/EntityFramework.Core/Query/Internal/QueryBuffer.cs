@@ -181,7 +181,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             LoadNavigationProperties(
                 entity,
-                navigationPath[currentNavigationIndex],
+                navigationPath,
+                currentNavigationIndex,
                 relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
                     .Select(eli =>
                         {
@@ -245,7 +246,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             LoadNavigationProperties(
                 entity,
-                navigationPath[currentNavigationIndex],
+                navigationPath,
+                currentNavigationIndex,
                 await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory), async (eli, ct) =>
                     {
                         var keyValue = keyValueFactory.Create(eli.ValueBuffer);
@@ -333,41 +335,49 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         private static void LoadNavigationProperties(
             object entity,
-            INavigation navigation,
+            IReadOnlyList<INavigation> navigationPath,
+            int currentNavigationIndex,
             IReadOnlyList<object> relatedEntities)
         {
-            if (navigation.IsDependentToPrincipal()
-                && relatedEntities.Count > 0)
+            if (navigationPath[currentNavigationIndex].IsDependentToPrincipal()
+                && relatedEntities.Any())
             {
-                var relatedEntity = relatedEntities[0];
+                navigationPath[currentNavigationIndex]
+                    .GetSetter()
+                    .SetClrValue(entity, relatedEntities[0]);
 
-                navigation.GetSetter().SetClrValue(entity, relatedEntity);
-
-                var inverseNavigation = navigation.FindInverse();
+                var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
                 if (inverseNavigation != null)
                 {
                     if (inverseNavigation.IsCollection())
                     {
-                        inverseNavigation.GetCollectionAccessor().Add(relatedEntity, entity);
+                        inverseNavigation
+                            .GetCollectionAccessor()
+                            .AddRange(relatedEntities[0], new[] { entity });
                     }
                     else
                     {
-                        inverseNavigation.GetSetter().SetClrValue(relatedEntity, entity);
+                        inverseNavigation
+                            .GetSetter()
+                            .SetClrValue(relatedEntities[0], entity);
                     }
                 }
             }
             else
             {
-                if (navigation.IsCollection())
+                if (navigationPath[currentNavigationIndex].IsCollection())
                 {
-                    navigation.GetCollectionAccessor().AddRange(entity, relatedEntities);
+                    navigationPath[currentNavigationIndex]
+                        .GetCollectionAccessor()
+                        .AddRange(entity, relatedEntities);
 
-                    var inverseNavigation = navigation.FindInverse();
+                    var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
                     if (inverseNavigation != null)
                     {
-                        var clrPropertySetter= inverseNavigation.GetSetter();
+                        var clrPropertySetter
+                            = inverseNavigation.GetSetter();
 
                         foreach (var relatedEntity in relatedEntities)
                         {
@@ -375,15 +385,16 @@ namespace Microsoft.Data.Entity.Query.Internal
                         }
                     }
                 }
-                else if (relatedEntities.Count > 0)
+                else if (relatedEntities.Any())
                 {
-                    var relatedEntity = relatedEntities[0];
+                    navigationPath[currentNavigationIndex]
+                        .GetSetter()
+                        .SetClrValue(entity, relatedEntities[0]);
 
-                    navigation.GetSetter().SetClrValue(entity, relatedEntity);
+                    var inverseNavigation = navigationPath[currentNavigationIndex].FindInverse();
 
-                    var inverseNavigation = navigation.FindInverse();
-
-                    inverseNavigation?.GetSetter().SetClrValue(relatedEntity, entity);
+                    inverseNavigation?.GetSetter()
+                        .SetClrValue(relatedEntities[0], entity);
                 }
             }
         }
