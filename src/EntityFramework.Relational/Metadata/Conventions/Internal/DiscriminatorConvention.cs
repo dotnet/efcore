@@ -15,9 +15,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 && (oldBaseType.BaseType == null)
                 && !oldBaseType.GetDerivedTypes().Any())
             {
-                var oldBaseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(oldBaseType.Name, ConfigurationSource.Convention);
-                oldBaseTypeBuilder?.Relational(ConfigurationSource.Convention)
-                    .HasDiscriminator(propertyInfo: null);
+                var oldBaseTypeBuilder = oldBaseType.Builder;
+                oldBaseTypeBuilder?.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
             }
 
             var entityType = entityTypeBuilder.Metadata;
@@ -28,8 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             {
                 if (!derivedEntityTypes.Any())
                 {
-                    entityTypeBuilder.Relational(ConfigurationSource.Convention)
-                        .HasDiscriminator(propertyInfo: null);
+                    entityTypeBuilder.Relational(ConfigurationSource.Convention).HasDiscriminator(propertyInfo: null);
                     return true;
                 }
 
@@ -44,9 +42,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     return true;
                 }
 
-                var rootTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(entityType.RootType().Name, ConfigurationSource.Convention);
-                discriminator = rootTypeBuilder?.Relational(ConfigurationSource.Convention)
-                    .HasDiscriminator(typeof(string));
+                var rootTypeBuilder = entityType.RootType().Builder;
+                discriminator = rootTypeBuilder?.Relational(ConfigurationSource.Convention).HasDiscriminator(typeof(string));
 
                 if (entityType.BaseType.BaseType == null)
                 {

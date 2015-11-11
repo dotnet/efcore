@@ -128,8 +128,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     foreignKey.PrincipalEntityType.Name));
             }
 
-            var dependentEntityTypebuilder = relationshipBuilder.ModelBuilder.Entity(foreignKey.DeclaringEntityType.Name, ConfigurationSource.Convention);
-            var principalEntityTypeBuilder = relationshipBuilder.ModelBuilder.Entity(foreignKey.PrincipalEntityType.Name, ConfigurationSource.Convention);
+            var dependentEntityTypebuilder = foreignKey.DeclaringEntityType.Builder;
+            var principalEntityTypeBuilder = foreignKey.PrincipalEntityType.Builder;
 
             dependentEntityTypebuilder.Relationship(principalEntityTypeBuilder, ConfigurationSource.DataAnnotation)
                 .PrincipalToDependent(null, ConfigurationSource.DataAnnotation)

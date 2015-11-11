@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys().ToList())
             {
-                var removed = entityTypeBuilder.RemoveForeignKey(foreignKey, configurationSource);
+                var removed = foreignKey.DeclaringEntityType.Builder.RemoveForeignKey(foreignKey, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 

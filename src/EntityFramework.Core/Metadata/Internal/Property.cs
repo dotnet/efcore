@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
-        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual Type ClrType

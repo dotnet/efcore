@@ -130,6 +130,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (_baseType == entityType)
             {
+                UpdateBaseTypeConfigurationSource(configurationSource);
+                entityType?.UpdateConfigurationSource(configurationSource);
                 return;
             }
 
@@ -194,6 +196,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             PropertyMetadataChanged();
             UpdateBaseTypeConfigurationSource(configurationSource);
+            entityType?.UpdateConfigurationSource(configurationSource);
         }
 
         public virtual ConfigurationSource? GetBaseTypeConfigurationSource() => _baseTypeConfigurationSource;
@@ -271,7 +274,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
-        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
         public virtual bool UseEagerSnapshots
@@ -498,7 +501,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] Key principalKey,
             [NotNull] EntityType principalEntityType,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource? configurationSource = ConfigurationSource.Explicit)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
@@ -521,7 +524,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 throw new InvalidOperationException(CoreStrings.DuplicateForeignKey(Property.Format(properties), DisplayName(), duplicateForeignKey.DeclaringEntityType.DisplayName()));
             }
 
-            var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType, configurationSource);
+            var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType, configurationSource ?? ConfigurationSource.Convention);
+            if (configurationSource.HasValue)
+            {
+                principalEntityType.UpdateConfigurationSource(configurationSource.Value);
+                foreignKey.UpdateForeignKeyPropertiesConfigurationSource(configurationSource.Value);
+                foreignKey.UpdatePrincipalKeyConfigurationSource(configurationSource.Value);
+                foreignKey.UpdatePrincipalEndConfigurationSource(configurationSource.Value);
+            }
 
             if (principalEntityType.Model != Model)
             {
@@ -624,12 +634,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : RemoveForeignKey(foreignKey);
         }
 
-        public virtual ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
+        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
         {
-            foreignKey.HasDependentToPrincipal(null);
-            foreignKey.HasPrincipalToDependent(null);
+            if (foreignKey.DependentToPrincipal != null)
+            {
+                foreignKey.DeclaringEntityType.RemoveNavigation(foreignKey.DependentToPrincipal.Name);
+            }
+            
+            if (foreignKey.PrincipalToDependent != null)
+            {
+                foreignKey.PrincipalEntityType.RemoveNavigation(foreignKey.PrincipalToDependent.Name);
+            }
 
             var removed = _foreignKeys.Remove(foreignKey.Properties);
+            foreignKey.Builder = null;
 
             PropertyMetadataChanged();
 
@@ -652,8 +670,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual Navigation AddNavigation(
             [NotNull] string name,
             [NotNull] ForeignKey foreignKey,
-            bool pointsToPrincipal,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            bool pointsToPrincipal)
         {
             Check.NotEmpty(name, nameof(name));
             Check.NotNull(foreignKey, nameof(foreignKey));
@@ -695,7 +712,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 !pointsToPrincipal && !((IForeignKey)foreignKey).IsUnique,
                 shouldThrow: true);
 
-            var navigation = new Navigation(name, foreignKey, configurationSource);
+            var navigation = new Navigation(name, foreignKey);
             _navigations.Add(name, navigation);
 
             PropertyMetadataChanged();

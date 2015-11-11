@@ -26,9 +26,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
-            Assert.True(foreignKey.IsUnique.Value);
+            Assert.True(foreignKey.IsUnique);
             Assert.Same(entityType.FindPrimaryKey(), foreignKey.PrincipalKey);
             Assert.Equal(ConfigurationSource.Convention, foreignKey.GetConfigurationSource());
+
+            foreignKey.UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
+
+            Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetConfigurationSource());
         }
 
         [Fact]
@@ -104,7 +108,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
             Assert.Same(dependentProp, foreignKey.Properties.Single());
-            Assert.False(foreignKey.IsUnique.Value);
+            Assert.False(foreignKey.IsUnique);
             Assert.Same(principalKey, foreignKey.PrincipalKey);
         }
 
@@ -147,11 +151,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentProp = entityType.AddProperty("P", typeof(int));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
-
-            Assert.Null(foreignKey.IsRequired);
-            Assert.True(((IForeignKey)foreignKey).IsRequired);
-            Assert.Null(foreignKey.IsUnique);
-            Assert.False(((IForeignKey)foreignKey).IsUnique);
+            
+            Assert.True(foreignKey.IsRequired);
+            Assert.False(foreignKey.IsUnique);
         }
 
         [Fact]
@@ -163,11 +165,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentProp = entityType.AddProperty("P", typeof(int?));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
-
-            Assert.Null(foreignKey.IsRequired);
-            Assert.False(((IForeignKey)foreignKey).IsRequired);
-            Assert.Null(foreignKey.IsUnique);
-            Assert.False(((IForeignKey)foreignKey).IsUnique);
+            
+            Assert.False(foreignKey.IsRequired);
+            Assert.False(foreignKey.IsUnique);
         }
 
         [Fact]
@@ -186,9 +186,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var dependentProp2 = entityType.AddProperty("P2", typeof(string));
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
-
-            Assert.Null(foreignKey.IsRequired);
-            Assert.False(((IForeignKey)foreignKey).IsRequired);
+            
+            Assert.False(foreignKey.IsRequired);
         }
 
         [Fact]
@@ -210,12 +209,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
 
             Assert.False(foreignKey.IsRequired);
-            Assert.False(((IForeignKey)foreignKey).IsRequired);
 
             dependentProp2.IsNullable = false;
 
             Assert.True(foreignKey.IsRequired);
-            Assert.True(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]
@@ -237,7 +234,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
             foreignKey.IsRequired = true;
 
-            Assert.True(foreignKey.IsRequired.Value);
+            Assert.True(foreignKey.IsRequired);
             Assert.False(dependentProp1.IsNullable);
             Assert.False(dependentProp2.IsNullable);
         }
@@ -260,7 +257,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp1, dependentProp2 }, entityType.FindPrimaryKey(), entityType);
             foreignKey.IsRequired = false;
 
-            Assert.False(foreignKey.IsRequired.Value);
+            Assert.False(foreignKey.IsRequired);
             Assert.True(dependentProp1.IsNullable);
             Assert.True(dependentProp2.IsNullable);
         }
@@ -545,24 +542,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalKey = entityType.AddKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
-
-            Assert.Null(foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.Restrict, ((IForeignKey)foreignKey).DeleteBehavior);
+            
+            Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
 
             foreignKey.DeleteBehavior = DeleteBehavior.Cascade;
 
             Assert.Equal(DeleteBehavior.Cascade, foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.Cascade, ((IForeignKey)foreignKey).DeleteBehavior);
 
             foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
 
             Assert.Equal(DeleteBehavior.Restrict, foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.Restrict, ((IForeignKey)foreignKey).DeleteBehavior);
-
-            foreignKey.DeleteBehavior = null;
-
-            Assert.Null(foreignKey.DeleteBehavior);
-            Assert.Equal(DeleteBehavior.Restrict, ((IForeignKey)foreignKey).DeleteBehavior);
         }
 
         [Fact]

@@ -19,9 +19,12 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(entityTypeBuilder, nameof(entityTypeBuilder));
             var entityType = entityTypeBuilder.Metadata;
 
-            if (entityType.BaseType == null)
+            if (entityType.BaseType == null
+                && entityType.FindPrimaryKey() == null)
             {
-                var candidateProperties = entityType.GetProperties().Where(p => !((IProperty)p).IsShadowProperty || !entityTypeBuilder.CanRemoveProperty(p, ConfigurationSource.Convention)).ToList();
+                var candidateProperties = entityType.GetProperties().Where(p =>
+                    !p.IsShadowProperty
+                    || !ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())).ToList();
                 var keyProperties = DiscoverKeyProperties(entityType, candidateProperties);
                 if (keyProperties.Count != 0)
                 {
@@ -62,8 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         {
             Check.NotNull(propertyBuilder, nameof(propertyBuilder));
 
-            var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(propertyBuilder.Metadata.DeclaringEntityType.Name, ConfigurationSource.Convention);
-            Apply(entityTypeBuilder);
+            Apply(propertyBuilder.Metadata.DeclaringEntityType.Builder);
 
             return propertyBuilder;
         }

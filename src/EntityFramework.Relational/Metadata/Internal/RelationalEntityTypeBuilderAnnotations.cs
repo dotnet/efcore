@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var rootType = EntityTypeBuilder.Metadata.RootType();
             var rootTypeBuilder = EntityTypeBuilder.Metadata == rootType
                 ? EntityTypeBuilder
-                : EntityTypeBuilder.ModelBuilder.Entity(rootType.Name, ConfigurationSource.Convention);
+                : rootType.Builder;
 
             InternalPropertyBuilder propertyBuilder;
             if (createProperty != null)

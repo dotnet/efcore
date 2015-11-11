@@ -75,18 +75,18 @@ namespace Microsoft.Data.Entity.Metadata
         /// <summary>
         ///     Gets or sets a value indicating whether the values assigned to the foreign key properties are unique.
         /// </summary>
-        new bool? IsUnique { get; set; }
+        new bool IsUnique { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating if this relationship is required. If true, the dependent entity must always be
         ///     assigned to a valid principal entity.
         /// </summary>
-        new bool? IsRequired { get; set; }
+        new bool IsRequired { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
-        new DeleteBehavior? DeleteBehavior { get; set; }
+        new DeleteBehavior DeleteBehavior { get; set; }
     }
 }

@@ -264,21 +264,16 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     foreach (var navigationProperty in relationshipCandidate.NavigationProperties)
                     {
                         var existingForeignKey = entityTypeBuilder.Metadata.FindDeclaredNavigation(navigationProperty.Name)?.ForeignKey;
-                        if (existingForeignKey != null)
-                        {
-                            entityTypeBuilder.ModelBuilder.Entity(existingForeignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                                .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
-                        }
+                        existingForeignKey?.DeclaringEntityType.Builder
+                            .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
                     }
 
                     foreach (var inverseProperty in relationshipCandidate.InverseProperties)
                     {
-                        var existingForeignKey = relationshipCandidate.TargetTypeBuilder.Metadata.FindDeclaredNavigation(inverseProperty.Name)?.ForeignKey;
-                        if (existingForeignKey != null)
-                        {
-                            entityTypeBuilder.ModelBuilder.Entity(existingForeignKey.DeclaringEntityType.Name, ConfigurationSource.Convention)
-                                .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
-                        }
+                        var existingForeignKey = relationshipCandidate.TargetTypeBuilder.Metadata
+                            .FindDeclaredNavigation(inverseProperty.Name)?.ForeignKey;
+                        existingForeignKey?.DeclaringEntityType.Builder
+                            .RemoveForeignKey(existingForeignKey, ConfigurationSource.Convention);
                     }
 
                     break;
@@ -298,14 +293,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         public virtual bool Apply(InternalEntityTypeBuilder entityTypeBuilder, EntityType oldBaseType)
         {
-            if (oldBaseType != null)
+            var oldBaseTypeBuilder = oldBaseType?.Builder;
+            if (oldBaseTypeBuilder != null)
             {
-                var oldBaseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(oldBaseType.Name, ConfigurationSource.Convention);
-                if (oldBaseTypeBuilder != null)
-                {
-                    ApplyOnRelatedEntityTypes(entityTypeBuilder.ModelBuilder, oldBaseTypeBuilder.Metadata);
-                    Apply(oldBaseTypeBuilder);
-                }
+                ApplyOnRelatedEntityTypes(entityTypeBuilder.ModelBuilder, oldBaseTypeBuilder.Metadata);
+                Apply(oldBaseTypeBuilder);
             }
 
             ApplyOnRelatedEntityTypes(entityTypeBuilder.ModelBuilder, entityTypeBuilder.Metadata);
@@ -331,8 +323,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             InternalEntityTypeBuilder targetEntityTypeBuilder,
             string navigationName)
         {
-            sourceEntityTypeBuilder = sourceEntityTypeBuilder.ModelBuilder.Entity(sourceEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention);
-            if (sourceEntityTypeBuilder == null)
+            sourceEntityTypeBuilder = sourceEntityTypeBuilder.Metadata.Builder;
+            if (sourceEntityTypeBuilder == null
+                || sourceEntityTypeBuilder.ModelBuilder.IsIgnored(sourceEntityTypeBuilder.Metadata.Name, ConfigurationSource.Convention))
             {
                 return true;
             }
@@ -346,7 +339,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             foreach (var derivedType in sourceEntityTypeBuilder.Metadata.GetDerivedTypes())
             {
-                Apply(sourceEntityTypeBuilder.ModelBuilder.Entity(derivedType.Name, ConfigurationSource.Convention));
+                Apply(derivedType.Builder);
             }
 
             return true;

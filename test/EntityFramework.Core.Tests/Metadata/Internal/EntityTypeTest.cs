@@ -1119,6 +1119,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(typeof(Customer).FullName, entityType.Name);
             Assert.Same(typeof(Customer), entityType.ClrType);
             Assert.Equal(ConfigurationSource.Convention, entityType.GetConfigurationSource());
+
+            entityType.UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
+
+            Assert.Equal(ConfigurationSource.DataAnnotation, entityType.GetConfigurationSource());
         }
 
         [Fact]
@@ -1710,15 +1714,19 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var fk1 = orderType.AddForeignKey(customerFk1, customerKey, customerType);
             var fk2 = orderType.AddForeignKey(customerFk2, customerKey, customerType);
 
+            Assert.NotNull(fk1.Builder);
+            Assert.NotNull(fk2.Builder);
             Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
 
-            Assert.Same(fk1, orderType.RemoveForeignKey(fk1));
-            Assert.Null(orderType.RemoveForeignKey(fk1));
+            Assert.Same(fk1, orderType.RemoveForeignKey(fk1.Properties, fk1.PrincipalKey, fk1.PrincipalEntityType));
+            Assert.Null(orderType.RemoveForeignKey(fk1.Properties, fk1.PrincipalKey, fk1.PrincipalEntityType));
 
             Assert.Equal(new[] { fk2 }, orderType.GetForeignKeys().ToArray());
 
             Assert.Same(fk2, orderType.RemoveForeignKey(new[] { customerFk2 }, customerKey, customerType));
 
+            Assert.Null(fk1.Builder);
+            Assert.Null(fk2.Builder);
             Assert.Empty(orderType.GetForeignKeys());
         }
 
@@ -1737,7 +1745,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             fk.HasDependentToPrincipal("Customer");
             fk.HasPrincipalToDependent("Orders");
 
-            Assert.NotNull(orderType.RemoveForeignKey(fk));
+            Assert.NotNull(orderType.RemoveForeignKey(fk.Properties, fk.PrincipalKey, fk.PrincipalEntityType));
             Assert.Empty(orderType.GetNavigations());
             Assert.Empty(customerType.GetNavigations());
         }

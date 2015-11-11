@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                     ? builder.Metadata.PrincipalKey.Properties
                     : oldBuilder._principalKeyProperties;
                 _required = requiredSet
-                    ? builder.Metadata.IsRequired.Value
+                    ? builder.Metadata.IsRequired
                     : oldBuilder._required;
 
                 var foreignKey = builder.Metadata;

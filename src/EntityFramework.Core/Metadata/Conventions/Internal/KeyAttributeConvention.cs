@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 throw new InvalidOperationException(CoreStrings.KeyAttributeOnDerivedEntity(entityType.DisplayName(), propertyBuilder.Metadata.Name));
             }
 
-            var entityTypeBuilder = propertyBuilder.ModelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
+            var entityTypeBuilder = entityType.Builder;
             var currentKey = entityTypeBuilder.Metadata.FindPrimaryKey();
             var properties = new List<string> { propertyBuilder.Metadata.Name };
 
@@ -58,8 +58,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 if ((currentPrimaryKey != null)
                     && (currentPrimaryKey.Properties.Count > 1))
                 {
-                    var entityTypeBuilder = modelBuilder.Entity(entityType.Name, ConfigurationSource.Convention);
-                    var newKey = entityTypeBuilder.PrimaryKey(new List<string> { currentPrimaryKey.Properties.First().Name }, ConfigurationSource.DataAnnotation);
+                    var newKey = entityType.Builder.PrimaryKey(
+                        new List<string> { currentPrimaryKey.Properties.First().Name }, ConfigurationSource.DataAnnotation);
                     if (newKey != null)
                     {
                         throw new InvalidOperationException(CoreStrings.CompositePKWithDataAnnotation(entityType.DisplayName()));
