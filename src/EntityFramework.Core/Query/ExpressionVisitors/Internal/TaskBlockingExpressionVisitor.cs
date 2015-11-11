@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 var typeInfo = expression.Type.GetTypeInfo();
 
                 if (typeInfo.IsGenericType
-                    && typeInfo.GetGenericTypeDefinition() == typeof(Task<>))
+                    && (typeInfo.GetGenericTypeDefinition() == typeof(Task<>)))
                 {
                     return Expression.Call(
                         _resultMethodInfo.MakeGenericMethod(typeInfo.GenericTypeArguments[0]),

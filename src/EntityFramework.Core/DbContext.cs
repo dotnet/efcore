@@ -34,9 +34,9 @@ namespace Microsoft.Data.Entity
     ///     <para>
     ///         Override the <see cref="OnConfiguring(DbContextOptionsBuilder)" /> method to configure the database (and
     ///         other options) to be used for the context. Alternatively, if you would rather perform configuration externally
-    ///         instead of inline in your context, you can use <see cref="DbContextOptionsBuilder{TContext}"/> 
-    ///         (or <see cref="DbContextOptionsBuilder"/>) to externally create an instance of <see cref="DbContextOptions{TContext}"/> 
-    ///         (or <see cref="DbContextOptions"/>) and pass it to a base constructor of <see cref="DbContext"/>.
+    ///         instead of inline in your context, you can use <see cref="DbContextOptionsBuilder{TContext}" />
+    ///         (or <see cref="DbContextOptionsBuilder" />) to externally create an instance of <see cref="DbContextOptions{TContext}" />
+    ///         (or <see cref="DbContextOptions" />) and pass it to a base constructor of <see cref="DbContext" />.
     ///     </para>
     ///     <para>
     ///         The model is discovered by running a set of conventions over the entity classes found in the
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity
         ///     <para>
         ///         If the <see cref="IServiceProvider" /> has a <see cref="DbContextOptions" /> or
         ///         <see cref="DbContextOptions{TContext}" />
-        ///         registered, then this will be used as the options for this context instance. The 
+        ///         registered, then this will be used as the options for this context instance. The
         ///         <see cref="OnConfiguring(DbContextOptionsBuilder)" />
         ///         method will still be called to allow further configuration of the options.
         ///     </para>
@@ -162,8 +162,8 @@ namespace Microsoft.Data.Entity
             var options = (DbContextOptions)serviceProvider.GetService(genericOptions)
                           ?? serviceProvider.GetService<DbContextOptions>();
 
-            if (options != null
-                && options.GetType() != genericOptions)
+            if ((options != null)
+                && (options.GetType() != genericOptions))
             {
                 throw new InvalidOperationException(CoreStrings.NonGenericOptions);
             }
@@ -246,9 +246,9 @@ namespace Microsoft.Data.Entity
         ///     </para>
         ///     <para>
         ///         In situations where an instance of <see cref="DbContextOptions" /> may or may not have been passed
-        ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured"/> to determine if 
-        ///         the options have already been set, and skip some or all of the logic in 
-        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/>.
+        ///         to the constructor, you can use <see cref="DbContextOptionsBuilder.IsConfigured" /> to determine if
+        ///         the options have already been set, and skip some or all of the logic in
+        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
         /// <param name="optionsBuilder">
@@ -265,7 +265,7 @@ namespace Microsoft.Data.Entity
         ///     and re-used for subsequent instances of your derived context.
         /// </summary>
         /// <remarks>
-        ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)"/>)
+        ///     If a model is explicitly set on the options for this context (via <see cref="DbContextOptionsBuilder.UseModel(IModel)" />)
         ///     then this method will not be run.
         /// </remarks>
         /// <param name="modelBuilder">
@@ -463,8 +463,8 @@ namespace Microsoft.Data.Entity
 
         private void SetEntityState(InternalEntityEntry entry, EntityState entityState, GraphBehavior behavior)
         {
-            if (behavior == GraphBehavior.IncludeDependents
-                && entry.EntityState == EntityState.Detached)
+            if ((behavior == GraphBehavior.IncludeDependents)
+                && (entry.EntityState == EntityState.Detached))
             {
                 ServiceProvider.GetRequiredService<IEntityGraphAttacher>().AttachGraph(entry, entityState);
             }
@@ -518,7 +518,7 @@ namespace Microsoft.Data.Entity
         ///     <para>
         ///         All properties of the entity will be marked as modified. To mark only some properties as modified, use
         ///         <see cref="Attach{TEntity}(TEntity, GraphBehavior)" /> to begin tracking the entity in the
-        ///         <see cref="EntityState.Unchanged" /> state and then use the returned <see cref="EntityEntry{TEntity}" /> 
+        ///         <see cref="EntityState.Unchanged" /> state and then use the returned <see cref="EntityEntry{TEntity}" />
         ///         to mark the desired properties as modified.
         ///     </para>
         /// </summary>
@@ -819,7 +819,7 @@ namespace Microsoft.Data.Entity
         public virtual IModel Model => ServiceProvider.GetRequiredService<IModel>();
 
         /// <summary>
-        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity"/>.
+        ///     Creates a <see cref="DbSet{TEntity}" /> that can be used to query and save instances of <typeparamref name="TEntity" />.
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity for which a set should be returned. </typeparam>
         /// <returns> A set for the given entity type. </returns>

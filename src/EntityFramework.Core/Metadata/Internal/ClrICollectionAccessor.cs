@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var collection = _getCollection((TEntity)instance);
 
-            return collection != null && collection.Contains((TElement)value);
+            return (collection != null) && collection.Contains((TElement)value);
         }
 
         public virtual void Remove(object instance, object value)

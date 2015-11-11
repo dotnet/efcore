@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.Metadata
 {
     /// <summary>
     ///     Metadata about the shape of entities, the relationships between them, and how they map to the database. A model is typically
-    ///     created by overriding the <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> method on a derived context, or
-    ///     using <see cref="ModelBuilder"/>.
+    ///     created by overriding the <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived context, or
+    ///     using <see cref="ModelBuilder" />.
     /// </summary>
     public interface IModel : IAnnotatable
     {

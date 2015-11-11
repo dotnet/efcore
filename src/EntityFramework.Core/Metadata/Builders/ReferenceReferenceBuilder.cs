@@ -80,8 +80,8 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             {
                 if (inverted)
                 {
-                    if (oldBuilder._foreignKeyProperties != null
-                        || oldBuilder._principalKeyProperties != null)
+                    if ((oldBuilder._foreignKeyProperties != null)
+                        || (oldBuilder._principalKeyProperties != null))
 
                     {
                         throw new InvalidOperationException(CoreStrings.RelationshipCannotBeInverted);
@@ -299,7 +299,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
             => new ReferenceReferenceBuilder(Builder.IsRequired(required, ConfigurationSource.Explicit), this, requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the 
+        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>

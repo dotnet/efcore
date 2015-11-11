@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (ignoredConfigurationSource.HasValue)
             {
                 if (configurationSource.Overrides(ignoredConfigurationSource)
-                    && configurationSource != ignoredConfigurationSource)
+                    && (configurationSource != ignoredConfigurationSource))
                 {
                     Metadata.Ignore(name, configurationSource);
                 }

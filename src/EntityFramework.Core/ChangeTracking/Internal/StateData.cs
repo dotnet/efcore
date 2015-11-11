@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 propertyIndex = propertyIndex * BitsForPropertyFlags + (int)propertyFlag + BitsForAdditionalState;
 
-                return (_bits[propertyIndex / BitsPerInt] & (1 << propertyIndex % BitsPerInt)) != 0;
+                return (_bits[propertyIndex / BitsPerInt] & (1 << (propertyIndex % BitsPerInt))) != 0;
             }
 
             public void FlagProperty(int propertyIndex, PropertyFlag propertyFlag, bool isFlagged)
@@ -65,11 +65,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 if (isFlagged)
                 {
-                    _bits[propertyIndex / BitsPerInt] |= 1 << propertyIndex % BitsPerInt;
+                    _bits[propertyIndex / BitsPerInt] |= 1 << (propertyIndex % BitsPerInt);
                 }
                 else
                 {
-                    _bits[propertyIndex / BitsPerInt] &= ~(1 << propertyIndex % BitsPerInt);
+                    _bits[propertyIndex / BitsPerInt] &= ~(1 << (propertyIndex % BitsPerInt));
                 }
             }
 

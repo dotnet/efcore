@@ -3,7 +3,6 @@
 
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -19,16 +18,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual void AttachGraph(InternalEntityEntry rootEntry, EntityState entityState)
             => _graphIterator.TraverseGraph(
                 new EntityEntryGraphNode(rootEntry, null)
-                    {
-                        NodeState = entityState
-                    },
+                {
+                    NodeState = entityState
+                },
                 PaintAction);
 
         private static bool PaintAction(EntityEntryGraphNode n)
         {
             var internalEntityEntry = n.GetInfrastructure();
-            if (internalEntityEntry.EntityState != EntityState.Detached
-                || (n.InboundNavigation != null && n.InboundNavigation.IsDependentToPrincipal()))
+            if ((internalEntityEntry.EntityState != EntityState.Detached)
+                || ((n.InboundNavigation != null) && n.InboundNavigation.IsDependentToPrincipal()))
             {
                 return false;
             }

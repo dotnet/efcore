@@ -1440,12 +1440,12 @@ namespace Microsoft.Data.Entity
             return GetMethod<TResult>(
                 nameof(Queryable.Average),
                 parameterCount,
-                mi => (parameterCount == 0
-                       && mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>))
-                      || (mi.GetParameters().Length == 2
-                          && mi.GetParameters()[1]
+                mi => ((parameterCount == 0)
+                       && (mi.GetParameters()[0].ParameterType == typeof(IQueryable<TOperand>)))
+                      || ((mi.GetParameters().Length == 2)
+                          && (mi.GetParameters()[1]
                               .ParameterType.GenericTypeArguments[0]
-                              .GenericTypeArguments[1] == typeof(TOperand)));
+                              .GenericTypeArguments[1] == typeof(TOperand))));
         }
 
         private static readonly MethodInfo _averageDecimal = GetAverageMethod<decimal, decimal>();
@@ -2173,9 +2173,10 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Specifies related entities to include in the query results. The navigation property to be included is specified starting with the
-        ///     type of entity being queried (<typeparamref name="TEntity"/>). If you wish to include additional types based on the navigation
-        ///     properties of the type being included, then chain a call to 
-        ///     <see cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, ICollection{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})"/>
+        ///     type of entity being queried (<typeparamref name="TEntity" />). If you wish to include additional types based on the navigation
+        ///     properties of the type being included, then chain a call to
+        ///     <see
+        ///         cref="ThenInclude{TEntity, TPreviousProperty, TProperty}(IIncludableQueryable{TEntity, ICollection{TPreviousProperty}}, Expression{Func{TPreviousProperty, TProperty}})" />
         ///     after this call.
         /// </summary>
         /// <example>
@@ -2201,11 +2202,11 @@ namespace Microsoft.Data.Entity
         ///         </code>
         ///     </para>
         /// </example>
-        /// <typeparam name = "TEntity" > The type of entity being queried. </typeparam>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
         /// <param name="source"> The source query. </param>
         /// <param name="navigationPropertyPath">
-        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>). 
+        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
         /// </param>
         /// <returns>
         ///     A new query with the related data included.
@@ -2262,12 +2263,12 @@ namespace Microsoft.Data.Entity
         ///         </code>
         ///     </para>
         /// </example>
-        /// <typeparam name = "TEntity" > The type of entity being queried. </typeparam>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <typeparam name="TPreviousProperty"> The type of the entity that was just included. </typeparam>
         /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
         /// <param name="source"> The source query. </param>
         /// <param name="navigationPropertyPath">
-        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>). 
+        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
         /// </param>
         /// <returns>
         ///     A new query with the related data included.
@@ -2309,12 +2310,12 @@ namespace Microsoft.Data.Entity
         ///         </code>
         ///     </para>
         /// </example>
-        /// <typeparam name = "TEntity" > The type of entity being queried. </typeparam>
+        /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
         /// <typeparam name="TPreviousProperty"> The type of the entity that was just included. </typeparam>
         /// <typeparam name="TProperty"> The type of the related entity to be included. </typeparam>
         /// <param name="source"> The source query. </param>
         /// <param name="navigationPropertyPath">
-        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>). 
+        ///     A lambda expression representing the navigation property to be included (<c>t => t.Property1</c>).
         /// </param>
         /// <returns>
         ///     A new query with the related data included.
@@ -2400,22 +2401,22 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     <para>
-        ///         Returns a new query where the change tracker will not track any of the entities that are returned. 
-        ///         If the entity instances are modified, this will not be detected by the change tracker and 
-        ///         <see cref="DbContext.SaveChanges()"/> will not persist those changes to the database.
+        ///         Returns a new query where the change tracker will not track any of the entities that are returned.
+        ///         If the entity instances are modified, this will not be detected by the change tracker and
+        ///         <see cref="DbContext.SaveChanges()" /> will not persist those changes to the database.
         ///     </para>
         ///     <para>
-        ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting 
-        ///         up change tracking for each entity instance. You should not disable change tracking if you want to 
-        ///         manipulate entity instances and persist those changes to the database using 
-        ///         <see cref="DbContext.SaveChanges()"/>.
+        ///         Disabling change tracking is useful for read-only scenarios because it avoids the overhead of setting
+        ///         up change tracking for each entity instance. You should not disable change tracking if you want to
+        ///         manipulate entity instances and persist those changes to the database using
+        ///         <see cref="DbContext.SaveChanges()" />.
         ///     </para>
         ///     <para>
-        ///         Identity resolution will still be performed to ensure that all occurrences of an entity with a given key 
+        ///         Identity resolution will still be performed to ensure that all occurrences of an entity with a given key
         ///         in the result set are represented by the same entity instance.
         ///     </para>
         ///     <para>
-        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior"/>.
+        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior" />.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
@@ -2440,10 +2441,10 @@ namespace Microsoft.Data.Entity
         ///     <para>
         ///         Returns a new query where the change tracker will keep track of changes for all entities that are returned.
         ///         Any modification to the entity instances will be detected and persisted to the database during
-        ///         <see cref="DbContext.SaveChanges()"/>.
+        ///         <see cref="DbContext.SaveChanges()" />.
         ///     </para>
         ///     <para>
-        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior"/>.
+        ///         The default tracking behavior for queries can be controlled by <see cref="ChangeTracker.QueryTrackingBehavior" />.
         ///     </para>
         /// </summary>
         /// <typeparam name="TEntity"> The type of entity being queried. </typeparam>
@@ -2454,7 +2455,7 @@ namespace Microsoft.Data.Entity
         public static IQueryable<TEntity> AsTracking<TEntity>(
             [NotNull] this IQueryable<TEntity> source)
             where TEntity : class
-             => source.Provider.CreateQuery<TEntity>(
+            => source.Provider.CreateQuery<TEntity>(
                 Expression.Call(
                     null,
                     AsTrackingMethodInfo
@@ -2781,14 +2782,14 @@ namespace Microsoft.Data.Entity
             => GetMethod(
                 name,
                 parameterCount,
-                mi => mi.ReturnType == typeof(TResult)
-                      && (predicate == null || predicate(mi)));
+                mi => (mi.ReturnType == typeof(TResult))
+                      && ((predicate == null) || predicate(mi)));
 
         private static MethodInfo GetMethod(
             string name, int parameterCount = 0, Func<MethodInfo, bool> predicate = null)
             => typeof(Queryable).GetTypeInfo().GetDeclaredMethods(name)
-                .Single(mi => mi.GetParameters().Length == parameterCount + 1
-                              && (predicate == null || predicate(mi)));
+                .Single(mi => (mi.GetParameters().Length == parameterCount + 1)
+                              && ((predicate == null) || predicate(mi)));
 
         #endregion
     }

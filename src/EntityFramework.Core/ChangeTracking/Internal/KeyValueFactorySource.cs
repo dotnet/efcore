@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             // advantages of the simple key don't really apply anyway.
                             if (!typeof(IStructuralEquatable).GetTypeInfo().IsAssignableFrom(keyType.GetTypeInfo()))
                             {
-                                return (KeyValueFactory)(Activator.CreateInstance(
-                                    typeof(SimpleKeyValueFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k));
+                                return (KeyValueFactory)Activator.CreateInstance(
+                                    typeof(SimpleKeyValueFactory<>).MakeGenericType(keyType.UnwrapNullableType()), k);
                             }
                         }
 

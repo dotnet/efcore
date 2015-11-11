@@ -14,7 +14,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IMutableEntityType"/>.
+    ///     Extension methods for <see cref="IMutableEntityType" />.
     /// </summary>
     public static class MutableEntityTypeExtensions
     {
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity
         ///     Gets the root base type for a given entity type.
         /// </summary>
         /// <param name="entityType"> The type to find the root of. </param>
-        /// <returns> 
+        /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
         public static IMutableEntityType RootType([NotNull] this IMutableEntityType entityType)
@@ -157,8 +157,8 @@ namespace Microsoft.Data.Entity
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -174,13 +174,12 @@ namespace Microsoft.Data.Entity
             return entityType.FindForeignKey(new[] { property }, principalKey, principalEntityType);
         }
 
-
-        /// <summary> 
-        ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type 
-        ///     is the principal). 
-        /// </summary> 
-        /// <param name="entityType"> The entity type to find the foreign keys for. </param> 
-        /// <returns> The foreign keys that reference the given entity type. </returns> 
+        /// <summary>
+        ///     Gets all foreign keys that target a given entity type (i.e. foreign keys where the given entity type
+        ///     is the principal).
+        /// </summary>
+        /// <param name="entityType"> The entity type to find the foreign keys for. </param>
+        /// <returns> The foreign keys that reference the given entity type. </returns>
         public static IEnumerable<IMutableForeignKey> GetReferencingForeignKeys([NotNull] this IMutableEntityType entityType)
             => ((IEntityType)entityType).GetReferencingForeignKeys().Cast<IMutableForeignKey>();
 
@@ -190,8 +189,8 @@ namespace Microsoft.Data.Entity
         /// <param name="entityType"> The entity type to add the foreign key to. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -213,8 +212,8 @@ namespace Microsoft.Data.Entity
         /// <param name="entityType"> The entity type to get or add the foreign key to. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -232,8 +231,8 @@ namespace Microsoft.Data.Entity
         /// <param name="entityType"> The entity type to get or add the foreign key to. </param>
         /// <param name="properties"> The properties that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -287,8 +286,8 @@ namespace Microsoft.Data.Entity
         ///         Gets a property on the given entity type. Returns null if no property is found.
         ///     </para>
         ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use 
-        ///         <see cref="FindNavigation(IMutableEntityType, PropertyInfo)"/> to find a navigation property.
+        ///         This API only finds scalar properties and does not find navigation properties. Use
+        ///         <see cref="FindNavigation(IMutableEntityType, PropertyInfo)" /> to find a navigation property.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type to find the property on. </param>

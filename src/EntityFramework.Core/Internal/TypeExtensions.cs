@@ -30,8 +30,8 @@ namespace Microsoft.Data.Entity.Internal
             { typeof(ushort), "ushort" }
         };
 
-        public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value) 
-            => value == null || value.Equals(type.GetDefaultValue());
+        public static bool IsDefaultValue([NotNull] this Type type, [CanBeNull] object value)
+            => (value == null) || value.Equals(type.GetDefaultValue());
 
         public static string DisplayName([NotNull] this Type type, bool fullName = true)
         {
@@ -106,12 +106,12 @@ namespace Microsoft.Data.Entity.Internal
                 {
                     var name = part.Substring(0, num);
                     var numberOfGenericTypeArgs = int.Parse(part.Substring(num + 1));
-                    if (fullName || i == totalParts - 1)
+                    if (fullName || (i == totalParts - 1))
                     {
                         sb.Append(name);
                         AppendGenericArguments(genericArguments, index, numberOfGenericTypeArgs, sb, fullName);
                     }
-                    if (fullName && i != totalParts - 1)
+                    if (fullName && (i != totalParts - 1))
                     {
                         sb.Append("+");
                     }
@@ -119,11 +119,11 @@ namespace Microsoft.Data.Entity.Internal
                 }
                 else
                 {
-                    if (fullName || i == totalParts - 1)
+                    if (fullName || (i == totalParts - 1))
                     {
                         sb.Append(part);
                     }
-                    if (fullName && i != totalParts - 1)
+                    if (fullName && (i != totalParts - 1))
                     {
                         sb.Append("+");
                     }

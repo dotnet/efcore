@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     public class ReducingExpressionVisitor : ExpressionVisitorBase
     {
         public override Expression Visit(Expression node)
-            => node != null
+            => (node != null)
                && node.CanReduce
                 ? Visit(node.Reduce())
                 : base.Visit(node);

@@ -9,7 +9,7 @@ using Microsoft.Data.Entity.Metadata;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IMutableKey"/>.
+    ///     Extension methods for <see cref="IMutableKey" />.
     /// </summary>
     public static class MutableKeyExtensions
     {

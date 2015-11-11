@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             DeclaringEntityType = dependentEntityType;
             PrincipalEntityType = principalEntityType;
             _configurationSource = configurationSource;
-            
+
             AreCompatible(principalKey.Properties, dependentProperties, principalEntityType, dependentEntityType, shouldThrow: true);
 
             if (!principalEntityType.GetKeys().Contains(principalKey))
@@ -233,14 +233,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return false;
             }
 
-            if (dependentProperties != null
+            if ((dependentProperties != null)
                 && !CanPropertiesBeRequired(dependentProperties, required, dependentEntityType, true))
             {
                 return false;
             }
 
-            if (principalProperties != null
-                && dependentProperties != null
+            if ((principalProperties != null)
+                && (dependentProperties != null)
                 && !AreCompatible(
                     principalProperties,
                     dependentProperties,
@@ -259,9 +259,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            return (unique == null || ((IForeignKey)this).IsUnique == unique)
-                   && PrincipalEntityType == principalType
-                   && DeclaringEntityType == dependentType;
+            return ((unique == null) || (((IForeignKey)this).IsUnique == unique))
+                   && (PrincipalEntityType == principalType)
+                   && (DeclaringEntityType == dependentType);
         }
 
         public static bool CanPropertiesBeRequired(

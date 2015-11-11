@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Query.ResultOperators.Internal
             clauseGenerationContext.AddContextInfo(this, includeResultOperator);
         }
 
-        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext) 
+        protected override ResultOperatorBase CreateResultOperator(ClauseGenerationContext clauseGenerationContext)
             => null;
 
         public override Expression Resolve(

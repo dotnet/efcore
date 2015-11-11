@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Update;
 using Microsoft.Data.Entity.Utilities;
@@ -15,20 +14,20 @@ using Remotion.Linq;
 namespace Microsoft.Data.Entity.Storage
 {
     /// <summary>
-    ///     <para>  
-    ///         The main interaction point between a context and the database provider. 
-    ///     </para>  
-    ///     <para>  
-    ///         This type is typically used by database providers (and other extensions). It is generally  
-    ///         not used in application code.  
-    ///     </para>  
+    ///     <para>
+    ///         The main interaction point between a context and the database provider.
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public abstract class Database : IDatabase
     {
         private readonly IQueryCompilationContextFactory _queryCompilationContextFactory;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Database" /> class. 
+        ///     Initializes a new instance of the <see cref="Database" /> class.
         /// </summary>
         /// <param name="queryCompilationContextFactory"> Factory for compilation contexts to process LINQ queries. </param>
         protected Database([NotNull] IQueryCompilationContextFactory queryCompilationContextFactory)

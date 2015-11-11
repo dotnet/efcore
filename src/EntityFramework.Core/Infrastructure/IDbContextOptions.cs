@@ -6,10 +6,10 @@ using System.Collections.Generic;
 namespace Microsoft.Data.Entity.Infrastructure
 {
     /// <summary>
-    ///     The options to be used by a <see cref="DbContext"/>. You normally override 
-    ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> or use a <see cref="DbContextOptionsBuilder"/> 
-    ///     to create instances of classes that implement this interface, they are not designed to be directly created 
-    ///     in your application code. 
+    ///     The options to be used by a <see cref="DbContext" />. You normally override
+    ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder" />
+    ///     to create instances of classes that implement this interface, they are not designed to be directly created
+    ///     in your application code.
     /// </summary>
     public interface IDbContextOptions
     {

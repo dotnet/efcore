@@ -9,22 +9,22 @@ namespace Microsoft.Data.Entity.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Represents an entity in an <see cref="IMutableModel"/>.
+    ///         Represents an entity in an <see cref="IMutableModel" />.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IEntityType"/> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="IEntityType" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableEntityType : IEntityType, IMutableAnnotatable
     {
         /// <summary>
         ///     <para>
-        ///         Gets or sets the CLR class that is used to represent instances of this entity. Returns null if the entity does not 
+        ///         Gets or sets the CLR class that is used to represent instances of this entity. Returns null if the entity does not
         ///         have a corresponding CLR class (known as a shadow entity).
         ///     </para>
         ///     <para>
-        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext"/>. 
+        ///         Shadow entities are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
         ///         Therefore, shadow entities will only exist in migration model snapshots, etc.
         ///     </para>
         /// </summary>
@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.Metadata
         ///         Gets primary key for this entity. Returns null if no primary key is defined.
         ///     </para>
         ///     <para>
-        ///         To be a valid model, each entity type must have a primary key defined. Therefore, the primary key may be 
-        ///         null while the model is being created, but will be present by the time the model is used with a <see cref="DbContext"/>.     
+        ///         To be a valid model, each entity type must have a primary key defined. Therefore, the primary key may be
+        ///         null while the model is being created, but will be present by the time the model is used with a <see cref="DbContext" />.
         ///     </para>
         /// </summary>
         /// <returns> The primary key, or null if none is defined. </returns>
@@ -92,8 +92,8 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="properties"> The properties that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -107,8 +107,8 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="properties"> The properties that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -129,8 +129,8 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="properties"> The properties that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -176,8 +176,8 @@ namespace Microsoft.Data.Entity.Metadata
         ///         Gets the property with a given name. Returns null if no property with the given name is defined.
         ///     </para>
         ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use 
-        ///         <see cref="MutableEntityTypeExtensions.FindNavigation(IMutableEntityType, string)"/> to find 
+        ///         This API only finds scalar properties and does not find navigation properties. Use
+        ///         <see cref="MutableEntityTypeExtensions.FindNavigation(IMutableEntityType, string)" /> to find
         ///         a navigation property.
         ///     </para>
         /// </summary>
@@ -190,8 +190,8 @@ namespace Microsoft.Data.Entity.Metadata
         ///         Gets the properties defined on this entity.
         ///     </para>
         ///     <para>
-        ///         This API only returns scalar properties and does not return navigation properties. Use 
-        ///         <see cref="MutableEntityTypeExtensions.GetNavigations(IMutableEntityType)"/> to get navigation 
+        ///         This API only returns scalar properties and does not return navigation properties. Use
+        ///         <see cref="MutableEntityTypeExtensions.GetNavigations(IMutableEntityType)" /> to get navigation
         ///         properties.
         ///     </para>
         /// </summary>

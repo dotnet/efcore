@@ -8,14 +8,14 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Infrastructure
 {
     /// <summary>
-    ///     Identifies the <see cref="DbContext"/> that a class belongs to. For example, this attribute is used
+    ///     Identifies the <see cref="DbContext" /> that a class belongs to. For example, this attribute is used
     ///     to identify which context a migration applies to.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class DbContextAttribute : Attribute
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContextAttribute" /> class. 
+        ///     Initializes a new instance of the <see cref="DbContextAttribute" /> class.
         /// </summary>
         /// <param name="contextType"> The associated context. </param>
         public DbContextAttribute([NotNull] Type contextType)

@@ -153,8 +153,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     .SelectMany(nj => nj.Iterate())
                     .FirstOrDefault(nj => ReferenceEquals(nj.QuerySourceReferenceExpression, newRight));
 
-            if (leftNavigationJoin != null
-                && rightNavigationJoin != null)
+            if ((leftNavigationJoin != null)
+                && (rightNavigationJoin != null))
             {
                 newLeft = leftNavigationJoin.JoinClause.OuterKeySelector;
                 newRight = rightNavigationJoin.JoinClause.OuterKeySelector;
@@ -168,8 +168,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 {
                     var constantExpression = newRight as ConstantExpression;
 
-                    if (constantExpression != null
-                        && constantExpression.Value == null)
+                    if ((constantExpression != null)
+                        && (constantExpression.Value == null))
                     {
                         newLeft = leftNavigationJoin.JoinClause.OuterKeySelector;
 
@@ -190,8 +190,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 {
                     var constantExpression = newLeft as ConstantExpression;
 
-                    if (constantExpression != null
-                        && constantExpression.Value == null)
+                    if ((constantExpression != null)
+                        && (constantExpression.Value == null))
                     {
                         newRight = rightNavigationJoin.JoinClause.OuterKeySelector;
 
@@ -240,7 +240,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                             if (navigations.Any())
                             {
-                                if (navigations.Count == 1
+                                if ((navigations.Count == 1)
                                     && navigations[0].IsDependentToPrincipal())
                                 {
                                     var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(memberExpression, navigations[0]);
@@ -394,16 +394,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         = new QuerySourceReferenceExpression(_queryModel.MainFromClause);
 
                     var leftKeyAccess = CreateKeyAccessExpression(
-                                    querySourceReferenceExpression,
-                                    navigation.IsDependentToPrincipal()
-                                        ? navigation.ForeignKey.Properties
-                                        : navigation.ForeignKey.PrincipalKey.Properties);
+                        querySourceReferenceExpression,
+                        navigation.IsDependentToPrincipal()
+                            ? navigation.ForeignKey.Properties
+                            : navigation.ForeignKey.PrincipalKey.Properties);
 
                     var rightKeyAccess = CreateKeyAccessExpression(
-                                    innerQuerySourceReferenceExpression,
-                                    navigation.IsDependentToPrincipal()
-                                        ? navigation.ForeignKey.PrincipalKey.Properties
-                                        : navigation.ForeignKey.Properties);
+                        innerQuerySourceReferenceExpression,
+                        navigation.IsDependentToPrincipal()
+                            ? navigation.ForeignKey.PrincipalKey.Properties
+                            : navigation.ForeignKey.Properties);
 
                     _queryModel.BodyClauses.Add(
                         new WhereClause(
@@ -415,8 +415,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 var navigationJoin
                     = navigationJoins
                         .FirstOrDefault(nj =>
-                            nj.QuerySource == querySourceReferenceExpression.ReferencedQuerySource
-                            && nj.Navigation == navigation);
+                            (nj.QuerySource == querySourceReferenceExpression.ReferencedQuerySource)
+                            && (nj.Navigation == navigation));
 
                 if (navigationJoin == null)
                 {

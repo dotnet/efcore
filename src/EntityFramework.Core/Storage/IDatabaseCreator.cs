@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Data.Entity.Storage
 {
-
     /// <summary>
-    ///     <para>  
+    ///     <para>
     ///         Creates and deletes databases for a given database provider.
-    ///     </para>  
-    ///     <para>  
-    ///         This interface is typically used by database providers (and other extensions). It is generally  
-    ///         not used in application code.  
-    ///     </para>  
+    ///     </para>
+    ///     <para>
+    ///         This interface is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public interface IDatabaseCreator
     {
@@ -24,7 +23,7 @@ namespace Microsoft.Data.Entity.Storage
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by 
+        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
@@ -37,14 +36,14 @@ namespace Microsoft.Data.Entity.Storage
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by 
+        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted, 
-        ///     false if it did not exist. 
+        /// <returns>
+        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
+        ///     false if it did not exist.
         /// </returns>
         Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken));
 
@@ -62,9 +61,9 @@ namespace Microsoft.Data.Entity.Storage
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created, 
-        ///     false if it already existed. 
+        /// <returns>
+        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
+        ///     false if it already existed.
         /// </returns>
         Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken));
     }

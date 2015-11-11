@@ -44,8 +44,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             SetValueGeneration(entityTypeBuilder, properties.Where(property => property.IsKey()));
 
             var valueGeneratedOnAddProperty = FindValueGeneratedOnAddProperty(properties);
-            if (valueGeneratedOnAddProperty != null
-                && entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null)
+            if ((valueGeneratedOnAddProperty != null)
+                && (entityTypeBuilder.Metadata.FindPrimaryKey(properties) != null))
             {
                 SetIdentity(entityTypeBuilder, valueGeneratedOnAddProperty);
             }
@@ -69,7 +69,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
 
             var valueGeneratedOnAddProperty = FindValueGeneratedOnAddProperty(keyBuilder.Metadata.Properties);
-            if (valueGeneratedOnAddProperty != null
+            if ((valueGeneratedOnAddProperty != null)
                 && !valueGeneratedOnAddProperty.IsForeignKey(entityTypeBuilder.Metadata))
             {
                 SetIdentity(entityTypeBuilder, valueGeneratedOnAddProperty);
@@ -84,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 entityTypeBuilder.ModelBuilder,
                 properties.Where(property =>
                     !entityTypeBuilder.Metadata.GetForeignKeys().SelectMany(fk => fk.Properties).Contains(property)
-                    && ((IProperty)property).ValueGenerated == ValueGenerated.OnAdd),
+                    && (((IProperty)property).ValueGenerated == ValueGenerated.OnAdd)),
                 ConfigurationSource.Convention);
             foreach (var propertyBuilder in propertyBuilders)
             {
@@ -101,7 +101,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (entityType.FindPrimaryKey(properties) != null)
             {
                 var property = FindValueGeneratedOnAddProperty(properties);
-                if (property != null
+                if ((property != null)
                     && !property.IsForeignKey(entityType))
                 {
                     return property;
@@ -118,7 +118,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 var property = properties.First();
                 var propertyType = ((IProperty)property).ClrType.UnwrapNullableType();
                 if (propertyType.IsInteger()
-                    || propertyType == typeof(Guid))
+                    || (propertyType == typeof(Guid)))
                 {
                     return property;
                 }

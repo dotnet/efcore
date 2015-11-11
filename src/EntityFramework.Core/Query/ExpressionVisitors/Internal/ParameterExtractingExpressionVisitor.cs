@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private static MethodCallExpression ProcessNotParameterizableArguments(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.Method.IsStatic
-                && methodCallExpression.Method.DeclaringType != typeof(Queryable))
+                && (methodCallExpression.Method.DeclaringType != typeof(Queryable)))
             {
                 var parameterInfos = methodCallExpression.Method.GetParameters();
 
@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                 for (var i = 0; i < parameterInfos.Length; i++)
                 {
-                    if (parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null
+                    if ((parameterInfos[i].GetCustomAttribute<NotParameterizedAttribute>() != null)
                         && !(methodCallExpression.Arguments[i] is ConstantExpression))
                     {
                         if (newArgs == null)
@@ -103,7 +103,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 return null;
             }
 
-            if (expression.NodeType == ExpressionType.Lambda
+            if ((expression.NodeType == ExpressionType.Lambda)
                 || !_partialEvaluationInfo.IsEvaluatableExpression(expression))
             {
                 return base.Visit(expression);
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                 if ((unaryExpression.Type.IsNullableType()
                      && !unaryExpression.Operand.Type.IsNullableType())
-                    || unaryExpression.Type == typeof(object))
+                    || (unaryExpression.Type == typeof(object)))
                 {
                     e = unaryExpression.Operand;
                 }
@@ -132,10 +132,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             {
                 var constantExpression = e as ConstantExpression;
 
-                if (constantExpression == null
-                    || (constantExpression.Value is IEnumerable
-                        && (constantExpression.Type != typeof(string)
-                            && constantExpression.Type != typeof(byte[]))))
+                if ((constantExpression == null)
+                    || (constantExpression.Value is IEnumerable && (constantExpression.Type != typeof(string)) && (constantExpression.Type != typeof(byte[]))))
                 {
                     try
                     {

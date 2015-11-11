@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (!collectionType.GetTypeInfo().IsAbstract)
             {
                 var constructor = collectionType.GetDeclaredConstructor(null);
-                if (constructor != null
+                if ((constructor != null)
                     && constructor.IsPublic)
                 {
                     return collectionType;

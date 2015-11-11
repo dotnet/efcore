@@ -451,8 +451,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             var aggregateMethods
                 = typeof(AsyncEnumerable).GetTypeInfo().GetDeclaredMethods(methodName)
-                    .Where(mi => mi.GetParameters().Length == 2
-                                 && mi.GetParameters()[1].ParameterType == typeof(CancellationToken))
+                    .Where(mi => (mi.GetParameters().Length == 2)
+                                 && (mi.GetParameters()[1].ParameterType == typeof(CancellationToken)))
                     .ToList();
 
             return
@@ -467,8 +467,8 @@ namespace Microsoft.Data.Entity.Query.Internal
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (expression.Type == typeof(string)
-                || expression.Type == typeof(byte[]))
+            if ((expression.Type == typeof(string))
+                || (expression.Type == typeof(byte[])))
             {
                 return expression;
             }
@@ -544,8 +544,8 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             return candidateMethods
                 .SingleOrDefault(mi =>
-                    (mi.GetParameters().Length == parameterCount + 2
-                     && mi.GetParameters().Last().ParameterType == typeof(CancellationToken)))
+                    (mi.GetParameters().Length == parameterCount + 2)
+                    && (mi.GetParameters().Last().ParameterType == typeof(CancellationToken)))
                    ?? candidateMethods.Single(mi => mi.GetParameters().Length == parameterCount + 1);
         }
     }

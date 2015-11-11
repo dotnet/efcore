@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     public static class AnnotatableExtensions
     {
-        public static IAnnotation GetAnnotation([NotNull]this IAnnotatable annotatable, [NotNull] string annotationName)
+        public static IAnnotation GetAnnotation([NotNull] this IAnnotatable annotatable, [NotNull] string annotationName)
         {
             Check.NotNull(annotatable, nameof(annotatable));
             Check.NotEmpty(annotationName, nameof(annotationName));

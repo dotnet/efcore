@@ -10,7 +10,8 @@ namespace Microsoft.Data.Entity.Infrastructure
 {
     /// <summary>
     ///     <para>
-    ///         Produces an <see cref="IModel"/> based on a context. This is typically implemented by database providers to ensure that any conventions
+    ///         Produces an <see cref="IModel" /> based on a context. This is typically implemented by database providers to ensure that any
+    ///         conventions
     ///         and validation specific to their database are used.
     ///     </para>
     ///     <para>

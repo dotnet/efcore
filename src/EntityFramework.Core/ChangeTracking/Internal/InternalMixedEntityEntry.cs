@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var property = propertyBase as IProperty;
 
-            return property == null || !property.IsShadowProperty
+            return (property == null) || !property.IsShadowProperty
                 ? base.ReadPropertyValue(propertyBase)
                 : _shadowValues[property.GetShadowIndex()];
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var property = propertyBase as IProperty;
 
-            if (property == null
+            if ((property == null)
                 || !property.IsShadowProperty)
             {
                 base.WritePropertyValue(propertyBase, value);

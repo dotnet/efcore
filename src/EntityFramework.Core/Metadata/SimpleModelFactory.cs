@@ -8,12 +8,12 @@ namespace Microsoft.Data.Entity.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         Creates instances of <see cref="IMutableModel"/> that have no conventions. This is useful when 
+    ///         Creates instances of <see cref="IMutableModel" /> that have no conventions. This is useful when
     ///         Exhaustively configuring a model based on some existing metadata.
     ///     </para>
     ///     <para>
-    ///         This is typically not used in application code since building a model by overriding 
-    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)"/> or using <see cref="ModelBuilder"/>
+    ///         This is typically not used in application code since building a model by overriding
+    ///         <see cref="DbContext.OnModelCreating(ModelBuilder)" /> or using <see cref="ModelBuilder" />
     ///         directly is much easier.
     ///     </para>
     /// </summary>

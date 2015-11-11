@@ -6,10 +6,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class PropertyCounts
     {
         public PropertyCounts(
-            int propertyCount, 
-            int navigationCount, 
-            int originalValueCount, 
-            int shadowCount, 
+            int propertyCount,
+            int navigationCount,
+            int originalValueCount,
+            int shadowCount,
             int relationshipCount,
             int storeGeneratedCount)
         {

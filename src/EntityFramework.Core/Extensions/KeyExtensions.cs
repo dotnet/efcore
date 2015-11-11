@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Microsoft.Data.Entity.Utilities;
 using System.Linq;
+using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IKey"/>.
+    ///     Extension methods for <see cref="IKey" />.
     /// </summary>
     public static class KeyExtensions
     {

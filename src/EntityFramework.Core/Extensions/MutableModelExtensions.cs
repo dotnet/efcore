@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IMutableModel"/>.
+    ///     Extension methods for <see cref="IMutableModel" />.
     /// </summary>
     public static class MutableModelExtensions
     {

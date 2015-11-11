@@ -41,13 +41,13 @@ namespace Microsoft.Extensions.DependencyInjection
         ///     </para>
         ///     <para>
         ///         The database you are using will also define extension methods that can be called on the returned
-        ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services required by the database. 
+        ///         <see cref="EntityFrameworkServicesBuilder" /> to register the services required by the database.
         ///         For example, when using EntityFramework.MicrosoftSqlServer you would call
         ///         <c>collection.AddEntityFramework().AddSqlServer()</c>.
         ///     </para>
         ///     <para>
-        ///         For derived contexts to be registered in the <see cref="IServiceProvider" /> and resolve their services 
-        ///         from the <see cref="IServiceProvider" /> you must chain a call to the 
+        ///         For derived contexts to be registered in the <see cref="IServiceProvider" /> and resolve their services
+        ///         from the <see cref="IServiceProvider" /> you must chain a call to the
         ///         <see cref="EntityFrameworkServicesBuilder.AddDbContext{TContext}" /> method on the returned
         ///         <see cref="EntityFrameworkServicesBuilder" />.
         ///     </para>

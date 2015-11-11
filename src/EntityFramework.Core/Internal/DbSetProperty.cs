@@ -10,8 +10,8 @@ namespace Microsoft.Data.Entity.Internal
     public struct DbSetProperty
     {
         public DbSetProperty(
-            [NotNull] string name, 
-            [NotNull] Type entityType, 
+            [NotNull] string name,
+            [NotNull] Type entityType,
             [CanBeNull] IClrPropertySetter setter)
         {
             Name = name;

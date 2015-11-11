@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             foreach (var property in entityType.GetProperties())
             {
-                if (property.GetOriginalValueIndex() >= 0
+                if ((property.GetOriginalValueIndex() >= 0)
                     && !Equals(entry[property], entry.GetValue(property, ValueSource.Original)))
                 {
                     entry.SetPropertyModified(property);
@@ -136,8 +136,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var keys = property.FindContainingKeys().ToList();
             var foreignKeys = property.FindContainingForeignKeys(entry.EntityType).ToList();
 
-            if (keys.Count > 0
-                || foreignKeys.Count > 0)
+            if ((keys.Count > 0)
+                || (foreignKeys.Count > 0))
             {
                 var snapshotValue = entry.GetValue(property, ValueSource.RelationshipSnapshot);
                 var currentValue = entry[property];
@@ -155,8 +155,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         foreach (var foreignKey in foreignKeys)
                         {
                             stateManager.UpdateDependentMap(
-                                entry, 
-                                entry.GetDependentKeyValue(foreignKey, ValueSource.RelationshipSnapshot), 
+                                entry,
+                                entry.GetDependentKeyValue(foreignKey, ValueSource.RelationshipSnapshot),
                                 foreignKey);
                         }
                     }
@@ -166,8 +166,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         foreach (var key in keys)
                         {
                             stateManager.UpdateIdentityMap(
-                                entry, 
-                                entry.GetPrincipalKeyValue(key, ValueSource.RelationshipSnapshot), 
+                                entry,
+                                entry.GetPrincipalKeyValue(key, ValueSource.RelationshipSnapshot),
                                 key);
                         }
 

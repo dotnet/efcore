@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata
     public interface IForeignKey : IAnnotatable
     {
         /// <summary>
-        ///     Gets the dependent entity type. This may be different from the type that <see cref="Properties"/>
+        ///     Gets the dependent entity type. This may be different from the type that <see cref="Properties" />
         ///     are defined on when the relationship is defined a derived type in an inheritance hierarchy (since the properties
         ///     may be defined on a base type).
         /// </summary>
@@ -25,8 +25,8 @@ namespace Microsoft.Data.Entity.Metadata
         IReadOnlyList<IProperty> Properties { get; }
 
         /// <summary>
-        ///     Gets the principal entity type that this relationship targets. This may be different from the type that 
-        ///     <see cref="PrincipalKey"/> is defined on when the relationship targets a derived type in an inheritance 
+        ///     Gets the principal entity type that this relationship targets. This may be different from the type that
+        ///     <see cref="PrincipalKey" /> is defined on when the relationship targets a derived type in an inheritance
         ///     hierarchy (since the key is defined on the base type of the hierarchy).
         /// </summary>
         IEntityType PrincipalEntityType { get; }
@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Metadata
         bool IsRequired { get; }
 
         /// <summary>
-        ///     Gets a value indicating how a delete operation is applied to dependent entities in the relationship when the 
+        ///     Gets a value indicating how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         DeleteBehavior DeleteBehavior { get; }

@@ -169,14 +169,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual void StateChanged(InternalEntityEntry entry, EntityState oldState, bool skipInitialFixup)
         {
-            if (oldState == EntityState.Detached
+            if ((oldState == EntityState.Detached)
                 && !skipInitialFixup)
             {
                 PerformFixup(() => InitialFixup(entry));
             }
 
-            else if (entry.EntityState == EntityState.Detached
-                     && oldState == EntityState.Deleted)
+            else if ((entry.EntityState == EntityState.Detached)
+                     && (oldState == EntityState.Deleted))
             {
                 PerformFixup(() => DeleteFixup(entry));
             }
@@ -266,7 +266,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     foreach (var relatedEntry in entries)
                     {
                         if (!navigationEntityType.IsAssignableFrom(relatedEntry.EntityType)
-                            || relatedEntry == entry)
+                            || (relatedEntry == entry))
                         {
                             continue;
                         }
@@ -453,7 +453,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             for (var i = 0; i < foreignKey.Properties.Count; i++)
             {
                 var principalValue = principalValues[i];
-                if (foreignKey.Properties[i].GetGenerationProperty() == null
+                if ((foreignKey.Properties[i].GetGenerationProperty() == null)
                     || !foreignKey.PrincipalKey.Properties[i].ClrType.IsDefaultValue(principalValue))
                 {
                     var dependentProperty = foreignKey.Properties[i];
@@ -508,8 +508,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 else
                 {
                     var oldEntity = inverse.GetGetter().GetClrValue(entity);
-                    if (oldEntity != null
-                        && oldEntity != entry.Entity)
+                    if ((oldEntity != null)
+                        && (oldEntity != entry.Entity))
                     {
                         var oldEntry = entry.StateManager.GetOrCreateEntry(oldEntity);
                         if (navigation.IsDependentToPrincipal())
@@ -548,7 +548,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         entry.StateManager.GetOrCreateEntry(entity).SetValue(inverse, null, ValueSource.RelationshipSnapshot);
                     }
                 }
-
             }
         }
     }

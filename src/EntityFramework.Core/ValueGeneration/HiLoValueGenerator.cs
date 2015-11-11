@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         private readonly HiLoValueGeneratorState _generatorState;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="HiLoValueGenerator{TValue}"/> class.
+        ///     Initializes a new instance of the <see cref="HiLoValueGenerator{TValue}" /> class.
         /// </summary>
         /// <param name="generatorState"> The state used to keep track of which value to return next. </param>
         protected HiLoValueGenerator([NotNull] HiLoValueGeneratorState generatorState)

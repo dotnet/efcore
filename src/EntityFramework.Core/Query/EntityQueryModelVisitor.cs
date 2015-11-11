@@ -427,8 +427,8 @@ namespace Microsoft.Data.Entity.Query
 
             if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
                 || (!QueryCompilationContext.TrackQueryResults
-                    && lastTrackingModifier == null)
-                || (lastTrackingModifier != null
+                    && (lastTrackingModifier == null))
+                || ((lastTrackingModifier != null)
                     && !lastTrackingModifier.IsTracking))
             {
                 return;
@@ -446,8 +446,8 @@ namespace Microsoft.Data.Entity.Query
                 MethodInfo trackingMethod;
 
                 if (resultItemTypeInfo.IsGenericType
-                    && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                        || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+                    && ((resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>))
+                        || (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>))))
                 {
                     trackingMethod
                         = LinqOperatorProvider.TrackGroupedEntities
@@ -1049,9 +1049,9 @@ namespace Microsoft.Data.Entity.Query
             var properties
                 = IterateCompositeMemberExpression(memberExpression, out querySourceReferenceExpression);
 
-            if (querySourceReferenceExpression != null
-                && (querySource == null
-                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
+            if ((querySourceReferenceExpression != null)
+                && ((querySource == null)
+                    || (querySource == querySourceReferenceExpression.ReferencedQuerySource)))
             {
                 return memberBinder(
                     properties,
@@ -1157,9 +1157,9 @@ namespace Microsoft.Data.Entity.Query
                     var querySourceReferenceExpression
                         = targetExpression as QuerySourceReferenceExpression;
 
-                    if (querySourceReferenceExpression == null
-                        || querySource == null
-                        || querySource == querySourceReferenceExpression.ReferencedQuerySource)
+                    if ((querySourceReferenceExpression == null)
+                        || (querySource == null)
+                        || (querySource == querySourceReferenceExpression.ReferencedQuerySource))
                     {
                         var entityType = Model.FindEntityType(methodCallExpression.Arguments[0].Type);
 

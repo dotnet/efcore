@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             public bool CanStoreValue(IPropertyBase propertyBase)
-                => _values != null
-                   && propertyBase.GetStoreGeneratedIndex() != -1;
+                => (_values != null)
+                   && (propertyBase.GetStoreGeneratedIndex() != -1);
 
             public void SetValue(IPropertyBase propertyBase, object value)
             {

@@ -130,9 +130,9 @@ namespace Microsoft.Data.Entity.Internal
                     var candidateIndex = 0;
 
                     // Iterrate over the unsorted verticies
-                    while (candidateIndex < candidateVertices.Count
+                    while ((candidateIndex < candidateVertices.Count)
                            && !broken
-                           && canBreakEdge != null)
+                           && (canBreakEdge != null))
                     {
                         var candidateVertex = candidateVertices[candidateIndex];
 

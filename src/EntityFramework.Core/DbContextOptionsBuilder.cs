@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity
     /// <summary>
     ///     <para>
     ///         Provides a simple API surface for configuring <see cref="DbContextOptions" />. Databases (and other extensions)
-    ///         typically define extension methods on this object that allow you to configure the database connection (and other 
+    ///         typically define extension methods on this object that allow you to configure the database connection (and other
     ///         options) to be used for a context.
     ///     </para>
     ///     <para>
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContextOptionsBuilder" /> class to further configure
-        ///     a given <see cref="DbContextOptions"/>.
+        ///     a given <see cref="DbContextOptions" />.
         /// </summary>
         /// <param name="options"> The options to be configured. </param>
         public DbContextOptionsBuilder([NotNull] DbContextOptions options)
@@ -57,16 +57,16 @@ namespace Microsoft.Data.Entity
         ///         Gets a value indicating whether any options have been configured.
         ///     </para>
         ///     <para>
-        ///         This can be useful when you have overridden <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> to configure
+        ///         This can be useful when you have overridden <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> to configure
         ///         the context, but in some cases you also externally provide options via the context constructor. This property can be
-        ///         used to determine if the options have already been set, and skip some or all of the logic in 
-        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/>.
+        ///         used to determine if the options have already been set, and skip some or all of the logic in
+        ///         <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" />.
         ///     </para>
         /// </summary>
         public virtual bool IsConfigured => _options.Extensions.Any();
 
         /// <summary>
-        ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)"/>
+        ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     will not be run.
         /// </summary>
         /// <param name="model"> The model to be used. </param>
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Enables application data to be included in exception messages, logging, etc. This can include the values assigned to properties 
+        ///     Enables application data to be included in exception messages, logging, etc. This can include the values assigned to properties
         ///     of your entity instances, parameter values for commands being sent to the database, and other such data. You should only enable
         ///     this flag if you have the appropriate security measures in place based on the sensitivity of this data.
         /// </summary>
@@ -112,9 +112,9 @@ namespace Microsoft.Data.Entity
             Check.NotNull(setAction, nameof(setAction));
 
             var existingExtension = Options.FindExtension<CoreOptionsExtension>();
-            
-            var extension 
-                = existingExtension != null 
+
+            var extension
+                = existingExtension != null
                     ? new CoreOptionsExtension(existingExtension)
                     : new CoreOptionsExtension();
 

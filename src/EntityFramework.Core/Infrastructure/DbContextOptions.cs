@@ -10,15 +10,15 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.Infrastructure
 {
     /// <summary>
-    ///     The options to be used by a <see cref="DbContext"/>. You normally override 
-    ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> or use a <see cref="DbContextOptionsBuilder"/> 
-    ///     to create instances of this class and it is not designed to be directly constructed in your application code. 
+    ///     The options to be used by a <see cref="DbContext" />. You normally override
+    ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder" />
+    ///     to create instances of this class and it is not designed to be directly constructed in your application code.
     /// </summary>
     public abstract class DbContextOptions : IDbContextOptions
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="DbContextOptions" /> class. You normally override 
-        ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> or use a <see cref="DbContextOptionsBuilder"/> 
+        ///     Initializes a new instance of the <see cref="DbContextOptions" /> class. You normally override
+        ///     <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> or use a <see cref="DbContextOptionsBuilder" />
         ///     to create instances of this class and it is not designed to be directly constructed in your application code.
         /// </summary>
         /// <param name="extensions"> The extensions that store the configured options. </param>

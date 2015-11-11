@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public static int NavigationCount([NotNull] this IEntityType entityType)
             => GetCounts(entityType).NavigationCount;
 
-        public static int PropertyCount([NotNull] this IEntityType entityType) 
+        public static int PropertyCount([NotNull] this IEntityType entityType)
             => GetCounts(entityType).PropertyCount;
 
         public static PropertyCounts GetCounts([NotNull] this IEntityType entityType)
@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.ClrType == null
+            return (entityType.ClrType == null)
                    || typeof(INotifyPropertyChanging).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
         }
 
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotNull(entityType, nameof(entityType));
 
-            return entityType.ClrType == null
+            return (entityType.ClrType == null)
                    || typeof(INotifyPropertyChanged).GetTypeInfo().IsAssignableFrom(entityType.ClrType.GetTypeInfo());
         }
 

@@ -4,25 +4,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-#if NET451 || DNX451
-using System.ComponentModel;
-#endif
 using System.Linq;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Infrastructure;
+using Microsoft.Data.Entity.Query.Internal;
+#if NET451 || DNX451
+using System.ComponentModel;
+#endif
 #if NET451 || DNX451
 using Microsoft.Data.Entity.Internal;
 #endif
-using Microsoft.Data.Entity.Query;
-using Microsoft.Data.Entity.Query.Internal;
 
 namespace Microsoft.Data.Entity
 {
     /// <summary>
     ///     <para>
-    ///         A <see cref="DbSet{TEntity}"/> can be used to query and save instances of <typeparamref name="TEntity"/>. 
+    ///         A <see cref="DbSet{TEntity}" /> can be used to query and save instances of <typeparamref name="TEntity" />.
     ///         LINQ queries against a <see cref="DbSet{TEntity}" /> will be translated into queries against the database.
     ///     </para>
     ///     <para>
@@ -32,7 +31,7 @@ namespace Microsoft.Data.Entity
     ///         and may still contain entities that are marked for deletion.
     ///     </para>
     ///     <para>
-    ///         Depending on the database being used, some parts of a LINQ query against a <see cref="DbSet{TEntity}" /> 
+    ///         Depending on the database being used, some parts of a LINQ query against a <see cref="DbSet{TEntity}" />
     ///         may be evaluated in memory rather than being translated into a database query.
     ///     </para>
     ///     <para>
@@ -59,7 +58,7 @@ namespace Microsoft.Data.Entity
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Add(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
         {
             throw new NotImplementedException();
@@ -78,7 +77,7 @@ namespace Microsoft.Data.Entity
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Attach(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
         {
             throw new NotImplementedException();
@@ -123,7 +122,7 @@ namespace Microsoft.Data.Entity
         ///     access to change tracking information and operations for the entity.
         /// </returns>
         public virtual EntityEntry<TEntity> Update(
-            [NotNull] TEntity entity, 
+            [NotNull] TEntity entity,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
         {
             throw new NotImplementedException();
@@ -190,7 +189,7 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entities or also other related entities.
         /// </param>
         public virtual void AddRange(
-            [NotNull] IEnumerable<TEntity> entities, 
+            [NotNull] IEnumerable<TEntity> entities,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
         {
             throw new NotImplementedException();
@@ -205,7 +204,7 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entities or also other related entities.
         /// </param>
         public virtual void AttachRange(
-            [NotNull] IEnumerable<TEntity> entities, 
+            [NotNull] IEnumerable<TEntity> entities,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
         {
             throw new NotImplementedException();
@@ -242,7 +241,7 @@ namespace Microsoft.Data.Entity
         ///     Determines whether the context will bring in only the given entities or also other related entities.
         /// </param>
         public virtual void UpdateRange(
-            [NotNull] IEnumerable<TEntity> entities, 
+            [NotNull] IEnumerable<TEntity> entities,
             GraphBehavior behavior = GraphBehavior.IncludeDependents)
         {
             throw new NotImplementedException();
@@ -324,13 +323,13 @@ namespace Microsoft.Data.Entity
     {
         /// <summary>
         ///     <para>
-        ///         This method is called by data binding frameworks when attempting to data bind directly to a <see cref="DbSet{TEntity}"/>.
+        ///         This method is called by data binding frameworks when attempting to data bind directly to a <see cref="DbSet{TEntity}" />.
         ///     </para>
         ///     <para>
-        ///         This implementation always throws an exception as binding directly to a <see cref="DbSet{TEntity}"/> will result in a query being 
-        ///         sent to the database every time the data binding framework requests the contents of the collection. Instead materialize the results 
-        ///         into a collection, by calling a method such as <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})"/> or 
-        ///         <see cref="Enumerable.ToArray{TSource}(IEnumerable{TSource})"/>, and bind to the collection.
+        ///         This implementation always throws an exception as binding directly to a <see cref="DbSet{TEntity}" /> will result in a query being
+        ///         sent to the database every time the data binding framework requests the contents of the collection. Instead materialize the results
+        ///         into a collection, by calling a method such as <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})" /> or
+        ///         <see cref="Enumerable.ToArray{TSource}(IEnumerable{TSource})" />, and bind to the collection.
         ///     </para>
         /// </summary>
         /// <exception cref="NotSupportedException"> Always thrown. </exception>

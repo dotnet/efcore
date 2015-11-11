@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ChangeTracking
 {
     /// <summary>
-    ///     Provides access to change tracking information and operations for a node in a 
+    ///     Provides access to change tracking information and operations for a node in a
     ///     graph of entities that is being traversed.
     /// </summary>
     public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     Initializes a new instance of the <see cref="EntityEntryGraphNode" /> class.
         /// </summary>
         /// <param name="internalEntityEntry"> The internal entry tracking information about this entity. </param>
-        /// <param name="inboundNavigation"> 
+        /// <param name="inboundNavigation">
         ///     The navigation property that is being traversed to reach this node in the graph.
         /// </param>
         public EntityEntryGraphNode(
@@ -58,14 +58,14 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///         application code.
         ///     </para>
         /// </summary>
-        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntityEntry; 
+        InternalEntityEntry IInfrastructure<InternalEntityEntry>.Instance => _internalEntityEntry;
 
         /// <summary>
         ///     Creates a new node for the entity that is being traversed next in the graph.
         /// </summary>
         /// <param name="currentNode"> The node that the entity is being traversed from. </param>
         /// <param name="internalEntityEntry">
-        ///      The internal entry tracking information about the entity being traversed to. 
+        ///     The internal entry tracking information about the entity being traversed to.
         /// </param>
         /// <param name="reachedVia"> The navigation property that is being traversed to reach the new node. </param>
         /// <returns> The newly created node. </returns>
@@ -76,8 +76,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
             => new EntityEntryGraphNode(
                 Check.NotNull(internalEntityEntry, nameof(internalEntityEntry)),
                 Check.NotNull(reachedVia, nameof(reachedVia)))
-                {
-                    NodeState = Check.NotNull(currentNode, nameof(currentNode)).NodeState
-                };
+            {
+                NodeState = Check.NotNull(currentNode, nameof(currentNode)).NodeState
+            };
     }
 }

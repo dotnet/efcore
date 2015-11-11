@@ -11,8 +11,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var accessors = propertyBase as IPropertyBaseAccessors;
 
-            return accessors != null 
-                ? accessors.Getter 
+            return accessors != null
+                ? accessors.Getter
                 : new ClrPropertyGetterFactory().Create(propertyBase);
         }
 
@@ -20,8 +20,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var accessors = propertyBase as IPropertyBaseAccessors;
 
-            return accessors != null 
-                ? accessors.Setter 
+            return accessors != null
+                ? accessors.Setter
                 : new ClrPropertySetterFactory().Create(propertyBase);
         }
     }

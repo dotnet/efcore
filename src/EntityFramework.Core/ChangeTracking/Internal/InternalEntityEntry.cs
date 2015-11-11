@@ -52,8 +52,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private bool PrepareForAdd(EntityState newState)
         {
-            if (newState != EntityState.Added
-                || EntityState == EntityState.Added)
+            if ((newState != EntityState.Added)
+                || (EntityState == EntityState.Added))
             {
                 return false;
             }
@@ -75,9 +75,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private void SetEntityState(EntityState oldState, EntityState newState, bool acceptChanges)
         {
             // Prevent temp values from becoming permanent values
-            if (oldState == EntityState.Added
-                && newState != EntityState.Added
-                && newState != EntityState.Detached)
+            if ((oldState == EntityState.Added)
+                && (newState != EntityState.Added)
+                && (newState != EntityState.Detached))
             {
                 var hasTempValue = EntityType.GetProperties()
                     .FirstOrDefault(p => _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.TemporaryOrModified));
@@ -113,8 +113,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             StateManager.Notify.StateChanging(this, newState);
 
-            if (newState == EntityState.Unchanged
-                && oldState == EntityState.Modified)
+            if ((newState == EntityState.Unchanged)
+                && (oldState == EntityState.Modified))
             {
                 if (acceptChanges)
                 {
@@ -155,7 +155,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual EntityState EntityState => _stateData.EntityState;
 
         public virtual bool IsModified(IProperty property)
-            => _stateData.EntityState == EntityState.Modified
+            => (_stateData.EntityState == EntityState.Modified)
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
         public virtual void SetPropertyModified([NotNull] IProperty property, bool isModified = true)
@@ -165,16 +165,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var currentState = _stateData.EntityState;
 
-            if (currentState == EntityState.Added
-                || currentState == EntityState.Detached)
+            if ((currentState == EntityState.Added)
+                || (currentState == EntityState.Detached))
             {
                 MarkAsTemporary(property, isTemporary: false);
 
                 SetValue(property, this[property], ValueSource.Original);
             }
 
-            if (currentState != EntityState.Modified
-                && currentState != EntityState.Unchanged)
+            if ((currentState != EntityState.Modified)
+                && (currentState != EntityState.Unchanged))
             {
                 return;
             }
@@ -187,7 +187,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isModified);
 
             // Don't change entity state if it is Added or Deleted
-            if (isModified && currentState == EntityState.Unchanged)
+            if (isModified && (currentState == EntityState.Unchanged))
             {
                 StateManager.Notify.StateChanging(this, EntityState.Modified);
                 _stateData.EntityState = EntityState.Modified;
@@ -204,17 +204,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         public virtual bool HasConceptualNull
-            => _stateData.EntityState != EntityState.Deleted
+            => (_stateData.EntityState != EntityState.Deleted)
                && _stateData.AnyPropertiesFlagged(PropertyFlag.Null);
 
         public virtual bool HasTemporaryValue([NotNull] IProperty property)
-            => (_stateData.EntityState == EntityState.Added || _stateData.EntityState == EntityState.Detached)
+            => ((_stateData.EntityState == EntityState.Added) || (_stateData.EntityState == EntityState.Detached))
                && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.TemporaryOrModified);
 
         public virtual void MarkAsTemporary([NotNull] IProperty property, bool isTemporary = true)
         {
-            if (_stateData.EntityState != EntityState.Added
-                && _stateData.EntityState != EntityState.Detached)
+            if ((_stateData.EntityState != EntityState.Added)
+                && (_stateData.EntityState != EntityState.Detached))
             {
                 return;
             }
@@ -351,11 +351,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 object value;
                 return _storeGeneratedValues.TryGetValue(propertyBase, out value)
-                       ? value
-                       : ReadPropertyValue(propertyBase);
+                    ? value
+                    : ReadPropertyValue(propertyBase);
             }
             [param: CanBeNull]
-            set 
+            set
             {
                 if (_storeGeneratedValues.CanStoreValue(propertyBase))
                 {
@@ -372,7 +372,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         var writeValue = true;
                         var asProperty = propertyBase as IProperty;
 
-                        if (asProperty != null
+                        if ((asProperty != null)
                             && !asProperty.IsNullable)
                         {
                             if (value == null)
@@ -415,14 +415,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             var currentState = EntityState;
-            if (currentState == EntityState.Unchanged
-                || currentState == EntityState.Detached)
+            if ((currentState == EntityState.Unchanged)
+                || (currentState == EntityState.Detached))
             {
                 return;
             }
 
-            if (currentState == EntityState.Added
-                || currentState == EntityState.Modified)
+            if ((currentState == EntityState.Added)
+                || (currentState == EntityState.Modified))
             {
                 _originalValues.AcceptChanges(this);
 
@@ -494,8 +494,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 foreach (var dependent in StateManager.GetDependents(this, fk).ToList())
                 {
-                    if (dependent.EntityState != EntityState.Deleted
-                        && dependent.EntityState != EntityState.Detached)
+                    if ((dependent.EntityState != EntityState.Deleted)
+                        && (dependent.EntityState != EntityState.Detached))
                     {
                         if (fk.DeleteBehavior == DeleteBehavior.Cascade)
                         {
@@ -534,8 +534,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     if (!properties.Contains(property))
                     {
                         var generationProperty = property.GetGenerationProperty();
-                        if (generationProperty != null
-                            && generationProperty != property
+                        if ((generationProperty != null)
+                            && (generationProperty != property)
                             && MayGetStoreValue(generationProperty, generationProperty.DeclaringEntityType))
                         {
                             properties.Add(property);
@@ -547,19 +547,17 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         private bool MayGetStoreValue([CanBeNull] IProperty property, IEntityType entityType)
-            => property != null
-               && (property.ValueGenerated != ValueGenerated.Never
+            => (property != null)
+               && ((property.ValueGenerated != ValueGenerated.Never)
                    || StateManager.ValueGeneration.MayGetTemporaryValue(property, entityType));
 
         public virtual void DiscardStoreGeneratedValues() => _storeGeneratedValues = new StoreGeneratedValues();
 
         public virtual bool IsStoreGenerated(IProperty property)
-            => property.ValueGenerated != ValueGenerated.Never
-               && ((EntityState == EntityState.Added
+            => (property.ValueGenerated != ValueGenerated.Never)
+               && (((EntityState == EntityState.Added)
                     && (property.IsStoreGeneratedAlways || IsTemporaryOrDefault(property)))
-                   || (property.ValueGenerated == ValueGenerated.OnAddOrUpdate
-                       && (EntityState == EntityState.Modified
-                           && (property.IsStoreGeneratedAlways || !IsModified(property)))));
+                   || ((property.ValueGenerated == ValueGenerated.OnAddOrUpdate) && (EntityState == EntityState.Modified) && (property.IsStoreGeneratedAlways || !IsModified(property))));
 
         private bool IsTemporaryOrDefault(IProperty property)
             => HasTemporaryValue(property)

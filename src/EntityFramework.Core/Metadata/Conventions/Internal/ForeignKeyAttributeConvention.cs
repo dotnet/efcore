@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var fkPropertiesOnPrincipalToDependent = FindCandidateDependentPropertiesThroughNavigation(relationshipBuilder, pointsToPrincipal: false);
             var fkPropertiesOnDependentToPrincipal = FindCandidateDependentPropertiesThroughNavigation(relationshipBuilder, pointsToPrincipal: true);
 
-            if (fkPropertiesOnDependentToPrincipal != null
-                && fkPropertiesOnPrincipalToDependent != null
+            if ((fkPropertiesOnDependentToPrincipal != null)
+                && (fkPropertiesOnPrincipalToDependent != null)
                 && !fkPropertiesOnDependentToPrincipal.SequenceEqual(fkPropertiesOnPrincipalToDependent))
             {
                 // TODO: Log error that foreign key properties on both navigations do not match
@@ -49,11 +49,11 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var fkPropertiesOnNavigation = fkPropertiesOnDependentToPrincipal ?? fkPropertiesOnPrincipalToDependent;
 
             InternalRelationshipBuilder newRelationshipBuilder = null;
-            if (fkPropertiesOnNavigation == null
-                || fkPropertiesOnNavigation.Count == 0)
+            if ((fkPropertiesOnNavigation == null)
+                || (fkPropertiesOnNavigation.Count == 0))
             {
-                if (fkPropertyOnDependent == null
-                    && fkPropertyOnPrincipal == null)
+                if ((fkPropertyOnDependent == null)
+                    && (fkPropertyOnPrincipal == null))
                 {
                     return relationshipBuilder;
                 }
@@ -70,8 +70,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
             else
             {
-                if (fkPropertyOnDependent == null
-                    && fkPropertyOnPrincipal == null)
+                if ((fkPropertyOnDependent == null)
+                    && (fkPropertyOnPrincipal == null))
                 {
                     if (fkPropertiesOnNavigation.All(p => foreignKey.DeclaringEntityType.FindProperty(p) != null)
                         || fkPropertiesOnNavigation.Any(p => foreignKey.PrincipalEntityType.FindProperty(p) == null))
@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 }
                 else
                 {
-                    if (fkPropertiesOnNavigation.Count != 1
+                    if ((fkPropertiesOnNavigation.Count != 1)
                         || !string.Equals(fkPropertiesOnNavigation.First(), fkPropertyOnDependent ?? fkPropertyOnPrincipal))
                     {
                         // TODO: Log error that mismatch in foreignKey Attribute on navigation and property
@@ -117,8 +117,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             var dependentToPrincipalNavigationName = foreignKey.DependentToPrincipal?.Name;
             var principalToDepedentNavigationName = foreignKey.PrincipalToDependent?.Name;
 
-            if (GetInversePropertyAttributeOnNavigation(foreignKey.PrincipalToDependent) != null
-                || GetInversePropertyAttributeOnNavigation(foreignKey.DependentToPrincipal) != null)
+            if ((GetInversePropertyAttributeOnNavigation(foreignKey.PrincipalToDependent) != null)
+                || (GetInversePropertyAttributeOnNavigation(foreignKey.DependentToPrincipal) != null))
             {
                 // Relationship is joined by InversePropertyAttribute
                 throw new InvalidOperationException(CoreStrings.InvalidRelationshipUsingDataAnnotations(
@@ -172,8 +172,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 }
 
                 var attribute = propertyInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
-                if (attribute != null
-                    && attribute.Name == navigationName)
+                if ((attribute != null)
+                    && (attribute.Name == navigationName))
                 {
                     candidateProperties.Add(propertyInfo.Name);
                 }
@@ -187,8 +187,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (candidateProperties.Count == 1)
             {
                 var fkAttributeOnNavigation = GetForeignKeyAttribute(entityType, navigationName);
-                if (fkAttributeOnNavigation != null
-                    && fkAttributeOnNavigation.Name != candidateProperties.First())
+                if ((fkAttributeOnNavigation != null)
+                    && (fkAttributeOnNavigation.Name != candidateProperties.First()))
                 {
                     throw new InvalidOperationException(CoreStrings.FkAttributeOnPropertyNavigationMismatch(candidateProperties.First(), navigationName, entityType.Name));
                 }

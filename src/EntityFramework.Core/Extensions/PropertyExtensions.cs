@@ -11,12 +11,12 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IProperty"/>.
+    ///     Extension methods for <see cref="IProperty" />.
     /// </summary>
     public static class PropertyExtensions
     {
         /// <summary>
-        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string"/> '
+        ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.
         /// </summary>
         /// <param name="property"> The property to get the maximum length of. </param>
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity
             Check.NotNull(property, nameof(property));
 
             var pk = property.DeclaringEntityType.FindPrimaryKey();
-            if (pk != null
+            if ((pk != null)
                 && pk.Properties.Contains(property))
             {
                 return pk;

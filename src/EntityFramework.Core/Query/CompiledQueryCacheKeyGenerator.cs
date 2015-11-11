@@ -3,7 +3,6 @@
 
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.ExpressionVisitors.Internal;
 using Microsoft.Data.Entity.Utilities;
@@ -54,14 +53,13 @@ namespace Microsoft.Data.Entity.Query
             }
 
             public override bool Equals(object obj)
-                => !ReferenceEquals(null, obj)
-                   && (obj is CompiledQueryCacheKey && Equals((CompiledQueryCacheKey)obj));
+                => !ReferenceEquals(null, obj) && obj is CompiledQueryCacheKey && Equals((CompiledQueryCacheKey)obj);
 
             private bool Equals(CompiledQueryCacheKey other)
                 => string.Equals(_query, other._query)
                    && _model.Equals(other._model)
-                   && _queryTrackingBehavior == other._queryTrackingBehavior
-                   && _async == other._async;
+                   && (_queryTrackingBehavior == other._queryTrackingBehavior)
+                   && (_async == other._async);
 
             public override int GetHashCode()
             {

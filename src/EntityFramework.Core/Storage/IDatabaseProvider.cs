@@ -8,14 +8,14 @@ using Microsoft.Data.Entity.Infrastructure;
 namespace Microsoft.Data.Entity.Storage
 {
     /// <summary>
-    ///     <para>  
+    ///     <para>
     ///         The primary point where a database provider can tell EF that it has been selected for the current context
     ///         and provide the services required for it to function.
-    ///     </para>  
-    ///     <para>  
-    ///         This type is typically used by database providers (and other extensions). It is generally  
-    ///         not used in application code.  
-    ///     </para>  
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public interface IDatabaseProvider
     {

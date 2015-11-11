@@ -98,8 +98,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var navigationTargetClrType = navigationProperty.PropertyType.TryGetSequenceType();
-            if (shouldBeCollection == false
-                || navigationTargetClrType == null
+            if ((shouldBeCollection == false)
+                || (navigationTargetClrType == null)
                 || !navigationTargetClrType.GetTypeInfo().IsAssignableFrom(targetClrType.GetTypeInfo()))
             {
                 if (shouldBeCollection == true)
@@ -108,10 +108,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     {
                         throw new InvalidOperationException(
                             CoreStrings.NavigationCollectionWrongClrType(
-                            navigationProperty.Name,
-                            sourceClrType.Name,
-                            navigationProperty.PropertyType.FullName,
-                            targetClrType.FullName));
+                                navigationProperty.Name,
+                                sourceClrType.Name,
+                                navigationProperty.PropertyType.FullName,
+                                targetClrType.FullName));
                     }
                     return false;
                 }
@@ -143,7 +143,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(dependentType, nameof(dependentType));
 
             if ((!shouldPointToPrincipal.HasValue
-                 || this.IsDependentToPrincipal() == shouldPointToPrincipal.Value)
+                 || (this.IsDependentToPrincipal() == shouldPointToPrincipal.Value))
                 && ForeignKey.IsCompatible(principalType, dependentType, oneToOne))
             {
                 return true;
@@ -167,10 +167,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual IClrPropertyGetter Getter
             => LazyInitializer.EnsureInitialized(ref _getter, () => new ClrPropertyGetterFactory().Create(this));
 
-        public virtual IClrPropertySetter Setter 
+        public virtual IClrPropertySetter Setter
             => LazyInitializer.EnsureInitialized(ref _setter, () => new ClrPropertySetterFactory().Create(this));
 
-        public virtual IClrCollectionAccessor CollectionAccessor 
+        public virtual IClrCollectionAccessor CollectionAccessor
             => LazyInitializer.EnsureInitialized(ref _collectionAccessor, () => new ClrCollectionAccessorFactory().Create(this));
 
         public virtual PropertyIndexes Indexes

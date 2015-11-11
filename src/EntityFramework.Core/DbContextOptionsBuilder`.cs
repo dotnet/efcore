@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity
     /// <summary>
     ///     <para>
     ///         Provides a simple API surface for configuring <see cref="DbContextOptions{TContext}" />. Databases (and other extensions)
-    ///         typically define extension methods on this object that allow you to configure the database connection (and other 
+    ///         typically define extension methods on this object that allow you to configure the database connection (and other
     ///         options) to be used for a context.
     ///     </para>
     ///     <para>
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="DbContextOptionsBuilder{TContext}" /> class to further configure
-        ///     a given <see cref="DbContextOptions"/>.
+        ///     a given <see cref="DbContextOptions" />.
         /// </summary>
         /// <param name="options"> The options to be configured. </param>
         public DbContextOptionsBuilder([NotNull] DbContextOptions<TContext> options)
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity
         public new virtual DbContextOptions<TContext> Options => (DbContextOptions<TContext>)base.Options;
 
         /// <summary>
-        ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)"/>
+        ///     Sets the model to be used for the context. If the model is set, then <see cref="DbContext.OnModelCreating(ModelBuilder)" />
         ///     will not be run.
         /// </summary>
         /// <param name="model"> The model to be used. </param>

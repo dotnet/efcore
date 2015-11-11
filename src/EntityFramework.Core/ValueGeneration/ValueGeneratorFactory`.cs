@@ -7,7 +7,9 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///    Factory to create value generators of type <typeparam name="TValueGenerator" />.
+    ///     Factory to create value generators of type
+    ///     <typeparam name="TValueGenerator" />
+    ///     .
     /// </summary>
     public class ValueGeneratorFactory<TValueGenerator> : ValueGeneratorFactory
         where TValueGenerator : ValueGenerator, new()

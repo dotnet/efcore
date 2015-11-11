@@ -18,5 +18,5 @@ namespace Microsoft.Data.Entity
         ///     Navigation properties are not traversed. The operation is only performed on the root entity.
         /// </summary>
         SingleObject
-    };
+    }
 }

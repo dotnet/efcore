@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,9 +106,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual void BeginTrackingQuery() => SingleQueryMode = SingleQueryMode == null;
 
         public virtual InternalEntityEntry StartTracking(
-            IEntityType entityType, 
-            IKeyValue keyValue, 
-            object entity, 
+            IEntityType entityType,
+            IKeyValue keyValue,
+            object entity,
             ValueBuffer valueBuffer)
         {
             if (keyValue.IsInvalid)
@@ -217,8 +216,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             var mapKey = entry.Entity ?? entry;
             var existingEntry = TryGetEntry(mapKey);
 
-            if (existingEntry == null
-                || existingEntry == entry)
+            if ((existingEntry == null)
+                || (existingEntry == entry))
             {
                 _entityReferenceMap[mapKey] = entry;
                 _detachedEntityReferenceMap.Remove(mapKey);
@@ -259,7 +258,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
                 InternalEntityEntry existingEntry;
                 if (_identityMap.TryGetValue(keyValue, out existingEntry)
-                    && existingEntry == entry)
+                    && (existingEntry == entry))
                 {
                     _identityMap.Remove(keyValue);
                 }
@@ -320,12 +319,12 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             InternalEntityEntry existingEntry;
             if (_identityMap.TryGetValue(newKey, out existingEntry)
-                && existingEntry != entry)
+                && (existingEntry != entry))
             {
                 throw new InvalidOperationException(CoreStrings.IdentityConflict(entry.EntityType.Name));
             }
 
-             _identityMap.Remove(oldKeyValue);
+            _identityMap.Remove(oldKeyValue);
 
             if (!newKey.IsInvalid)
             {
@@ -451,9 +450,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
 
             return Entries
-                .Where(e => e.EntityState == EntityState.Added
-                            || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
+                .Where(e => (e.EntityState == EntityState.Added)
+                            || (e.EntityState == EntityState.Modified)
+                            || (e.EntityState == EntityState.Deleted))
                 .Select(e => e.PrepareToSave())
                 .ToList();
         }
@@ -489,20 +488,20 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         }
 
         protected virtual int SaveChanges(
-            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave) 
+            [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave)
             => _database.SaveChanges(entriesToSave);
 
         protected virtual Task<int> SaveChangesAsync(
             [NotNull] IReadOnlyList<InternalEntityEntry> entriesToSave,
-            CancellationToken cancellationToken = default(CancellationToken)) 
+            CancellationToken cancellationToken = default(CancellationToken))
             => _database.SaveChangesAsync(entriesToSave, cancellationToken);
 
         public virtual void AcceptAllChanges()
         {
             var changedEntries = Entries
-                .Where(e => e.EntityState == EntityState.Added
-                            || e.EntityState == EntityState.Modified
-                            || e.EntityState == EntityState.Deleted)
+                .Where(e => (e.EntityState == EntityState.Added)
+                            || (e.EntityState == EntityState.Modified)
+                            || (e.EntityState == EntityState.Deleted))
                 .ToList();
 
             AcceptAllChanges(changedEntries);

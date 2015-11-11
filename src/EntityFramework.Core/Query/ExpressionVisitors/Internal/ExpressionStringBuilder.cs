@@ -236,8 +236,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         op = ">>=";
                         break;
                     case ExpressionType.And:
-                        if (node.Type == typeof(bool)
-                            || node.Type == typeof(bool?))
+                        if ((node.Type == typeof(bool))
+                            || (node.Type == typeof(bool?)))
                         {
                             op = "And";
                         }
@@ -247,8 +247,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         }
                         break;
                     case ExpressionType.AndAssign:
-                        if (node.Type == typeof(bool)
-                            || node.Type == typeof(bool?))
+                        if ((node.Type == typeof(bool))
+                            || (node.Type == typeof(bool?)))
                         {
                             op = "&&=";
                         }
@@ -258,8 +258,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         }
                         break;
                     case ExpressionType.Or:
-                        if (node.Type == typeof(bool)
-                            || node.Type == typeof(bool?))
+                        if ((node.Type == typeof(bool))
+                            || (node.Type == typeof(bool?)))
                         {
                             op = "Or";
                         }
@@ -269,8 +269,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         }
                         break;
                     case ExpressionType.OrAssign:
-                        if (node.Type == typeof(bool)
-                            || node.Type == typeof(bool?))
+                        if ((node.Type == typeof(bool))
+                            || (node.Type == typeof(bool?)))
                         {
                             op = "||=";
                         }
@@ -445,7 +445,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
-            if (node.NewExpression.Arguments.Count == 0
+            if ((node.NewExpression.Arguments.Count == 0)
                 &&
                 node.NewExpression.Type.Name.Contains("<"))
             {

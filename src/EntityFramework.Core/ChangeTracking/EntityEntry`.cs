@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.ChangeTracking
@@ -31,7 +30,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     constructed in your application code.
         /// </summary>
         /// <param name="internalEntry"> The internal entry tracking information about this entity. </param>
-        /// 
         public EntityEntry([NotNull] InternalEntityEntry internalEntry)
             : base(internalEntry)
         {
@@ -75,8 +73,8 @@ namespace Microsoft.Data.Entity.ChangeTracking
 
             var property = this.GetInfrastructure().EntityType.FindProperty(propertyName);
 
-            if (property != null
-                && property.ClrType != typeof(TProperty))
+            if ((property != null)
+                && (property.ClrType != typeof(TProperty)))
             {
                 throw new ArgumentException(CoreStrings.WrongGenericPropertyType(propertyName, property.DeclaringEntityType.Name, property.ClrType.Name, typeof(TProperty).Name));
             }

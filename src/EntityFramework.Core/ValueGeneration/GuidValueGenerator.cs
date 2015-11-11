@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///     Generates <see cref="Guid"/> values using <see cref="Guid.NewGuid()"/>. 
+    ///     Generates <see cref="Guid" /> values using <see cref="Guid.NewGuid()" />.
     ///     The generated values are non-temporary, meaning they will be saved to the database.
     /// </summary>
     public class GuidValueGenerator : ValueGenerator<Guid>

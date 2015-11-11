@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Utilities
         public static string NullButNotEmpty(string value, [InvokerParameterName] [NotNull] string parameterName)
         {
             if (!ReferenceEquals(value, null)
-                && value.Length == 0)
+                && (value.Length == 0))
             {
                 NotEmpty(parameterName, nameof(parameterName));
 

@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         private readonly IStateManager _stateManager;
         private readonly IChangeDetector _changeDetector;
         private readonly IEntityEntryGraphIterator _graphIterator;
-        private readonly DbContext _context;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="ChangeTracker" /> class. Instances of this class are typically
@@ -47,7 +46,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
             _stateManager = stateManager;
             _changeDetector = changeDetector;
             _graphIterator = graphIterator;
-            _context = context;
+            Context = context;
         }
 
         /// <summary>
@@ -71,15 +70,15 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///         Gets or sets the tracking behavior for LINQ queries run against the context. Disabling change tracking
         ///         is useful for read-only scenarios because it avoids the overhead of setting up change tracking for each
         ///         entity instance. You should not disable change tracking if you want to manipulate entity instances and
-        ///         persist those changes to the database using <see cref="DbContext.SaveChanges()"/>.
+        ///         persist those changes to the database using <see cref="DbContext.SaveChanges()" />.
         ///     </para>
         ///     <para>
-        ///         This method sets the default behavior for the context, but you can override this behavior for individual 
-        ///         queries using the <see cref="EntityFrameworkQueryableExtensions.AsNoTracking{TEntity}(IQueryable{TEntity})"/>
-        ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})"/> methods.
+        ///         This method sets the default behavior for the context, but you can override this behavior for individual
+        ///         queries using the <see cref="EntityFrameworkQueryableExtensions.AsNoTracking{TEntity}(IQueryable{TEntity})" />
+        ///         and <see cref="EntityFrameworkQueryableExtensions.AsTracking{TEntity}(IQueryable{TEntity})" /> methods.
         ///     </para>
         ///     <para>
-        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll"/>. This means the change tracker will
+        ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means the change tracker will
         ///         keep track of changes for all entities that are returned from a LINQ query.
         ///     </para>
         /// </summary>
@@ -134,19 +133,19 @@ namespace Microsoft.Data.Entity.ChangeTracking
         /// <summary>
         ///     Gets the context this change tracker belongs to.
         /// </summary>
-        public virtual DbContext Context => _context;
+        public virtual DbContext Context { get; }
 
         /// <summary>
         ///     Scans the tracked entity instances to detect any changes made to the instance data. <see cref="DetectChanges()" />
         ///     is usually called automatically by the context when up-to-date information is required (before
-        ///     <see cref="DbContext.SaveChanges()" /> and when returning change tracking information). You typically only need to 
+        ///     <see cref="DbContext.SaveChanges()" /> and when returning change tracking information). You typically only need to
         ///     call this method if you have disabled <see cref="AutoDetectChangesEnabled" />.
         /// </summary>
         public virtual void DetectChanges() => _changeDetector.DetectChanges(_stateManager);
 
         /// <summary>
         ///     Accepts all changes made to entities in the context. It will be assumed that the tracked entities
-        ///     represent the current state of the database. This method is typically called by <see cref="DbContext.SaveChanges()"/>
+        ///     represent the current state of the database. This method is typically called by <see cref="DbContext.SaveChanges()" />
         ///     after changes have been successfully saved to the database.
         /// </summary>
         public virtual void AcceptAllChanges() => _stateManager.AcceptAllChanges();

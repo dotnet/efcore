@@ -32,8 +32,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var components = value as object[] ?? new[] { value };
 
-            return components.Any(t => t == null) 
-                ? new KeyValue<object[]>(null, null) 
+            return components.Any(t => t == null)
+                ? new KeyValue<object[]>(null, null)
                 : new KeyValue<object[]>(Key, components);
         }
 

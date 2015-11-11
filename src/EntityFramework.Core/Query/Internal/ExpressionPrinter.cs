@@ -446,7 +446,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
             else
             {
-                _stringBuilder.Append("Unhandled parameter: " + node.ToString());
+                _stringBuilder.Append("Unhandled parameter: " + node);
             }
 
             return node;
@@ -502,7 +502,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             public bool TryPrintConstant(object value, IndentedStringBuilder stringBuilder)
             {
                 var enumerable = value as IEnumerable;
-                if (enumerable != null
+                if ((enumerable != null)
                     && !(value is string))
                 {
                     var appendAction = value is byte[] ? Append : AppendLine;

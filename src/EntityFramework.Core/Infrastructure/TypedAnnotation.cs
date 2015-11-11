@@ -47,7 +47,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         public TypedAnnotation([CanBeNull] string typeString, [CanBeNull] string valueString)
         {
-            _value = typeString == null || valueString == null
+            _value = (typeString == null) || (valueString == null)
                 ? null
                 : Deserialize(CheckType(Type.GetType(typeString)), valueString);
         }

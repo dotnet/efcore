@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -160,8 +159,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (property.IsKeyOrForeignKey())
             {
                 var generationProperty = property.GetGenerationProperty();
-                return generationProperty != null
-                       && generationProperty.ValueGenerated != ValueGenerated.Never;
+                return (generationProperty != null)
+                       && (generationProperty.ValueGenerated != ValueGenerated.Never);
             }
 
             return false;

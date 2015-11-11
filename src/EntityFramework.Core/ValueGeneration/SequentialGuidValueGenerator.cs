@@ -7,9 +7,9 @@ using System.Threading;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///     Generates sequential <see cref="Guid"/> values using the same algorithm as NEWSEQUENTIALID()
+    ///     Generates sequential <see cref="Guid" /> values using the same algorithm as NEWSEQUENTIALID()
     ///     in Microsoft SQL Server. This is useful when entities are being saved to a database where sequential
-    ///     GUIDs will provide a performance benefit. The generated values are non-temporary, meaning they will 
+    ///     GUIDs will provide a performance benefit. The generated values are non-temporary, meaning they will
     ///     be saved to the database.
     /// </summary>
     public class SequentialGuidValueGenerator : ValueGenerator<Guid>

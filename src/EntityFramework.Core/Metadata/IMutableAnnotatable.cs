@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
 {
     /// <summary>
     ///     <para>
-    ///         A class that exposes annotations that can be modified. Annotations allow for arbitrary metadata to be 
+    ///         A class that exposes annotations that can be modified. Annotations allow for arbitrary metadata to be
     ///         stored on an object.
     ///     </para>
     ///     <para>
@@ -23,8 +23,8 @@ namespace Microsoft.Data.Entity.Metadata
         ///     Gets or sets the value of the annotation with the given name.
         /// </summary>
         /// <param name="name"> The key of the annotation. </param>
-        /// <returns>         
-        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// <returns>
+        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
         // ReSharper disable once AnnotationRedundancyInHierarchy
         // TODO: Fix API test to handle indexer
@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Metadata
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
         new Annotation FindAnnotation([NotNull] string name);
 

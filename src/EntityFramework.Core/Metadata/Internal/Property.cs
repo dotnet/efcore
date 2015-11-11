@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             UpdateIsNullableConfigurationSource(configurationSource);
         }
 
-        private bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this)) != true
+        private bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) != true)
                                           && ((IProperty)this).ClrType.IsNullableType();
 
         public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 var isIdentity = GetFlag(PropertyFlags.ValueGeneratedOnAdd);
                 var isComputed = GetFlag(PropertyFlags.ValueGeneratedOnAddOrUpdate);
 
-                return isIdentity == null && isComputed == null
+                return (isIdentity == null) && (isComputed == null)
                     ? DefaultValueGenerated
                     : isIdentity.HasValue && isIdentity.Value
                         ? ValueGenerated.OnAdd
@@ -178,7 +178,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         private bool DefaultIsReadOnlyBeforeSave
-            => ValueGenerated == ValueGenerated.OnAddOrUpdate
+            => (ValueGenerated == ValueGenerated.OnAddOrUpdate)
                && !((IProperty)this).IsStoreGeneratedAlways;
 
         public virtual ConfigurationSource? GetIsReadOnlyBeforeSaveConfigurationSource() => _isReadOnlyBeforeSaveConfigurationSource;
@@ -204,7 +204,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         private bool DefaultIsReadOnlyAfterSave
-            => (ValueGenerated == ValueGenerated.OnAddOrUpdate
+            => ((ValueGenerated == ValueGenerated.OnAddOrUpdate)
                 && !((IProperty)this).IsStoreGeneratedAlways)
                || this.IsKey();
 
@@ -322,7 +322,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             UpdateIsStoreGeneratedAlwaysConfigurationSource(configurationSource);
         }
 
-        private bool DefaultStoreGeneratedAlways => ValueGenerated == ValueGenerated.OnAddOrUpdate && IsConcurrencyToken;
+        private bool DefaultStoreGeneratedAlways => (ValueGenerated == ValueGenerated.OnAddOrUpdate) && IsConcurrencyToken;
         public virtual ConfigurationSource? GetIsStoreGeneratedAlwaysConfigurationSource() => _isStoreGeneratedAlwaysConfigurationSource;
 
         private void UpdateIsStoreGeneratedAlwaysConfigurationSource(ConfigurationSource configurationSource)
@@ -335,13 +335,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private void SetFlag(bool? value, PropertyFlags flag)
         {
-            _setFlags = value.HasValue ? (_setFlags | flag) : (_setFlags & ~flag);
-            _flags = value.HasValue && value.Value ? (_flags | flag) : (_flags & ~flag);
+            _setFlags = value.HasValue ? _setFlags | flag : _setFlags & ~flag;
+            _flags = value.HasValue && value.Value ? _flags | flag : _flags & ~flag;
         }
 
         internal static string Format(IEnumerable<IProperty> properties)
-            => "{" + String.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
-        
+            => "{" + string.Join(", ", properties.Select(p => "'" + p.Name + "'")) + "}";
+
         IEntityType IPropertyBase.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableProperty.DeclaringEntityType => DeclaringEntityType;
 
@@ -367,7 +367,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return properties.All(property =>
                 ((IProperty)property).IsShadowProperty
                 || (entityType.HasClrType()
-                    && entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null));
+                    && (entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)));
         }
 
         public virtual IClrPropertyGetter Getter

@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
             => constantExpression.Type.GetTypeInfo().IsGenericType
-               && constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>)
+               && (constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
                 ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
                 : constantExpression;
 

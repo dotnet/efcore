@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool CanSetRequired(bool isRequired, ConfigurationSource configurationSource)
             => configurationSource.Overrides(Metadata.GetIsNullableConfigurationSource())
-               || Metadata.IsNullable == !isRequired;
+               || (Metadata.IsNullable == !isRequired);
 
         public virtual bool HasMaxLength(int maxLength, ConfigurationSource configurationSource)
             => HasAnnotation(CoreAnnotationNames.MaxLengthAnnotation, maxLength, configurationSource);
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool IsConcurrencyToken(bool concurrencyToken, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsConcurrencyTokenConfigurationSource())
-                || Metadata.IsConcurrencyToken == concurrencyToken)
+                || (Metadata.IsConcurrencyToken == concurrencyToken))
             {
                 Metadata.SetIsConcurrencyToken(concurrencyToken, configurationSource);
                 return true;
@@ -54,8 +54,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool ReadOnlyAfterSave(bool isReadOnlyAfterSave, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides( Metadata.GetIsReadOnlyAfterSaveConfigurationSource())
-                || Metadata.IsReadOnlyAfterSave == isReadOnlyAfterSave)
+            if (configurationSource.Overrides(Metadata.GetIsReadOnlyAfterSaveConfigurationSource())
+                || (Metadata.IsReadOnlyAfterSave == isReadOnlyAfterSave))
             {
                 Metadata.SetIsReadOnlyAfterSave(isReadOnlyAfterSave, configurationSource);
                 return true;
@@ -67,7 +67,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool ReadOnlyBeforeSave(bool isReadOnlyBeforeSave, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsReadOnlyBeforeSaveConfigurationSource())
-                || Metadata.IsReadOnlyBeforeSave == isReadOnlyBeforeSave)
+                || (Metadata.IsReadOnlyBeforeSave == isReadOnlyBeforeSave))
             {
                 Metadata.SetIsReadOnlyBeforeSave(isReadOnlyBeforeSave, configurationSource);
                 return true;
@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool IsShadow(bool isShadowProperty, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetIsShadowPropertyConfigurationSource())
-                || Metadata.IsShadowProperty == isShadowProperty)
+                || (Metadata.IsShadowProperty == isShadowProperty))
             {
                 Metadata.SetIsShadowProperty(isShadowProperty, configurationSource);
                 return true;
@@ -91,7 +91,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool HasClrType([NotNull] Type propertyType, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetClrTypeConfigurationSource())
-                || Metadata.ClrType == propertyType)
+                || (Metadata.ClrType == propertyType))
             {
                 Metadata.HasClrType(propertyType, configurationSource);
                 return true;
@@ -103,9 +103,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool RequiresValueGenerator(bool generateValue, ConfigurationSource configurationSource)
         {
             if (configurationSource.Overrides(Metadata.GetRequiresValueGeneratorConfigurationSource())
-                || Metadata.RequiresValueGenerator == generateValue)
+                || (Metadata.RequiresValueGenerator == generateValue))
             {
-                Metadata.SetRequiresValueGenerator( generateValue, configurationSource);
+                Metadata.SetRequiresValueGenerator(generateValue, configurationSource);
                 return true;
             }
 
@@ -114,10 +114,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual bool ValueGenerated(ValueGenerated valueGenerated, ConfigurationSource configurationSource)
         {
-            if (configurationSource.Overrides( Metadata.GetValueGeneratedConfigurationSource())
-                || Metadata.ValueGenerated == valueGenerated)
+            if (configurationSource.Overrides(Metadata.GetValueGeneratedConfigurationSource())
+                || (Metadata.ValueGenerated == valueGenerated))
             {
-                Metadata.SetValueGenerated (valueGenerated, configurationSource);
+                Metadata.SetValueGenerated(valueGenerated, configurationSource);
 
                 if (Metadata.IsKey())
                 {
@@ -144,7 +144,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             newPropertyBuilder.MergeAnnotationsFrom(this);
-            
+
             if (Metadata.GetClrTypeConfigurationSource().HasValue)
             {
                 newPropertyBuilder.HasClrType(Metadata.ClrType, Metadata.GetClrTypeConfigurationSource().Value);
@@ -156,7 +156,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
             if (Metadata.GetIsReadOnlyBeforeSaveConfigurationSource().HasValue)
             {
-                newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave, 
+                newPropertyBuilder.ReadOnlyBeforeSave(Metadata.IsReadOnlyBeforeSave,
                     Metadata.GetIsReadOnlyBeforeSaveConfigurationSource().Value);
             }
             if (Metadata.GetIsNullableConfigurationSource().HasValue)
@@ -184,6 +184,5 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return newPropertyBuilder;
         }
-
     }
 }

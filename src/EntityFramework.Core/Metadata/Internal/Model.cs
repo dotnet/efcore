@@ -170,13 +170,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual void Unignore([NotNull] Type type)
         {
             Check.NotNull(type, nameof(type));
-           Unignore(type.DisplayName());
+            Unignore(type.DisplayName());
         }
 
         public virtual void Unignore([NotNull] string name)
         {
             Check.NotNull(name, nameof(name));
-             _ignoredEntityTypeNames.Remove(name);
+            _ignoredEntityTypeNames.Remove(name);
         }
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);

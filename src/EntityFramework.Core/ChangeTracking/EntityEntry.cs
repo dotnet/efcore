@@ -30,7 +30,6 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     your application code.
         /// </summary>
         /// <param name="internalEntry"> The internal entry tracking information about this entity. </param>
-        /// 
         public EntityEntry([NotNull] InternalEntityEntry internalEntry)
         {
             Check.NotNull(internalEntry, nameof(internalEntry));
@@ -80,6 +79,7 @@ namespace Microsoft.Data.Entity.ChangeTracking
         ///     Gets the context that is tracking the entity.
         /// </summary>
         public virtual DbContext Context => _internalEntityEntry.StateManager.Context;
+
         /// <summary>
         ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.
         /// </summary>

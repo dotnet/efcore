@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             _keyValueFactorySource = keyValueFactorySource;
         }
 
-        public virtual void BeginTrackingQuery() 
+        public virtual void BeginTrackingQuery()
             => _stateManager.BeginTrackingQuery();
 
         public virtual object GetEntity(
@@ -159,8 +159,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             int currentNavigationIndex,
             bool queryStateManager)
         {
-            if (entity == null
-                || currentNavigationIndex == navigationPath.Count)
+            if ((entity == null)
+                || (currentNavigationIndex == navigationPath.Count))
             {
                 return;
             }
@@ -224,8 +224,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             int currentNavigationIndex,
             bool queryStateManager)
         {
-            if (entity == null
-                || currentNavigationIndex == navigationPath.Count)
+            if ((entity == null)
+                || (currentNavigationIndex == navigationPath.Count))
             {
                 return;
             }
@@ -248,28 +248,27 @@ namespace Microsoft.Data.Entity.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
-                    .Select(async (eli, ct) =>
+                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory), async (eli, ct) =>
+                    {
+                        var keyValue = keyValueFactory.Create(eli.ValueBuffer);
+
+                        object targetEntity = null;
+
+                        if (!keyValue.IsInvalid)
                         {
-                            var keyValue = keyValueFactory.Create(eli.ValueBuffer);
+                            targetEntity = GetEntity(keyValue, eli, queryStateManager);
+                        }
 
-                            object targetEntity = null;
+                        await IncludeAsync(
+                            targetEntity,
+                            navigationPath,
+                            relatedEntitiesLoaders,
+                            ct,
+                            currentNavigationIndex + 1,
+                            queryStateManager);
 
-                            if (!keyValue.IsInvalid)
-                            {
-                                targetEntity = GetEntity(keyValue, eli, queryStateManager);
-                            }
-
-                            await IncludeAsync(
-                                targetEntity,
-                                navigationPath,
-                                relatedEntitiesLoaders,
-                                ct,
-                                currentNavigationIndex + 1,
-                                queryStateManager);
-
-                            return targetEntity;
-                        })
+                        return targetEntity;
+                    })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }

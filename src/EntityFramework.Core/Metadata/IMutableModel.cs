@@ -9,12 +9,12 @@ namespace Microsoft.Data.Entity.Metadata
     /// <summary>
     ///     <para>
     ///         Metadata about the shape of entities, the relationships between them, and how they map to the database. A model is typically
-    ///         created by overriding the <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)"/> method on a derived context, or
-    ///         using <see cref="ModelBuilder"/>.
+    ///         created by overriding the <see cref="DbContext.OnConfiguring(DbContextOptionsBuilder)" /> method on a derived context, or
+    ///         using <see cref="ModelBuilder" />.
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="IModel"/> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="IModel" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableModel : IModel, IMutableAnnotatable

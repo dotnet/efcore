@@ -10,20 +10,20 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Microsoft.Data.Entity.Storage
 {
     /// <summary>
-    ///     <para>  
+    ///     <para>
     ///         The primary point where a database provider can tell EF that it has been selected for the current context
     ///         and provide the services required for it to function.
-    ///     </para>  
-    ///     <para>  
-    ///         This type is typically used by database providers (and other extensions). It is generally  
-    ///         not used in application code.  
-    ///     </para>  
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
-    /// <typeparam name="TProviderServices"> 
-    ///     The base set of services required by EF for the database provider to function. 
+    /// <typeparam name="TProviderServices">
+    ///     The base set of services required by EF for the database provider to function.
     /// </typeparam>
     /// <typeparam name="TOptionsExtension">
-    ///     The type of options that the database provider will add to <see cref="DbContextOptions.Extensions"/>
+    ///     The type of options that the database provider will add to <see cref="DbContextOptions.Extensions" />
     ///     to identify that is has been selected (and to store its database specific settings).
     /// </typeparam>
     public class DatabaseProvider<TProviderServices, TOptionsExtension> : IDatabaseProvider

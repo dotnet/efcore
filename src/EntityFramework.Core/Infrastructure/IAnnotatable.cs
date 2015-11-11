@@ -21,8 +21,8 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///     Gets the value annotation with the given name, returning null if it does not exist.
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
-        /// <returns>         
-        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        /// <returns>
+        ///     The value of the existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
         // ReSharper disable once AnnotationRedundancyInHierarchy
         // TODO: Fix API test to handle indexer
@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// </summary>
         /// <param name="name"> The key of the annotation to find. </param>
         /// <returns>
-        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null. 
+        ///     The existing annotation if an annotation with the specified name already exists. Otherwise, null.
         /// </returns>
         IAnnotation FindAnnotation([NotNull] string name);
 

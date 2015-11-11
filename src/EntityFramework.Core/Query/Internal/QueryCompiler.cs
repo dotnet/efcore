@@ -225,7 +225,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 => typeof(IQueryable).GetTypeInfo().IsAssignableFrom(methodCallExpression.Type.GetTypeInfo());
 
             public override bool IsEvaluatableMember(MemberExpression memberExpression)
-                => memberExpression.Member != _dateTimeNow && memberExpression.Member != _dateTimeUtcNow;
+                => (memberExpression.Member != _dateTimeNow) && (memberExpression.Member != _dateTimeUtcNow);
         }
 
         private INodeTypeProvider NodeTypeProvider

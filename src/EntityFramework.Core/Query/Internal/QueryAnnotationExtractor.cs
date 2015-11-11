@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.Query.ResultOperators;
-using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.Expressions;
 

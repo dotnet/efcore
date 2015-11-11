@@ -304,7 +304,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
                 requiredSet: true);
 
         /// <summary>
-        ///     Configures how a delete operation is applied to dependent entities in the relationship when the 
+        ///     Configures how a delete operation is applied to dependent entities in the relationship when the
         ///     principal is deleted or the relationship is severed.
         /// </summary>
         /// <param name="deleteBehavior"> The action to perform. </param>

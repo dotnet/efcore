@@ -114,7 +114,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         protected virtual InternalRelationshipBuilder WithOneBuilder([CanBeNull] string reference)
         {
             if (Builder.Metadata.IsSelfReferencing()
-                && ReferenceName == reference)
+                && (ReferenceName == reference))
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateNavigation(
                     reference, RelatedEntityType.DisplayName(), RelatedEntityType.DisplayName()));
@@ -122,7 +122,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
 
             var builder = Builder.IsUnique(true, ConfigurationSource.Explicit);
             var pointsToPrincipal = !builder.Metadata.IsSelfReferencing()
-                                    && builder.Metadata.DeclaringEntityType == RelatedEntityType;
+                                    && (builder.Metadata.DeclaringEntityType == RelatedEntityType);
 
             return pointsToPrincipal
                 ? builder.DependentToPrincipal(reference, ConfigurationSource.Explicit)

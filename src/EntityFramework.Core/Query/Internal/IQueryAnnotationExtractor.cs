@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.ResultOperators;
-using Microsoft.Data.Entity.Query.ResultOperators.Internal;
 using Remotion.Linq;
 
 namespace Microsoft.Data.Entity.Query.Internal

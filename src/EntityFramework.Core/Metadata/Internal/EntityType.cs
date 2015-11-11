@@ -97,7 +97,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         throw new InvalidOperationException(CoreStrings.ClrTypeWrongName(value.DisplayName(), Name));
                     }
 
-                    if (_baseType != null
+                    if ((_baseType != null)
                         || GetDirectlyDerivedTypes().Any()
                         || GetProperties().Any())
                     {
@@ -308,8 +308,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            if (properties != null
-                && properties.Count != 0)
+            if ((properties != null)
+                && (properties.Count != 0))
             {
                 var key = GetOrAddKey(properties);
 
@@ -354,8 +354,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return _baseType.FindPrimaryKey(properties);
             }
 
-            if (_primaryKey != null
-                && PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0)
+            if ((_primaryKey != null)
+                && (PropertyListComparer.Instance.Compare(_primaryKey.Properties, properties) == 0))
             {
                 return _primaryKey;
             }
@@ -496,8 +496,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             foreach (var property in properties)
             {
                 var actualProperty = FindProperty(property.Name);
-                if (actualProperty == null
-                    || actualProperty.DeclaringEntityType != property.DeclaringEntityType)
+                if ((actualProperty == null)
+                    || (actualProperty.DeclaringEntityType != property.DeclaringEntityType))
                 {
                     throw new ArgumentException(CoreStrings.ForeignKeyPropertiesWrongEntity(Property.Format(properties), Name));
                 }
@@ -670,7 +670,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
-            Debug.Assert(!GetNavigations().Any(n => n.ForeignKey == foreignKey && n.IsDependentToPrincipal() == pointsToPrincipal),
+            Debug.Assert(!GetNavigations().Any(n => (n.ForeignKey == foreignKey) && (n.IsDependentToPrincipal() == pointsToPrincipal)),
                 "There is another navigation corresponding to the same foreign key and pointing in the same direction.");
 
             Debug.Assert((pointsToPrincipal ? foreignKey.DeclaringEntityType : foreignKey.PrincipalEntityType) == this,
@@ -1097,23 +1097,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 // Neither property is part of the Primary Key
                 // Compare the property names
-                if (xIndex == -1
-                    && yIndex == -1)
+                if ((xIndex == -1)
+                    && (yIndex == -1))
                 {
                     return StringComparer.Ordinal.Compare(x, y);
                 }
 
                 // Both properties are part of the Primary Key
                 // Compare the indices
-                if (xIndex > -1
-                    && yIndex > -1)
+                if ((xIndex > -1)
+                    && (yIndex > -1))
                 {
                     return xIndex - yIndex;
                 }
 
                 // One property is part of the Primary Key
                 // The primary key property is first
-                return (xIndex > yIndex)
+                return xIndex > yIndex
                     ? -1
                     : 1;
             }

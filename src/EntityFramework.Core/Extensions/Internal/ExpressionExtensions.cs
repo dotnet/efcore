@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 
 // ReSharper disable once CheckNamespace
 
@@ -78,7 +77,7 @@ namespace System.Linq.Expressions
             var propertyPath
                 = propertyMatcher(lambdaExpression.Body, lambdaExpression.Parameters.Single());
 
-            return (propertyPath != null) ? new[] { propertyPath } : null;
+            return propertyPath != null ? new[] { propertyPath } : null;
         }
 
         private static PropertyInfo MatchSimplePropertyAccess(
@@ -86,7 +85,7 @@ namespace System.Linq.Expressions
         {
             var propertyInfos = MatchPropertyAccess(parameterExpression, propertyAccessExpression);
 
-            return propertyInfos != null && propertyInfos.Length == 1 ? propertyInfos[0] : null;
+            return (propertyInfos != null) && (propertyInfos.Length == 1) ? propertyInfos[0] : null;
         }
 
         public static PropertyInfo[] GetComplexPropertyAccess([NotNull] this LambdaExpression propertyAccessExpression)
@@ -146,9 +145,9 @@ namespace System.Linq.Expressions
 
         public static Expression RemoveConvert([CanBeNull] this Expression expression)
         {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
+            while ((expression != null)
+                   && ((expression.NodeType == ExpressionType.Convert)
+                       || (expression.NodeType == ExpressionType.ConvertChecked)))
             {
                 expression = RemoveConvert(((UnaryExpression)expression).Operand);
             }

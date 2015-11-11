@@ -65,7 +65,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                         throw new InvalidOperationException(CoreStrings.CompositePKWithDataAnnotation(entityType.DisplayName()));
                     }
                 }
-
             }
             return modelBuilder;
         }

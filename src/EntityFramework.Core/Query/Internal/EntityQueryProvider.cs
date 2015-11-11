@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.Internal
     {
         private static readonly MethodInfo _genericCreateQueryMethod
             = typeof(EntityQueryProvider).GetRuntimeMethods()
-                .Single(m => m.Name == "CreateQuery" && m.IsGenericMethod);
+                .Single(m => (m.Name == "CreateQuery") && m.IsGenericMethod);
 
         private readonly IQueryCompiler _queryCompiler;
 

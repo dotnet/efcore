@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         {
                             var navigation = propertyBase as INavigation;
 
-                            if (navigation == null
+                            if ((navigation == null)
                                 || !navigation.IsCollection())
                             {
                                 _values[index] = value;
@@ -62,7 +62,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 if (value == null)
                 {
                     var property = propertyBase as IProperty;
-                    if (property != null
+                    if ((property != null)
                         && !property.IsNullable)
                     {
                         return;
@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 var index = propertyBase.GetRelationshipIndex();
 
-                var snapshot = ((HashSet<object>)_values[index]);
+                var snapshot = (HashSet<object>)_values[index];
                 if (snapshot == null)
                 {
                     snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);

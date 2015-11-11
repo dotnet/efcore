@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata
     ///     </para>
     ///     <para>
     ///         This interface is used during model creation and allows the metadata to be modified.
-    ///         Once the model is built, <see cref="INavigation"/> represents a ready-only view of the same metadata.
+    ///         Once the model is built, <see cref="INavigation" /> represents a ready-only view of the same metadata.
     ///     </para>
     /// </summary>
     public interface IMutableNavigation : INavigation, IMutableAnnotatable

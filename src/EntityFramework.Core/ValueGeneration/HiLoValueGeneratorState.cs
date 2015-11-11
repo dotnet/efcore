@@ -10,7 +10,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///     The thread safe state used by <see cref="HiLoValueGenerator{TValue}"/>.
+    ///     The thread safe state used by <see cref="HiLoValueGenerator{TValue}" />.
     /// </summary>
     public class HiLoValueGeneratorState
     {
@@ -19,9 +19,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
         private readonly int _blockSize;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="HiLoValueGeneratorState"/> class.
+        ///     Initializes a new instance of the <see cref="HiLoValueGeneratorState" /> class.
         /// </summary>
-        /// <param name="blockSize"> 
+        /// <param name="blockSize">
         ///     The number of sequential values that can be used, starting from the low value, before
         ///     a new low value must be fetched from the database.
         /// </param>
@@ -41,7 +41,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         ///     Gets a value to be assigned to a property.
         /// </summary>
         /// <typeparam name="TValue"> The type of values being generated. </typeparam>
-        /// <param name="getNewLowValue"> 
+        /// <param name="getNewLowValue">
         ///     A function to get the next low value if needed.
         /// </param>
         /// <returns> The value to be assigned to a property. </returns>

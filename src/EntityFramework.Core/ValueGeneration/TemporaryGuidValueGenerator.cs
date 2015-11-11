@@ -6,7 +6,7 @@ using System;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///     Generates <see cref="Guid"/> values using <see cref="Guid.NewGuid()"/>. 
+    ///     Generates <see cref="Guid" /> values using <see cref="Guid.NewGuid()" />.
     ///     The generated values are temporary, meaning they will be replaced by database
     ///     generated values when the entity is saved.
     /// </summary>
@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
     {
         /// <summary>
         ///     Gets a value indicating whether the values generated are temporary or permanent. This implementation
-        ///     always returns true, meaning the generated values will be replaced by database generated values when 
+        ///     always returns true, meaning the generated values will be replaced by database generated values when
         ///     the entity is saved
         /// </summary>
         public override bool GeneratesTemporaryValues => true;

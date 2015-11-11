@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Builder = new InternalIndexBuilder(this, declaringEntityType.Model.Builder);
         }
-        
+
         public virtual IReadOnlyList<Property> Properties { get; }
         public virtual EntityType DeclaringEntityType { get; }
         public virtual InternalIndexBuilder Builder { get; [param: CanBeNull] set; }

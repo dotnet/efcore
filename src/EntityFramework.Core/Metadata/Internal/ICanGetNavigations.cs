@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    interface ICanGetNavigations
+    internal interface ICanGetNavigations
     {
         IEnumerable<INavigation> GetNavigations();
     }

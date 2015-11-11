@@ -12,13 +12,13 @@ using Microsoft.Data.Entity.ValueGeneration.Internal;
 namespace Microsoft.Data.Entity.ValueGeneration
 {
     /// <summary>
-    ///     <para>  
+    ///     <para>
     ///         Selects value generators to be used to generate values for properties of entities.
-    ///     </para>  
-    ///     <para>  
-    ///         This type is typically used by database providers (and other extensions). It is generally  
-    ///         not used in application code.  
-    ///     </para>  
+    ///     </para>
+    ///     <para>
+    ///         This type is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public class ValueGeneratorSelector : IValueGeneratorSelector
     {
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.ValueGeneration
         public virtual IValueGeneratorCache Cache { get; }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueGeneratorSelector"/> class.
+        ///     Initializes a new instance of the <see cref="ValueGeneratorSelector" /> class.
         /// </summary>
         /// <param name="cache"> The cache to be used to store value generator instances. </param>
         public ValueGeneratorSelector([NotNull] IValueGeneratorCache cache)
@@ -60,9 +60,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
         ///     Selects the appropriate value generator for a given property.
         /// </summary>
         /// <param name="property"> The property to get the value generator for. </param>
-        /// <param name="entityType"> 
-        ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types, 
-        ///     this entity type may be different from the declared entity type on <paramref name="property" /> 
+        /// <param name="entityType">
+        ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
+        ///     this entity type may be different from the declared entity type on <paramref name="property" />
         /// </param>
         /// <returns> The value generator to be used. </returns>
         public virtual ValueGenerator Select(IProperty property, IEntityType entityType)
@@ -77,9 +77,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
         ///     Creates a new value generator for the given property.
         /// </summary>
         /// <param name="property"> The property to get the value generator for. </param>
-        /// <param name="entityType"> 
-        ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types, 
-        ///     this entity type may be different from the declared entity type on <paramref name="property" /> 
+        /// <param name="entityType">
+        ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
+        ///     this entity type may be different from the declared entity type on <paramref name="property" />
         /// </param>
         /// <returns> The newly created value generator. </returns>
         public virtual ValueGenerator Create([NotNull] IProperty property, [NotNull] IEntityType entityType)
@@ -95,9 +95,9 @@ namespace Microsoft.Data.Entity.ValueGeneration
             }
 
             if (propertyType.IsInteger()
-                || propertyType == typeof(decimal)
-                || propertyType == typeof(float)
-                || propertyType == typeof(double))
+                || (propertyType == typeof(decimal))
+                || (propertyType == typeof(float))
+                || (propertyType == typeof(double)))
             {
                 return _numberFactory.Create(property);
             }

@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 var existingConfigurationSource = existingAnnotation.GetConfigurationSource();
                 if (!configurationSource.Overrides(existingConfigurationSource)
-                    || (configurationSource == existingConfigurationSource && !canOverrideSameSource))
+                    || ((configurationSource == existingConfigurationSource) && !canOverrideSameSource))
                 {
                     return false;
                 }
@@ -115,8 +115,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var value = createValue(key);
             if (isNewKey
-                && onNewKeyAdded != null
-                && value != null)
+                && (onNewKeyAdded != null)
+                && (value != null))
             {
                 value = onNewKeyAdded(value);
             }

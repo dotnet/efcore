@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
 
             if (methodCallExpression.Method.IsGenericMethod
-                && methodCallExpression.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo)
+                && (methodCallExpression.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo))
             {
                 var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
                 var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector as QuerySourceReferenceExpression;

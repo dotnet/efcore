@@ -8,17 +8,17 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="INavigation"/>.
+    ///     Extension methods for <see cref="INavigation" />.
     /// </summary>
     public static class NavigationExtensions
     {
         /// <summary>
-        ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity 
+        ///     Gets a value indicating whether the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity.
         /// </summary>
         /// <param name="navigation"> The navigation property to check. </param>
-        /// <returns> 
-        ///     True if the given navigation property is the navigation property on the dependent entity 
+        /// <returns>
+        ///     True if the given navigation property is the navigation property on the dependent entity
         ///     type that points to the principal entity, otherwise false.
         /// </returns>
         public static bool IsDependentToPrincipal([NotNull] this INavigation navigation)
@@ -56,7 +56,7 @@ namespace Microsoft.Data.Entity
         }
 
         /// <summary>
-        ///     Gets the entity type that a given navigation property will hold an instance of 
+        ///     Gets the entity type that a given navigation property will hold an instance of
         ///     (or hold instances of if it is a collection navigation).
         /// </summary>
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>

@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         {
             var expression = memberExpression.Expression.RemoveConvert();
 
-            if (expression != memberExpression.Expression
+            if ((expression != memberExpression.Expression)
                 && !(expression is QuerySourceReferenceExpression))
             {
                 expression = memberExpression.Expression;
@@ -133,8 +133,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 var typeInfo = newExpression.Type.GetTypeInfo();
 
                 if (typeInfo.IsGenericType
-                    && (typeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
-                        || typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
+                    && ((typeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>))
+                        || (typeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>))))
                 {
                     member = typeInfo.GetDeclaredProperty("Key");
                 }
@@ -179,8 +179,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
             firstArgument = firstArgument ?? newExpression.Arguments.FirstOrDefault();
 
-            if (newExpression != methodCallExpression
-                && firstArgument?.Type == typeof(ValueBuffer))
+            if ((newExpression != methodCallExpression)
+                && (firstArgument?.Type == typeof(ValueBuffer)))
             {
                 return
                     _queryModelVisitor

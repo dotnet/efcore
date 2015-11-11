@@ -46,9 +46,9 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///     to ensure it is compatible with the model for this context.
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created, 
-        ///     false if it already existed. 
+        /// <returns>
+        ///     A task that represents the asynchronous save operation. The task result contains true if the database is created,
+        ///     false if it already existed.
         /// </returns>
         public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default(CancellationToken))
             => this.GetService<IDatabaseCreator>().EnsureCreatedAsync(cancellationToken);
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by 
+        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
@@ -72,14 +72,14 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///         exist then the database is deleted.
         ///     </para>
         ///     <para>
-        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by 
+        ///         Warning: The entire database is deleted an no effort is made to remove just the database objects that are used by
         ///         the model for this context.
         ///     </para>
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> 
-        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted, 
-        ///     false if it did not exist. 
+        /// <returns>
+        ///     A task that represents the asynchronous save operation. The task result contains true if the database is deleted,
+        ///     false if it did not exist.
         /// </returns>
         public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default(CancellationToken))
             => this.GetService<IDatabaseCreator>().EnsureDeletedAsync(cancellationToken);
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///     Starts a new transaction.
         /// </summary>
         /// <returns>
-        ///     A <see cref="IDbContextTransaction"/> that represents the started transaction.
+        ///     A <see cref="IDbContextTransaction" /> that represents the started transaction.
         /// </returns>
         public virtual IDbContextTransaction BeginTransaction()
             => this.GetService<IDbContextTransactionManager>().BeginTransaction();
@@ -98,7 +98,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// </summary>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>
-        ///     A task that represents the asynchronus transaction initialization. The task result contains a <see cref="IDbContextTransaction"/>
+        ///     A task that represents the asynchronus transaction initialization. The task result contains a <see cref="IDbContextTransaction" />
         ///     that represents the started transaction.
         /// </returns>
         public virtual Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default(CancellationToken))

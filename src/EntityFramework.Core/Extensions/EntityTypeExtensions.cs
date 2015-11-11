@@ -13,7 +13,7 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IEntityType"/>.
+    ///     Extension methods for <see cref="IEntityType" />.
     /// </summary>
     public static class EntityTypeExtensions
     {
@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var derivedType in entityType.Model.GetEntityTypes())
             {
-                if (derivedType.BaseType != null
-                    && derivedType != entityType
+                if ((derivedType.BaseType != null)
+                    && (derivedType != entityType)
                     && entityType.IsAssignableFrom(derivedType))
                 {
                     yield return derivedType;
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity
         ///     Gets the root base type for a given entity type.
         /// </summary>
         /// <param name="entityType"> The type to find the root of. </param>
-        /// <returns> 
+        /// <returns>
         ///     The root base type. If the given entity type is not a derived type, then the same entity type is returned.
         /// </returns>
         public static IEntityType RootType([NotNull] this IEntityType entityType)
@@ -56,9 +56,9 @@ namespace Microsoft.Data.Entity
         ///     Determines if an entity type derives from (or is the same as) a given entity type.
         /// </summary>
         /// <param name="entityType"> The base entity type. </param>
-        /// <param name="derivedType"> The entity type to check if it derives from <paramref name="entityType"/>. </param>
+        /// <param name="derivedType"> The entity type to check if it derives from <paramref name="entityType" />. </param>
         /// <returns>
-        ///     True if <paramref name="derivedType"/> derives from (or is the same as) <paramref name="entityType"/>, otherwise false.
+        ///     True if <paramref name="derivedType" /> derives from (or is the same as) <paramref name="entityType" />, otherwise false.
         /// </returns>
         public static bool IsAssignableFrom([NotNull] this IEntityType entityType, [NotNull] IEntityType derivedType)
         {
@@ -126,8 +126,8 @@ namespace Microsoft.Data.Entity
         /// <param name="entityType"> The entity type to find the foreign keys on. </param>
         /// <param name="property"> The property that the foreign key is defined on. </param>
         /// <param name="principalKey"> The primary or alternate key that is referenced. </param>
-        /// <param name="principalEntityType"> 
-        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey"/>
+        /// <param name="principalEntityType">
+        ///     The entity type that the relationship targets. This may be different from the type that <paramref name="principalKey" />
         ///     is defined on when the relationship targets a derived type in an inheritance hierarchy (since the key is defined on the
         ///     base type of the hierarchy).
         /// </param>
@@ -209,8 +209,8 @@ namespace Microsoft.Data.Entity
         ///         Gets a property on the given entity type. Returns null if no property is found.
         ///     </para>
         ///     <para>
-        ///         This API only finds scalar properties and does not find navigation properties. Use 
-        ///         <see cref="FindNavigation(IEntityType, PropertyInfo)"/> to find a navigation property.
+        ///         This API only finds scalar properties and does not find navigation properties. Use
+        ///         <see cref="FindNavigation(IEntityType, PropertyInfo)" /> to find a navigation property.
         ///     </para>
         /// </summary>
         /// <param name="entityType"> The entity type to find the property on. </param>

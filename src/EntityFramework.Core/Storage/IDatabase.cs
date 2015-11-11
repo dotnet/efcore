@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Update;
 using Remotion.Linq;
@@ -14,13 +13,13 @@ using Remotion.Linq;
 namespace Microsoft.Data.Entity.Storage
 {
     /// <summary>
-    ///     <para>  
-    ///         The main interaction point between a context and the database provider. 
-    ///     </para>  
-    ///     <para>  
-    ///         This interface is typically used by database providers (and other extensions). It is generally  
-    ///         not used in application code.  
-    ///     </para>  
+    ///     <para>
+    ///         The main interaction point between a context and the database provider.
+    ///     </para>
+    ///     <para>
+    ///         This interface is typically used by database providers (and other extensions). It is generally
+    ///         not used in application code.
+    ///     </para>
     /// </summary>
     public interface IDatabase
     {

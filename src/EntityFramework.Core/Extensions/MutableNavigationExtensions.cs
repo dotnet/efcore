@@ -7,7 +7,7 @@ using Microsoft.Data.Entity.Metadata;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IMutableNavigation"/>.
+    ///     Extension methods for <see cref="IMutableNavigation" />.
     /// </summary>
     public static class MutableNavigationExtensions
     {
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity
             => (IMutableNavigation)((INavigation)navigation).FindInverse();
 
         /// <summary>
-        ///     Gets the entity type that a given navigation property will hold an instance of 
+        ///     Gets the entity type that a given navigation property will hold an instance of
         ///     (or hold instances of if it is a collection navigation).
         /// </summary>
         /// <param name="navigation"> The navigation property to find the target entity type of. </param>

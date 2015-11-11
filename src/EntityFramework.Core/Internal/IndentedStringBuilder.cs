@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Internal
 
         private void DoIndent()
         {
-            if (_indentPending && _indent > 0)
+            if (_indentPending && (_indent > 0))
             {
                 _stringBuilder.Append(new string(' ', _indent * IndentSize));
             }

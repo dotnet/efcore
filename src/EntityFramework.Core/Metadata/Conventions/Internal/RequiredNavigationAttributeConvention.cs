@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             Check.NotNull(attribute, nameof(attribute));
 
             if (!navigation.IsDependentToPrincipal()
-                || navigation.DeclaringEntityType.ClrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == navigation.Name)?.PropertyType.TryGetSequenceType() != null)
+                || (navigation.DeclaringEntityType.ClrType?.GetRuntimeProperties().FirstOrDefault(pi => pi.Name == navigation.Name)?.PropertyType.TryGetSequenceType() != null))
             {
                 return relationshipBuilder;
             }

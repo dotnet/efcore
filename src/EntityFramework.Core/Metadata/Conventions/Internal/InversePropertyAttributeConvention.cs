@@ -39,7 +39,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             var inverseNavigationPropertyInfo = targetType.GetRuntimeProperties().FirstOrDefault(p => string.Equals(p.Name, attribute.Property, StringComparison.OrdinalIgnoreCase));
 
-            if (inverseNavigationPropertyInfo == null
+            if ((inverseNavigationPropertyInfo == null)
                 || !FindCandidateNavigationPropertyType(inverseNavigationPropertyInfo).GetTypeInfo()
                     .IsAssignableFrom(entityTypeBuilder.Metadata.ClrType.GetTypeInfo()))
             {
@@ -59,8 +59,8 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             // Check for InversePropertyAttribute on the inverseNavigation to verify that it matches.
             var inverseAttribute = inverseNavigationPropertyInfo.GetCustomAttribute<InversePropertyAttribute>(true);
-            if (inverseAttribute != null
-                && inverseAttribute.Property != navigationPropertyInfo.Name)
+            if ((inverseAttribute != null)
+                && (inverseAttribute.Property != navigationPropertyInfo.Name))
             {
                 throw new InvalidOperationException(
                     CoreStrings.InversePropertyMismatch(
@@ -72,9 +72,9 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
             var existingNavigation = entityTypeBuilder.Metadata.FindNavigation(navigationPropertyInfo.Name);
             var existingInverse = existingNavigation?.FindInverse();
-            if (existingInverse != null
-                && existingInverse.Name == inverseNavigationPropertyInfo.Name
-                && existingNavigation.DeclaringEntityType != entityTypeBuilder.Metadata)
+            if ((existingInverse != null)
+                && (existingInverse.Name == inverseNavigationPropertyInfo.Name)
+                && (existingNavigation.DeclaringEntityType != entityTypeBuilder.Metadata))
             {
                 return entityTypeBuilder;
             }

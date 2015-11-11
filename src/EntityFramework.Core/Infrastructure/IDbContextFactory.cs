@@ -7,7 +7,7 @@ namespace Microsoft.Data.Entity.Infrastructure
     ///     A factory for creating derived <see cref="DbContext" /> instances. Implement this interface to enable
     ///     design-time services for context types that do not have a public default constructor. At design-time,
     ///     derived <see cref="DbContext" /> instances can be created in order to enable specific design-time
-    ///     experiences such as Migrations. Design-time services will automatically discover implementations of 
+    ///     experiences such as Migrations. Design-time services will automatically discover implementations of
     ///     this interface that are in the same assembly as the derived context.
     /// </summary>
     /// <typeparam name="TContext">The type of the context.</typeparam>
@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         /// <summary>
         ///     Creates a new instance of a derived context.
         /// </summary>
-        /// <returns> An instance of <typeparamref name="TContext"/>. </returns>
+        /// <returns> An instance of <typeparamref name="TContext" />. </returns>
         TContext Create();
     }
 }

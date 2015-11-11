@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         [UsedImplicitly]
         private string DebuggerDisplay
             => $"{string.Join(", ", Key.Properties.Select(p => p.DeclaringEntityType.Name + "." + p.Name))}"
-               + $".({string.Join(", ", (_value as object[]) ?? new object[] { _value })})";
+               + $".({string.Join(", ", _value as object[] ?? new object[] { _value })})";
     }
 
     public static class CompositeKeyComparisons

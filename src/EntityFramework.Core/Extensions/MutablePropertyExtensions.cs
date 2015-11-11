@@ -12,12 +12,12 @@ using Microsoft.Data.Entity.Utilities;
 namespace Microsoft.Data.Entity
 {
     /// <summary>
-    ///     Extension methods for <see cref="IMutableProperty"/>.
+    ///     Extension methods for <see cref="IMutableProperty" />.
     /// </summary>
     public static class MutablePropertyExtensions
     {
         /// <summary>
-        ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string"/> '
+        ///     Sets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" /> '
         ///     then this is the maximum number of characters.
         /// </summary>
         /// <param name="property"> The property to set the maximum length of. </param>
@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(property, nameof(property));
 
-            if (maxLength != null
-                && maxLength < 0)
+            if ((maxLength != null)
+                && (maxLength < 0))
             {
                 throw new ArgumentOutOfRangeException(nameof(maxLength));
             }

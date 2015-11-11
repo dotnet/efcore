@@ -25,9 +25,9 @@ namespace Microsoft.Data.Entity.Internal
                 .Where(
                     p => !p.IsStatic()
                          && !p.GetIndexParameters().Any()
-                         && p.DeclaringType != typeof(DbContext)
+                         && (p.DeclaringType != typeof(DbContext))
                          && p.PropertyType.GetTypeInfo().IsGenericType
-                         && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+                         && (p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>)))
                 .OrderBy(p => p.Name)
                 .Select(p =>
                     {

@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Infrastructure
 
         /// <summary>
         ///     <para>
-        ///         Registers the given context as a service in the <see cref="IServiceCollection" /> and ensures services that the context 
+        ///         Registers the given context as a service in the <see cref="IServiceCollection" /> and ensures services that the context
         ///         uses are resolved from the <see cref="IServiceProvider" />.
         ///     </para>
         ///     <para>
@@ -68,8 +68,8 @@ namespace Microsoft.Data.Entity.Infrastructure
         ///     <para>
         ///         You do not need to expose a <see cref="DbContextOptions" /> constructor parameter for the options to be passed to the
         ///         context. If you choose to expose a constructor parameter, we recommend typing it as the generic
-        ///         <see cref="DbContextOptions{TContext}" />. You can use the non-generic <see cref="DbContextOptions"/> but this will only
-        ///         work if you have one derived context type registered in your <see cref="IServiceProvider"/>.
+        ///         <see cref="DbContextOptions{TContext}" />. You can use the non-generic <see cref="DbContextOptions" /> but this will only
+        ///         work if you have one derived context type registered in your <see cref="IServiceProvider" />.
         ///     </para>
         /// </param>
         /// <returns>

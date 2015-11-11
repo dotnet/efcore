@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -20,10 +18,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual bool IsUnique(bool? isUnique, ConfigurationSource configurationSource)
         {
             if (configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue)
-                || Metadata.IsUnique.Value == isUnique)
+                || (Metadata.IsUnique.Value == isUnique))
             {
-                if (_isUniqueConfigurationSource == null
-                    && Metadata.IsUnique != null)
+                if ((_isUniqueConfigurationSource == null)
+                    && (Metadata.IsUnique != null))
                 {
                     _isUniqueConfigurationSource = ConfigurationSource.Explicit;
                 }

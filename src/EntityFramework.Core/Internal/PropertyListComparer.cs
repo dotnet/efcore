@@ -26,8 +26,8 @@ namespace Microsoft.Data.Entity.Internal
             }
 
             var index = 0;
-            while (result == 0
-                   && index < x.Count)
+            while ((result == 0)
+                   && (index < x.Count))
             {
                 result = StringComparer.Ordinal.Compare(x[index].Name, y[index].Name);
                 index++;
