@@ -21,7 +21,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             entityType.GetOrSetPrimaryKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType, ConfigurationSource.Convention);
-            foreignKey.IsUnique = true;
+            var index = entityType.AddIndex(new[] { dependentProp });
+            index.IsUnique = true;
 
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
@@ -99,7 +100,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalKey = entityType.AddKey(principalProp);
 
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, principalKey, entityType);
-            foreignKey.IsUnique = false;
+            var index = entityType.AddIndex(new[] { dependentProp });
+            index.IsUnique = false;
 
             Assert.Same(entityType, foreignKey.PrincipalEntityType);
             Assert.Same(principalProp, foreignKey.PrincipalKey.Properties.Single());
@@ -397,7 +399,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 : pk;
 
             var fk = entityType.AddForeignKey(new[] { fkProp }, principalKey, entityType);
-            fk.IsUnique = true;
+            var index = entityType.AddIndex(fkProp);
+            index.IsUnique = true;
             fk.HasDependentToPrincipal("SelfRefPrincipal");
             fk.HasPrincipalToDependent("SelfRefDependent");
             return fk;

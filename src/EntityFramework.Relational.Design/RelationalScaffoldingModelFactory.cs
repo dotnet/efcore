@@ -391,8 +391,6 @@ namespace Microsoft.Data.Entity.Scaffolding
 
             var key = dependentEntityType.GetOrAddForeignKey(depProps, principalKey, principalEntityType);
 
-            key.IsUnique = dependentEntityType.FindKey(depProps) != null;
-
             AssignOnDeleteAction(foreignKey, key);
 
             return key;

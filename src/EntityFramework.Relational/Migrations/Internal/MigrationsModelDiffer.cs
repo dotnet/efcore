@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             var operations = Diff(source.GetPropertiesInHierarchy(), target.GetPropertiesInHierarchy(), diffContext)
                 .Concat(Diff(source.GetKeys(), target.GetKeys(), diffContext))
-                .Concat(Diff(source.GetIndexesInHierarchy(), target.GetIndexesInHierarchy(), diffContext));
+                .Concat(Diff(source.GetIndexesInHierarchy().Except(source.GetKeys().Select(key => key.Index)), target.GetIndexesInHierarchy().Except(target.GetKeys().Select(key => key.Index)), diffContext));
             foreach (var operation in operations)
             {
                 yield return operation;
@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             yield return createTableOperation;
 
-            foreach (var operation in target.GetIndexesInHierarchy().SelectMany(Add))
+            foreach (var operation in target.GetIndexesInHierarchy().Except(target.GetKeys().Select(key => key.Index)).SelectMany(Add))
             {
                 yield return operation;
             }
@@ -430,7 +430,7 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 || HasDifferences(MigrationsAnnotations.For(source), targetMigrationsAnnotations))
             {
                 var isDestructiveChange = (isNullableChanged && isSourceColumnNullable)
-                    // TODO: Detect type narrowing
+                                          // TODO: Detect type narrowing
                                           || columnTypeChanged;
 
                 var alterColumnOperation = new AlterColumnOperation
@@ -505,7 +505,10 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                           && s.IsPrimaryKey() == t.IsPrimaryKey());
 
         protected virtual IEnumerable<MigrationOperation> Diff([NotNull] IKey source, [NotNull] IKey target)
-            => HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
+            => (HasDifferences(MigrationsAnnotations.For(source), MigrationsAnnotations.For(target))
+                || HasDifferences(
+                    source.Index != null ? MigrationsAnnotations.For(source.Index) : Enumerable.Empty<IAnnotation>(),
+                    target.Index != null ? MigrationsAnnotations.For(target.Index) : Enumerable.Empty<IAnnotation>()))
                 ? Remove(source).Concat(Add(target))
                 : Enumerable.Empty<MigrationOperation>();
 
@@ -535,6 +538,13 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                     Columns = GetColumns(target.Properties)
                 };
             }
+
+            // For implicit index associated with key
+            if (target.Index != null)
+            {
+                CopyAnnotations(MigrationsAnnotations.For(target.Index), operation);
+            }
+
             CopyAnnotations(MigrationsAnnotations.For(target), operation);
 
             yield return operation;

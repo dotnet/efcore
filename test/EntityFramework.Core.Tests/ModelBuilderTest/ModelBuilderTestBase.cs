@@ -191,8 +191,8 @@ namespace Microsoft.Data.Entity.Tests
             public virtual TestIndexBuilder HasAnnotation(string annotation, object value)
                 => new TestIndexBuilder(IndexBuilder.HasAnnotation(annotation, value));
 
-            public virtual TestIndexBuilder IsUnique(bool isUnique = true)
-                => new TestIndexBuilder(IndexBuilder.IsUnique(isUnique));
+            public virtual TestIndexBuilder IsUnique(bool unique = true)
+                => new TestIndexBuilder(IndexBuilder.IsUnique(unique));
         }
 
         public abstract class TestPropertyBuilder<TProperty>

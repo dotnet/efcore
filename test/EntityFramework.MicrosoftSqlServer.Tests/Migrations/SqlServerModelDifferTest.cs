@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations.Operations;
 using Microsoft.Data.Entity.Tests;
@@ -454,12 +455,17 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         }),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
 
-                        var operation = Assert.IsType<AddForeignKeyOperation>(operations[0]);
-                        Assert.Equal("dbo", operation.Schema);
-                        Assert.Equal("Amoeba", operation.Table);
-                        Assert.Equal("FK_Amoeba_Parent", operation.Name);
+                        var createIndexOperation = Assert.IsType<CreateIndexOperation>(operations[0]);
+                        Assert.Equal("dbo", createIndexOperation.Schema);
+                        Assert.Equal("Amoeba", createIndexOperation.Table);
+                        Assert.Equal("IX_Amoeba_ParentId", createIndexOperation.Name);
+
+                        var addFkOperation = Assert.IsType<AddForeignKeyOperation>(operations[1]);
+                        Assert.Equal("dbo", addFkOperation.Schema);
+                        Assert.Equal("Amoeba", addFkOperation.Table);
+                        Assert.Equal("FK_Amoeba_Parent", addFkOperation.Name);
                     });
         }
 
@@ -488,12 +494,17 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                         }),
                 operations =>
                     {
-                        Assert.Equal(1, operations.Count);
+                        Assert.Equal(2, operations.Count);
 
-                        var operation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
-                        Assert.Equal("dbo", operation.Schema);
-                        Assert.Equal("Anemone", operation.Table);
-                        Assert.Equal("FK_Anemone_Parent", operation.Name);
+                        var dropFkOperation = Assert.IsType<DropForeignKeyOperation>(operations[0]);
+                        Assert.Equal("dbo", dropFkOperation.Schema);
+                        Assert.Equal("Anemone", dropFkOperation.Table);
+                        Assert.Equal("FK_Anemone_Parent", dropFkOperation.Name);
+
+                        var dropIndexOperation = Assert.IsType<DropIndexOperation>(operations[1]);
+                        Assert.Equal("dbo", dropIndexOperation.Schema);
+                        Assert.Equal("Anemone", dropIndexOperation.Table);
+                        Assert.Equal("IX_Anemone_ParentId", dropIndexOperation.Name);
                     });
         }
 

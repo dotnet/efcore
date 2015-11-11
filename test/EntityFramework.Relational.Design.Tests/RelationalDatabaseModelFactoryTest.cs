@@ -313,7 +313,7 @@ namespace Microsoft.Data.Entity.Relational.Design
 
             Assert.NotEmpty(parent.GetReferencingForeignKeys());
             var fk = Assert.Single(children.GetForeignKeys());
-            Assert.False(fk.IsUnique);
+            Assert.Null(fk.IsUnique);
             Assert.Equal(DeleteBehavior.Cascade, fk.DeleteBehavior);
 
             var principalKey = fk.PrincipalKey;
@@ -335,6 +335,11 @@ namespace Microsoft.Data.Entity.Relational.Design
                 PrincipalTable = parentTable,
                 PrincipalColumns = { parentTable.Columns[0] },
                 OnDelete = Migrations.ReferentialAction.NoAction
+            });
+            childrenTable.Indexes.Add(new IndexModel
+            {
+                Columns = { childrenTable.Columns[0] },
+                IsUnique = true
             });
 
             var model = _factory.Create(new DatabaseModel { Tables = { parentTable, childrenTable } });
@@ -387,7 +392,7 @@ namespace Microsoft.Data.Entity.Relational.Design
             Assert.NotEmpty(parent.GetReferencingForeignKeys());
 
             var fk = Assert.Single(children.GetForeignKeys());
-            Assert.False(fk.IsUnique);
+            Assert.Null(fk.IsUnique);
             Assert.Equal(DeleteBehavior.SetNull, fk.DeleteBehavior);
 
             var principalKey = fk.PrincipalKey;

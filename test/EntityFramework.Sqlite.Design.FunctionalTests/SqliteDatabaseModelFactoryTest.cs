@@ -251,7 +251,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
             Assert.Equal(table.FindPrimaryKey(), fk.PrincipalKey);
         }
 
-        [Fact]
+        // TODO: See issue #3710
+        //[Fact]
         public void It_assigns_uniqueness_to_pk_foreign_key()
         {
             var sql = @"

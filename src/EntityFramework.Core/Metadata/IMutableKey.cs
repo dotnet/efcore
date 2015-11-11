@@ -27,5 +27,10 @@ namespace Microsoft.Data.Entity.Metadata
         ///     may be defined on a base type).
         /// </summary>
         new IMutableEntityType DeclaringEntityType { get; }
+
+        /// <summary>
+        ///     Gets the index object defined on the key properties.
+        /// </summary>
+        new IMutableIndex Index { get; }
     }
 }

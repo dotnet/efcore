@@ -20,10 +20,8 @@ namespace Microsoft.Data.Entity.Metadata
 
         public virtual bool? IsClustered
         {
-            get { return (bool?)Annotations.GetAnnotation(SqlServerAnnotationNames.Clustered); }
-            [param: CanBeNull] set { SetIsClustered(value); }
+            get { return Key.Index.SqlServer().IsClustered; }
+            [param: CanBeNull] set { ((SqlServerIndexAnnotations)(Key.Index.SqlServer())).IsClustered = value; }
         }
-
-        protected virtual bool SetIsClustered(bool? value) => Annotations.SetAnnotation(SqlServerAnnotationNames.Clustered, value);
     }
 }
