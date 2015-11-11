@@ -9,7 +9,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public class FieldMatcher : IFieldMatcher
     {
         public virtual FieldInfo TryMatchFieldName(
-            IProperty property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> dclaredFields)
+            IProperty property, PropertyInfo propertyInfo, Dictionary<string, FieldInfo> declaredFields)
         {
             var propertyName = propertyInfo.Name;
             var propertyType = propertyInfo.PropertyType.GetTypeInfo();
@@ -17,15 +17,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var camelized = char.ToLowerInvariant(propertyName[0]) + propertyName.Substring(1);
 
             FieldInfo fieldInfo;
-            return (dclaredFields.TryGetValue(camelized, out fieldInfo)
+            return (declaredFields.TryGetValue(camelized, out fieldInfo)
                     && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(propertyType))
-                   || (dclaredFields.TryGetValue("_" + camelized, out fieldInfo)
+                   || (declaredFields.TryGetValue("_" + camelized, out fieldInfo)
                        && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(propertyType))
-                   || (dclaredFields.TryGetValue("_" + propertyName, out fieldInfo)
+                   || (declaredFields.TryGetValue("_" + propertyName, out fieldInfo)
                        && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(propertyType))
-                   || (dclaredFields.TryGetValue("m_" + camelized, out fieldInfo)
+                   || (declaredFields.TryGetValue("m_" + camelized, out fieldInfo)
                        && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(propertyType))
-                   || (dclaredFields.TryGetValue("m_" + propertyName, out fieldInfo)
+                   || (declaredFields.TryGetValue("m_" + propertyName, out fieldInfo)
                        && fieldInfo.FieldType.GetTypeInfo().IsAssignableFrom(propertyType))
                 ? fieldInfo
                 : null;

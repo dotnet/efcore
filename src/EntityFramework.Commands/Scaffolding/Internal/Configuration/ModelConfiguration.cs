@@ -28,11 +28,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
         protected SortedDictionary<EntityType, EntityConfiguration> _entityConfigurationMap;
 
         public ModelConfiguration(
-            [NotNull] ConfigurationFactory configurationFactory, 
-            [NotNull] IModel model, 
-            [NotNull] CustomConfiguration customConfiguration, 
-            [NotNull] IRelationalAnnotationProvider extensionsProvider, 
-            [NotNull] CSharpUtilities cSharpUtilities, 
+            [NotNull] ConfigurationFactory configurationFactory,
+            [NotNull] IModel model,
+            [NotNull] CustomConfiguration customConfiguration,
+            [NotNull] IRelationalAnnotationProvider extensionsProvider,
+            [NotNull] CSharpUtilities cSharpUtilities,
             [NotNull] ScaffoldingUtilities scaffoldingUtilities)
         {
             Check.NotNull(configurationFactory, nameof(configurationFactory));
@@ -50,11 +50,11 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             ScaffoldingUtilities = scaffoldingUtilities;
         }
 
-        public virtual IModel Model { get;[param: NotNull] private set; }
+        public virtual IModel Model { get; [param: NotNull] private set; }
         public virtual IRelationalAnnotationProvider ExtensionsProvider { get; private set; }
-        public virtual CSharpUtilities CSharpUtilities { get;[param: NotNull] private set; }
-        public virtual ScaffoldingUtilities ScaffoldingUtilities { get;[param: NotNull] private set; }
-        public virtual CustomConfiguration CustomConfiguration { get;[param: NotNull] set; }
+        public virtual CSharpUtilities CSharpUtilities { get; [param: NotNull] private set; }
+        public virtual ScaffoldingUtilities ScaffoldingUtilities { get; [param: NotNull] private set; }
+        public virtual CustomConfiguration CustomConfiguration { get; [param: NotNull] set; }
         public virtual string ClassName()
         {
             var annotatedName = ExtensionsProvider.For(Model).DatabaseName;
@@ -88,7 +88,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             {
                 if (_entityConfigurationMap == null)
                 {
-                    _entityConfigurationMap = new 
+                    _entityConfigurationMap = new
                         SortedDictionary<EntityType, EntityConfiguration>(new EntityTypeNameComparer());
                     AddEntityConfigurations();
                 }
@@ -99,8 +99,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
         public virtual void AddEntityConfigurations()
         {
-            var entityConfigurations = new List<EntityConfiguration>();
-
             foreach (var entityType in Model.GetEntityTypes())
             {
                 var entityConfiguration =
@@ -160,7 +158,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             Check.NotNull(entityConfiguration, nameof(entityConfiguration));
 
             var entityType = (EntityType)entityConfiguration.EntityType;
-            foreach(var key in entityType.GetKeys())
+            foreach (var key in entityType.GetKeys())
             {
                 if (key == null
                     || key.Properties.Count == 0)
@@ -176,7 +174,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     continue;
                 }
 
-                if(key.IsPrimaryKey())
+                if (key.IsPrimaryKey())
                 {
                     var keyFluentApi = _configurationFactory
                         .CreateKeyFluentApiConfiguration("e", key.Properties);
@@ -374,14 +372,14 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             Check.NotNull(propertyConfiguration, nameof(propertyConfiguration));
 
 
-            var delimitedColumnName = 
+            var delimitedColumnName =
                 ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != null
                 && ExtensionsProvider.For(propertyConfiguration.Property).ColumnName != propertyConfiguration.Property.Name
                 ? CSharpUtilities.DelimitString(
                     ExtensionsProvider.For(propertyConfiguration.Property).ColumnName)
                 : null;
 
-            var delimitedColumnTypeName = 
+            var delimitedColumnTypeName =
                 ExtensionsProvider.For(propertyConfiguration.Property).ColumnType != null
                 ? CSharpUtilities.DelimitString(
                         ExtensionsProvider.For(propertyConfiguration.Property).ColumnType)
@@ -500,7 +498,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                         foreignKey.PrincipalEntityType.Name,
                         foreignKey.Scaffolding().DependentEndNavigation);
 
-                if(foreignKey.PrincipalKey.IsPrimaryKey())
+                if (foreignKey.PrincipalKey.IsPrimaryKey())
                 {
                     dependentEndNavPropConfiguration.AttributeConfigurations.Add(
                         _configurationFactory.CreateAttributeConfiguration(

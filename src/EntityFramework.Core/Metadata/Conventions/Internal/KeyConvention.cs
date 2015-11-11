@@ -78,7 +78,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return true;
         }
 
-        private void SetValueGeneration(InternalEntityTypeBuilder entityTypeBuilder, IEnumerable<Property> properties)
+        private static void SetValueGeneration(InternalEntityTypeBuilder entityTypeBuilder, IEnumerable<Property> properties)
         {
             var propertyBuilders = InternalEntityTypeBuilder.GetPropertyBuilders(
                 entityTypeBuilder.ModelBuilder,
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return null;
         }
 
-        private Property FindValueGeneratedOnAddProperty(IReadOnlyList<Property> properties)
+        private static Property FindValueGeneratedOnAddProperty(IReadOnlyList<Property> properties)
         {
             if (properties.Count == 1)
             {
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return null;
         }
 
-        private void SetIdentity(InternalEntityTypeBuilder entityTypeBuilder, Property property)
+        private static void SetIdentity(InternalEntityTypeBuilder entityTypeBuilder, Property property)
         {
             var propertyBuilder = entityTypeBuilder.Property(
                 property.Name,

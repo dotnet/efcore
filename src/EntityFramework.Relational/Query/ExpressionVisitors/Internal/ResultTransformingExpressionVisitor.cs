@@ -24,14 +24,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _relationalQueryCompilationContext = relationalQueryCompilationContext;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(node, nameof(node));
 
-            if (methodCallExpression.Method.MethodIsClosedFormOf(
+            if (node.Method.MethodIsClosedFormOf(
                 _relationalQueryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
-                var queryArguments = methodCallExpression.Arguments.ToList();
+                var queryArguments = node.Arguments.ToList();
 
                 queryArguments[2] = Expression.Default(typeof(int?));
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             }
 
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
-            foreach (var expression in methodCallExpression.Arguments)
+            foreach (var expression in node.Arguments)
             {
                 var newExpression = Visit(expression);
 
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return methodCallExpression;
+            return node;
         }
     }
 }

@@ -45,30 +45,30 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         protected override Expression VisitQuerySourceReference(
-            QuerySourceReferenceExpression querySourceReferenceExpression)
+            QuerySourceReferenceExpression expression)
         {
-            if (!_querySources.ContainsKey(querySourceReferenceExpression.ReferencedQuerySource))
+            if (!_querySources.ContainsKey(expression.ReferencedQuerySource))
             {
-                _querySources.Add(querySourceReferenceExpression.ReferencedQuerySource, 0);
+                _querySources.Add(expression.ReferencedQuerySource, 0);
             }
 
-            if (_model.FindEntityType(querySourceReferenceExpression.Type) != null)
+            if (_model.FindEntityType(expression.Type) != null)
             {
-                _querySources[querySourceReferenceExpression.ReferencedQuerySource]++;
+                _querySources[expression.ReferencedQuerySource]++;
             }
 
-            return base.VisitQuerySourceReference(querySourceReferenceExpression);
+            return base.VisitQuerySourceReference(expression);
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            var newExpression = base.VisitMember(memberExpression);
+            var newExpression = base.VisitMember(node);
 
-            if (memberExpression.Expression != null)
+            if (node.Expression != null)
             {
                 _queryModelVisitor
                     .BindMemberExpression(
-                        memberExpression,
+                        node,
                         (property, querySource) =>
                             {
                                 if (querySource != null)
@@ -81,13 +81,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return newExpression;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var newExpression = base.VisitMethodCall(methodCallExpression);
+            var newExpression = base.VisitMethodCall(node);
 
             _queryModelVisitor
                 .BindMethodCallExpression(
-                    methodCallExpression,
+                    node,
                     (property, querySource) =>
                         {
                             if (querySource != null)
@@ -99,11 +99,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return newExpression;
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
             var oldParentSelector = _parentSelector;
 
-            var leftSubQueryExpression = binaryExpression.Left as SubQueryExpression;
+            var leftSubQueryExpression = node.Left as SubQueryExpression;
 
             if ((leftSubQueryExpression != null)
                 && (_model.FindEntityType(leftSubQueryExpression.Type) != null))
@@ -114,10 +114,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             }
             else
             {
-                Visit(binaryExpression.Left);
+                Visit(node.Left);
             }
 
-            var rightSubQueryExpression = binaryExpression.Right as SubQueryExpression;
+            var rightSubQueryExpression = node.Right as SubQueryExpression;
 
             if ((rightSubQueryExpression != null)
                 && (_model.FindEntityType(rightSubQueryExpression.Type) != null))
@@ -128,26 +128,26 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             }
             else
             {
-                Visit(binaryExpression.Right);
+                Visit(node.Right);
             }
 
             _parentSelector = oldParentSelector;
 
-            return binaryExpression;
+            return node;
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var oldParentSelector = _parentSelector;
 
-            _parentSelector = subQueryExpression.QueryModel.SelectClause.Selector;
+            _parentSelector = expression.QueryModel.SelectClause.Selector;
 
-            subQueryExpression.QueryModel.TransformExpressions(Visit);
+            expression.QueryModel.TransformExpressions(Visit);
 
             _parentSelector = oldParentSelector;
 
             var querySourceReferenceExpression
-                = subQueryExpression.QueryModel.SelectClause.Selector
+                = expression.QueryModel.SelectClause.Selector
                     as QuerySourceReferenceExpression;
 
             if (querySourceReferenceExpression != null)
@@ -161,13 +161,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             querySourceReferenceExpression.ReferencedQuerySource);
 
                 if ((resultQuerySource == null)
-                    && !(subQueryExpression.QueryModel.ResultOperators.LastOrDefault() is OfTypeResultOperator))
+                    && !(expression.QueryModel.ResultOperators.LastOrDefault() is OfTypeResultOperator))
                 {
                     _querySources[querySourceReferenceExpression.ReferencedQuerySource]--;
                 }
             }
 
-            return subQueryExpression;
+            return expression;
         }
     }
 }

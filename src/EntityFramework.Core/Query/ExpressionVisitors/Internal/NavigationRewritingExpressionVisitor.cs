@@ -118,30 +118,30 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             }
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var navigationRewritingExpressionVisitor = CreateVisitorForSubQuery();
 
-            navigationRewritingExpressionVisitor.Rewrite(subQueryExpression.QueryModel);
+            navigationRewritingExpressionVisitor.Rewrite(expression.QueryModel);
 
-            return subQueryExpression;
+            return expression;
         }
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression node)
         {
             if (_entityQueryProvider == null)
             {
                 _entityQueryProvider
-                    = (constantExpression.Value as IQueryable)?.Provider as IAsyncQueryProvider;
+                    = (node.Value as IQueryable)?.Provider as IAsyncQueryProvider;
             }
 
-            return constantExpression;
+            return node;
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            var newLeft = Visit(binaryExpression.Left);
-            var newRight = Visit(binaryExpression.Right);
+            var newLeft = Visit(node.Left);
+            var newRight = Visit(node.Right);
 
             var leftNavigationJoin
                 = _navigationJoins
@@ -210,11 +210,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             }
 
             return Expression.MakeBinary(
-                binaryExpression.NodeType,
+                node.NodeType,
                 newLeft,
                 newRight,
-                binaryExpression.IsLiftedToNull,
-                binaryExpression.Method);
+                node.IsLiftedToNull,
+                node.Method);
         }
 
         private static NewExpression CreateNullCompositeKey(Expression otherExpression)
@@ -226,13 +226,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         Expression.Constant(null),
                         ((NewArrayExpression)((NewExpression)otherExpression).Arguments.Single()).Expressions.Count)));
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(node, nameof(node));
 
             return
                 _queryModelVisitor.BindNavigationPathMemberExpression(
-                    memberExpression,
+                    node,
                     (ps, qs) =>
                         {
                             var properties = ps.ToList();
@@ -243,7 +243,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                                 if ((navigations.Count == 1)
                                     && navigations[0].IsDependentToPrincipal())
                                 {
-                                    var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(memberExpression, navigations[0]);
+                                    var foreignKeyMemberAccess = CreateForeignKeyMemberAccess(node, navigations[0]);
                                     if (foreignKeyMemberAccess != null)
                                     {
                                         return foreignKeyMemberAccess;
@@ -254,7 +254,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                                 if (_navigationRewritingQueryModelVisitor.InsideInnerKeySelector)
                                 {
-                                    var translated = CreateSubqueryForNavigations(outerQuerySourceReferenceExpression, navigations, memberExpression);
+                                    var translated = CreateSubqueryForNavigations(outerQuerySourceReferenceExpression, navigations, node);
 
                                     return translated;
                                 }
@@ -264,15 +264,15 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                                 return properties.Count == navigations.Count
                                     ? innerQuerySourceReferenceExpression
-                                    : Expression.MakeMemberAccess(innerQuerySourceReferenceExpression, memberExpression.Member);
+                                    : Expression.MakeMemberAccess(innerQuerySourceReferenceExpression, node.Member);
                             }
 
                             return default(Expression);
                         })
-                ?? base.VisitMember(memberExpression);
+                ?? base.VisitMember(node);
         }
 
-        private Expression CreateForeignKeyMemberAccess(MemberExpression memberExpression, INavigation navigation)
+        private static Expression CreateForeignKeyMemberAccess(MemberExpression memberExpression, INavigation navigation)
         {
             var principalKey = navigation.ForeignKey.PrincipalKey;
             if (principalKey.Properties.Count == 1)

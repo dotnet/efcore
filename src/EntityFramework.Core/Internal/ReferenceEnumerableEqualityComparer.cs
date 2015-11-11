@@ -9,8 +9,8 @@ namespace Microsoft.Data.Entity.Internal
     public sealed class ReferenceEnumerableEqualityComparer<TEnumerable, TValue> : IEqualityComparer<TEnumerable>
         where TEnumerable : IEnumerable<TValue>
     {
-        public bool Equals(TEnumerable left, TEnumerable right) => left.SequenceEqual(right);
+        public bool Equals(TEnumerable x, TEnumerable y) => x.SequenceEqual(y);
 
-        public int GetHashCode(TEnumerable values) => values.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
+        public int GetHashCode(TEnumerable obj) => obj.Aggregate(0, (t, v) => (t * 397) ^ v.GetHashCode());
     }
 }

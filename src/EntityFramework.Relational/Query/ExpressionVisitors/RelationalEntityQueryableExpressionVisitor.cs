@@ -61,13 +61,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
         private new RelationalQueryModelVisitor QueryModelVisitor => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
-        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
+            Check.NotNull(expression, nameof(expression));
 
             var queryModelVisitor = (RelationalQueryModelVisitor)CreateQueryModelVisitor();
 
-            queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
+            queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
             if (_querySource != null)
             {
@@ -77,13 +77,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return queryModelVisitor.Expression;
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(node, nameof(node));
 
             QueryModelVisitor
                 .BindMemberExpression(
-                    memberExpression,
+                    node,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
                             _relationalAnnotationProvider.For(property).ColumnName,
@@ -91,16 +91,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             querySource),
                     bindSubQueries: true);
 
-            return base.VisitMember(memberExpression);
+            return base.VisitMember(node);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(node, nameof(node));
 
             QueryModelVisitor
                 .BindMethodCallExpression(
-                    methodCallExpression,
+                    node,
                     (property, querySource, selectExpression)
                         => selectExpression.AddToProjection(
                             _relationalAnnotationProvider.For(property).ColumnName,
@@ -108,7 +108,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                             querySource),
                     bindSubQueries: true);
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         protected override Expression VisitEntityQueryable(Type elementType)

@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Migrations
         private readonly LazyRef<string> _migrationIdColumnName;
         private readonly LazyRef<string> _productVersionColumnName;
 
-        public HistoryRepository(
+        protected HistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
             [NotNull] ISqlCommandBuilder sqlCommandBuilder,
             [NotNull] IRelationalConnection connection,

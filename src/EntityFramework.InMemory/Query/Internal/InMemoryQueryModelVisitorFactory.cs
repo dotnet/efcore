@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         protected virtual IMaterializerFactory MaterializerFactory { get; }
 
         public override EntityQueryModelVisitor Create(
-            QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor _)
+            QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(
                 Model,
                 QueryOptimizer,

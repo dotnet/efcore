@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         public virtual InternalEntityEntry Create(IStateManager stateManager, IEntityType entityType, object entity, ValueBuffer valueBuffer)
             => NewInternalEntityEntry(stateManager, entityType, entity, valueBuffer);
 
-        private InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity)
+        private static InternalEntityEntry NewInternalEntityEntry(IStateManager stateManager, IEntityType entityType, object entity)
         {
             if (!entityType.HasClrType())
             {
@@ -30,7 +30,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 : new InternalClrEntityEntry(stateManager, entityType, entity);
         }
 
-        private InternalEntityEntry NewInternalEntityEntry(
+        private static InternalEntityEntry NewInternalEntityEntry(
             IStateManager stateManager,
             IEntityType entityType,
             object entity,

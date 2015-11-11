@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
 
         public virtual bool HasAttributeEquivalent { get; set; }
 
-        public virtual string For { get;[param: NotNull] private set; }
+        public virtual string For { get; }
 
         public virtual string MethodBody
         {
@@ -34,7 +34,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
             }
         }
 
-        public virtual string FluentApi{
+        public virtual string FluentApi
+        {
             get
             {
                 return For == null

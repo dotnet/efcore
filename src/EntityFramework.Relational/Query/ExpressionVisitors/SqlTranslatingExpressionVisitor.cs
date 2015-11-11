@@ -76,71 +76,71 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return base.Visit(expression);
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            switch (binaryExpression.NodeType)
+            switch (expression.NodeType)
             {
                 case ExpressionType.Coalesce:
-                {
-                    var left = Visit(binaryExpression.Left);
-                    var right = Visit(binaryExpression.Right);
+                    {
+                        var left = Visit(expression.Left);
+                        var right = Visit(expression.Right);
 
-                    return new AliasExpression(binaryExpression.Update(left, binaryExpression.Conversion, right));
-                }
+                        return new AliasExpression(expression.Update(left, expression.Conversion, right));
+                    }
 
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
-                {
-                    var structuralComparisonExpression
-                        = UnfoldStructuralComparison(
-                            binaryExpression.NodeType,
-                            ProcessComparisonExpression(binaryExpression));
+                    {
+                        var structuralComparisonExpression
+                            = UnfoldStructuralComparison(
+                                expression.NodeType,
+                                ProcessComparisonExpression(expression));
 
-                    return structuralComparisonExpression;
-                }
+                        return structuralComparisonExpression;
+                    }
 
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
-                {
-                    return ProcessComparisonExpression(binaryExpression);
-                }
-
-                case ExpressionType.AndAlso:
-                {
-                    var left = Visit(binaryExpression.Left);
-                    var right = Visit(binaryExpression.Right);
-
-                    if (binaryExpression == _topLevelPredicate)
                     {
-                        if ((left != null)
-                            && (right != null))
-                        {
-                            return Expression.AndAlso(left, right);
-                        }
-
-                        if (left != null)
-                        {
-                            ClientEvalPredicate = binaryExpression.Right;
-                            return left;
-                        }
-
-                        if (right != null)
-                        {
-                            ClientEvalPredicate = binaryExpression.Left;
-                            return right;
-                        }
-
-                        return null;
+                        return ProcessComparisonExpression(expression);
                     }
 
-                    return (left != null) && (right != null)
-                        ? Expression.AndAlso(left, right)
-                        : null;
-                }
+                case ExpressionType.AndAlso:
+                    {
+                        var left = Visit(expression.Left);
+                        var right = Visit(expression.Right);
+
+                        if (expression == _topLevelPredicate)
+                        {
+                            if ((left != null)
+                                && (right != null))
+                            {
+                                return Expression.AndAlso(left, right);
+                            }
+
+                            if (left != null)
+                            {
+                                ClientEvalPredicate = expression.Right;
+                                return left;
+                            }
+
+                            if (right != null)
+                            {
+                                ClientEvalPredicate = expression.Left;
+                                return right;
+                            }
+
+                            return null;
+                        }
+
+                        return (left != null) && (right != null)
+                            ? Expression.AndAlso(left, right)
+                            : null;
+                    }
 
                 case ExpressionType.OrElse:
                 case ExpressionType.Add:
@@ -148,38 +148,38 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
                 case ExpressionType.Modulo:
-                {
-                    var leftExpression = Visit(binaryExpression.Left);
-                    var rightExpression = Visit(binaryExpression.Right);
+                    {
+                        var leftExpression = Visit(expression.Left);
+                        var rightExpression = Visit(expression.Right);
 
-                    return (leftExpression != null)
-                           && (rightExpression != null)
-                        ? Expression.MakeBinary(
-                            binaryExpression.NodeType,
-                            leftExpression,
-                            rightExpression,
-                            binaryExpression.IsLiftedToNull,
-                            binaryExpression.Method)
-                        : null;
-                }
+                        return (leftExpression != null)
+                               && (rightExpression != null)
+                            ? Expression.MakeBinary(
+                                expression.NodeType,
+                                leftExpression,
+                                rightExpression,
+                                expression.IsLiftedToNull,
+                                expression.Method)
+                            : null;
+                    }
             }
 
             return null;
         }
 
-        protected override Expression VisitConditional(ConditionalExpression conditionalExpression)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
-            Check.NotNull(conditionalExpression, nameof(conditionalExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            var test = Visit(conditionalExpression.Test);
-            var ifTrue = Visit(conditionalExpression.IfTrue);
-            var ifFalse = Visit(conditionalExpression.IfFalse);
+            var test = Visit(expression.Test);
+            var ifTrue = Visit(expression.IfTrue);
+            var ifFalse = Visit(expression.IfFalse);
 
             if ((test != null)
                 && (ifTrue != null)
                 && (ifFalse != null))
             {
-                return conditionalExpression.Update(test, ifTrue, ifFalse);
+                return expression.Update(test, ifTrue, ifFalse);
             }
 
             return null;
@@ -277,29 +277,29 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return null;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            var operand = Visit(methodCallExpression.Object);
+            var operand = Visit(expression.Object);
 
             if ((operand != null)
-                || (methodCallExpression.Object == null))
+                || (expression.Object == null))
             {
                 var arguments
-                    = methodCallExpression.Arguments
+                    = expression.Arguments
                         .Where(e => !(e is QuerySourceReferenceExpression)
                                     && !(e is SubQueryExpression))
                         .Select(Visit)
                         .Where(e => e != null)
                         .ToArray();
 
-                if (arguments.Length == methodCallExpression.Arguments.Count)
+                if (arguments.Length == expression.Arguments.Count)
                 {
                     var boundExpression
                         = operand != null
-                            ? Expression.Call(operand, methodCallExpression.Method, arguments)
-                            : Expression.Call(methodCallExpression.Method, arguments);
+                            ? Expression.Call(operand, expression.Method, arguments)
+                            : Expression.Call(expression.Method, arguments);
 
                     var translatedExpression =
                         _methodCallTranslator.Translate(boundExpression);
@@ -313,35 +313,35 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var aliasExpression
                 = _queryModelVisitor
-                    .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpression);
+                    .BindMethodCallExpression(expression, CreateAliasedColumnExpression);
 
             if ((aliasExpression == null)
                 && _bindParentQueries)
             {
                 aliasExpression
                     = _queryModelVisitor?.ParentQueryModelVisitor
-                        .BindMethodCallExpression(methodCallExpression, CreateAliasedColumnExpressionCore);
+                        .BindMethodCallExpression(expression, CreateAliasedColumnExpressionCore);
             }
 
             return aliasExpression;
         }
 
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression expression)
         {
-            Check.NotNull(memberExpression, nameof(memberExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            if (!(memberExpression.Expression is QuerySourceReferenceExpression)
-                && !(memberExpression.Expression is SubQueryExpression))
+            if (!(expression.Expression is QuerySourceReferenceExpression)
+                && !(expression.Expression is SubQueryExpression))
             {
-                var newExpression = Visit(memberExpression.Expression);
+                var newExpression = Visit(expression.Expression);
 
                 if ((newExpression != null)
-                    || (memberExpression.Expression == null))
+                    || (expression.Expression == null))
                 {
                     var newMemberExpression
-                        = newExpression != memberExpression.Expression
-                            ? Expression.Property(newExpression, memberExpression.Member.Name)
-                            : memberExpression;
+                        = newExpression != expression.Expression
+                            ? Expression.Property(newExpression, expression.Member.Name)
+                            : expression;
 
                     var translatedExpression = _memberTranslator.Translate(newMemberExpression);
 
@@ -354,20 +354,20 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
             var aliasExpression
                 = _queryModelVisitor
-                    .BindMemberExpression(memberExpression, CreateAliasedColumnExpression);
+                    .BindMemberExpression(expression, CreateAliasedColumnExpression);
 
             if ((aliasExpression == null)
                 && _bindParentQueries)
             {
                 aliasExpression
                     = _queryModelVisitor?.ParentQueryModelVisitor
-                        .BindMemberExpression(memberExpression, CreateAliasedColumnExpressionCore);
+                        .BindMemberExpression(expression, CreateAliasedColumnExpressionCore);
             }
 
             if (aliasExpression == null)
             {
                 var querySourceReferenceExpression
-                    = memberExpression.Expression as QuerySourceReferenceExpression;
+                    = expression.Expression as QuerySourceReferenceExpression;
 
                 if (querySourceReferenceExpression != null)
                 {
@@ -379,7 +379,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         aliasExpression
                             = selectExpression.Projection
                                 .OfType<AliasExpression>()
-                                .SingleOrDefault(ae => ae.SourceMember == memberExpression.Member);
+                                .SingleOrDefault(ae => ae.SourceMember == expression.Member);
                     }
                 }
             }
@@ -412,60 +412,60 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                     property,
                     selectExpression.GetTableForQuerySource(querySource)));
 
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression expression)
         {
-            Check.NotNull(unaryExpression, nameof(unaryExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            switch (unaryExpression.NodeType)
+            switch (expression.NodeType)
             {
                 case ExpressionType.Not:
-                {
-                    var operand = Visit(unaryExpression.Operand);
-                    if (operand != null)
                     {
-                        return Expression.Not(operand);
-                    }
+                        var operand = Visit(expression.Operand);
+                        if (operand != null)
+                        {
+                            return Expression.Not(operand);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
                 case ExpressionType.Convert:
-                {
-                    var operand = Visit(unaryExpression.Operand);
-                    if (operand != null)
                     {
-                        return Expression.Convert(operand, unaryExpression.Type);
-                    }
+                        var operand = Visit(expression.Operand);
+                        if (operand != null)
+                        {
+                            return Expression.Convert(operand, expression.Type);
+                        }
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             return null;
         }
 
-        protected override Expression VisitNew(NewExpression newExpression)
+        protected override Expression VisitNew(NewExpression expression)
         {
-            Check.NotNull(newExpression, nameof(newExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            if ((newExpression.Members != null)
-                && newExpression.Arguments.Any()
-                && (newExpression.Arguments.Count == newExpression.Members.Count))
+            if ((expression.Members != null)
+                && expression.Arguments.Any()
+                && (expression.Arguments.Count == expression.Members.Count))
             {
                 var memberBindings
-                    = newExpression.Arguments
+                    = expression.Arguments
                         .Select(Visit)
                         .Where(e => e != null)
                         .ToArray();
 
-                if (memberBindings.Length == newExpression.Arguments.Count)
+                if (memberBindings.Length == expression.Arguments.Count)
                 {
                     return Expression.Constant(memberBindings);
                 }
             }
-            else if (NavigationRewritingExpressionVisitor.IsCompositeKey(newExpression.Type))
+            else if (NavigationRewritingExpressionVisitor.IsCompositeKey(expression.Type))
             {
                 var propertyCallExpressions
-                    = ((NewArrayExpression)newExpression.Arguments.Single()).Expressions;
+                    = ((NewArrayExpression)expression.Arguments.Single()).Expressions;
 
                 var memberBindings
                     = propertyCallExpressions
@@ -482,11 +482,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return null;
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            var subQueryModel = subQueryExpression.QueryModel;
+            var subQueryModel = expression.QueryModel;
 
             if (subQueryModel.IsIdentityQuery()
                 && (subQueryModel.ResultOperators.Count == 1))
@@ -581,30 +581,30 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             typeof(ushort)
         };
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression expression)
         {
-            Check.NotNull(constantExpression, nameof(constantExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            if (constantExpression.Value == null)
+            if (expression.Value == null)
             {
-                return constantExpression;
+                return expression;
             }
 
-            var underlyingType = constantExpression.Type.UnwrapNullableType().UnwrapEnumType();
+            var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
             return _supportedConstantTypes.Contains(underlyingType)
-                ? constantExpression
+                ? expression
                 : null;
         }
 
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression expression)
         {
-            Check.NotNull(parameterExpression, nameof(parameterExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            var underlyingType = parameterExpression.Type.UnwrapNullableType().UnwrapEnumType();
+            var underlyingType = expression.Type.UnwrapNullableType().UnwrapEnumType();
 
             return _supportedConstantTypes.Contains(underlyingType)
-                ? parameterExpression
+                ? expression
                 : null;
         }
 
@@ -630,12 +630,12 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return base.VisitExtension(expression);
         }
 
-        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression querySourceReferenceExpression)
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
-            Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
+            Check.NotNull(expression, nameof(expression));
 
             var selector
-                = ((querySourceReferenceExpression.ReferencedQuerySource as FromClauseBase)
+                = ((expression.ReferencedQuerySource as FromClauseBase)
                     ?.FromExpression as SubQueryExpression)
                     ?.QueryModel.SelectClause.Selector;
 

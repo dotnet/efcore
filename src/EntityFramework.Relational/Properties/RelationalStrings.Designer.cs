@@ -21,14 +21,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Two entities cannot make conflicting updates to the same row.
-        /// </summary>
-        public static string ConflictingRowUpdates
-        {
-            get { return GetString("ConflictingRowUpdates"); }
-        }
-
-        /// <summary>
         /// Database operation expected to affect {expectedRows} row(s) but actually affected {actualRows} row(s). Data may have been modified or deleted since entities were loaded. See http://go.microsoft.com/fwlink/?LinkId=527962 for information on understanding and handling optimistic concurrency exceptions.
         /// </summary>
         public static string UpdateConcurrencyException([CanBeNull] object expectedRows, [CanBeNull] object actualRows)
@@ -98,14 +90,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string TransactionAlreadyStarted
         {
             get { return GetString("TransactionAlreadyStarted"); }
-        }
-
-        /// <summary>
-        /// The connection does not have any active transactions.
-        /// </summary>
-        public static string NoActiveTransaction
-        {
-            get { return GetString("NoActiveTransaction"); }
         }
 
         /// <summary>
@@ -277,7 +261,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unapplying migration '{migration}'.
+        /// Reverting migration '{migration}'.
         /// </summary>
         public static string RevertingMigration([CanBeNull] object migration)
         {
@@ -327,9 +311,9 @@ namespace Microsoft.Data.Entity.Internal
         /// <summary>
         /// Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.
         /// </summary>
-        public static string DiscriminitatorValueIncompatible([CanBeNull] object value, [CanBeNull] object discriminator, [CanBeNull] object discriminatorType)
+        public static string DiscriminatorValueIncompatible([CanBeNull] object value, [CanBeNull] object discriminator, [CanBeNull] object discriminatorType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminitatorValueIncompatible", "value", "discriminator", "discriminatorType"), value, discriminator, discriminatorType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DiscriminatorValueIncompatible", "value", "discriminator", "discriminatorType"), value, discriminator, discriminatorType);
         }
 
         /// <summary>
@@ -365,7 +349,7 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unabled to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.
+        /// Unable to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.
         /// </summary>
         public static string ClientEvalDisabled([CanBeNull] object expression)
         {
@@ -402,6 +386,22 @@ namespace Microsoft.Data.Entity.Internal
         public static string DuplicateColumnName([CanBeNull] object columnName, [CanBeNull] object entityType, [CanBeNull] object property)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("DuplicateColumnName", "columnName", "entityType", "property"), columnName, entityType, property);
+        }
+
+        /// <summary>
+        /// The connection does not have any active transactions.
+        /// </summary>
+        public static string NoActiveTransaction
+        {
+            get { return GetString("NoActiveTransaction"); }
+        }
+
+        /// <summary>
+        /// Two entities cannot make conflicting updates to the same row.
+        /// </summary>
+        public static string ConflictingRowUpdates
+        {
+            get { return GetString("ConflictingRowUpdates"); }
         }
 
         private static string GetString(string name, params string[] formatterNames)

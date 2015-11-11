@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
     {
         private readonly IRelationalTypeMapper _typeMapper;
 
-        public RelationalConventionSetBuilder([NotNull] IRelationalTypeMapper typeMapper)
+        protected RelationalConventionSetBuilder([NotNull] IRelationalTypeMapper typeMapper)
         {
             Check.NotNull(typeMapper, nameof(typeMapper));
 
@@ -45,7 +45,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return conventionSet;
         }
 
-        private void ReplaceConvention<T1, T2>(IList<T1> conventionsList, T2 newConvention)
+        private static void ReplaceConvention<T1, T2>(IList<T1> conventionsList, T2 newConvention)
             where T2 : T1
         {
             var oldConvention = conventionsList.OfType<T2>().FirstOrDefault();

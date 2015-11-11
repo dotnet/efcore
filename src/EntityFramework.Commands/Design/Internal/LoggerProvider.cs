@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             _creator = creator;
         }
 
-        public virtual ILogger CreateLogger(string name) => _creator(name);
+        public virtual ILogger CreateLogger(string categoryName) => _creator(categoryName);
 
         public virtual void Dispose()
         {

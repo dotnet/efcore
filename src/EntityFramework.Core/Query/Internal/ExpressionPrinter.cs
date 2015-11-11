@@ -492,7 +492,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             _stringBuilder.AppendLine(CoreStrings.UnhandledExpressionType(expressionType));
         }
 
-        public interface IConstantPrinter
+        protected interface IConstantPrinter
         {
             bool TryPrintConstant([NotNull] object value, [NotNull] IndentedStringBuilder stringBuilder);
         }

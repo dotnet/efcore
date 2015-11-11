@@ -1069,7 +1069,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         #endregion
 
-        private IEnumerable<T> ToEnumerable<T>(T element)
+        private static IEnumerable<T> ToEnumerable<T>(T element)
             where T : class
             => element == null ? Enumerable.Empty<T>() : new[] { element };
 

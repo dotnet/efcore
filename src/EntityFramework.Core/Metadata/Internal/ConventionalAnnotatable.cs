@@ -32,7 +32,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public new virtual ConventionalAnnotation RemoveAnnotation([NotNull] string name)
             => (ConventionalAnnotation)base.RemoveAnnotation(name);
 
-        private ConventionalAnnotation CreateAnnotation(
+        private static ConventionalAnnotation CreateAnnotation(
             string name, object value, ConfigurationSource configurationSource)
             => new ConventionalAnnotation(name, value, configurationSource);
 

@@ -63,21 +63,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _querySourceRequiresTracking = querySourceRequiresTracking;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(node, nameof(node));
 
-            if (methodCallExpression.Method.MethodIsClosedFormOf(
+            if (node.Method.MethodIsClosedFormOf(
                 _queryCompilationContext.QueryMethodProvider.ShapedQueryMethod))
             {
                 var entityShaper
-                    = ((ConstantExpression)methodCallExpression.Arguments[2]).Value
+                    = ((ConstantExpression)node.Arguments[2]).Value
                         as Shaper;
 
                 if ((entityShaper != null)
                     && entityShaper.IsShaperForQuerySource(_querySource))
                 {
-                    var resultType = methodCallExpression.Method.GetGenericArguments()[0];
+                    var resultType = node.Method.GetGenericArguments()[0];
 
                     var memberExpression
                         = _queryCompilationContext.QuerySourceMapping
@@ -98,8 +98,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         Expression.Call(
                             _queryCompilationContext.QueryMethodProvider.IncludeMethod
                                 .MakeGenericMethod(resultType),
-                            Expression.Convert(methodCallExpression.Arguments[0], typeof(RelationalQueryContext)),
-                            methodCallExpression,
+                            Expression.Convert(node.Arguments[0], typeof(RelationalQueryContext)),
+                            node,
                             entityAccessor,
                             Expression.Constant(_navigationPath),
                             Expression.NewArrayInit(
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private IEnumerable<Expression> CreateIncludeRelatedValuesStrategyFactories(

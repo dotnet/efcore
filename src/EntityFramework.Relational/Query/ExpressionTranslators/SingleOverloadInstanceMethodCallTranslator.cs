@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
         private readonly string _clrMethodName;
         private readonly string _sqlFunctionName;
 
-        public SingleOverloadInstanceMethodCallTranslator([NotNull] Type declaringType, [NotNull] string clrMethodName, [NotNull] string sqlFunctionName)
+        protected SingleOverloadInstanceMethodCallTranslator([NotNull] Type declaringType, [NotNull] string clrMethodName, [NotNull] string sqlFunctionName)
         {
             _declaringType = declaringType;
             _clrMethodName = clrMethodName;

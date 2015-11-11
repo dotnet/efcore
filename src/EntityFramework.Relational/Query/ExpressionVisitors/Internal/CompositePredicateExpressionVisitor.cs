@@ -17,24 +17,24 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _useRelationalNulls = useRelationalNulls;
         }
 
-        public override Expression Visit([NotNull] Expression expression)
+        public override Expression Visit([NotNull] Expression node)
         {
-            expression = new EqualityPredicateInExpressionOptimizer().Visit(expression);
+            node = new EqualityPredicateInExpressionOptimizer().Visit(node);
 
             var predicateNegationExpressionOptimizer = new PredicateNegationExpressionOptimizer();
 
-            expression = predicateNegationExpressionOptimizer.Visit(expression);
+            node = predicateNegationExpressionOptimizer.Visit(node);
 
-            expression = new EqualityPredicateExpandingVisitor().Visit(expression);
+            node = new EqualityPredicateExpandingVisitor().Visit(node);
 
-            expression = predicateNegationExpressionOptimizer.Visit(expression);
+            node = predicateNegationExpressionOptimizer.Visit(node);
 
             if (_useRelationalNulls)
             {
-                expression = new NotNullableExpression(expression);
+                node = new NotNullableExpression(node);
             }
 
-            return expression;
+            return node;
         }
     }
 }

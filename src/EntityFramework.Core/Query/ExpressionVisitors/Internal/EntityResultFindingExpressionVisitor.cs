@@ -38,36 +38,36 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         protected override Expression VisitQuerySourceReference(
-            QuerySourceReferenceExpression querySourceReferenceExpression)
+            QuerySourceReferenceExpression expression)
         {
-            var entityType = _model.FindEntityType(querySourceReferenceExpression.Type);
+            var entityType = _model.FindEntityType(expression.Type);
 
             if (entityType != null)
             {
                 _entityTrackingInfos.Add(
                     _entityTrackingInfoFactory
-                        .Create(_queryCompilationContext, querySourceReferenceExpression, entityType));
+                        .Create(_queryCompilationContext, expression, entityType));
             }
 
-            return querySourceReferenceExpression;
+            return expression;
         }
 
         // Prune these nodes...
 
         protected override Expression VisitSubQuery(SubQueryExpression expression) => expression;
 
-        protected override Expression VisitMember(MemberExpression expression) => expression;
+        protected override Expression VisitMember(MemberExpression node) => node;
 
-        protected override Expression VisitMethodCall(MethodCallExpression expression) => expression;
+        protected override Expression VisitMethodCall(MethodCallExpression node) => node;
 
-        protected override Expression VisitConditional(ConditionalExpression expression) => expression;
+        protected override Expression VisitConditional(ConditionalExpression node) => node;
 
-        protected override Expression VisitBinary(BinaryExpression expression) => expression;
+        protected override Expression VisitBinary(BinaryExpression node) => node;
 
-        protected override Expression VisitTypeBinary(TypeBinaryExpression expression) => expression;
+        protected override Expression VisitTypeBinary(TypeBinaryExpression node) => node;
 
-        protected override Expression VisitLambda<T>(Expression<T> expression) => expression;
+        protected override Expression VisitLambda<T>(Expression<T> node) => node;
 
-        protected override Expression VisitInvocation(InvocationExpression expression) => expression;
+        protected override Expression VisitInvocation(InvocationExpression node) => node;
     }
 }

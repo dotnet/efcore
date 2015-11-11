@@ -25,11 +25,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
                 };
         }
 
-        public virtual Expression Translate(MethodCallExpression expression)
+        public virtual Expression Translate(MethodCallExpression methodCallExpression)
         {
             return
                 _methodCallTranslators
-                    .Select(translator => translator.Translate(expression))
+                    .Select(translator => translator.Translate(methodCallExpression))
                     .FirstOrDefault(translatedMethodCall => translatedMethodCall != null);
         }
 

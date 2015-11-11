@@ -11,11 +11,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
     {
         private readonly List<IMemberTranslator> _translators = new List<IMemberTranslator>();
 
-        public virtual Expression Translate(MemberExpression expression)
+        public virtual Expression Translate(MemberExpression memberExpression)
         {
             foreach (var translator in _translators)
             {
-                var translatedMember = translator.Translate(expression);
+                var translatedMember = translator.Translate(memberExpression);
                 if (translatedMember != null)
                 {
                     return translatedMember;

@@ -11,28 +11,28 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     {
         public virtual Expression ResultExpression { get; private set; }
 
-        protected override Expression VisitConstant(ConstantExpression expression)
+        protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (expression.Value == null)
+            if (node.Value == null)
             {
-                AddToResult(expression);
+                AddToResult(node);
             }
 
-            return expression;
+            return node;
         }
 
-        protected override Expression VisitBinary(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
             // a ?? b == null <-> a == null && b == null
-            if (expression.NodeType == ExpressionType.Coalesce)
+            if (node.NodeType == ExpressionType.Coalesce)
             {
                 var current = ResultExpression;
                 ResultExpression = null;
-                Visit(expression.Left);
+                Visit(node.Left);
                 var left = ResultExpression;
 
                 ResultExpression = null;
-                Visit(expression.Right);
+                Visit(node.Right);
                 var right = ResultExpression;
 
                 var coalesce = CombineExpressions(left, right, ExpressionType.AndAlso);
@@ -44,65 +44,65 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             // a && b == null <-> a == null && b != false || a != false && b == null
             // this transformation would produce a query that is too complex
             // so we just wrap the whole expression into IsNullExpression instead.
-            if ((expression.NodeType == ExpressionType.AndAlso)
-                || (expression.NodeType == ExpressionType.OrElse))
+            if ((node.NodeType == ExpressionType.AndAlso)
+                || (node.NodeType == ExpressionType.OrElse))
             {
-                AddToResult(new IsNullExpression(expression));
+                AddToResult(new IsNullExpression(node));
             }
 
-            return expression;
+            return node;
         }
 
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            var aliasExpression = expression as AliasExpression;
+            var aliasExpression = node as AliasExpression;
             if (aliasExpression != null)
             {
                 return Visit(aliasExpression.Expression);
             }
 
-            var notNullableExpression = expression as NotNullableExpression;
+            var notNullableExpression = node as NotNullableExpression;
             if (notNullableExpression != null)
             {
-                return expression;
+                return node;
             }
 
-            var columnExpression = expression as ColumnExpression
-                                   ?? expression.TryGetColumnExpression();
+            var columnExpression = node as ColumnExpression
+                                   ?? node.TryGetColumnExpression();
 
             if ((columnExpression != null)
                 && columnExpression.Property.IsNullable)
             {
-                AddToResult(new IsNullExpression(expression));
+                AddToResult(new IsNullExpression(node));
 
-                return expression;
+                return node;
             }
 
-            var isNullExpression = expression as IsNullExpression;
+            var isNullExpression = node as IsNullExpression;
             if (isNullExpression != null)
             {
-                return expression;
+                return node;
             }
 
-            var inExpression = expression as InExpression;
+            var inExpression = node as InExpression;
             if (inExpression != null)
             {
-                return expression;
+                return node;
             }
 
-            return expression;
+            return node;
         }
 
-        protected override Expression VisitConditional(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression node)
         {
             var current = ResultExpression;
 
             ResultExpression = null;
-            Visit(expression.IfTrue);
+            Visit(node.IfTrue);
             var ifTrue = ResultExpression;
 
             ResultExpression = null;
-            Visit(expression.IfTrue);
+            Visit(node.IfTrue);
             var ifFalse = ResultExpression;
 
             ResultExpression = current;
@@ -115,10 +115,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             if ((ifTrue != null)
                 || (ifFalse != null))
             {
-                AddToResult(new IsNullExpression(expression));
+                AddToResult(new IsNullExpression(node));
             }
 
-            return expression;
+            return node;
         }
 
         private static Expression CombineExpressions(

@@ -36,7 +36,8 @@ namespace Microsoft.Data.Entity.Metadata
                 return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.TableName)
                        ?? rootType.DisplayName();
             }
-            [param: CanBeNull] set { SetTableName(value); }
+            [param: CanBeNull]
+            set { SetTableName(value); }
         }
 
         protected virtual bool SetTableName([CanBeNull] string value)
@@ -49,7 +50,8 @@ namespace Microsoft.Data.Entity.Metadata
                 var rootAnnotations = new RelationalAnnotations(EntityType.RootType(), Annotations.ProviderPrefix);
                 return (string)rootAnnotations.GetAnnotation(RelationalAnnotationNames.Schema) ?? ((Model)EntityType.Model).Relational().DefaultSchema;
             }
-            [param: CanBeNull] set { SetSchema(value); }
+            [param: CanBeNull]
+            set { SetSchema(value); }
         }
 
         protected virtual bool SetSchema([CanBeNull] string value)
@@ -65,7 +67,8 @@ namespace Microsoft.Data.Entity.Metadata
 
                 return propertyName == null ? null : rootType.FindProperty(propertyName);
             }
-            [param: CanBeNull] set { SetDiscriminatorProperty(value); }
+            [param: CanBeNull]
+            set { SetDiscriminatorProperty(value); }
         }
 
         protected virtual IProperty GetNonRootDiscriminatorProperty()
@@ -98,7 +101,8 @@ namespace Microsoft.Data.Entity.Metadata
         public virtual object DiscriminatorValue
         {
             get { return Annotations.GetAnnotation(RelationalAnnotationNames.DiscriminatorValue); }
-            [param: CanBeNull] set { SetDiscriminatorValue(value); }
+            [param: CanBeNull]
+            set { SetDiscriminatorValue(value); }
         }
 
         protected virtual bool SetDiscriminatorValue([CanBeNull] object value)
@@ -112,7 +116,7 @@ namespace Microsoft.Data.Entity.Metadata
             if ((value != null)
                 && !DiscriminatorProperty.ClrType.GetTypeInfo().IsAssignableFrom(value.GetType().GetTypeInfo()))
             {
-                throw new InvalidOperationException(RelationalStrings.DiscriminitatorValueIncompatible(
+                throw new InvalidOperationException(RelationalStrings.DiscriminatorValueIncompatible(
                     value, DiscriminatorProperty.Name, DiscriminatorProperty.ClrType));
             }
 

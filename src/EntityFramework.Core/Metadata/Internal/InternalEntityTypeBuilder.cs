@@ -186,7 +186,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return ConfigureProperty(existingProperty.Builder, propertyType, shadowProperty, configurationSource);
         }
 
-        private InternalPropertyBuilder ConfigureProperty(
+        private static InternalPropertyBuilder ConfigureProperty(
             InternalPropertyBuilder builder, Type propertyType, bool? shadowProperty, ConfigurationSource configurationSource)
         {
             if (builder == null)
@@ -572,7 +572,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return relationshipsToBeRemoved;
         }
 
-        private Dictionary<EntityType, List<RelationshipSnapshot>> GroupRelationshipsByTargetType(EntityType entityType)
+        private static Dictionary<EntityType, List<RelationshipSnapshot>> GroupRelationshipsByTargetType(EntityType entityType)
             => entityType.GetForeignKeys()
                 .Select(foreignKey =>
                     new RelationshipSnapshot(foreignKey,
@@ -830,7 +830,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        private IndexBuildersSnapshot DetachIndexes(IEnumerable<Index> indexesToDetach)
+        private static IndexBuildersSnapshot DetachIndexes(IEnumerable<Index> indexesToDetach)
         {
             var indexesToDetachList = indexesToDetach.ToList();
             if (indexesToDetachList.Count == 0)
@@ -1234,7 +1234,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return CreateRelationshipBuilder(principalType, dependentProperties, principalKey, configurationSource, runConventions);
         }
 
-        private Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityTypeBuilder entityTypeBuilder, bool? isRequired = null)
+        private static Property CreateUniqueProperty(string baseName, Type propertyType, InternalEntityTypeBuilder entityTypeBuilder, bool? isRequired = null)
         {
             var index = -1;
             while (true)

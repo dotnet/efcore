@@ -35,12 +35,12 @@ namespace Microsoft.Data.Entity.Storage
         RelationalDataReader ExecuteReader(
             [NotNull] IRelationalConnection connection,
             bool manageConnection = true,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameters = null);
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null);
 
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
             CancellationToken cancellationToken = default(CancellationToken),
             bool manageConnection = true,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameters = null);
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null);
     }
 }

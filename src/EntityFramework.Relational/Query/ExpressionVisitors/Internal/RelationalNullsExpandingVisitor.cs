@@ -9,13 +9,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class RelationalNullsExpandingVisitor : RelationalNullsExpressionVisitorBase
     {
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            var newLeft = Visit(binaryExpression.Left);
-            var newRight = Visit(binaryExpression.Right);
+            var newLeft = Visit(node.Left);
+            var newRight = Visit(node.Right);
 
-            if ((binaryExpression.NodeType == ExpressionType.Equal)
-                || (binaryExpression.NodeType == ExpressionType.NotEqual))
+            if ((node.NodeType == ExpressionType.Equal)
+                || (node.NodeType == ExpressionType.NotEqual))
             {
                 var leftIsNull = BuildIsNullExpression(newLeft);
                 var leftNullable = leftIsNull != null;
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             : Expression.Convert(rightUnary.Operand, conversionResultTypeRight)
                         : newRight;
 
-                if (binaryExpression.NodeType == ExpressionType.Equal)
+                if (node.NodeType == ExpressionType.Equal)
                 {
                     if (leftNullable && rightNullable)
                     {
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     }
                 }
 
-                if (binaryExpression.NodeType == ExpressionType.NotEqual)
+                if (node.NodeType == ExpressionType.NotEqual)
                 {
                     if (leftNullable && rightNullable)
                     {
@@ -98,16 +98,16 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return binaryExpression.Update(newLeft, binaryExpression.Conversion, newRight);
+            return node.Update(newLeft, node.Conversion, newRight);
         }
 
-        protected override Expression VisitExtension(Expression expression)
+        protected override Expression VisitExtension(Expression node)
         {
-            var notNullableExpression = expression as NotNullableExpression;
+            var notNullableExpression = node as NotNullableExpression;
 
             return notNullableExpression != null
-                ? expression
-                : base.VisitExtension(expression);
+                ? node
+                : base.VisitExtension(node);
         }
 
         private static Expression UnwrapConvertExpression(Expression expression, out Type conversionResultType)
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // ?a == ?b -> [(a == b) && (a != null && b != null)] || (a == null && b == null))
         //
-        // a | b | F1 = a == b | F2 = (a != null && b != null) | F3 = F1 && F2 | 
+        // a | b | F1 = a == b | F2 = (a != null && b != null) | F3 = F1 && F2 |
         //   |   |             |                               |               |
         // 0 | 0 | 1           | 1                             | 1             |
         // 0 | 1 | 0           | 1                             | 0             |
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         // N | 1 | N           | 0                             | 0             |
         // N | N | N           | 0                             | 0             |
         //
-        // a | b | F4 = (a == null && b == null) | Final = F3 OR F4 | 
+        // a | b | F4 = (a == null && b == null) | Final = F3 OR F4 |
         //   |   |                               |                  |
         // 0 | 0 | 0                             | 1 OR 0 = 1       |
         // 0 | 1 | 0                             | 0 OR 0 = 0       |
@@ -167,7 +167,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // !(?a) == ?b -> [(a != b) && (a != null && b != null)] || (a == null && b == null)
         //
-        // a | b | F1 = a != b | F2 = (a != null && b != null) | F3 = F1 && F2 | 
+        // a | b | F1 = a != b | F2 = (a != null && b != null) | F3 = F1 && F2 |
         //   |   |             |                               |               |
         // 0 | 0 | 0           | 1                             | 0             |
         // 0 | 1 | 1           | 1                             | 1             |
@@ -205,7 +205,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // ?a == b -> (a == b) && (a != null)
         //
-        // a | b | F1 = a == b | F2 = (a != null) | Final = F1 && F2 | 
+        // a | b | F1 = a == b | F2 = (a != null) | Final = F1 && F2 |
         //   |   |             |                  |                  |
         // 0 | 0 | 1           | 1                | 1                |
         // 0 | 1 | 0           | 1                | 0                |
@@ -222,7 +222,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // !(?a) == b -> (a != b) && (a != null)
         //
-        // a | b | F1 = a != b | F2 = (a != null) | Final = F1 && F2 | 
+        // a | b | F1 = a != b | F2 = (a != null) | Final = F1 && F2 |
         //   |   |             |                  |                  |
         // 0 | 0 | 0           | 1                | 0                |
         // 0 | 1 | 1           | 1                | 1                |
@@ -239,7 +239,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // a == ?b -> (a == b) && (b != null)
         //
-        // a | b | F1 = a == b | F2 = (b != null) | Final = F1 && F2 | 
+        // a | b | F1 = a == b | F2 = (b != null) | Final = F1 && F2 |
         //   |   |             |                  |                  |
         // 0 | 0 | 1           | 1                | 1                |
         // 0 | 1 | 0           | 1                | 0                |
@@ -256,7 +256,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // !a == ?b -> (a != b) && (b != null)
         //
-        // a | b | F1 = a != b | F2 = (b != null) | Final = F1 && F2 | 
+        // a | b | F1 = a != b | F2 = (b != null) | Final = F1 && F2 |
         //   |   |             |                  |                  |
         // 0 | 0 | 0           | 1                | 0                |
         // 0 | 1 | 1           | 1                | 1                |
@@ -273,7 +273,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // ?a != ?b -> [(a != b) || (a == null || b == null)] && (a != null || b != null)]
         //
-        // a | b | F1 = a != b | F2 = (a == null || b == null) | F3 = F1 && F2 | 
+        // a | b | F1 = a != b | F2 = (a == null || b == null) | F3 = F1 && F2 |
         //   |   |             |                               |               |
         // 0 | 0 | 0           | 0                             | 0             |
         // 0 | 1 | 1           | 0                             | 1             |
@@ -285,7 +285,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         // N | 1 | N           | 1                             | 1             |
         // N | N | N           | 1                             | 1             |
         //
-        // a | b | F4 = (a != null || b != null) | Final = F3 && F4 | 
+        // a | b | F4 = (a != null || b != null) | Final = F3 && F4 |
         //   |   |                               |                  |
         // 0 | 0 | 1                             | 0 && 1 = 0       |
         // 0 | 1 | 1                             | 1 && 1 = 1       |
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         // N | 0 | 1                             | 1 && 1 = 1       |
         // N | 1 | 1                             | 1 && 1 = 1       |
         // N | N | 0                             | 1 && 0 = 0       |
-        private Expression ExpandNullableNotEqualNullable(
+        private static Expression ExpandNullableNotEqualNullable(
             Expression left, Expression right, Expression leftIsNull, Expression rightIsNull)
             => new NotNullableExpression(
                 Expression.AndAlso(
@@ -311,9 +311,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // !(?a) != ?b -> [(a == b) || (a == null || b == null)] && (a != null || b != null)
         //
-        // a | b | F1 = a == b | F2 = (a == null || b == null) | F3 = F1 || F2 | 
+        // a | b | F1 = a == b | F2 = (a == null || b == null) | F3 = F1 || F2 |
         //   |   |             |                               |               |
-        // 0 | 0 | 1           | 0                             | 1             | 
+        // 0 | 0 | 1           | 0                             | 1             |
         // 0 | 1 | 0           | 0                             | 0             |
         // 0 | N | N           | 1                             | 1             |
         // 1 | 0 | 0           | 0                             | 0             |
@@ -349,7 +349,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // ?a != b -> (a != b) || (a == null)
         //
-        // a | b | F1 = a != b | F2 = (a == null) | Final = F1 OR F2 | 
+        // a | b | F1 = a != b | F2 = (a == null) | Final = F1 OR F2 |
         //   |   |             |                  |                  |
         // 0 | 0 | 0           | 0                | 0                |
         // 0 | 1 | 1           | 0                | 1                |
@@ -366,7 +366,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // !(?a) != b -> (a == b) || (a == null)
         //
-        // a | b | F1 = a == b | F2 = (a == null) | F3 = F1 OR F2 | 
+        // a | b | F1 = a == b | F2 = (a == null) | F3 = F1 OR F2 |
         //   |   |             |                  |               |
         // 0 | 0 | 1           | 0                | 1             |
         // 0 | 1 | 0           | 0                | 0             |
@@ -383,7 +383,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // a != ?b -> (a != b) || (b == null)
         //
-        // a | b | F1 = a != b | F2 = (b == null) | F3 = F1 OR F2 | 
+        // a | b | F1 = a != b | F2 = (b == null) | F3 = F1 OR F2 |
         //   |   |             |                  |               |
         // 0 | 0 | 0           | 0                | 0             |
         // 0 | 1 | 1           | 0                | 1             |
@@ -400,7 +400,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         // !a != ?b -> (a == b) || (b == null)
         //
-        // a | b | F1 = a == b | F2 = (b == null) | F3 = F1 OR F2 | 
+        // a | b | F1 = a == b | F2 = (b == null) | F3 = F1 OR F2 |
         //   |   |             |                  |               |
         // 0 | 0 | 1           | 0                | 1             |
         // 0 | 1 | 0           | 0                | 0             |

@@ -341,7 +341,7 @@ namespace Microsoft.Data.Entity.Metadata.Tests
             property.ClrType = typeof(int);
             entityType.Relational().DiscriminatorProperty = property;
 
-            Assert.Equal(RelationalStrings.DiscriminitatorValueIncompatible("V", "D", typeof(int)),
+            Assert.Equal(RelationalStrings.DiscriminatorValueIncompatible("V", "D", typeof(int)),
                 Assert.Throws<InvalidOperationException>(() =>
                     entityType.Relational().DiscriminatorValue = "V").Message);
 

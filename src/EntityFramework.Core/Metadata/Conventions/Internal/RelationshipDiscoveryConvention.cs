@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return relationshipCandidates.Values.ToList();
         }
 
-        private IReadOnlyList<RelationshipCandidate> RemoveIncompatibleWithExistingRelationships(
+        private static IReadOnlyList<RelationshipCandidate> RemoveIncompatibleWithExistingRelationships(
             IReadOnlyList<RelationshipCandidate> relationshipCandidates,
             InternalEntityTypeBuilder entityTypeBuilder)
         {
@@ -252,7 +252,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             }
         }
 
-        private void CreateRelationships(
+        private static void CreateRelationships(
             IReadOnlyList<RelationshipCandidate> relationshipCandidates, InternalEntityTypeBuilder entityTypeBuilder)
         {
             foreach (var relationshipCandidate in relationshipCandidates)

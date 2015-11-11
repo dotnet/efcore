@@ -82,7 +82,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         }
 
         public virtual IRelationalValueBufferFactory CreateValueBufferFactory(
-            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader _)
+            IRelationalValueBufferFactoryFactory relationalValueBufferFactoryFactory, DbDataReader dataReader)
         {
             Check.NotNull(relationalValueBufferFactoryFactory, nameof(relationalValueBufferFactoryFactory));
 
@@ -732,48 +732,48 @@ namespace Microsoft.Data.Entity.Query.Sql
             return existsExpression;
         }
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            if (binaryExpression.NodeType == ExpressionType.Coalesce)
+            if (expression.NodeType == ExpressionType.Coalesce)
             {
                 _relationalCommandBuilder.Append("COALESCE(");
-                Visit(binaryExpression.Left);
+                Visit(expression.Left);
                 _relationalCommandBuilder.Append(", ");
-                Visit(binaryExpression.Right);
+                Visit(expression.Right);
                 _relationalCommandBuilder.Append(")");
             }
             else
             {
-                var needParens = binaryExpression.Left is BinaryExpression;
+                var needParens = expression.Left is BinaryExpression;
 
                 if (needParens)
                 {
                     _relationalCommandBuilder.Append("(");
                 }
 
-                Visit(binaryExpression.Left);
+                Visit(expression.Left);
 
                 if (needParens)
                 {
                     _relationalCommandBuilder.Append(")");
                 }
 
-                if (binaryExpression.IsLogicalOperation()
-                    && binaryExpression.Left.IsSimpleExpression())
+                if (expression.IsLogicalOperation()
+                    && expression.Left.IsSimpleExpression())
                 {
                     _relationalCommandBuilder.Append(" = ");
                     _relationalCommandBuilder.Append(TrueLiteral);
                 }
 
                 string op;
-                if (!TryGenerateBinaryOperator(binaryExpression.NodeType, out op))
+                if (!TryGenerateBinaryOperator(expression.NodeType, out op))
                 {
-                    switch (binaryExpression.NodeType)
+                    switch (expression.NodeType)
                     {
                         case ExpressionType.Add:
-                            op = binaryExpression.Type == typeof(string)
+                            op = expression.Type == typeof(string)
                                 ? " " + ConcatOperator + " "
                                 : " + ";
                             break;
@@ -784,29 +784,29 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                 _relationalCommandBuilder.Append(op);
 
-                needParens = binaryExpression.Right is BinaryExpression;
+                needParens = expression.Right is BinaryExpression;
 
                 if (needParens)
                 {
                     _relationalCommandBuilder.Append("(");
                 }
 
-                Visit(binaryExpression.Right);
+                Visit(expression.Right);
 
                 if (needParens)
                 {
                     _relationalCommandBuilder.Append(")");
                 }
 
-                if (binaryExpression.IsLogicalOperation()
-                    && binaryExpression.Right.IsSimpleExpression())
+                if (expression.IsLogicalOperation()
+                    && expression.Right.IsSimpleExpression())
                 {
                     _relationalCommandBuilder.Append(" = ");
                     _relationalCommandBuilder.Append(TrueLiteral);
                 }
             }
 
-            return binaryExpression;
+            return expression;
         }
 
         public virtual Expression VisitColumn(ColumnExpression columnExpression)
@@ -898,81 +898,81 @@ namespace Microsoft.Data.Entity.Query.Sql
             return sqlFunctionExpression;
         }
 
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression expression)
         {
-            Check.NotNull(unaryExpression, nameof(unaryExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            if (unaryExpression.NodeType == ExpressionType.Not)
+            if (expression.NodeType == ExpressionType.Not)
             {
-                var inExpression = unaryExpression.Operand as InExpression;
+                var inExpression = expression.Operand as InExpression;
                 if (inExpression != null)
                 {
                     return VisitNotIn(inExpression);
                 }
 
-                var isNullExpression = unaryExpression.Operand as IsNullExpression;
+                var isNullExpression = expression.Operand as IsNullExpression;
                 if (isNullExpression != null)
                 {
                     return VisitIsNotNull(isNullExpression);
                 }
 
                 var isColumnOrParameterOperand =
-                    unaryExpression.Operand is ColumnExpression
-                    || unaryExpression.Operand is ParameterExpression
-                    || unaryExpression.Operand.IsAliasWithColumnExpression();
+                    expression.Operand is ColumnExpression
+                    || expression.Operand is ParameterExpression
+                    || expression.Operand.IsAliasWithColumnExpression();
 
                 if (!isColumnOrParameterOperand)
                 {
                     _relationalCommandBuilder.Append("NOT (");
-                    Visit(unaryExpression.Operand);
+                    Visit(expression.Operand);
                     _relationalCommandBuilder.Append(")");
                 }
                 else
                 {
-                    Visit(unaryExpression.Operand);
+                    Visit(expression.Operand);
                     _relationalCommandBuilder.Append(" = ");
                     _relationalCommandBuilder.Append(FalseLiteral);
                 }
 
-                return unaryExpression;
+                return expression;
             }
 
-            if (unaryExpression.NodeType == ExpressionType.Convert)
+            if (expression.NodeType == ExpressionType.Convert)
             {
-                Visit(unaryExpression.Operand);
+                Visit(expression.Operand);
 
-                return unaryExpression;
+                return expression;
             }
 
-            return base.VisitUnary(unaryExpression);
+            return base.VisitUnary(expression);
         }
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
+        protected override Expression VisitConstant(ConstantExpression expression)
         {
-            Check.NotNull(constantExpression, nameof(constantExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            _relationalCommandBuilder.Append(constantExpression.Value == null
+            _relationalCommandBuilder.Append(expression.Value == null
                 ? "NULL"
-                : _sqlGenerator.GenerateLiteral(constantExpression.Value));
+                : _sqlGenerator.GenerateLiteral(expression.Value));
 
-            return constantExpression;
+            return expression;
         }
 
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression expression)
         {
-            Check.NotNull(parameterExpression, nameof(parameterExpression));
+            Check.NotNull(expression, nameof(expression));
 
             object value;
-            if (!_parametersValues.TryGetValue(parameterExpression.Name, out value))
+            if (!_parametersValues.TryGetValue(expression.Name, out value))
             {
                 value = string.Empty;
             }
 
-            var name = _sqlGenerator.GenerateParameterName(parameterExpression.Name);
+            var name = _sqlGenerator.GenerateParameterName(expression.Name);
 
-            _relationalCommandBuilder.AppendParameter(name, value, parameterExpression.Type, parameterExpression.Name);
+            _relationalCommandBuilder.AppendParameter(name, value, expression.Type, expression.Name);
 
-            return parameterExpression;
+            return expression;
         }
 
         protected virtual bool TryGenerateBinaryOperator(ExpressionType op, [NotNull] out string result)

@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators
             return null;
         }
 
-        private Expression TranslateInternal(
+        private static Expression TranslateInternal(
             Func<ExpressionType, ExpressionType> opFunc,
             ExpressionType op,
             MethodCallExpression methodCall,

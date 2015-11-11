@@ -39,19 +39,19 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             _queryContext = queryContext;
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (methodCallExpression.Method.IsGenericMethod
+            if (node.Method.IsGenericMethod
                 && ReferenceEquals(
-                    methodCallExpression.Method.GetGenericMethodDefinition(),
+                    node.Method.GetGenericMethodDefinition(),
                     EntityQueryModelVisitor.PropertyMethodInfo))
             {
-                return methodCallExpression;
+                return node;
             }
 
-            methodCallExpression = ProcessNotParameterizableArguments(methodCallExpression);
+            node = ProcessNotParameterizableArguments(node);
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
         private static MethodCallExpression ProcessNotParameterizableArguments(MethodCallExpression methodCallExpression)
@@ -96,29 +96,29 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return methodCallExpression;
         }
 
-        public override Expression Visit(Expression expression)
+        public override Expression Visit(Expression node)
         {
-            if (expression == null)
+            if (node == null)
             {
                 return null;
             }
 
-            if ((expression.NodeType == ExpressionType.Lambda)
-                || !_partialEvaluationInfo.IsEvaluatableExpression(expression))
+            if ((node.NodeType == ExpressionType.Lambda)
+                || !_partialEvaluationInfo.IsEvaluatableExpression(node))
             {
-                return base.Visit(expression);
+                return base.Visit(node);
             }
 
-            var e = expression;
+            var e = node;
 
-            if (expression.NodeType == ExpressionType.Convert)
+            if (node.NodeType == ExpressionType.Convert)
             {
-                if (expression.RemoveConvert() is ConstantExpression)
+                if (node.RemoveConvert() is ConstantExpression)
                 {
-                    return expression;
+                    return node;
                 }
 
-                var unaryExpression = (UnaryExpression)expression;
+                var unaryExpression = (UnaryExpression)node;
 
                 if ((unaryExpression.Type.IsNullableType()
                      && !unaryExpression.Operand.Type.IsNullableType())
@@ -162,22 +162,22 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
                         _queryContext.AddParameter(parameterName, parameterValue);
 
-                        return e.Type == expression.Type
+                        return e.Type == node.Type
                             ? Expression.Parameter(e.Type, parameterName)
                             : (Expression)Expression.Convert(
                                 Expression.Parameter(e.Type, parameterName),
-                                expression.Type);
+                                node.Type);
                     }
                     catch (Exception exception)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.ExpressionParameterizationException(expression),
+                            CoreStrings.ExpressionParameterizationException(node),
                             exception);
                     }
                 }
             }
 
-            return expression;
+            return node;
         }
 
         public static object Evaluate(
@@ -195,58 +195,58 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             switch (expression.NodeType)
             {
                 case ExpressionType.MemberAccess:
-                {
-                    var memberExpression = (MemberExpression)expression;
-                    var @object = Evaluate(memberExpression.Expression, out parameterName);
-
-                    var fieldInfo = memberExpression.Member as FieldInfo;
-
-                    if (fieldInfo != null)
                     {
-                        parameterName = parameterName != null
-                            ? parameterName + "_" + fieldInfo.Name
-                            : fieldInfo.Name;
+                        var memberExpression = (MemberExpression)expression;
+                        var @object = Evaluate(memberExpression.Expression, out parameterName);
 
-                        try
+                        var fieldInfo = memberExpression.Member as FieldInfo;
+
+                        if (fieldInfo != null)
                         {
-                            return fieldInfo.GetValue(@object);
+                            parameterName = parameterName != null
+                                ? parameterName + "_" + fieldInfo.Name
+                                : fieldInfo.Name;
+
+                            try
+                            {
+                                return fieldInfo.GetValue(@object);
+                            }
+                            catch
+                            {
+                                // Try again when we compile the delegate
+                            }
                         }
-                        catch
+
+                        var propertyInfo = memberExpression.Member as PropertyInfo;
+
+                        if (propertyInfo != null)
                         {
-                            // Try again when we compile the delegate
+                            parameterName = parameterName != null
+                                ? parameterName + "_" + propertyInfo.Name
+                                : propertyInfo.Name;
+
+                            try
+                            {
+                                return propertyInfo.GetValue(@object);
+                            }
+                            catch
+                            {
+                                // Try again when we compile the delegate
+                            }
                         }
+
+                        break;
                     }
-
-                    var propertyInfo = memberExpression.Member as PropertyInfo;
-
-                    if (propertyInfo != null)
-                    {
-                        parameterName = parameterName != null
-                            ? parameterName + "_" + propertyInfo.Name
-                            : propertyInfo.Name;
-
-                        try
-                        {
-                            return propertyInfo.GetValue(@object);
-                        }
-                        catch
-                        {
-                            // Try again when we compile the delegate
-                        }
-                    }
-
-                    break;
-                }
                 case ExpressionType.Constant:
-                {
-                    return ((ConstantExpression)expression).Value;
-                }
+                    {
+                        return ((ConstantExpression)expression).Value;
+                    }
                 case ExpressionType.Call:
-                {
-                    parameterName = ((MethodCallExpression)expression).Method.Name;
+                    {
+                        parameterName = ((MethodCallExpression)expression).Method.Name;
 
-                    break;
-                }
+                        break;
+                    }
             }
 
             return Expression.Lambda<Func<object>>(

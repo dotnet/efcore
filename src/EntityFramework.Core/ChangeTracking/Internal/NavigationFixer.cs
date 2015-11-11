@@ -342,7 +342,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private void DoFixup(IForeignKey foreignKey, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
             => DoFixup(foreignKey.GetNavigations().ToList(), principalEntry, dependentEntries);
 
-        private void DoFixup(IEnumerable<INavigation> navigations, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
+        private static void DoFixup(IEnumerable<INavigation> navigations, InternalEntityEntry principalEntry, InternalEntityEntry[] dependentEntries)
         {
             foreach (var navigation in navigations)
             {
@@ -392,7 +392,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        private void Unfixup(INavigation navigation, InternalEntityEntry oldPrincipalEntry, InternalEntityEntry dependentEntry)
+        private static void Unfixup(INavigation navigation, InternalEntityEntry oldPrincipalEntry, InternalEntityEntry dependentEntry)
         {
             var dependentEntity = dependentEntry.Entity;
 
@@ -421,7 +421,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        private void StealReference(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
+        private static void StealReference(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
         {
             foreach (var navigation in dependentEntry.EntityType.GetNavigations().Where(n => n.ForeignKey == foreignKey))
             {

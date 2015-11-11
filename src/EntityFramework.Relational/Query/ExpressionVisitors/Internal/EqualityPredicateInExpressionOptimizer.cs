@@ -12,46 +12,46 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class EqualityPredicateInExpressionOptimizer : RelinqExpressionVisitor
     {
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
+            Check.NotNull(node, nameof(node));
 
-            switch (binaryExpression.NodeType)
+            switch (node.NodeType)
             {
                 case ExpressionType.OrElse:
-                {
-                    var optimized
-                        = TryOptimize(
-                            binaryExpression,
-                            equalityType: ExpressionType.Equal,
-                            inExpressionFactory: (c, vs) => new InExpression(c, vs));
-
-                    if (optimized != null)
                     {
-                        return optimized;
-                    }
+                        var optimized
+                            = TryOptimize(
+                                node,
+                                equalityType: ExpressionType.Equal,
+                                inExpressionFactory: (c, vs) => new InExpression(c, vs));
 
-                    break;
-                }
+                        if (optimized != null)
+                        {
+                            return optimized;
+                        }
+
+                        break;
+                    }
 
                 case ExpressionType.AndAlso:
-                {
-                    var optimized
-                        = TryOptimize(
-                            binaryExpression,
-                            equalityType: ExpressionType.NotEqual,
-                            inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
-
-                    if (optimized != null)
                     {
-                        return optimized;
-                    }
+                        var optimized
+                            = TryOptimize(
+                                node,
+                                equalityType: ExpressionType.NotEqual,
+                                inExpressionFactory: (c, vs) => Expression.Not(new InExpression(c, vs)));
 
-                    break;
-                }
+                        if (optimized != null)
+                        {
+                            return optimized;
+                        }
+
+                        break;
+                    }
             }
 
-            return base.VisitBinary(binaryExpression);
+            return base.VisitBinary(node);
         }
 
         private Expression TryOptimize(

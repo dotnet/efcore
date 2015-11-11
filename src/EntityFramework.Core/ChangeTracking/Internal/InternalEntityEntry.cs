@@ -522,30 +522,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        private IReadOnlyList<IProperty> FindPropertiesThatMayGetStoreValue()
-        {
-            var properties = EntityType.GetProperties().Where(
-                p => MayGetStoreValue(p, p.IsKey() ? p.DeclaringEntityType : EntityType)).ToList();
-
-            foreach (var foreignKey in EntityType.GetForeignKeys())
-            {
-                foreach (var property in foreignKey.Properties)
-                {
-                    if (!properties.Contains(property))
-                    {
-                        var generationProperty = property.GetGenerationProperty();
-                        if ((generationProperty != null)
-                            && (generationProperty != property)
-                            && MayGetStoreValue(generationProperty, generationProperty.DeclaringEntityType))
-                        {
-                            properties.Add(property);
-                        }
-                    }
-                }
-            }
-            return properties;
-        }
-
         private bool MayGetStoreValue([CanBeNull] IProperty property, IEntityType entityType)
             => (property != null)
                && ((property.ValueGenerated != ValueGenerated.Never)

@@ -8,9 +8,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class SubQueryMemberPushDownExpressionVisitor : ExpressionVisitorBase, ISubQueryMemberPushDownExpressionVisitor
     {
-        protected override Expression VisitMember(MemberExpression memberExpression)
+        protected override Expression VisitMember(MemberExpression node)
         {
-            var newExpression = Visit(memberExpression.Expression);
+            var newExpression = Visit(node.Expression);
 
             var subQueryExpression = newExpression as SubQueryExpression;
             var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector;
@@ -20,21 +20,21 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             {
                 var subQueryModel = subQueryExpression.QueryModel;
 
-                subQueryModel.SelectClause.Selector = VisitMember(memberExpression.Update(subSelector));
+                subQueryModel.SelectClause.Selector = VisitMember(node.Update(subSelector));
                 subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;
 
                 return new SubQueryExpression(subQueryModel);
             }
 
-            return memberExpression.Update(newExpression);
+            return node.Update(newExpression);
         }
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(methodCallExpression);
+            var newMethodCallExpression = (MethodCallExpression)base.VisitMethodCall(node);
 
-            if (methodCallExpression.Method.IsGenericMethod
-                && (methodCallExpression.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo))
+            if (node.Method.IsGenericMethod
+                && (node.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo))
             {
                 var subQueryExpression = newMethodCallExpression.Arguments[0] as SubQueryExpression;
                 var subSelector = subQueryExpression?.QueryModel.SelectClause.Selector as QuerySourceReferenceExpression;
@@ -44,13 +44,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     var subQueryModel = subQueryExpression.QueryModel;
 
                     subQueryModel.SelectClause.Selector
-                        = methodCallExpression
+                        = node
                             .Update(
                                 null,
                                 new[]
                                 {
                                     subSelector,
-                                    methodCallExpression.Arguments[1]
+                                    node.Arguments[1]
                                 });
 
                     subQueryModel.ResultTypeOverride = subQueryModel.SelectClause.Selector.Type;

@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             DetectRelationshipChanges(entry);
         }
 
-        private void DetectPropertyChanges(InternalEntityEntry entry)
+        private static void DetectPropertyChanges(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        private void DetectKeyChange(InternalEntityEntry entry, IProperty property)
+        private static void DetectKeyChange(InternalEntityEntry entry, IProperty property)
         {
             var keys = property.FindContainingKeys().ToList();
             var foreignKeys = property.FindContainingForeignKeys(entry.EntityType).ToList();

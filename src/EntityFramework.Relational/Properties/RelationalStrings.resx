@@ -211,7 +211,7 @@
     <value>Applying migration '{migration}'.</value>
   </data>
   <data name="RevertingMigration" xml:space="preserve">
-    <value>Unapplying migration '{migration}'.</value>
+    <value>Reverting migration '{migration}'.</value>
   </data>
   <data name="UsingConnection" xml:space="preserve">
     <value>Using database '{database}' on server '{dataSource}'.</value>
@@ -229,7 +229,7 @@
   <data name="DiscriminatorEntityTypeNotDerived" xml:space="preserve">
     <value>Cannot configure the discriminator value for entity type '{entityType}' because it doesn't derive from '{rootEntityType}'.</value>
   </data>
-  <data name="DiscriminitatorValueIncompatible" xml:space="preserve">
+  <data name="DiscriminatorValueIncompatible" xml:space="preserve">
     <value>Cannot set discriminator value '{value}' for discriminator property '{discriminator}' because it is not assignable to property of type '{discriminatorType}'.</value>
   </data>
   <data name="NoDiscriminatorForValue" xml:space="preserve">
@@ -245,7 +245,7 @@
     <value>Unable to materialize an entity of type '{entityType}' because it has an null key value.</value>
   </data>
   <data name="ClientEvalDisabled" xml:space="preserve">
-    <value>Unabled to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.</value>
+    <value>Unable to compile the LINQ expression '{expression}' because it requires client evaluation, which is disabled. Either enable client evaluation or rewrite the query to not require client evaluation.</value>
   </data>
   <data name="ClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>

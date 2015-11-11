@@ -39,55 +39,55 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         private new RelationalQueryModelVisitor QueryModelVisitor
             => (RelationalQueryModelVisitor)base.QueryModelVisitor;
 
-        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            Check.NotNull(methodCallExpression, nameof(methodCallExpression));
+            Check.NotNull(node, nameof(node));
 
-            if (methodCallExpression.Method.IsGenericMethod)
+            if (node.Method.IsGenericMethod)
             {
-                var methodInfo = methodCallExpression.Method.GetGenericMethodDefinition();
+                var methodInfo = node.Method.GetGenericMethodDefinition();
 
                 if (ReferenceEquals(methodInfo, EntityQueryModelVisitor.PropertyMethodInfo))
                 {
-                    var newArg0 = Visit(methodCallExpression.Arguments[0]);
+                    var newArg0 = Visit(node.Arguments[0]);
 
-                    if (newArg0 != methodCallExpression.Arguments[0])
+                    if (newArg0 != node.Arguments[0])
                     {
                         return Expression.Call(
-                            methodCallExpression.Method,
+                            node.Method,
                             newArg0,
-                            methodCallExpression.Arguments[1]);
+                            node.Arguments[1]);
                     }
 
-                    return methodCallExpression;
+                    return node;
                 }
             }
 
-            return base.VisitMethodCall(methodCallExpression);
+            return base.VisitMethodCall(node);
         }
 
-        protected override Expression VisitNew(NewExpression newExpression)
+        protected override Expression VisitNew(NewExpression expression)
         {
-            Check.NotNull(newExpression, nameof(newExpression));
+            Check.NotNull(expression, nameof(expression));
 
-            var newNewExpression = base.VisitNew(newExpression);
+            var newNewExpression = base.VisitNew(expression);
 
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
 
             if (selectExpression != null)
             {
-                for (var i = 0; i < newExpression.Arguments.Count; i++)
+                for (var i = 0; i < expression.Arguments.Count; i++)
                 {
                     var aliasExpression
                         = selectExpression.Projection
                             .OfType<AliasExpression>()
-                            .SingleOrDefault(ae => ae.SourceExpression == newExpression.Arguments[i]);
+                            .SingleOrDefault(ae => ae.SourceExpression == expression.Arguments[i]);
 
                     if (aliasExpression != null)
                     {
                         aliasExpression.SourceMember
-                            = newExpression.Members?[i]
-                              ?? (newExpression.Arguments[i] as MemberExpression)?.Member;
+                            = expression.Members?[i]
+                              ?? (expression.Arguments[i] as MemberExpression)?.Member;
                     }
                 }
             }
@@ -95,35 +95,35 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
             return newNewExpression;
         }
 
-        public override Expression Visit(Expression expression)
+        public override Expression Visit(Expression node)
         {
             var selectExpression = QueryModelVisitor.TryGetQuery(_querySource);
 
-            if ((expression != null)
-                && !(expression is ConstantExpression)
+            if ((node != null)
+                && !(node is ConstantExpression)
                 && (selectExpression != null))
             {
                 var sqlExpression
                     = _sqlTranslatingExpressionVisitorFactory
                         .Create(QueryModelVisitor, selectExpression, inProjection: true)
-                        .Visit(expression);
+                        .Visit(node);
 
                 if (sqlExpression == null)
                 {
-                    if (!(expression is QuerySourceReferenceExpression))
+                    if (!(node is QuerySourceReferenceExpression))
                     {
                         QueryModelVisitor.RequiresClientProjection = true;
                     }
                 }
                 else
                 {
-                    if (!(expression is NewExpression))
+                    if (!(node is NewExpression))
                     {
                         AliasExpression aliasExpression;
 
                         int index;
 
-                        if (!(expression is QuerySourceReferenceExpression))
+                        if (!(node is QuerySourceReferenceExpression))
                         {
                             var columnExpression = sqlExpression.TryGetColumnExpression();
 
@@ -135,10 +135,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                                 if (aliasExpression != null)
                                 {
-                                    aliasExpression.SourceExpression = expression;
+                                    aliasExpression.SourceExpression = node;
                                 }
 
-                                return expression;
+                                return node;
                             }
                         }
 
@@ -150,7 +150,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                             if (aliasExpression != null)
                             {
-                                aliasExpression.SourceExpression = expression;
+                                aliasExpression.SourceExpression = node;
                             }
 
                             var targetExpression
@@ -164,7 +164,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                         .CreateReadValueCallExpression(targetExpression, index);
 
                                 var outputDataInfo
-                                    = (expression as SubQueryExpression)?.QueryModel
+                                    = (node as SubQueryExpression)?.QueryModel
                                         .GetOutputDataInfo();
 
                                 if (outputDataInfo is StreamedScalarValueInfo)
@@ -173,17 +173,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                                     readValueExpression
                                         = Expression.Coalesce(
                                             readValueExpression,
-                                            Expression.Default(expression.Type));
+                                            Expression.Default(node.Type));
                                 }
 
-                                return Expression.Convert(readValueExpression, expression.Type);
+                                return Expression.Convert(readValueExpression, node.Type);
                             }
                         }
                     }
                 }
             }
 
-            return base.Visit(expression);
+            return base.Visit(node);
         }
     }
 }

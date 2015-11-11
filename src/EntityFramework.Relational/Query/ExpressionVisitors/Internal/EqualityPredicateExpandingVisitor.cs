@@ -8,18 +8,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 {
     public class EqualityPredicateExpandingVisitor : RelinqExpressionVisitor
     {
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            var newLeft = Visit(binaryExpression.Left);
-            var newRight = Visit(binaryExpression.Right);
+            var newLeft = Visit(node.Left);
+            var newRight = Visit(node.Right);
 
-            if (((binaryExpression.NodeType == ExpressionType.Equal)
-                 || (binaryExpression.NodeType == ExpressionType.NotEqual))
-                && (binaryExpression.Left.Type == typeof(bool))
-                && (binaryExpression.Right.Type == typeof(bool)))
+            if (((node.NodeType == ExpressionType.Equal)
+                 || (node.NodeType == ExpressionType.NotEqual))
+                && (node.Left.Type == typeof(bool))
+                && (node.Right.Type == typeof(bool)))
             {
-                var simpleLeft = binaryExpression.Left.IsSimpleExpression();
-                var simpleRight = binaryExpression.Right.IsSimpleExpression();
+                var simpleLeft = node.Left.IsSimpleExpression();
+                var simpleRight = node.Right.IsSimpleExpression();
 
                 if (!simpleLeft
                     || !simpleRight)
@@ -40,13 +40,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             Expression.Constant(false),
                             typeof(bool));
 
-                    return binaryExpression.NodeType == ExpressionType.Equal
+                    return node.NodeType == ExpressionType.Equal
                         ? Expression.Equal(leftOperand, rightOperand)
                         : Expression.NotEqual(leftOperand, rightOperand);
                 }
             }
 
-            return binaryExpression.Update(newLeft, binaryExpression.Conversion, newRight);
+            return node.Update(newLeft, node.Conversion, newRight);
         }
     }
 }

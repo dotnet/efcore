@@ -70,7 +70,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                             = relationalCommand.ExecuteReader(
                                 _queryingEnumerable._relationalQueryContext.Connection,
                                 manageConnection: false,
-                                parameters: _queryingEnumerable._relationalQueryContext.ParameterValues);
+                                parameterValues: _queryingEnumerable._relationalQueryContext.ParameterValues);
 
                         _dbDataReader = _dataReader.DbDataReader;
                         _queryingEnumerable._shaperCommandContext.NotifyReaderCreated(_dbDataReader);

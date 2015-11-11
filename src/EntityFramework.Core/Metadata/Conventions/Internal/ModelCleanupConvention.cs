@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return modelBuilder;
         }
 
-        private void RemoveNavigationlessForeignKeys(InternalModelBuilder modelBuilder)
+        private static void RemoveNavigationlessForeignKeys(InternalModelBuilder modelBuilder)
         {
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {

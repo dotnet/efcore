@@ -18,9 +18,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 { ExpressionType.LessThan, ExpressionType.GreaterThanOrEqual }
             };
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            var currentExpression = binaryExpression;
+            var currentExpression = node;
             if ((currentExpression.NodeType == ExpressionType.Equal)
                 || (currentExpression.NodeType == ExpressionType.NotEqual))
             {
@@ -74,11 +74,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             return nullableExpressionsExtractor.ResultExpression;
         }
 
-        protected override Expression VisitUnary(UnaryExpression unaryExpression)
+        protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (unaryExpression.NodeType == ExpressionType.Not)
+            if (node.NodeType == ExpressionType.Not)
             {
-                var innerUnary = unaryExpression.Operand as UnaryExpression;
+                var innerUnary = node.Operand as UnaryExpression;
                 if ((innerUnary != null)
                     && (innerUnary.NodeType == ExpressionType.Not))
                 {
@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     return Visit(innerUnary.Operand);
                 }
 
-                var innerBinary = unaryExpression.Operand as BinaryExpression;
+                var innerBinary = node.Operand as BinaryExpression;
                 if (innerBinary != null)
                 {
                     if ((innerBinary.NodeType == ExpressionType.Equal)
@@ -133,7 +133,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 }
             }
 
-            return base.VisitUnary(unaryExpression);
+            return base.VisitUnary(node);
         }
     }
 }

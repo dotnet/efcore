@@ -11,10 +11,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     [DebuggerStepThrough]
     public abstract class ExpressionVisitorBase : RelinqExpressionVisitor
     {
-        public override Expression Visit([CanBeNull] Expression expression)
-            => (expression == null)
-               || (expression.NodeType == ExpressionType.Block)
-                ? expression
-                : base.Visit(expression);
+        public override Expression Visit([CanBeNull] Expression node)
+            => (node == null)
+               || (node.NodeType == ExpressionType.Block)
+                ? node
+                : base.Visit(node);
     }
 }

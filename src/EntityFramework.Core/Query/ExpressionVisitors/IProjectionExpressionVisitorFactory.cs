@@ -10,7 +10,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
     public interface IProjectionExpressionVisitorFactory
     {
         ExpressionVisitor Create(
-            [NotNull] EntityQueryModelVisitor queryModelVisitor,
+            [NotNull] EntityQueryModelVisitor entityQueryModelVisitor,
             [NotNull] IQuerySource querySource);
     }
 }

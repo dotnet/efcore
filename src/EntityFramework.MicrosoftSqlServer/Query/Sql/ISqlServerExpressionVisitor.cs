@@ -9,6 +9,6 @@ namespace Microsoft.Data.Entity.Query.Sql
 {
     public interface ISqlServerExpressionVisitor
     {
-        Expression VisitRowNumber([NotNull] RowNumberExpression columnExpression);
+        Expression VisitRowNumber([NotNull] RowNumberExpression rowNumberExpression);
     }
 }

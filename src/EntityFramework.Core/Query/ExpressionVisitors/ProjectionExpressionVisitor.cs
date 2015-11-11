@@ -20,24 +20,24 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var queryModelVisitor = CreateQueryModelVisitor();
 
-            queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
+            queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
             var subExpression = queryModelVisitor.Expression;
 
-            if (subExpression.Type != subQueryExpression.Type)
+            if (subExpression.Type != expression.Type)
             {
-                var subQueryExpressionTypeInfo = subQueryExpression.Type.GetTypeInfo();
+                var subQueryExpressionTypeInfo = expression.Type.GetTypeInfo();
 
-                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(subQueryExpression.Type.GetTypeInfo()))
+                if (typeof(IQueryable).GetTypeInfo().IsAssignableFrom(expression.Type.GetTypeInfo()))
                 {
                     subExpression
                         = Expression.Call(
                             QueryModelVisitor.LinqOperatorProvider.ToQueryable
-                                .MakeGenericMethod(subQueryExpression.Type.GetSequenceType()),
+                                .MakeGenericMethod(expression.Type.GetSequenceType()),
                             subExpression);
                 }
                 else if (subQueryExpressionTypeInfo.IsGenericType)
@@ -49,7 +49,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         subExpression
                             = Expression.Call(
                                 QueryModelVisitor.LinqOperatorProvider.ToOrdered
-                                    .MakeGenericMethod(subQueryExpression.Type.GetSequenceType()),
+                                    .MakeGenericMethod(expression.Type.GetSequenceType()),
                                 subExpression);
                     }
                     else if (genericTypeDefinition == typeof(IEnumerable<>))
@@ -57,7 +57,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                         subExpression
                             = Expression.Call(
                                 QueryModelVisitor.LinqOperatorProvider.ToEnumerable
-                                    .MakeGenericMethod(subQueryExpression.Type.GetSequenceType()),
+                                    .MakeGenericMethod(expression.Type.GetSequenceType()),
                                 subExpression);
                     }
                 }

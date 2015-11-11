@@ -140,14 +140,14 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                 .DependentToPrincipal(principalToDepedentNavigationName, ConfigurationSource.DataAnnotation);
         }
 
-        private InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)
+        private static InversePropertyAttribute GetInversePropertyAttributeOnNavigation(Navigation navigation)
         {
             return navigation.DeclaringEntityType.ClrType?.GetRuntimeProperties()
                 .FirstOrDefault(p => string.Equals(p.Name, navigation.Name, StringComparison.OrdinalIgnoreCase))
                 ?.GetCustomAttribute<InversePropertyAttribute>(true);
         }
 
-        private ForeignKeyAttribute GetForeignKeyAttribute(EntityType entityType, string propertyName)
+        private static ForeignKeyAttribute GetForeignKeyAttribute(EntityType entityType, string propertyName)
         {
             return entityType.ClrType?.GetRuntimeProperties()
                 .FirstOrDefault(p => string.Equals(p.Name, propertyName, StringComparison.OrdinalIgnoreCase))

@@ -3,7 +3,7 @@
 
 namespace Microsoft.Data.Entity.Scaffolding.Metadata.Internal
 {
-    public class ScaffoldingAnnotationNames
+    public static class ScaffoldingAnnotationNames
     {
         public const string AnnotationPrefix = "Scaffolding:";
         public const string UseProviderMethodName = AnnotationPrefix + "UseProviderMethodName";

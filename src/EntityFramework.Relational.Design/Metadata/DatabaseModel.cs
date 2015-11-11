@@ -14,6 +14,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         [CanBeNull]
         public virtual string DefaultSchemaName { get; [param: CanBeNull] set; }
 
-        public virtual IList<TableModel> Tables { get; [param: NotNull] set; } = new List<TableModel>();
+        public virtual IList<TableModel> Tables { get; } = new List<TableModel>();
     }
 }

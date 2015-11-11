@@ -9,18 +9,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
     {
         public virtual bool IsOptimalExpansion { get; private set; } = true;
 
-        protected override Expression VisitBinary(BinaryExpression binaryExpression)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
-            var newLeft = Visit(binaryExpression.Left);
-            var newRight = Visit(binaryExpression.Right);
+            var newLeft = Visit(node.Left);
+            var newRight = Visit(node.Right);
 
             if (!IsOptimalExpansion)
             {
-                return binaryExpression;
+                return node;
             }
 
-            if ((binaryExpression.NodeType == ExpressionType.Equal)
-                || (binaryExpression.NodeType == ExpressionType.NotEqual))
+            if ((node.NodeType == ExpressionType.Equal)
+                || (node.NodeType == ExpressionType.NotEqual))
             {
                 var leftIsNull = BuildIsNullExpression(newLeft);
                 var rightIsNull = BuildIsNullExpression(newRight);
@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 var leftNullable = leftIsNull != null;
                 var rightNullable = rightIsNull != null;
 
-                if ((binaryExpression.NodeType == ExpressionType.Equal)
+                if ((node.NodeType == ExpressionType.Equal)
                     && leftNullable
                     && rightNullable)
                 {
@@ -37,31 +37,31 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                         Expression.AndAlso(leftIsNull, rightIsNull));
                 }
 
-                if ((binaryExpression.NodeType == ExpressionType.NotEqual)
+                if ((node.NodeType == ExpressionType.NotEqual)
                     && (leftNullable || rightNullable))
                 {
                     IsOptimalExpansion = false;
                 }
             }
 
-            return binaryExpression.Update(newLeft, binaryExpression.Conversion, newRight);
+            return node.Update(newLeft, node.Conversion, newRight);
         }
 
-        protected override Expression VisitUnary(UnaryExpression expression)
+        protected override Expression VisitUnary(UnaryExpression node)
         {
-            var operand = Visit(expression.Operand);
+            var operand = Visit(node.Operand);
 
             if (!IsOptimalExpansion)
             {
-                return expression;
+                return node;
             }
 
-            if (expression.NodeType == ExpressionType.Not)
+            if (node.NodeType == ExpressionType.Not)
             {
                 IsOptimalExpansion = false;
             }
 
-            return expression.Update(operand);
+            return node.Update(operand);
         }
     }
 }

@@ -79,7 +79,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             return true;
         }
 
-        private int CountParameters(ModificationCommand modificationCommand)
+        private static int CountParameters(ModificationCommand modificationCommand)
         {
             var parameterCount = 0;
             foreach (var columnModification in modificationCommand.ColumnModifications)
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
         }
 
-        private bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
+        private static bool CanBeInsertedInSameStatement(ModificationCommand firstCommand, ModificationCommand secondCommand)
             => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
                && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
                && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(

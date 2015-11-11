@@ -66,7 +66,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return relationshipBuilder;
         }
 
-        private bool ShouldInvert(
+        private static bool ShouldInvert(
             ForeignKey foreignKey,
             IReadOnlyList<Property> currentDependentCandidateProperties,
             IReadOnlyList<Property> currentPrincipalCandidateProperties)
@@ -149,7 +149,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return null;
         }
 
-        private IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(EntityType dependentEntityType, EntityType principalEntityType, IReadOnlyList<Property> propertiesToReference)
+        private static IReadOnlyList<Property> GetCompatiblePrimaryKeyProperties(EntityType dependentEntityType, EntityType principalEntityType, IReadOnlyList<Property> propertiesToReference)
         {
             var dependentPkProperties = dependentEntityType.FindPrimaryKey()?.Properties;
             if ((dependentPkProperties != null)
@@ -237,7 +237,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             return foreignKeyProperties;
         }
 
-        private Property TryGetProperty(EntityType entityType, string name, Type type)
+        private static Property TryGetProperty(EntityType entityType, string name, Type type)
         {
             foreach (var mutableProperty in entityType.GetProperties())
             {

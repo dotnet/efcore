@@ -24,13 +24,13 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
         public virtual EntityQueryModelVisitor QueryModelVisitor => _entityQueryModelVisitor;
 
-        protected override Expression VisitSubQuery(SubQueryExpression subQueryExpression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            Check.NotNull(subQueryExpression, nameof(subQueryExpression));
+            Check.NotNull(expression, nameof(expression));
 
             var queryModelVisitor = CreateQueryModelVisitor();
 
-            queryModelVisitor.VisitQueryModel(subQueryExpression.QueryModel);
+            queryModelVisitor.VisitQueryModel(expression.QueryModel);
 
             return queryModelVisitor.Expression;
         }
@@ -39,18 +39,18 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             => QueryModelVisitor.QueryCompilationContext
                 .CreateQueryModelVisitor(_entityQueryModelVisitor);
 
-        protected override Expression VisitParameter(ParameterExpression parameterExpression)
+        protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (parameterExpression.Name
+            if (node.Name
                 .StartsWith(CompiledQueryCache.CompiledQueryParameterPrefix, StringComparison.Ordinal))
             {
                 return Expression.Call(
-                    _getParameterValueMethodInfo.MakeGenericMethod(parameterExpression.Type),
+                    _getParameterValueMethodInfo.MakeGenericMethod(node.Type),
                     EntityQueryModelVisitor.QueryContextParameter,
-                    Expression.Constant(parameterExpression.Name));
+                    Expression.Constant(node.Name));
             }
 
-            return parameterExpression;
+            return node;
         }
 
         private static readonly MethodInfo _getParameterValueMethodInfo

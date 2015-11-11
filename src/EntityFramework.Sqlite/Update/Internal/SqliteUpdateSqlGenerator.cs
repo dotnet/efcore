@@ -17,33 +17,33 @@ namespace Microsoft.Data.Entity.Update.Internal
         {
         }
 
-        protected override void AppendIdentityWhereCondition(StringBuilder builder, ColumnModification columnModification)
+        protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(columnModification, nameof(columnModification));
 
-            builder
+            commandStringBuilder
                 .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
                 .Append("last_insert_rowid()");
         }
 
-        protected override void AppendSelectAffectedCountCommand(StringBuilder builder, string name, string schema)
+        protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));
 
-            builder
+            commandStringBuilder
                 .Append("SELECT changes()")
                 .Append(SqlGenerator.BatchCommandSeparator)
                 .AppendLine();
         }
 
-        protected override void AppendRowsAffectedWhereCondition(StringBuilder builder, int expectedRowsAffected)
+        protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
         {
-            Check.NotNull(builder, nameof(builder));
+            Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
 
-            builder.Append("changes() = " + expectedRowsAffected);
+            commandStringBuilder.Append("changes() = " + expectedRowsAffected);
         }
 
         public override string GenerateNextSequenceValueOperation(string name, string schema)

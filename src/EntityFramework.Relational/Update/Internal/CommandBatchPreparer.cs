@@ -248,10 +248,10 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
         }
 
-        private KeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
+        private static KeyValueIndex CreatePrincipalKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
             => new KeyValueIndex(foreignKey, entry.GetPrincipalKeyValue(foreignKey, valueSource), valueSource);
 
-        private KeyValueIndex CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
+        private static KeyValueIndex CreateDependentKeyValue(IUpdateEntry entry, IForeignKey foreignKey, ValueSource valueSource)
             => new KeyValueIndex(foreignKey, entry.GetDependentKeyValue(foreignKey, valueSource), valueSource);
 
         private struct KeyValueIndex

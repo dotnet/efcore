@@ -16,8 +16,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         [CanBeNull]
         public virtual TableModel PrincipalTable { get; [param: CanBeNull] set; }
 
-        public virtual IList<ColumnModel> Columns { get; [param: NotNull] set; } = new List<ColumnModel>();
-        public virtual IList<ColumnModel> PrincipalColumns { get; [param: NotNull] set; } = new List<ColumnModel>();
+        public virtual IList<ColumnModel> Columns { get; } = new List<ColumnModel>();
+        public virtual IList<ColumnModel> PrincipalColumns { get; } = new List<ColumnModel>();
 
         [NotNull]
         public virtual string Name { get; [param: CanBeNull] set; }

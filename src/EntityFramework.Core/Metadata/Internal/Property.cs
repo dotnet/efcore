@@ -64,7 +64,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual Type ClrType
         {
             get { return _clrType ?? DefaultClrType; }
-            [param: NotNull] set { HasClrType(value, ConfigurationSource.Explicit); }
+            [param: NotNull]
+            set { HasClrType(value, ConfigurationSource.Explicit); }
         }
 
         public virtual void HasClrType([NotNull] Type type, ConfigurationSource configurationSource)
@@ -83,7 +84,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             UpdateClrTypeConfigurationSource(configurationSource);
         }
 
-        private Type DefaultClrType => typeof(string);
+        private static Type DefaultClrType => typeof(string);
 
         public virtual ConfigurationSource? GetClrTypeConfigurationSource() => _clrTypeConfigurationSource;
 
@@ -159,7 +160,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        private ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
+        private static ValueGenerated DefaultValueGenerated => ValueGenerated.Never;
         public virtual ConfigurationSource? GetValueGeneratedConfigurationSource() => _valueGeneratedConfigurationSource;
 
         private void UpdateValueGeneratedConfigurationSource(ConfigurationSource configurationSource)
@@ -225,7 +226,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             UpdateRequiresValueGeneratorConfigurationSource(configurationSource);
         }
 
-        private bool DefaultRequiresValueGenerator => false;
+        private static bool DefaultRequiresValueGenerator => false;
         public virtual ConfigurationSource? GetRequiresValueGeneratorConfigurationSource() => _requiresValueGeneratorConfigurationSource;
 
         private void UpdateRequiresValueGeneratorConfigurationSource(ConfigurationSource configurationSource)
@@ -276,7 +277,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             UpdateIsShadowPropertyConfigurationSource(configurationSource);
         }
 
-        private bool DefaultIsShadowProperty => true;
+        private static bool DefaultIsShadowProperty => true;
         public virtual ConfigurationSource? GetIsShadowPropertyConfigurationSource() => _isShadowPropertyConfigurationSource;
 
         private void UpdateIsShadowPropertyConfigurationSource(ConfigurationSource configurationSource)
@@ -299,7 +300,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             UpdateIsConcurrencyTokenConfigurationSource(configurationSource);
         }
 
-        private bool DefaultIsConcurrencyToken => false;
+        private static bool DefaultIsConcurrencyToken => false;
         public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource() => _isConcurrencyTokenConfigurationSource;
 
         private void UpdateIsConcurrencyTokenConfigurationSource(ConfigurationSource configurationSource)

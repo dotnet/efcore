@@ -10,6 +10,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public interface IFieldMatcher
     {
         FieldInfo TryMatchFieldName(
-            [NotNull] IProperty property, [NotNull] PropertyInfo propertyInfo, [NotNull] Dictionary<string, FieldInfo> dclaredFields);
+            [NotNull] IProperty property, [NotNull] PropertyInfo propertyInfo, [NotNull] Dictionary<string, FieldInfo> declaredFields);
     }
 }

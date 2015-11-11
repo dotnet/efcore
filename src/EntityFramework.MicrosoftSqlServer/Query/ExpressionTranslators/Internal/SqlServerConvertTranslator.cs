@@ -38,15 +38,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionTranslators.Internal
             typeof(string)
         };
 
-        private static readonly IEnumerable<MethodInfo> _supportedMethods;
-
-        static SqlServerConvertTranslator()
-        {
-            _supportedMethods = _typeMapping.Keys
+        private static readonly IEnumerable<MethodInfo> _supportedMethods
+            = _typeMapping.Keys
                 .SelectMany(t => typeof(Convert).GetTypeInfo().GetDeclaredMethods(t)
                     .Where(m => (m.GetParameters().Count() == 1)
                                 && _supportedTypes.Contains(m.GetParameters().First().ParameterType)));
-        }
 
         public virtual Expression Translate([NotNull] MethodCallExpression methodCallExpression)
             => _supportedMethods.Contains(methodCallExpression.Method)

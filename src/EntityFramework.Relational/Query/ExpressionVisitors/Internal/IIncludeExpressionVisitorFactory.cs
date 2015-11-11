@@ -14,8 +14,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         ExpressionVisitor Create(
             [NotNull] IQuerySource querySource,
             [NotNull] IReadOnlyList<INavigation> navigationPath,
-            [NotNull] RelationalQueryCompilationContext queryCompilationContext,
-            [NotNull] IReadOnlyList<int> readerIndexes,
+            [NotNull] RelationalQueryCompilationContext relationalQueryCompilationContext,
+            [NotNull] IReadOnlyList<int> queryIndexes,
             bool querySourceRequiresTracking);
     }
 }

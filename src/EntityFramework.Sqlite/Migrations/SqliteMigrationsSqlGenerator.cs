@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Migrations
         public override IReadOnlyList<IRelationalCommand> Generate(IReadOnlyList<MigrationOperation> operations, IModel model = null)
             => base.Generate(LiftForeignKeyOperations(operations), model);
 
-        private IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)
+        private static IReadOnlyList<MigrationOperation> LiftForeignKeyOperations(IReadOnlyList<MigrationOperation> migrationOperations)
         {
             var operations = new List<MigrationOperation>();
             foreach (var operation in migrationOperations)

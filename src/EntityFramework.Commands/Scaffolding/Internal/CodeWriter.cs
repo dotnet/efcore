@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
     {
         private const string DefaultFileExtension = ".cs";
 
-        public CodeWriter([NotNull] IFileService fileService)
+        protected CodeWriter([NotNull] IFileService fileService)
         {
             Check.NotNull(fileService, nameof(fileService));
 
@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         }
 
         public virtual IFileService FileService { get; }
-        public virtual string FileExtension { get;[param: NotNull] set; } = DefaultFileExtension;
+        public virtual string FileExtension { get; [param: NotNull] set; } = DefaultFileExtension;
 
         /// <summary>
         /// Returns a list of the files which would be output by this class but

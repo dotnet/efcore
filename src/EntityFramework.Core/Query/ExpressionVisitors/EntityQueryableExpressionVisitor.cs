@@ -19,11 +19,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
         {
         }
 
-        protected override Expression VisitConstant(ConstantExpression constantExpression)
-            => constantExpression.Type.GetTypeInfo().IsGenericType
-               && (constantExpression.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
-                ? VisitEntityQueryable(((IQueryable)constantExpression.Value).ElementType)
-                : constantExpression;
+        protected override Expression VisitConstant(ConstantExpression node)
+            => node.Type.GetTypeInfo().IsGenericType
+               && (node.Type.GetGenericTypeDefinition() == typeof(EntityQueryable<>))
+                ? VisitEntityQueryable(((IQueryable)node.Value).ElementType)
+                : node;
 
         protected abstract Expression VisitEntityQueryable([NotNull] Type elementType);
     }
