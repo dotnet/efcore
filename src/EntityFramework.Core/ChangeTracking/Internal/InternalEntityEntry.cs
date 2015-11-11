@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
@@ -221,6 +222,11 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             _stateData.FlagProperty(property.GetIndex(), PropertyFlag.TemporaryOrModified, isTemporary);
         }
+
+        internal static readonly MethodInfo ReadShadowValueMethod
+            = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue));
+
+        public virtual object ReadShadowValue(int shadowIndex) => null;
 
         protected virtual object ReadPropertyValue([NotNull] IPropertyBase propertyBase)
         {

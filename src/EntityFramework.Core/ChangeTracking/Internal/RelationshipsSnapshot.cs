@@ -18,40 +18,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             public RelationshipsSnapshot(InternalEntityEntry entry)
             {
-                var entityType = entry.EntityType;
-                _values = new object[entityType.RelationshipPropertyCount()];
-
-                foreach (var propertyBase in entityType.GetPropertiesAndNavigations())
-                {
-                    var index = propertyBase.GetRelationshipIndex();
-
-                    if (index >= 0)
-                    {
-                        var value = entry[propertyBase];
-
-                        if (value != null)
-                        {
-                            var navigation = propertyBase as INavigation;
-
-                            if ((navigation == null)
-                                || !navigation.IsCollection())
-                            {
-                                _values[index] = value;
-                            }
-                            else
-                            {
-                                var snapshot = new HashSet<object>(ReferenceEqualityComparer.Instance);
-
-                                foreach (var entity in (IEnumerable)value)
-                                {
-                                    snapshot.Add(entity);
-                                }
-
-                                _values[index] = snapshot;
-                            }
-                        }
-                    }
-                }
+                _values = entry.EntityType.GetRelationshipSnapshotFactory()(entry);
             }
 
             public object GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)

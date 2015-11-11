@@ -38,6 +38,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
+        public override object ReadShadowValue(int shadowIndex)
+            => _propertyValues[shadowIndex];
+
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
         {
             var property = propertyBase as IProperty;

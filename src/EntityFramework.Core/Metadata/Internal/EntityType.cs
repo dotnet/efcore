@@ -8,12 +8,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class EntityType : ConventionalAnnotatable, IMutableEntityType, ICanGetNavigations, IPropertyCountsAccessor
+    public class EntityType : ConventionalAnnotatable, IMutableEntityType, ICanGetNavigations, IPropertyCountsAccessor, IRelationshipSnapshotFactorySource
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
 
@@ -44,6 +45,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         // Warning: Never access this field directly as access needs to be thread-safe
         private PropertyCounts _counts;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private Func<InternalEntityEntry, object[]> _relationshipSnapshotFactory;
 
         /// <summary>
         ///     Creates a new metadata object representing an entity type that will participate in shadow-state
@@ -962,6 +966,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual PropertyCounts Counts => LazyInitializer.EnsureInitialized(ref _counts, CalculateCounts);
 
         private PropertyCounts CalculateCounts() => EntityTypeExtensions.CalculateCounts(this);
+
+        public virtual Func<InternalEntityEntry, object[]> RelationshipSnapshotFactory
+            => LazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, CreateRelationshipSnapshotFactory);
+
+        private Func<InternalEntityEntry, object[]> CreateRelationshipSnapshotFactory() 
+            => new RelationshipSnapshotFactoryFactory().Create(this);
 
         #endregion
 

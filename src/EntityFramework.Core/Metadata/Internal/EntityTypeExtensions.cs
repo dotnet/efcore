@@ -1,11 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Utilities;
 
@@ -126,6 +128,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     baseCounts.ShadowCount + shadowCount,
                     baseCounts.RelationshipCount + relationshipCount,
                     baseCounts.StoreGeneratedCount + storeGeneratedCount);
+        }
+
+        public static Func<InternalEntityEntry, object[]> GetRelationshipSnapshotFactory([NotNull] this IEntityType entityType)
+        {
+            var source = entityType as IRelationshipSnapshotFactorySource;
+
+            return source != null
+                ? source.RelationshipSnapshotFactory
+                : new RelationshipSnapshotFactoryFactory().Create(entityType);
         }
 
         public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)

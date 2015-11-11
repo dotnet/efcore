@@ -36,6 +36,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public override object Entity { get; }
 
+        public override object ReadShadowValue(int shadowIndex)
+            => _shadowValues[shadowIndex];
+
         protected override object ReadPropertyValue(IPropertyBase propertyBase)
         {
             var property = propertyBase as IProperty;
