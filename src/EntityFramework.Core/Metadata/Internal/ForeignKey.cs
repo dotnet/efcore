@@ -96,7 +96,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual EntityType DeclaringEntityType { get; }
         public virtual EntityType PrincipalEntityType { get; }
 
-        public virtual bool? IsUnique { get; set; }
+        public virtual Index Index => DeclaringEntityType.FindIndex(Properties);
+        public virtual bool? IsUnique => Index?.IsUnique;
         protected virtual bool DefaultIsUnique => false;
 
         public virtual bool? IsRequired
@@ -190,6 +191,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         IMutableNavigation IMutableForeignKey.PrincipalToDependent => PrincipalToDependent;
         IMutableNavigation IMutableForeignKey.HasPrincipalToDependent(string name) => HasPrincipalToDependent(name);
 
+        IIndex IForeignKey.Index => Index;
+        IMutableIndex IMutableForeignKey.Index => Index;
         bool IForeignKey.IsUnique => IsUnique ?? DefaultIsUnique;
         bool IForeignKey.IsRequired => IsRequired ?? DefaultIsRequired;
         DeleteBehavior IForeignKey.DeleteBehavior => DeleteBehavior ?? DefaultDeleteBehavior;

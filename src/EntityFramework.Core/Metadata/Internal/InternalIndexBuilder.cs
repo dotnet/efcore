@@ -1,8 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -17,26 +15,82 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
         }
 
-        public virtual bool IsUnique(bool? isUnique, ConfigurationSource configurationSource)
-        {
-            if (configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue)
-                || Metadata.IsUnique.Value == isUnique)
-            {
-                if (_isUniqueConfigurationSource == null
-                    && Metadata.IsUnique != null)
-                {
-                    _isUniqueConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
-                }
+        public virtual bool IsUnique(bool unique, ConfigurationSource configurationSource)
+            => IsUnique(unique, configurationSource, runConventions: true);
 
-                Metadata.IsUnique = isUnique;
+        public virtual bool IsUnique(bool unique, ConfigurationSource configurationSource, bool runConventions)
+        {
+            if (!CanSetUnique(unique, configurationSource))
+            {
+                return false;
+            }
+
+            var foreignKeys = Metadata.DeclaringEntityType.FindForeignKeys(Metadata.Properties);
+            foreach (var foreignKey in foreignKeys)
+            {
+                var relationshipBuilder = foreignKey.Builder;
+                if (foreignKey.PrincipalToDependent != null
+                    && !Navigation.IsCompatible(
+                        foreignKey.PrincipalToDependent.Name,
+                        foreignKey.PrincipalEntityType,
+                        foreignKey.DeclaringEntityType,
+                        shouldBeCollection: !unique,
+                        shouldThrow: false))
+                {
+                    relationshipBuilder.Navigation(null, /* pointsToPrincipal: */ false, configurationSource, runConventions);
+                }
+            }
+
+            var newIndexBuilder = Metadata.DeclaringEntityType.Builder.HasIndex(Metadata.Properties.Select(p => p.Name).ToList(), ConfigurationSource.Convention);
+
+            if (newIndexBuilder.Metadata != Metadata)
+            {
+                return newIndexBuilder.IsUnique(unique, configurationSource);
+            }
+
+            if (_isUniqueConfigurationSource == null
+                    && Metadata.IsUnique != null)
+            {
+                _isUniqueConfigurationSource = ConfigurationSource.Explicit;
+            }
+            else
+            {
+                _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
+            }
+            Metadata.IsUnique = unique;
+            return true;
+        }
+
+        public virtual bool CanSetUnique(bool unique, ConfigurationSource configurationSource)
+        {
+            if (((IIndex)Metadata).IsUnique == unique)
+            {
                 return true;
             }
 
-            return false;
+            if (!configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue))
+            {
+                return false;
+            }
+
+            var foreignKeys = Metadata.DeclaringEntityType.FindForeignKeys(Metadata.Properties);
+            foreach (var foreignKey in foreignKeys)
+            {
+                var relationshipBuilder = foreignKey.Builder;
+                if (foreignKey.PrincipalToDependent != null
+                    && !relationshipBuilder.CanSetNavigation(null, /* pointsToPrincipal */ false, configurationSource)
+                    && !Navigation.IsCompatible(
+                        foreignKey.PrincipalToDependent.Name,
+                        foreignKey.PrincipalEntityType,
+                        foreignKey.DeclaringEntityType,
+                        shouldBeCollection: !unique,
+                        shouldThrow: false))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public virtual InternalIndexBuilder Attach(ConfigurationSource configurationSource)
@@ -46,9 +100,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             newIndexBuilder.MergeAnnotationsFrom(this);
 
-            if (_isUniqueConfigurationSource.HasValue)
+            if (_isUniqueConfigurationSource.HasValue && Metadata.IsUnique.HasValue)
             {
-                newIndexBuilder.IsUnique(Metadata.IsUnique, _isUniqueConfigurationSource.Value);
+                newIndexBuilder.IsUnique(Metadata.IsUnique.Value, _isUniqueConfigurationSource.Value);
             }
 
             return newIndexBuilder;

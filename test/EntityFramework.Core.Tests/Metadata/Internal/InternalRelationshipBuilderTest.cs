@@ -207,7 +207,13 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
                 },
                 customerKeyBuilder.Metadata,
                 customerEntityBuilder.Metadata);
-            foreignKey.IsUnique = true;
+            var index = orderEntityBuilder.Metadata.AddIndex(
+                new[]
+                {
+                    orderEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                    orderEntityBuilder.Property(Order.CustomerUniqueProperty, ConfigurationSource.Convention).Metadata
+                });
+            index.IsUnique = true;
 
             var relationshipBuilder = orderEntityBuilder.HasForeignKey(customerEntityBuilder, foreignKey.Properties, ConfigurationSource.Convention);
             Assert.True(((IForeignKey)relationshipBuilder.Metadata).IsUnique);
@@ -374,6 +380,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
 
             relationshipBuilder = relationshipBuilder.DependentEntityType(relationshipBuilder.Metadata.PrincipalEntityType, ConfigurationSource.DataAnnotation);
             Assert.Same(orderEntityBuilder.Metadata, relationshipBuilder.Metadata.DeclaringEntityType);
+        }
+
+        [Fact]
+        public void Is_unique_is_conserved_appropriately_with_its_configuration_source()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention)
+                .IsUnique(true, ConfigurationSource.Convention);
+
+            relationshipBuilder = relationshipBuilder.HasPrincipalKey(new List<PropertyInfo> { Customer.UniqueProperty }, ConfigurationSource.Explicit);
+
+            Assert.True(relationshipBuilder.Metadata.IsUnique);
+
+            relationshipBuilder = relationshipBuilder.IsUnique(false, ConfigurationSource.DataAnnotation);
+
+            Assert.False(relationshipBuilder.Metadata.IsUnique);
         }
 
         private InternalModelBuilder CreateInternalModelBuilder() => new InternalModelBuilder(new Model());

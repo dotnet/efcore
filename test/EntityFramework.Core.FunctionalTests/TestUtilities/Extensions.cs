@@ -130,7 +130,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
                     foreignKey.Properties.Select(p => targetEntityType.FindProperty(p.Name)).ToList(),
                     targetPrincipalEntityType.FindKey(foreignKey.PrincipalKey.Properties.Select(p => targetPrincipalEntityType.FindProperty(p.Name)).ToList()),
                     targetPrincipalEntityType);
-                clonedForeignKey.IsUnique = foreignKey.IsUnique;
                 clonedForeignKey.IsRequired = foreignKey.IsRequired;
                 foreignKey.GetAnnotations().ForEach(annotation => clonedForeignKey[annotation.Name] = annotation.Value);
             }

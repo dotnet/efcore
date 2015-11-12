@@ -73,9 +73,14 @@ namespace Microsoft.Data.Entity.Metadata
         IMutableNavigation HasPrincipalToDependent([CanBeNull] string name);
 
         /// <summary>
-        ///     Gets or sets a value indicating whether the values assigned to the foreign key properties are unique.
+        ///     Gets the index object defined on the foreign key properties.
         /// </summary>
-        new bool? IsUnique { get; set; }
+        new IMutableIndex Index { get; }
+
+        /// <summary>
+        ///     Gets a value indicating whether the values assigned to the foreign key properties are unique.
+        /// </summary>
+        new bool? IsUnique { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating if this relationship is required. If true, the dependent entity must always be

@@ -75,7 +75,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 return;
             }
 
-            if (statement.IndexOf(" UNIQUE", StringComparison.OrdinalIgnoreCase) > 0)
+            if (statement.IndexOf(" UNIQUE", StringComparison.OrdinalIgnoreCase) > 0
+                || statement.IndexOf(" PRIMARY KEY", StringComparison.OrdinalIgnoreCase) > 0)
             {
                 var indexInfo = table.Indexes.FirstOrDefault(i =>
                     i.Columns.SingleOrDefault()?.Name.Equals(column.Name, StringComparison.OrdinalIgnoreCase) == true);
@@ -90,7 +91,8 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public static void ParseConstraints(TableModel table, string statement)
         {
             var constraint = statement.Split(' ', '(')[0];
-            if (constraint.Equals("UNIQUE", StringComparison.OrdinalIgnoreCase))
+            if (constraint.Equals("UNIQUE", StringComparison.OrdinalIgnoreCase)
+                || statement.Equals(" PRIMARY KEY", StringComparison.OrdinalIgnoreCase))
             {
                 ParseInlineUniqueConstraint(table, statement);
             }
