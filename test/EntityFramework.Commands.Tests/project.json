@@ -17,6 +17,7 @@
       "dependencies": {
         "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*"
       }
-    }
+    },
+    "dnxcore50": { }
   }
 }

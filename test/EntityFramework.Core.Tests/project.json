@@ -18,6 +18,11 @@
       "dependencies": {
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
+    },
+    "dnxcore50": {
+      "dependencies": {
+        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+      }
     }
   }
 }

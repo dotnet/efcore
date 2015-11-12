@@ -47,9 +47,6 @@
     <PropertyGroup Condition="'$(TargetFrameworkIdentifier)|$(TargetFrameworkVersion)' == '.NETFramework|v4.5.1'">
       <DnuFramework>net451</DnuFramework>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(TargetFrameworkIdentifier)|$(TargetFrameworkVersion)' == '.NETFramework|v4.6'">
-      <DnuFramework>net46</DnuFramework>
-    </PropertyGroup>
     <MakeDir Directories="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)" />
     <Exec Command='dnu list -a --framework $(DnuFramework) > "$(DnuListLogFile)"' />
     <WritePackageReferences

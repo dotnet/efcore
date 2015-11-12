@@ -20,6 +20,7 @@
       "frameworkAssemblies": {
         "System.Text.RegularExpressions": "4.0.0.0"
       }
-    }
+    },
+    "dnxcore50": { }
   }
 }

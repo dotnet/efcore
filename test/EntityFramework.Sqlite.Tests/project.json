@@ -12,6 +12,7 @@
   },
   "frameworks": {
     "net451": { },
-    "dnx451": { }
+    "dnx451": { },
+    "dnxcore50": { }
   }
 }
