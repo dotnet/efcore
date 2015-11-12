@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "EntityFramework.Core": "7.0.0-*",
-    "System.Diagnostics.DiagnosticSource": "4.0.0-beta-*"
+    "System.Diagnostics.DiagnosticSource": "4.0.0-*"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
@@ -27,9 +27,9 @@
     },
     "dotnet5.4": {
       "dependencies": {
-        "System.Data.Common": "4.0.1-beta-*",
-        "System.Text.RegularExpressions": "4.0.11-beta-*",
-        "Microsoft.CSharp": "4.0.1-beta-*"
+        "System.Data.Common": "4.0.1-*",
+        "System.Text.RegularExpressions": "4.0.11-*",
+        "Microsoft.CSharp": "4.0.1-*"
       }
     },
     "netcore50": {

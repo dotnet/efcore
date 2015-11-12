@@ -22,7 +22,7 @@
     "dotnet5.4": {
       "dependencies": {
         "System.Data.SqlClient": "4.0.0-*",
-        "System.Text.Encoding.CodePages": "4.0.1-beta-*",
+        "System.Text.Encoding.CodePages": "4.0.1-*",
         "System.Threading.Thread": "4.0.0-*",
         "System.Threading.ThreadPool": "4.0.10-*"
       }

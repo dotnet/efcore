@@ -29,7 +29,7 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-beta-*",
+        "Microsoft.CSharp": "4.0.1-*",
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     }
