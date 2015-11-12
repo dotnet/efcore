@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.AspNet.Testing.xunit;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {

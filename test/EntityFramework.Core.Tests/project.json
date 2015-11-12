@@ -5,19 +5,14 @@
   "dependencies": {
     "EntityFramework.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework.InMemory": "7.0.0-*",
-    "Moq": "4.2.1312.1622",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
+    "Microsoft.AspNet.Testing": "1.0.0-*",
+    "Moq": "4.2.1312.1622"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
     "net46": { },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    }
+    "dnx451": { }
   }
 }
