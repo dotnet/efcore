@@ -110,10 +110,10 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         protected override string GetColumnType(IProperty property) => property.SqlServer().ColumnType;
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
             => _simpleMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
             => _simpleNameMappings;
 
         public override RelationalTypeMapping FindMapping(Type clrType)

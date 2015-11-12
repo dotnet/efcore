@@ -51,22 +51,22 @@ namespace Microsoft.Data.Entity.Migrations
 
         public MigrationsSqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMapper typeMapper,
             [NotNull] IRelationalAnnotationProvider annotations)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(typeMapper, nameof(typeMapper));
             Check.NotNull(annotations, nameof(annotations));
 
             _commandBuilderFactory = commandBuilderFactory;
-            SqlGenerator = sqlGenerator;
+            SqlGenerationHelper = sqlGenerationHelper;
             TypeMapper = typeMapper;
             _annotations = annotations;
         }
 
-        protected virtual ISqlGenerator SqlGenerator { get; }
+        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
         protected virtual IRelationalTypeMapper TypeMapper { get; }
 
         public virtual IReadOnlyList<IRelationalCommand> Generate(
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 Generate(operation, model, builder);
                 builder
-                    .AppendLine(SqlGenerator.BatchCommandSeparator)
+                    .AppendLine(SqlGenerationHelper.StatementTerminator)
                     .EndCommand();
             }
 
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             ColumnDefinition(operation, model, builder);
         }
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             ForeignKeyConstraint(operation, model, builder);
         }
@@ -145,7 +145,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             PrimaryKeyConstraint(operation, model, builder);
         }
@@ -160,7 +160,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" ADD ");
             UniqueConstraint(operation, model, builder);
         }
@@ -191,7 +191,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER SEQUENCE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name, operation.Schema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
             SequenceOptions(operation, model, builder);
         }
@@ -223,9 +223,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("INDEX ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                 .Append(" ON ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" (")
                 .Append(ColumnList(operation.Columns))
                 .Append(")");
@@ -249,7 +249,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("CREATE SEQUENCE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name, operation.Schema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
 
             if (operation.ClrType != typeof(long))
             {
@@ -260,7 +260,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append(" START WITH ")
-                .Append(SqlGenerator.GenerateLiteral(operation.StartValue));
+                .Append(SqlGenerationHelper.GenerateLiteral(operation.StartValue));
             SequenceOptions(operation, model, builder);
         }
 
@@ -274,7 +274,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("CREATE TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
                 .AppendLine(" (");
 
             using (builder.Indent())
@@ -324,9 +324,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP COLUMN ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
         }
 
         protected virtual void Generate(
@@ -339,9 +339,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
         }
 
         protected virtual void Generate(
@@ -362,9 +362,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
         }
 
         protected virtual void Generate(
@@ -377,7 +377,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("DROP SCHEMA ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
         }
 
         protected virtual void Generate(
@@ -390,7 +390,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("DROP SEQUENCE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name, operation.Schema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
         }
 
         protected virtual void Generate(
@@ -403,7 +403,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("DROP TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name, operation.Schema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
         }
 
         protected virtual void Generate(
@@ -416,9 +416,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER TABLE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" DROP CONSTRAINT ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name));
         }
 
         protected virtual void Generate(
@@ -447,9 +447,9 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append("ALTER SEQUENCE ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.Name, operation.Schema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
                 .Append(" RESTART WITH ")
-                .Append(SqlGenerator.GenerateLiteral(operation.StartValue));
+                .Append(SqlGenerationHelper.GenerateLiteral(operation.StartValue));
         }
 
         protected virtual void Generate(
@@ -508,13 +508,13 @@ namespace Microsoft.Data.Entity.Migrations
 
             builder
                 .Append(" INCREMENT BY ")
-                .Append(SqlGenerator.GenerateLiteral(increment));
+                .Append(SqlGenerationHelper.GenerateLiteral(increment));
 
             if (minimumValue != null)
             {
                 builder
                     .Append(" MINVALUE ")
-                    .Append(SqlGenerator.GenerateLiteral(minimumValue));
+                    .Append(SqlGenerationHelper.GenerateLiteral(minimumValue));
             }
             else
             {
@@ -525,7 +525,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append(" MAXVALUE ")
-                    .Append(SqlGenerator.GenerateLiteral(maximumValue));
+                    .Append(SqlGenerationHelper.GenerateLiteral(maximumValue));
             }
             else
             {
@@ -581,7 +581,7 @@ namespace Microsoft.Data.Entity.Migrations
             }
 
             builder
-                .Append(SqlGenerator.DelimitIdentifier(name))
+                .Append(SqlGenerationHelper.DelimitIdentifier(name))
                 .Append(" ")
                 .Append(type);
 
@@ -611,7 +611,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append(" DEFAULT ")
-                    .Append(SqlGenerator.GenerateLiteral(defaultValue));
+                    .Append(SqlGenerationHelper.GenerateLiteral(defaultValue));
             }
         }
 
@@ -627,7 +627,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append("CONSTRAINT ")
-                    .Append(SqlGenerator.DelimitIdentifier(operation.Name))
+                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" ");
             }
 
@@ -635,7 +635,7 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append("FOREIGN KEY (")
                 .Append(ColumnList(operation.Columns))
                 .Append(") REFERENCES ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema));
+                .Append(SqlGenerationHelper.DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema));
 
             if (operation.PrincipalColumns != null)
             {
@@ -670,7 +670,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append("CONSTRAINT ")
-                    .Append(SqlGenerator.DelimitIdentifier(operation.Name))
+                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" ");
             }
 
@@ -696,7 +696,7 @@ namespace Microsoft.Data.Entity.Migrations
             {
                 builder
                     .Append("CONSTRAINT ")
-                    .Append(SqlGenerator.DelimitIdentifier(operation.Name))
+                    .Append(SqlGenerationHelper.DelimitIdentifier(operation.Name))
                     .Append(" ");
             }
 
@@ -760,6 +760,6 @@ namespace Microsoft.Data.Entity.Migrations
             => FindEntityType(model, schema, tableName)
                 ?.GetProperties().FirstOrDefault(p => _annotations.For(p).ColumnName == columnName);
 
-        private string ColumnList(string[] columns) => string.Join(", ", columns.Select(SqlGenerator.DelimitIdentifier));
+        private string ColumnList(string[] columns) => string.Join(", ", columns.Select(SqlGenerationHelper.DelimitIdentifier));
     }
 }

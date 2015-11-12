@@ -15,10 +15,10 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
     {
         public SqlServerQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
-            : base(relationalCommandBuilderFactory, sqlGenerator, parameterNameGeneratorFactory, selectExpression)
+            : base(relationalCommandBuilderFactory, sqlGenerationHelper, parameterNameGeneratorFactory, selectExpression)
         {
         }
 

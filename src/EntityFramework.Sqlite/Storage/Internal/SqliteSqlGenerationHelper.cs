@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
-    public class SqliteSqlGenerator : RelationalSqlGenerator
+    public class SqliteSqlGenerationHelper : RelationalSqlGenerationHelper
     {
         protected override string DateTimeFormat => @"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF";
         protected override string DateTimeOffsetFormat => @"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz";

@@ -28,24 +28,24 @@ namespace Microsoft.Data.Entity.Update
 
         protected ReaderModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _commandBuilderFactory = commandBuilderFactory;
 
-            SqlGenerator = sqlGenerator;
+            SqlGenerationHelper = sqlGenerationHelper;
             UpdateSqlGenerator = updateSqlGenerator;
 
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
 
-        protected virtual ISqlGenerator SqlGenerator { get; }
+        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
 
         protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
 
@@ -129,7 +129,7 @@ namespace Microsoft.Data.Entity.Update
                 if (columnModification.ParameterName != null)
                 {
                     commandBuilder.AddParameter(
-                        SqlGenerator.GenerateParameterName(columnModification.ParameterName),
+                        SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
                         columnModification.Value,
                         columnModification.Property);
                 }
@@ -137,7 +137,7 @@ namespace Microsoft.Data.Entity.Update
                 if (columnModification.OriginalParameterName != null)
                 {
                     commandBuilder.AddParameter(
-                        SqlGenerator.GenerateParameterName(columnModification.OriginalParameterName),
+                        SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
                         columnModification.OriginalValue,
                         columnModification.Property);
                 }
@@ -179,7 +179,7 @@ namespace Microsoft.Data.Entity.Update
 
             try
             {
-                using (var dataReader = await command.ExecuteReaderAsync(connection, cancellationToken))
+                using (var dataReader = await command.ExecuteReaderAsync(connection, cancellationToken: cancellationToken))
                 {
                     await ConsumeAsync(dataReader.DbDataReader, cancellationToken);
                 }

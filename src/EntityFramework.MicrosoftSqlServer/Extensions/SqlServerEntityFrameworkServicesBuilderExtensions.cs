@@ -65,7 +65,7 @@ namespace Microsoft.Extensions.DependencyInjection
             service.TryAdd(new ServiceCollection()
                 .AddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                 .AddSingleton<SqlServerTypeMapper>()
-                .AddSingleton<SqlServerSqlGenerator>()
+                .AddSingleton<SqlServerSqlGenerationHelper>()
                 .AddSingleton<SqlServerModelSource>()
                 .AddSingleton<SqlServerAnnotationProvider>()
                 .AddSingleton<SqlServerMigrationsAnnotationProvider>()

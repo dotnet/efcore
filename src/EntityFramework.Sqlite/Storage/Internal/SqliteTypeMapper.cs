@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         ///     It uses the same heuristics from
         ///     <see href="https://www.sqlite.org/datatype3.html">"2.1 Determination of Column Affinity"</see>
         /// </summary>
-        public override RelationalTypeMapping GetMapping([NotNull] string typeName)
+        public override RelationalTypeMapping FindMapping([NotNull] string typeName)
         {
             Check.NotNull(typeName, nameof(typeName));
 
@@ -96,10 +96,10 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private static bool Contains(string haystack, string needle)
             => haystack.IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
             => _simpleMappings;
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
             => _simpleNameMappings;
     }
 }

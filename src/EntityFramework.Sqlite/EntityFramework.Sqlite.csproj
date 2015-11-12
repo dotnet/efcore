@@ -95,7 +95,7 @@
     <Compile Include="SqliteDbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Infrastructure\SqliteEntityFrameworkServicesBuilderExtensions.cs" />
     <Compile Include="Query\ExpressionTranslators\Internal\SqliteCompositeMethodCallTranslator.cs" />
-    <Compile Include="Storage\Internal\SqliteSqlGenerator.cs" />
+    <Compile Include="Storage\Internal\SqliteSqlGenerationHelper.cs" />
     <Compile Include="Storage\Internal\SqliteTypeMapper.cs" />
     <Compile Include="Update\Internal\SqliteModificationCommandBatchFactory.cs" />
     <Compile Include="Update\Internal\SqliteUpdateSqlGenerator.cs" />

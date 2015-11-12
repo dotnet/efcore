@@ -323,7 +323,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             modificationCommandBatchFactory =
                 modificationCommandBatchFactory ?? new TestModificationCommandBatchFactory(
                     Mock.Of<IRelationalCommandBuilderFactory>(),
-                    Mock.Of<ISqlGenerator>(),
+                    Mock.Of<ISqlGenerationHelper>(),
                     Mock.Of<IUpdateSqlGenerator>(),
                     Mock.Of<IRelationalValueBufferFactoryFactory>());
 
@@ -433,18 +433,18 @@ namespace Microsoft.Data.Entity.Tests.Update
         private class TestModificationCommandBatchFactory : IModificationCommandBatchFactory
         {
             private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-            private readonly ISqlGenerator _sqlGenerator;
+            private readonly ISqlGenerationHelper _sqlGenerationHelper;
             private readonly IUpdateSqlGenerator _updateSqlGenerator;
             private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
 
             public TestModificationCommandBatchFactory(
                 IRelationalCommandBuilderFactory commandBuilderfactory,
-                ISqlGenerator sqlGenerator,
+                ISqlGenerationHelper sqlGenerationHelper,
                 IUpdateSqlGenerator updateSqlGenerator,
                 IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
             {
                 _commandBuilderFactory = commandBuilderfactory;
-                _sqlGenerator = sqlGenerator;
+                _sqlGenerationHelper = sqlGenerationHelper;
                 _updateSqlGenerator = updateSqlGenerator;
                 _valueBufferFactoryFactory = valueBufferFactoryFactory;
             }
@@ -452,7 +452,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             public ModificationCommandBatch Create()
                 => new SingularModificationCommandBatch(
                     _commandBuilderFactory,
-                    _sqlGenerator,
+                    _sqlGenerationHelper,
                     _updateSqlGenerator,
                     _valueBufferFactoryFactory);
         }

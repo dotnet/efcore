@@ -12,18 +12,18 @@ namespace Microsoft.Data.Entity.Storage
         public override void GenerateLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
             Assert.Equal("'2015-03-12 13:36:37.371'", literal);
         }
 
         public override void GenerateLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
             Assert.Equal("'2015-03-12 13:36:37.371-07:00'", literal);
         }
 
-        protected override ISqlGenerator CreateSqlGenerator()
-            => new SqliteSqlGenerator();
+        protected override ISqlGenerationHelper CreateSqlGenerationHelper()
+            => new SqliteSqlGenerationHelper();
     }
 }

@@ -15,17 +15,17 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 {
     public class SqlServerSequenceValueGeneratorFactory : ISqlServerSequenceValueGeneratorFactory
     {
-        private readonly ISqlCommandBuilder _sqlCommandBuilder;
+        private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly ISqlServerUpdateSqlGenerator _sqlGenerator;
 
         public SqlServerSequenceValueGeneratorFactory(
-            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] ISqlServerUpdateSqlGenerator sqlGenerator)
         {
-            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
+            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
             Check.NotNull(sqlGenerator, nameof(sqlGenerator));
 
-            _sqlCommandBuilder = sqlCommandBuilder;
+            _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _sqlGenerator = sqlGenerator;
         }
 
@@ -39,47 +39,47 @@ namespace Microsoft.Data.Entity.ValueGeneration.Internal
 
             if (type == typeof(long))
             {
-                return new SqlServerSequenceHiLoValueGenerator<long>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<long>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(int))
             {
-                return new SqlServerSequenceHiLoValueGenerator<int>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<int>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(short))
             {
-                return new SqlServerSequenceHiLoValueGenerator<short>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<short>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(byte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<byte>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<byte>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(char))
             {
-                return new SqlServerSequenceHiLoValueGenerator<char>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<char>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(ulong))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ulong>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<ulong>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(uint))
             {
-                return new SqlServerSequenceHiLoValueGenerator<uint>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<uint>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(ushort))
             {
-                return new SqlServerSequenceHiLoValueGenerator<ushort>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<ushort>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             if (type == typeof(sbyte))
             {
-                return new SqlServerSequenceHiLoValueGenerator<sbyte>(_sqlCommandBuilder, _sqlGenerator, generatorState, connection);
+                return new SqlServerSequenceHiLoValueGenerator<sbyte>(_rawSqlCommandBuilder, _sqlGenerator, generatorState, connection);
             }
 
             throw new ArgumentException(CoreStrings.InvalidValueGeneratorFactoryProperty(

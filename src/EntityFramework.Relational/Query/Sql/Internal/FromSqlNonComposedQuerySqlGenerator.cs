@@ -20,14 +20,14 @@ namespace Microsoft.Data.Entity.Query.Sql.Internal
 
         public FromSqlNonComposedQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression,
             [NotNull] string sql,
             [NotNull] string argumentsParameterName)
             : base(
                 Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory)),
-                Check.NotNull(sqlGenerator, nameof(sqlGenerator)),
+                Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper)),
                 Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)),
                 Check.NotNull(selectExpression, nameof(selectExpression)))
         {

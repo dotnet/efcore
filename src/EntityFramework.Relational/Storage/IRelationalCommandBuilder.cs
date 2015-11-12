@@ -3,14 +3,13 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public interface IRelationalCommandBuilder
+    public interface IRelationalCommandBuilder : IInfrastructure<IndentedStringBuilder>
     {
-        IndentedStringBuilder CommandTextBuilder { get; }
-
         void AddParameter([NotNull] IRelationalParameter relationalParameter);
 
         IRelationalParameter CreateParameter(

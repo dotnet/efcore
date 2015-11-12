@@ -41,25 +41,25 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public virtual IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-        public virtual void ExecuteNonQuery(
+        public virtual int ExecuteNonQuery(
             IRelationalConnection connection,
             bool manageConnection = true)
-            => Execute(
+            => (int)Execute(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteNonQuery),
                 openConnection: manageConnection,
                 closeConnection: manageConnection);
 
-        public virtual Task ExecuteNonQueryAsync(
+        public virtual Task<int> ExecuteNonQueryAsync(
             IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken),
-            bool manageConnection = true)
+            bool manageConnection = true,
+            CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteNonQuery),
                 openConnection: manageConnection,
                 closeConnection: manageConnection,
-                cancellationToken: cancellationToken);
+                cancellationToken: cancellationToken).Cast<object, int>();
 
         public virtual object ExecuteScalar(
             IRelationalConnection connection,
@@ -72,8 +72,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public virtual Task<object> ExecuteScalarAsync(
             IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken),
-            bool manageConnection = true)
+            bool manageConnection = true,
+            CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                 Check.NotNull(connection, nameof(connection)),
                 nameof(ExecuteScalar),
@@ -94,9 +94,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         public virtual Task<RelationalDataReader> ExecuteReaderAsync(
             IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken),
             bool manageConnection = true,
-            IReadOnlyDictionary<string, object> parameterValues = null)
+            IReadOnlyDictionary<string, object> parameterValues = null,
+            CancellationToken cancellationToken = default(CancellationToken))
             => ExecuteAsync(
                     Check.NotNull(connection, nameof(connection)),
                     nameof(ExecuteReader),

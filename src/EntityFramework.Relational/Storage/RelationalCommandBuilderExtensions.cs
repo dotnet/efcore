@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotNull(o, nameof(o));
 
-            commandBuilder.CommandTextBuilder.Append(o);
+            commandBuilder.Instance.Append(o);
 
             return commandBuilder;
         }
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
 
-            commandBuilder.CommandTextBuilder.AppendLine();
+            commandBuilder.Instance.AppendLine();
 
             return commandBuilder;
         }
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotNull(o, nameof(o));
 
-            commandBuilder.CommandTextBuilder.AppendLine(o);
+            commandBuilder.Instance.AppendLine(o);
 
             return commandBuilder;
         }
@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Storage
             Check.NotNull(commandBuilder, nameof(commandBuilder));
             Check.NotNull(o, nameof(o));
 
-            commandBuilder.CommandTextBuilder.AppendLines(o);
+            commandBuilder.Instance.AppendLines(o);
 
             return commandBuilder;
         }
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
 
-            commandBuilder.CommandTextBuilder.IncrementIndent();
+            commandBuilder.Instance.IncrementIndent();
 
             return commandBuilder;
         }
@@ -68,16 +68,16 @@ namespace Microsoft.Data.Entity.Storage
         {
             Check.NotNull(commandBuilder, nameof(commandBuilder));
 
-            commandBuilder.CommandTextBuilder.DecrementIndent();
+            commandBuilder.Instance.DecrementIndent();
 
             return commandBuilder;
         }
 
         public static IDisposable Indent([NotNull] this IRelationalCommandBuilder commandBuilder)
-            => Check.NotNull(commandBuilder, nameof(commandBuilder)).CommandTextBuilder.Indent();
+            => Check.NotNull(commandBuilder, nameof(commandBuilder)).Instance.Indent();
 
         public static int GetLength([NotNull] this IRelationalCommandBuilder commandBuilder)
-            => Check.NotNull(commandBuilder, nameof(commandBuilder)).CommandTextBuilder.Length;
+            => Check.NotNull(commandBuilder, nameof(commandBuilder)).Instance.Length;
 
         public static IRelationalCommandBuilder AddParameter(
             [NotNull] this IRelationalCommandBuilder commandBuilder,
@@ -124,7 +124,7 @@ namespace Microsoft.Data.Entity.Storage
                 isNullable,
                 invariantName);
 
-            commandBuilder.CommandTextBuilder.Append(name);
+            commandBuilder.Instance.Append(name);
 
             return commandBuilder;
         }

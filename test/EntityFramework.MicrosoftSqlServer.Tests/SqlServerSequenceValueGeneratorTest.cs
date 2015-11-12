@@ -57,8 +57,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 });
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
-                new FakeSqlCommandBuilder(blockSize),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
+                new FakeRawSqlCommandBuilder(blockSize),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
                 state,
                 CreateConnection());
 
@@ -103,8 +103,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     IncrementBy = blockSize
                 });
 
-            var executor = new FakeSqlCommandBuilder(blockSize);
-            var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper());
+            var executor = new FakeRawSqlCommandBuilder(blockSize);
+            var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
 
             var tests = new Action[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -140,8 +140,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 });
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
-                new FakeSqlCommandBuilder(4),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
+                new FakeRawSqlCommandBuilder(4),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
                 state,
                 CreateConnection());
 
@@ -155,12 +155,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
             return SqlServerTestHelpers.Instance.CreateContextServices(serviceProvider).GetRequiredService<ISqlServerConnection>();
         }
 
-        private class FakeSqlCommandBuilder : ISqlCommandBuilder
+        private class FakeRawSqlCommandBuilder : IRawSqlCommandBuilder
         {
             private readonly int _blockSize;
             private long _current;
 
-            public FakeSqlCommandBuilder(int blockSize)
+            public FakeRawSqlCommandBuilder(int blockSize)
             {
                 _blockSize = blockSize;
                 _current = -blockSize + 1;
@@ -170,9 +170,9 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             private class FakeRelationalCommand : IRelationalCommand
             {
-                private readonly FakeSqlCommandBuilder _commandBuilder;
+                private readonly FakeRawSqlCommandBuilder _commandBuilder;
 
-                public FakeRelationalCommand(FakeSqlCommandBuilder commandBuilder)
+                public FakeRelationalCommand(FakeRawSqlCommandBuilder commandBuilder)
                 {
                     _commandBuilder = commandBuilder;
                 }
@@ -181,12 +181,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
                 public IReadOnlyList<IRelationalParameter> Parameters { get { throw new NotImplementedException(); } }
 
-                public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
+                public int ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
                 {
                     throw new NotImplementedException();
                 }
 
-                public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+                public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
                 {
                     throw new NotImplementedException();
                 }
@@ -194,7 +194,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 public object ExecuteScalar(IRelationalConnection connection, bool manageConnection = true)
                     => Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize);
 
-                public Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+                public Task<object> ExecuteScalarAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
                     => Task.FromResult<object>(Interlocked.Add(ref _commandBuilder._current, _commandBuilder._blockSize));
 
                 public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
@@ -202,7 +202,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                     throw new NotImplementedException();
                 }
 
-                public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
+                public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null, CancellationToken cancellationToken = default(CancellationToken))
                 {
                     throw new NotImplementedException();
                 }

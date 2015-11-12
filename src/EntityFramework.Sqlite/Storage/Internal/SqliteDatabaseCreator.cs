@@ -11,19 +11,19 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqliteDatabaseCreator : RelationalDatabaseCreator
     {
-        private readonly ISqlCommandBuilder _sqlCommandBuilder;
+        private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
 
         public SqliteDatabaseCreator(
             [NotNull] IRelationalConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IModel model,
-            [NotNull] ISqlCommandBuilder sqlCommandBuilder)
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder)
             : base(model, connection, modelDiffer, migrationsSqlGenerator)
         {
-            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
+            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
 
-            _sqlCommandBuilder = sqlCommandBuilder;
+            _rawSqlCommandBuilder = rawSqlCommandBuilder;
         }
 
         public override void Create()
@@ -36,7 +36,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         protected override bool HasTables()
         {
-            var count = (long)_sqlCommandBuilder
+            var count = (long)_rawSqlCommandBuilder
                 .Build("SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"type\" = 'table' AND \"rootpage\" IS NOT NULL;")
                 .ExecuteScalar(Connection);
 

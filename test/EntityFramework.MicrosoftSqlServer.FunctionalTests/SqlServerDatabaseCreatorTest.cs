@@ -409,8 +409,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 IMigrationsModelDiffer modelDiffer,
                 IMigrationsSqlGenerator sqlGenerator,
                 IModel model,
-                ISqlCommandBuilder sqlCommandBuilder)
-                : base(connection, modelDiffer, sqlGenerator, model, sqlCommandBuilder)
+                IRawSqlCommandBuilder rawSqlCommandBuilder)
+                : base(connection, modelDiffer, sqlGenerator, model, rawSqlCommandBuilder)
             {
             }
 

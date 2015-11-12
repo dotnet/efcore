@@ -23,20 +23,26 @@ namespace Microsoft.Data.Entity.Tests
 
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
-            = new Dictionary<Type, RelationalTypeMapping>
-                {
-                        { typeof(int), _defaultIntMapping },
-                        { typeof(string), _string }
-                };
+        private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
+        = new Dictionary<Type, RelationalTypeMapping>
+            {
+                { typeof(int), _defaultIntMapping },
+                { typeof(string), _string }
+            };
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
-            = new Dictionary<string, RelationalTypeMapping>
-                {
-                        { "some_int_mapping", _someIntMapping },
-                        { "some_string(max)", _string },
-                        { "some_binary(max)", _binary }
-                };
+        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
+        = new Dictionary<string, RelationalTypeMapping>
+            {
+                { "some_int_mapping", _someIntMapping },
+                { "some_string(max)", _string },
+                { "some_binary(max)", _binary }
+            };
+
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+            => _simpleMappings;
+
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+            => _simpleNameMappings;
 
         protected override RelationalTypeMapping FindCustomMapping(IProperty property)
         {

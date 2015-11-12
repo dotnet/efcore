@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public class RelationalSqlGenerator : ISqlGenerator
+    public class RelationalSqlGenerationHelper : ISqlGenerationHelper
     {
         protected virtual string FloatingPointFormat => "{0}E0";
         protected virtual string DateTimeFormat => @"yyyy-MM-dd HH\:mm\:ss.fffffff";
@@ -28,9 +28,9 @@ namespace Microsoft.Data.Entity.Storage
             { DbType.String, "nvarchar" }
         };
 
-        public virtual string BatchCommandSeparator => ";";
+        public virtual string StatementTerminator => ";";
 
-        public virtual string BatchSeparator => string.Empty;
+        public virtual string BatchTerminator => string.Empty;
 
         public virtual string GenerateParameterName(string name)
             => $"@{Check.NotEmpty(name, nameof(name))}";

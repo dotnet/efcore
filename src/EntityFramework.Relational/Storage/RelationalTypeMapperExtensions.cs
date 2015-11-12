@@ -3,6 +3,9 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage
 {
@@ -17,21 +20,52 @@ namespace Microsoft.Data.Entity.Storage
                 ? RelationalTypeMapping.NullMapping
                 : typeMapper.GetMapping(value.GetType());
 
-        public static bool TryGetMapping(
+        public static RelationalTypeMapping GetMapping(
             [NotNull] this IRelationalTypeMapper typeMapper,
-            [NotNull] string typeName,
-            [CanBeNull] out RelationalTypeMapping mapping)
+            [NotNull] IProperty property)
         {
-            try
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(property, nameof(property));
+
+            var mapping = typeMapper.FindMapping(property);
+            if(mapping != null)
             {
-                mapping = typeMapper.GetMapping(typeName);
-                return mapping != null;
+                return mapping;
             }
-            catch
+
+            throw new NotSupportedException(RelationalStrings.UnsupportedType(property));
+        }
+
+        public static RelationalTypeMapping GetMapping(
+            [NotNull] this IRelationalTypeMapper typeMapper,
+            [NotNull] Type clrType)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(clrType, nameof(clrType));
+
+            var mapping = typeMapper.FindMapping(clrType);
+            if (mapping != null)
             {
-                mapping = null;
-                return false;
+                return mapping;
             }
+
+            throw new NotSupportedException(RelationalStrings.UnsupportedType(clrType));
+        }
+
+        public static RelationalTypeMapping GetMapping(
+            [NotNull] this IRelationalTypeMapper typeMapper,
+            [NotNull] string typeName)
+        {
+            Check.NotNull(typeMapper, nameof(typeMapper));
+            Check.NotNull(typeName, nameof(typeName));
+
+            var mapping = typeMapper.FindMapping(typeName);
+            if (mapping != null)
+            {
+                return mapping;
+            }
+
+            throw new NotSupportedException(RelationalStrings.UnsupportedType(typeName));
         }
     }
 }

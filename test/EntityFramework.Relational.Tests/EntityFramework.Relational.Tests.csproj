@@ -63,7 +63,7 @@
     <Compile Include="RelationalOptionsExtensionTest.cs" />
     <Compile Include="SqlBatchBuilderTest.cs" />
     <Compile Include="Storage\RelationalSqlGeneratorTest.cs" />
-    <Compile Include="Storage\SqlCommandBuilderTest.cs" />
+    <Compile Include="Storage\RawSqlCommandBuilderTest.cs" />
     <Compile Include="Storage\SqlGeneratorTestBase.cs" />
     <Compile Include="Storage\TypedRelationalValueBufferFactoryFactoryTest.cs" />
     <Compile Include="TestRelationalTypeMapper.cs" />

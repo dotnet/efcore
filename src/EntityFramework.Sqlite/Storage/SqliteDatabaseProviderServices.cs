@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Storage
         public override string InvariantName => GetType().GetTypeInfo().Assembly.GetName().Name;
         public override IDatabaseCreator Creator => GetService<SqliteDatabaseCreator>();
         public override IHistoryRepository HistoryRepository => GetService<SqliteHistoryRepository>();
-        public override ISqlGenerator SqlGenerator => GetService<SqliteSqlGenerator>();
+        public override ISqlGenerationHelper SqlGenerationHelper => GetService<SqliteSqlGenerationHelper>();
         public override IMigrationsSqlGenerator MigrationsSqlGenerator => GetService<SqliteMigrationsSqlGenerator>();
         public override IModelSource ModelSource => GetService<SqliteModelSource>();
         public override IRelationalConnection RelationalConnection => GetService<SqliteRelationalConnection>();

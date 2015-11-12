@@ -169,7 +169,9 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteNonQuery Command",
                 new RelationalParameter[0]);
 
-            relationalCommand.ExecuteNonQuery(fakeConnection, manageConnection: manageConnection);
+            var result = relationalCommand.ExecuteNonQuery(fakeConnection, manageConnection: manageConnection);
+
+            Assert.Equal(1, result);
 
             var expectedCount = manageConnection ? 1 : 0;
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);
@@ -213,7 +215,9 @@ namespace Microsoft.Data.Entity.Storage
                 "ExecuteNonQuery Command",
                 new RelationalParameter[0]);
 
-            await relationalCommand.ExecuteNonQueryAsync(fakeConnection, manageConnection: manageConnection);
+            var result = await relationalCommand.ExecuteNonQueryAsync(fakeConnection, manageConnection: manageConnection);
+
+            Assert.Equal(1, result);
 
             var expectedCount = manageConnection ? 1 : 0;
             Assert.Equal(expectedCount, fakeDbConnection.OpenCount);

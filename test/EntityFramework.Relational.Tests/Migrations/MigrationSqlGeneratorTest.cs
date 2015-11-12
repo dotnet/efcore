@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Migrations
                         new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                         new DiagnosticListener("Fake"),
                         typeMapper),
-                    new RelationalSqlGenerator(),
+                    new RelationalSqlGenerationHelper(),
                     typeMapper,
                     new TestAnnotationProvider());
             }
@@ -303,17 +303,23 @@ namespace Microsoft.Data.Entity.Migrations
 
         private class ConcreteRelationalTypeMapper : RelationalTypeMapper
         {
-            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+            private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
                 = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), new RelationalTypeMapping("int", typeof(int)) }
                 };
 
-            protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+            private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>
                 {
                     { "nvarchar", new RelationalTypeMapping("nvarchar", typeof(string)) }
                 };
+
+            protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+                => _simpleMappings;
+
+            protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+                => _simpleNameMappings;
 
             protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
@@ -332,10 +338,10 @@ namespace Microsoft.Data.Entity.Migrations
         {
             public ConcreteMigrationSqlGenerator(
                 IRelationalCommandBuilderFactory commandBuilderFactory,
-                ISqlGenerator sqlGenerator,
+                ISqlGenerationHelper sqlGenerationHelper,
                 IRelationalTypeMapper typeMapper,
                 IRelationalAnnotationProvider annotations)
-                : base(commandBuilderFactory, sqlGenerator, typeMapper, annotations)
+                : base(commandBuilderFactory, sqlGenerationHelper, typeMapper, annotations)
             {
             }
 

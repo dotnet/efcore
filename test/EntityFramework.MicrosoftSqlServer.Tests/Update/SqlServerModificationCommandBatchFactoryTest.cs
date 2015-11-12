@@ -24,8 +24,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper()),
-                new SqlServerSqlGenerator(),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
+                new SqlServerSqlGenerationHelper(),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
                 new UntypedRelationalValueBufferFactoryFactory(),
                 optionsBuilder.Options);
 
@@ -46,8 +46,8 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
                     new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                     new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper()),
-                new SqlServerSqlGenerator(),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
+                new SqlServerSqlGenerationHelper(),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper()),
                 new UntypedRelationalValueBufferFactoryFactory(),
                 optionsBuilder.Options);
 

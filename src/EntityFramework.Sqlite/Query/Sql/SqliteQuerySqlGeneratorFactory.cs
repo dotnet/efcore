@@ -12,11 +12,11 @@ namespace Microsoft.Data.Entity.Query.Sql
     {
         public SqliteQuerySqlGeneratorFactory(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
             : base(
                 Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory)),
-                Check.NotNull(sqlGenerator, nameof(sqlGenerator)),
+                Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper)),
                 Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory)))
         {
         }
@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         public override IQuerySqlGenerator CreateDefault(SelectExpression selectExpression)
             => new SqliteQuerySqlGenerator(
                 CommandBuilderFactory,
-                SqlGenerator,
+                SqlGenerationHelper,
                 ParameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)));
     }

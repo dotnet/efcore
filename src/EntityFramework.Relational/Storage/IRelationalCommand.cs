@@ -14,14 +14,14 @@ namespace Microsoft.Data.Entity.Storage
 
         IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-        void ExecuteNonQuery(
+        int ExecuteNonQuery(
             [NotNull] IRelationalConnection connection,
             bool manageConnection = true);
 
-        Task ExecuteNonQueryAsync(
+        Task<int> ExecuteNonQueryAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken),
-            bool manageConnection = true);
+            bool manageConnection = true,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         object ExecuteScalar(
             [NotNull] IRelationalConnection connection,
@@ -29,8 +29,8 @@ namespace Microsoft.Data.Entity.Storage
 
         Task<object> ExecuteScalarAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken),
-            bool manageConnection = true);
+            bool manageConnection = true,
+            CancellationToken cancellationToken = default(CancellationToken));
 
         RelationalDataReader ExecuteReader(
             [NotNull] IRelationalConnection connection,
@@ -39,8 +39,8 @@ namespace Microsoft.Data.Entity.Storage
 
         Task<RelationalDataReader> ExecuteReaderAsync(
             [NotNull] IRelationalConnection connection,
-            CancellationToken cancellationToken = default(CancellationToken),
             bool manageConnection = true,
-            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null);
+            [CanBeNull] IReadOnlyDictionary<string, object> parameterValues = null,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

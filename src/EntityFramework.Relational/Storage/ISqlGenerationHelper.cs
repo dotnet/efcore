@@ -5,11 +5,11 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public interface ISqlGenerator
+    public interface ISqlGenerationHelper
     {
-        string BatchCommandSeparator { get; }
+        string StatementTerminator { get; }
 
-        string BatchSeparator { get; }
+        string BatchTerminator { get; }
 
         string GenerateParameterName([NotNull] string name);
 

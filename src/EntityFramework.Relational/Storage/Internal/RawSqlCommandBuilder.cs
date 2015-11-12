@@ -7,23 +7,23 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
-    public class SqlCommandBuilder : ISqlCommandBuilder
+    public class RawSqlCommandBuilder : IRawSqlCommandBuilder
     {
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
-        private readonly ISqlGenerator _sqlGenerator;
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
-        public SqlCommandBuilder(
+        public RawSqlCommandBuilder(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
             Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
 
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
-            _sqlGenerator = sqlGenerator;
+            _sqlGenerationHelper = sqlGenerationHelper;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 {
                     var parameterName = parameterNameGenerator.GenerateNext();
 
-                    substitutions[i] = _sqlGenerator.GenerateParameterName(parameterName);
+                    substitutions[i] = _sqlGenerationHelper.GenerateParameterName(parameterName);
 
                     relationalCommandBuilder.AddParameter(
                         substitutions[i],

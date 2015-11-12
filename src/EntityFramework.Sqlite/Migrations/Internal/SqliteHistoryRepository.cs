@@ -14,28 +14,28 @@ namespace Microsoft.Data.Entity.Migrations.Internal
     {
         public SqliteHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] IRelationalConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRelationalAnnotationProvider annotations,
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
             : base(
                 databaseCreator,
-                sqlCommandBuilder,
+                rawSqlCommandBuilder,
                 connection,
                 options,
                 modelDiffer,
                 migrationsSqlGenerator,
                 annotations,
-                sqlGenerator)
+                sqlGenerationHelper)
         {
         }
 
         protected override string ExistsSql
             => "SELECT COUNT(*) FROM \"sqlite_master\" WHERE \"name\" = '" +
-               SqlGenerator.EscapeLiteral(TableName) +
+               SqlGenerationHelper.EscapeLiteral(TableName) +
                "' AND \"type\" = 'table';";
 
         protected override bool InterpretExistsResult(object value) => (long)value != 0L;

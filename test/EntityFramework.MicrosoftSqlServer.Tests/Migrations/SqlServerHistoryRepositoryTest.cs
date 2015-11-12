@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Migrations
         private static IHistoryRepository CreateHistoryRepository()
         {
             var annotationsProvider = new SqlServerAnnotationProvider();
-            var sqlGenerator = new SqlServerSqlGenerator();
+            var sqlGenerator = new SqlServerSqlGenerationHelper();
             var typeMapper = new SqlServerTypeMapper();
 
             var commandBuilderFactory = new RelationalCommandBuilderFactory(
@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             return new SqlServerHistoryRepository(
                 Mock.Of<IRelationalDatabaseCreator>(),
-                Mock.Of<ISqlCommandBuilder>(),
+                Mock.Of<IRawSqlCommandBuilder>(),
                 Mock.Of<ISqlServerConnection>(),
                 new DbContextOptions<DbContext>(
                     new Dictionary<Type, IDbContextOptionsExtension>
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Migrations
                     new SqlServerMigrationsAnnotationProvider()),
                 new SqlServerMigrationsSqlGenerator(
                     commandBuilderFactory,
-                    new SqlServerSqlGenerator(),
+                    new SqlServerSqlGenerationHelper(),
                     typeMapper,
                     annotationsProvider),
                 annotationsProvider,

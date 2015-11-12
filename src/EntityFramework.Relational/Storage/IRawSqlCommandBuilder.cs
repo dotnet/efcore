@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Storage
 {
-    public interface ISqlCommandBuilder
+    public interface IRawSqlCommandBuilder
     {
         IRelationalCommand Build(
             [NotNull] string sql,

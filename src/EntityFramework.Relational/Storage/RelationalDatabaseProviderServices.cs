@@ -50,7 +50,7 @@ namespace Microsoft.Data.Entity.Storage
         public abstract IMemberTranslator CompositeMemberTranslator { get; }
         public abstract IHistoryRepository HistoryRepository { get; }
         public abstract IRelationalConnection RelationalConnection { get; }
-        public abstract ISqlGenerator SqlGenerator { get; }
+        public abstract ISqlGenerationHelper SqlGenerationHelper { get; }
         public abstract IUpdateSqlGenerator UpdateSqlGenerator { get; }
         public abstract IModificationCommandBatchFactory ModificationCommandBatchFactory { get; }
         public abstract IRelationalDatabaseCreator RelationalDatabaseCreator { get; }

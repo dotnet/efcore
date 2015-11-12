@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddSingleton<SqliteValueGeneratorCache>()
                 .AddSingleton<SqliteAnnotationProvider>()
                 .AddSingleton<SqliteTypeMapper>()
-                .AddSingleton<SqliteSqlGenerator>()
+                .AddSingleton<SqliteSqlGenerationHelper>()
                 .AddSingleton<SqliteModelSource>()
                 .AddSingleton<SqliteMigrationsAnnotationProvider>()
                 .AddScoped<SqliteModelValidator>()

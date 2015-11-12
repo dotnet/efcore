@@ -170,7 +170,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
         {
-            public IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
+            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
             public void AddParameter(IRelationalParameter relationalParameter)
             {
@@ -191,11 +191,12 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-            public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
+            public int ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
             {
+                return 0;
             }
 
-            public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
                 => Task.FromResult(0);
 
             public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
@@ -203,7 +204,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 throw new NotImplementedException();
             }
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }
@@ -213,7 +214,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }

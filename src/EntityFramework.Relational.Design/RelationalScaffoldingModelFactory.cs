@@ -177,10 +177,11 @@ namespace Microsoft.Data.Entity.Scaffolding
             Check.NotNull(builder, nameof(builder));
             Check.NotNull(column, nameof(column));
 
-            RelationalTypeMapping mapping;
+            var mapping = column.DataType != null
+                ? _typeMapper.FindMapping(column.DataType)
+                : null;
 
-            if (!_typeMapper.TryGetMapping(column.DataType, out mapping)
-                || mapping.ClrType == null)
+            if (mapping?.ClrType == null)
             {
                 Logger.LogWarning(RelationalDesignStrings.CannotFindTypeMappingForColumn(column.DisplayName, column.DataType));
                 return null;

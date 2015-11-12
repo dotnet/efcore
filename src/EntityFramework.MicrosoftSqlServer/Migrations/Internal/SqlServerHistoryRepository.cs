@@ -17,22 +17,22 @@ namespace Microsoft.Data.Entity.Migrations.Internal
     {
         public SqlServerHistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] ISqlServerConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRelationalAnnotationProvider annotations,
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
             : base(
                 databaseCreator,
-                sqlCommandBuilder,
+                rawSqlCommandBuilder,
                 connection,
                 options,
                 modelDiffer,
                 migrationsSqlGenerator,
                 annotations,
-                sqlGenerator)
+                sqlGenerationHelper)
         {
         }
 
@@ -47,12 +47,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
                 if (TableSchema != null)
                 {
                     builder
-                        .Append(SqlGenerator.EscapeLiteral(TableSchema))
+                        .Append(SqlGenerationHelper.EscapeLiteral(TableSchema))
                         .Append(".");
                 }
 
                 builder
-                    .Append(SqlGenerator.EscapeLiteral(TableName))
+                    .Append(SqlGenerationHelper.EscapeLiteral(TableName))
                     .Append("');");
 
                 return builder.ToString();
@@ -66,16 +66,16 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotNull(row, nameof(row));
 
             return new StringBuilder().Append("INSERT INTO ")
-                .Append(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append(" (")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(", ")
-                .Append(SqlGenerator.DelimitIdentifier(ProductVersionColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(ProductVersionColumnName))
                 .AppendLine(")")
                 .Append("VALUES (N'")
-                .Append(SqlGenerator.EscapeLiteral(row.MigrationId))
+                .Append(SqlGenerationHelper.EscapeLiteral(row.MigrationId))
                 .Append("', N'")
-                .Append(SqlGenerator.EscapeLiteral(row.ProductVersion))
+                .Append(SqlGenerationHelper.EscapeLiteral(row.ProductVersion))
                 .AppendLine("');")
                 .ToString();
         }
@@ -85,11 +85,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder().Append("DELETE FROM ")
-                .AppendLine(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append("WHERE ")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = N'")
-                .Append(SqlGenerator.EscapeLiteral(migrationId))
+                .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
                 .AppendLine("';")
                 .ToString();
         }
@@ -103,12 +103,12 @@ namespace Microsoft.Data.Entity.Migrations.Internal
             if (TableSchema != null)
             {
                 builder
-                    .Append(SqlGenerator.EscapeLiteral(TableSchema))
+                    .Append(SqlGenerationHelper.EscapeLiteral(TableSchema))
                     .Append(".");
             }
 
             builder
-                .Append(SqlGenerator.EscapeLiteral(TableName))
+                .Append(SqlGenerationHelper.EscapeLiteral(TableName))
                 .AppendLine("') IS NULL");
             using (builder.Indent())
             {
@@ -124,11 +124,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             return new StringBuilder()
                 .Append("IF NOT EXISTS(SELECT * FROM ")
-                .Append(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append(" WHERE ")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = N'")
-                .Append(SqlGenerator.EscapeLiteral(migrationId))
+                .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
                 .AppendLine("')")
                 .Append("BEGIN")
                 .ToString();
@@ -140,11 +140,11 @@ namespace Microsoft.Data.Entity.Migrations.Internal
 
             return new StringBuilder()
                 .Append("IF EXISTS(SELECT * FROM ")
-                .Append(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append(" WHERE ")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = N'")
-                .Append(SqlGenerator.EscapeLiteral(migrationId))
+                .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
                 .AppendLine("')")
                 .Append("BEGIN")
                 .ToString();

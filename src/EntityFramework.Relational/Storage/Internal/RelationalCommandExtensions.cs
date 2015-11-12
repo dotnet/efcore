@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
-namespace Microsoft.Data.Entity.Storage
+namespace Microsoft.Data.Entity.Storage.Internal
 {
     public static class RelationalCommandExtensions
     {
@@ -51,8 +51,8 @@ namespace Microsoft.Data.Entity.Storage
                 {
                     await command.ExecuteNonQueryAsync(
                         connection,
-                        cancellationToken,
-                        manageConnection: false);
+                        manageConnection: false,
+                        cancellationToken: cancellationToken);
                 }
             }
             finally

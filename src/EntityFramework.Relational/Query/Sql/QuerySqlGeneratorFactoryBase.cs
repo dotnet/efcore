@@ -13,20 +13,20 @@ namespace Microsoft.Data.Entity.Query.Sql
     {
         protected QuerySqlGeneratorFactoryBase(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
 
             CommandBuilderFactory = commandBuilderFactory;
-            SqlGenerator = sqlGenerator;
+            SqlGenerationHelper = sqlGenerationHelper;
             ParameterNameGeneratorFactory = parameterNameGeneratorFactory;
         }
 
         protected virtual IRelationalCommandBuilderFactory CommandBuilderFactory { get; }
-        protected virtual ISqlGenerator SqlGenerator { get; }
+        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
         protected virtual IParameterNameGeneratorFactory ParameterNameGeneratorFactory { get; }
 
         public abstract IQuerySqlGenerator CreateDefault(SelectExpression selectExpression);
@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             string argumentsParameterName)
             => new FromSqlNonComposedQuerySqlGenerator(
                 CommandBuilderFactory,
-                SqlGenerator,
+                SqlGenerationHelper,
                 ParameterNameGeneratorFactory,
                 Check.NotNull(selectExpression, nameof(selectExpression)),
                 Check.NotEmpty(sql, nameof(sql)),

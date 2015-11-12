@@ -17,6 +17,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
         private readonly DiagnosticSource _diagnosticSource;
         private readonly IRelationalTypeMapper _typeMapper;
 
+        private readonly IndentedStringBuilder _commandTextBuilder = new IndentedStringBuilder();
         private readonly List<IRelationalParameter> _parameters = new List<IRelationalParameter>();
 
         public RelationalCommandBuilder(
@@ -33,7 +34,8 @@ namespace Microsoft.Data.Entity.Storage.Internal
             _typeMapper = typeMapper;
         }
 
-        public virtual IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
+        IndentedStringBuilder IInfrastructure<IndentedStringBuilder>.Instance
+            => _commandTextBuilder;
 
         public virtual IRelationalParameter CreateParameter(
             string name,
@@ -59,9 +61,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
             => new RelationalCommand(
                 _logger,
                 _diagnosticSource,
-                CommandTextBuilder.ToString(),
+                _commandTextBuilder.ToString(),
                 _parameters);
 
-        public override string ToString() => CommandTextBuilder.ToString();
+        public override string ToString() => _commandTextBuilder.ToString();
     }
 }

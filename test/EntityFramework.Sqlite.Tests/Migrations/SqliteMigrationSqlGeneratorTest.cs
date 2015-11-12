@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Migrations
                         new FakeSensitiveDataLogger<RelationalCommandBuilderFactory>(),
                         new DiagnosticListener("Fake"),
                         typeMapper),
-                    new SqliteSqlGenerator(),
+                    new SqliteSqlGenerationHelper(),
                     typeMapper,
                     new SqliteAnnotationProvider());
             }

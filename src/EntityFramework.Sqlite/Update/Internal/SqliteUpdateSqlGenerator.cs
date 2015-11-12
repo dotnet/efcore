@@ -12,8 +12,8 @@ namespace Microsoft.Data.Entity.Update.Internal
 {
     public class SqliteUpdateSqlGenerator : UpdateSqlGenerator
     {
-        public SqliteUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
-            : base(sqlGenerator)
+        public SqliteUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper)
+            : base(sqlGenerationHelper)
         {
         }
 
@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             Check.NotNull(columnModification, nameof(columnModification));
 
             commandStringBuilder
-                .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
                 .Append(" = ")
                 .Append("last_insert_rowid()");
         }
@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             commandStringBuilder
                 .Append("SELECT changes()")
-                .Append(SqlGenerator.BatchCommandSeparator)
+                .Append(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
         }
 

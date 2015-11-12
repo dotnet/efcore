@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         protected override string GetColumnType(IProperty property) => property.TestProvider().ColumnType;
 
-        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get; }
+        private readonly IReadOnlyDictionary<Type, RelationalTypeMapping> _simpleMappings
             = new Dictionary<Type, RelationalTypeMapping>
                 {
                     { typeof(int), _int },
@@ -26,12 +26,18 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
                     { typeof(string), _string }
                 };
 
-        protected override IReadOnlyDictionary<string, RelationalTypeMapping> SimpleNameMappings { get; }
+        private readonly IReadOnlyDictionary<string, RelationalTypeMapping> _simpleNameMappings
             = new Dictionary<string, RelationalTypeMapping>
-            {
-                { "DefaultInt", _int },
-                { "DefaultLong", _long },
-                { "DefaultString", _string}
-            };
+                {
+                    { "DefaultInt", _int },
+                    { "DefaultLong", _long },
+                    { "DefaultString", _string}
+                };
+
+        protected override IReadOnlyDictionary<Type, RelationalTypeMapping> GetSimpleMappings()
+            => _simpleMappings;
+
+        protected override IReadOnlyDictionary<string, RelationalTypeMapping> GetSimpleNameMappings()
+            => _simpleNameMappings;
     }
 }

@@ -5,7 +5,7 @@ namespace Microsoft.Data.Entity.Storage
 {
     public class RelationalSqlGeneratorTest : SqlGeneratorTestBase
     {
-        protected override ISqlGenerator CreateSqlGenerator()
-            => new RelationalSqlGenerator();
+        protected override ISqlGenerationHelper CreateSqlGenerationHelper()
+            => new RelationalSqlGenerationHelper();
     }
 }

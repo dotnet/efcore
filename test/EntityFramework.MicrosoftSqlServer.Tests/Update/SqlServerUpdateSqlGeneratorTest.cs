@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
     public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
     {
         protected override IUpdateSqlGenerator CreateSqlGenerator()
-            => new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper());
+            => new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerationHelper(), new SqlServerTypeMapper());
 
         [Fact]
         public void AppendBatchHeader_should_append_SET_NOCOUNT_OFF()

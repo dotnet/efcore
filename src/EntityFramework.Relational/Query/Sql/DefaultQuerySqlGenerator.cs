@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Query.Sql
     public class DefaultQuerySqlGenerator : ThrowingExpressionVisitor, ISqlExpressionVisitor, IQuerySqlGenerator
     {
         private readonly IRelationalCommandBuilderFactory _relationalCommandBuilderFactory;
-        private readonly ISqlGenerator _sqlGenerator;
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IParameterNameGeneratorFactory _parameterNameGeneratorFactory;
 
         private IRelationalCommandBuilder _relationalCommandBuilder;
@@ -45,17 +45,17 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         public DefaultQuerySqlGenerator(
             [NotNull] IRelationalCommandBuilderFactory relationalCommandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IParameterNameGeneratorFactory parameterNameGeneratorFactory,
             [NotNull] SelectExpression selectExpression)
         {
             Check.NotNull(relationalCommandBuilderFactory, nameof(relationalCommandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(parameterNameGeneratorFactory, nameof(parameterNameGeneratorFactory));
             Check.NotNull(selectExpression, nameof(selectExpression));
 
             _relationalCommandBuilderFactory = relationalCommandBuilderFactory;
-            _sqlGenerator = sqlGenerator;
+            _sqlGenerationHelper = sqlGenerationHelper;
             _parameterNameGeneratorFactory = parameterNameGeneratorFactory;
 
             SelectExpression = selectExpression;
@@ -63,7 +63,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
         protected virtual SelectExpression SelectExpression { get; }
 
-        protected virtual ISqlGenerator SqlGenerator => _sqlGenerator;
+        protected virtual ISqlGenerationHelper SqlGenerator => _sqlGenerationHelper;
 
         protected virtual IReadOnlyDictionary<string, object> ParameterValues => _parametersValues;
 
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             var projectionAdded = false;
             if (selectExpression.IsProjectStar)
             {
-                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(selectExpression.Tables.Single().Alias))
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Tables.Single().Alias))
                     .Append(".*");
                 projectionAdded = true;
             }
@@ -210,7 +210,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 if (selectExpression.Alias.Length > 0)
                 {
                     _relationalCommandBuilder.Append(" AS ")
-                        .Append(_sqlGenerator.DelimitIdentifier(selectExpression.Alias));
+                        .Append(_sqlGenerationHelper.DelimitIdentifier(selectExpression.Alias));
                 }
             }
 
@@ -233,11 +233,11 @@ namespace Microsoft.Data.Entity.Query.Sql
 
                             if (columnExpression != null)
                             {
-                                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
+                                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
                                     .Append(".");
                             }
 
-                            _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(aliasExpression.Alias));
+                            _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(aliasExpression.Alias));
                         }
                         else
                         {
@@ -288,7 +288,7 @@ namespace Microsoft.Data.Entity.Query.Sql
             }
 
             _relationalCommandBuilder.Append(") AS ")
-                .Append(_sqlGenerator.DelimitIdentifier(fromSqlExpression.Alias));
+                .Append(_sqlGenerationHelper.DelimitIdentifier(fromSqlExpression.Alias));
 
             return fromSqlExpression;
         }
@@ -349,13 +349,13 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (tableExpression.Schema != null)
             {
-                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(tableExpression.Schema))
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Schema))
                     .Append(".");
             }
 
-            _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(tableExpression.Table))
+            _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Table))
                 .Append(" AS ")
-                .Append(_sqlGenerator.DelimitIdentifier(tableExpression.Alias));
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableExpression.Alias));
 
             return tableExpression;
         }
@@ -813,9 +813,9 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(columnExpression, nameof(columnExpression));
 
-            _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(columnExpression.TableAlias))
+            _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.TableAlias))
                 .Append(".")
-                .Append(_sqlGenerator.DelimitIdentifier(columnExpression.Name));
+                .Append(_sqlGenerationHelper.DelimitIdentifier(columnExpression.Name));
 
             return columnExpression;
         }
@@ -836,7 +836,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             if (aliasExpression.Alias != null)
             {
-                _relationalCommandBuilder.Append(_sqlGenerator.DelimitIdentifier(aliasExpression.Alias));
+                _relationalCommandBuilder.Append(_sqlGenerationHelper.DelimitIdentifier(aliasExpression.Alias));
             }
 
             return aliasExpression;
@@ -881,7 +881,7 @@ namespace Microsoft.Data.Entity.Query.Sql
         {
             Check.NotNull(literalExpression, nameof(literalExpression));
 
-            _relationalCommandBuilder.Append(_sqlGenerator.GenerateLiteral(literalExpression.Literal));
+            _relationalCommandBuilder.Append(_sqlGenerationHelper.GenerateLiteral(literalExpression.Literal));
 
             return literalExpression;
         }
@@ -953,7 +953,7 @@ namespace Microsoft.Data.Entity.Query.Sql
 
             _relationalCommandBuilder.Append(expression.Value == null
                 ? "NULL"
-                : _sqlGenerator.GenerateLiteral(expression.Value));
+                : _sqlGenerationHelper.GenerateLiteral(expression.Value));
 
             return expression;
         }
@@ -968,7 +968,7 @@ namespace Microsoft.Data.Entity.Query.Sql
                 value = string.Empty;
             }
 
-            var name = _sqlGenerator.GenerateParameterName(expression.Name);
+            var name = _sqlGenerationHelper.GenerateParameterName(expression.Name);
 
             _relationalCommandBuilder.AppendParameter(name, value, expression.Type, expression.Name);
 

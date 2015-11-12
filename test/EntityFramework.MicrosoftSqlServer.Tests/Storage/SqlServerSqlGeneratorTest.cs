@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Storage
         [Fact]
         public override void GenerateLiteral_returns_ByteArray_literal()
         {
-            var literal = CreateSqlGenerator().GenerateLiteral(new byte[] { 0xDA, 0x7A });
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(new byte[] { 0xDA, 0x7A });
             Assert.Equal("0xDA7A", literal);
         }
 
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Storage
         public override void GenerateLiteral_returns_DateTime_literal()
         {
             var value = new DateTime(2015, 3, 12, 13, 36, 37, 371);
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
             Assert.Equal("'2015-03-12 13:36:37.3710000'", literal);
         }
 
@@ -28,17 +28,17 @@ namespace Microsoft.Data.Entity.Storage
         public override void GenerateLiteral_returns_DateTimeOffset_literal()
         {
             var value = new DateTimeOffset(2015, 3, 12, 13, 36, 37, 371, new TimeSpan(-7, 0, 0));
-            var literal = CreateSqlGenerator().GenerateLiteral(value);
+            var literal = CreateSqlGenerationHelper().GenerateLiteral(value);
             Assert.Equal("'2015-03-12 13:36:37.3710000-07:00'", literal);
         }
 
         [Fact]
         public override void BatchSeparator_returns_seperator()
         {
-            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerator().BatchSeparator);
+            Assert.Equal("GO" + Environment.NewLine + Environment.NewLine, CreateSqlGenerationHelper().BatchTerminator);
         }
 
-        protected override ISqlGenerator CreateSqlGenerator()
-            => new SqlServerSqlGenerator();
+        protected override ISqlGenerationHelper CreateSqlGenerationHelper()
+            => new SqlServerSqlGenerationHelper();
     }
 }

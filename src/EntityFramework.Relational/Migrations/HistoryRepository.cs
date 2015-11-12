@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Migrations
         public const string DefaultTableName = "__EFMigrationsHistory";
 
         private readonly IRelationalDatabaseCreator _databaseCreator;
-        private readonly ISqlCommandBuilder _sqlCommandBuilder;
+        private readonly IRawSqlCommandBuilder _rawSqlCommandBuilder;
         private readonly IRelationalConnection _connection;
         private readonly IMigrationsModelDiffer _modelDiffer;
         private readonly IMigrationsSqlGenerator _migrationsSqlGenerator;
@@ -34,29 +34,29 @@ namespace Microsoft.Data.Entity.Migrations
 
         protected HistoryRepository(
             [NotNull] IDatabaseCreator databaseCreator,
-            [NotNull] ISqlCommandBuilder sqlCommandBuilder,
+            [NotNull] IRawSqlCommandBuilder rawSqlCommandBuilder,
             [NotNull] IRelationalConnection connection,
             [NotNull] IDbContextOptions options,
             [NotNull] IMigrationsModelDiffer modelDiffer,
             [NotNull] IMigrationsSqlGenerator migrationsSqlGenerator,
             [NotNull] IRelationalAnnotationProvider annotations,
-            [NotNull] ISqlGenerator sqlGenerator)
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper)
         {
             Check.NotNull(databaseCreator, nameof(databaseCreator));
-            Check.NotNull(sqlCommandBuilder, nameof(sqlCommandBuilder));
+            Check.NotNull(rawSqlCommandBuilder, nameof(rawSqlCommandBuilder));
             Check.NotNull(connection, nameof(connection));
             Check.NotNull(options, nameof(options));
             Check.NotNull(modelDiffer, nameof(modelDiffer));
             Check.NotNull(migrationsSqlGenerator, nameof(migrationsSqlGenerator));
             Check.NotNull(annotations, nameof(annotations));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
 
             _databaseCreator = (IRelationalDatabaseCreator)databaseCreator;
-            _sqlCommandBuilder = sqlCommandBuilder;
+            _rawSqlCommandBuilder = rawSqlCommandBuilder;
             _connection = connection;
             _modelDiffer = modelDiffer;
             _migrationsSqlGenerator = migrationsSqlGenerator;
-            SqlGenerator = sqlGenerator;
+            SqlGenerationHelper = sqlGenerationHelper;
 
             var relationalOptions = RelationalOptionsExtension.Extract(options);
             TableName = relationalOptions?.MigrationsHistoryTableName ?? DefaultTableName;
@@ -81,7 +81,7 @@ namespace Microsoft.Data.Entity.Migrations
                 () => annotations.For(entityType.Value.FindProperty(nameof(HistoryRow.ProductVersion))).ColumnName);
         }
 
-        protected virtual ISqlGenerator SqlGenerator { get; }
+        protected virtual ISqlGenerationHelper SqlGenerationHelper { get; }
         protected virtual string TableName { get; }
         protected virtual string TableSchema { get; }
         protected virtual string MigrationIdColumnName => _migrationIdColumnName.Value;
@@ -92,12 +92,12 @@ namespace Microsoft.Data.Entity.Migrations
         public virtual bool Exists()
             => _databaseCreator.Exists()
                && InterpretExistsResult(
-                   _sqlCommandBuilder.Build(ExistsSql).ExecuteScalar(_connection));
+                   _rawSqlCommandBuilder.Build(ExistsSql).ExecuteScalar(_connection));
 
         public virtual async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken))
             => await _databaseCreator.ExistsAsync(cancellationToken)
                && InterpretExistsResult(
-                   await _sqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(_connection, cancellationToken));
+                   await _rawSqlCommandBuilder.Build(ExistsSql).ExecuteScalarAsync(_connection, cancellationToken: cancellationToken));
 
         /// <returns>true if the table exists; otherwise, false.</returns>
         protected abstract bool InterpretExistsResult([NotNull] object value);
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             if (Exists())
             {
-                var command = _sqlCommandBuilder.Build(GetAppliedMigrationsSql);
+                var command = _rawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
                 using (var reader = command.ExecuteReader(_connection))
                 {
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Migrations
 
             if (await ExistsAsync(cancellationToken))
             {
-                var command = _sqlCommandBuilder.Build(GetAppliedMigrationsSql);
+                var command = _rawSqlCommandBuilder.Build(GetAppliedMigrationsSql);
 
                 using (var reader = await command.ExecuteReaderAsync(_connection))
                 {
@@ -168,13 +168,13 @@ namespace Microsoft.Data.Entity.Migrations
         protected virtual string GetAppliedMigrationsSql
             => new StringBuilder()
                 .Append("SELECT ")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(", ")
-                .AppendLine(SqlGenerator.DelimitIdentifier(ProductVersionColumnName))
+                .AppendLine(SqlGenerationHelper.DelimitIdentifier(ProductVersionColumnName))
                 .Append("FROM ")
-                .AppendLine(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append("ORDER BY ")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(";")
                 .ToString();
 
@@ -183,16 +183,16 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotNull(row, nameof(row));
 
             return new StringBuilder().Append("INSERT INTO ")
-                .Append(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append(" (")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(", ")
-                .Append(SqlGenerator.DelimitIdentifier(ProductVersionColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(ProductVersionColumnName))
                 .AppendLine(")")
                 .Append("VALUES ('")
-                .Append(SqlGenerator.EscapeLiteral(row.MigrationId))
+                .Append(SqlGenerationHelper.EscapeLiteral(row.MigrationId))
                 .Append("', '")
-                .Append(SqlGenerator.EscapeLiteral(row.ProductVersion))
+                .Append(SqlGenerationHelper.EscapeLiteral(row.ProductVersion))
                 .AppendLine("');")
                 .ToString();
         }
@@ -202,11 +202,11 @@ namespace Microsoft.Data.Entity.Migrations
             Check.NotEmpty(migrationId, nameof(migrationId));
 
             return new StringBuilder().Append("DELETE FROM ")
-                .AppendLine(SqlGenerator.DelimitIdentifier(TableName, TableSchema))
+                .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
                 .Append("WHERE ")
-                .Append(SqlGenerator.DelimitIdentifier(MigrationIdColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
                 .Append(" = '")
-                .Append(SqlGenerator.EscapeLiteral(migrationId))
+                .Append(SqlGenerationHelper.EscapeLiteral(migrationId))
                 .AppendLine("';")
                 .ToString();
         }

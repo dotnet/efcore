@@ -19,14 +19,14 @@ namespace Microsoft.Data.Entity.Tests
         private class ConcreteSqlGenerator : UpdateSqlGenerator
         {
             public ConcreteSqlGenerator()
-                : base(new RelationalSqlGenerator())
+                : base(new RelationalSqlGenerationHelper())
             {
             }
 
             protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             {
                 commandStringBuilder
-                    .Append(SqlGenerator.DelimitIdentifier(columnModification.ColumnName))
+                    .Append(SqlGenerationHelper.DelimitIdentifier(columnModification.ColumnName))
                     .Append(" = ")
                     .Append("provider_specific_identity()");
             }

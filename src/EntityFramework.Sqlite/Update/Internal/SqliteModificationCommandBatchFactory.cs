@@ -10,23 +10,23 @@ namespace Microsoft.Data.Entity.Update.Internal
     public class SqliteModificationCommandBatchFactory : IModificationCommandBatchFactory
     {
         private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-        private readonly ISqlGenerator _sqlGenerator;
+        private readonly ISqlGenerationHelper _sqlGenerationHelper;
         private readonly IUpdateSqlGenerator _updateSqlGenerator;
         private readonly IRelationalValueBufferFactoryFactory _valueBufferFactoryFactory;
 
         public SqliteModificationCommandBatchFactory(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
-            [NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory)
         {
             Check.NotNull(commandBuilderFactory, nameof(commandBuilderFactory));
-            Check.NotNull(sqlGenerator, nameof(sqlGenerator));
+            Check.NotNull(sqlGenerationHelper, nameof(sqlGenerationHelper));
             Check.NotNull(updateSqlGenerator, nameof(updateSqlGenerator));
             Check.NotNull(valueBufferFactoryFactory, nameof(valueBufferFactoryFactory));
 
             _commandBuilderFactory = commandBuilderFactory;
-            _sqlGenerator = sqlGenerator;
+            _sqlGenerationHelper = sqlGenerationHelper;
             _updateSqlGenerator = updateSqlGenerator;
             _valueBufferFactoryFactory = valueBufferFactoryFactory;
         }
@@ -34,7 +34,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         public virtual ModificationCommandBatch Create()
             => new SingularModificationCommandBatch(
                 _commandBuilderFactory,
-                _sqlGenerator,
+                _sqlGenerationHelper,
                 _updateSqlGenerator,
                 _valueBufferFactoryFactory);
     }

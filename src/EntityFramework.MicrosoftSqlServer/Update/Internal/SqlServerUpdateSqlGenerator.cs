@@ -16,9 +16,9 @@ namespace Microsoft.Data.Entity.Update.Internal
     {
         private readonly IRelationalTypeMapper _typeMapper;
 
-        public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator,
+        public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerationHelper sqlGenerationHelper,
             [NotNull] IRelationalTypeMapper typeMapper)
-            : base(sqlGenerator)
+            : base(sqlGenerationHelper)
         {
             _typeMapper = typeMapper;
         }
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                     commandStringBuilder.Append(",").AppendLine();
                     AppendValues(commandStringBuilder, modificationCommands[j].ColumnModifications.Where(o => o.IsWrite).ToArray());
                 }
-                commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
+                commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
                 if (readOperations.Length > 0)
                 {
@@ -113,7 +113,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                 AppendOutputClause(commandStringBuilder, readOperations, commandPosition);
             }
             AppendWhereClause(commandStringBuilder, conditionOperations);
-            commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
+            commandStringBuilder.Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
             if (readOperations.Length > 0)
             {
@@ -130,9 +130,9 @@ namespace Microsoft.Data.Entity.Update.Internal
             commandStringBuilder
                 .Append($"DECLARE @generated{commandPosition} TABLE (")
                 .AppendJoin(readOperations.Select(c =>
-                    SqlGenerator.DelimitIdentifier(c.ColumnName) + " " + GetTypeNameForCopy(c.Property)))
+                    SqlGenerationHelper.DelimitIdentifier(c.ColumnName) + " " + GetTypeNameForCopy(c.Property)))
                 .Append(")")
-                .Append(SqlGenerator.BatchCommandSeparator)
+                .Append(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
         }
 
@@ -159,7 +159,7 @@ namespace Microsoft.Data.Entity.Update.Internal
             commandStringBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
-                .AppendJoin(operations.Select(c => "INSERTED." + SqlGenerator.DelimitIdentifier(c.ColumnName)));
+                .AppendJoin(operations.Select(c => "INSERTED." + SqlGenerationHelper.DelimitIdentifier(c.ColumnName)));
 
             commandStringBuilder
                 .AppendLine()
@@ -170,25 +170,25 @@ namespace Microsoft.Data.Entity.Update.Internal
         {
             commandStringBuilder
                 .Append("SELECT ")
-                .AppendJoin(readOperations.Select(c => SqlGenerator.DelimitIdentifier(c.ColumnName)))
+                .AppendJoin(readOperations.Select(c => SqlGenerationHelper.DelimitIdentifier(c.ColumnName)))
                 .Append($" FROM @generated{commandPosition}")
-                .Append(SqlGenerator.BatchCommandSeparator)
+                .Append(SqlGenerationHelper.StatementTerminator)
                 .AppendLine();
         }
 
         protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SELECT @@ROWCOUNT")
-                .Append(SqlGenerator.BatchCommandSeparator).AppendLine();
+                .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
         public override void AppendBatchHeader(StringBuilder commandStringBuilder)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SET NOCOUNT OFF")
-                .Append(SqlGenerator.BatchCommandSeparator).AppendLine();
+                .Append(SqlGenerationHelper.StatementTerminator).AppendLine();
 
         protected override void AppendIdentityWhereCondition(StringBuilder commandStringBuilder, ColumnModification columnModification)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
-                .Append(SqlGenerator.DelimitIdentifier(Check.NotNull(columnModification, nameof(columnModification)).ColumnName))
+                .Append(SqlGenerationHelper.DelimitIdentifier(Check.NotNull(columnModification, nameof(columnModification)).ColumnName))
                 .Append(" = ")
                 .Append("scope_identity()");
 

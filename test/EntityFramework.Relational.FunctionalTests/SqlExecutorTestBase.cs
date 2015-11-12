@@ -1,6 +1,8 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
 
@@ -14,7 +16,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Database.ExecuteSqlCommand(TenMostExpensiveProductsSproc);
+                Assert.Equal(-1, context.Database.ExecuteSqlCommand(TenMostExpensiveProductsSproc));
             }
         }
 
@@ -23,7 +25,25 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             using (var context = CreateContext())
             {
-                context.Database.ExecuteSqlCommand(CustomerOrderHistorySproc, "ALFKI");
+                Assert.Equal(-1, context.Database.ExecuteSqlCommand(CustomerOrderHistorySproc, "ALFKI"));
+            }
+        }
+
+        [Fact]
+        public virtual async Task Executes_stored_procedure_async()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(TenMostExpensiveProductsSproc));
+            }
+        }
+
+        [Fact]
+        public virtual async Task Executes_stored_procedure_with_parameter_async()
+        {
+            using (var context = CreateContext())
+            {
+                Assert.Equal(-1, await context.Database.ExecuteSqlCommandAsync(CustomerOrderHistorySproc, default(CancellationToken), "ALFKI"));
             }
         }
 

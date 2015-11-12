@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests.Update
         private class FakeSqlGenerator : UpdateSqlGenerator
         {
             public FakeSqlGenerator()
-                : base(new RelationalSqlGenerator())
+                : base(new RelationalSqlGenerationHelper())
             {
             }
 
@@ -557,7 +557,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 IRelationalCommandBuilderFactory factory = null)
                 : base(
                     factory ?? new FakeCommandBuilderFactory(),
-                    new RelationalSqlGenerator(),
+                    new RelationalSqlGenerationHelper(),
                     sqlGenerator ?? new FakeSqlGenerator(),
                     new TypedRelationalValueBufferFactoryFactory())
             {
@@ -624,7 +624,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 _reader = reader;
             }
 
-            public IndentedStringBuilder CommandTextBuilder { get; } = new IndentedStringBuilder();
+            public IndentedStringBuilder Instance { get; } = new IndentedStringBuilder();
 
             public void AddParameter(IRelationalParameter relationalParameter) => _parameters.Add(relationalParameter);
 
@@ -633,7 +633,7 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public IRelationalCommand Build()
                 => new FakeRelationalCommand(
-                    CommandTextBuilder.ToString(),
+                    Instance.ToString(),
                     _parameters,
                     _reader);
         }
@@ -657,12 +657,12 @@ namespace Microsoft.Data.Entity.Tests.Update
 
             public IReadOnlyList<IRelationalParameter> Parameters { get; }
 
-            public void ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
+            public int ExecuteNonQuery(IRelationalConnection connection, bool manageConnection = true)
             {
                 throw new NotImplementedException();
             }
 
-            public Task ExecuteNonQueryAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            public Task<int> ExecuteNonQueryAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }
@@ -672,7 +672,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 throw new NotImplementedException();
             }
 
-            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true)
+            public Task<object> ExecuteScalarAsync(IRelationalConnection connection, bool manageConnection = true, CancellationToken cancellationToken = default(CancellationToken))
             {
                 throw new NotImplementedException();
             }
@@ -680,7 +680,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             public RelationalDataReader ExecuteReader(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
                 => new RelationalDataReader(null, new FakeDbCommand(), _reader);
 
-            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, CancellationToken cancellationToken = default(CancellationToken), bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null)
+            public Task<RelationalDataReader> ExecuteReaderAsync(IRelationalConnection connection, bool manageConnection = true, IReadOnlyDictionary<string, object> parameters = null, CancellationToken cancellationToken = default(CancellationToken))
                 => Task.FromResult(new RelationalDataReader(null, new FakeDbCommand(), _reader));
         }
 

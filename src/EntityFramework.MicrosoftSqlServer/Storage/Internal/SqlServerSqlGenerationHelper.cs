@@ -8,9 +8,9 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage.Internal
 {
-    public class SqlServerSqlGenerator : RelationalSqlGenerator
+    public class SqlServerSqlGenerationHelper : RelationalSqlGenerationHelper
     {
-        public override string BatchSeparator => "GO" + Environment.NewLine + Environment.NewLine;
+        public override string BatchTerminator => "GO" + Environment.NewLine + Environment.NewLine;
 
         public override string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");

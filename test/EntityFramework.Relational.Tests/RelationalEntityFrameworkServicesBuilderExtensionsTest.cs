@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
@@ -35,7 +34,6 @@ namespace Microsoft.Data.Entity.Tests
             VerifyScoped<BatchExecutor>();
             VerifyScoped<MigrationsModelDiffer>();
             VerifyScoped<RelationalValueGeneratorSelector>();
-            VerifyScoped<RelationalSqlExecutor>();
             VerifyScoped<CommandBatchPreparer>();
             VerifyScoped<RelationalModelValidator>();
 
