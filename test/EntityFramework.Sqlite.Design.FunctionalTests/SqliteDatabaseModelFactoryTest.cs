@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -17,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Xunit;
 
-namespace EntityFramework.Sqlite.Design.FunctionalTests
+namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
 {
     public class SqliteDatabaseModelFactoryTest
     {
@@ -228,8 +227,8 @@ namespace EntityFramework.Sqlite.Design.FunctionalTests
 
             GetModel(sql);
 
-            Assert.Contains("Warning: " + 
-                RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound("Children(ParentId)"), 
+            Assert.Contains("Warning: " +
+                RelationalDesignStrings.ForeignKeyScaffoldErrorPropertyNotFound("Children(ParentId)"),
                 _logger.FullLog);
         }
 

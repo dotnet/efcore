@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Migrations;
-using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Data.Sqlite;
@@ -19,8 +19,6 @@ namespace Microsoft.Data.Entity.Scaffolding
         private TableSelectionSet _tableSelectionSet;
         private DatabaseModel _databaseModel;
         private Dictionary<string, TableModel> _tables;
-        private Dictionary<string, string> _indexDefinitions;
-        private Dictionary<string, string> _tableDefinitions;
         private Dictionary<string, ColumnModel> _tableColumns;
 
         private static string ColumnKey(TableModel table, string columnName) => "[" + table.Name + "].[" + columnName + "]";
@@ -32,8 +30,6 @@ namespace Microsoft.Data.Entity.Scaffolding
             _databaseModel = new DatabaseModel();
             _tables = new Dictionary<string, TableModel>(StringComparer.OrdinalIgnoreCase);
             _tableColumns = new Dictionary<string, ColumnModel>(StringComparer.OrdinalIgnoreCase);
-            _tableDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            _indexDefinitions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
         public virtual DatabaseModel Create(
@@ -64,12 +60,6 @@ namespace Microsoft.Data.Entity.Scaffolding
                 GetSqliteMaster();
                 GetColumns();
                 GetIndexes();
-
-                foreach (var table in _databaseModel.Tables)
-                {
-                    SqliteDmlParser.ParseTableDefinition(table, _tableDefinitions[table.Name]);
-                }
-
                 GetForeignKeys();
                 return _databaseModel;
             }
@@ -78,15 +68,14 @@ namespace Microsoft.Data.Entity.Scaffolding
         private void GetSqliteMaster()
         {
             var command = _connection.CreateCommand();
-            command.CommandText = "SELECT type, name, sql, tbl_name FROM sqlite_master ORDER BY type DESC";
+            command.CommandText = "SELECT type, name, tbl_name FROM sqlite_master ORDER BY type DESC";
             using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
                     var type = reader.GetString(0);
                     var name = reader.GetString(1);
-                    var sql = reader.GetValue(2) as string; // can be null
-                    var tableName = reader.GetString(3);
+                    var tableName = reader.GetString(2);
 
                     if (type == "table"
                         && name != "sqlite_sequence"
@@ -98,7 +87,6 @@ namespace Microsoft.Data.Entity.Scaffolding
                         };
                         _databaseModel.Tables.Add(table);
                         _tables.Add(name, table);
-                        _tableDefinitions[name] = sql;
                     }
                     else if (type == "index"
                              && _tables.ContainsKey(tableName))
@@ -110,8 +98,6 @@ namespace Microsoft.Data.Entity.Scaffolding
                             Name = name,
                             Table = table
                         });
-
-                        _indexDefinitions[name] = sql;
                     }
                 }
             }
@@ -161,6 +147,15 @@ namespace Microsoft.Data.Entity.Scaffolding
             }
         }
 
+        private enum IndexListColumns
+        {
+            Seqno,
+            Name,
+            Unique,
+            Origin,
+            Partial
+        }
+
         private enum IndexInfoColumns
         {
             Seqno,
@@ -172,13 +167,30 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             foreach (var table in _databaseModel.Tables)
             {
+                var indexInfo = _connection.CreateCommand();
+                indexInfo.CommandText = $"PRAGMA index_list(\"{table.Name.Replace("\"", "\"\"")}\");";
+
+                using (var reader = indexInfo.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var indexName = reader.GetValue((int)IndexListColumns.Name) as string;
+                        var isUnique = reader.GetBoolean((int)IndexListColumns.Unique);
+                        var index = table.Indexes.FirstOrDefault(i => i.Name.Equals(indexName, StringComparison.OrdinalIgnoreCase));
+                        if (index != null)
+                        {
+                            index.IsUnique = isUnique;
+                        }
+                    }
+                }
+
                 foreach (var index in table.Indexes)
                 {
-                    var indexInfo = _connection.CreateCommand();
-                    indexInfo.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
+                    var indexColumns = _connection.CreateCommand();
+                    indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
 
                     index.Columns = new List<ColumnModel>();
-                    using (var reader = indexInfo.ExecuteReader())
+                    using (var reader = indexColumns.ExecuteReader())
                     {
                         while (reader.Read())
                         {
@@ -191,16 +203,6 @@ namespace Microsoft.Data.Entity.Scaffolding
                             var column = _tableColumns[ColumnKey(table, columnName)];
 
                             index.Columns.Add(column);
-
-                            var sql = _indexDefinitions[index.Name];
-
-                            if (!string.IsNullOrEmpty(sql))
-                            {
-                                var uniqueKeyword = sql.IndexOf("UNIQUE", StringComparison.OrdinalIgnoreCase);
-                                var indexKeyword = sql.IndexOf("INDEX", StringComparison.OrdinalIgnoreCase);
-
-                                index.IsUnique = uniqueKeyword > 0 && uniqueKeyword < indexKeyword;
-                            }
                         }
                     }
                 }
@@ -234,7 +236,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                     {
                         var id = reader.GetInt32((int)ForeignKeyList.Id);
                         var principalTableName = reader.GetString((int)ForeignKeyList.Table);
-    
+
                         ForeignKeyModel foreignKey;
                         if (!tableForeignKeys.TryGetValue(id, out foreignKey))
                         {
@@ -255,7 +257,7 @@ namespace Microsoft.Data.Entity.Scaffolding
                         {
                             var toColumnName = reader.GetString((int)ForeignKeyList.To);
                             ColumnModel toColumn;
-                            if(!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
+                            if (!_tableColumns.TryGetValue(ColumnKey(foreignKey.PrincipalTable, toColumnName), out toColumn))
                             {
                                 toColumn = new ColumnModel { Name = toColumnName };
                             }

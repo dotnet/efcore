@@ -14,7 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace EntityFramework.Sqlite.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
     public abstract class SqliteE2ETestBase : E2ETestBase
     {
@@ -421,7 +421,7 @@ CREATE TABLE Comment (
         protected abstract string ExpectedResultsParentDir { get; }
         protected abstract bool UseFluentApiOnly { get; }
 
-        protected override void ConfigureDesignTimeServices(IServiceCollection services) 
+        protected override void ConfigureDesignTimeServices(IServiceCollection services)
             => new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
     }
 }

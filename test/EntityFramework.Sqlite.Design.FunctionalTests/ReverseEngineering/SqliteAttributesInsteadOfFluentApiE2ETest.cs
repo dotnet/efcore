@@ -4,7 +4,7 @@
 using System.IO;
 using Xunit.Abstractions;
 
-namespace EntityFramework.Sqlite.Design.FunctionalTests.ReverseEngineering
+namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests.ReverseEngineering
 {
     public class SqliteAttributesInsteadOfFluentApiE2ETest : SqliteE2ETestBase
     {

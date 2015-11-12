@@ -8,7 +8,7 @@
     <ProjectGuid>{2AF716DA-9AFA-43B6-9DEC-B419A59B39FD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EntityFramework.Sqlite.Design.FunctionalTests</RootNamespace>
+    <RootNamespace>Microsoft.Data.Entity.Sqlite.Design.FunctionalTests</RootNamespace>
     <AssemblyName>EntityFramework.Sqlite.Design.FunctionalTests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
