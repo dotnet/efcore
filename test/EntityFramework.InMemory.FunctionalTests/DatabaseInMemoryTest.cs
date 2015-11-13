@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
                 .ServiceCollection()
-                .AddInstance(TestFileLogger.Factory)
+                .AddSingleton(TestFileLogger.Factory)
                 .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder()

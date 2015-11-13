@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     .AddSqlite()
                     .ServiceCollection()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
-                    .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
+                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 
             var testStore = SqliteTestStore.CreateScratch();

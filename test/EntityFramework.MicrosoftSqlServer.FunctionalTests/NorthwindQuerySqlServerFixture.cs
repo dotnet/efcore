@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddSqlServer()
                     .ServiceCollection()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                    .AddInstance<ILoggerFactory>(_testSqlLoggerFactory)
+                    .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
                     .BuildServiceProvider();
 
             _options = BuildOptions();

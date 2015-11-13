@@ -25,12 +25,11 @@ namespace Microsoft.Data.Entity.Tests
             var fragmentTranslatorMock = new Mock<IExpressionFragmentTranslator>();
 
             var customServices = new ServiceCollection()
-                .AddInstance(commandBatchPreparerMock.Object)
-                .AddInstance(batchExecutorMock.Object)
-                .AddInstance(relationalConnectionMock.Object)
-                .AddInstance(fragmentTranslatorMock.Object)
+                .AddSingleton(commandBatchPreparerMock.Object)
+                .AddSingleton(batchExecutorMock.Object)
+                .AddSingleton(relationalConnectionMock.Object)
+                .AddSingleton(fragmentTranslatorMock.Object)
                 .AddScoped<RelationalDatabase>();
-
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);
 
@@ -55,10 +54,10 @@ namespace Microsoft.Data.Entity.Tests
             var fragmentTranslatorMock = new Mock<IExpressionFragmentTranslator>();
 
             var customServices = new ServiceCollection()
-                .AddInstance(commandBatchPreparerMock.Object)
-                .AddInstance(batchExecutorMock.Object)
-                .AddInstance(relationalConnectionMock.Object)
-                .AddInstance(fragmentTranslatorMock.Object)
+                .AddSingleton(commandBatchPreparerMock.Object)
+                .AddSingleton(batchExecutorMock.Object)
+                .AddSingleton(relationalConnectionMock.Object)
+                .AddSingleton(fragmentTranslatorMock.Object)
                 .AddScoped<RelationalDatabase>();
 
             var contextServices = RelationalTestHelpers.Instance.CreateContextServices(customServices);

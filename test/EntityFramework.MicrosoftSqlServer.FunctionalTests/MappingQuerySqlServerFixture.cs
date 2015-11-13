@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddInstance<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
             _testDatabase = SqlServerNorthwindContext.GetSharedStore();

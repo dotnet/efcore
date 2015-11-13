@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
                 .GetInfrastructure()
-                .AddInstance<ILoggerFactory>(loggerFactory)
+                .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
             using (var context = new BloggingContext(serviceProvider))
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                 .AddEntityFramework()
                 .AddInMemoryDatabase()
                 .ServiceCollection()
-                .AddInstance<ILoggerFactory>(loggerFactory)
+                .AddSingleton<ILoggerFactory>(loggerFactory)
                 .BuildServiceProvider();
 
             using (var context = new BloggingContext(serviceProvider))

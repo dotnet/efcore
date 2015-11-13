@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests
                 });
 
             var customServices = new ServiceCollection()
-                .AddInstance<IDbSetInitializer>(new DbSetInitializer(setFinderMock.Object, new DbSetSource()));
+                .AddSingleton<IDbSetInitializer>(new DbSetInitializer(setFinderMock.Object, new DbSetSource()));
 
             var serviceProvider = TestHelpers.Instance.CreateServiceProvider(customServices);
 
