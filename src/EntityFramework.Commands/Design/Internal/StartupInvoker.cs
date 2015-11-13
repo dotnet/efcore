@@ -95,7 +95,7 @@ namespace Microsoft.Data.Entity.Design.Internal
             => services
 #if DNX451 || DNXCORE50
                 .ImportDnxServices()
-                .AddSingleton<IHostingEnvironment>(new HostingEnvironment { EnvironmentName = _environment })
+                .AddSingleton<IHostingEnvironment>(_ => new HostingEnvironment { EnvironmentName = _environment })
 #endif
                 .AddLogging();
 

@@ -1627,7 +1627,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
-            services.AddSingleton(sourceMock.Object);
+            services.AddSingleton(_ => sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
@@ -1671,7 +1671,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
-            services.AddSingleton(sourceMock.Object);
+            services.AddSingleton(_ => sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
@@ -1719,7 +1719,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var services = new ServiceCollection();
             services.AddEntityFramework();
-            services.AddSingleton(sourceMock.Object);
+            services.AddSingleton(_ => sourceMock.Object);
             var serviceProvider = services.BuildServiceProvider();
 
             using (var context = new EarlyLearningCenter(serviceProvider, new DbContextOptionsBuilder().Options))
@@ -1781,7 +1781,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddScoped<IDbSetInitializer, DbSetInitializer>()
                 .AddScoped<IDbContextServices, DbContextServices>()
                 .AddLogging()
-                .AddSingleton(factory);
+                .AddSingleton(_ => factory);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -1810,7 +1810,7 @@ namespace Microsoft.Data.Entity.Tests
             var loggerFactory = new FakeLoggerFactory();
 
             serviceCollection
-                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .AddSingleton<ILoggerFactory>(_ => loggerFactory)
                 .AddEntityFramework();
 
             var provider = serviceCollection.BuildServiceProvider();
@@ -1829,7 +1829,7 @@ namespace Microsoft.Data.Entity.Tests
                 .AddEntityFramework();
 
             serviceCollection
-                .AddSingleton<ILoggerFactory>(loggerFactory);
+                .AddSingleton<ILoggerFactory>(_ => loggerFactory);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -1842,7 +1842,7 @@ namespace Microsoft.Data.Entity.Tests
             var factory = Mock.Of<INavigationFixer>();
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddEntityFramework();
-            serviceCollection.AddSingleton(factory);
+            serviceCollection.AddSingleton(_ => factory);
 
             var provider = serviceCollection.BuildServiceProvider();
 
@@ -1858,7 +1858,7 @@ namespace Microsoft.Data.Entity.Tests
             var modelSource = Mock.Of<IModelSource>();
 
             var services = new ServiceCollection()
-                .AddSingleton(modelSource);
+                .AddSingleton(_ => modelSource);
 
             var provider = TestHelpers.Instance.CreateServiceProvider(services);
 

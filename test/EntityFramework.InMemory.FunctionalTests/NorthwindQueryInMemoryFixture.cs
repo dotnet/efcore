@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                     .AddInMemoryDatabase()
                     .ServiceCollection()
                     .AddSingleton(TestInMemoryModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(_testLoggerFactory)
+                    .AddSingleton<ILoggerFactory>(_ => _testLoggerFactory)
                     .BuildServiceProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder();

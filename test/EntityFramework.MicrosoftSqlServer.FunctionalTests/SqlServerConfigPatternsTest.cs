@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 serviceCollection
                     .AddTransient<MyController>()
                     .AddTransient<NorthwindContext>()
-                    .AddSingleton(optionsBuilder.Options);
+                    .AddSingleton(_ => optionsBuilder.Options);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (SqlServerNorthwindContext.GetSharedStore())
@@ -416,7 +416,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 serviceCollection
                     .AddTransient<NorthwindContext>()
                     .AddTransient<MyController>()
-                    .AddSingleton(optionsBuilder.Options);
+                    .AddSingleton(_ => optionsBuilder.Options);
                 var serviceProvider = serviceCollection.BuildServiceProvider();
 
                 using (SqlServerNorthwindContext.GetSharedStore())

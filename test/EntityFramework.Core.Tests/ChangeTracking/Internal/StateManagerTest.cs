@@ -390,9 +390,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             };
 
             var services = new ServiceCollection()
-                .AddSingleton(listeners[0].Object)
-                .AddSingleton(listeners[1].Object)
-                .AddSingleton(listeners[2].Object);
+                .AddSingleton(_ => listeners[0].Object)
+                .AddSingleton(_ => listeners[1].Object)
+                .AddSingleton(_ => listeners[2].Object);
 
             var contextServices = TestHelpers.Instance.CreateContextServices(services, BuildModel());
 

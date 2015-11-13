@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddEntityFramework()
                     .AddSqlServer()
                     .ServiceCollection()
-                    .AddSingleton<ILoggerFactory>(loggingFactory)
+                    .AddSingleton<ILoggerFactory>(_ => loggingFactory)
                     .BuildServiceProvider();
                 using (var db = new BloggingContext(serviceProvider, optionsBuilder.Options))
                 {

@@ -136,7 +136,7 @@ namespace Microsoft.Data.Entity.InMemory.Tests
             mockFactory.Setup(m => m.CreateLogger(It.IsAny<string>())).Returns(mockLogger.Object);
 
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton(mockFactory.Object);
+            serviceCollection.AddSingleton(_ => mockFactory.Object);
 
             var scopedServices = InMemoryTestHelpers.Instance.CreateContextServices(serviceCollection, CreateModel());
 
