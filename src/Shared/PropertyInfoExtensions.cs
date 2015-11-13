@@ -31,7 +31,8 @@ namespace System.Reflection
 
             if (isPrimitiveProperty(targetType)
                 || targetType.GetTypeInfo().IsInterface
-                || targetType.GetTypeInfo().IsValueType)
+                || targetType.GetTypeInfo().IsValueType
+                || targetType == typeof(object))
             {
                 return null;
             }

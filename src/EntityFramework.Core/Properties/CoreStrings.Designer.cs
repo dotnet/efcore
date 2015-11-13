@@ -53,30 +53,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Unhandled node type: {nodeType}
-        /// </summary>
-        public static string UnhandledNodeType([CanBeNull] object nodeType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
-        }
-
-        /// <summary>
-        /// Unhandled expression type: {expressionType}
-        /// </summary>
-        public static string UnhandledExpressionType([CanBeNull] object expressionType)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "expressionType"), expressionType);
-        }
-
-        /// <summary>
-        /// Unhandled operation: MemberInitExpression binding is not a MemberAssignment
-        /// </summary>
-        public static string InvalidMemberInitBinding
-        {
-            get { return GetString("InvalidMemberInitBinding"); }
-        }
-
-        /// <summary>
         /// The instance of entity type '{entityType}' cannot be tracked because another instance of this type with the same key is already being tracked. For new entities consider using an IIdentityGenerator to generate unique key values.
         /// </summary>
         public static string IdentityConflict([CanBeNull] object entityType)
@@ -685,11 +661,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// The derived type '{derivedType}' cannot have keys other than those declared on the root type.
+        /// The derived type '{derivedType}' cannot have keys other than those declared on the root type '{rootType}'.
         /// </summary>
-        public static string DerivedEntityTypeKey([CanBeNull] object derivedType)
+        public static string DerivedEntityTypeKey([CanBeNull] object derivedType, [CanBeNull] object rootType)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("DerivedEntityTypeKey", "derivedType"), derivedType);
+            return string.Format(CultureInfo.CurrentCulture, GetString("DerivedEntityTypeKey", "derivedType", "rootType"), derivedType, rootType);
         }
 
         /// <summary>
@@ -1026,6 +1002,30 @@ namespace Microsoft.Data.Entity.Internal
         public static string EntityTypeNotFound([CanBeNull] object entityType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("EntityTypeNotFound", "entityType"), entityType);
+        }
+
+        /// <summary>
+        /// Unhandled operation: MemberInitExpression binding is not a MemberAssignment
+        /// </summary>
+        public static string InvalidMemberInitBinding
+        {
+            get { return GetString("InvalidMemberInitBinding"); }
+        }
+
+        /// <summary>
+        /// Unhandled expression type: {expressionType}
+        /// </summary>
+        public static string UnhandledExpressionType([CanBeNull] object expressionType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledExpressionType", "expressionType"), expressionType);
+        }
+
+        /// <summary>
+        /// Unhandled node type: {nodeType}
+        /// </summary>
+        public static string UnhandledNodeType([CanBeNull] object nodeType)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
         }
 
         private static string GetString(string name, params string[] formatterNames)

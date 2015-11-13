@@ -361,7 +361,7 @@
     <value>The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.</value>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
-    <value>The derived type '{derivedType}' cannot have keys other than those declared on the root type.</value>
+    <value>The derived type '{derivedType}' cannot have keys other than those declared on the root type '{rootType}'.</value>
   </data>
   <data name="CircularInheritance" xml:space="preserve">
     <value>The entity type '{entityType}' cannot inherit from '{baseEntityType}' because '{baseEntityType}' is a descendent of '{entityType}'.</value>

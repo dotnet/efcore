@@ -861,6 +861,8 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
         {
             public int Id { get; set; }
 
+            public object Object { get; set; }
+
             public static OneToManyDependent Static { get; set; }
 
             public OneToManyDependent WriteOnly

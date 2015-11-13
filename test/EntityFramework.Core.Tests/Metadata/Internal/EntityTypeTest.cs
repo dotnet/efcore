@@ -476,10 +476,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             b.HasBaseType(a);
 
             Assert.Equal(
-                CoreStrings.DerivedEntityTypeKey(typeof(B).FullName),
+                CoreStrings.DerivedEntityTypeKey(typeof(B).Name, typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => b.SetPrimaryKey(b.AddProperty("G"))).Message);
             Assert.Equal(
-                CoreStrings.DerivedEntityTypeKey(typeof(B).FullName),
+                CoreStrings.DerivedEntityTypeKey(typeof(B).Name, typeof(A).Name),
                 Assert.Throws<InvalidOperationException>(() => b.AddKey(b.AddProperty("E"))).Message);
         }
 
