@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     .AddSqlite()
                     .ServiceCollection()
                     .AddSingleton(TestSqliteModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(_testSqlLoggerFactory)
+                    .AddSingleton<ILoggerFactory>(_ => _testSqlLoggerFactory)
                     .BuildServiceProvider();
 
             _options = BuildOptions();

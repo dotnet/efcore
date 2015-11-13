@@ -277,7 +277,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var services = new ServiceCollection();
             services.AddTransient<InjectContextAndConfigurationBlogContext>()
                 .AddTransient<InjectContextAndConfigurationController>()
-                .AddSingleton(optionsBuilder.Options)
+                .AddSingleton(_ => optionsBuilder.Options)
                 .AddEntityFramework()
                 .AddInMemoryDatabase();
 
@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             var services = new ServiceCollection();
             services.AddTransient<InjectConfigurationBlogContext>()
                 .AddTransient<InjectConfigurationController>()
-                .AddSingleton(optionsBuilder.Options)
+                .AddSingleton(_ => optionsBuilder.Options)
                 .AddEntityFramework()
                 .AddInMemoryDatabase();
 
@@ -393,8 +393,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddTransient<InjectDifferentConfigurationsAccountContext>()
                 .AddTransient<InjectDifferentConfigurationsBlogController>()
                 .AddTransient<InjectDifferentConfigurationsAccountController>()
-                .AddSingleton(blogOptions.Options)
-                .AddSingleton(accountOptions.Options)
+                .AddSingleton(_ => blogOptions.Options)
+                .AddSingleton(_ => accountOptions.Options)
                 .AddEntityFramework()
                 .AddInMemoryDatabase();
 
@@ -494,8 +494,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
                 .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
                 .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
-                .AddSingleton(blogOptions.Options)
-                .AddSingleton(accountOptions.Options)
+                .AddSingleton(_ => blogOptions.Options)
+                .AddSingleton(_ => accountOptions.Options)
                 .AddEntityFramework()
                 .AddInMemoryDatabase();
 
@@ -519,8 +519,8 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 .AddTransient<InjectDifferentConfigurationsNoConstructorAccountContext>()
                 .AddTransient<InjectDifferentConfigurationsNoConstructorBlogController>()
                 .AddTransient<InjectDifferentConfigurationsNoConstructorAccountController>()
-                .AddSingleton<DbContextOptions>(blogOptions.Options)
-                .AddSingleton<DbContextOptions>(accountOptions.Options)
+                .AddSingleton<DbContextOptions>(_ => blogOptions.Options)
+                .AddSingleton<DbContextOptions>(_ => accountOptions.Options)
                 .AddEntityFramework()
                 .AddInMemoryDatabase();
 

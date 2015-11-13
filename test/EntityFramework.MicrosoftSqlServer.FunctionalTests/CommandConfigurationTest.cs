@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlServer()
                 .ServiceCollection()
-                .AddSingleton<ILoggerFactory>(loggerFactory)
+                .AddSingleton<ILoggerFactory>(_ => loggerFactory)
                 .BuildServiceProvider();
 
             using (var context = new ConfiguredChipsContext(serviceProvider))

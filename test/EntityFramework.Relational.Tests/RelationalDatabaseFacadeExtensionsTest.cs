@@ -25,7 +25,7 @@ namespace Microsoft.Data.Entity.Tests
             connectionMock.SetupGet(m => m.DbConnection).Returns(dbConnection);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+                new ServiceCollection().AddSingleton(_ => connectionMock.Object));
 
             Assert.Same(dbConnection, context.Database.GetDbConnection());
         }
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Tests
             var connectionMock = new Mock<IRelationalConnection>();
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+                new ServiceCollection().AddSingleton(_ => connectionMock.Object));
 
             context.Database.OpenConnection();
 
@@ -59,7 +59,7 @@ namespace Microsoft.Data.Entity.Tests
             var connectionMock = new Mock<IRelationalConnection>();
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+                new ServiceCollection().AddSingleton(_ => connectionMock.Object));
 
             var cancellationToken = new CancellationToken();
 
@@ -74,7 +74,7 @@ namespace Microsoft.Data.Entity.Tests
             var connectionMock = new Mock<IRelationalConnection>();
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(connectionMock.Object));
+                new ServiceCollection().AddSingleton(_ => connectionMock.Object));
 
             context.Database.CloseConnection();
 
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity.Tests
             transactionManagerMock.Setup(m => m.BeginTransaction(It.IsAny<IsolationLevel>())).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(_ => transactionManagerMock.Object));
 
             var isolationLevel = IsolationLevel.Chaos;
 
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(transactionTask);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(_ => transactionManagerMock.Object));
 
             var cancellationToken = new CancellationToken();
             var isolationLevel = IsolationLevel.Chaos;
@@ -131,7 +131,7 @@ namespace Microsoft.Data.Entity.Tests
             transactionManagerMock.Setup(m => m.UseTransaction(dbTransaction)).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton<IDbContextTransactionManager>(_ => transactionManagerMock.Object));
 
             Assert.Same(transaction, context.Database.UseTransaction(dbTransaction));
 
@@ -147,7 +147,7 @@ namespace Microsoft.Data.Entity.Tests
             transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             var isolationLevel = IsolationLevel.Chaos;
 
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(transactionTask);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             var cancellationToken = new CancellationToken();
             var isolationLevel = IsolationLevel.Chaos;
@@ -188,7 +188,7 @@ namespace Microsoft.Data.Entity.Tests
             transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
 
             var context = RelationalTestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             Assert.Equal(
                 RelationalStrings.RelationalNotInUse,

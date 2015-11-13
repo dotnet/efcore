@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     .AddSqlServer()
                     .ServiceCollection()
                     .AddSingleton(TestSqlServerModelSource.GetFactory(OnModelCreating))
-                    .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                    .AddSingleton<ILoggerFactory>(_ => new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 
             var database = SqlServerTestStore.CreateScratch();

@@ -23,7 +23,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 .AddEntityFramework()
                 .AddSqlite()
                 .ServiceCollection()
-                .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
+                .AddSingleton<ILoggerFactory>(_ => new TestSqlLoggerFactory())
                 .BuildServiceProvider();
 
             _testDatabase = SqliteNorthwindContext.GetSharedStore();

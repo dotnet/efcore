@@ -24,7 +24,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeleted()).Returns(true);
 
             var context = TestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(creatorMock.Object));
+                new ServiceCollection().AddSingleton(_ => creatorMock.Object));
 
             Assert.True(context.Database.EnsureCreated());
             creatorMock.Verify(m => m.EnsureCreated(), Times.Once);
@@ -43,7 +43,7 @@ namespace Microsoft.Data.Entity.Tests
             creatorMock.Setup(m => m.EnsureDeletedAsync(cancellationToken)).Returns(Task.FromResult(true));
 
             var context = TestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(creatorMock.Object));
+                new ServiceCollection().AddSingleton(_ => creatorMock.Object));
 
             Assert.True(await context.Database.EnsureCreatedAsync(cancellationToken));
             creatorMock.Verify(m => m.EnsureCreatedAsync(cancellationToken), Times.Once);
@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Tests
             transactionManagerMock.Setup(m => m.BeginTransaction()).Returns(transaction);
 
             var context = TestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             Assert.Same(transaction, context.Database.BeginTransaction());
 
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Entity.Tests
                 .Returns(transactionTask);
 
             var context = TestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             var cancellationToken = new CancellationToken();
 
@@ -126,7 +126,7 @@ namespace Microsoft.Data.Entity.Tests
             var transactionManagerMock = new Mock<IDbContextTransactionManager>();
 
             var context = TestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             context.Database.CommitTransaction();
 
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Entity.Tests
             var transactionManagerMock = new Mock<IDbContextTransactionManager>();
 
             var context = TestHelpers.Instance.CreateContext(
-                new ServiceCollection().AddSingleton(transactionManagerMock.Object));
+                new ServiceCollection().AddSingleton(_ => transactionManagerMock.Object));
 
             context.Database.RollbackTransaction();
 

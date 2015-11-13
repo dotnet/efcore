@@ -115,33 +115,33 @@ namespace Microsoft.Data.Entity.Design.Internal
         private class NotStartup
         {
             public void ConfigureDesignTimeServices(IServiceCollection services)
-                => services.AddSingleton(new TestService("NotStartup"));
+                => services.AddSingleton(_ => new TestService("NotStartup"));
         }
     }
 
     public class StartupDevelopment
     {
         public void ConfigureDevelopmentServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Development"));
+            => services.AddSingleton(_ => new TestService("Development"));
 
         public void ConfigureDesignTimeServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Development"));
+            => services.AddSingleton(_ => new TestService("Development"));
     }
 
     public class StartupStatic
     {
         public static void ConfigureServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Static"));
+            => services.AddSingleton(_ => new TestService("Static"));
 
         public static void ConfigureDesignTimeServices(IServiceCollection services)
-            => services.AddSingleton(new TestService("Static"));
+            => services.AddSingleton(_ => new TestService("Static"));
     }
 
     public class StartupAlternative
     {
         public IServiceProvider ConfigureServices()
             => new ServiceCollection()
-                .AddSingleton(new TestService("Alternative"))
+                .AddSingleton(_ => new TestService("Alternative"))
                 .BuildServiceProvider();
     }
 
