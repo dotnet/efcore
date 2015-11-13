@@ -486,7 +486,6 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
         private class CompositeKeyDerivedEntity : BaseEntity
         {
-
         }
 
         private class MyContext : DbContext

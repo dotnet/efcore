@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Query;
 using Microsoft.Data.Entity.Query.Internal;
 using Moq;
 using Xunit;
@@ -117,7 +116,7 @@ namespace Microsoft.Data.Entity.Tests
                                 expectedMethodCall.Arguments[expectedMethodCall.Arguments.Count - 1] as MemberExpression;
 
                             var cancellationTokenPresent
-                                = lastArgument != null && lastArgument.Type == typeof(CancellationToken);
+                                = (lastArgument != null) && (lastArgument.Type == typeof(CancellationToken));
 
                             if (cancellationTokenPresent)
                             {

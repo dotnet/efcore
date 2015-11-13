@@ -58,10 +58,10 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Get_property_access_list_should_return_property_info_collection()
         {
             Expression<Func<DateTime, object>> expression = d => new
-                {
-                    d.Date,
-                    d.Day
-                };
+            {
+                d.Date,
+                d.Day
+            };
 
             var propertyInfos = expression.GetPropertyAccessList();
 
@@ -70,10 +70,11 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal("Date", propertyInfos.First().Name);
             Assert.Equal("Day", propertyInfos.Last().Name);
         }
+
         [Fact]
         public void Get_property_access_should_handle_convert()
         {
-            Expression<Func<DateTime, object>> expression = d => ((DateTime)d).Date;
+            Expression<Func<DateTime, object>> expression = d => d.Date;
 
             var propertyInfos = expression.GetPropertyAccess();
 
@@ -85,7 +86,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         {
             Expression<Func<DateTime, object>> expression = d => new
             {
-                ((DateTime)d).Date,
+                d.Date,
                 d.Day
             };
 
@@ -101,9 +102,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
         public void Get_property_access_list_should_throw_when_invalid_expression()
         {
             Expression<Func<DateTime, object>> expression = d => new
-                {
-                    P = d.AddTicks(23)
-                };
+            {
+                P = d.AddTicks(23)
+            };
 
             Assert.Contains(
                 CoreStrings.InvalidPropertiesExpression(expression),
@@ -116,10 +117,10 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             var closure = DateTime.Now;
 
             Expression<Func<DateTime, object>> expression = d => new
-                {
-                    d.Date,
-                    closure.Day
-                };
+            {
+                d.Date,
+                closure.Day
+            };
 
             Assert.Contains(
                 CoreStrings.InvalidPropertiesExpression(expression),

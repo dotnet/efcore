@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest

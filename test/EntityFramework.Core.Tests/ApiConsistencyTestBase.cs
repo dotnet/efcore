@@ -31,15 +31,15 @@ namespace Microsoft.Data.Entity
                    where type.IsVisible
                          && !type.IsSealed
                          && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
-                         && type.Namespace != null
+                         && (type.Namespace != null)
                          && !type.Namespace.EndsWith(".Compiled")
                    from method in type.GetMethods(AnyInstance)
-                   where method.DeclaringType == type
+                   where (method.DeclaringType == type)
                          && !(method.IsVirtual && !method.IsFinal)
                          && !method.Name.StartsWith("add_")
                          && !method.Name.StartsWith("remove_")
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                         && method.Name != "GenerateCacheKeyCore"
+                         && (method.Name != "GenerateCacheKeyCore")
                    select type.FullName + "." + method.Name)
                     .ToList();
 
@@ -53,29 +53,29 @@ namespace Microsoft.Data.Entity
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                    where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
-                    let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
-                    let events = type.GetEvents()
-                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
-                        .Concat<MethodBase>(type.GetConstructors())
-                    where method.DeclaringType == type
-                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                          && (method is ConstructorInfo
-                              || ((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType)
-                          && method.Name != nameof(DbContext.OnConfiguring)
-                          && method.Name != nameof(DbContext.OnModelCreating)
-                    where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
-                    where !events.Any(e => e.AddMethod == method || e.RemoveMethod == method)
-                    from parameter in method.GetParameters()
-                    let parameterType = parameter.ParameterType.IsByRef
-                        ? parameter.ParameterType.GetElementType()
-                        : parameter.ParameterType
-                    where !parameterType.IsValueType
-                          && !parameter.GetCustomAttributes()
-                              .Any(
-                                  a => a.GetType().Name == nameof(NotNullAttribute)
-                                       || a.GetType().Name == nameof(CanBeNullAttribute))
-                    select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
+                   where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
+                   let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
+                   let events = type.GetEvents()
+                   from method in type.GetMethods(AnyInstance | BindingFlags.Static)
+                       .Concat<MethodBase>(type.GetConstructors())
+                   where (method.DeclaringType == type)
+                         && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
+                         && (method is ConstructorInfo
+                             || (((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType))
+                         && (method.Name != nameof(DbContext.OnConfiguring))
+                         && (method.Name != nameof(DbContext.OnModelCreating))
+                   where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                   where !events.Any(e => (e.AddMethod == method) || (e.RemoveMethod == method))
+                   from parameter in method.GetParameters()
+                   let parameterType = parameter.ParameterType.IsByRef
+                       ? parameter.ParameterType.GetElementType()
+                       : parameter.ParameterType
+                   where !parameterType.IsValueType
+                         && !parameter.GetCustomAttributes()
+                             .Any(
+                                 a => (a.GetType().Name == nameof(NotNullAttribute))
+                                      || (a.GetType().Name == nameof(CanBeNullAttribute)))
+                   select type.FullName + "." + method.Name + "[" + parameter.Name + "]")
                     .ToList();
 
             Assert.False(
@@ -90,7 +90,7 @@ namespace Microsoft.Data.Entity
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
                    where type.IsVisible
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
-                   where method.DeclaringType == type
+                   where (method.DeclaringType == type)
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
                    where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType)
                    select method).ToList();
@@ -108,8 +108,8 @@ namespace Microsoft.Data.Entity
             var missingOverloads
                 = (from methodWithoutToken in asyncMethodsWithoutToken
                    where !asyncMethodsWithToken
-                       .Any(methodWithToken => methodWithoutToken.Name == methodWithToken.Name
-                                               && methodWithoutToken.ReflectedType == methodWithToken.ReflectedType)
+                       .Any(methodWithToken => (methodWithoutToken.Name == methodWithToken.Name)
+                                               && (methodWithoutToken.ReflectedType == methodWithToken.ReflectedType))
                    // ReSharper disable once PossibleNullReferenceException
                    select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
                     .Except(GetCancellationTokenExceptions())
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity
 
             var missingSuffixMethods
                 = asyncMethods
-                    .Where(method => !method.Name.EndsWith("Async") && method.DeclaringType != null)
+                    .Where(method => !method.Name.EndsWith("Async") && (method.DeclaringType != null))
                     .Select(method => method.DeclaringType.Name + "." + method.Name)
                     .Except(GetAsyncSuffixExceptions())
                     .ToList();
@@ -142,20 +142,19 @@ namespace Microsoft.Data.Entity
             };
 
             var parameters = (
-                    from type in GetAllTypes(TargetAssembly.GetExportedTypes())
-                    where !type.Namespace.Contains("Internal")
-                    from method in type.GetTypeInfo().DeclaredMethods
-                    where !method.IsPrivate
-                    from parameter in method.GetParameters()
-                    where parameter.ParameterType.UnwrapNullableType() == typeof(bool)
-                        && prefixes.Any(parameter.Name.StartsWith)
-                    select $"{type.FullName}.{method.Name}[{parameter.Name}]")
+                from type in GetAllTypes(TargetAssembly.GetExportedTypes())
+                where !type.Namespace.Contains("Internal")
+                from method in type.GetTypeInfo().DeclaredMethods
+                where !method.IsPrivate
+                from parameter in method.GetParameters()
+                where (parameter.ParameterType.UnwrapNullableType() == typeof(bool))
+                      && prefixes.Any(parameter.Name.StartsWith)
+                select $"{type.FullName}.{method.Name}[{parameter.Name}]")
                 .ToList();
 
             Assert.False(
                 parameters.Any(),
                 "\r\n-- Prefixed bool parameteres --\r\n" + string.Join(Environment.NewLine, parameters));
-
         }
 
         protected virtual IEnumerable<string> GetCancellationTokenExceptions() => Enumerable.Empty<string>();

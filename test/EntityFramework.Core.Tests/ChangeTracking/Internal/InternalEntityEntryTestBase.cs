@@ -1381,7 +1381,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanged != null)
                 {
@@ -1389,7 +1389,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 }
             }
 
-            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            private void NotifyChanging([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanging != null)
                 {
@@ -1431,7 +1431,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanged != null)
                 {

@@ -72,24 +72,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.CircularInheritance(a, a),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        a.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(a); }).Message);
 
             Assert.Equal(
                 CoreStrings.CircularInheritance(a, b),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        a.HasBaseType(b);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
 
             Assert.Equal(
                 CoreStrings.CircularInheritance(a, d),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        a.HasBaseType(d);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(d); }).Message);
         }
 
         [Fact]
@@ -102,10 +93,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NonShadowBaseType(b, a),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        b.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
         [Fact]
@@ -118,10 +106,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NonClrBaseType(b, a),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        b.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
         [Fact]
@@ -134,10 +119,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.NotAssignableClrBaseType(a, b, typeof(A).Name, typeof(B).Name),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        a.HasBaseType(b);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { a.HasBaseType(b); }).Message);
         }
 
         [Fact]
@@ -332,10 +314,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(typeof(B).FullName, typeof(A).FullName, "G"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        b.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
         [Fact]
@@ -356,10 +335,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(typeof(D).FullName, typeof(C).FullName, "E, G"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        d.HasBaseType(c);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { d.HasBaseType(c); }).Message);
         }
 
         [Fact]
@@ -380,10 +356,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicatePropertiesOnBase(typeof(C).FullName, typeof(A).FullName, "E, G"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        c.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { c.HasBaseType(a); }).Message);
         }
 
         [Fact]
@@ -494,20 +467,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        b.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
 
             b.RemoveKey(key.Properties);
             b.SetPrimaryKey(b.AddProperty(B.FProperty));
 
             Assert.Equal(
                 CoreStrings.DerivedEntityCannotHaveKeys(typeof(B).FullName),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        b.HasBaseType(a);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { b.HasBaseType(a); }).Message);
         }
 
         [Fact]
@@ -733,10 +700,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).FullName, typeof(Order).FullName, "Customer"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        specialOrderType.HasBaseType(orderType);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { specialOrderType.HasBaseType(orderType); }).Message);
         }
 
         [Fact]
@@ -766,10 +730,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateNavigationsOnBase(typeof(SpecialOrder).FullName, typeof(Order).FullName, "Customer"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        specialOrderType.HasBaseType(orderType);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { specialOrderType.HasBaseType(orderType); }).Message);
         }
 
         [Fact]
@@ -799,10 +760,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Equal(
                 CoreStrings.DuplicateNavigationsOnBase(typeof(VerySpecialOrder).FullName, typeof(SpecialOrder).FullName, "Customer"),
-                Assert.Throws<InvalidOperationException>(() =>
-                    {
-                        verySpecialOrderType.HasBaseType(specialOrderType);
-                    }).Message);
+                Assert.Throws<InvalidOperationException>(() => { verySpecialOrderType.HasBaseType(specialOrderType); }).Message);
         }
 
         [Fact]
@@ -1263,7 +1221,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(key1, entityType.FindKey(key1.Properties));
             Assert.Same(key2, entityType.FindKey(key2.Properties));
 
-            Assert.Null(entityType.SetPrimaryKey((Property)null));
+            Assert.Null(entityType.SetPrimaryKey(null));
 
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
@@ -1315,7 +1273,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Same(key1, entityType.FindKey(key1.Properties));
             Assert.Same(key2, entityType.FindKey(key2.Properties));
 
-            Assert.Null(entityType.SetPrimaryKey((Property)null));
+            Assert.Null(entityType.SetPrimaryKey(null));
 
             Assert.Null(entityType.FindPrimaryKey());
             Assert.Equal(2, entityType.GetKeys().Count());
@@ -1335,7 +1293,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var orderType = model.AddEntityType(typeof(Order));
             var fk = orderType.GetOrAddForeignKey(orderType.GetOrAddProperty(Order.CustomerIdProperty), customerPk, entityType);
 
-            entityType.SetPrimaryKey((Property)null);
+            entityType.SetPrimaryKey(null);
 
             Assert.Equal(1, entityType.GetKeys().Count());
             Assert.Same(customerPk, entityType.FindKey(idProperty));
@@ -2812,7 +2770,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             public event PropertyChangingEventHandler PropertyChanging;
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanged != null)
                 {
@@ -2820,7 +2778,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            private void NotifyChanging([CallerMemberName] String propertyName = "")
+            private void NotifyChanging([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanging != null)
                 {
@@ -2862,7 +2820,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             public event PropertyChangedEventHandler PropertyChanged;
 
-            private void NotifyChanged([CallerMemberName] String propertyName = "")
+            private void NotifyChanged([CallerMemberName] string propertyName = "")
             {
                 if (PropertyChanged != null)
                 {

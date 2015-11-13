@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -301,6 +302,7 @@ namespace Microsoft.Data.Entity.Tests
             [ForeignKey("CId")]
             public C C { get; set; }
         }
+
         private class EntityWithoutId
         {
             public string Name { get; set; }
@@ -327,7 +329,6 @@ namespace Microsoft.Data.Entity.Tests
         {
             public int Id { get; set; }
         }
-
 
         protected class EntityB
         {

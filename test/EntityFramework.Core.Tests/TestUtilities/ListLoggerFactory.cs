@@ -29,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.TestUtilities
 
         public ILogger CreateLogger(string name)
         {
-            if (_shouldCreateLogger != null
+            if ((_shouldCreateLogger != null)
                 && !_shouldCreateLogger(name))
             {
                 return Mock.Of<ILogger>();

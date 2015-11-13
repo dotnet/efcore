@@ -23,15 +23,15 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
         protected override void VerifyWarning(string expectedMessage, IModel model)
         {
             Validate(model);
-            
+
             Assert.Equal(LogLevel.Warning, Log[0].Item1);
             Assert.Equal(expectedMessage, Log[0].Item2);
         }
 
-        protected override void VerifyError(string expectedMessage, IModel model) 
+        protected override void VerifyError(string expectedMessage, IModel model)
             => Assert.Equal(expectedMessage, Assert.Throws<InvalidOperationException>(() => Validate(model)).Message);
 
-        protected override ModelValidator CreateModelValidator() 
+        protected override ModelValidator CreateModelValidator()
             => new LoggingModelValidator(
                 new Logger<LoggingModelValidator>(
                     new ListLoggerFactory(Log, l => l == typeof(LoggingModelValidator).FullName)));

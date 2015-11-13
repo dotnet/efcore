@@ -3,8 +3,6 @@
 
 using System;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
-using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
@@ -159,6 +157,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             public static int StaticProperty { get; set; }
 
             public int _writeOnlyField = 1;
+
             public int WriteOnlyProperty
             {
                 set { _writeOnlyField = value; }

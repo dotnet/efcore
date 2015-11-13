@@ -54,10 +54,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var comments0 = new[] { new Comment { Id = 33, PostId = 55 }, new Comment { Id = 34, PostId = 55 } };
                 var comments1 = new[] { new Comment { Id = 44, PostId = 56 }, new Comment { Id = 45, PostId = 56 } };
                 var posts = new[]
-                    {
-                        new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
-                        new Post { Id = 56, BlogId = 66, Comments = comments1.ToList() }
-                    };
+                {
+                    new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
+                    new Post { Id = 56, BlogId = 66, Comments = comments1.ToList() }
+                };
                 var blog = new Blog { Id = 66, Posts = posts.ToList() };
 
                 context.Attach(blog);
@@ -132,10 +132,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var comments0 = new[] { new Comment { Id = 33, PostId = 55 }, new Comment { Id = 34, PostId = 55 } };
                 var comments1 = new[] { new Comment { PostId = 56 }, new Comment { PostId = 56 } };
                 var posts = new[]
-                    {
-                        new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
-                        new Post { BlogId = 66, Comments = comments1.ToList() }
-                    };
+                {
+                    new Post { Id = 55, BlogId = 66, Comments = comments0.ToList() },
+                    new Post { BlogId = 66, Comments = comments1.ToList() }
+                };
                 var blog = new Blog { Id = 66, Posts = posts.ToList() };
 
                 context.Attach(blog);
@@ -176,10 +176,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
-                    {
-                        new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                        new Post { Id = 56, Author = author, Comments = comments1.ToList() }
-                    };
+                {
+                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
+                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
                 context.Add(blog);
@@ -208,10 +208,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
-                    {
-                        new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                        new Post { Id = 56, Author = author, Comments = comments1.ToList() }
-                    };
+                {
+                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
+                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
                 author.Comments = comments0.Concat(comments1).ToList();
@@ -244,10 +244,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
-                    {
-                        new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                        new Post { Id = 56, Author = author, Comments = comments1.ToList() }
-                    };
+                {
+                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
+                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
                 context.Attach(blog);
@@ -276,10 +276,10 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
                 var comments0 = new[] { new Comment { Id = 33, Author = author }, new Comment { Id = 34, Author = author } };
                 var comments1 = new[] { new Comment { Id = 44, Author = author }, new Comment { Id = 45, Author = author } };
                 var posts = new[]
-                    {
-                        new Post { Id = 55, Author = author, Comments = comments0.ToList() },
-                        new Post { Id = 56, Author = author, Comments = comments1.ToList() }
-                    };
+                {
+                    new Post { Id = 55, Author = author, Comments = comments0.ToList() },
+                    new Post { Id = 56, Author = author, Comments = comments1.ToList() }
+                };
                 var blog = new Blog { Id = 66, Author = author, Posts = posts.ToList() };
 
                 context.AddRange(blog, author);

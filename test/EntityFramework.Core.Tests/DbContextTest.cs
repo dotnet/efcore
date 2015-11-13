@@ -262,9 +262,9 @@ namespace Microsoft.Data.Entity.Tests
             }
 
             public InternalEntityEntry StartTracking(
-                IEntityType entityType, 
-                IKeyValue keyValue, 
-                object entity, 
+                IEntityType entityType,
+                IKeyValue keyValue,
+                object entity,
                 ValueBuffer valueBuffer)
             {
                 throw new NotImplementedException();
@@ -1616,7 +1616,7 @@ namespace Microsoft.Data.Entity.Tests
             var servicesMock = new Mock<IDatabaseProviderServices>();
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
-                { CallBase = true }.Object);
+            { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -1660,7 +1660,7 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
-                { CallBase = true }.Object);
+            { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
@@ -1708,11 +1708,11 @@ namespace Microsoft.Data.Entity.Tests
             servicesMock.Setup(m => m.Database).Returns(database.Object);
             servicesMock.Setup(m => m.ValueGeneratorSelector).Returns(valueGenMock.Object);
             servicesMock.Setup(m => m.ModelSource).Returns(new Mock<ModelSource>(new DbSetFinder(), new CoreConventionSetBuilder())
-                { CallBase = true }.Object);
+            { CallBase = true }.Object);
             servicesMock
                 .Setup(m => m.ModelValidator)
                 .Returns(new LoggingModelValidator(new Logger<LoggingModelValidator>(new LoggerFactory())));
-                
+
             var sourceMock = new Mock<IDatabaseProvider>();
             sourceMock.Setup(m => m.IsConfigured(It.IsAny<IDbContextOptions>())).Returns(true);
             sourceMock.Setup(m => m.GetProviderServices(It.IsAny<IServiceProvider>())).Returns(servicesMock.Object);
@@ -2191,8 +2191,8 @@ namespace Microsoft.Data.Entity.Tests
 
         private class ContextWithParameters : DbContext
         {
-            public int ParamInt { get; set; }
-            public string ParamStr { get; set; }
+            public int ParamInt { get; }
+            public string ParamStr { get; }
 
             public ContextWithParameters(int paramInt, string paramStr)
             {
@@ -2552,7 +2552,7 @@ namespace Microsoft.Data.Entity.Tests
             Assert.True(
                 methodCount == expectedMethodCount,
                 userMessage: $"Expected {expectedMethodCount} methods on DbContext but found {methodCount}. " +
-                    "Update test to ensure all methods throw ObjectDisposedException after dispose.");
+                             "Update test to ensure all methods throw ObjectDisposedException after dispose.");
 
             // getters
             Assert.Throws<ObjectDisposedException>(() => context.ChangeTracker);
@@ -2561,13 +2561,13 @@ namespace Microsoft.Data.Entity.Tests
             var expectedProperties = new List<string> { "ChangeTracker", "Database", "Model" };
 
             Assert.True(expectedProperties.SequenceEqual(
-                    typeof(DbContext)
+                typeof(DbContext)
                     .GetProperties()
                     .Select(p => p.Name)
                     .OrderBy(s => s)
                     .ToList()),
-                userMessage: "Unexpected properties on DbContext. " + 
-                    "Update test to ensure all getters throw ObjectDisposedException after dispose.");
+                userMessage: "Unexpected properties on DbContext. " +
+                             "Update test to ensure all getters throw ObjectDisposedException after dispose.");
 
             Assert.Throws<ObjectDisposedException>(() => ((IInfrastructure<IServiceProvider>)context).Instance);
         }
@@ -2602,13 +2602,14 @@ namespace Microsoft.Data.Entity.Tests
 
         public class FakeServiceProvider : IServiceProvider, IDisposable
         {
-            private IServiceProvider _realProvider;
+            private readonly IServiceProvider _realProvider;
 
             public FakeServiceProvider()
             {
                 _realProvider = ((IInfrastructure<IServiceCollection>)new ServiceCollection().AddEntityFramework())
                     .Instance.BuildServiceProvider();
             }
+
             public bool Disposed { get; set; }
 
             public void Dispose()
@@ -2633,8 +2634,8 @@ namespace Microsoft.Data.Entity.Tests
             {
                 public static FakeServiceScope Scope { get; } = new FakeServiceScope();
                 public IServiceScope CreateScope() => Scope;
-
             }
+
             public class FakeServiceScope : IServiceScope
             {
                 public bool Disposed { get; set; }

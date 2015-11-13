@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.ValueGeneration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +29,7 @@ namespace Microsoft.Data.Entity.Tests.ValueGeneration
             Assert.Same(generator2, cache.GetOrAdd(property2, entityType, (p, et) => new GuidValueGenerator()));
             Assert.NotSame(generator1, generator2);
         }
-        
+
         private static Model CreateModel(bool generateValues = true)
         {
             var model = new Model();

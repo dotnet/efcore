@@ -183,7 +183,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 principalEntityBuilder,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
-            
+
             Assert.Same(foreignKeyBuilder, new KeyConvention().Apply(foreignKeyBuilder));
 
             Assert.False(((IProperty)keyProperties[0]).RequiresValueGenerator);
@@ -353,7 +353,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             Assert.Equal(ValueGenerated.OnAdd, ((IProperty)property).ValueGenerated);
 
-            var relationshipBuilder= referencedEntityBuilder.HasForeignKey(
+            var relationshipBuilder = referencedEntityBuilder.HasForeignKey(
                 principalEntityBuilder,
                 referencedEntityBuilder.GetOrCreateProperties(properties, ConfigurationSource.Convention),
                 ConfigurationSource.Convention);
@@ -394,7 +394,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             Assert.Same(keyBuilder, new KeyConvention().Apply(keyBuilder));
 
             Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
-
         }
 
         #endregion
@@ -407,7 +406,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
-            entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
+            entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
 
             Assert.Equal(CoreStrings.ShadowKey("{'Foo'}", typeof(SampleEntity).FullName, "{'Foo'}"),
                 Assert.Throws<InvalidOperationException>(() => new KeyConvention().Apply(modelBuilder)).Message);
@@ -419,7 +418,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Foo", ConfigurationSource.Convention);
-            entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.DataAnnotation);
+            entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.DataAnnotation);
 
             Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
         }
@@ -430,7 +429,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var modelBuilder = new InternalModelBuilder(new Model());
             var entityTypeBuilder = modelBuilder.Entity(typeof(SampleEntity), ConfigurationSource.Convention);
             entityTypeBuilder.Property("Foo", ConfigurationSource.DataAnnotation);
-            entityTypeBuilder.HasKey(new List<string>() { "Foo" }, ConfigurationSource.Convention);
+            entityTypeBuilder.HasKey(new List<string> { "Foo" }, ConfigurationSource.Convention);
 
             Assert.Same(modelBuilder, new KeyConvention().Apply(modelBuilder));
         }

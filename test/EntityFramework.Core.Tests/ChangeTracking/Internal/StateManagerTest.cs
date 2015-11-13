@@ -664,7 +664,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var model = BuildModel();
             var stateManager = CreateStateManager(model);
             Assert.Equal(CoreStrings.EntityTypeNotFound(typeof(SpecialProduct).Name),
-                    Assert.Throws<InvalidOperationException>(() => stateManager.GetOrCreateEntry(new SpecialProduct())).Message);
+                Assert.Throws<InvalidOperationException>(() => stateManager.GetOrCreateEntry(new SpecialProduct())).Message);
         }
 
         private static IStateManager CreateStateManager(IModel model)

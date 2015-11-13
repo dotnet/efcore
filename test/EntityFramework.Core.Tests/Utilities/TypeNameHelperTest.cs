@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Utilities;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Tests.Utilities
@@ -109,20 +108,32 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal("ulong", typeof(ulong).DisplayName());
             Assert.Equal("ushort", typeof(ushort).DisplayName());
         }
-        private class A { }
 
-        private class B<T> { }
+        private class A
+        {
+        }
 
-        private class C<T1, T2> { }
+        private class B<T>
+        {
+        }
+
+        private class C<T1, T2>
+        {
+        }
 
         private class Outer<T>
         {
-            public class D { }
+            public class D
+            {
+            }
 
-            public class E<T1> { }
+            public class E<T1>
+            {
+            }
 
-            public class F<T1, T2> { }
+            public class F<T1, T2>
+            {
+            }
         }
-
     }
 }

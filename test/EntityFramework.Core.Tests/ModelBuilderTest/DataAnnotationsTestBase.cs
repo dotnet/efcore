@@ -8,6 +8,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public abstract partial class ModelBuilderTest
@@ -39,9 +40,9 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetailsBase)).GetNavigations().Select(nav => nav.Name));
                 Assert.Contains("AnotherBook", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
                 Assert.DoesNotContain("Book", model.FindEntityType(typeof(BookDetails)).GetNavigations().Select(nav => nav.Name));
-                
+
                 modelBuilder.Entity<BookDetails>().HasBaseType(null);
-                
+
                 Assert.Same(model.FindEntityType(typeof(BookDetails)),
                     model.FindEntityType(typeof(Book)).GetNavigations().Single(n => n.Name == "Details").ForeignKey.DeclaringEntityType);
                 Assert.Contains("Details", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
@@ -56,10 +57,10 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
                 var model = modelBuilder.Model;
                 modelBuilder.Entity<Book>();
-                
+
                 Assert.Equal("Label",
                     model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").FindInverse().Name);
-                
+
                 Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation("AlternateLabel").FindInverse());
             }
 
@@ -76,9 +77,9 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Equal("Label", model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
                 Assert.Contains("AlternateLabel", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));
                 Assert.Null(model.FindEntityType(typeof(Book)).FindNavigation("AlternateLabel").ForeignKey.PrincipalToDependent);
-                
+
                 modelBuilder.Entity<SpecialBookLabel>().HasBaseType(null);
-                
+
                 Assert.Null(model.FindEntityType(typeof(SpecialBookLabel)).GetNavigations().Single(n => n.Name == "Book").FindInverse());
                 Assert.Contains("Book", model.FindEntityType(typeof(BookLabel)).GetNavigations().Select(nav => nav.Name));
                 Assert.Equal("Label", model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
@@ -143,7 +144,6 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Null(model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.PrincipalToDependent);
                 Assert.Equal("AuthorDetailsId", model.FindEntityType(typeof(Author)).FindNavigation("AuthorDetails").ForeignKey.Properties.First().Name);
             }
-
 
             [Fact]
             public virtual void ForeignKeyAttribute_throws_if_applied_on_property_on_both_side_but_navigations_are_connected_by_inverse_property()

@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Linq;
-using Microsoft.Data.Entity.Metadata.Conventions;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
@@ -77,12 +76,12 @@ namespace Microsoft.Data.Entity.Metadata.ModelConventions
             public int Id { get; set; }
         }
 
-        private class OneToOnePrincipal: Base
+        private class OneToOnePrincipal : Base
         {
             public OneToOneDependent OneToOneDependent { get; set; }
         }
 
-        private class OneToOneDependent: Base
+        private class OneToOneDependent : Base
         {
             public OneToOnePrincipal OneToOnePrincipal { get; set; }
         }

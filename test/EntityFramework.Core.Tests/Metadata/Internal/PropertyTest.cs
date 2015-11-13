@@ -14,7 +14,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(object));
             var property = entityType.AddProperty("Kake");
-            
+
             Assert.Equal(typeof(string), property.ClrType);
 
             property.ClrType = typeof(int);
@@ -43,13 +43,13 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var stringProperty = entityType.AddProperty("stringName", typeof(string));
             var nullableIntProperty = entityType.AddProperty("nullableIntName", typeof(int?));
             var intProperty = entityType.AddProperty("intName", typeof(int));
-            
+
             Assert.True(stringProperty.IsNullable);
             Assert.True(nullableIntProperty.IsNullable);
             Assert.False(intProperty.IsNullable);
 
             entityType.SetPrimaryKey(stringProperty);
-            
+
             Assert.False(stringProperty.IsNullable);
         }
 
@@ -80,7 +80,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(stringProperty.IsNullable);
 
             stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
-            
+
             Assert.False(stringProperty.IsNullable);
         }
 
@@ -121,7 +121,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty(nameof(Entity.Name));
-            
+
             Assert.True(property.IsShadowProperty);
 
             property.ClrType = typeof(string);
@@ -140,7 +140,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             property.ClrType = typeof(int);
             Assert.Equal(CoreStrings.ClrPropertyOnShadowEntity(nameof(Entity.Name), "Entity"),
-            Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
+                Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             property.ClrType = typeof(int);
             Assert.Equal(CoreStrings.NoClrProperty("Random", nameof(Entity)),
-            Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
+                Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
         }
 
         [Fact]
@@ -162,7 +162,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             property.ClrType = typeof(int);
             Assert.Equal(CoreStrings.PropertyWrongClrType(nameof(Entity.Name), nameof(Entity)),
-            Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
+                Assert.Throws<InvalidOperationException>(() => property.IsShadowProperty = false).Message);
         }
 
         [Fact]
@@ -171,7 +171,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
-            
+
             Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
         }
 
@@ -195,7 +195,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
-            
+
             Assert.False(property.IsConcurrencyToken);
         }
 
@@ -220,7 +220,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
-            
+
             Assert.False(property.IsStoreGeneratedAlways);
 
             property.IsStoreGeneratedAlways = true;
@@ -261,7 +261,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
-            
+
             Assert.False(property.IsReadOnlyAfterSave);
             Assert.False(property.IsReadOnlyBeforeSave);
         }
@@ -300,7 +300,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var entityType = new Model().AddEntityType(typeof(Entity));
             var property = entityType.AddProperty("Name", typeof(string));
             property.IsShadowProperty = false;
-            
+
             Assert.False(property.IsReadOnlyBeforeSave);
             Assert.False(property.IsReadOnlyAfterSave);
 

@@ -304,9 +304,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
             Assert.Equal(
                 new[] { vertexOne },
                 graph.TopologicalSort((from, to, edges) =>
-                    from == vertexOne &&
-                    to == vertexOne &&
-                    edges.Intersect(new[] { edgeOne }).Count() == 1).ToArray());
+                    (@from == vertexOne) &&
+                    (to == vertexOne) &&
+                    (edges.Intersect(new[] { edgeOne }).Count() == 1)).ToArray());
         }
 
         [Fact]
@@ -334,9 +334,9 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                 new[] { vertexOne, vertexTwo, vertexThree },
                 graph.TopologicalSort(
                     (from, to, edges) =>
-                        from == vertexThree &&
-                        to == vertexOne &&
-                        edges.Single() == edgeThree).ToArray());
+                        (@from == vertexThree) &&
+                        (to == vertexOne) &&
+                        (edges.Single() == edgeThree)).ToArray());
         }
 
         public void TopologicalSort_can_break_two_cycles()
@@ -375,7 +375,7 @@ namespace Microsoft.Data.Entity.Tests.Utilities
                     (from, to, edges) =>
                         {
                             var edge = edges.Single();
-                            return edge == edgeOne || edge == edgeSix;
+                            return (edge == edgeOne) || (edge == edgeSix);
                         }).ToArray());
         }
 

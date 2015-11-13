@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
@@ -154,7 +155,7 @@ namespace Microsoft.Data.Entity.Tests
 
             Assert.Throws<ObjectDisposedException>(() => context.Database.GetService<IModel>());
 
-            foreach (var methodInfo in facade.GetType().GetMethods(System.Reflection.BindingFlags.Public))
+            foreach (var methodInfo in facade.GetType().GetMethods(BindingFlags.Public))
             {
                 Assert.Throws<ObjectDisposedException>(() => methodInfo.Invoke(facade, null));
             }

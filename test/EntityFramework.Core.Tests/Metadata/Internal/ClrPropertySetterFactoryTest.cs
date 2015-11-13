@@ -132,11 +132,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private class Customer
         {
-            public readonly static PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
-            public readonly static PropertyInfo OptionalIntProperty = typeof(Customer).GetProperty("OptionalInt");
-            public readonly static PropertyInfo ContentProperty = typeof(Customer).GetProperty("Content");
-            public readonly static PropertyInfo FlagProperty = typeof(Customer).GetProperty("Flag");
-            public readonly static PropertyInfo OptionalFlagProperty = typeof(Customer).GetProperty("OptionalFlag");
+            public static readonly PropertyInfo IdProperty = typeof(Customer).GetProperty("Id");
+            public static readonly PropertyInfo OptionalIntProperty = typeof(Customer).GetProperty("OptionalInt");
+            public static readonly PropertyInfo ContentProperty = typeof(Customer).GetProperty("Content");
+            public static readonly PropertyInfo FlagProperty = typeof(Customer).GetProperty("Flag");
+            public static readonly PropertyInfo OptionalFlagProperty = typeof(Customer).GetProperty("OptionalFlag");
 
             public int Id { get; set; }
             public string Content { get; set; }

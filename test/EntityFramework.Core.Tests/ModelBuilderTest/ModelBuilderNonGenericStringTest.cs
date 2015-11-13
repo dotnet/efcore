@@ -9,6 +9,7 @@ using Microsoft.Data.Entity.Metadata.Builders;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.Data.Entity.Tests
 {
     public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest

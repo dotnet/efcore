@@ -911,7 +911,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 Assert.Equal(1, principalEntityType.GetDeclaredProperties().Count());
                 Assert.Equal(1, principalEntityType.GetKeys().Count());
                 Assert.Empty(principalEntityType.GetDeclaredForeignKeys());
-                if (expectedInverseName == null
+                if ((expectedInverseName == null)
                     && navigation.IsDependentToPrincipal())
                 {
                     Assert.Empty(principalEntityType.GetNavigations());
@@ -920,7 +920,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 var dependentEntityType = fk.DeclaringEntityType;
                 Assert.Equal(1, dependentEntityType.GetDeclaredProperties().Count());
                 Assert.Equal(principalEntityType.IsAssignableFrom(dependentEntityType) ? 1 : 0, dependentEntityType.GetKeys().Count());
-                if (expectedInverseName == null
+                if ((expectedInverseName == null)
                     && !navigation.IsDependentToPrincipal())
                 {
                     Assert.Empty(dependentEntityType.GetNavigations());

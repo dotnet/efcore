@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Tests.Infrastructure
     {
         protected override void VerifyError(string expectedMessage, IModel model) => VerifyWarning(expectedMessage, model);
 
-        protected override ModelValidator CreateModelValidator() 
+        protected override ModelValidator CreateModelValidator()
             => new NonThrowingModelValidator(
                 new Logger<NonThrowingModelValidator>(
                     new ListLoggerFactory(Log, l => l == typeof(NonThrowingModelValidator).FullName)));

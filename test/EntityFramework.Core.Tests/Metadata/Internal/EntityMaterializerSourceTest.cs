@@ -12,7 +12,7 @@ using Xunit;
 // ReSharper disable ConvertToAutoProperty
 
 namespace Microsoft.Data.Entity.Metadata.Internal
-{ 
+{
     public class EntityMaterializerSourceTest
     {
         [Fact]
@@ -120,11 +120,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private class SomeEntity
         {
-            public readonly static PropertyInfo IdProperty = typeof(SomeEntity).GetProperty("Id");
-            public readonly static PropertyInfo FooProperty = typeof(SomeEntity).GetProperty("Foo");
-            public readonly static PropertyInfo GooProperty = typeof(SomeEntity).GetProperty("Goo");
-            public readonly static PropertyInfo EnumProperty = typeof(SomeEntity).GetProperty("Enum");
-            public readonly static PropertyInfo MaybeEnumProperty = typeof(SomeEntity).GetProperty("MaybeEnum");
+            public static readonly PropertyInfo IdProperty = typeof(SomeEntity).GetProperty("Id");
+            public static readonly PropertyInfo FooProperty = typeof(SomeEntity).GetProperty("Foo");
+            public static readonly PropertyInfo GooProperty = typeof(SomeEntity).GetProperty("Goo");
+            public static readonly PropertyInfo EnumProperty = typeof(SomeEntity).GetProperty("Enum");
+            public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntity).GetProperty("MaybeEnum");
 
             // ReSharper disable UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
@@ -137,11 +137,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private class SomeEntityWithFields
         {
-            public readonly static PropertyInfo IdProperty = typeof(SomeEntityWithFields).GetProperty("Id");
-            public readonly static PropertyInfo FooProperty = typeof(SomeEntityWithFields).GetProperty("Foo");
-            public readonly static PropertyInfo GooProperty = typeof(SomeEntityWithFields).GetProperty("Goo");
-            public readonly static PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
-            public readonly static PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
+            public static readonly PropertyInfo IdProperty = typeof(SomeEntityWithFields).GetProperty("Id");
+            public static readonly PropertyInfo FooProperty = typeof(SomeEntityWithFields).GetProperty("Foo");
+            public static readonly PropertyInfo GooProperty = typeof(SomeEntityWithFields).GetProperty("Goo");
+            public static readonly PropertyInfo EnumProperty = typeof(SomeEntityWithFields).GetProperty("Enum");
+            public static readonly PropertyInfo MaybeEnumProperty = typeof(SomeEntityWithFields).GetProperty("MaybeEnum");
 
 #pragma warning disable 649
             private int _id;

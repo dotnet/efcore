@@ -31,7 +31,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private class E
         {
-             public E Deception { get; set; }
+            public E Deception { get; set; }
         }
     }
 }

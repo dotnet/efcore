@@ -19,8 +19,8 @@ namespace Microsoft.Data.Entity.Tests.Storage
             var serviceProvider = Mock.Of<IServiceProvider>();
 
             var selector = new DatabaseProviderSelector(
-                serviceProvider, 
-                Mock.Of<IDbContextOptions>(), 
+                serviceProvider,
+                Mock.Of<IDbContextOptions>(),
                 new[] { provider });
 
             Assert.Same(provider.GetProviderServices(serviceProvider), selector.SelectServices(ServiceProviderSource.Explicit));

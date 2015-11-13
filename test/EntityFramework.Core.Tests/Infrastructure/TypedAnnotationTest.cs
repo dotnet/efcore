@@ -176,11 +176,11 @@ namespace Microsoft.Data.Entity.Infrastructure
         [Fact]
         public void Can_covert_to_and_from_byte_array()
         {
-            var annotation = new TypedAnnotation(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 });
+            var annotation = new TypedAnnotation(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 });
 
-            Assert.Equal(new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, annotation.Value);
+            Assert.Equal(new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 }, annotation.Value);
             Assert.Equal(
-                new Byte[] { 69, 70, 32, 82, 79, 67, 75, 83 },
+                new byte[] { 69, 70, 32, 82, 79, 67, 75, 83 },
                 new TypedAnnotation(annotation.TypeString, annotation.ValueString).Value);
         }
 
