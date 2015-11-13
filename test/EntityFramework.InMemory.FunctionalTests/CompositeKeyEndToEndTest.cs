@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var pegasus = context.Pegasuses.Single(e => e.Id1 == ticks && e.Id2 == ticks + 1);
+                var pegasus = context.Pegasuses.Single(e => (e.Id1 == ticks) && (e.Id2 == ticks + 1));
 
                 pegasus.Name = "Rainbow Crash";
 
@@ -42,7 +42,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var pegasus = context.Pegasuses.Single(e => e.Id1 == ticks && e.Id2 == ticks + 1);
+                var pegasus = context.Pegasuses.Single(e => (e.Id1 == ticks) && (e.Id2 == ticks + 1));
 
                 Assert.Equal("Rainbow Crash", pegasus.Name);
 
@@ -53,7 +53,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                Assert.Equal(0, context.Pegasuses.Count(e => e.Id1 == ticks && e.Id2 == ticks + 1));
+                Assert.Equal(0, context.Pegasuses.Count(e => (e.Id1 == ticks) && (e.Id2 == ticks + 1)));
             }
         }
 
@@ -85,12 +85,12 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                Assert.Equal(1, context.Unicorns.Count(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3));
+                Assert.Equal(1, context.Unicorns.Count(e => (e.Id1 == id1) && (e.Id2 == id2) && (e.Id3 == id3)));
             }
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var unicorn = context.Unicorns.Single(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3);
+                var unicorn = context.Unicorns.Single(e => (e.Id1 == id1) && (e.Id2 == id2) && (e.Id3 == id3));
 
                 unicorn.Name = "Bad Hair Day";
 
@@ -99,7 +99,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                var unicorn = context.Unicorns.Single(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3);
+                var unicorn = context.Unicorns.Single(e => (e.Id1 == id1) && (e.Id2 == id2) && (e.Id3 == id3));
 
                 Assert.Equal("Bad Hair Day", unicorn.Name);
 
@@ -110,7 +110,7 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
 
             using (var context = new BronieContext(serviceProvider))
             {
-                Assert.Equal(0, context.Unicorns.Count(e => e.Id1 == id1 && e.Id2 == id2 && e.Id3 == id3));
+                Assert.Equal(0, context.Unicorns.Count(e => (e.Id1 == id1) && (e.Id2 == id2) && (e.Id3 == id3)));
             }
         }
 
@@ -191,27 +191,27 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
                 modelBuilder.Entity<Pegasus>().HasKey(e => new { e.Id1, e.Id2 });
                 modelBuilder
                     .Entity<Pegasus>(b =>
+                        {
+                            b.HasKey(e => new { e.Id1, e.Id2 });
+                            b.Property(e => e.Id1).ValueGeneratedOnAdd();
+                            b.Property(e => e.Id2).ValueGeneratedOnAdd();
+                        });
+
+                modelBuilder.Entity<Unicorn>().HasKey(e => new { e.Id1, e.Id2, e.Id3 });
+                modelBuilder.Entity<Unicorn>(b =>
+                    {
+                        b.HasKey(e => new { e.Id1, e.Id2, e.Id3 });
+                        b.Property(e => e.Id1).ValueGeneratedOnAdd();
+                        b.Property(e => e.Id3).ValueGeneratedOnAdd();
+                    });
+
+                modelBuilder.Entity<EarthPony>().HasKey(e => new { e.Id1, e.Id2 });
+                modelBuilder.Entity<EarthPony>(b =>
                     {
                         b.HasKey(e => new { e.Id1, e.Id2 });
                         b.Property(e => e.Id1).ValueGeneratedOnAdd();
                         b.Property(e => e.Id2).ValueGeneratedOnAdd();
                     });
-
-                modelBuilder.Entity<Unicorn>().HasKey(e => new { e.Id1, e.Id2, e.Id3 });
-                modelBuilder.Entity<Unicorn>(b =>
-                {
-                    b.HasKey(e => new { e.Id1, e.Id2, e.Id3 });
-                    b.Property(e => e.Id1).ValueGeneratedOnAdd();
-                    b.Property(e => e.Id3).ValueGeneratedOnAdd();
-                });
-
-                modelBuilder.Entity<EarthPony>().HasKey(e => new { e.Id1, e.Id2 });
-                modelBuilder.Entity<EarthPony>(b =>
-                {
-                    b.HasKey(e => new { e.Id1, e.Id2 });
-                    b.Property(e => e.Id1).ValueGeneratedOnAdd();
-                    b.Property(e => e.Id2).ValueGeneratedOnAdd();
-                });
             }
         }
 

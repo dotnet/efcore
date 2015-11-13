@@ -24,10 +24,10 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             _testModelSource = new TestModelSource(onModelCreating, setFinder, coreConventionSetBuilder);
         }
 
-        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator) 
+        public override IModel GetModel(DbContext context, IConventionSetBuilder conventionSetBuilder, IModelValidator validator)
             => _testModelSource.GetModel(context, conventionSetBuilder, validator);
 
-        public static Func<IServiceProvider, InMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating) 
+        public static Func<IServiceProvider, InMemoryModelSource> GetFactory(Action<ModelBuilder> onModelCreating)
             => p => new TestInMemoryModelSource(
                 onModelCreating,
                 p.GetRequiredService<IDbSetFinder>(),

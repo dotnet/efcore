@@ -28,8 +28,9 @@ namespace Microsoft.Data.Entity.InMemory.FunctionalTests
             optionsBuilder.UseInMemoryDatabase();
             _options = optionsBuilder.Options;
         }
-        
+
         public override DbContext CreateContext() => new DbContext(_serviceProvider, _options);
+
         public override void Dispose()
         {
             _testStore.Dispose();
