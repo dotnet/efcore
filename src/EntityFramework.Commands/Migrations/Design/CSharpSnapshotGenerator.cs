@@ -430,6 +430,15 @@ namespace Microsoft.Data.Entity.Migrations.Design
                             .Append(string.Join(", ", foreignKey.PrincipalKey.Properties.Select(p => _code.Literal(p.Name))))
                             .Append(")");
                     }
+
+                    if (foreignKey.DeleteBehavior != DeleteBehavior.Restrict)
+                    {
+                        stringBuilder
+                            .AppendLine()
+                            .Append(".OnDelete(DeleteBehavior.")
+                            .Append(foreignKey.DeleteBehavior.ToString())
+                            .Append(")");
+                    }
                 }
             }
 

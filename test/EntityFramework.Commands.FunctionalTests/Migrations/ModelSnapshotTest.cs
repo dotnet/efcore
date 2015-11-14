@@ -690,6 +690,46 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                 o => { Assert.False(o.FindEntityType(typeof(EntityWithStringProperty)).GetForeignKeys().First().IsUnique); });
         }
 
+        [Fact]
+        public void ForeignKey_deleteBehavior_is_stored_in_snapshot()
+        {
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithOneProperty>()
+                        .HasOne<EntityWithTwoProperties>()
+                        .WithMany()
+                        .HasForeignKey(e => e.Id);
+                },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.Property<int>(""Id"");
+
+        b.HasKey(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<int>(""AlternateId"");
+
+        b.HasKey(""Id"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
+    {
+        b.HasOne(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"")
+            .WithMany()
+            .HasForeignKey(""Id"")
+            .OnDelete(DeleteBehavior.Cascade);
+    });
+",
+                o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
+        }
+
         #endregion
 
         private void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel> assert)
