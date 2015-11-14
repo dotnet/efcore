@@ -24,6 +24,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private readonly EntityQueryModelVisitor _queryModelVisitor;
         private readonly List<NavigationJoin> _navigationJoins = new List<NavigationJoin>();
         private readonly NavigationRewritingQueryModelVisitor _navigationRewritingQueryModelVisitor;
+        private readonly NavigationRewritingExpressionVisitor _parentvisitor;
 
         private QueryModel _queryModel;
 
@@ -84,10 +85,11 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         private NavigationRewritingExpressionVisitor(
-            EntityQueryModelVisitor queryModelVisitor, IAsyncQueryProvider entityQueryProvider)
+            EntityQueryModelVisitor queryModelVisitor, IAsyncQueryProvider entityQueryProvider, NavigationRewritingExpressionVisitor parentvisitor)
             : this(queryModelVisitor)
         {
             _entityQueryProvider = entityQueryProvider;
+            _parentvisitor = parentvisitor;
         }
 
         public virtual void Rewrite([NotNull] QueryModel queryModel)
@@ -98,23 +100,33 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
 
             _navigationRewritingQueryModelVisitor.VisitQueryModel(_queryModel);
 
-            var insertionIndex = 0;
-
             foreach (var navigationJoin in _navigationJoins)
             {
-                var bodyClause = navigationJoin.QuerySource as IBodyClause;
+                InsertNavigationJoin(navigationJoin);
+            }
+        }
 
-                if (bodyClause != null)
-                {
-                    insertionIndex = queryModel.BodyClauses.IndexOf(bodyClause) + 1;
-                }
+        private void InsertNavigationJoin(NavigationJoin navigationJoin)
+        {
+            var insertionIndex = 0;
+            var bodyClause = navigationJoin.QuerySource as IBodyClause;
+            if (bodyClause != null)
+            {
+                insertionIndex = _queryModel.BodyClauses.IndexOf(bodyClause) + 1;
+            }
 
-                var i = insertionIndex;
-
+            if (_queryModel.MainFromClause == navigationJoin.QuerySource 
+                || insertionIndex > 0 
+                || _parentvisitor == null)
+            {
                 foreach (var nj in navigationJoin.Iterate())
                 {
-                    queryModel.BodyClauses.Insert(i++, nj.JoinClause);
+                    _queryModel.BodyClauses.Insert(insertionIndex++, nj.JoinClause);
                 }
+            }
+            else
+            {
+                _parentvisitor.InsertNavigationJoin(navigationJoin);
             }
         }
 
@@ -351,7 +363,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         }
 
         public virtual NavigationRewritingExpressionVisitor CreateVisitorForSubQuery()
-            => new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider);
+            => new NavigationRewritingExpressionVisitor(_queryModelVisitor, _entityQueryProvider, this);
 
         private static BinaryExpression CreateKeyComparisonExpression(Expression leftExpression, Expression rightExpression)
         {
@@ -572,11 +584,17 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
                 => whereClause.TransformExpressions(_parentVisitor.Visit);
 
+            public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+                => orderByClause.TransformExpressions(_parentVisitor.Visit);
+
             public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
                 => ordering.TransformExpressions(_parentVisitor.Visit);
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
                 => selectClause.TransformExpressions(_parentVisitor.Visit);
+
+            public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+                => resultOperator.TransformExpressions(_parentVisitor.Visit);
         }
     }
 }

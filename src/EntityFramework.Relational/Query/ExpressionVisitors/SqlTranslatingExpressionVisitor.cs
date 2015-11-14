@@ -496,15 +496,27 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 if (contains != null)
                 {
                     var parameter = subQueryModel.MainFromClause.FromExpression as ParameterExpression;
-                    var memberItem = contains.Item as MemberExpression;
-
-                    if ((parameter != null)
-                        && (memberItem != null))
+                    if (parameter != null)
                     {
-                        var aliasExpression = (AliasExpression)VisitMember(memberItem);
+                        var memberItem = contains.Item as MemberExpression;
+                        if (memberItem != null)
+                        {
+                            var aliasExpression = (AliasExpression)VisitMember(memberItem);
 
-                        return new InExpression(aliasExpression, new[] { parameter });
+                            return new InExpression(aliasExpression, new[] { parameter });
+                        }
+
+                        var methodCallItem = contains.Item as MethodCallExpression;
+                        if (methodCallItem != null 
+                            && methodCallItem.Method.IsGenericMethod 
+                            && methodCallItem.Method.GetGenericMethodDefinition() == EntityQueryModelVisitor.PropertyMethodInfo)
+                        {
+                            var aliasExpression = (AliasExpression)VisitMethodCall(methodCallItem);
+
+                            return new InExpression(aliasExpression, new[] { parameter });
+                        }
                     }
+
                 }
             }
             else if (!(subQueryModel.GetOutputDataInfo() is StreamedSequenceInfo))

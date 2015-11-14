@@ -463,6 +463,73 @@ FROM [Orders] AS [o]",
                 Sql);
         }
 
+        public override void Navigation_fk_based_inside_contains()
+        {
+            base.Navigation_fk_based_inside_contains();
+
+            Assert.StartsWith(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] IN ('ALFKI')",
+                Sql);
+        }
+
+        public override void Navigation_inside_contains()
+        {
+            base.Navigation_inside_contains();
+
+            Assert.StartsWith(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o.Customer].[City] IN ('Novigrad', 'Seattle')",
+                Sql);
+        }
+
+        public override void Navigation_inside_contains_nested()
+        {
+            base.Navigation_inside_contains_nested();
+
+            Assert.StartsWith(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+INNER JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+WHERE [od.Order.Customer].[City] IN ('Novigrad', 'Seattle')",
+                Sql);
+        }
+
+        public override void Navigation_from_join_clause_inside_contains()
+        {
+            base.Navigation_from_join_clause_inside_contains();
+
+            Assert.StartsWith(
+                @"SELECT [od].[OrderID], [od].[ProductID], [od].[Discount], [od].[Quantity], [od].[UnitPrice]
+FROM [Order Details] AS [od]
+INNER JOIN [Orders] AS [o] ON [od].[OrderID] = [o].[OrderID]
+INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE [o.Customer].[Country] IN ('USA', 'Redania')",
+                Sql);
+        }
+
+        public override void Navigation_in_subquery_referencing_outer_query()
+        {
+            base.Navigation_in_subquery_referencing_outer_query();
+
+            Assert.StartsWith(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o.Customer].[Country]
+FROM [Orders] AS [o]
+INNER JOIN [Customers] AS [o.Customer] ON [o].[CustomerID] = [o.Customer].[CustomerID]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [od]
+    INNER JOIN [Orders] AS [od.Order] ON [od].[OrderID] = [od.Order].[OrderID]
+    INNER JOIN [Customers] AS [od.Order.Customer] ON [od.Order].[CustomerID] = [od.Order.Customer].[CustomerID]
+    WHERE ([o.Customer].[Country] = [od.Order.Customer].[Country]) OR ([o.Customer].[Country] IS NULL AND [od.Order.Customer].[Country] IS NULL)
+) > 0",
+                Sql);
+        }
+
         private static string Sql => TestSqlLoggerFactory.Sql;
 
         public QueryNavigationsSqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)

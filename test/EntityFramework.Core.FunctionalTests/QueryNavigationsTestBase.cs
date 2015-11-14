@@ -527,6 +527,88 @@ namespace Microsoft.Data.Entity.FunctionalTests
             }
         }
 
+        [Fact]
+        public virtual void Navigation_fk_based_inside_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = from o in context.Orders
+                       where new[] { "ALFKI", }.Contains(o.Customer.CustomerID)
+                       select o;
+
+                var result = query.ToList();
+
+                Assert.Equal(6, result.Count);
+                Assert.True(result.All(e => e.CustomerID == "ALFKI"));
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_inside_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = from o in context.Orders
+                       where new[] { "Novigrad", "Seattle" }.Contains(o.Customer.City)
+                       select o;
+
+                var result = query.ToList();
+
+                Assert.Equal(14, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_inside_contains_nested()
+        {
+            using (var context = CreateContext())
+            {
+                var query
+                    = from od in context.OrderDetails
+                       where new[] { "Novigrad", "Seattle" }.Contains(od.Order.Customer.City)
+                       select od;
+
+                var result = query.ToList();
+
+                Assert.Equal(40, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_from_join_clause_inside_contains()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from od in context.OrderDetails
+                            join o in context.Orders on od.OrderID equals o.OrderID
+                            where new[] { "USA", "Redania" }.Contains(o.Customer.Country)
+                            select od;
+
+                var result = query.ToList();
+
+                Assert.Equal(352, result.Count);
+            }
+        }
+
+        [Fact]
+        public virtual void Navigation_in_subquery_referencing_outer_query()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from o in context.Orders
+                            where ((from od in context.OrderDetails
+                                    where o.Customer.Country == od.Order.Customer.Country
+                                    select od).Count() > 0)
+                            select o;
+
+                var result = query.ToList();
+
+                Assert.Equal(830, result.Count);
+            }
+        }
+
         protected QueryNavigationsTestBase(TFixture fixture)
         {
             Fixture = fixture;
