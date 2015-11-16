@@ -124,7 +124,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
 
             Assert.True(foreignKey.IsRequired);
-            Assert.True(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]
@@ -139,7 +138,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var foreignKey = entityType.AddForeignKey(new[] { dependentProp }, entityType.FindPrimaryKey(), entityType);
 
             Assert.False(foreignKey.IsRequired);
-            Assert.False(((IForeignKey)foreignKey).IsRequired);
         }
 
         [Fact]

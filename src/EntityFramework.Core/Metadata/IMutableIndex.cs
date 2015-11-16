@@ -19,7 +19,7 @@ namespace Microsoft.Data.Entity.Metadata
         /// <summary>
         ///     Gets or sets a value indicating whether the values assigned to the indexed properties are unique.
         /// </summary>
-        new bool? IsUnique { get; set; }
+        new bool IsUnique { get; set; }
 
         /// <summary>
         ///     Gets the properties that this index is defined on.

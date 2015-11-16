@@ -46,8 +46,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal.Configuration
                     sb.Append(")");
                 }
 
-                if (Index.IsUnique.HasValue
-                    && Index.IsUnique.Value)
+                if (Index.IsUnique)
                 {
                     sb.Append("." + nameof(IndexBuilder.IsUnique) + "()");
                 }

@@ -351,7 +351,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         {
             var model = BuildModel();
             var entityType = model.FindEntityType(typeof(SomeEntity).FullName);
-            var keyProperty = (IProperty)entityType.FindProperty("Id");
+            var keyProperty = entityType.FindProperty("Id");
             var baseEntityType = model.FindEntityType(typeof(SomeSimpleEntityBase).FullName);
             var nonKeyProperty = baseEntityType.AddProperty("NonId", typeof(int));
             nonKeyProperty.RequiresValueGenerator = true;
@@ -450,7 +450,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             var entityType = model.FindEntityType(typeof(SomeDependentEntity).FullName);
             var keyProperties = new[] { entityType.FindProperty("Id1"), entityType.FindProperty("Id2") };
             var fkProperty = entityType.FindProperty("SomeEntityId");
-            var property = (IProperty)entityType.FindProperty("JustAProperty");
+            var property = entityType.FindProperty("JustAProperty");
             var configuration = TestHelpers.Instance.CreateContextServices(model);
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeDependentEntity());

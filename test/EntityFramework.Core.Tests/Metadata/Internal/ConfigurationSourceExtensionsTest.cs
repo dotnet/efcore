@@ -28,16 +28,5 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(ConfigurationSource.Explicit, ConfigurationSource.Convention.Max(ConfigurationSource.Explicit));
             Assert.Equal(ConfigurationSource.Convention, ConfigurationSource.Convention.Max(null));
         }
-
-        [Fact]
-        public void CanSet_returns_expected_value()
-        {
-            Assert.True(ConfigurationSource.Explicit.CanSet(ConfigurationSource.Convention, true));
-            Assert.False(ConfigurationSource.Convention.CanSet(ConfigurationSource.Explicit, true));
-            Assert.False(ConfigurationSource.Convention.CanSet(null, true));
-            Assert.True(ConfigurationSource.Explicit.CanSet(ConfigurationSource.Convention, false));
-            Assert.True(ConfigurationSource.Convention.CanSet(ConfigurationSource.Explicit, false));
-            Assert.True(ConfigurationSource.Convention.CanSet(null, false));
-        }
     }
 }

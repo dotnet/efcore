@@ -13,7 +13,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
     {
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
-            var foreignKey = (IForeignKey)relationshipBuilder.Metadata;
+            var foreignKey = relationshipBuilder.Metadata;
             if (!foreignKey.Properties.All(fk => fk.IsShadowProperty))
             {
                 return relationshipBuilder;
@@ -239,14 +239,13 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
 
         private static Property TryGetProperty(EntityType entityType, string name, Type type)
         {
-            foreach (var mutableProperty in entityType.GetProperties())
+            foreach (var property in entityType.GetProperties())
             {
-                var property = (IProperty)mutableProperty;
                 if (property.Name.Equals(name, StringComparison.OrdinalIgnoreCase)
                     && !property.IsShadowProperty
                     && (property.ClrType.UnwrapNullableType() == type))
                 {
-                    return mutableProperty;
+                    return property;
                 }
             }
             return null;

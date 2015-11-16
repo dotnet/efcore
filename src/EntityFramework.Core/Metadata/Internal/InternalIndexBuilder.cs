@@ -8,29 +8,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 {
     public class InternalIndexBuilder : InternalMetadataItemBuilder<Index>
     {
-        private ConfigurationSource? _isUniqueConfigurationSource;
-
         public InternalIndexBuilder([NotNull] Index index, [NotNull] InternalModelBuilder modelBuilder)
             : base(index, modelBuilder)
         {
         }
 
-        public virtual bool IsUnique(bool? isUnique, ConfigurationSource configurationSource)
+        public virtual bool IsUnique(bool isUnique, ConfigurationSource configurationSource)
         {
-            if (configurationSource.CanSet(_isUniqueConfigurationSource, Metadata.IsUnique.HasValue)
-                || (Metadata.IsUnique.Value == isUnique))
+            if (configurationSource.Overrides(Metadata.GetIsUniqueConfigurationSource())
+                || (Metadata.IsUnique == isUnique))
             {
-                if ((_isUniqueConfigurationSource == null)
-                    && (Metadata.IsUnique != null))
-                {
-                    _isUniqueConfigurationSource = ConfigurationSource.Explicit;
-                }
-                else
-                {
-                    _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
-                }
-
-                Metadata.IsUnique = isUnique;
+                Metadata.SetIsUnique(isUnique, configurationSource);
                 return true;
             }
 
@@ -44,9 +32,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             newIndexBuilder.MergeAnnotationsFrom(this);
 
-            if (_isUniqueConfigurationSource.HasValue)
+            var isUniqueConfigurationSource = Metadata.GetIsUniqueConfigurationSource();
+            if (isUniqueConfigurationSource.HasValue)
             {
-                newIndexBuilder.IsUnique(Metadata.IsUnique, _isUniqueConfigurationSource.Value);
+                newIndexBuilder.IsUnique(Metadata.IsUnique, isUniqueConfigurationSource.Value);
             }
 
             return newIndexBuilder;

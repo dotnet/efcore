@@ -1414,6 +1414,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var key1 = entityType.GetOrSetPrimaryKey(new[] { idProperty, nameProperty });
             var key2 = entityType.GetOrAddKey(idProperty);
 
+            Assert.NotNull(key1.Builder);
+            Assert.NotNull(key2.Builder);
             Assert.Equal(new[] { key2, key1 }, entityType.GetKeys().ToArray());
 
             Assert.Same(key1, entityType.RemoveKey(key1.Properties));
@@ -1423,6 +1425,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Same(key2, entityType.RemoveKey(new[] { idProperty }));
 
+            Assert.Null(key1.Builder);
+            Assert.Null(key2.Builder);
             Assert.Empty(entityType.GetKeys());
         }
 
@@ -2120,6 +2124,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             var index2 = entityType.AddIndex(new[] { property1, property2 });
 
+            Assert.NotNull(index1.Builder);
+            Assert.NotNull(index2.Builder);
             Assert.Equal(2, index2.Properties.Count);
             Assert.Same(index2, entityType.GetOrAddIndex(new[] { property1, property2 }));
             Assert.Same(index2, entityType.FindIndex(new[] { property1, property2 }));
@@ -2138,6 +2144,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Same(index2, entityType.RemoveIndex(new[] { property1, property2 }));
 
+            Assert.Null(index1.Builder);
+            Assert.Null(index2.Builder);
             Assert.Equal(0, entityType.GetIndexes().Count());
         }
 
@@ -2188,6 +2196,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var property2 = entityType.AddProperty("Name", typeof(string));
             property2.IsShadowProperty = false;
 
+            Assert.NotNull(property1.Builder);
+            Assert.NotNull(property2.Builder);
             Assert.True(new[] { property1, property2 }.SequenceEqual(entityType.GetProperties()));
 
             Assert.Same(property1, entityType.RemoveProperty(property1.Name));
@@ -2197,6 +2207,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Assert.Same(property2, entityType.RemoveProperty("Name"));
 
+            Assert.Null(property1.Builder);
+            Assert.Null(property2.Builder);
             Assert.Empty(entityType.GetProperties());
         }
 

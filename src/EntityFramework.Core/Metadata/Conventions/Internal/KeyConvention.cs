@@ -102,7 +102,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
             if (properties.Count == 1)
             {
                 var property = properties.First();
-                var propertyType = ((IProperty)property).ClrType.UnwrapNullableType();
+                var propertyType = property.ClrType.UnwrapNullableType();
                 if (propertyType.IsInteger()
                     || (propertyType == typeof(Guid)))
                 {
