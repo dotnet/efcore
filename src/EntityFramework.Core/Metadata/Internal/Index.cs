@@ -12,7 +12,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Index : ConventionalAnnotatable, IMutableIndex
     {
+        private bool? _isUnique;
+
         private ConfigurationSource _configurationSource;
+        private ConfigurationSource? _isUniqueConfigurationSource;
 
         public Index(
             [NotNull] IReadOnlyList<Property> properties,
@@ -36,17 +39,31 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 
-        public virtual ConfigurationSource UpdateConfigurationSource(ConfigurationSource configurationSource)
+        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
             => _configurationSource = _configurationSource.Max(configurationSource);
 
-        public virtual bool? IsUnique { get; set; }
-        protected virtual bool DefaultIsUnique => false;
+        public virtual bool IsUnique
+        {
+            get { return _isUnique ?? DefaultIsUnique; }
+            set { SetIsUnique(value, ConfigurationSource.Explicit); }
+        }
+
+        public virtual void SetIsUnique(bool unique, ConfigurationSource configurationSource)
+        {
+            _isUnique = unique;
+            UpdateIsUniqueConfigurationSource(configurationSource);
+        }
+
+        private bool DefaultIsUnique => false;
+        public virtual ConfigurationSource? GetIsUniqueConfigurationSource() => _isUniqueConfigurationSource;
+
+        private void UpdateIsUniqueConfigurationSource(ConfigurationSource configurationSource)
+            => _isUniqueConfigurationSource = configurationSource.Max(_isUniqueConfigurationSource);
 
         IReadOnlyList<IProperty> IIndex.Properties => Properties;
         IReadOnlyList<IMutableProperty> IMutableIndex.Properties => Properties;
         IEntityType IIndex.DeclaringEntityType => DeclaringEntityType;
         IMutableEntityType IMutableIndex.DeclaringEntityType => DeclaringEntityType;
-        bool IIndex.IsUnique => IsUnique ?? DefaultIsUnique;
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);

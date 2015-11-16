@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
         public virtual InternalRelationshipBuilder Apply(InternalRelationshipBuilder relationshipBuilder)
         {
             relationshipBuilder.DeleteBehavior(
-                ((IForeignKey)relationshipBuilder.Metadata).IsRequired
+                relationshipBuilder.Metadata.IsRequired
                     ? DeleteBehavior.Cascade
                     : DeleteBehavior.Restrict,
                 ConfigurationSource.Convention);

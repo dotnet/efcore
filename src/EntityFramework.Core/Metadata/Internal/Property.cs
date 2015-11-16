@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual void HasClrType([NotNull] Type type, ConfigurationSource configurationSource)
         {
             Check.NotNull(type, nameof(type));
-            if (type != ((IProperty)this).ClrType)
+            if (type != ClrType)
             {
                 var foreignKey = this.FindReferencingForeignKeys().FirstOrDefault();
                 if (foreignKey != null)
@@ -101,9 +101,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (nullable)
             {
-                if (!((IProperty)this).ClrType.IsNullableType())
+                if (!ClrType.IsNullableType())
                 {
-                    throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ((IProperty)this).ClrType.Name));
+                    throw new InvalidOperationException(CoreStrings.CannotBeNullable(Name, DeclaringEntityType.DisplayName(), ClrType.Name));
                 }
 
                 if (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) ?? false)
@@ -117,7 +117,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         private bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) != true)
-                                          && ((IProperty)this).ClrType.IsNullableType();
+                                          && ClrType.IsNullableType();
 
         public virtual ConfigurationSource? GetIsNullableConfigurationSource() => _isNullableConfigurationSource;
 
@@ -180,7 +180,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private bool DefaultIsReadOnlyBeforeSave
             => (ValueGenerated == ValueGenerated.OnAddOrUpdate)
-               && !((IProperty)this).IsStoreGeneratedAlways;
+               && !IsStoreGeneratedAlways;
 
         public virtual ConfigurationSource? GetIsReadOnlyBeforeSaveConfigurationSource() => _isReadOnlyBeforeSaveConfigurationSource;
 
@@ -206,7 +206,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private bool DefaultIsReadOnlyAfterSave
             => ((ValueGenerated == ValueGenerated.OnAddOrUpdate)
-                && !((IProperty)this).IsStoreGeneratedAlways)
+                && !IsStoreGeneratedAlways)
                || this.IsKey();
 
         public virtual ConfigurationSource? GetIsReadOnlyAfterSaveConfigurationSource() => _isReadOnlyAfterSaveConfigurationSource;
@@ -366,7 +366,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(entityType, nameof(entityType));
 
             return properties.All(property =>
-                ((IProperty)property).IsShadowProperty
+                property.IsShadowProperty
                 || (entityType.HasClrType()
                     && (entityType.ClrType.GetRuntimeProperties().FirstOrDefault(p => p.Name == property.Name) != null)));
         }

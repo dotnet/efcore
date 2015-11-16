@@ -28,7 +28,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual IReadOnlyList<Property> Properties { get; }
         public virtual EntityType DeclaringEntityType => Properties[0].DeclaringEntityType;
 
-        public virtual InternalKeyBuilder Builder { get; }
+        public virtual InternalKeyBuilder Builder { get; [param:CanBeNull] set; }
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
 

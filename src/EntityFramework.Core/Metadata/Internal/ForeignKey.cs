@@ -259,7 +259,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(principalType, nameof(principalType));
             Check.NotNull(dependentType, nameof(dependentType));
 
-            return ((unique == null) || (((IForeignKey)this).IsUnique == unique))
+            return ((unique == null) || (IsUnique == unique))
                    && (PrincipalEntityType == principalType)
                    && (DeclaringEntityType == dependentType);
         }
@@ -279,7 +279,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return true;
             }
 
-            var nullableProperties = properties.Where(p => ((IProperty)p).ClrType.IsNullableType()).ToList();
+            var nullableProperties = properties.Where(p => p.ClrType.IsNullableType()).ToList();
             if (!nullableProperties.Any())
             {
                 if (shouldThrow)

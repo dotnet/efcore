@@ -45,20 +45,5 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             return right.Value;
         }
-
-        public static bool CanSet(this ConfigurationSource newConfigurationSource, ConfigurationSource? oldConfigurationSource, bool isValueSet)
-        {
-            if (isValueSet)
-            {
-                var existingConfigurationSource = oldConfigurationSource ?? ConfigurationSource.Explicit;
-
-                if (!newConfigurationSource.Overrides(existingConfigurationSource))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
     }
 }

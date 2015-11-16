@@ -17,10 +17,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.True(builder.IsUnique(true, ConfigurationSource.Convention));
             Assert.True(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
 
-            Assert.False(metadata.IsUnique.Value);
+            Assert.False(metadata.IsUnique);
 
             Assert.False(builder.IsUnique(true, ConfigurationSource.Convention));
-            Assert.False(metadata.IsUnique.Value);
+
+            Assert.False(metadata.IsUnique);
         }
 
         [Fact]
@@ -30,13 +31,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var metadata = builder.Metadata;
             metadata.IsUnique = true;
 
+            Assert.Equal(ConfigurationSource.Explicit, metadata.GetConfigurationSource());
             Assert.True(builder.IsUnique(true, ConfigurationSource.DataAnnotation));
             Assert.False(builder.IsUnique(false, ConfigurationSource.DataAnnotation));
 
-            Assert.True(metadata.IsUnique.Value);
+            Assert.True(metadata.IsUnique);
 
             Assert.True(builder.IsUnique(false, ConfigurationSource.Explicit));
-            Assert.False(metadata.IsUnique.Value);
+
+            Assert.False(metadata.IsUnique);
         }
 
         private InternalIndexBuilder CreateInternalIndexBuilder()

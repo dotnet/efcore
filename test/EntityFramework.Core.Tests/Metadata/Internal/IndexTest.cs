@@ -21,8 +21,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var index = entityType.AddIndex(new[] { property1, property2 }, ConfigurationSource.Convention);
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.Null(index.IsUnique);
-            Assert.False(((IIndex)index).IsUnique);
+            Assert.False(index.IsUnique);
             Assert.Equal(ConfigurationSource.Convention, index.GetConfigurationSource());
         }
 
@@ -37,7 +36,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             index.IsUnique = true;
 
             Assert.True(new[] { property1, property2 }.SequenceEqual(index.Properties));
-            Assert.True(index.IsUnique.Value);
+            Assert.True(index.IsUnique);
         }
 
         [Fact]
