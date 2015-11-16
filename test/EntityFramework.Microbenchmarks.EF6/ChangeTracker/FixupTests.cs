@@ -9,6 +9,7 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.EF6.ChangeTracker
 {
+    [SqlServerRequired]
     public class FixupTests : IClassFixture<FixupTests.FixupFixture>
     {
         private readonly FixupFixture _fixture;

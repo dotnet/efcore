@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.ChangeTracking;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Infrastructure;
@@ -2579,7 +2580,10 @@ namespace Microsoft.Data.Entity.Tests
             context.Dispose();
 
             var ex = Assert.Throws<ObjectDisposedException>(() => context.Model);
-            Assert.Contains(nameof(EarlyLearningCenter), ex.Message);
+            if (!TestPlatformHelper.IsMono) 
+            {
+                Assert.Contains(nameof(EarlyLearningCenter), ex.Message);
+            }
         }
 
         [Fact]

@@ -9,6 +9,7 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.EF6.Query
 {
+    [SqlServerRequired]
     public class SimpleQueryTests : IClassFixture<SimpleQueryTests.SimpleQueryFixture>
     {
         private readonly SimpleQueryFixture _fixture;

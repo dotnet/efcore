@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>EntityFramework.Microbenchmarks.Core</RootNamespace>
     <AssemblyName>EntityFramework.Microbenchmarks.Core</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -46,6 +46,8 @@
     <Compile Include="BenchmarkVariationAttribute.cs" />
     <Compile Include="ColdStartSandbox.cs" />
     <Compile Include="IMetricCollector.cs" />
+    <Compile Include="ITestCondition.cs" />
+    <Compile Include="Models\AdventureWorks\TestHelpers\AdventureWorksDatabaseRequiredAttribute.cs" />
     <Compile Include="NonCollectingBenchmarkTestCase.cs" />
     <Compile Include="NullMetricCollector.cs" />
     <Compile Include="MetricCollector.cs" />
@@ -110,8 +112,6 @@
     <Compile Include="Models\AdventureWorks\SpecialOfferProduct.cs" />
     <Compile Include="Models\AdventureWorks\StateProvince.cs" />
     <Compile Include="Models\AdventureWorks\Store.cs" />
-    <Compile Include="Models\AdventureWorks\TestHelpers\AdventureWorksDatabaseBenchmarkAttribute.cs" />
-    <Compile Include="Models\AdventureWorks\TestHelpers\AdventureWorksDatabaseTestDiscoverer.cs" />
     <Compile Include="Models\AdventureWorks\TestHelpers\AdventureWorksFixtureBase.cs" />
     <Compile Include="Models\AdventureWorks\TransactionHistory.cs" />
     <Compile Include="Models\AdventureWorks\TransactionHistoryArchive.cs" />
@@ -126,6 +126,7 @@
     <Compile Include="Models\Orders\Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SqlServerBenchmarkResultProcessor.cs" />
+    <Compile Include="SqlServerRequiredAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

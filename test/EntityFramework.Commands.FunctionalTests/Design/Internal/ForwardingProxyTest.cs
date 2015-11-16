@@ -4,6 +4,7 @@
 #if !DNXCORE50
 
 using System;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Xunit;
 
@@ -16,7 +17,8 @@ namespace Microsoft.Data.Entity.Design.Internal
 
     public class ForwardingProxyTest
     {
-        [Fact]
+        [ConditionalFact]
+        [FrameworkSkipCondition(RuntimeFrameworks.Mono, SkipReason = "Remoting on Mono is buggy")]
         public void Forwards_to_instances_of_a_different_type()
         {
             using (var directory = new TempDirectory())

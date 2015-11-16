@@ -1,6 +1,8 @@
 Entity Framework
 ===
-Entity Framework is Microsoft's recommended data access technology for new applications in .NET. 
+Entity Framework is Microsoft's recommended data access technology for new applications in .NET.
+
+Travis: [![Travis build Status](https://travis-ci.org/aspnet/EntityFramework.svg?branch=dev)](https://travis-ci.org/aspnet/EntityFramework) (CoreCLR only, no SQL Server)
 
 Documentation on using EF7 is available at [https://ef.readthedocs.org](https://ef.readthedocs.org).
 

@@ -12,6 +12,7 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
 {
+    [SqlServerRequired]
     public class SimpleQueryTests : IClassFixture<SimpleQueryTests.SimpleQueryFixture>
     {
         private readonly SimpleQueryFixture _fixture;

@@ -2,6 +2,7 @@
   "dependencies": {
     "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*",
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
   },
@@ -9,7 +10,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": {
+    "net451": {
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0",
         "System.Reflection": { "version": "4.0.0.0", "type": "build" },

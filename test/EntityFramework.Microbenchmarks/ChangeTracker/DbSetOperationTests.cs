@@ -7,6 +7,7 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.ChangeTracker
 {
+    [SqlServerRequired]
     public class DbSetOperationTests : IClassFixture<DbSetOperationTests.DbSetOperationFixture>
     {
         private readonly DbSetOperationFixture _fixture;

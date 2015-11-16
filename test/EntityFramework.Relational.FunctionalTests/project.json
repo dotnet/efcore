@@ -9,7 +9,7 @@
     "EntityFramework.Relational": "7.0.0-*"
   },
   "frameworks": {
-    "net46": { },
+    "net451": { },
     "dnx451": { },
     "dnxcore50": {
       "dependencies": {

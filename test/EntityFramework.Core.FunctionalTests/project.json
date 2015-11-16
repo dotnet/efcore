@@ -5,6 +5,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
+    "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
     "EntityFramework.InMemory": "7.0.0-*",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
@@ -13,7 +14,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": {
+    "net451": {
       "frameworkAssemblies": {
         "System.Threading.Tasks": { "version": "4.0.0.0", "type": "build" },
         "WindowsBase": "4.0.0.0"

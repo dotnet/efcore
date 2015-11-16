@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.FunctionalTests;
 
 namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
@@ -20,7 +21,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 
         private static int _scratchCount;
 
-        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase) 
+        public static SqlServerTestStore GetOrCreateShared(string name, Action initializeDatabase)
             => new SqlServerTestStore(name).CreateShared(initializeDatabase);
 
         /// <summary>
@@ -512,5 +513,8 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 };
             return connStrBuilder.ApplyConfiguration().ConnectionString;
         }
+
+        public static bool IsConfigured
+            => TestPlatformHelper.IsWindows || !string.IsNullOrEmpty(TestEnvironment.Config["DataSource"]);
     }
 }

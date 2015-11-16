@@ -40,12 +40,16 @@ namespace EntityFramework.Microbenchmarks.Query
             _query.Load();
         }
 
-        [Fact]
-        public void Run()
+        [Benchmark]
+        [SqlServerRequired]
+        public void Run(IMetricCollector collector)
         {
-            for (var i = 0; i < 2000; i++)
+            using (collector.StartCollection())
             {
-                _query.Load();
+                for (var i = 0; i < 2000; i++)
+                {
+                    _query.Load();
+                }
             }
         }
 

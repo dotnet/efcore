@@ -36,8 +36,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
         protected TestFileLogger(string fileName = "data-test.log")
         {
-            var logDirectory
-                = Path.Combine(Environment.ExpandEnvironmentVariables("%USERPROFILE%"), ".klog");
+            var homeDir = Environment.GetEnvironmentVariable("USERPROFILE") ?? Environment.GetEnvironmentVariable("HOME");
+            var logDirectory = Path.Combine(homeDir, ".klog");
 
             if (!Directory.Exists(logDirectory))
             {

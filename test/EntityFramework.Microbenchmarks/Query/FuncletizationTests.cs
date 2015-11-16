@@ -8,6 +8,7 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
 {
+    [SqlServerRequired]
     public class FuncletizationTests : IClassFixture<FuncletizationTests.FuncletizationFixture>
     {
         private readonly FuncletizationFixture _fixture;

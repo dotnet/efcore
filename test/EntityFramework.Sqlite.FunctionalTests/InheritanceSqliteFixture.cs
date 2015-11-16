@@ -10,10 +10,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
-    public class InheritanceSqliteFixture : InheritanceRelationalFixture
+    public class InheritanceSqliteFixture : InheritanceRelationalFixture, IDisposable
     {
         private readonly DbContextOptions _options;
         private readonly IServiceProvider _serviceProvider;
+        private readonly SqliteTestStore _testStore;
 
         public InheritanceSqliteFixture()
         {
@@ -26,15 +27,15 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                     .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
                     .BuildServiceProvider();
 
-            var testStore = SqliteTestStore.CreateScratch();
+            _testStore = SqliteTestStore.CreateScratch();
 
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlite(testStore.Connection);
+            optionsBuilder.UseSqlite(_testStore.Connection);
             _options = optionsBuilder.Options;
 
             // TODO: Do this via migrations & update pipeline
 
-            testStore.ExecuteNonQuery(@"
+            _testStore.ExecuteNonQuery(@"
                 DROP TABLE IF EXISTS Country;
                 DROP TABLE IF EXISTS Animal;
 
@@ -79,5 +80,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             return new InheritanceContext(_serviceProvider, _options);
         }
+
+        public void Dispose() => _testStore?.Dispose();
     }
 }

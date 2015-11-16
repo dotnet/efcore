@@ -6,6 +6,8 @@ var AUTHORS='Microsoft Open Technologies, Inc.'
 use-standard-lifecycle
 k-standard-goals
 
+#init .--quiet .initialize
+
 #compile-tests target='compile'
     @{
         var BASE_DIR = Directory.GetCurrentDirectory();

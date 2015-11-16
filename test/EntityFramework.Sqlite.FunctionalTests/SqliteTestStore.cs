@@ -111,21 +111,12 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             Transaction?.Dispose();
             Connection?.Dispose();
+            base.Dispose();
 
             if (_deleteDatabase)
             {
-                var fileName = _name + ".db";
-                try
-                {
-                    // TODO figure out why some tests cannot delete db files
-                    File.Delete(fileName);
-                }
-                catch (IOException e)
-                {
-                    Debug.WriteLine(e.Message);
-                }
+                File.Delete(_name + ".db");
             }
-            base.Dispose();
         }
 
         public static string CreateConnectionString(string name, bool sharedCache = false) =>

@@ -10,7 +10,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
+    "net451": { },
     "dnx451": { },
     "dnxcore50": { }
   }

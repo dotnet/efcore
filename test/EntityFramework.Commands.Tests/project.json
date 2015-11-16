@@ -12,7 +12,7 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
+    "net451": { },
     "dnx451": {
       "dependencies": {
         "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*"

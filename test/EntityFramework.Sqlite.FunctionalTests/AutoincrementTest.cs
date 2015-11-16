@@ -65,10 +65,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 
         private BatContext CreateContext() => new BatContext(_provider, _options);
 
-        public void Dispose()
-        {
-            _testStore?.Dispose();
-        }
+        public void Dispose() => _testStore?.Dispose();
     }
 
     public class JokerContext : DbContext

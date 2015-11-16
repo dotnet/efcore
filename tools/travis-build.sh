@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+DNVM_LOCATION=packages/dnvm.sh
+
+if [ ! -e $DNVM_LOCATION ]; then
+    mkdir -p `dirname $DNVM_LOCATION`
+    curl -sSL -o $DNVM_LOCATION https://raw.githubusercontent.com/aspnet/Home/dev/dnvm.sh
+fi
+
+source $DNVM_LOCATION
+DNX_UNSTABLE_FEED=https://www.myget.org/F/aspnetcidev/ dnvm upgrade -u -r coreclr
+dnu restore --quiet
+
+ERRORS=()
+
+for t in `grep -l "xunit.runner" test/*/project.json`; do
+    TEST_DIR=$(dirname $t)
+    if [[ $TEST_DIR == *"MicrosoftSqlServer"* && $TEST_DIR == *"Functional"* ]]; then
+        printf "${YELLOW}Skipping ${TEST_DIR}. Project requires SQL Server${NC}\n"
+        continue
+    fi
+
+    _=$(grep "dnxcore50" $t)
+    rc=$?
+    if [[ $rc != 0 ]]; then
+        printf "${YELLOW}Skipping tests on project ${TEST_DIR}. Project does not support CoreCLR${NC}\n"
+        continue
+    fi
+    
+    printf "${GREEN}Running tests on ${TEST_DIR}${NC}\n"
+
+    (cd $TEST_DIR && dnvm run default -r coreclr test $@)
+    rc=$?
+    if [[ $rc != 0 ]]; then
+        printf "${RED}Test ${TEST_DIR} failed error code ${rc}${NC}\n"
+        ERRORS+=("${TEST_DIR} failed")
+    fi
+done
+
+echo "============= TEST SUMMARY =============="
+
+
+if [ "${#ERRORS}" -ne "0" ]; then
+    printf "${RED}%s${NC}\n" "${ERRORS[@]}"
+    rc=1
+else
+    printf "${GREEN}All tests passed${NC}\n"
+    rc=0
+fi
+rm $DNVM_LOCATION
+exit $rc

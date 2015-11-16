@@ -25,7 +25,8 @@ namespace EntityFramework.Microbenchmarks.EF6
             RunColdStartEnabledTest(cold, c => c.CreateAndDisposeUnusedContext(collector, count));
         }
 
-        [AdventureWorksDatabaseBenchmark]
+        [Benchmark]
+        [AdventureWorksDatabaseRequired]
 #if !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif
@@ -35,7 +36,8 @@ namespace EntityFramework.Microbenchmarks.EF6
             RunColdStartEnabledTest(cold, c => c.InitializeAndQuery_AdventureWorks(collector, count));
         }
 
-        [AdventureWorksDatabaseBenchmark]
+        [Benchmark]
+        [AdventureWorksDatabaseRequired]
 #if !DNX451
         [BenchmarkVariation("Cold (1 instance)", true, 1)]
 #endif

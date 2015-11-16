@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Microsoft.Data.Entity.FunctionalTests</RootNamespace>
     <AssemblyName>EntityFramework.Core.FunctionalTests</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -162,11 +162,14 @@
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
+    <Compile Include="TestUtilities\TestPlatformHelper.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTheoryDiscoverer.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ConditionalTheoryAttribute.cs" />
+    <Compile Include="TestUtilities\Xunit\FrameworkSkipConditionAttribute.cs" />
     <Compile Include="TestUtilities\Xunit\ITestCondition.cs" />
+    <Compile Include="TestUtilities\Xunit\RuntimeFrameworks.cs" />
     <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />
     <Compile Include="TestUtilities\Xunit\SkipXunitTheoryTestCase.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />

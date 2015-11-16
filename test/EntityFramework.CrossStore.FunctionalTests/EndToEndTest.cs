@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.FunctionalTests.TestModels;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.InMemory.FunctionalTests;
@@ -17,7 +18,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         where TTestStore : TestStore
         where TFixture : CrossStoreFixture, new()
     {
-        [Fact]
+        [ConditionalFact]
         public virtual void Can_save_changes_and_query()
         {
             var secondId = -1;
@@ -102,6 +103,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
     }
 
+    [SqlServerConfiguredCondition]
     public class SqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SqlServerCrossStoreFixture>, IClassFixture<SqlServerCrossStoreFixture>
     {
         public SqlServerEndToEndTest(SqlServerCrossStoreFixture fixture)
@@ -128,6 +130,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
     }
 
     [Collection("SharedEndToEndCollection")]
+    [SqlServerConfiguredCondition]
     public class SharedSqlServerEndToEndTest : EndToEndTest<SqlServerTestStore, SharedCrossStoreFixture>
     {
         public SharedSqlServerEndToEndTest(SharedCrossStoreFixture fixture)

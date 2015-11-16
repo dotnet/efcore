@@ -8,6 +8,7 @@ using Xunit;
 
 namespace EntityFramework.Microbenchmarks.UpdatePipeline
 {
+    [SqlServerRequired]
     public class SimpleUpdatePipelineTests : IClassFixture<SimpleUpdatePipelineTests.SimpleUpdatePipelineFixture>
     {
         private readonly SimpleUpdatePipelineFixture _fixture;

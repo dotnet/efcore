@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Data.Entity.Infrastructure;
 using Xunit;
@@ -8,7 +9,7 @@ using System.Linq;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
 {
-    public class SqliteForeignKeyTest
+    public class SqliteForeignKeyTest : IDisposable
     {
         private readonly SqliteTestStore _testStore;
 
@@ -16,6 +17,8 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             _testStore = SqliteTestStore.CreateScratch();
         }
+        
+        public void Dispose() => _testStore?.Dispose();
 
         [Theory]
         [InlineData(true)]
@@ -42,7 +45,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
                 else
                 {
                     var ex = Assert.Throws<DbUpdateException>(() => { context.SaveChanges(); });
-                    Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message);
+                    Assert.Contains("FOREIGN KEY constraint failed", ex.InnerException.Message, StringComparison.OrdinalIgnoreCase);
                 }
             }
         }
