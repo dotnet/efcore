@@ -1245,12 +1245,12 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity)
             => contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory()
-                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity), null);
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity));
 
         protected virtual InternalEntityEntry CreateInternalEntry(IServiceProvider contextServices, IEntityType entityType, object entity, ValueBuffer valueBuffer)
             => contextServices.GetRequiredService<IInternalEntityEntrySubscriber>().SnapshotAndSubscribe(
                 new InternalEntityEntryFactory()
-                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer), null);
+                    .Create(contextServices.GetRequiredService<IStateManager>(), entityType, entity, valueBuffer));
 
         protected virtual Model BuildModel()
         {

@@ -130,13 +130,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     baseCounts.StoreGeneratedCount + storeGeneratedCount);
         }
 
-        public static Func<InternalEntityEntry, object[]> GetRelationshipSnapshotFactory([NotNull] this IEntityType entityType)
+        public static Func<InternalEntityEntry, ISnapshot> GetRelationshipSnapshotFactory([NotNull] this IEntityType entityType)
         {
-            var source = entityType as IRelationshipSnapshotFactorySource;
+            var source = entityType as ISnapshotFactorySource;
 
             return source != null
                 ? source.RelationshipSnapshotFactory
                 : new RelationshipSnapshotFactoryFactory().Create(entityType);
+        }
+
+        public static Func<InternalEntityEntry, ISnapshot> GetOriginalValuesFactory([NotNull] this IEntityType entityType)
+        {
+            var source = entityType as ISnapshotFactorySource;
+
+            return source != null
+                ? source.OriginalValuesFactory
+                : new OriginalValuesFactoryFactory().Create(entityType);
         }
 
         public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)

@@ -61,12 +61,17 @@
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
+    <Compile Include="ChangeTracking\Internal\ISnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValue.cs" />
     <Compile Include="ChangeTracking\Internal\IChangeTrackerFactory.cs" />
     <Compile Include="ChangeTracking\Internal\IEntityGraphAttacher.cs" />
+    <Compile Include="ChangeTracking\Internal\MultiSnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />
+    <Compile Include="ChangeTracking\Internal\OriginalValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\RelationshipSnapshotFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\Snapshot.cs" />
+    <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
     <Compile Include="DbUpdateException.cs" />
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />
@@ -94,7 +99,7 @@
     <Compile Include="Metadata\Internal\IPropertyBaseAccessors.cs" />
     <Compile Include="Metadata\Internal\IPropertyCountsAccessor.cs" />
     <Compile Include="Metadata\Internal\IPropertyIndexesAccessor.cs" />
-    <Compile Include="Metadata\Internal\IRelationshipSnapshotFactorySource.cs" />
+    <Compile Include="Metadata\Internal\ISnapshotFactorySource.cs" />
     <Compile Include="Metadata\Internal\KeyExtensions.cs" />
     <Compile Include="Metadata\Internal\ModelExtensions.cs" />
     <Compile Include="Metadata\Internal\MutableEntityTypeExtensions.cs" />

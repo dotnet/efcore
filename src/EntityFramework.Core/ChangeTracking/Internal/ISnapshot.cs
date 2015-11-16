@@ -5,8 +5,8 @@ using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public interface IInternalEntityEntrySubscriber
+    public interface ISnapshot
     {
-        InternalEntityEntry SnapshotAndSubscribe([NotNull] InternalEntityEntry entry);
+        object this[int index] { get; [param: CanBeNull] set; }
     }
 }

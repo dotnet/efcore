@@ -6,12 +6,12 @@ using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class RelationshipSnapshotFactoryFactory : SnapshotFactoryFactory
+    public class OriginalValuesFactoryFactory : SnapshotFactoryFactory
     {
         protected override int GetPropertyIndex(IPropertyBase propertyBase)
-            => propertyBase.GetRelationshipIndex();
+            => (propertyBase as IProperty)?.GetOriginalValueIndex() ?? -1;
 
-        protected override int GetPropertyCount(IEntityType entityType)
-            => entityType.RelationshipPropertyCount();
+        protected override int GetPropertyCount(IEntityType entityType) 
+            => entityType.OriginalValueCount();
     }
 }

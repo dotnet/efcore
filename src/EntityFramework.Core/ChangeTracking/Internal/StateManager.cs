@@ -96,7 +96,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     throw new InvalidOperationException(CoreStrings.EntityTypeNotFound(entity.GetType().DisplayName(false)));
                 }
 
-                entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity), null);
+                entry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity));
 
                 _detachedEntityReferenceMap[entity] = new WeakReference<InternalEntityEntry>(entry);
             }
@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 return existingEntry;
             }
 
-            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer), valueBuffer);
+            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer));
 
             AddToIdentityMap(entityType, keyValue, newEntry);
 

@@ -280,14 +280,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void EnsureOriginalValues(ValueBuffer valueBuffer)
-        {
-            if (_originalValues.IsEmpty)
-            {
-                _originalValues = new OriginalValues(valueBuffer);
-            }
-        }
-
         public virtual void EnsureRelationshipSnapshot()
         {
             if (_relationshipsSnapshot.IsEmpty)

@@ -19,21 +19,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             _notifier = notifier;
         }
 
-        public virtual InternalEntityEntry SnapshotAndSubscribe(InternalEntityEntry entry, ValueBuffer? values)
+        public virtual InternalEntityEntry SnapshotAndSubscribe(InternalEntityEntry entry)
         {
             var entityType = entry.EntityType;
 
             if (entityType.UseEagerSnapshots())
             {
-                if (values != null)
-                {
-                    entry.EnsureOriginalValues(values.Value);
-                }
-                else
-                {
-                    entry.EnsureOriginalValues();
-                }
-
+                entry.EnsureOriginalValues();
                 entry.EnsureRelationshipSnapshot();
             }
             else if (entityType.GetNavigations().Any(n => n.IsNonNotifyingCollection(entry)))

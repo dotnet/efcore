@@ -14,7 +14,12 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class EntityType : ConventionalAnnotatable, IMutableEntityType, ICanGetNavigations, IPropertyCountsAccessor, IRelationshipSnapshotFactorySource
+    public class EntityType : 
+        ConventionalAnnotatable, 
+        IMutableEntityType, 
+        ICanGetNavigations, 
+        IPropertyCountsAccessor, 
+        ISnapshotFactorySource
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
 
@@ -47,7 +52,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private PropertyCounts _counts;
 
         // Warning: Never access this field directly as access needs to be thread-safe
-        private Func<InternalEntityEntry, object[]> _relationshipSnapshotFactory;
+        private Func<InternalEntityEntry, ISnapshot> _relationshipSnapshotFactory;
+
+        // Warning: Never access this field directly as access needs to be thread-safe
+        private Func<InternalEntityEntry, ISnapshot> _originalValuesFactory;
 
         /// <summary>
         ///     Creates a new metadata object representing an entity type that will participate in shadow-state
@@ -967,11 +975,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private PropertyCounts CalculateCounts() => EntityTypeExtensions.CalculateCounts(this);
 
-        public virtual Func<InternalEntityEntry, object[]> RelationshipSnapshotFactory
+        public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
             => LazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, CreateRelationshipSnapshotFactory);
 
-        private Func<InternalEntityEntry, object[]> CreateRelationshipSnapshotFactory() 
+        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory() 
             => new RelationshipSnapshotFactoryFactory().Create(this);
+
+        public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
+            => LazyInitializer.EnsureInitialized(ref _originalValuesFactory, CreateOriginalValuesFactory);
+
+        private Func<InternalEntityEntry, ISnapshot> CreateOriginalValuesFactory()
+            => new OriginalValuesFactoryFactory().Create(this);
 
         #endregion
 

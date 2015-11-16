@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
@@ -12,58 +11,30 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
     {
         private struct OriginalValues
         {
-            private ValueBuffer _values;
-            private readonly bool _partialSnapshot;
-
-            public OriginalValues(ValueBuffer values)
-            {
-                _values = values;
-                _partialSnapshot = false;
-            }
+            private readonly ISnapshot _values;
 
             public OriginalValues(InternalEntityEntry entry)
             {
-                var entityType = entry.EntityType;
-                var values = new object[entityType.OriginalValueCount()];
-
-                foreach (var property in entityType.GetProperties())
-                {
-                    var index = property.GetOriginalValueIndex();
-                    if (index >= 0)
-                    {
-                        values[index] = entry[property];
-                    }
-                }
-
-                _values = new ValueBuffer(values);
-                _partialSnapshot = true;
+                _values = entry.EntityType.GetOriginalValuesFactory()(entry);
             }
 
             public object GetValue(InternalEntityEntry entry, IProperty property)
             {
-                if (_values.IsEmpty)
+                if (IsEmpty)
                 {
                     return entry[property];
                 }
 
-                if (_partialSnapshot)
-                {
-                    var index = property.GetOriginalValueIndex();
+                var index = property.GetOriginalValueIndex();
 
-                    return index != -1 ? _values[index] : entry[property];
-                }
-
-                return _values[property.GetIndex()];
+                return index != -1 ? _values[index] : entry[property];
             }
 
             public void SetValue(IProperty property, object value)
             {
-                Debug.Assert(!_values.IsEmpty);
+                Debug.Assert(!IsEmpty);
 
-                var index = _partialSnapshot
-                    ? property.GetOriginalValueIndex()
-                    : property.GetIndex();
-
+                var index = property.GetOriginalValueIndex();
                 if (index != -1)
                 {
                     _values[index] = value;
@@ -72,40 +43,28 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             public void RejectChanges(InternalEntityEntry entry)
             {
-                if (_values.IsEmpty)
+                if (IsEmpty)
                 {
                     return;
                 }
 
-                if (_partialSnapshot)
+                foreach (var property in entry.EntityType.GetProperties())
                 {
-                    foreach (var property in entry.EntityType.GetProperties())
+                    var index = property.GetOriginalValueIndex();
+                    if (index >= 0)
                     {
-                        var index = property.GetOriginalValueIndex();
-                        if (index >= 0)
-                        {
-                            entry[property] = _values[index];
-                        }
-                    }
-                }
-                else
-                {
-                    foreach (var property in entry.EntityType.GetProperties())
-                    {
-                        entry[property] = _values[property.GetIndex()];
+                        entry[property] = _values[index];
                     }
                 }
             }
 
             public void AcceptChanges(InternalEntityEntry entry)
             {
-                if (_values.IsEmpty)
+                if (IsEmpty)
                 {
                     return;
                 }
 
-                if (_partialSnapshot)
-                {
                     foreach (var property in entry.EntityType.GetProperties())
                     {
                         var index = property.GetOriginalValueIndex();
@@ -114,17 +73,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                             _values[index] = entry[property];
                         }
                     }
-                }
-                else
-                {
-                    foreach (var property in entry.EntityType.GetProperties())
-                    {
-                        _values[property.GetIndex()] = entry[property];
-                    }
-                }
             }
 
-            public bool IsEmpty => _values.IsEmpty;
+            public bool IsEmpty => _values == null;
         }
     }
 }

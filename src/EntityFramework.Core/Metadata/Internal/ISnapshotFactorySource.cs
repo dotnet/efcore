@@ -6,8 +6,9 @@ using Microsoft.Data.Entity.ChangeTracking.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public interface IRelationshipSnapshotFactorySource
+    public interface ISnapshotFactorySource
     {
-        Func<InternalEntityEntry, object[]> RelationshipSnapshotFactory { get; }
+        Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory { get; }
+        Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory { get; }
     }
 }
