@@ -151,10 +151,10 @@
     <value>The specified transaction is not associated with the current connection. Only transactions associated with the current connection may be used.</value>
   </data>
   <data name="RelationalLoggerOpeningConnection" xml:space="preserve">
-    <value>Opening connection '{connectionString}'.</value>
+    <value>Opening connection to database '{database}' on server '{server}'.</value>
   </data>
   <data name="RelationalLoggerClosingConnection" xml:space="preserve">
-    <value>Closing connection '{connectionString}'.</value>
+    <value>Closing connection to database '{database}' on server '{server}'.</value>
   </data>
   <data name="RelationalLoggerBeginningTransaction" xml:space="preserve">
     <value>Beginning transaction with isolation level '{isolationLevel}'.</value>
@@ -249,9 +249,6 @@
   </data>
   <data name="ClientEvalWarning" xml:space="preserve">
     <value>The LINQ expression '{expression}' could not be translated and will be evaluated locally.</value>
-  </data>
-  <data name="ParameterLoggingEnabled" xml:space="preserve">
-    <value>SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.</value>
   </data>
   <data name="RelationalLoggerExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>

@@ -37,21 +37,9 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         public override string ConnectionString { get; set; }
 
-        public override string Database
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public override string Database { get; } = "Fake Database";
 
-        public override string DataSource
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
+        public override string DataSource { get; } = "Fake DataSource";
 
         public override string ServerVersion
         {
@@ -103,7 +91,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {
-            var transaction =  new FakeDbTransaction(this, isolationLevel);
+            var transaction = new FakeDbTransaction(this, isolationLevel);
 
             _dbTransactions.Add(transaction);
 

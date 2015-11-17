@@ -88,8 +88,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             {
                 throw new InvalidOperationException(
                     RelationalDesignStrings.ProviderReturnedNullModel(
-                        _factory.GetType().FullName,
-                        configuration.ConnectionString));
+                        _factory.GetType().FullName));
             }
 
             return metadataModel;

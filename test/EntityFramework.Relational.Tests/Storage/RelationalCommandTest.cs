@@ -692,64 +692,11 @@ Command Text",
 
             Assert.Equal(2, log.Count);
             Assert.Equal(LogLevel.Warning, log[0].Item1);
-            Assert.Equal(
-@"SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.",
-                log[0].Item2);
+            Assert.Equal(CoreStrings.SensitiveDataLoggingEnabled, log[0].Item2);
 
             Assert.Equal(LogLevel.Information, log[1].Item1);
             Assert.EndsWith(
                 @"ms) [Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
-Command Text",
-                log[1].Item2);
-        }
-
-        [Theory]
-        [MemberData(nameof(CommandActions))]
-        public async Task Logs_commands_parameter_values_and_warnings(
-            Delegate commandDelegate,
-            string diagnosticName,
-            bool async)
-        {
-            var optionsExtension = new FakeRelationalOptionsExtension
-            {
-                ConnectionString = ConnectionString
-            };
-
-            var options = CreateOptions(optionsExtension, logParameters: true);
-
-            var fakeConnection = new FakeRelationalConnection(options);
-
-            var log = new List<Tuple<LogLevel, string>>();
-
-            var relationalCommand = new RelationalCommand(
-                new SensitiveDataLogger<RelationalCommand>(
-                    new ListLogger<RelationalCommand>(log),
-                    options),
-                new DiagnosticListener("Fake"),
-                "Command Text",
-                new[]
-                {
-                    new RelationalParameter("FirstParameter", 17, new RelationalTypeMapping("int", typeof(int), DbType.Int32), false, null)
-                });
-
-            if (async)
-            {
-                await ((Func<RelationalCommand, bool, IRelationalConnection, Task>)commandDelegate)(relationalCommand, true, fakeConnection);
-            }
-            else
-            {
-                ((Action<RelationalCommand, bool, IRelationalConnection>)commandDelegate)(relationalCommand, true, fakeConnection);
-            }
-
-            Assert.Equal(2, log.Count);
-            Assert.Equal(LogLevel.Warning, log[0].Item1);
-            Assert.Equal(
-@"SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.",
-                log[0].Item2);
-
-            Assert.Equal(LogLevel.Information, log[1].Item1);
-            Assert.EndsWith(
-                @"[Parameters=[FirstParameter='17'], CommandType='0', CommandTimeout='30']
 Command Text",
                 log[1].Item2);
         }

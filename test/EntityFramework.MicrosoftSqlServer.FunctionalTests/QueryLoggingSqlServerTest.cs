@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(RelationalStrings.ParameterLoggingEnabled, TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.SensitiveDataLoggingEnabled, TestSqlLoggerFactory.Log);
             }
         }
 

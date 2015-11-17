@@ -105,6 +105,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddScoped<IDatabaseProviderSelector, DatabaseProviderSelector>()
                 .AddScoped<IEntityGraphAttacher, EntityGraphAttacher>()
                 .AddScoped<ValueGeneratorSelector>()
+                .AddScoped(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>))
                 .AddScoped(p => GetContextServices(p).Model)
                 .AddScoped(p => GetContextServices(p).Context)
                 .AddScoped(p => GetContextServices(p).ContextOptions)

@@ -37,7 +37,7 @@ namespace Microsoft.Data.Entity.Infrastructure
                 if (_coreOptionsExtension.IsSensitiveDataLoggingEnabled
                     && !_coreOptionsExtension.SensitiveDataLoggingWarned)
                 {
-                    _logger.LogWarning(RelationalStrings.ParameterLoggingEnabled);
+                    _logger.LogWarning(CoreStrings.SensitiveDataLoggingEnabled);
 
                     _coreOptionsExtension.SensitiveDataLoggingWarned = true;
                 }

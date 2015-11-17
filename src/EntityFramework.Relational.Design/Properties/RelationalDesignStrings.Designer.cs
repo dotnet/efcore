@@ -69,11 +69,11 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Metadata model returned should not be null. Provider: {providerTypeName} , connection string: {connectionString}.
+        /// Metadata model returned should not be null. Provider: {providerTypeName}.
         /// </summary>
-        public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName, [CanBeNull] object connectionString)
+        public static string ProviderReturnedNullModel([CanBeNull] object providerTypeName)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ProviderReturnedNullModel", "providerTypeName", "connectionString"), providerTypeName, connectionString);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ProviderReturnedNullModel", "providerTypeName"), providerTypeName);
         }
 
         /// <summary>
