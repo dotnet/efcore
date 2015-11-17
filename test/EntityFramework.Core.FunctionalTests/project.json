@@ -6,8 +6,7 @@
   },
   "dependencies": {
     "EntityFramework.InMemory": "7.0.0-*",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
+    "Microsoft.AspNet.Testing": "1.0.0-*"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
@@ -20,17 +19,13 @@
       }
     },
     "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      },
       "frameworkAssemblies": {
         "WindowsBase": "4.0.0.0"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.CSharp": "4.0.1-*"
       }
     }
   }

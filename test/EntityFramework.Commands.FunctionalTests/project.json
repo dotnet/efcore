@@ -6,10 +6,9 @@
     "EntityFramework.Commands": "7.0.0-*",
     "EntityFramework.Core.FunctionalTests": "7.0.0-*",
     "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
+    "Microsoft.AspNet.Testing": "1.0.0-*",
     "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*",
-    "System.Collections.Immutable": "1.1.37",
-    "xunit.assert": "2.1.0-*",
-    "xunit.extensibility.execution": "2.1.0-*"
+    "System.Collections.Immutable": "1.1.37"
   },
   "compile": "..\\..\\src\\EntityFramework.Commands\\Design\\OperationHandlers.cs",
   "commands": {
@@ -19,14 +18,12 @@
     "net46": { },
     "dnx451": {
       "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*"
       }
     }
   }

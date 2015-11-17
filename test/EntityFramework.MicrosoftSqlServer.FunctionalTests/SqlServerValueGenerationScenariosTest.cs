@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
+using Microsoft.AspNet.Testing.xunit;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 

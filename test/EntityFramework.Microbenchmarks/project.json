@@ -9,15 +9,7 @@
   },
   "frameworks": {
     "net46": { },
-    "dnxcore50": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      }
-    }
+    "dnxcore50": { },
+    "dnx451": { }
   }
 }

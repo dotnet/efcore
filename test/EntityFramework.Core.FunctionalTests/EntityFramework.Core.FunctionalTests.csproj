@@ -162,13 +162,6 @@
     <Compile Include="TestUtilities\NavigationComparer.cs" />
     <Compile Include="TestUtilities\PropertyComparer.cs" />
     <Compile Include="TestUtilities\Extensions.cs" />
-    <Compile Include="TestUtilities\Xunit\ConditionalFactDiscoverer.cs" />
-    <Compile Include="TestUtilities\Xunit\ConditionalTheoryDiscoverer.cs" />
-    <Compile Include="TestUtilities\Xunit\ConditionalFactAttribute.cs" />
-    <Compile Include="TestUtilities\Xunit\ConditionalTheoryAttribute.cs" />
-    <Compile Include="TestUtilities\Xunit\ITestCondition.cs" />
-    <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />
-    <Compile Include="TestUtilities\Xunit\SkipXunitTheoryTestCase.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />
     <None Include="project.json" />
   </ItemGroup>
@@ -181,9 +174,6 @@
       <Project>{71415CEC-8111-4C73-8751-512D22F10602}</Project>
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="TestUtilities\Xunit\UseCultureAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
