@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
+using Xunit.Abstractions;
 
 #pragma warning disable 1998
 
@@ -59,9 +60,10 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                 await Single_Predicate_Cancellation(Fixture.CancelQuery()));
         }
 
-        public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture)
+        public AsyncQuerySqlServerTest(NorthwindQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
             : base(fixture)
         {
+           // TestSqlLoggerFactory.CaptureOutput(testOutputHelper);
         }
     }
 }

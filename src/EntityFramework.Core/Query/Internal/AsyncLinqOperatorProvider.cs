@@ -184,7 +184,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         [UsedImplicitly]
         internal static IAsyncEnumerable<TrackingGrouping<TKey, TOut, TIn>> _TrackGroupedEntities<TKey, TOut, TIn>(
-            IAsyncEnumerable<IAsyncGrouping<TKey, TOut>> groupings,
+            IAsyncEnumerable<IGrouping<TKey, TOut>> groupings,
             QueryContext queryContext,
             IList<EntityTrackingInfo> entityTrackingInfos,
             IList<Func<TIn, object>> entityAccessors)
@@ -203,16 +203,16 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public virtual MethodInfo TrackGroupedEntities => _trackGroupedEntities;
 
-        internal class TrackingGrouping<TKey, TOut, TIn> : IAsyncGrouping<TKey, TOut>, IGrouping<TKey, TOut>
+        internal class TrackingGrouping<TKey, TOut, TIn> : IGrouping<TKey, TOut>
             where TIn : class
         {
-            private readonly IAsyncGrouping<TKey, TOut> _grouping;
+            private readonly IGrouping<TKey, TOut> _grouping;
             private readonly QueryContext _queryContext;
             private readonly IList<EntityTrackingInfo> _entityTrackingInfos;
             private readonly IList<Func<TIn, object>> _entityAccessors;
 
             public TrackingGrouping(
-                IAsyncGrouping<TKey, TOut> grouping,
+                IGrouping<TKey, TOut> grouping,
                 QueryContext queryContext,
                 IList<EntityTrackingInfo> entityTrackingInfos,
                 IList<Func<TIn, object>> entityAccessors)
@@ -225,32 +225,30 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             public TKey Key => _grouping.Key;
 
-            public IAsyncEnumerator<TOut> GetEnumerator() => CreateTrackingEnumerable().GetEnumerator();
-
-            private IAsyncEnumerable<TOut> CreateTrackingEnumerable()
+            private IEnumerable<TOut> CreateTrackingEnumerable()
             {
-                return _grouping.Select(result =>
+                foreach (var result in _grouping)
+                {
+                    if (result != null)
                     {
-                        if (result != null)
+                        for (var i = 0; i < _entityTrackingInfos.Count; i++)
                         {
-                            for (var i = 0; i < _entityTrackingInfos.Count; i++)
-                            {
-                                var entity = _entityAccessors[i](result as TIn);
+                            var entity = _entityAccessors[i](result as TIn);
 
-                                if (entity != null)
-                                {
-                                    _queryContext.QueryBuffer
-                                        .StartTracking(entity, _entityTrackingInfos[i]);
-                                }
+                            if (entity != null)
+                            {
+                                _queryContext.QueryBuffer
+                                    .StartTracking(entity, _entityTrackingInfos[i]);
                             }
                         }
+                    }
 
-                        return result;
-                    });
+                    yield return result;
+                }
             }
 
             IEnumerator<TOut> IEnumerable<TOut>.GetEnumerator()
-                => CreateTrackingEnumerable().ToEnumerable().GetEnumerator();
+                => CreateTrackingEnumerable().GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TOut>)this).GetEnumerator();
         }
@@ -420,9 +418,96 @@ namespace Microsoft.Data.Entity.Query.Internal
             = typeof(AsyncLinqOperatorProvider).GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
 
         [UsedImplicitly]
-        private static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
-            IAsyncEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector)
-            => source.GroupBy(keySelector, elementSelector);
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector)
+            => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
+
+        internal class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, TKey> _keySelector;
+            private readonly Func<TSource, TElement> _elementSelector;
+
+            public GroupByAsyncEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, TKey> keySelector,
+                Func<TSource, TElement> elementSelector)
+            {
+                _source = source;
+                _keySelector = keySelector;
+                _elementSelector = elementSelector;
+            }
+
+            public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator()
+                => new GroupByEnumerator(this);
+
+            private class GroupByEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            {
+                private readonly GroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
+
+                private IEnumerator<Grouping> _groupsEnumerator;
+
+                public GroupByEnumerator(GroupByAsyncEnumerable<TSource, TKey, TElement> groupByAsyncEnumerable)
+                {
+                    _groupByAsyncEnumerable = groupByAsyncEnumerable;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_groupsEnumerator == null)
+                    {
+                        var groups = new Dictionary<TKey, Grouping>();
+
+                        using (var sourceEnumerator = _groupByAsyncEnumerable._source.GetEnumerator())
+                        {
+                            while (await sourceEnumerator.MoveNext(cancellationToken))
+                            {
+                                var key = _groupByAsyncEnumerable._keySelector(sourceEnumerator.Current);
+                                var element = _groupByAsyncEnumerable._elementSelector(sourceEnumerator.Current);
+
+                                Grouping grouping;
+                                if (!groups.TryGetValue(key, out grouping))
+                                {
+                                    groups.Add(key, grouping = new Grouping(key));
+                                }
+
+                                grouping.Add(element);
+                            }
+                        }
+
+                        _groupsEnumerator = groups.Values.GetEnumerator();
+                    }
+
+                    return _groupsEnumerator.MoveNext();
+                }
+
+                public IGrouping<TKey, TElement> Current => _groupsEnumerator?.Current;
+
+                public void Dispose() => _groupsEnumerator?.Dispose();
+
+                private class Grouping : IGrouping<TKey, TElement>
+                {
+                    private readonly List<TElement> _elements = new List<TElement>();
+
+                    public Grouping(TKey key)
+                    {
+                        Key = key;
+                    }
+
+                    public TKey Key { get; }
+
+                    public void Add(TElement element) => _elements.Add(element);
+
+                    public IEnumerator<TElement> GetEnumerator() => _elements.GetEnumerator();
+
+                    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+                }
+            }
+        }
 
         public virtual MethodInfo GroupBy => _groupBy;
 
@@ -463,35 +548,11 @@ namespace Microsoft.Data.Entity.Query.Internal
                     .MakeGenericMethod(elementType);
         }
 
-        public virtual Expression AdjustSequenceType(Expression expression)
-        {
-            Check.NotNull(expression, nameof(expression));
-
-            if ((expression.Type == typeof(string))
-                || (expression.Type == typeof(byte[])))
-            {
-                return expression;
-            }
-
-            var elementType
-                = expression.Type.TryGetElementType(typeof(IEnumerable<>));
-
-            if (elementType != null)
-            {
-                return
-                    Expression.Call(
-                        _toAsyncEnumerable.MakeGenericMethod(elementType),
-                        expression);
-            }
-
-            return expression;
-        }
-
         public virtual Type MakeSequenceType(Type elementType)
             => typeof(IAsyncEnumerable<>)
                 .MakeGenericType(Check.NotNull(elementType, nameof(elementType)));
 
-        private static readonly MethodInfo _toAsyncEnumerable
+        public static readonly MethodInfo ToAsyncEnumerableMethod
             = typeof(AsyncLinqOperatorProvider)
                 .GetTypeInfo().GetDeclaredMethod(nameof(ToAsyncEnumerable));
 

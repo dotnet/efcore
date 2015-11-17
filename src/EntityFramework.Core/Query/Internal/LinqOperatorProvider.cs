@@ -412,8 +412,6 @@ namespace Microsoft.Data.Entity.Query.Internal
                     .MakeGenericMethod(elementType);
         }
 
-        public virtual Expression AdjustSequenceType(Expression expression) => expression;
-
         public virtual Type MakeSequenceType(Type elementType)
             => typeof(IEnumerable<>)
                 .MakeGenericType(Check.NotNull(elementType, nameof(elementType)));

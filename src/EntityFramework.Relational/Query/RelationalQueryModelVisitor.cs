@@ -333,7 +333,7 @@ namespace Microsoft.Data.Entity.Query
                                 .Create(
                                     fromClause,
                                     QueryCompilationContext,
-                                    QueryCompilationContext.LinqOperatorProvider.SelectMany,
+                                    LinqOperatorProvider.SelectMany,
                                     readerOffset)
                                 .Flatten((MethodCallExpression)Expression);
 
@@ -369,7 +369,7 @@ namespace Microsoft.Data.Entity.Query
                 queryModel,
                 index,
                 () => base.VisitJoinClause(joinClause, queryModel, index),
-                QueryCompilationContext.LinqOperatorProvider.Join);
+                LinqOperatorProvider.Join);
         }
 
         protected override Expression CompileJoinClauseInnerSequenceExpression(
@@ -394,7 +394,7 @@ namespace Microsoft.Data.Entity.Query
                 queryModel,
                 index,
                 () => base.VisitGroupJoinClause(groupJoinClause, queryModel, index),
-                QueryCompilationContext.LinqOperatorProvider.GroupJoin,
+                LinqOperatorProvider.GroupJoin,
                 outerJoin: true);
         }
 
@@ -586,7 +586,10 @@ namespace Microsoft.Data.Entity.Query
 
                     var liftSubQuery
                         = new QuerySourceUpdater(
-                            querySource, QueryCompilationContext, subSelectExpression)
+                            querySource,
+                            QueryCompilationContext,
+                            LinqOperatorProvider,
+                            subSelectExpression)
                             .Visit(subQueryModelVisitor.Expression);
 
                     return
@@ -601,15 +604,18 @@ namespace Microsoft.Data.Entity.Query
         {
             private readonly IQuerySource _querySource;
             private readonly RelationalQueryCompilationContext _relationalQueryCompilationContext;
+            private readonly ILinqOperatorProvider _linqOperatorProvider;
             private readonly SelectExpression _selectExpression;
 
             public QuerySourceUpdater(
                 IQuerySource querySource,
                 RelationalQueryCompilationContext relationalQueryCompilationContext,
+                ILinqOperatorProvider linqOperatorProvider,
                 SelectExpression selectExpression)
             {
                 _querySource = querySource;
                 _relationalQueryCompilationContext = relationalQueryCompilationContext;
+                _linqOperatorProvider = linqOperatorProvider;
                 _selectExpression = selectExpression;
             }
 
@@ -656,7 +662,7 @@ namespace Microsoft.Data.Entity.Query
                     }
 
                     if (methodCallExpression.Method.MethodIsClosedFormOf(
-                        _relationalQueryCompilationContext.LinqOperatorProvider.Cast)
+                        _linqOperatorProvider.Cast)
                         && (arguments[0].Type.GetSequenceType() == typeof(ValueBuffer)))
                     {
                         return arguments[0];

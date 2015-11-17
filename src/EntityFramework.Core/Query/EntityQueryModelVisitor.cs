@@ -108,6 +108,8 @@ namespace Microsoft.Data.Entity.Query
             _entityMaterializerSource = entityMaterializerSource;
             _expressionPrinter = expressionPrinter;
             _queryCompilationContext = queryCompilationContext;
+
+            LinqOperatorProvider = queryCompilationContext.LinqOperatorProvider;
         }
 
         public virtual Expression Expression
@@ -136,7 +138,7 @@ namespace Microsoft.Data.Entity.Query
 
         public virtual QueryCompilationContext QueryCompilationContext => _queryCompilationContext;
 
-        public virtual ILinqOperatorProvider LinqOperatorProvider => QueryCompilationContext.LinqOperatorProvider;
+        public virtual ILinqOperatorProvider LinqOperatorProvider { get; private set; }
 
         public virtual Func<QueryContext, IEnumerable<TResult>> CreateQueryExecutor<TResult>([NotNull] QueryModel queryModel)
         {
@@ -546,6 +548,12 @@ namespace Microsoft.Data.Entity.Query
 
             _expression = CompileMainFromClauseExpression(fromClause, queryModel);
 
+            if (LinqOperatorProvider is AsyncLinqOperatorProvider
+                && _expression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
+            {
+                LinqOperatorProvider = new LinqOperatorProvider();
+            }
+
             CurrentParameter
                 = Expression.Parameter(
                     _expression.Type.GetSequenceType(),
@@ -927,11 +935,22 @@ namespace Microsoft.Data.Entity.Query
                     .Create(QueryCompilationContext.QuerySourceMapping, this, inProjection)
                     .Visit(expression);
 
-            if (!inProjection)
+            if (!inProjection
+                && (expression.Type != typeof(string)
+                    && expression.Type != typeof(byte[]))
+                && _expression?.Type.TryGetElementType(typeof(IAsyncEnumerable<>)) != null)
             {
-                expression
-                    = QueryCompilationContext.LinqOperatorProvider
-                        .AdjustSequenceType(expression);
+                var elementType = expression.Type.TryGetElementType(typeof(IEnumerable<>));
+
+                if (elementType != null)
+                {
+                    return
+                        Expression.Call(
+                            AsyncLinqOperatorProvider
+                                .ToAsyncEnumerableMethod
+                                .MakeGenericMethod(elementType),
+                            expression);
+                }
             }
 
             return expression;

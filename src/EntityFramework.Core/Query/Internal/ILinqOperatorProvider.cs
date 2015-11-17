@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 
@@ -47,7 +46,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         MethodInfo TrackGroupedEntities { get; }
 
         MethodInfo GetAggregateMethod([NotNull] string methodName, [NotNull] Type elementType);
-        Expression AdjustSequenceType([NotNull] Expression expression);
 
         Type MakeSequenceType([NotNull] Type elementType);
     }
