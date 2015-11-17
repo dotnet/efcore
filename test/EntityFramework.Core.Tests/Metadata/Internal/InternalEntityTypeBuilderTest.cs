@@ -212,6 +212,30 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void Adds_index_on_foreign_key_properties_by_convention()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasForeignKey(
+                principalEntityBuilder,
+                new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata
+                },
+                ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
+
+            var index = dependentEntityBuilder.Metadata.GetIndexes().FirstOrDefault();
+            Assert.NotNull(index);
+            Assert.Equal(Order.CustomerIdProperty.Name, index.Properties.First().Name);
+
+            Assert.Equal(ConfigurationSource.Convention, dependentEntityBuilder.RemoveIndex(index, ConfigurationSource.DataAnnotation));
+            Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
+        }
+
+        [Fact]
         public void Can_only_remove_lower_or_equal_source_relationship()
         {
             var modelBuilder = CreateModelBuilder();
@@ -258,6 +282,52 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Assert.Equal(ConfigurationSource.Convention, dependentEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
 
             Assert.Same(Order.CustomerIdProperty.Name, dependentEntityBuilder.Metadata.GetProperties().Single().Name);
+            Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
+        }
+
+        [Fact]
+        public void Removing_relationship_removes_unused_conventional_index()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasForeignKey(
+                principalEntityBuilder,
+                new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                },
+                ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
+
+            Assert.Equal(ConfigurationSource.Convention, dependentEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
+
+            Assert.Empty(dependentEntityBuilder.Metadata.GetIndexes());
+            Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
+        }
+
+        [Fact] // TODO: Add test if the index is being used by another FK when support for multiple FK on same set of properties is added
+        public void Removing_relationship_does_not_remove_conventional_index_if_in_use()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var principalEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var dependentEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = dependentEntityBuilder.HasForeignKey(
+                principalEntityBuilder,
+                new[]
+                {
+                    dependentEntityBuilder.Property(Order.CustomerIdProperty, ConfigurationSource.Convention).Metadata,
+                },
+                ConfigurationSource.Convention);
+            Assert.NotNull(relationshipBuilder);
+            dependentEntityBuilder.HasIndex(new[] { Order.CustomerIdProperty }, ConfigurationSource.Explicit);
+
+            Assert.Equal(ConfigurationSource.Convention, dependentEntityBuilder.RemoveForeignKey(relationshipBuilder.Metadata, ConfigurationSource.DataAnnotation));
+
+            Assert.Equal(1, dependentEntityBuilder.Metadata.GetIndexes().Count());
+            Assert.Equal(Order.CustomerIdProperty.Name, dependentEntityBuilder.Metadata.GetIndexes().First().Properties.First().Name);
             Assert.Empty(dependentEntityBuilder.Metadata.GetForeignKeys());
         }
 

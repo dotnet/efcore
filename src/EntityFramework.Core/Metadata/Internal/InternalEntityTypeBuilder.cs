@@ -600,12 +600,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            foreach (var index in Metadata.GetIndexes().Where(i => i.Properties.Contains(property)).ToList())
-            {
-                var removed = RemoveIndex(index, configurationSource);
-                Debug.Assert(removed.HasValue);
-            }
-
             var detachedRelationships = property.FindContainingForeignKeys().ToList()
                 .Select(DetachRelationship).ToList();
 
@@ -614,6 +608,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 detachedRelationships.AddRange(key.FindReferencingForeignKeys().ToList()
                     .Select(DetachRelationship));
                 var removed = RemoveKey(key, configurationSource);
+                Debug.Assert(removed.HasValue);
+            }
+
+            foreach (var index in Metadata.GetIndexes().Where(i => i.Properties.Contains(property)).ToList())
+            {
+                var removed = RemoveIndex(index, configurationSource);
                 Debug.Assert(removed.HasValue);
             }
 
@@ -670,7 +670,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var removedForeignKey = Metadata.RemoveForeignKey(foreignKey);
             Debug.Assert(removedForeignKey == foreignKey);
 
-            RemoveShadowPropertiesIfUnused(foreignKey.Properties);
+            var index = Metadata.FindIndex(foreignKey.Properties);
+            if (index != null
+                && !index.IsInUse())
+            {
+                // Remove index if created by convention
+                index.DeclaringEntityType.Builder.RemoveIndex(index, ConfigurationSource.Convention);
+            }
+
+            RemoveShadowPropertiesIfUnused(foreignKey.Properties.Where(p => p.DeclaringEntityType.FindDeclaredProperty(p.Name) != null).ToList());
             foreignKey.PrincipalKey.DeclaringEntityType.Builder?.RemoveKeyIfUnused(foreignKey.PrincipalKey);
 
             if (runConventions)
@@ -973,6 +981,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             var key = Metadata.AddForeignKey(dependentProperties, principalKey, principalType, configurationSource);
             key.Builder = new InternalRelationshipBuilder(key, ModelBuilder, null);
+
+            HasIndex(dependentProperties, ConfigurationSource.Convention);
 
             var value = key.Builder;
             if (runConventions)

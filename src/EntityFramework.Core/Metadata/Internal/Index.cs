@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
@@ -49,5 +50,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         [UsedImplicitly]
         private string DebuggerDisplay => Property.Format(Properties);
+
+        public virtual bool IsInUse() => DeclaringEntityType.FindForeignKeysInHierarchy(Properties).Any();
     }
 }

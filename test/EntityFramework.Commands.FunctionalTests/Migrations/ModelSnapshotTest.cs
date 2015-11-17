@@ -335,6 +335,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasIndex(""AlternateId"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -367,6 +369,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"");
 
         b.HasKey(""Id"");
+
+        b.HasIndex(""Id"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -597,6 +601,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasIndex(""AlternateId"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -639,6 +645,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .IsRequired();
 
         b.HasKey(""Id"");
+
+        b.HasIndex(""Name"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
@@ -678,6 +686,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<string>(""Name"");
 
         b.HasKey(""Id"");
+
+        b.HasIndex(""Name"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
@@ -707,6 +717,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""Id"");
 
         b.HasKey(""Id"");
+
+        b.HasIndex(""Id"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
