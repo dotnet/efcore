@@ -1790,7 +1790,7 @@ WHERE [c].[City] = 'London'",
         {
             base.SelectMany_mixed();
 
-            Assert.Equal(3873, Sql.Length);
+            Assert.Equal(3763, Sql.Replace("\r","").Replace("\n","").Length); // new-line insensitive assertion
             Assert.StartsWith(
                 @"SELECT [e1].[EmployeeID], [e1].[City], [e1].[Country], [e1].[FirstName], [e1].[ReportsTo], [e1].[Title]
 FROM [Employees] AS [e1]
