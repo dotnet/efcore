@@ -76,6 +76,100 @@ namespace Microsoft.Data.Entity.Query
             return default(TResult);
         }
 
+        public virtual MethodInfo GroupByMethod => _groupByMethodInfo;
+
+        private static readonly MethodInfo _groupByMethodInfo
+            = typeof(AsyncQueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
+
+        [UsedImplicitly]
+        private static IAsyncEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+            IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector)
+            => new GroupByAsyncEnumerable<TSource, TKey, TElement>(source, keySelector, elementSelector);
+
+        private class GroupByAsyncEnumerable<TSource, TKey, TElement> : IAsyncEnumerable<IGrouping<TKey, TElement>>
+        {
+            private readonly IAsyncEnumerable<TSource> _source;
+            private readonly Func<TSource, TKey> _keySelector;
+            private readonly Func<TSource, TElement> _elementSelector;
+
+            public GroupByAsyncEnumerable(
+                IAsyncEnumerable<TSource> source,
+                Func<TSource, TKey> keySelector,
+                Func<TSource, TElement> elementSelector)
+            {
+                _source = source;
+                _keySelector = keySelector;
+                _elementSelector = elementSelector;
+            }
+
+            public IAsyncEnumerator<IGrouping<TKey, TElement>> GetEnumerator() => new GroupByAsyncEnumerator(this);
+
+            private class GroupByAsyncEnumerator : IAsyncEnumerator<IGrouping<TKey, TElement>>
+            {
+                private readonly GroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
+                private readonly IEqualityComparer<TKey> _comparer;
+
+                private IAsyncEnumerator<TSource> _sourceEnumerator;
+                private bool _hasNext;
+
+                public GroupByAsyncEnumerator(GroupByAsyncEnumerable<TSource, TKey, TElement> groupByAsyncEnumerable)
+                {
+                    _groupByAsyncEnumerable = groupByAsyncEnumerable;
+                    _comparer = EqualityComparer<TKey>.Default;
+                }
+
+                public async Task<bool> MoveNext(CancellationToken cancellationToken)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    if (_sourceEnumerator == null)
+                    {
+                        _sourceEnumerator = _groupByAsyncEnumerable._source.GetEnumerator();
+                        _hasNext = await _sourceEnumerator.MoveNext();
+                    }
+
+                    if (_hasNext)
+                    {
+                        var currentKey = _groupByAsyncEnumerable._keySelector(_sourceEnumerator.Current);
+                        var element = _groupByAsyncEnumerable._elementSelector(_sourceEnumerator.Current);
+                        var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+
+                        while (true)
+                        {
+                            _hasNext = await _sourceEnumerator.MoveNext();
+
+                            if (!_hasNext)
+                            {
+                                break;
+                            }
+
+                            if (!_comparer.Equals(
+                                currentKey,
+                                _groupByAsyncEnumerable._keySelector(_sourceEnumerator.Current)))
+                            {
+                                break;
+                            }
+
+                            grouping.Add(_groupByAsyncEnumerable._elementSelector(_sourceEnumerator.Current));
+                        }
+
+                        Current = grouping;
+
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                public IGrouping<TKey, TElement> Current { get; private set; }
+
+                public void Dispose() => _sourceEnumerator?.Dispose();
+            }
+        }
+
         public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
 
         private static readonly MethodInfo _groupJoinMethodInfo

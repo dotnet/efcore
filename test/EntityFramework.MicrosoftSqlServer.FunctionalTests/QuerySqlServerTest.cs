@@ -2192,13 +2192,25 @@ ORDER BY [c].[CustomerID]",
                 Sql);
         }
 
+        public override void GroupBy_simple()
+        {
+            base.GroupBy_simple();
+
+            Assert.Equal(
+                @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
+                Sql);
+        }
+
         public override void GroupBy_Distinct()
         {
             base.GroupBy_Distinct();
 
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -2208,7 +2220,8 @@ FROM [Orders] AS [o]",
 
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 
@@ -2218,7 +2231,8 @@ FROM [Orders] AS [o]",
 
             Assert.Equal(
                 @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
-FROM [Orders] AS [o]",
+FROM [Orders] AS [o]
+ORDER BY [o].[CustomerID]",
                 Sql);
         }
 

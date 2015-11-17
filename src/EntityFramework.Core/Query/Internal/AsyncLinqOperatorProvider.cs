@@ -447,7 +447,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             {
                 private readonly GroupByAsyncEnumerable<TSource, TKey, TElement> _groupByAsyncEnumerable;
 
-                private IEnumerator<Grouping> _groupsEnumerator;
+                private IEnumerator<Grouping<TKey, TElement>> _groupsEnumerator;
 
                 public GroupByEnumerator(GroupByAsyncEnumerable<TSource, TKey, TElement> groupByAsyncEnumerable)
                 {
@@ -460,7 +460,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                     if (_groupsEnumerator == null)
                     {
-                        var groups = new Dictionary<TKey, Grouping>();
+                        var groups = new Dictionary<TKey, Grouping<TKey, TElement>>();
 
                         using (var sourceEnumerator = _groupByAsyncEnumerable._source.GetEnumerator())
                         {
@@ -469,10 +469,10 @@ namespace Microsoft.Data.Entity.Query.Internal
                                 var key = _groupByAsyncEnumerable._keySelector(sourceEnumerator.Current);
                                 var element = _groupByAsyncEnumerable._elementSelector(sourceEnumerator.Current);
 
-                                Grouping grouping;
+                                Grouping<TKey, TElement> grouping;
                                 if (!groups.TryGetValue(key, out grouping))
                                 {
-                                    groups.Add(key, grouping = new Grouping(key));
+                                    groups.Add(key, grouping = new Grouping<TKey, TElement>(key));
                                 }
 
                                 grouping.Add(element);
@@ -488,24 +488,6 @@ namespace Microsoft.Data.Entity.Query.Internal
                 public IGrouping<TKey, TElement> Current => _groupsEnumerator?.Current;
 
                 public void Dispose() => _groupsEnumerator?.Dispose();
-
-                private class Grouping : IGrouping<TKey, TElement>
-                {
-                    private readonly List<TElement> _elements = new List<TElement>();
-
-                    public Grouping(TKey key)
-                    {
-                        Key = key;
-                    }
-
-                    public TKey Key { get; }
-
-                    public void Add(TElement element) => _elements.Add(element);
-
-                    public IEnumerator<TElement> GetEnumerator() => _elements.GetEnumerator();
-
-                    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-                }
             }
         }
 

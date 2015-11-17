@@ -279,6 +279,7 @@
     <Compile Include="Query\ExpressionVisitors\IQuerySourceTracingExpressionVisitorFactory.cs" />
     <Compile Include="Query\ExpressionVisitors\IRequiresMaterializationExpressionVisitorFactory.cs" />
     <Compile Include="Query\IEntityQueryModelVisitorFactory.cs" />
+    <Compile Include="Query\Internal\Grouping.cs" />
     <Compile Include="Query\Internal\IEntityTrackingInfoFactory.cs" />
     <Compile Include="Query\ICompiledQueryCacheKeyGenerator.cs" />
     <Compile Include="Query\Internal\CompiledQueryCache.cs" />

@@ -78,6 +78,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 { typeof(LongCountResultOperator), HandleLongCount },
                 { typeof(DistinctResultOperator), HandleDistinct },
                 { typeof(FirstResultOperator), HandleFirst },
+                { typeof(GroupResultOperator), HandleGroup },
                 { typeof(LastResultOperator), HandleLast },
                 { typeof(MaxResultOperator), HandleMax },
                 { typeof(MinResultOperator), HandleMin },
@@ -319,6 +320,48 @@ namespace Microsoft.Data.Entity.Query.Internal
             handlerContext.SelectExpression.Limit = 1;
 
             return handlerContext.EvalOnClient(requiresClientResultOperator: false);
+        }
+
+        private static Expression HandleGroup(HandlerContext handlerContext)
+        {
+            var sqlTranslatingExpressionVisitor
+                = handlerContext.SqlTranslatingExpressionVisitorFactory
+                    .Create(
+                        handlerContext.QueryModelVisitor,
+                        handlerContext.SelectExpression);
+
+            var groupResultOperator = (GroupResultOperator)handlerContext.ResultOperator;
+
+            var sqlExpression
+                = sqlTranslatingExpressionVisitor.Visit(groupResultOperator.KeySelector);
+
+            if (sqlExpression != null)
+            {
+                handlerContext.SelectExpression.ClearOrderBy();
+
+                var columns = (sqlExpression as ConstantExpression)?.Value as Expression[];
+
+                if (columns != null)
+                {
+                    foreach (var column in columns)
+                    {
+                        handlerContext.SelectExpression
+                            .AddToOrderBy(new Ordering(column, OrderingDirection.Asc));
+                    }
+                }
+                else
+                {
+                    handlerContext.SelectExpression
+                        .AddToOrderBy(new Ordering(sqlExpression, OrderingDirection.Asc));
+                }
+            }
+
+            var oldGroupByCall = (MethodCallExpression)handlerContext.EvalOnClient();
+
+            return Expression.Call(
+                handlerContext.QueryModelVisitor.QueryCompilationContext.QueryMethodProvider.GroupByMethod
+                    .MakeGenericMethod(oldGroupByCall.Method.GetGenericArguments()),
+                oldGroupByCall.Arguments);
         }
 
         private static Expression HandleLast(HandlerContext handlerContext)

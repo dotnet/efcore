@@ -79,6 +79,51 @@ namespace Microsoft.Data.Entity.Query
             return default(TResult);
         }
 
+        public virtual MethodInfo GroupByMethod => _groupByMethodInfo;
+
+        private static readonly MethodInfo _groupByMethodInfo
+            = typeof(QueryMethodProvider)
+                .GetTypeInfo().GetDeclaredMethod(nameof(_GroupBy));
+
+        [UsedImplicitly]
+        private static IEnumerable<IGrouping<TKey, TElement>> _GroupBy<TSource, TKey, TElement>(
+            IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector)
+        {
+            using (var sourceEnumerator = source.GetEnumerator())
+            {
+                var comparer = EqualityComparer<TKey>.Default;
+                var hasNext = sourceEnumerator.MoveNext();
+
+                while (hasNext)
+                {
+                    var currentKey = keySelector(sourceEnumerator.Current);
+                    var element = elementSelector(sourceEnumerator.Current);
+                    var grouping = new Grouping<TKey, TElement>(currentKey) { element };
+
+                    while (true)
+                    {
+                        hasNext = sourceEnumerator.MoveNext();
+
+                        if (!hasNext)
+                        {
+                            break;
+                        }
+
+                        if (!comparer.Equals(currentKey, keySelector(sourceEnumerator.Current)))
+                        {
+                            break;
+                        }
+
+                        grouping.Add(elementSelector(sourceEnumerator.Current));
+                    }
+
+                    yield return grouping;
+                }
+            }
+        }
+
         public virtual MethodInfo GroupJoinMethod => _groupJoinMethodInfo;
 
         private static readonly MethodInfo _groupJoinMethodInfo

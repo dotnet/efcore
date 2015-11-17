@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.FunctionalTests.TestModels.Northwind;
 using Xunit;
+// ReSharper disable UseCollectionCountProperty
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable PossibleUnintendedReferenceComparison
@@ -200,7 +201,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         select new { A = o.Customer, B = o.Customer.City }).ToList();
 
                 Assert.Equal(14, orders.Count);
-                Assert.True(orders.All(o => o.A != null && o.B != null));
+                Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
             }
         }
 
@@ -216,7 +217,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                        select new { A = o.Customer, B = o.Customer.City }).ToListAsync();
 
                 Assert.Equal(14, orders.Count);
-                Assert.True(orders.All(o => o.A != null && o.B != null));
+                Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
             }
         }
 
@@ -227,8 +228,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o in context.Set<Order>()
-                        where o.Customer.City == "Seattle"
-                              && o.Customer.Phone != "555 555 5555"
+                        where (o.Customer.City == "Seattle")
+                              && (o.Customer.Phone != "555 555 5555")
                         select o).ToList();
 
                 Assert.Equal(14, orders.Count);
@@ -242,8 +243,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
             {
                 var orders
                     = (from o in context.Set<Order>()
-                        where o.Customer.City == "Seattle"
-                              && o.Customer.Phone != "555 555 5555"
+                        where (o.Customer.City == "Seattle")
+                              && (o.Customer.Phone != "555 555 5555")
                         select o).ToList();
 
                 Assert.Equal(14, orders.Count);
@@ -274,7 +275,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         select new { A = o.Customer, B = o.Customer }).ToList();
 
                 Assert.Equal(830, orders.Count);
-                Assert.True(orders.All(o => o.A != null && o.B != null));
+                Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
             }
         }
 
@@ -290,7 +291,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
                         select new { A = o.Customer, B = o.Customer }).ToList();
 
                 Assert.Equal(14, orders.Count);
-                Assert.True(orders.All(o => o.A != null && o.B != null));
+                Assert.True(orders.All(o => (o.A != null) && (o.B != null)));
             }
         }
 
@@ -598,9 +599,10 @@ namespace Microsoft.Data.Entity.FunctionalTests
             using (var context = CreateContext())
             {
                 var query = from o in context.Orders
-                            where ((from od in context.OrderDetails
-                                    where o.Customer.Country == od.Order.Customer.Country
-                                    select od).Count() > 0)
+                            // ReSharper disable once UseMethodAny.0
+                            where (from od in context.OrderDetails
+                                   where o.Customer.Country == od.Order.Customer.Country
+                                   select od).Count() > 0
                             select o;
 
                 var result = query.ToList();
