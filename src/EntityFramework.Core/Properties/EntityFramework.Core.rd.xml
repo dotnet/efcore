@@ -28,6 +28,8 @@
         <Type Name="System.Linq.AsyncEnumerable">
             <MethodInstantiation Name="Any" Arguments="Microsoft.Data.Entity.Storage.ValueBuffer" Dynamic="Required" />
         </Type>
+        
+        <Type Name="System.Collections.ArrayList" Dynamic="Required All" />
 
         <Type Name="Microsoft.Data.Entity.DbContext">
 
