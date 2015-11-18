@@ -75,12 +75,14 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
         private void EnableForeignKeys()
         {
-            if (!_enforceForeignKeys)
+            if (_enforceForeignKeys)
             {
-                return;
+                _sqlCommandBuilder.Build("PRAGMA foreign_keys=ON;").ExecuteNonQuery(this);
             }
-
-            _sqlCommandBuilder.Build("PRAGMA foreign_keys=ON;").ExecuteNonQuery(this);
+            else
+            {
+                _sqlCommandBuilder.Build("PRAGMA foreign_keys=OFF;").ExecuteNonQuery(this);
+            }
         }
     }
 }

@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.Metadata;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
@@ -19,12 +17,13 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
-            Assert.Equal(@"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+            Assert.Contains(@"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
 FROM ""Sample"" AS ""r""
 WHERE ""r"".""UniqueNo"" = 1
-LIMIT 1
+LIMIT 1",
+                Sql);
 
-SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
+            Assert.Contains(@"SELECT ""r"".""UniqueNo"", ""r"".""MaxLengthProperty"", ""r"".""Name"", ""r"".""RowVersion""
 FROM ""Sample"" AS ""r""
 WHERE ""r"".""UniqueNo"" = 1
 LIMIT 1
@@ -53,7 +52,7 @@ SELECT changes();",
         {
             base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
-            Assert.Equal(@"@p0: 
+            Assert.Contains(@"@p0: 
 @p1: Third
 @p2: 00000000-0000-0000-0000-000000000003
 
@@ -78,14 +77,15 @@ WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
         {
             base.RequiredAttribute_for_navigation_throws_while_inserting_null_value();
 
-            Assert.Equal(@"@p0: 0
+            Assert.Contains(@"@p0: 0
 @p1: Book1
 
 INSERT INTO ""BookDetail"" (""Id"", ""BookId"")
 VALUES (@p0, @p1);
-SELECT changes();
+SELECT changes();",
+                Sql);
 
-@p0: 0
+            Assert.Contains(@"@p0: 0
 @p1: 
 
 INSERT INTO ""BookDetail"" (""Id"", ""BookId"")
@@ -98,7 +98,7 @@ SELECT changes();",
         {
             base.RequiredAttribute_for_property_throws_while_inserting_null_value();
 
-            Assert.Equal(@"@p0: 
+            Assert.Contains(@"@p0: 
 @p1: ValidString
 @p2: 00000000-0000-0000-0000-000000000001
 
@@ -106,9 +106,10 @@ INSERT INTO ""Sample"" (""MaxLengthProperty"", ""Name"", ""RowVersion"")
 VALUES (@p0, @p1, @p2);
 SELECT ""UniqueNo""
 FROM ""Sample""
-WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();
+WHERE changes() = 1 AND ""UniqueNo"" = last_insert_rowid();",
+                Sql);
 
-@p0: 
+            Assert.Contains(@"@p0: 
 @p1: 
 @p2: 00000000-0000-0000-0000-000000000002
 

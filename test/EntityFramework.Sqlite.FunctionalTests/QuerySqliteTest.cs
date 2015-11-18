@@ -27,7 +27,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             base.Take_Skip();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""t0"".*
 FROM (
     SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""

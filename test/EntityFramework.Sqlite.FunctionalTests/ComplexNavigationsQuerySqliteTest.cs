@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Microsoft.Data.Entity.FunctionalTests;
-using Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsModel;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
@@ -18,7 +17,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             base.Multi_level_include_one_to_many_optional_and_one_to_many_optional_produces_valid_sql();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""e"".""Id"", ""e"".""Name"", ""e"".""OneToMany_Optional_Self_InverseId"", ""e"".""OneToMany_Required_Self_InverseId"", ""e"".""OneToOne_Optional_SelfId""
 FROM ""Level1"" AS ""e""
 ORDER BY ""e"".""Id""
@@ -48,7 +47,7 @@ ORDER BY ""l0"".""Id"", ""l0"".""Id0""", Sql);
         {
             base.Multi_level_include_correct_PK_is_chosen_as_the_join_predicate_for_queries_that_join_same_table_multiple_times();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""e"".""Id"", ""e"".""Name"", ""e"".""OneToMany_Optional_Self_InverseId"", ""e"".""OneToMany_Required_Self_InverseId"", ""e"".""OneToOne_Optional_SelfId""
 FROM ""Level1"" AS ""e""
 ORDER BY ""e"".""Id""

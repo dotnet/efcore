@@ -12,7 +12,7 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
         {
             base.All_customers();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""c"".""CustomerID"", ""c"".""CompanyName""
 FROM ""Customers"" AS ""c""",
                 Sql);
@@ -22,7 +22,7 @@ FROM ""Customers"" AS ""c""",
         {
             base.All_employees();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""e"".""EmployeeID"", ""e"".""City""
 FROM ""Employees"" AS ""e""",
                 Sql);
@@ -32,7 +32,7 @@ FROM ""Employees"" AS ""e""",
         {
             base.All_orders();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""o"".""OrderID"", ""o"".""ShipVia""
 FROM ""Orders"" AS ""o""",
                 Sql);
@@ -42,7 +42,7 @@ FROM ""Orders"" AS ""o""",
         {
             base.Project_nullable_enum();
 
-            Assert.Equal(
+            Assert.Contains(
                 @"SELECT ""o"".""ShipVia""
 FROM ""Orders"" AS ""o""",
                 Sql);
@@ -55,14 +55,8 @@ FROM ""Orders"" AS ""o""",
             _fixture = fixture;
         }
 
-        protected override DbContext CreateContext()
-        {
-            return _fixture.CreateContext();
-        }
+        protected override DbContext CreateContext() => _fixture.CreateContext();
 
-        private static string Sql
-        {
-            get { return TestSqlLoggerFactory.Sql; }
-        }
+        private static string Sql => TestSqlLoggerFactory.Sql;
     }
 }
