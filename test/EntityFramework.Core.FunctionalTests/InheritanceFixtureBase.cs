@@ -18,9 +18,6 @@ namespace Microsoft.Data.Entity.FunctionalTests
             modelBuilder.Entity<Flower>();
             modelBuilder.Entity<Plant>().HasKey(e => e.Species);
             modelBuilder.Entity<Country>();
-
-            //#3282
-            modelBuilder.Entity<Eagle>().Property(e => e.EagleId).Metadata.RequiresValueGenerator = false;
         }
 
         public abstract InheritanceContext CreateContext();

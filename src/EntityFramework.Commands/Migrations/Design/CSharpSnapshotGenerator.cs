@@ -435,8 +435,8 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     {
                         stringBuilder
                             .AppendLine()
-                            .Append(".OnDelete(DeleteBehavior.")
-                            .Append(foreignKey.DeleteBehavior.ToString())
+                            .Append(".OnDelete(")
+                            .Append(_code.Literal(foreignKey.DeleteBehavior))
                             .Append(")");
                     }
                 }

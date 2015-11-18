@@ -128,6 +128,8 @@ namespace Microsoft.Data.Entity.Tests
 
         private class OrderDetails
         {
+            public static readonly PropertyInfo OrderIdProperty = typeof(OrderDetails).GetProperty("OrderId");
+
             public int Id { get; set; }
 
             public int OrderId { get; set; }

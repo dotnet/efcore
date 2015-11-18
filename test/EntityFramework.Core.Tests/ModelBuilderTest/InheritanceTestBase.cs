@@ -143,6 +143,17 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.Null(otherDerivedFk.PrincipalToDependent);
                 Assert.Equal(nameof(Order.CustomerId), otherDerivedFk.Properties.Single().Name);
             }
+
+            [Fact]
+            public virtual void Setting_base_type_handles_require_value_generator_properly()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Customer>();
+                modelBuilder.Entity<OrderDetails>();
+                modelBuilder.Entity<SpecialOrder>();
+
+                Assert.False(modelBuilder.Model.FindEntityType(typeof(OrderDetails)).FindProperty(OrderDetails.OrderIdProperty).RequiresValueGenerator);
+            }
         }
     }
 }
