@@ -40,17 +40,15 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var categoryType = model.FindEntityType(typeof(Category));
             var stateManager = CreateStateManager(model);
 
-            var entityKey = new KeyValue<int>(categoryType.FindPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            stateManager.StartTracking(categoryType, entityKey, new Category { Id = 77 }, valueBuffer);
+            stateManager.StartTracking(categoryType, new Category { Id = 77 }, valueBuffer);
 
             Assert.Equal(
                 CoreStrings.IdentityConflict("Category"),
                 Assert.Throws<InvalidOperationException>(
                     () => stateManager.StartTracking(
                         categoryType,
-                        entityKey,
                         new Category { Id = 77 },
                         valueBuffer)).Message);
         }
@@ -63,27 +61,26 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var stateManager = CreateStateManager(model);
 
             var category = new Category { Id = 77 };
-            var entityKey = new KeyValue<int>(categoryType.FindPrimaryKey(), 77);
             var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", null });
 
-            var entry = stateManager.StartTracking(categoryType, entityKey, category, valueBuffer);
+            var entry = stateManager.StartTracking(categoryType, category, valueBuffer);
 
-            Assert.Same(entry, stateManager.StartTracking(categoryType, entityKey, category, valueBuffer));
+            Assert.Same(entry, stateManager.StartTracking(categoryType, category, valueBuffer));
         }
 
         [Fact]
         public void StartTracking_throws_for_invalid_entity_key()
         {
             var model = BuildModel();
-            var categoryType = model.FindEntityType(typeof(Category));
+            var categoryType = model.FindEntityType(typeof(Dogegory));
             var stateManager = CreateStateManager(model);
 
-            var valueBuffer = new ValueBuffer(new object[] { 0, "Bjork", null });
+            var valueBuffer = new ValueBuffer(new object[] { null });
 
             Assert.Equal(
-                CoreStrings.InvalidPrimaryKey("Category"),
+                CoreStrings.InvalidPrimaryKey("Dogegory"),
                 Assert.Throws<InvalidOperationException>(
-                    () => stateManager.StartTracking(categoryType, new KeyValue<int>(null, 0), new Category { Id = 0 }, valueBuffer)).Message);
+                    () => stateManager.StartTracking(categoryType, new Dogegory { Id = null }, valueBuffer)).Message);
         }
 
         [Fact]
@@ -101,7 +98,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 77),
                 new Category { Id = 77 },
                 new ValueBuffer(new object[] { 77, "Bjork", null }));
 
@@ -109,7 +105,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 78),
                 new Category { Id = 78 },
                 new ValueBuffer(new object[] { 78, "Beck", null }));
 
@@ -121,7 +116,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 79),
                 new Category { Id = 79 },
                 new ValueBuffer(new object[] { 79, "Bush", null }));
 
@@ -143,7 +137,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 77),
                 new Category { Id = 77 },
                 new ValueBuffer(new object[] { 77, "Bjork", null }));
 
@@ -151,7 +144,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 78),
                 new Category { Id = 78 },
                 new ValueBuffer(new object[] { 78, "Beck", null }));
 
@@ -177,7 +169,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 77),
                 new Category { Id = 77 },
                 new ValueBuffer(new object[] { 77, "Bjork", null }));
 
@@ -185,7 +176,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 78),
                 new Category { Id = 78 },
                 new ValueBuffer(new object[] { 78, "Beck", null }));
 
@@ -211,7 +201,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             var entry = stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 77),
                 new Category { Id = 77 },
                 new ValueBuffer(new object[] { 77, "Bjork", null }));
 
@@ -219,7 +208,6 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
 
             stateManager.StartTracking(
                 categoryType,
-                new KeyValue<int>(categoryType.FindPrimaryKey(), 78),
                 new Category { Id = 78 },
                 new ValueBuffer(new object[] { 78, "Beck", null }));
 

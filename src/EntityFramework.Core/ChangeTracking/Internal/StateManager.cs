@@ -107,27 +107,29 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         public virtual InternalEntityEntry StartTracking(
             IEntityType entityType,
-            IKeyValue keyValue,
             object entity,
             ValueBuffer valueBuffer)
         {
+            var existingEntry = TryGetEntry(entity);
+            if (existingEntry != null)
+            {
+                return existingEntry;
+            }
+
+            var newEntry = _factory.Create(this, entityType, entity, valueBuffer);
+            var keyValue = newEntry.GetPrimaryKeyValue();
+
             if (keyValue.IsInvalid)
             {
                 throw new InvalidOperationException(CoreStrings.InvalidPrimaryKey(entityType.DisplayName()));
             }
 
-            var existingEntry = TryGetEntry(keyValue);
-            if (existingEntry != null)
+            if (_identityMap.ContainsKey(keyValue))
             {
-                if (existingEntry.Entity != entity)
-                {
-                    throw new InvalidOperationException(CoreStrings.IdentityConflict(entityType.DisplayName()));
-                }
-
-                return existingEntry;
+                throw new InvalidOperationException(CoreStrings.IdentityConflict(entityType.DisplayName()));
             }
 
-            var newEntry = _subscriber.SnapshotAndSubscribe(_factory.Create(this, entityType, entity, valueBuffer));
+            _subscriber.SnapshotAndSubscribe(newEntry);
 
             AddToIdentityMap(entityType, keyValue, newEntry);
 
@@ -233,8 +235,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 if (existingEntry != entry)
                 {
-                    // TODO: Consider specialized exception types
-                    // Issue #611
                     throw new InvalidOperationException(CoreStrings.IdentityConflict(entityType.Name));
                 }
             }

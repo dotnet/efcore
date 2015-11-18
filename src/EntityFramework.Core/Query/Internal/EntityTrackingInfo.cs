@@ -78,7 +78,6 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             stateManager.StartTracking(
                 _entityType,
-                _keyValueFactory.Create(valueBuffer),
                 entity,
                 valueBuffer);
         }
@@ -125,7 +124,6 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                 stateManager.StartTracking(
                     IncludedEntityTrackingInfo.EntityType,
-                    IncludedEntityTrackingInfo.CreateKeyValue(valueBuffer),
                     Entity,
                     valueBuffer);
             }

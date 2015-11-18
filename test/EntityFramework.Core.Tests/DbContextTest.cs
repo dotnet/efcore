@@ -263,7 +263,6 @@ namespace Microsoft.Data.Entity.Tests
 
             public InternalEntityEntry StartTracking(
                 IEntityType entityType,
-                IKeyValue keyValue,
                 object entity,
                 ValueBuffer valueBuffer)
             {
