@@ -1,11 +1,11 @@
 {
   "compilationOptions": {
-    "keyFile":  "../../tools/Key.snk"
+    "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
     "EntityFramework.Core.Tests": "1.0.0",
-    "EntityFramework.Relational": "7.0.0-*",
-    "EntityFramework.Relational.FunctionalTests": "7.0.0-*"
+    "EntityFramework.Relational": "7.0.0-rc1-final",
+    "EntityFramework.Relational.FunctionalTests": "7.0.0-rc1-final"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
@@ -13,7 +13,10 @@
   "frameworks": {
     "net46": {
       "frameworkAssemblies": {
-        "System.Text.RegularExpressions": { "version": "4.0.0.0", "type": "build" }
+        "System.Text.RegularExpressions": {
+          "version": "4.0.0.0",
+          "type": "build"
+        }
       }
     },
     "dnx451": {

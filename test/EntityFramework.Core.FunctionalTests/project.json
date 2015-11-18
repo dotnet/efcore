@@ -1,11 +1,11 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "Reusable EntityFramework.Core functional tests for provider writers.",
   "compilationOptions": {
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.InMemory": "7.0.0-*",
+    "EntityFramework.InMemory": "7.0.0-rc1-final",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
   },
@@ -15,13 +15,16 @@
   "frameworks": {
     "net46": {
       "frameworkAssemblies": {
-        "System.Threading.Tasks": { "version": "4.0.0.0", "type": "build" },
+        "System.Threading.Tasks": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
         "WindowsBase": "4.0.0.0"
       }
     },
     "dnx451": {
       "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       },
       "frameworkAssemblies": {
         "WindowsBase": "4.0.0.0"
@@ -29,8 +32,8 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.1-beta-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.CSharp": "4.0.1-beta-23516",
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       }
     }
   }

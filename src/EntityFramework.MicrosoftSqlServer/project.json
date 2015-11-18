@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "Microsoft SQL Server data store for Entity Framework.",
   "repository": {
     "type": "git",
@@ -10,27 +10,29 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*"
+    "EntityFramework.Relational": "7.0.0-rc1-final"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
     "EntityFramework.MicrosoftSqlServer.SqlServerStrings": "Properties/SqlServerStrings.resx"
   },
-  "resource": [ "Properties/EntityFramework.MicrosoftSqlServer.rd.xml" ],
+  "resource": [
+    "Properties/EntityFramework.MicrosoftSqlServer.rd.xml"
+  ],
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "dotnet5.4": {
       "dependencies": {
-        "System.Data.SqlClient": "4.0.0-*",
-        "System.Text.Encoding.CodePages": "4.0.1-beta-*",
-        "System.Threading.Thread": "4.0.0-*",
-        "System.Threading.ThreadPool": "4.0.10-*"
+        "System.Data.SqlClient": "4.0.0-beta-23516",
+        "System.Text.Encoding.CodePages": "4.0.1-beta-23516",
+        "System.Threading.Thread": "4.0.0-beta-23516",
+        "System.Threading.ThreadPool": "4.0.10-beta-23516"
       }
     },
     "netcore50": {
       "dependencies": {
-        "System.Data.SqlClient": "4.0.0-*",
-        "System.Threading.Thread": "4.0.0-*"
+        "System.Data.SqlClient": "4.0.0-beta-23516",
+        "System.Threading.Thread": "4.0.0-beta-23516"
       }
     }
   }

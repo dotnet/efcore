@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "Shared Design-time Entity Framework components for relational data stores.",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*"
+    "EntityFramework.Relational": "7.0.0-rc1-final"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
@@ -44,7 +44,7 @@
     },
     "dnxcore50": {
       "dependencies": {
-        "System.ComponentModel.Annotations": "4.0.11-beta-*"
+        "System.ComponentModel.Annotations": "4.0.11-beta-23516"
       }
     },
     "netcore50": {

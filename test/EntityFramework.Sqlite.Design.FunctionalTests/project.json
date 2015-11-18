@@ -1,17 +1,17 @@
-﻿{
+{
   "dependencies": {
-    "EntityFramework.Relational.Design": "7.0.0-*",
-    "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-    "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-*",
+    "EntityFramework.Relational.Design": "7.0.0-rc1-final",
+    "EntityFramework.Core.FunctionalTests": "7.0.0-rc1-final",
+    "EntityFramework.Relational.Design.FunctionalTests": "7.0.0-rc1-final",
     "EntityFramework.Sqlite.FunctionalTests": "1.0.0",
-    "EntityFramework.Sqlite.Design": "7.0.0-*"
+    "EntityFramework.Sqlite.Design": "7.0.0-rc1-final"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
-    "dnx451": { },
-    "dnxcore50": { }
+    "net46": {},
+    "dnx451": {},
+    "dnxcore50": {}
   }
 }

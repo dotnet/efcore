@@ -1,13 +1,16 @@
 {
   "compilationOptions": {
-    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ]
+    "define": [
+      "OMIT_HANDLER_INTERFACES",
+      "ENABLE_HANDLERS"
+    ]
   },
   "dependencies": {
-    "EntityFramework.Commands": "7.0.0-*",
-    "EntityFramework.Core.FunctionalTests": "7.0.0-*",
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
-    "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-*",
-    "System.Collections.Immutable": "1.1.37",
+    "EntityFramework.Commands": "7.0.0-rc1-final",
+    "EntityFramework.Core.FunctionalTests": "7.0.0-rc1-final",
+    "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-final",
+    "Microsoft.Dnx.Compilation.CSharp.Abstractions": "1.0.0-rc1-final",
+    "System.Collections.Immutable": "1.1.38-beta-23516",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
   },
@@ -16,17 +19,17 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
+    "net46": {},
     "dnx451": {
       "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-rc1-final",
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-rc1-final",
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       }
     }
   }

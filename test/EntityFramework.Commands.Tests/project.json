@@ -1,10 +1,13 @@
 {
   "compilationOptions": {
-    "define": [ "OMIT_HANDLER_INTERFACES", "ENABLE_HANDLERS" ],
-    "keyFile":  "../../tools/Key.snk"
+    "define": [
+      "OMIT_HANDLER_INTERFACES",
+      "ENABLE_HANDLERS"
+    ],
+    "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Commands": "7.0.0-*",
+    "EntityFramework.Commands": "7.0.0-rc1-final",
     "EntityFramework.Relational.Tests": "1.0.0"
   },
   "compile": "..\\..\\src\\EntityFramework.Commands\\Design\\OperationHandlers.cs",
@@ -12,10 +15,10 @@
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
+    "net46": {},
     "dnx451": {
       "dependencies": {
-        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-*"
+        "Microsoft.Dnx.Compilation.CSharp": "1.0.0-rc1-final"
       }
     }
   }

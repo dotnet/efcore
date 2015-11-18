@@ -1,22 +1,22 @@
 {
   "dependencies": {
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
+    "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-final",
     "EntityFramework.Microbenchmarks.Core": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*"
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
+    "net46": {},
     "dnxcore50": {
       "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       }
     },
     "dnx451": {
       "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       }
     }
   }

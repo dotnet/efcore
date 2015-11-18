@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-rc1-final",
     "xunit.assert": "2.1.0-*",
     "xunit.extensibility.execution": "2.1.0-*"
   },
@@ -12,19 +12,25 @@
     "net46": {
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0",
-        "System.Reflection": { "version": "4.0.0.0", "type": "build" },
-        "System.Runtime": { "version": "4.0.0.0", "type": "build" }
+        "System.Reflection": {
+          "version": "4.0.0.0",
+          "type": "build"
+        },
+        "System.Runtime": {
+          "version": "4.0.0.0",
+          "type": "build"
+        }
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "System.Data.SqlClient": "4.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "System.Data.SqlClient": "4.0.0-beta-23516",
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       }
     },
     "dnx451": {
       "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "xunit.runner.aspnet": "2.0.0-aspnet-rc1-final"
       },
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0",

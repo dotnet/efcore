@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "SQLite data store for Entity Framework.",
   "repository": {
     "type": "git",
@@ -10,25 +10,27 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Relational": "7.0.0-*",
-    "Microsoft.Data.Sqlite": "1.0.0-*"
+    "EntityFramework.Relational": "7.0.0-rc1-final",
+    "Microsoft.Data.Sqlite": "1.0.0-rc1-final"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
     "EntityFramework.Sqlite.SqliteStrings": "Properties/SqliteStrings.resx"
   },
-  "resource": [ "Properties/EntityFramework.Sqlite.rd.xml" ],
+  "resource": [
+    "Properties/EntityFramework.Sqlite.rd.xml"
+  ],
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "dotnet5.4": {
       "dependencies": {
-        "System.IO.FileSystem": "4.0.1-beta-*",
-        "Microsoft.CSharp": "4.0.1-beta-*"
+        "System.IO.FileSystem": "4.0.1-beta-23516",
+        "Microsoft.CSharp": "4.0.1-beta-23516"
       }
     },
     "netcore50": {
       "dependencies": {
-        "System.IO.FileSystem": "4.0.0"
+        "System.IO.FileSystem": "4.0.1-beta-23516"
       }
     }
   }

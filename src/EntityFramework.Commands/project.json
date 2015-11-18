@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "Command line utilities for Entity Framework.",
   "repository": {
     "type": "git",
@@ -14,29 +14,29 @@
     "EntityFramework.Commands.CommandsStrings": "Properties/CommandsStrings.resx"
   },
   "dependencies": {
-    "EntityFramework.Relational.Design": "7.0.0-*"
+    "EntityFramework.Relational.Design": "7.0.0-rc1-final"
   },
   "frameworks": {
-    "net451": { },
+    "net451": {},
     "dnx451": {
       "dependencies": {
-        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-rc1-final",
         "Microsoft.Extensions.CommandLineUtils.Sources": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc1-final",
           "type": "build"
         },
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*"
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final"
       }
     },
     "dnxcore50": {
       "dependencies": {
-        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-*",
+        "Microsoft.AspNet.Hosting.Abstractions": "1.0.0-rc1-final",
         "Microsoft.Extensions.CommandLineUtils.Sources": {
-          "version": "1.0.0-*",
+          "version": "1.0.0-rc1-final",
           "type": "build"
         },
-        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-*",
-        "System.Console": "4.0.0-*"
+        "Microsoft.Extensions.PlatformAbstractions": "1.0.0-rc1-final",
+        "System.Console": "4.0.0-beta-23516"
       }
     },
     "netcore50": {
@@ -48,7 +48,10 @@
   "packInclude": {
     "build/": "build/**",
     "lib/": "lib/**",
-    "tools/": [ "tools/**", "Design\\OperationHandlers.cs" ]
+    "tools/": [
+      "tools/**",
+      "Design\\OperationHandlers.cs"
+    ]
   },
   "commands": {
     "ef": "EntityFramework.Commands"

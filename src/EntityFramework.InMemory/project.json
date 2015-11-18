@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "In memory data store for Entity Framework (to be used for testing purposes).",
   "repository": {
     "type": "git",
@@ -10,7 +10,7 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Core": "7.0.0-*"
+    "EntityFramework.Core": "7.0.0-rc1-final"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {

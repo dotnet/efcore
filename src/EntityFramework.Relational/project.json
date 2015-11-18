@@ -1,5 +1,5 @@
 {
-  "version": "7.0.0-*",
+  "version": "7.0.0-rc1-final",
   "description": "Shared Entity Framework components for relational data stores.",
   "repository": {
     "type": "git",
@@ -10,14 +10,16 @@
     "keyFile": "../../tools/Key.snk"
   },
   "dependencies": {
-    "EntityFramework.Core": "7.0.0-*",
-    "System.Diagnostics.DiagnosticSource": "4.0.0-beta-*"
+    "EntityFramework.Core": "7.0.0-rc1-final",
+    "System.Diagnostics.DiagnosticSource": "4.0.0-beta-23516"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {
     "EntityFramework.Relational.RelationalStrings": "Properties/RelationalStrings.resx"
   },
-  "resource": ["Properties/EntityFramework.Relational.rd.xml"],
+  "resource": [
+    "Properties/EntityFramework.Relational.rd.xml"
+  ],
   "frameworks": {
     "net451": {
       "frameworkAssemblies": {
@@ -27,16 +29,16 @@
     },
     "dotnet5.4": {
       "dependencies": {
-        "System.Data.Common": "4.0.1-beta-*",
-        "System.Text.RegularExpressions": "4.0.11-beta-*",
-        "Microsoft.CSharp": "4.0.1-beta-*"
+        "System.Data.Common": "4.0.1-beta-23516",
+        "System.Text.RegularExpressions": "4.0.11-beta-23516",
+        "Microsoft.CSharp": "4.0.1-beta-23516"
       }
     },
     "netcore50": {
       "dependencies": {
-        "Microsoft.CSharp": "4.0.0",
-        "System.Data.Common": "4.0.0",
-        "System.Dynamic.Runtime": "4.0.10"
+        "Microsoft.CSharp": "4.0.1-beta-23516",
+        "System.Data.Common": "4.0.1-beta-23516",
+        "System.Dynamic.Runtime": "4.0.11-beta-23516"
       }
     }
   }

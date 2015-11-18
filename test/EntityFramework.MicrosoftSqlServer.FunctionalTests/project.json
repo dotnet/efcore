@@ -1,16 +1,16 @@
 {
   "dependencies": {
-    "EntityFramework.Relational.FunctionalTests": "7.0.0-*",
-    "EntityFramework.MicrosoftSqlServer": "7.0.0-*",
-    "Microsoft.Extensions.Configuration.Json": "1.0.0-*",
-    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-*"
+    "EntityFramework.Relational.FunctionalTests": "7.0.0-rc1-final",
+    "EntityFramework.MicrosoftSqlServer": "7.0.0-rc1-final",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
+    "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.0.0-rc1-final"
   },
   "commands": {
     "test": "xunit.runner.aspnet"
   },
   "frameworks": {
-    "net46": { },
-    "dnx451": { },
-    "dnxcore50": { }
+    "net46": {},
+    "dnx451": {},
+    "dnxcore50": {}
   }
 }
