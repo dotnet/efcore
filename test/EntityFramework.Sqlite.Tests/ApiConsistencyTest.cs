@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Sqlite.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).Assembly;
+        protected override Assembly TargetAssembly => typeof(SqliteRelationalConnection).GetTypeInfo().Assembly;
     }
 }

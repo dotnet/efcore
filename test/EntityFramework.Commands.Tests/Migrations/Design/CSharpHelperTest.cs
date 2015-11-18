@@ -4,27 +4,14 @@
 using System;
 using System.Globalization;
 using System.Threading;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities.Xunit;
 using Microsoft.Data.Entity.Internal;
 using Xunit;
 
 namespace Microsoft.Data.Entity.Migrations.Design
 {
-    public class CSharpHelperTest : IDisposable
+    public class CSharpHelperTest 
     {
-        private readonly CultureInfo _backupCultureInfo;
-
-        public CSharpHelperTest()
-        {
-            _backupCultureInfo = Thread.CurrentThread.CurrentCulture;
-            // Ensure that there is a culture used which differs from the intended formatting and also from typical CI machines.
-            // This way, formatting dependent on the local system's settings will be caught by the tests.
-            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("de-DE");
-        }
-
-        void IDisposable.Dispose()
-        {
-            Thread.CurrentThread.CurrentCulture = _backupCultureInfo;
-        }
         [Theory]
         [InlineData(
             "single-line string with \"",
@@ -126,12 +113,14 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 "@\"multi-line" + Environment.NewLine + "string with \"\"\"");
 
         [Fact]
+        [UseCulture("de-DE")]
         public void Literal_works_when_DateTime() =>
             Literal_works(
                 new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local),
                 "new DateTime(2015, 3, 15, 20, 45, 17, 300, DateTimeKind.Local)");
 
         [Fact]
+        [UseCulture("de-DE")]
         public void Literal_works_when_DateTimeOffset() =>
             Literal_works(
                 new DateTimeOffset(new DateTime(2015, 3, 15, 19, 43, 47, 500), new TimeSpan(-7, 0, 0)),

@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Metadata;
@@ -400,11 +401,11 @@ namespace Microsoft.Data.Entity.Tests
         private EntityType GetDuckType()
         {
             var entityType = new Entity.Metadata.Internal.Model().AddEntityType(typeof(Duck));
-            var id = entityType.AddProperty(typeof(Duck).GetProperty(nameof(Duck.Id)));
-            entityType.AddProperty(typeof(Duck).GetProperty(nameof(Duck.Name)));
-            entityType.AddProperty(typeof(Duck).GetProperty(nameof(Duck.Quacks)));
-            entityType.AddProperty(typeof(Duck).GetProperty(nameof(Duck.Computed)));
-            entityType.AddProperty(typeof(Duck).GetProperty(nameof(Duck.ConcurrencyToken)));
+            var id = entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Id)));
+            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Name)));
+            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Quacks)));
+            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.Computed)));
+            entityType.AddProperty(typeof(Duck).GetTypeInfo().GetDeclaredProperty(nameof(Duck.ConcurrencyToken)));
             entityType.SetPrimaryKey(id);
             return entityType;
         }

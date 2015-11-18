@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -220,19 +221,38 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
         private static SqlException CreateSqlException(int number)
         {
-            var error = (SqlError)Activator.CreateInstance(
-                typeof(SqlError), BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 }, null);
+            var ctors = typeof(SqlError)
+                .GetTypeInfo()
+                .DeclaredConstructors;
 
-            var errors = (SqlErrorCollection)Activator.CreateInstance(
-                typeof(SqlErrorCollection), BindingFlags.Instance | BindingFlags.NonPublic, null,
-                null, null);
+            SqlError error;
+            if (!TestPlatformHelper.IsWindows
+                && !TestPlatformHelper.IsMono)
+            {
+                // On coreclr, SqlError's internal constructor has an additional parameter
+                error = (SqlError)ctors.First(c => c.GetParameters().Length == 8)
+                    .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0, null });
+            }
+            else
+            {
+                // On Windows-CoreClr, SqlError is type-forwarded to full .NET
+                error = (SqlError)ctors.First(c => c.GetParameters().Length == 7)
+                    .Invoke(new object[] { number, (byte)0, (byte)0, "Server", "ErrorMessage", "Procedure", 0 });
+            }
 
-            typeof(SqlErrorCollection).GetTypeInfo().GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, new object[] { error });
+            var errors = (SqlErrorCollection)typeof(SqlErrorCollection)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .Single()
+                .Invoke(null);
 
-            return (SqlException)Activator.CreateInstance(
-                typeof(SqlException), BindingFlags.Instance | BindingFlags.NonPublic, null,
-                new object[] { "Bang!", errors, null, Guid.NewGuid() }, null);
+            typeof(SqlErrorCollection).GetRuntimeMethods().Single(m => m.Name == "Add").Invoke(errors, new object[] { error });
+
+            return (SqlException)typeof(SqlException)
+                .GetTypeInfo()
+                .DeclaredConstructors
+                .First(c=>c.GetParameters().Count() == 4)
+                .Invoke(new object[] { "Bang!", errors, null, Guid.NewGuid() });
         }
     }
 }

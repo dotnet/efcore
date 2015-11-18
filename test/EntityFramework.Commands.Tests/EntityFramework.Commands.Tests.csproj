@@ -61,6 +61,10 @@
       <Project>{71415cec-8111-4c73-8751-512d22f10602}</Project>
       <Name>EntityFramework.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EntityFramework.Core.FunctionalTests\EntityFramework.Core.FunctionalTests.csproj">
+      <Project>{6AB933C7-DE2A-45F2-BDC6-E71A01EF7756}</Project>
+      <Name>EntityFramework.Core.FunctionalTests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EntityFramework.Core.Tests\EntityFramework.Core.Tests.csproj">
       <Project>{ef361118-7d0d-453e-ada4-2f24fbee196c}</Project>
       <Name>EntityFramework.Core.Tests</Name>

@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Tests
 
             var voidMethods
                 = from type in GetAllTypes(fluentApiTypes)
-                  where type.IsVisible
+                  where type.GetTypeInfo().IsVisible
                   from method in type.GetMethods(PublicInstance)
                   where (method.DeclaringType == type)
                         && (method.ReturnType == typeof(void))
@@ -49,6 +49,6 @@ namespace Microsoft.Data.Entity.Tests
             Assert.Equal("", string.Join(Environment.NewLine, voidMethods));
         }
 
-        protected override Assembly TargetAssembly => typeof(EntityType).Assembly;
+        protected override Assembly TargetAssembly => typeof(EntityType).GetTypeInfo().Assembly;
     }
 }

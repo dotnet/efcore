@@ -49,11 +49,12 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         public int CloseCount { get; private set; }
 
+#if NET451 || DNX451
         public override void Close()
         {
             CloseCount++;
         }
-
+#endif
         public int DisposeCount { get; private set; }
 
         protected override void Dispose(bool disposing)
@@ -62,6 +63,9 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
             {
                 DisposeCount++;
 
+#if DNXCORE50
+                CloseCount++;
+#endif
                 base.Dispose(true);
             }
         }
@@ -163,11 +167,12 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
             throw new NotImplementedException();
         }
 
+#if NET451 || DNX451
         public override DataTable GetSchemaTable()
         {
             throw new NotImplementedException();
         }
-
+#endif
         public override string GetString(int ordinal) => (string)_currentRow[ordinal];
 
         public override int GetValues(object[] values)

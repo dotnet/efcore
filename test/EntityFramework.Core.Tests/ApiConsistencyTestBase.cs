@@ -28,8 +28,8 @@ namespace Microsoft.Data.Entity
         {
             var nonVirtualMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.IsVisible
-                         && !type.IsSealed
+                   where type.GetTypeInfo().IsVisible
+                         && !type.GetTypeInfo().IsSealed
                          && type.GetConstructors(AnyInstance).Any(c => c.IsPublic || c.IsFamily || c.IsFamilyOrAssembly)
                          && (type.Namespace != null)
                          && !type.Namespace.EndsWith(".Compiled")
@@ -53,8 +53,8 @@ namespace Microsoft.Data.Entity
         {
             var parametersMissingAttribute
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type)
-                   let interfaceMappings = type.GetInterfaces().Select(type.GetInterfaceMap)
+                   where type.GetTypeInfo().IsVisible && !typeof(Delegate).GetTypeInfo().IsAssignableFrom(type.GetTypeInfo())
+                   let interfaceMappings = type.GetInterfaces().Select(i => type.GetTypeInfo().GetRuntimeInterfaceMap(i))
                    let events = type.GetEvents()
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
                        .Concat<MethodBase>(type.GetConstructors())
@@ -64,13 +64,13 @@ namespace Microsoft.Data.Entity
                              || (((MethodInfo)method).GetBaseDefinition().DeclaringType == method.DeclaringType))
                          && (method.Name != nameof(DbContext.OnConfiguring))
                          && (method.Name != nameof(DbContext.OnModelCreating))
-                   where type.IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
+                   where type.GetTypeInfo().IsInterface || !interfaceMappings.Any(im => im.TargetMethods.Contains(method))
                    where !events.Any(e => (e.AddMethod == method) || (e.RemoveMethod == method))
                    from parameter in method.GetParameters()
                    let parameterType = parameter.ParameterType.IsByRef
                        ? parameter.ParameterType.GetElementType()
                        : parameter.ParameterType
-                   where !parameterType.IsValueType
+                   where !parameterType.GetTypeInfo().IsValueType
                          && !parameter.GetCustomAttributes()
                              .Any(
                                  a => (a.GetType().Name == nameof(NotNullAttribute))
@@ -88,11 +88,11 @@ namespace Microsoft.Data.Entity
         {
             var asyncMethods
                 = (from type in GetAllTypes(TargetAssembly.GetTypes())
-                   where type.IsVisible
+                   where type.GetTypeInfo().IsVisible
                    from method in type.GetMethods(AnyInstance | BindingFlags.Static)
                    where (method.DeclaringType == type)
                          && (method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly)
-                   where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType)
+                   where typeof(Task).GetTypeInfo().IsAssignableFrom(method.ReturnType.GetTypeInfo())
                    select method).ToList();
 
             var asyncMethodsWithToken
@@ -109,7 +109,7 @@ namespace Microsoft.Data.Entity
                 = (from methodWithoutToken in asyncMethodsWithoutToken
                    where !asyncMethodsWithToken
                        .Any(methodWithToken => (methodWithoutToken.Name == methodWithToken.Name)
-                                               && (methodWithoutToken.ReflectedType == methodWithToken.ReflectedType))
+                                               && (methodWithoutToken.DeclaringType == methodWithToken.DeclaringType))
                    // ReSharper disable once PossibleNullReferenceException
                    select methodWithoutToken.DeclaringType.Name + "." + methodWithoutToken.Name)
                     .Except(GetCancellationTokenExceptions())
@@ -169,7 +169,7 @@ namespace Microsoft.Data.Entity
             {
                 yield return type;
 
-                foreach (var nestedType in GetAllTypes(type.GetNestedTypes()))
+                foreach (var nestedType in GetAllTypes(type.GetTypeInfo().DeclaredNestedTypes.Select(i=>i.AsType())))
                 {
                     yield return nestedType;
                 }

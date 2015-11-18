@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var services = new ServiceCollection();
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 environment: null);
 
             startup.ConfigureDesignTimeServices(services);
@@ -28,7 +29,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var services = new ServiceCollection();
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 "Static");
 
             startup.ConfigureDesignTimeServices(services);
@@ -41,7 +42,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         public void ConfigureDesignTimeServices_is_noop_when_not_found()
         {
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 environment: "Unknown");
 
             startup.ConfigureDesignTimeServices(new ServiceCollection());
@@ -51,7 +52,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         public void ConfigureServices_uses_Development_environment_when_unspecified()
         {
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 environment: null);
 
             var services = startup.ConfigureServices();
@@ -64,7 +65,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         public void ConfigureServices_is_noop_when_not_found()
         {
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 environment: "Unknown");
 
             var services = startup.ConfigureServices();
@@ -76,7 +77,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         public void ConfigureServices_invokes_static_methods()
         {
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 "Static");
 
             var services = startup.ConfigureServices();
@@ -89,7 +90,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         public void ConfigureServices_invokes_method_with_alternative_signature()
         {
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 "Alternative");
 
             var services = startup.ConfigureServices();
@@ -103,7 +104,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         {
             var services = new ServiceCollection();
             var startup = new StartupInvoker(
-                typeof(StartupInvokerTest).Assembly.FullName,
+                typeof(StartupInvokerTest).GetTypeInfo().Assembly.FullName,
                 environment: null);
 
             startup.ConfigureDesignTimeServices(typeof(NotStartup), services);

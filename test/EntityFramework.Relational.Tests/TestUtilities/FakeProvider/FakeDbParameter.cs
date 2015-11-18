@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
                 throw new NotImplementedException();
             }
         }
-
+#if NET451 || DNX451
         public override DataRowVersion SourceVersion
         {
             get
@@ -71,7 +71,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
                 throw new NotImplementedException();
             }
         }
-
+#endif
         public override void ResetDbType()
         {
             throw new NotImplementedException();

@@ -11,10 +11,7 @@ namespace Microsoft.Data.Entity.Commands.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly
-        {
-            get { return typeof(MigrationsOperations).Assembly; }
-        }
+        protected override Assembly TargetAssembly => typeof(MigrationsOperations).GetTypeInfo().Assembly;
 
         protected override IEnumerable<Type> GetAllTypes(IEnumerable<Type> types)
         {

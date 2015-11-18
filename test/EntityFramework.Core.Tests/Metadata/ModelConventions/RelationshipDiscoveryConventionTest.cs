@@ -841,7 +841,7 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var fk = entityType.GetForeignKeys().Single();
             Assert.False(fk.IsUnique);
-            Assert.True(fk.PrincipalEntityType.ClrType.IsAbstract);
+            Assert.True(fk.PrincipalEntityType.ClrType.GetTypeInfo().IsAbstract);
             Assert.Equal(1, entityType.GetNavigations().Count());
         }
 

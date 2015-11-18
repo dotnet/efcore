@@ -26,6 +26,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
 
         public override IEnumerator GetEnumerator()
             => _parameters.GetEnumerator();
+#if NET451 || DNX451
 
         public override bool IsSynchronized
         {
@@ -50,7 +51,7 @@ namespace Microsoft.Data.Entity.TestUtilities.FakeProvider
                 throw new NotImplementedException();
             }
         }
-
+#endif
         public override object SyncRoot
         {
             get

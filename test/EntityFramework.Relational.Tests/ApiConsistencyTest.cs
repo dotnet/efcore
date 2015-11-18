@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Tests
 {
     public class ApiConsistencyTest : ApiConsistencyTestBase
     {
-        protected override Assembly TargetAssembly => typeof(RelationalDatabase).Assembly;
+        protected override Assembly TargetAssembly => typeof(RelationalDatabase).GetTypeInfo().Assembly;
     }
 }

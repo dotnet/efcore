@@ -12,6 +12,10 @@
   "frameworks": {
     "net451": { },
     "dnx451": { },
-    "dnxcore50": { }
+    "dnxcore50": {
+      "dependencies": {
+        "System.Threading.Tasks.Parallel": "4.0.1-*"
+      }
+    }
   }
 }
