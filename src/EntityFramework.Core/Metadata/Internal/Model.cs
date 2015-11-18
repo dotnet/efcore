@@ -29,6 +29,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             ConventionDispatcher = new ConventionDispatcher(conventions);
             Builder = new InternalModelBuilder(this);
+            ConventionDispatcher.OnModelInitialized(Builder);
         }
 
         public virtual ConventionDispatcher ConventionDispatcher { get; }
@@ -41,6 +42,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             Check.NotEmpty(name, nameof(name));
 
+            var entityType = AddEntityTypeWithoutConventions(name, configurationSource);
+
+            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+        }
+
+        public virtual EntityType AddEntityType(
+            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        {
+            Check.NotNull(type, nameof(type));
+
+            var entityType = AddEntityTypeWithoutConventions(type.DisplayName(), configurationSource);
+            entityType.ClrType = type;
+
+            return ConventionDispatcher.OnEntityTypeAdded(entityType.Builder)?.Metadata;
+        }
+
+        private EntityType AddEntityTypeWithoutConventions(string name, ConfigurationSource configurationSource)
+        {
             var entityType = new EntityType(name, this, configurationSource);
             var previousLength = _entityTypes.Count;
             _entityTypes[name] = entityType;
@@ -49,17 +68,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateEntityType(entityType.Name));
             }
-
-            return entityType;
-        }
-
-        public virtual EntityType AddEntityType(
-            [NotNull] Type type, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
-        {
-            Check.NotNull(type, nameof(type));
-
-            var entityType = AddEntityType(type.DisplayName(), configurationSource);
-            entityType.ClrType = type;
             return entityType;
         }
 
@@ -178,6 +186,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             Check.NotNull(name, nameof(name));
             _ignoredEntityTypeNames.Remove(name);
         }
+
+        public virtual InternalModelBuilder Validate() => ConventionDispatcher.OnModelBuilt(Builder);
 
         IEntityType IModel.FindEntityType(string name) => FindEntityType(name);
         IEnumerable<IEntityType> IModel.GetEntityTypes() => GetEntityTypes();

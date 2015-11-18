@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -18,15 +19,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (CanSetRequired(isRequired, configurationSource))
             {
-                var isChanging = Metadata.IsNullable != !isRequired;
-
                 Metadata.SetIsNullable(!isRequired, configurationSource);
-
-                if (isChanging)
-                {
-                    ModelBuilder.ConventionDispatcher.OnPropertyNullableChanged(this);
-                }
-
+                
                 return true;
             }
 

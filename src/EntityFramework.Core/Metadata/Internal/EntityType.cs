@@ -15,11 +15,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class EntityType : 
-        ConventionalAnnotatable, 
-        IMutableEntityType, 
-        ICanGetNavigations, 
-        IPropertyCountsAccessor, 
+    public class EntityType :
+        ConventionalAnnotatable,
+        IMutableEntityType,
+        ICanGetNavigations,
+        IPropertyCountsAccessor,
         ISnapshotFactorySource
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
@@ -125,7 +125,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual EntityType BaseType => _baseType;
 
-        public virtual void HasBaseType([CanBeNull] EntityType entityType, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        public virtual void HasBaseType(
+            [CanBeNull] EntityType entityType,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             if (_baseType == entityType)
             {
@@ -134,6 +137,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return;
             }
 
+            var originalBaseType = _baseType;
             _baseType?._directlyDerivedTypes.Remove(this);
             _baseType = null;
             if (entityType != null)
@@ -196,6 +200,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             PropertyMetadataChanged();
             UpdateBaseTypeConfigurationSource(configurationSource);
             entityType?.UpdateConfigurationSource(configurationSource);
+
+            if (runConventions)
+            {
+                Model.ConventionDispatcher.OnBaseEntityTypeSet(Builder, originalBaseType);
+            }
         }
 
         public virtual ConfigurationSource? GetBaseTypeConfigurationSource() => _baseTypeConfigurationSource;
@@ -299,21 +308,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             => SetPrimaryKey(property == null ? null : new[] { property });
 
         public virtual Key SetPrimaryKey(
-            [CanBeNull] IReadOnlyList<Property> properties, ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+            [CanBeNull] IReadOnlyList<Property> properties,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             if (_baseType != null)
             {
                 throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(DisplayName(), _baseType.DisplayName()));
             }
 
-            if (_primaryKey != null)
+            var oldPrimaryKey = _primaryKey;
+            if (oldPrimaryKey != null)
             {
                 foreach (var property in _primaryKey.Properties)
                 {
                     _properties.Remove(property.Name);
                 }
 
-                var oldPrimaryKey = _primaryKey;
                 _primaryKey = null;
 
                 foreach (var property in oldPrimaryKey.Properties)
@@ -343,6 +354,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             PropertyMetadataChanged();
             UpdatePrimaryKeyConfigurationSource(configurationSource);
+
+            if (runConventions
+                && _primaryKey != null)
+            {
+                Model.ConventionDispatcher.OnPrimaryKeySet(_primaryKey.Builder, oldPrimaryKey);
+            }
 
             return _primaryKey;
         }
@@ -415,7 +432,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            return key;
+            return Model.ConventionDispatcher.OnKeyAdded(key.Builder)?.Metadata;
         }
 
         public virtual Key GetOrAddKey([NotNull] Property property)
@@ -501,7 +518,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             [NotNull] IReadOnlyList<Property> properties,
             [NotNull] Key principalKey,
             [NotNull] EntityType principalEntityType,
-            ConfigurationSource? configurationSource = ConfigurationSource.Explicit)
+            ConfigurationSource? configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             Check.NotEmpty(properties, nameof(properties));
             Check.HasNoNulls(properties, nameof(properties));
@@ -541,6 +559,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _foreignKeys.Add(properties, foreignKey);
 
             PropertyMetadataChanged();
+
+            if (runConventions)
+            {
+                foreignKey = Model.ConventionDispatcher.OnForeignKeyAdded(foreignKey.Builder)?.Metadata;
+            }
 
             return foreignKey;
         }
@@ -624,23 +647,26 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 .Concat(FindDerivedForeignKeys(properties, principalKey, principalEntityType));
 
         public virtual ForeignKey RemoveForeignKey(
-            [NotNull] IReadOnlyList<IProperty> properties, [NotNull] IKey principalKey, [NotNull] IEntityType principalEntityType)
+            [NotNull] IReadOnlyList<IProperty> properties,
+            [NotNull] IKey principalKey,
+            [NotNull] IEntityType principalEntityType,
+            bool runConventions = true)
         {
             Check.NotEmpty(properties, nameof(properties));
 
             var foreignKey = FindDeclaredForeignKey(properties, principalKey, principalEntityType);
             return foreignKey == null
                 ? null
-                : RemoveForeignKey(foreignKey);
+                : RemoveForeignKey(foreignKey, runConventions);
         }
 
-        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey)
+        private ForeignKey RemoveForeignKey([NotNull] ForeignKey foreignKey, bool runConventions)
         {
             if (foreignKey.DependentToPrincipal != null)
             {
                 foreignKey.DeclaringEntityType.RemoveNavigation(foreignKey.DependentToPrincipal.Name);
             }
-            
+
             if (foreignKey.PrincipalToDependent != null)
             {
                 foreignKey.PrincipalEntityType.RemoveNavigation(foreignKey.PrincipalToDependent.Name);
@@ -651,7 +677,32 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             PropertyMetadataChanged();
 
-            return removed ? foreignKey : null;
+            if (removed)
+            {
+                if (runConventions)
+                {
+                    if (foreignKey.DependentToPrincipal != null)
+                    {
+                        Model.ConventionDispatcher.OnNavigationRemoved(
+                            Builder,
+                            foreignKey.PrincipalEntityType.Builder,
+                            foreignKey.DependentToPrincipal.Name);
+                    }
+
+                    if (foreignKey.PrincipalToDependent != null)
+                    {
+                        Model.ConventionDispatcher.OnNavigationRemoved(
+                            foreignKey.PrincipalEntityType.Builder,
+                            Builder,
+                            foreignKey.PrincipalToDependent.Name);
+                    }
+
+                    Model.ConventionDispatcher.OnForeignKeyRemoved(Builder, foreignKey);
+                }
+                return foreignKey;
+            }
+
+            return  null;
         }
 
         public virtual IEnumerable<ForeignKey> GetReferencingForeignKeys()
@@ -867,8 +918,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual Property AddProperty([NotNull] string name, [NotNull] Type propertyType)
             => (Property)((IMutableEntityType)this).AddProperty(name, propertyType);
 
-        public virtual Property AddProperty([NotNull] string name,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        public virtual Property AddProperty(
+            [NotNull] string name,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             Check.NotNull(name, nameof(name));
 
@@ -891,6 +944,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             _properties.Add(name, property);
 
             PropertyMetadataChanged();
+
+            if (runConventions)
+            {
+                property = Model.ConventionDispatcher.OnPropertyAdded(property.Builder)?.Metadata;
+            }
 
             return property;
         }
@@ -997,7 +1055,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
             => LazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, CreateRelationshipSnapshotFactory);
 
-        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory() 
+        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory()
             => new RelationshipSnapshotFactoryFactory().Create(this);
 
         public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
@@ -1033,6 +1091,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             _ignoredMembers[name] = configurationSource;
+            
+            Model.ConventionDispatcher.OnEntityTypeMemberIgnored(Builder, name);
         }
 
         public virtual ConfigurationSource? FindIgnoredMemberConfigurationSource([NotNull] string name)

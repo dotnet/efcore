@@ -36,14 +36,7 @@ namespace Microsoft.Data.Entity
         {
             Check.NotNull(conventions, nameof(conventions));
 
-            _builder = new InternalModelBuilder(new Model(conventions)).Initialize();
-        }
-
-        public virtual ModelBuilder Validate()
-        {
-            Builder.Validate();
-
-            return this;
+            _builder = new InternalModelBuilder(new Model(conventions));
         }
 
         /// <summary>

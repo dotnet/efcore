@@ -315,7 +315,10 @@ namespace Microsoft.Data.Entity
             Check.NotNull(propertyType, nameof(propertyType));
 
             var property = entityType.AddProperty(name);
-            property.ClrType = propertyType;
+            if (property != null)
+            {
+                property.ClrType = propertyType;
+            }
             return property;
         }
 
@@ -339,7 +342,10 @@ namespace Microsoft.Data.Entity
             }
 
             var property = entityType.AddProperty(propertyInfo.Name, propertyInfo.PropertyType);
-            property.IsShadowProperty = false;
+            if (property != null)
+            {
+                property.IsShadowProperty = false;
+            }
             return property;
         }
 

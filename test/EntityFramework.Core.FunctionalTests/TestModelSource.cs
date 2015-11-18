@@ -35,8 +35,7 @@ namespace Microsoft.Data.Entity.FunctionalTests
 
             _onModelCreating(modelBuilder);
 
-            modelBuilder.Validate();
-
+            model.Validate();
             validator.Validate(model);
 
             return model;

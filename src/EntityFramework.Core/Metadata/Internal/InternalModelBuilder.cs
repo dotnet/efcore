@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -18,35 +17,54 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
         }
 
-        public virtual ConventionDispatcher ConventionDispatcher => Metadata.ConventionDispatcher;
-
         public override InternalModelBuilder ModelBuilder => this;
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] string name, ConfigurationSource configurationSource)
-            => IsIgnored(name, configurationSource)
-                ? null
-                : GetOrAdd(
-                    name,
-                    Metadata.FindEntityType,
-                    (e, c) => e.UpdateConfigurationSource(c),
-                    Metadata.AddEntityType,
-                    e => e.Builder,
-                    configurationSource,
-                    Metadata.Unignore,
-                    Metadata.ConventionDispatcher.OnEntityTypeAdded);
+        {
+            if (IsIgnored(name, configurationSource))
+            {
+                return null;
+            }
+
+            var entityType = Metadata.FindEntityType(name);
+            if (entityType == null)
+            {
+                Metadata.Unignore(name);
+
+                entityType = Metadata.AddEntityType(name, configurationSource);
+            }
+            else
+            {
+                entityType.UpdateConfigurationSource(configurationSource);
+            }
+
+            return entityType?.Builder;
+        }
 
         public virtual InternalEntityTypeBuilder Entity([NotNull] Type type, ConfigurationSource configurationSource)
-            => IsIgnored(type.DisplayName(), configurationSource)
-                ? null
-                : GetOrAdd(
-                    type,
-                    Metadata.FindEntityType,
-                    (e, c) => e.UpdateConfigurationSource(c),
-                    Metadata.AddEntityType,
-                    e => e.Builder,
-                    configurationSource,
-                    Metadata.Unignore,
-                    Metadata.ConventionDispatcher.OnEntityTypeAdded);
+        {
+            if (IsIgnored(type, configurationSource))
+            {
+                return null;
+            }
+
+            var entityType = Metadata.FindEntityType(type);
+            if (entityType == null)
+            {
+                Metadata.Unignore(type);
+
+                entityType = Metadata.AddEntityType(type, configurationSource);
+            }
+            else
+            {
+                entityType.UpdateConfigurationSource(configurationSource);
+            }
+
+            return entityType?.Builder;
+        }
+
+        public virtual bool IsIgnored([NotNull] Type type, ConfigurationSource configurationSource)
+            => IsIgnored(type.DisplayName(), configurationSource);
 
         public virtual bool IsIgnored([NotNull] string name, ConfigurationSource configurationSource)
         {
@@ -147,8 +165,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return roots;
         }
 
-        public virtual InternalModelBuilder Initialize() => Metadata.ConventionDispatcher.OnModelInitialized(this);
-
-        public virtual InternalModelBuilder Validate() => Metadata.ConventionDispatcher.OnModelBuilt(this);
+        public virtual InternalModelBuilder Validate() => Metadata.Validate();
     }
 }

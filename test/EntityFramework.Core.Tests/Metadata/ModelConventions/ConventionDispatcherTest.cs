@@ -13,8 +13,10 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 {
     public class ConventionDispatcherTest
     {
-        [Fact]
-        public void OnEntityTypeAdded_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnEntityTypeAdded_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -46,13 +48,22 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var builder = new InternalModelBuilder(new Model(conventions));
 
-            Assert.Null(builder.Entity(typeof(Order), ConfigurationSource.Convention));
+            if (useBuilder)
+            {
+                Assert.Null(builder.Entity(typeof(Order), ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.Null(builder.Metadata.AddEntityType(typeof(Order), ConfigurationSource.Convention));
+            }
 
             Assert.NotNull(entityTypeBuilder);
         }
 
-        [Fact]
-        public void OnBaseEntityTypeSet_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnBaseEntityTypeSet_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -87,15 +98,25 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     });
             conventions.BaseEntityTypeSetConventions.Add(extraConvention.Object);
 
-            var builder = new InternalModelBuilder(new Model(conventions)).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
+            var builder = new InternalModelBuilder(new Model(conventions))
+                .Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
-            Assert.NotNull(builder.HasBaseType(typeof(Order), ConfigurationSource.Convention));
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.HasBaseType(typeof(Order), ConfigurationSource.Convention));
+            }
+            else
+            {
+                builder.Metadata.HasBaseType(builder.Metadata.Model.AddEntityType(typeof(Order)), ConfigurationSource.Convention);
+            }
 
             Assert.NotNull(entityTypeBuilder);
         }
 
-        [Fact]
-        public void OnEntityTypeMemberIgnored_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnEntityTypeMemberIgnored_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -132,13 +153,22 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var builder = new InternalModelBuilder(new Model(conventions)).Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
 
-            Assert.NotNull(builder.Ignore("A", ConfigurationSource.Convention));
+            if (useBuilder)
+            {
+                Assert.NotNull(builder.Ignore("A", ConfigurationSource.Convention));
+            }
+            else
+            {
+                builder.Metadata.Ignore("A", ConfigurationSource.Convention);
+            }
 
             Assert.NotNull(entityTypeBuilder);
         }
 
-        [Fact]
-        public void OnPropertyAdded_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnPropertyAdded_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -148,7 +178,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 {
                     Assert.NotNull(b);
                     Assert.Equal("OrderId", b.Metadata.Name);
-                    Assert.Equal(typeof(int), b.Metadata.ClrType);
                     propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder);
                     return propertyBuilder;
                 });
@@ -173,14 +202,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var explicitKeyBuilder = entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention);
 
-            Assert.Null(explicitKeyBuilder);
+            if (useBuilder)
+            {
+                Assert.Null(entityBuilder.Property("OrderId", typeof(int), ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.Null(entityBuilder.Metadata.AddProperty("OrderId", typeof(int)));
+            }
+            
             Assert.NotNull(propertyBuilder);
         }
 
-        [Fact]
-        public void OnPropertyAdded_calls_apply_on_conventions_in_order_for_non_shadow_property()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnPropertyAdded_calls_apply_on_conventions_in_order_for_non_shadow_property(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -190,8 +228,6 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 {
                     Assert.NotNull(b);
                     Assert.Equal("OrderId", b.Metadata.Name);
-                    Assert.Equal(typeof(int), b.Metadata.ClrType);
-                    Assert.False(b.Metadata.IsShadowProperty);
                     propertyBuilder = new InternalPropertyBuilder(b.Metadata, b.ModelBuilder);
                     return propertyBuilder;
                 });
@@ -216,14 +252,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var explicitKeyBuilder = entityBuilder.Property(Order.OrderIdProperty, ConfigurationSource.Convention);
 
-            Assert.Null(explicitKeyBuilder);
+            if (useBuilder)
+            {
+                Assert.Null(entityBuilder.Property(Order.OrderIdProperty, ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.Null(entityBuilder.Metadata.AddProperty(Order.OrderIdProperty));
+            }
+
             Assert.NotNull(propertyBuilder);
         }
 
-        [Fact]
-        public void OnForeignKeyAdded_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnForeignKeyAdded_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -257,13 +302,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Convention);
             entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention);
-            Assert.Null(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention));
+
+            if (useBuilder)
+            {
+                Assert.Null(entityBuilder.Relationship(entityBuilder, ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.Null(entityBuilder.Metadata.AddForeignKey(
+                    entityBuilder.Property("Id", typeof(int), ConfigurationSource.Convention).Metadata,
+                    entityBuilder.Metadata.FindPrimaryKey(),
+                    entityBuilder.Metadata,
+                    ConfigurationSource.Convention));
+            }
 
             Assert.NotNull(relationshipBuilder);
         }
 
-        [Fact]
-        public void OnKeyAdded_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnKeyAdded_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -296,14 +355,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var builder = new InternalModelBuilder(new Model(conventions));
 
             var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
-            var explicitKeyBuilder = entityBuilder.HasKey(new List<string> { "OrderId" }, ConfigurationSource.Convention);
 
-            Assert.Null(explicitKeyBuilder);
+            if (useBuilder)
+            {
+                Assert.Null(entityBuilder.HasKey(new List<string> { "OrderId" }, ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.Null(entityBuilder.Metadata.AddKey(entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
+            }
+            
             Assert.NotNull(keyBuilder);
         }
 
-        [Fact]
-        public void OnPrimaryKeySet_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnPrimaryKeySet_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -342,11 +410,20 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 .Entity(typeof(Order), ConfigurationSource.Convention);
 
             entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention);
-            Assert.NotNull(entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention));
+
+            if (useBuilder)
+            {
+                Assert.NotNull(entityBuilder.PrimaryKey(new[] { "OrderId" }, ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.NotNull(entityBuilder.Metadata.SetPrimaryKey(
+                    entityBuilder.Property("OrderId", ConfigurationSource.Convention).Metadata));
+            }
 
             Assert.NotNull(internalKeyBuilder);
         }
-
+        
         [Fact]
         public void OnForeignKeyRemoved_calls_apply_on_conventions_in_order()
         {
@@ -366,14 +443,16 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 new[] { entityBuilder.Property("FK", typeof(int), ConfigurationSource.Convention).Metadata },
                 entityBuilder.HasKey(new[] { "OrderId" }, ConfigurationSource.Convention).Metadata,
                 entityBuilder.Metadata);
-            var conventionDispatcher = new ConventionDispatcher(conventions);
-            conventionDispatcher.OnForeignKeyRemoved(entityBuilder, foreignKey);
+
+            Assert.NotNull(entityBuilder.Metadata.RemoveForeignKey(foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
 
             Assert.True(foreignKeyRemoved);
         }
 
-        [Fact]
-        public void OnNavigationAdded_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnNavigationAdded_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -418,15 +497,27 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
             var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
 
-            Assert.Null(dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention));
+            if (useBuilder)
+            {
+                Assert.Null(dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention));
+            }
+            else
+            {
+                var fk = dependentEntityBuilder.Relationship(principalEntityBuilder, ConfigurationSource.Convention)
+                    .IsUnique(true, ConfigurationSource.Convention)
+                    .Metadata;
+                Assert.Null(fk.HasDependentToPrincipal(nameof(OrderDetails.Order)));
+            }
 
             Assert.True(orderIgnored);
             Assert.False(orderDetailsIgnored);
             Assert.NotNull(relationshipBuilder);
         }
 
-        [Fact]
-        public void OnNavigationRemoved_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnNavigationRemoved_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -456,15 +547,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
             var dependentEntityBuilder = builder.Entity(typeof(OrderDetails), ConfigurationSource.Convention);
 
             var relationshipBuilder = dependentEntityBuilder.Relationship(principalEntityBuilder, nameof(OrderDetails.Order), nameof(Order.OrderDetails), ConfigurationSource.Convention);
-            relationshipBuilder.DependentToPrincipal(null, ConfigurationSource.Convention);
 
-            Assert.NotNull(relationshipBuilder);
+            if (useBuilder)
+            {
+                Assert.NotNull(relationshipBuilder.DependentToPrincipal(null, ConfigurationSource.Convention));
+            }
+            else
+            {
+                Assert.NotNull(relationshipBuilder.Metadata.HasDependentToPrincipal(null, ConfigurationSource.Convention));
+            }
+            
             Assert.Same(dependentEntityTypeBuilderFromConvention, dependentEntityBuilder);
             Assert.Same(principalEntityBuilderFromConvention, principalEntityBuilder);
         }
 
-        [Fact]
-        public void InitializingModel_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void InitializingModel_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -496,15 +596,23 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                 });
             conventions.ModelInitializedConventions.Add(extraConvention.Object);
 
-            var builder = new ModelBuilder(conventions);
-
-            Assert.NotNull(builder);
+            if (useBuilder)
+            {
+                Assert.NotNull(new ModelBuilder(conventions));
+            }
+            else
+            {
+                Assert.NotNull(new Model(conventions));
+            }
+            
             Assert.True(nullConventionCalled);
             Assert.NotNull(modelBuilder);
         }
 
-        [Fact]
-        public void ValidatingModel_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void ValidatingModel_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -535,16 +643,24 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
                     return null;
                 });
             conventions.ModelBuiltConventions.Add(extraConvention.Object);
-
-            var builder = new ModelBuilder(conventions).Validate();
-
-            Assert.NotNull(builder);
+            
+            if (useBuilder)
+            {
+                Assert.Null(new InternalModelBuilder(new Model(conventions)).Validate());
+            }
+            else
+            {
+                Assert.Null(new Model(conventions).Validate());
+            }
+            
             Assert.True(nullConventionCalled);
             Assert.NotNull(modelBuilder);
         }
 
-        [Fact]
-        public void OnPropertyNullableChanged_calls_apply_on_conventions_in_order()
+        [InlineData(false)]
+        [InlineData(true)]
+        [Theory]
+        public void OnPropertyNullableChanged_calls_apply_on_conventions_in_order(bool useBuilder)
         {
             var conventions = new ConventionSet();
 
@@ -558,25 +674,57 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Conventions
 
             var builder = new ModelBuilder(conventions);
 
-            builder.Entity<Order>().Property(e => e.Name).IsRequired();
+            var propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
+            if (useBuilder)
+            {
+                propertyBuilder.IsRequired();
+            }
+            else
+            {
+                propertyBuilder.Metadata.IsNullable = false;
+            }
 
             Assert.Equal(new bool?[] { false }, convention1.Calls);
             Assert.Equal(new bool?[] { false }, convention2.Calls);
             Assert.Empty(convention3.Calls);
 
-            builder.Entity<Order>().Property(e => e.Name).IsRequired(false);
+            propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
+            if (useBuilder)
+            {
+                propertyBuilder.IsRequired(false);
+            }
+            else
+            {
+                propertyBuilder.Metadata.IsNullable = true;
+            }
 
             Assert.Equal(new bool?[] { false, true }, convention1.Calls);
             Assert.Equal(new bool?[] { false, true }, convention2.Calls);
             Assert.Empty(convention3.Calls);
 
-            builder.Entity<Order>().Property(e => e.Name).IsRequired(false);
+            propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
+            if (useBuilder)
+            {
+                propertyBuilder.IsRequired(false);
+            }
+            else
+            {
+                propertyBuilder.Metadata.IsNullable = true;
+            }
 
             Assert.Equal(new bool?[] { false, true }, convention1.Calls);
             Assert.Equal(new bool?[] { false, true }, convention2.Calls);
             Assert.Empty(convention3.Calls);
 
-            builder.Entity<Order>().Property(e => e.Name).IsRequired();
+            propertyBuilder = builder.Entity<Order>().Property(e => e.Name);
+            if (useBuilder)
+            {
+                propertyBuilder.IsRequired();
+            }
+            else
+            {
+                propertyBuilder.Metadata.IsNullable = false;
+            }
 
             Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
             Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
