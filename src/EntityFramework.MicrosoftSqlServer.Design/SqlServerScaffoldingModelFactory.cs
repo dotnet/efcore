@@ -19,10 +19,8 @@ namespace Microsoft.Data.Entity.Scaffolding
 {
     public class SqlServerScaffoldingModelFactory : RelationalScaffoldingModelFactory
     {
+        private const int DefaultTimeTimePrecision = 7;
         private readonly SqlServerLiteralUtilities _sqlServerLiteralUtilities;
-
-        private const int DefaultDateTimePrecision = 7;
-        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
 
         public SqlServerScaffoldingModelFactory(
             [NotNull] ILoggerFactory loggerFactory,
@@ -74,8 +72,8 @@ namespace Microsoft.Data.Entity.Scaffolding
             // override this behavior.
 
             // TODO use KeyConvention directly to detect when it will be applied
-            var pkColumns = table.Columns.Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
-            if (pkColumns.Count != 1 || pkColumns[0].IsIdentity == true)
+            var pkColumns = table.Columns.OfType<SqlServerColumnModel>().Where(c => c.PrimaryKeyOrdinal.HasValue).ToList();
+            if (pkColumns.Count != 1 || pkColumns[0].IsIdentity)
             {
                 return keyBuilder;
             }
@@ -97,7 +95,7 @@ namespace Microsoft.Data.Entity.Scaffolding
         {
             var indexBuilder = base.VisitIndex(builder, index);
 
-            if (index.IsClustered == true)
+            if ((index as SqlServerIndexModel)?.IsClustered == true)
             {
                 indexBuilder?.ForSqlServerIsClustered();
             }
@@ -107,7 +105,13 @@ namespace Microsoft.Data.Entity.Scaffolding
 
         private PropertyBuilder VisitTypeMapping(PropertyBuilder propertyBuilder, ColumnModel column)
         {
-            if (column.IsIdentity == true)
+            var sqlColumn = column as SqlServerColumnModel;
+            if (sqlColumn == null)
+            {
+                return propertyBuilder;
+            }
+
+            if (sqlColumn.IsIdentity)
             {
                 if (typeof(byte) == propertyBuilder.Metadata.ClrType)
                 {
@@ -123,12 +127,10 @@ namespace Microsoft.Data.Entity.Scaffolding
                 }
             }
 
-            if (_dateTimePrecisionTypes.Contains(column.DataType)
-                && column.Scale.HasValue
-                && column.Scale != DefaultDateTimePrecision)
+            if (sqlColumn.DateTimePrecision.HasValue && sqlColumn.DateTimePrecision != DefaultTimeTimePrecision)
             {
                 propertyBuilder.Metadata.SetMaxLength(null);
-                propertyBuilder.HasColumnType($"{column.DataType}({column.Scale})"); //not a typo: .Scale is the right property for datetime precision
+                propertyBuilder.HasColumnType($"{sqlColumn.DataType}({sqlColumn.DateTimePrecision.Value})");
             }
 
             // undo quirk in reverse type mapping to litters code with unnecessary nvarchar annotations

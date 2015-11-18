@@ -14,6 +14,5 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual string Name { get; [param: NotNull] set; }
         public virtual IList<ColumnModel> Columns { get; [param: NotNull] set; } = new List<ColumnModel>();
         public virtual bool IsUnique { get; [param: NotNull] set; }
-        public virtual bool? IsClustered { get; [param: CanBeNull] set; }
     }
 }

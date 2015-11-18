@@ -22,6 +22,8 @@ namespace Microsoft.Data.Entity.Scaffolding
         private DatabaseModel _databaseModel;
         private Dictionary<string, TableModel> _tables;
         private Dictionary<string, ColumnModel> _tableColumns;
+        private const int DefaultDateTimePrecision = 7;
+        private static readonly ISet<string> _dateTimePrecisionTypes = new HashSet<string> { "datetimeoffset", "datetime2", "time" };
 
         private static string TableKey(TableModel table) => TableKey(table.Name, table.SchemaName);
         private static string TableKey(string name, string schema = null) => "[" + (schema ?? "") + "].[" + name + "]";
@@ -155,8 +157,9 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
 
                     var dataTypeName = reader.GetString(2);
                     var nullable = reader.IsDBNull(5) ? false : reader.GetBoolean(5);
-
+                    var scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9);
                     var maxLength = reader.IsDBNull(10) ? default(int?) : reader.GetInt32(10);
+                    var dateTimePrecision = default(int?);
 
                     if (dataTypeName == "nvarchar"
                         || dataTypeName == "nchar")
@@ -171,10 +174,16 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         maxLength = null;
                     }
 
+                    if (_dateTimePrecisionTypes.Contains(dataTypeName))
+                    {
+                        dateTimePrecision = scale ?? DefaultDateTimePrecision;
+                        scale = null;
+                    }
+
                     var isIdentity = !reader.IsDBNull(11) && reader.GetBoolean(11);
                     var isComputed = reader.GetBoolean(12) || dataTypeName == "timestamp";
 
-                    var column = new ColumnModel
+                    var column = new SqlServerColumnModel
                     {
                         Table = table,
                         DataType = dataTypeName,
@@ -184,7 +193,8 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
                         PrimaryKeyOrdinal = reader.IsDBNull(6) ? default(int?) : reader.GetInt32(6),
                         DefaultValue = reader.IsDBNull(7) ? null : reader.GetString(7),
                         Precision = reader.IsDBNull(8) ? default(int?) : reader.GetInt32(8),
-                        Scale = reader.IsDBNull(9) ? default(int?) : reader.GetInt32(9),
+                        Scale = scale,
+                        DateTimePrecision = dateTimePrecision,
                         MaxLength = maxLength <= 0 ? default(int?) : maxLength,
                         IsIdentity = isIdentity,
                         ValueGenerated = isIdentity ?
@@ -249,15 +259,12 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                             continue;
                         }
 
-                        index = new IndexModel
+                        index = new SqlServerIndexModel
                         {
                             Table = table,
                             Name = indexName,
                             IsUnique = reader.IsDBNull(3) ? false : reader.GetBoolean(3),
-                            IsClustered =
-                                (!reader.IsDBNull(5) && reader.GetString(5) == "CLUSTERED")
-                                ? true
-                                : default(bool?)
+                            IsClustered = reader.GetStringOrNull(5) == "CLUSTERED"
                         };
                         table.Indexes.Add(index);
                     }

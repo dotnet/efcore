@@ -25,8 +25,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual int? Precision { get; [param: CanBeNull] set; }
         public virtual int? Scale { get; [param: CanBeNull] set; }
         public virtual ValueGenerated? ValueGenerated { get; set; }
-        // SQL Server
-        public virtual bool? IsIdentity { get; [param: CanBeNull] set; }
 
         public virtual string DisplayName
         {

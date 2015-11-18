@@ -91,11 +91,11 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                     Assert.Equal("Place", c.Table.Name);
                 });
 
-            Assert.Collection(indexes,
+            Assert.Collection(indexes.OfType<SqlServerIndexModel>(),
                 nonClustered =>
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
-                        Assert.Null(nonClustered.IsClustered);
+                        Assert.False(nonClustered.IsClustered);
                         Assert.Equal("Location", nonClustered.Columns.Select(c => c.Name).Single());
                     },
                 clusteredIndex =>
@@ -121,6 +121,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
     Name nvarchar(100) NOT NULL,
     Latitude decimal( 5, 2 ) DEFAULT 0.0,
     Created datetime2(6) DEFAULT('October 20, 2015 11am'),
+    DiscoveredDate datetime2,
     Sum AS Latitude + 1.0,
     Modified rowversion,
     Primary Key (Name, Id)
@@ -135,7 +136,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
                     Assert.Equal("MountainsColumns", c.Table.Name);
                 });
 
-            Assert.Collection(columns,
+            Assert.Collection(columns.OfType<SqlServerColumnModel>(),
                 id =>
                     {
                         Assert.Equal("Id", id.Name);
@@ -170,9 +171,15 @@ CREATE TABLE [dbo].[MountainsColumns] (
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
-                        Assert.Equal(6, created.Scale);
+                        Assert.Null(created.Scale);
+                        Assert.Equal(6, created.DateTimePrecision);
                         Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
                     },
+                discovered =>
+                     {
+                         Assert.Equal("DiscoveredDate", discovered.Name);
+                         Assert.Equal(7, discovered.DateTimePrecision);
+                     },
                 sum =>
                     {
                         Assert.Equal("Sum", sum.Name);
@@ -213,8 +220,8 @@ CREATE TABLE [dbo].[MountainsColumns] (
 CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "") + ")",
                 new TableSelectionSet(new List<string> { "Identities" }));
 
-            var column = Assert.Single(dbInfo.Tables.Single().Columns);
-            Assert.Equal(isIdentity, column.IsIdentity.Value);
+            var column = Assert.IsType<SqlServerColumnModel>(Assert.Single(dbInfo.Tables.Single().Columns));
+            Assert.Equal(isIdentity, column.IsIdentity);
             Assert.Equal(isIdentity ? ValueGenerated.OnAdd : default(ValueGenerated?), column.ValueGenerated);
         }
 
