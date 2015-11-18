@@ -91,6 +91,13 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 migrationNamespace = GetNamespace(lastMigration.Value?.AsType(), migrationNamespace);
             }
 
+            var sanitizedContextName = _contextType.Name;
+            var genericMarkIndex = sanitizedContextName.IndexOf('`');
+            if (genericMarkIndex != -1)
+            {
+                sanitizedContextName = sanitizedContextName.Substring(0, genericMarkIndex);
+            }
+
             if (ContainsForeignMigrations(migrationNamespace))
             {
                 if (subNamespaceDefaulted)
@@ -99,14 +106,14 @@ namespace Microsoft.Data.Entity.Migrations.Design
                         .Append(rootNamespace)
                         .Append(".Migrations.");
 
-                    if (_contextType.Name.EndsWith("Context"))
+                    if (sanitizedContextName.EndsWith("Context"))
                     {
-                        builder.Append(_contextType.Name.Substring(0, _contextType.Name.Length - 7));
+                        builder.Append(sanitizedContextName.Substring(0, sanitizedContextName.Length - 7));
                     }
                     else
                     {
                         builder
-                            .Append(_contextType.Name)
+                            .Append(sanitizedContextName)
                             .Append("Migrations");
                     }
 
@@ -127,7 +134,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
             var migrationId = _idGenerator.GenerateId(migrationName);
             var modelSnapshotNamespace = GetNamespace(modelSnapshot?.GetType(), migrationNamespace);
 
-            var modelSnapshotName = _contextType.Name + "ModelSnapshot";
+            var modelSnapshotName = sanitizedContextName + "ModelSnapshot";
             if (modelSnapshot != null)
             {
                 var lastModelSnapshotName = modelSnapshot.GetType().Name;

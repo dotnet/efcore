@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations.Internal;
@@ -34,6 +33,16 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Assert.Equal(typeof(ContextWithSnapshotModelSnapshot).Namespace, migration.SnapshotSubnamespace);
         }
 
+        [Fact]
+        public void ScaffoldMigration_handles_generic_contexts()
+        {
+            var scaffolder = CreateMigrationScaffolder<GenericContext<int>>();
+
+            var migration = scaffolder.ScaffoldMigration("EmptyMigration", "WebApplication1");
+
+            Assert.Equal("GenericContextModelSnapshot", migration.SnapshotName);
+        }
+
         private MigrationsScaffolder CreateMigrationScaffolder<TContext>()
             where TContext : DbContext, new()
         {
@@ -57,6 +66,10 @@ namespace Microsoft.Data.Entity.Migrations.Design
                 new MockHistoryRepository(),
                 new LoggerFactory(),
                 new MockProviderServices());
+        }
+
+        private class GenericContext<T> : DbContext
+        {
         }
 
         private class ContextWithSnapshot : DbContext
