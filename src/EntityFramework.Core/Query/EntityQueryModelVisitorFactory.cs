@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Query.Internal;
@@ -13,7 +12,6 @@ namespace Microsoft.Data.Entity.Query
     public abstract class EntityQueryModelVisitorFactory : IEntityQueryModelVisitorFactory
     {
         protected EntityQueryModelVisitorFactory(
-            [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
@@ -29,7 +27,6 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IEntityMaterializerSource entityMaterializerSource,
             [NotNull] IExpressionPrinter expressionPrinter)
         {
-            Check.NotNull(model, nameof(model));
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
             Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
             Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
@@ -45,7 +42,6 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
 
-            Model = model;
             QueryOptimizer = queryOptimizer;
             NavigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
             SubQueryMemberPushDownExpressionVisitor = subQueryMemberPushDownExpressionVisitor;
@@ -62,7 +58,6 @@ namespace Microsoft.Data.Entity.Query
             ExpressionPrinter = expressionPrinter;
         }
 
-        protected virtual IModel Model { get; }
         protected virtual IQueryOptimizer QueryOptimizer { get; }
         protected virtual INavigationRewritingExpressionVisitorFactory NavigationRewritingExpressionVisitorFactory { get; }
         protected virtual ISubQueryMemberPushDownExpressionVisitor SubQueryMemberPushDownExpressionVisitor { get; }

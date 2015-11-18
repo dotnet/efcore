@@ -15,7 +15,6 @@ namespace Microsoft.Data.Entity.Query
     public class RelationalQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {
         public RelationalQueryModelVisitorFactory(
-            [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
@@ -37,7 +36,6 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IQueryFlattenerFactory queryFlattenerFactory,
             [NotNull] IDbContextOptions contextOptions)
             : base(
-                model,
                 queryOptimizer,
                 navigationRewritingExpressionVisitorFactory,
                 subQueryMemberPushDownExpressionVisitor,
@@ -79,7 +77,6 @@ namespace Microsoft.Data.Entity.Query
             QueryCompilationContext queryCompilationContext,
             EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new RelationalQueryModelVisitor(
-                Model,
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
                 SubQueryMemberPushDownExpressionVisitor,

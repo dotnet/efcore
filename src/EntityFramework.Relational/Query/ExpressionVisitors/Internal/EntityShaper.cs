@@ -14,22 +14,27 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         protected EntityShaper(
             [NotNull] IQuerySource querySource,
             [NotNull] string entityType,
+            bool trackingQuery,
             [NotNull] KeyValueFactory keyValueFactory,
             [NotNull] Func<ValueBuffer, object> materializer)
             : base(querySource)
         {
+            IsTrackingQuery = trackingQuery;
             EntityType = entityType;
             KeyValueFactory = keyValueFactory;
             Materializer = materializer;
         }
 
         protected virtual string EntityType { get; }
+        protected virtual bool IsTrackingQuery { get; }
         protected virtual KeyValueFactory KeyValueFactory { get; }
         protected virtual Func<ValueBuffer, object> Materializer { get; }
         protected virtual bool AllowNullResult { get; private set; }
         protected virtual int ValueBufferOffset { get; private set; }
 
-        public virtual EntityShaper WithOffset(int offset)
+        public abstract EntityShaper WithOffset(int offset);
+
+        protected virtual EntityShaper SetOffset(int offset)
         {
             ValueBufferOffset += offset;
             AllowNullResult = true;

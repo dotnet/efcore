@@ -40,9 +40,6 @@ namespace Microsoft.Data.Entity.Query.Internal
             _keyValueFactorySource = keyValueFactorySource;
         }
 
-        public virtual void BeginTrackingQuery()
-            => _stateManager.BeginTrackingQuery();
-
         public virtual object GetEntity(
             IKeyValue keyValue, EntityLoadInfo entityLoadInfo, bool queryStateManager)
         {
@@ -130,11 +127,13 @@ namespace Microsoft.Data.Entity.Query.Internal
         public virtual void StartTracking(object entity, EntityTrackingInfo entityTrackingInfo)
         {
             object boxedValueBuffer;
-            if (_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
+            if (!_valueBuffers.TryGetValue(entity, out boxedValueBuffer))
             {
-                entityTrackingInfo
-                    .StartTracking(_stateManager, entity, (ValueBuffer)boxedValueBuffer);
+                boxedValueBuffer = ValueBuffer.Empty;
             }
+
+            entityTrackingInfo
+                .StartTracking(_stateManager, entity, (ValueBuffer)boxedValueBuffer);
 
             foreach (var includedEntity 
                 in entityTrackingInfo.GetIncludedEntities(entity)
@@ -159,8 +158,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             int currentNavigationIndex,
             bool queryStateManager)
         {
-            if ((entity == null)
-                || (currentNavigationIndex == navigationPath.Count))
+            if (entity == null
+                || currentNavigationIndex == navigationPath.Count)
             {
                 return;
             }
@@ -224,8 +223,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             int currentNavigationIndex,
             bool queryStateManager)
         {
-            if ((entity == null)
-                || (currentNavigationIndex == navigationPath.Count))
+            if (entity == null
+                || currentNavigationIndex == navigationPath.Count)
             {
                 return;
             }
@@ -248,27 +247,28 @@ namespace Microsoft.Data.Entity.Query.Internal
                 entity,
                 navigationPath,
                 currentNavigationIndex,
-                await AsyncEnumerableExtensions.Select(relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory), async (eli, ct) =>
-                    {
-                        var keyValue = keyValueFactory.Create(eli.ValueBuffer);
-
-                        object targetEntity = null;
-
-                        if (!keyValue.IsInvalid)
+                await relatedEntitiesLoaders[currentNavigationIndex](primaryKeyValue, relatedKeyFactory)
+                    .Select(async (eli, ct) =>
                         {
-                            targetEntity = GetEntity(keyValue, eli, queryStateManager);
-                        }
+                            var keyValue = keyValueFactory.Create(eli.ValueBuffer);
 
-                        await IncludeAsync(
-                            targetEntity,
-                            navigationPath,
-                            relatedEntitiesLoaders,
-                            ct,
-                            currentNavigationIndex + 1,
-                            queryStateManager);
+                            object targetEntity = null;
 
-                        return targetEntity;
-                    })
+                            if (!keyValue.IsInvalid)
+                            {
+                                targetEntity = GetEntity(keyValue, eli, queryStateManager);
+                            }
+
+                            await IncludeAsync(
+                                targetEntity,
+                                navigationPath,
+                                relatedEntitiesLoaders,
+                                ct,
+                                currentNavigationIndex + 1,
+                                queryStateManager);
+
+                            return targetEntity;
+                        })
                     .Where(e => e != null)
                     .ToList(cancellationToken));
         }

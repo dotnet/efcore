@@ -257,9 +257,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         [Fact]
         public virtual void All_top_level_subquery()
         {
-            // ReSharper disable once PossibleUnintendedReferenceComparison
             AssertQuery<Customer>(
-                cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1 == c3))));
+                cs => cs.All(c1 => cs.Any(c2 => cs.Any(c3 => c1.CustomerID == c3.CustomerID))));
         }
 
         [Fact]
@@ -2368,7 +2367,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             AssertQuery<Employee>(cs =>
                 from c in cs.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
-                select c);
+                select c,
+                entryCount: 1);
         }
 
         [Fact]

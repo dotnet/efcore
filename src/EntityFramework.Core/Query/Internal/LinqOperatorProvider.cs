@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Extensions.Internal;
@@ -141,26 +140,25 @@ namespace Microsoft.Data.Entity.Query.Internal
             IList<Func<TIn, object>> entityAccessors)
             where TIn : class
         {
-            queryContext.QueryBuffer.BeginTrackingQuery();
+            queryContext.BeginTrackingQuery();
 
-            return results.Select(result =>
+            foreach (var result in results)
+            {
+                if (result != null)
                 {
-                    if (result != null)
+                    for (var i = 0; i < entityTrackingInfos.Count; i++)
                     {
-                        for (var i = 0; i < entityTrackingInfos.Count; i++)
-                        {
-                            var entity = entityAccessors[i](result as TIn);
+                        var entity = entityAccessors[i](result as TIn);
 
-                            if (entity != null)
-                            {
-                                queryContext.QueryBuffer
-                                    .StartTracking(entity, entityTrackingInfos[i]);
-                            }
+                        if (entity != null)
+                        {
+                            queryContext.StartTracking(entity, entityTrackingInfos[i]);
                         }
                     }
+                }
 
-                    return result;
-                });
+                yield return result;
+            }
         }
 
         public virtual MethodInfo TrackEntities => _trackEntities;
@@ -212,25 +210,25 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             public IEnumerator<TOut> GetEnumerator()
             {
-                return _grouping.Select(result =>
-                    {
-                        if (result != null)
-                        {
-                            for (var i = 0; i < _entityTrackingInfos.Count; i++)
-                            {
-                                var entity = _entityAccessors[i](result as TIn);
+                _queryContext.BeginTrackingQuery();
 
-                                if (entity != null)
-                                {
-                                    _queryContext.QueryBuffer
-                                        .StartTracking(entity, _entityTrackingInfos[i]);
-                                }
+                foreach (var result in _grouping)
+                {
+                    if (result != null)
+                    {
+                        for (var i = 0; i < _entityTrackingInfos.Count; i++)
+                        {
+                            var entity = _entityAccessors[i](result as TIn);
+
+                            if (entity != null)
+                            {
+                                _queryContext.StartTracking(entity, _entityTrackingInfos[i]);
                             }
                         }
+                    }
 
-                        return result;
-                    })
-                    .GetEnumerator();
+                    yield return result;
+                }
             }
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

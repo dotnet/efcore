@@ -1840,7 +1840,8 @@ namespace Microsoft.Data.Entity.FunctionalTests
         {
             await AssertQuery<Employee>(cs =>
                 from c in cs.Where(c => c.EmployeeID == -1).DefaultIfEmpty(new Employee())
-                select c);
+                select c,
+                entryCount: 1);
         }
 
         [Fact]

@@ -12,7 +12,6 @@ namespace Microsoft.Data.Entity.Query.Internal
     public class InMemoryQueryModelVisitorFactory : EntityQueryModelVisitorFactory
     {
         public InMemoryQueryModelVisitorFactory(
-            [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
@@ -29,7 +28,6 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] IMaterializerFactory materializerFactory)
             : base(
-                model,
                 queryOptimizer,
                 navigationRewritingExpressionVisitorFactory,
                 subQueryMemberPushDownExpressionVisitor,
@@ -55,7 +53,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         public override EntityQueryModelVisitor Create(
             QueryCompilationContext queryCompilationContext, EntityQueryModelVisitor parentEntityQueryModelVisitor)
             => new InMemoryQueryModelVisitor(
-                Model,
                 QueryOptimizer,
                 NavigationRewritingExpressionVisitorFactory,
                 SubQueryMemberPushDownExpressionVisitor,

@@ -48,7 +48,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
                 nullable,
                 invariantName);
 
-        public virtual void AddParameter([NotNull] IRelationalParameter relationalParameter)
+        public virtual void AddParameter(IRelationalParameter relationalParameter)
         {
             Check.NotNull(relationalParameter, nameof(relationalParameter));
 

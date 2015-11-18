@@ -156,6 +156,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             IList<Func<TIn, object>> entityAccessors)
             where TIn : class
         {
+            queryContext.BeginTrackingQuery();
+
             return results.Select(result =>
                 {
                     if (result != null)
@@ -166,8 +168,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                             if (entity != null)
                             {
-                                queryContext.QueryBuffer
-                                    .StartTracking(entity, entityTrackingInfos[i]);
+                                queryContext.StartTracking(entity, entityTrackingInfos[i]);
                             }
                         }
                     }
@@ -190,8 +191,6 @@ namespace Microsoft.Data.Entity.Query.Internal
             IList<Func<TIn, object>> entityAccessors)
             where TIn : class
         {
-            queryContext.QueryBuffer.BeginTrackingQuery();
-
             return groupings
                 .Select(g =>
                     new TrackingGrouping<TKey, TOut, TIn>(
@@ -225,8 +224,10 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             public TKey Key => _grouping.Key;
 
-            private IEnumerable<TOut> CreateTrackingEnumerable()
+            IEnumerator<TOut> IEnumerable<TOut>.GetEnumerator()
             {
+                _queryContext.BeginTrackingQuery();
+
                 foreach (var result in _grouping)
                 {
                     if (result != null)
@@ -237,8 +238,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
                             if (entity != null)
                             {
-                                _queryContext.QueryBuffer
-                                    .StartTracking(entity, _entityTrackingInfos[i]);
+                                _queryContext.StartTracking(entity, _entityTrackingInfos[i]);
                             }
                         }
                     }
@@ -246,9 +246,6 @@ namespace Microsoft.Data.Entity.Query.Internal
                     yield return result;
                 }
             }
-
-            IEnumerator<TOut> IEnumerable<TOut>.GetEnumerator()
-                => CreateTrackingEnumerable().GetEnumerator();
 
             IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<TOut>)this).GetEnumerator();
         }
