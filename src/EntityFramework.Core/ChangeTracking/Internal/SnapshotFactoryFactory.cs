@@ -115,7 +115,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var constructorExpression = Expression.Convert(
                 Expression.New(
-                    Snapshot.CreateSnapshotType(types).GetTypeInfo().GetDeclaredConstructor(types),
+                    Snapshot.CreateSnapshotType(types).GetDeclaredConstructor(types),
                     arguments),
                 typeof(ISnapshot));
 
