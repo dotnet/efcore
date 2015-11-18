@@ -1,7 +1,6 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
@@ -11,7 +10,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class InternalMixedEntityEntry : InternalEntityEntry
     {
-        private readonly object[] _shadowValues;
+        private readonly ISnapshot _shadowValues;
 
         public InternalMixedEntityEntry(
             [NotNull] IStateManager stateManager,
@@ -20,7 +19,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             : base(stateManager, entityType)
         {
             Entity = entity;
-            _shadowValues = new object[entityType.ShadowPropertyCount()];
+            _shadowValues = entityType.GetEmptyShadowValuesFactory()();
         }
 
         public InternalMixedEntityEntry(
@@ -31,7 +30,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             : base(stateManager, entityType)
         {
             Entity = entity;
-            _shadowValues = ExtractShadowValues(valueBuffer);
+            _shadowValues = entityType.GetShadowValuesFactory()(valueBuffer);
         }
 
         public override object Entity { get; }
@@ -61,18 +60,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             {
                 _shadowValues[property.GetShadowIndex()] = value;
             }
-        }
-
-        private object[] ExtractShadowValues(ValueBuffer valueBuffer)
-        {
-            var shadowValues = new object[EntityType.ShadowPropertyCount()];
-
-            foreach (var property in EntityType.GetProperties().Where(property => property.IsShadowProperty))
-            {
-                shadowValues[property.GetShadowIndex()] = valueBuffer[property.GetIndex()];
-            }
-
-            return shadowValues;
         }
     }
 }

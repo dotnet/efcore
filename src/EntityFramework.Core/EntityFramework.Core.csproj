@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="ChangeTracking\EntityEntryGraphNode.cs" />
     <Compile Include="ChangeTracking\Internal\ChangeTrackerFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\EmptyShadowValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\EntityGraphAttacher.cs" />
     <Compile Include="ChangeTracking\Internal\ISnapshot.cs" />
     <Compile Include="ChangeTracking\Internal\KeyValue.cs" />
@@ -69,9 +70,11 @@
     <Compile Include="ChangeTracking\Internal\OriginalValues.cs" />
     <Compile Include="ChangeTracking\Internal\OriginalValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\RelationshipSnapshotFactoryFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\ShadowValuesFactoryFactory.cs" />
     <Compile Include="ChangeTracking\Internal\SimpleKeyValueFactory.cs" />
     <Compile Include="ChangeTracking\Internal\Snapshot.cs" />
     <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory.cs" />
+    <Compile Include="ChangeTracking\Internal\SnapshotFactoryFactory`.cs" />
     <Compile Include="DbUpdateConcurrencyException.cs" />
     <Compile Include="DbUpdateException.cs" />
     <Compile Include="Extensions\Internal\CoreLoggerExtensions.cs" />

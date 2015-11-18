@@ -10,6 +10,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -48,14 +49,12 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private ConfigurationSource? _primaryKeyConfigurationSource;
         private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new Dictionary<string, ConfigurationSource>();
 
-        // Warning: Never access this field directly as access needs to be thread-safe
+        // Warning: Never access these fields directly as access needs to be thread-safe
         private PropertyCounts _counts;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
         private Func<InternalEntityEntry, ISnapshot> _relationshipSnapshotFactory;
-
-        // Warning: Never access this field directly as access needs to be thread-safe
         private Func<InternalEntityEntry, ISnapshot> _originalValuesFactory;
+        private Func<ValueBuffer, ISnapshot> _shadowValuesFactory;
+        private Func<ISnapshot> _emptyShadowValuesFactory;
 
         /// <summary>
         ///     Creates a new metadata object representing an entity type that will participate in shadow-state
@@ -1006,6 +1005,18 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         private Func<InternalEntityEntry, ISnapshot> CreateOriginalValuesFactory()
             => new OriginalValuesFactoryFactory().Create(this);
+
+        public virtual Func<ValueBuffer, ISnapshot> ShadowValuesFactory
+            => LazyInitializer.EnsureInitialized(ref _shadowValuesFactory, CreateShadowValuesFactory);
+
+        private Func<ValueBuffer, ISnapshot> CreateShadowValuesFactory()
+            => new ShadowValuesFactoryFactory().Create(this);
+
+        public virtual Func<ISnapshot> EmptyShadowValuesFactory
+            => LazyInitializer.EnsureInitialized(ref _emptyShadowValuesFactory, CreateEmptyShadowValuesFactory);
+
+        private Func<ISnapshot> CreateEmptyShadowValuesFactory()
+            => new EmptyShadowValuesFactoryFactory().CreateEmpty(this);
 
         #endregion
 

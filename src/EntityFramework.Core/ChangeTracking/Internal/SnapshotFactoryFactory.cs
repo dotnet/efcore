@@ -15,16 +15,23 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public abstract class SnapshotFactoryFactory
     {
-        public virtual Func<InternalEntityEntry, ISnapshot> Create([NotNull] IEntityType entityType)
+        public virtual Func<ISnapshot> CreateEmpty([NotNull] IEntityType entityType)
         {
-            var count = GetPropertyCount(entityType);
-
-            if (count == 0)
+            if (GetPropertyCount(entityType) == 0)
             {
-                return e => Snapshot.Empty;
+                return () => Snapshot.Empty;
             }
 
-            var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
+            return Expression.Lambda<Func<ISnapshot>>(
+                CreateConstructorExpression(entityType, null))
+                .Compile();
+        }
+
+        protected virtual Expression CreateConstructorExpression(
+            [NotNull] IEntityType entityType,
+            [CanBeNull] ParameterExpression parameter)
+        {
+            var count = GetPropertyCount(entityType);
 
             var types = new Type[count];
             var propertyBases = new IPropertyBase[count];
@@ -50,7 +57,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     snapshotExpressions.Add(
                         CreateSnapshotExpression(
                             entityType.ClrType,
-                            entryParameter,
+                            parameter,
                             types.Skip(i).Take(Snapshot.MaxGenericTypes).ToArray(),
                             propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes).ToList()));
                 }
@@ -64,15 +71,14 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
             else
             {
-                constructorExpression = CreateSnapshotExpression(entityType.ClrType, entryParameter, types, propertyBases);
+                constructorExpression = CreateSnapshotExpression(entityType.ClrType, parameter, types, propertyBases);
             }
-
-            return Expression.Lambda<Func<InternalEntityEntry, ISnapshot>>(constructorExpression, entryParameter).Compile();
+            return constructorExpression;
         }
 
         private Expression CreateSnapshotExpression(
             Type entityType,
-            ParameterExpression entryParameter,
+            ParameterExpression parameter,
             Type[] types,
             IList<IPropertyBase> propertyBases)
         {
@@ -80,7 +86,9 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
             var arguments = new Expression[count];
 
-            var entityVariable = entityType == null ? null : Expression.Variable(entityType, "entity");
+            var entityVariable = entityType == null
+                ? null
+                : Expression.Variable(entityType, "entity");
 
             for (var i = 0; i < count; i++)
             {
@@ -100,14 +108,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                                 propertyBase.DeclaringEntityType.ClrType.GetAnyProperty(propertyBase.Name)))
                         : property != null
                           && property.IsShadowProperty
-                            ? (Expression)Expression.Convert(
-                                Expression.Coalesce(
-                                    Expression.Call(
-                                        entryParameter,
-                                        InternalEntityEntry.ReadShadowValueMethod,
-                                        Expression.Constant(property.GetShadowIndex())),
-                                    Expression.Default(types[i])),
-                                types[i])
+                            ? CreateReadShadowValueExpression(parameter, property)
                             : Expression.Property(
                                 entityVariable,
                                 propertyBase.DeclaringEntityType.ClrType.GetAnyProperty(propertyBase.Name));
@@ -119,7 +120,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     arguments),
                 typeof(ISnapshot));
 
-            return entityVariable != null
+            return UseEntityVariable
+                   && entityVariable != null
                 ? (Expression)Expression.Block(
                     new List<ParameterExpression> { entityVariable },
                     new List<Expression>
@@ -127,16 +129,27 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                         Expression.Assign(
                             entityVariable,
                             Expression.Convert(
-                                Expression.Property(entryParameter, "Entity"),
+                                Expression.Property(parameter, "Entity"),
                                 entityType)),
                         constructorExpression
                     })
                 : constructorExpression;
         }
 
+        protected virtual Expression CreateReadShadowValueExpression(
+            [CanBeNull] ParameterExpression parameter, [NotNull] IProperty property)
+            => Expression.Convert(
+                Expression.Call(
+                    parameter,
+                    InternalEntityEntry.ReadShadowValueMethod,
+                    Expression.Constant(property.GetShadowIndex())),
+                property.ClrType);
+
         protected abstract int GetPropertyIndex([NotNull] IPropertyBase propertyBase);
 
         protected abstract int GetPropertyCount([NotNull] IEntityType entityType);
+
+        protected virtual bool UseEntityVariable => true;
 
         private static readonly MethodInfo _snapshotCollectionMethod
             = typeof(SnapshotFactoryFactory).GetTypeInfo().GetDeclaredMethod(nameof(SnapshotCollection));

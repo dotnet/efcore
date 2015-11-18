@@ -359,16 +359,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
 
             var entry = CreateInternalEntry(configuration, entityType, new SomeEntity());
 
-            if (keyProperty.IsShadowProperty)
-            {
-                Assert.Null(entry[keyProperty]);
-            }
-            else
-            {
-                Assert.Equal(0, entry[keyProperty]);
-            }
+            Assert.Equal(0, entry[keyProperty]);
 
-            Assert.Null(entry[nonKeyProperty]);
+            Assert.Equal(0, entry[nonKeyProperty]);
 
             entry.SetEntityState(EntityState.Added);
 
@@ -458,14 +451,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperties[1]] = "ReadySalted";
             entry[fkProperty] = 0;
 
-            if (property.IsShadowProperty)
-            {
-                Assert.Null(entry[property]);
-            }
-            else
-            {
-                Assert.Equal(0, entry[property]);
-            }
+            Assert.Equal(0, entry[property]);
 
             entry.SetEntityState(EntityState.Added);
 
