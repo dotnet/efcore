@@ -127,7 +127,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[nonKeyProperty] = "Jillybean";
 
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyBeforeSave("Name", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyBeforeSave("Name", entityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
 
             entry[nonKeyProperty] = null;
@@ -135,7 +135,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[keyProperty] = 2;
 
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyBeforeSave("Id", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyBeforeSave("Id", entityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
         }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.True(entry.IsModified(nonKeyProperty));
 
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyAfterSave("Name", entityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
 
             entry.SetPropertyModified(nonKeyProperty, isModified: false);
@@ -176,7 +176,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.True(entry.IsModified(nonKeyProperty));
 
             Assert.Equal(
-                CoreStrings.PropertyReadOnlyAfterSave("Name", typeof(SomeEntity).Name),
+                CoreStrings.PropertyReadOnlyAfterSave("Name", entityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entry.PrepareToSave()).Message);
         }
 
@@ -201,14 +201,14 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             Assert.False(entry.IsModified(keyProperty));
 
             Assert.Equal(
-                CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
+                CoreStrings.KeyReadOnly("Id", entityType.DisplayName()),
                 Assert.Throws<NotSupportedException>(() => entry.SetPropertyModified(keyProperty)).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
             Assert.False(entry.IsModified(keyProperty));
 
             Assert.Equal(
-                CoreStrings.KeyReadOnly("Id", typeof(SomeEntity).Name),
+                CoreStrings.KeyReadOnly("Id", entityType.DisplayName()),
                 Assert.Throws<NotSupportedException>(() => entry[keyProperty] = 2).Message);
 
             Assert.Equal(EntityState.Unchanged, entry.EntityState);
@@ -296,7 +296,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry.MarkAsTemporary(keyProperty);
 
             Assert.Equal(
-                CoreStrings.TempValuePersists("Id", "SomeEntity", targetState.ToString()),
+                CoreStrings.TempValuePersists("Id", entityType.DisplayName(), targetState.ToString()),
                 Assert.Throws<InvalidOperationException>(() => entry.SetEntityState(targetState)).Message);
         }
 
@@ -1178,7 +1178,9 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[fkProperty] = null;
 
             Assert.Equal(
-                CoreStrings.RelationshipConceptualNull("SomeEntity", "SomeDependentEntity"),
+                CoreStrings.RelationshipConceptualNull(
+                    model.FindEntityType(typeof(SomeEntity).FullName).DisplayName(),
+                    entityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls()).Message);
         }
 
@@ -1200,7 +1202,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking
             entry[property] = null;
 
             Assert.Equal(
-                CoreStrings.PropertyConceptualNull("JustAProperty", "SomeDependentEntity"),
+                CoreStrings.PropertyConceptualNull("JustAProperty", entityType.DisplayName()),
                 Assert.Throws<InvalidOperationException>(() => entry.HandleConceptualNulls()).Message);
         }
 

@@ -16,18 +16,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     public static class EntityTypeExtensions
     {
         public static string DisplayName([NotNull] this IEntityType entityType)
-        {
-            Check.NotNull(entityType, nameof(entityType));
-
-            if (entityType.ClrType != null)
-            {
-                return entityType.ClrType.DisplayName(false);
-            }
-
-            var lastDot = entityType.Name.LastIndexOfAny(new[] { '.', '+' });
-
-            return lastDot > 0 ? entityType.Name.Substring(lastDot + 1) : entityType.Name;
-        }
+            => entityType.ClrType != null
+                ? entityType.ClrType.DisplayName(fullName: false)
+                : (entityType[CoreAnnotationNames.DisplayName] as string
+                    ?? entityType.Name);
 
         public static IEnumerable<IEntityType> GetAllBaseTypesInclusive([NotNull] this IEntityType entityType)
         {

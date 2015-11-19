@@ -38,6 +38,17 @@ namespace Microsoft.Data.Entity.Commands.Migrations
             public string Id { get; set; }
         }
 
+        public class EntityWithGenericKey<TKey>
+        {
+            public Guid Id { get; set; }
+        }
+
+        public class EntityWithGenericProperty<TProperty>
+        {
+            public int Id { get; set; }
+            public TProperty Property { get; set; }
+        }
+
         public class BaseEntity
         {
             public int Id { get; set; }
@@ -86,6 +97,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -96,6 +109,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o =>
@@ -126,11 +141,13 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 ",
                 o =>
                     {
-                        Assert.Equal(1, o.GetEntityTypes().First().GetAnnotations().Count());
+                        Assert.Equal(2, o.GetEntityTypes().First().GetAnnotations().Count());
                         Assert.Equal("AnnotationValue", o.GetEntityTypes().First()["AnnotationName"]);
                     });
         }
@@ -151,6 +168,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Bas
             .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""BaseEntity"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+AnotherDerivedEntity"", b =>
@@ -158,6 +177,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ano
         b.HasBaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"");
 
         b.Property<string>(""Title"");
+
+        b.HasAnnotation(""DisplayName"", ""AnotherDerivedEntity"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+DerivedEntity"", b =>
@@ -165,6 +186,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Der
         b.HasBaseType(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+BaseEntity"");
 
         b.Property<string>(""Name"");
+
+        b.HasAnnotation(""DisplayName"", ""DerivedEntity"");
     });
 ",
                 o =>
@@ -193,6 +216,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o =>
@@ -219,6 +244,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"", ""AlternateId"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o =>
@@ -248,6 +275,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasAlternateKey(""Id"", ""AlternateId"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o =>
@@ -276,6 +305,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""AlternateId"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o =>
@@ -301,6 +332,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""Id"", ""AlternateId"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o =>
@@ -325,6 +358,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -337,6 +372,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""AlternateId"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -371,6 +408,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -381,6 +420,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
@@ -396,6 +437,115 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                         Assert.Equal(2, o.FindEntityType(typeof(EntityWithTwoProperties)).GetKeys().Count());
                         Assert.True(o.FindEntityType(typeof(EntityWithTwoProperties)).GetKeys().Any(k => k.Properties.Any(p => p.Name == "AlternateId")));
                     });
+        }
+
+        [Fact]
+        public void TableName_preserved_when_generic()
+        {
+            IModel originalModel = null;
+
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithGenericKey<Guid>>();
+
+                    originalModel = builder.Model;
+                },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+    {
+        b.Property<Guid>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithGenericKey<Guid>"");
+    });
+",
+                model =>
+                {
+                    var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>));
+                    var entity = model.FindEntityType(originalEntity.Name);
+
+                    Assert.NotNull(entity);
+                    Assert.Equal(originalEntity.SqlServer().TableName, entity.SqlServer().TableName);
+                });
+        }
+
+        [Fact]
+        public void PrimaryKey_name_preserved_when_generic()
+        {
+            IModel originalModel = null;
+
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithGenericKey<Guid>>();
+
+                    originalModel = builder.Model;
+                },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+    {
+        b.Property<Guid>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithGenericKey<Guid>"");
+    });
+",
+                model =>
+                {
+                    var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>));
+                    var entity = model.FindEntityType(originalEntity.Name);
+                    Assert.NotNull(entity);
+
+                    var originalPrimaryKey = originalEntity.FindPrimaryKey();
+                    var primaryKey = entity.FindPrimaryKey();
+
+                    Assert.Equal(originalPrimaryKey.SqlServer().Name, primaryKey.SqlServer().Name);
+                });
+        }
+
+        [Fact]
+        public void AlternateKey_name_preserved_when_generic()
+        {
+            IModel originalModel = null;
+
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithGenericProperty<Guid>>().HasAlternateKey(e => e.Property);
+
+                    originalModel = builder.Model;
+                },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<Guid>(""Property"");
+
+        b.HasKey(""Id"");
+
+        b.HasAlternateKey(""Property"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithGenericProperty<Guid>"");
+    });
+",
+                model =>
+                {
+                    var originalEntity = originalModel.FindEntityType(typeof(EntityWithGenericProperty<Guid>));
+                    var entity = model.FindEntityType(originalEntity.Name);
+                    Assert.NotNull(entity);
+
+                    var originalAlternateKey = originalEntity.FindKey(originalEntity.FindProperty("Property"));
+                    var alternateKey = entity.FindKey(entity.FindProperty("Property"));
+
+                    Assert.Equal(originalAlternateKey.SqlServer().Name, alternateKey.SqlServer().Name);
+                });
         }
 
         #endregion
@@ -415,6 +565,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 ",
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"]); }
@@ -436,6 +588,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .IsRequired();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithStringProperty"");
     });
 ",
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("Name").IsNullable); });
@@ -456,6 +610,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o => { Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated); });
@@ -476,6 +632,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .HasAnnotation(""MaxLength"", 100);
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithStringProperty"");
     });
 ",
                 o => { Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()); });
@@ -495,6 +653,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o => { Assert.Equal(false, o.GetEntityTypes().First().FindProperty("AlternateId").RequiresValueGenerator); });
@@ -515,6 +675,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .IsConcurrencyToken();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o => { Assert.Equal(true, o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken); });
@@ -541,6 +703,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 
         b.HasIndex(""AlternateId"")
             .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o => { Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]); });
@@ -563,6 +727,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
 
         b.HasIndex(""AlternateId"")
             .IsUnique();
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 ",
                 o => { Assert.Equal(true, o.GetEntityTypes().First().GetIndexes().First().IsUnique); });
@@ -591,6 +757,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
             .ValueGeneratedOnAdd();
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -603,6 +771,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""AlternateId"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -634,6 +804,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<string>(""Id"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithStringKey"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
@@ -647,6 +819,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""Name"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithStringProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
@@ -676,6 +850,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<string>(""Id"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithStringKey"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
@@ -688,6 +864,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""Name"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithStringProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithStringProperty"", b =>
@@ -719,6 +897,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.HasKey(""Id"");
 
         b.HasIndex(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithOneProperty"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithTwoProperties"", b =>
@@ -729,6 +909,8 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
         b.Property<int>(""AlternateId"");
 
         b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithTwoProperties"");
     });
 
 builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithOneProperty"", b =>
@@ -740,6 +922,80 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
     });
 ",
                 o => { Assert.Equal(DeleteBehavior.Cascade, o.FindEntityType(typeof(EntityWithOneProperty)).GetForeignKeys().First().DeleteBehavior); });
+        }
+
+        [Fact]
+        public void ForeignKey_name_preserved_when_generic()
+        {
+            IModel originalModel = null;
+
+            Test(
+                builder =>
+                {
+                    builder.Entity<EntityWithGenericKey<Guid>>().HasMany<EntityWithGenericProperty<Guid>>().WithOne()
+                        .HasForeignKey(e => e.Property);
+
+                    originalModel = builder.Model;
+                },
+                @"
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"", b =>
+    {
+        b.Property<Guid>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.HasKey(""Id"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithGenericKey<Guid>"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+    {
+        b.Property<int>(""Id"")
+            .ValueGeneratedOnAdd();
+
+        b.Property<Guid>(""Property"");
+
+        b.HasKey(""Id"");
+
+        b.HasIndex(""Property"");
+
+        b.HasAnnotation(""DisplayName"", ""EntityWithGenericProperty<Guid>"");
+    });
+
+builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericProperty<System.Guid>"", b =>
+    {
+        b.HasOne(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+EntityWithGenericKey<System.Guid>"")
+            .WithMany()
+            .HasForeignKey(""Property"")
+            .OnDelete(DeleteBehavior.Cascade);
+    });
+",
+                model =>
+                {
+                    var originalParent = originalModel.FindEntityType(typeof(EntityWithGenericKey<Guid>));
+                    var parent = model.FindEntityType(originalParent.Name);
+                    Assert.NotNull(parent);
+
+                    var originalChild = originalModel.FindEntityType(typeof(EntityWithGenericProperty<Guid>));
+                    var child = model.FindEntityType(originalChild.Name);
+                    Assert.NotNull(child);
+
+                    var originalForeignKey = originalChild.FindForeignKey(
+                        originalChild.FindProperty("Property"),
+                        originalParent.FindPrimaryKey(),
+                        originalParent);
+                    var foreignKey = child.FindForeignKey(
+                        child.FindProperty("Property"),
+                        parent.FindPrimaryKey(),
+                        parent);
+
+                    Assert.Equal(originalForeignKey.SqlServer().Name, foreignKey.SqlServer().Name);
+
+                    var originalIndex = originalChild.FindIndex(originalChild.FindProperty("Property"));
+                    var index = child.FindIndex(child.FindProperty("Property"));
+
+                    Assert.Equal(originalIndex.SqlServer().Name, index.SqlServer().Name);
+                });
         }
 
         #endregion
@@ -771,6 +1027,7 @@ builder.Entity(""Microsoft.Data.Entity.Commands.Migrations.ModelSnapshotTest+Ent
                     BuildReference.ByName("EntityFramework.Relational")
                 },
                 Sources = { @"
+                    using System;
                     using Microsoft.Data.Entity;
                     using Microsoft.Data.Entity.Metadata;
                     using Microsoft.Data.Entity.Metadata.Conventions;
