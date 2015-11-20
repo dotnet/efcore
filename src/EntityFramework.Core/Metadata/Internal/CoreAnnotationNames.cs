@@ -7,5 +7,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     {
         public const string MaxLengthAnnotation = "MaxLength";
         public const string ProductVersionAnnotation = "ProductVersion";
+        public const string DisplayName = "DisplayName";
     }
 }

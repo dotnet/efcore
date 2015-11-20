@@ -335,7 +335,14 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(stringBuilder, nameof(stringBuilder));
 
-            var annotations = entityType.GetAnnotations().ToArray();
+            var annotations = entityType.GetAnnotations().ToList();
+
+            var displayName = entityType.DisplayName();
+            if (entityType.Name != displayName)
+            {
+                annotations.Add(new Annotation(CoreAnnotationNames.DisplayName, displayName));
+            }
+
             if (annotations.Any())
             {
                 foreach (var annotation in annotations)

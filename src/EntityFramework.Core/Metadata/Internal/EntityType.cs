@@ -15,11 +15,11 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
-    public class EntityType : 
-        ConventionalAnnotatable, 
-        IMutableEntityType, 
-        ICanGetNavigations, 
-        IPropertyCountsAccessor, 
+    public class EntityType :
+        ConventionalAnnotatable,
+        IMutableEntityType,
+        ICanGetNavigations,
+        IPropertyCountsAccessor,
         ISnapshotFactorySource
     {
         private static readonly char[] _simpleNameChars = { '.', '+' };
@@ -75,7 +75,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             _properties = new SortedDictionary<string, Property>(new PropertyComparer(this));
 #if DEBUG
-            DebugName = DisplayName();
+            DebugName = EntityTypeExtensions.DisplayName(this);
 #endif
         }
 
@@ -112,7 +112,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         || GetDirectlyDerivedTypes().Any()
                         || GetProperties().Any())
                     {
-                        throw new InvalidOperationException(CoreStrings.EntityTypeInUse(DisplayName()));
+                        throw new InvalidOperationException(CoreStrings.EntityTypeInUse(EntityTypeExtensions.DisplayName(this)));
                     }
 
                     _typeOrName = value;
@@ -252,23 +252,6 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual string DisplayName()
-        {
-            if (ClrType != null)
-            {
-                return ClrType.DisplayName(false) ?? ParseSimpleName();
-            }
-            return ParseSimpleName();
-        }
-
-        private string ParseSimpleName()
-        {
-            var fullName = (string)_typeOrName;
-            var lastDot = fullName.LastIndexOfAny(_simpleNameChars);
-
-            return lastDot > 0 ? fullName.Substring(lastDot + 1) : fullName;
-        }
-
         public override string ToString() => Name;
 
         public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
@@ -303,7 +286,8 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         {
             if (_baseType != null)
             {
-                throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(DisplayName(), _baseType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DerivedEntityTypeKey(EntityTypeExtensions.DisplayName(this), _baseType.DisplayName()));
             }
 
             if (_primaryKey != null)
@@ -393,21 +377,29 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (_baseType != null)
             {
-                throw new InvalidOperationException(CoreStrings.DerivedEntityTypeKey(DisplayName(), _baseType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DerivedEntityTypeKey(EntityTypeExtensions.DisplayName(this), _baseType.DisplayName()));
             }
 
             foreach (var property in properties)
             {
                 if (FindProperty(property.Name) != property)
                 {
-                    throw new ArgumentException(CoreStrings.KeyPropertiesWrongEntity(Property.Format(properties), DisplayName()));
+                    throw new ArgumentException(
+                        CoreStrings.KeyPropertiesWrongEntity(
+                            Property.Format(properties),
+                            EntityTypeExtensions.DisplayName(this)));
                 }
             }
 
             var key = FindKey(properties);
             if (key != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateKey(Property.Format(properties), DisplayName(), key.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateKey(
+                        Property.Format(properties),
+                        EntityTypeExtensions.DisplayName(this),
+                        key.DeclaringEntityType.DisplayName()));
             }
 
             key = new Key(properties, configurationSource);
@@ -521,7 +513,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var duplicateForeignKey = FindForeignKeysInHierarchy(properties, principalKey, principalEntityType).FirstOrDefault();
             if (duplicateForeignKey != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateForeignKey(Property.Format(properties), DisplayName(), duplicateForeignKey.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateForeignKey(
+                        Property.Format(properties),
+                        EntityTypeExtensions.DisplayName(this),
+                        duplicateForeignKey.DeclaringEntityType.DisplayName()));
             }
 
             var foreignKey = new ForeignKey(properties, principalKey, this, principalEntityType, configurationSource ?? ConfigurationSource.Convention);
@@ -640,7 +636,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 foreignKey.DeclaringEntityType.RemoveNavigation(foreignKey.DependentToPrincipal.Name);
             }
-            
+
             if (foreignKey.PrincipalToDependent != null)
             {
                 foreignKey.PrincipalEntityType.RemoveNavigation(foreignKey.PrincipalToDependent.Name);
@@ -689,14 +685,20 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
 
                 throw new InvalidOperationException(
-                    CoreStrings.DuplicateNavigation(name, DisplayName(), duplicateNavigation.DeclaringEntityType.DisplayName()));
+                    CoreStrings.DuplicateNavigation(
+                        name,
+                        EntityTypeExtensions.DisplayName(this),
+                        duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var duplicateProperty = FindPropertiesInHierarchy(name).FirstOrDefault();
             if (duplicateProperty != null)
             {
-                throw new InvalidOperationException(CoreStrings.ConflictingProperty(name, DisplayName(),
-                    duplicateProperty.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.ConflictingProperty(
+                        name,
+                        EntityTypeExtensions.DisplayName(this),
+                        duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
             Debug.Assert(!GetNavigations().Any(n => (n.ForeignKey == foreignKey) && (n.IsDependentToPrincipal() == pointsToPrincipal)),
@@ -787,14 +789,21 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             {
                 if (FindProperty(property.Name) != property)
                 {
-                    throw new ArgumentException(CoreStrings.IndexPropertiesWrongEntity(Property.Format(properties), DisplayName()));
+                    throw new ArgumentException(
+                        CoreStrings.IndexPropertiesWrongEntity(
+                            Property.Format(properties),
+                            EntityTypeExtensions.DisplayName(this)));
                 }
             }
 
             var duplicateIndex = FindIndexesInHierarchy(properties).FirstOrDefault();
             if (duplicateIndex != null)
             {
-                throw new InvalidOperationException(CoreStrings.DuplicateIndex(Property.Format(properties), DisplayName(), duplicateIndex.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.DuplicateIndex(
+                        Property.Format(properties),
+                        EntityTypeExtensions.DisplayName(this),
+                        duplicateIndex.DeclaringEntityType.DisplayName()));
             }
 
             var index = new Index(properties, this, configurationSource);
@@ -876,14 +885,17 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             if (duplicateProperty != null)
             {
                 throw new InvalidOperationException(CoreStrings.DuplicateProperty(
-                    name, DisplayName(), duplicateProperty.DeclaringEntityType.DisplayName()));
+                    name, EntityTypeExtensions.DisplayName(this), duplicateProperty.DeclaringEntityType.DisplayName()));
             }
 
             var duplicateNavigation = FindNavigationsInHierarchy(name).FirstOrDefault();
             if (duplicateNavigation != null)
             {
-                throw new InvalidOperationException(CoreStrings.ConflictingNavigation(name, DisplayName(),
-                    duplicateNavigation.DeclaringEntityType.DisplayName()));
+                throw new InvalidOperationException(
+                    CoreStrings.ConflictingNavigation(
+                        name,
+                        EntityTypeExtensions.DisplayName(this),
+                        duplicateNavigation.DeclaringEntityType.DisplayName()));
             }
 
             var property = new Property(name, this, configurationSource);
@@ -997,7 +1009,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory
             => LazyInitializer.EnsureInitialized(ref _relationshipSnapshotFactory, CreateRelationshipSnapshotFactory);
 
-        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory() 
+        private Func<InternalEntityEntry, ISnapshot> CreateRelationshipSnapshotFactory()
             => new RelationshipSnapshotFactoryFactory().Create(this);
 
         public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
