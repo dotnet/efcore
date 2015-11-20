@@ -43,6 +43,7 @@
     <Compile Include="Design\OperationResultHandlerTest.cs" />
     <Compile Include="Design\OperationExecutorTest.cs" />
     <Compile Include="Design\OperationLogHandlerTest.cs" />
+    <Compile Include="Migrations\Design\CSharpMigrationOperationGeneratorTest.cs" />
     <Compile Include="Migrations\Design\MigrationScaffolderTest.cs" />
     <Compile Include="Migrations\Design\CSharpHelperTest.cs" />
     <None Include="project.json" />

@@ -635,10 +635,15 @@ namespace Microsoft.Data.Entity.Migrations
                 .Append("FOREIGN KEY (")
                 .Append(ColumnList(operation.Columns))
                 .Append(") REFERENCES ")
-                .Append(SqlGenerator.DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema))
-                .Append(" (")
-                .Append(ColumnList(operation.PrincipalColumns))
-                .Append(")");
+                .Append(SqlGenerator.DelimitIdentifier(operation.PrincipalTable, operation.PrincipalSchema));
+
+            if (operation.PrincipalColumns != null)
+            {
+                builder
+                    .Append(" (")
+                    .Append(ColumnList(operation.PrincipalColumns))
+                    .Append(")");
+            }
 
             if (operation.OnUpdate != ReferentialAction.NoAction)
             {

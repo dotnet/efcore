@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Entity.Commands.TestUtilities;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Design;
@@ -56,6 +55,7 @@ namespace MyNamespace
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+
         }
     }
 }
@@ -67,7 +67,7 @@ namespace MyNamespace
                 typeof(MyContext),
                 "MyMigration",
                 "20150511161616_MyMigration",
-                new Model {["Some:EnumValue"] = RegexOptions.Multiline });
+                new Model { ["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(
                 @"using System;
 using Microsoft.Data.Entity;
@@ -140,7 +140,7 @@ namespace MyNamespace
                 "MyNamespace",
                 typeof(MyContext),
                 "MySnapshot",
-                new Model {["Some:EnumValue"] = RegexOptions.Multiline });
+                new Model { ["Some:EnumValue"] = RegexOptions.Multiline });
             Assert.Equal(@"using System;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Infrastructure;

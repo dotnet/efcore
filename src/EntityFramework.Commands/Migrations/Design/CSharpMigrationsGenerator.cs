@@ -79,6 +79,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
                         _operationGenerator.Generate("migrationBuilder", upOperations, builder);
                     }
                     builder
+                        .AppendLine()
                         .AppendLine("}")
                         .AppendLine()
                         .AppendLine("protected override void Down(MigrationBuilder migrationBuilder)")
@@ -87,7 +88,9 @@ namespace Microsoft.Data.Entity.Migrations.Design
                     {
                         _operationGenerator.Generate("migrationBuilder", downOperations, builder);
                     }
-                    builder.AppendLine("}");
+                    builder
+                        .AppendLine()
+                        .AppendLine("}");
                 }
                 builder.AppendLine("}");
             }

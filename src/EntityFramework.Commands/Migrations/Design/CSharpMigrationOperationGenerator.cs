@@ -32,11 +32,23 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operations, nameof(operations));
             Check.NotNull(builder, nameof(builder));
 
+            var first = true;
             foreach (var operation in operations)
             {
+                if (first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    builder
+                        .AppendLine()
+                        .AppendLine();
+                }
+
                 builder.Append(builderName);
                 Generate((dynamic)operation, builder);
-                builder.AppendLine(";");
+                builder.Append(";");
             }
         }
 
@@ -440,13 +452,15 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".EnsureSchema(")
-                .Append(_code.Literal(operation.Name))
-                .Append(")");
+            builder.AppendLine(".EnsureSchema(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -734,24 +748,28 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropColumn(name: ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder
-                .Append(", table: ")
-                .Append(_code.Literal(operation.Table))
-                .Append(")");
+            builder.AppendLine(".DropColumn(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -761,24 +779,28 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropForeignKey(name: ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder
-                .Append(", table: ")
-                .Append(_code.Literal(operation.Table))
-                .Append(")");
+            builder.AppendLine(".DropForeignKey(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -788,24 +810,28 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropIndex(name: ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder
-                .Append(", table: ")
-                .Append(_code.Literal(operation.Table))
-                .Append(")");
+            builder.AppendLine(".DropIndex(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -815,24 +841,28 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropPrimaryKey(name: ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder
-                .Append(", table: ")
-                .Append(_code.Literal(operation.Table))
-                .Append(")");
+            builder.AppendLine(".DropPrimaryKey(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -842,13 +872,15 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropSchema(")
-                .Append(_code.Literal(operation.Name))
-                .Append(")");
+            builder.AppendLine(".DropSchema(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -858,26 +890,24 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.Append(".DropSequence(");
-
-            if (operation.Schema != null)
-            {
-                builder.Append("name: ");
-            }
-
-            builder.Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder.Append(")");
+            builder.AppendLine(".DropSequence(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder.Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -887,26 +917,24 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder.Append(".DropTable(");
-
-            if (operation.Schema != null)
-            {
-                builder.Append("name: ");
-            }
-
-            builder.Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder.Append(")");
+            builder.AppendLine(".DropTable(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder.Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }
@@ -916,24 +944,28 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Check.NotNull(operation, nameof(operation));
             Check.NotNull(builder, nameof(builder));
 
-            builder
-                .Append(".DropUniqueConstraint(name: ")
-                .Append(_code.Literal(operation.Name));
-
-            if (operation.Schema != null)
-            {
-                builder
-                    .Append(", schema: ")
-                    .Append(_code.Literal(operation.Schema));
-            }
-
-            builder
-                .Append(", table: ")
-                .Append(_code.Literal(operation.Table))
-                .Append(")");
+            builder.AppendLine(".DropUniqueConstraint(");
 
             using (builder.Indent())
             {
+                builder
+                    .Append("name: ")
+                    .Append(_code.Literal(operation.Name));
+
+                if (operation.Schema != null)
+                {
+                    builder
+                        .AppendLine(",")
+                        .Append("schema: ")
+                        .Append(_code.Literal(operation.Schema));
+                }
+
+                builder
+                    .AppendLine(",")
+                    .Append("table: ")
+                    .Append(_code.Literal(operation.Table))
+                    .Append(")");
+
                 Annotations(operation.GetAnnotations(), builder);
             }
         }

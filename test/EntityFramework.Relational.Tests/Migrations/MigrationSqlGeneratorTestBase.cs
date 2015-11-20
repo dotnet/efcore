@@ -121,6 +121,18 @@ namespace Microsoft.Data.Entity.Migrations
         }
 
         [Fact]
+        public virtual void AddForeignKeyOperation_without_principal_columns()
+        {
+            Generate(
+                new AddForeignKeyOperation
+                {
+                    Table = "People",
+                    Columns = new[] { "SpouseId" },
+                    PrincipalTable = "People"
+                });
+        }
+
+        [Fact]
         public virtual void AddPrimaryKeyOperation_with_name()
         {
             Generate(

@@ -99,6 +99,15 @@ namespace Microsoft.Data.Entity.Migrations
                 Sql);
         }
 
+        public override void AddForeignKeyOperation_without_principal_columns()
+        {
+            base.AddForeignKeyOperation_without_principal_columns();
+
+            Assert.Equal(
+                "ALTER TABLE \"People\" ADD FOREIGN KEY (\"SpouseId\") REFERENCES \"People\";" + EOL,
+                Sql);
+        }
+
         public override void AddPrimaryKeyOperation_with_name()
         {
             base.AddPrimaryKeyOperation_with_name();
