@@ -4,6 +4,8 @@ Entity Framework is Microsoft's recommended data access technology for new appli
 
 Travis: [![Travis build Status](https://travis-ci.org/aspnet/EntityFramework.svg?branch=dev)](https://travis-ci.org/aspnet/EntityFramework) (CoreCLR only, no SQL Server)
 
+AppVeyor: [![AppVeyor](https://ci.appveyor.com/api/projects/status/v9xbkondjev2gkhn/branch/dev?svg=true)](https://ci.appveyor.com/project/aspnetci/entityframework/branch/dev)
+
 Documentation on using EF7 is available at [https://ef.readthedocs.org](https://ef.readthedocs.org).
 
 ## EF7 here, EF6 on CodePlex
