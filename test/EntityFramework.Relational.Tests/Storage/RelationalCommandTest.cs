@@ -434,32 +434,32 @@ namespace Microsoft.Data.Entity.Storage
                 {
                     {
                         new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteNonQuery(connection, manageConnection: manage)),
-                        RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
+                        "ExecuteNonQuery",
                         false
                     },
                     {
                         new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteScalar(connection, manageConnection: manage)),
-                        RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
+                        "ExecuteScalar",
                         false
                     },
                     {
                         new Action<RelationalCommand, bool, IRelationalConnection>( (command, manage, connection) => command.ExecuteReader(connection, manageConnection: manage)),
-                        RelationalDiagnostics.ExecuteMethod.ExecuteReader,
+                        "ExecuteReader",
                         false
                     },
                     {
                         new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteNonQueryAsync(connection, manageConnection: manage)),
-                        RelationalDiagnostics.ExecuteMethod.ExecuteNonQuery,
+                        "ExecuteNonQuery",
                         true
                     },
                     {
                         new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteScalarAsync(connection, manageConnection: manage)),
-                        RelationalDiagnostics.ExecuteMethod.ExecuteScalar,
+                        "ExecuteScalar",
                         true
                     },
                     {
                         new Func<RelationalCommand, bool, IRelationalConnection, Task>( (command, manage, connection) => command.ExecuteReaderAsync(connection, manageConnection: manage)),
-                        RelationalDiagnostics.ExecuteMethod.ExecuteReader,
+                        "ExecuteReader",
                         true
                     }
                 };

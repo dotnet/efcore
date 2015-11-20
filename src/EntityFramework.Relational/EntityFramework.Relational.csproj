@@ -53,6 +53,7 @@
       <Link>Extensions\AsyncEnumerableExtensions.cs</Link>
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
+    <Compile Include="Extensions\TaskExtensions.cs" />
     <Compile Include="Internal\RelationalDiagnostics.cs" />
     <Compile Include="..\Shared\LoggingExtensions.cs">
       <Link>Extensions\LoggingExtensions.cs</Link>
