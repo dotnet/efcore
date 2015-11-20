@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Storage
         }
 
         internal static readonly MethodInfo GetValueMethod
-            = typeof(ValueBuffer).GetTypeInfo().GetProperties().Single(p => p.GetIndexParameters().Any()).GetMethod;
+            = typeof(ValueBuffer).GetRuntimeProperties().Single(p => p.GetIndexParameters().Any()).GetMethod;
 
         /// <summary>
         ///     Gets the number of values in this buffer.
