@@ -17,3 +17,5 @@ See the ["Getting Started"](https://ef.readthedocs.org/en/latest/getting-started
 
 ## Roadmap
 EF 7 is currently pre-release. For more details on the release schedule, see the [**Roadmap**](https://github.com/aspnet/EntityFramework/wiki/Roadmap) article in the wiki.
+
+Hi from Travis (test)
