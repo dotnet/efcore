@@ -339,7 +339,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 return ReplaceForeignKey(configurationSource, dependentProperties: new Property[0], isRequired: isRequired, runConventions: runConventions);
             }
-            
+
             foreach (var property in Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
             {
                 var requiredSet = property.Builder.IsRequired(isRequired, configurationSource);
@@ -818,7 +818,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => HasForeignKey(
-                Metadata.DeclaringEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
+                Metadata.DeclaringEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource, Metadata.PrincipalKey.Properties),
                 configurationSource,
                 runConventions: true);
 

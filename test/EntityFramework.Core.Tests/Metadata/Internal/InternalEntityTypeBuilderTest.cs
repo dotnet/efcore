@@ -90,6 +90,77 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         }
 
         [Fact]
+        public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_non_shadow()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new[] { Customer.IdProperty }, ConfigurationSource.DataAnnotation);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.HasForeignKey(
+                customerEntityBuilder.Metadata.Name,
+                new[] { "ShadowCustomerId" },
+                ConfigurationSource.Convention);
+
+            var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
+            Assert.NotNull(shadowProperty);
+            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
+        }
+
+        [Fact]
+        public void ForeignKey_does_not_create_shadow_properties_if_principal_type_does_not_have_primary_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderEntityBuilder.HasForeignKey(
+                            customerEntityBuilder.Metadata.Name,
+                            new[] { "ShadowCustomerId" },
+                            ConfigurationSource.Convention)).Message);
+        }
+
+        [Fact]
+        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_properties_has_different_count()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.Property("ShadowPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new List<string> { "ShadowPrimaryKey" }, ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderEntityBuilder.HasForeignKey(
+                            customerEntityBuilder.Metadata.Name,
+                            new[] { "ShadowCustomerId", "ShadowCustomerUnique" },
+                            ConfigurationSource.Convention)).Message);
+        }
+
+        [Fact]
+        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_property_is_shadow()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            customerEntityBuilder.Property("ShadowPrimaryKey", typeof(int), ConfigurationSource.Explicit);
+            customerEntityBuilder.PrimaryKey(new List<string> { "ShadowPrimaryKey" }, ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            Assert.Equal(
+                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () => orderEntityBuilder.HasForeignKey(
+                            customerEntityBuilder.Metadata.Name,
+                            new[] { "ShadowCustomerId" },
+                            ConfigurationSource.Convention)).Message);
+        }
+
+        [Fact]
         public void Replaces_derived_foreign_key_of_lower_or_equal_source()
         {
             var modelBuilder = CreateModelBuilder();

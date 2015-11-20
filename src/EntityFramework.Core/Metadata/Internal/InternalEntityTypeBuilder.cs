@@ -870,7 +870,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var principalType = ModelBuilder.Entity(principalEntityTypeName, configurationSource);
             return principalType == null
                 ? null
-                : HasForeignKeyInternal(principalType, GetOrCreateProperties(propertyNames, configurationSource), configurationSource);
+                : HasForeignKeyInternal(
+                    principalType,
+                    GetOrCreateProperties(propertyNames, configurationSource, principalType.Metadata.FindPrimaryKey()?.Properties),
+                    configurationSource);
         }
 
         public virtual InternalRelationshipBuilder HasForeignKey(
@@ -1259,7 +1262,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
         }
 
-        public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<string> propertyNames, ConfigurationSource configurationSource)
+        public virtual IReadOnlyList<Property> GetOrCreateProperties([CanBeNull] IEnumerable<string> propertyNames, ConfigurationSource configurationSource, [CanBeNull] IEnumerable<Property> referencedProperties = null)
         {
             if (propertyNames == null)
             {
@@ -1267,18 +1270,37 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             }
 
             var list = new List<Property>();
-            foreach (var propertyName in propertyNames)
+            var propertyNamesList = propertyNames.ToList();
+            var referencedPropertiesList = referencedProperties?.ToList();
+            if (referencedPropertiesList != null
+                && referencedPropertiesList.Count != propertyNamesList.Count)
             {
+                referencedPropertiesList = null;
+            }
+            var typesList = referencedPropertiesList?.Select(p => p.IsShadowProperty ? null : p.ClrType).ToList();
+            for (var i = 0; i < propertyNamesList.Count; i++)
+            {
+                var propertyName = propertyNamesList[i];
                 var property = Metadata.FindProperty(propertyName);
                 if (property == null)
                 {
                     var clrProperty = Metadata.ClrType?.GetPropertiesInHierarchy(propertyName).FirstOrDefault();
-                    if (clrProperty == null)
+                    var type = typesList?[i];
+                    InternalPropertyBuilder propertyBuilder;
+                    if (clrProperty != null)
+                    {
+                        propertyBuilder = Property(clrProperty, configurationSource);
+                    }
+                    else if (type != null)
+                    {
+                        // TODO: Log that shadow property is created by convention
+                        propertyBuilder = Property(propertyName, type, ConfigurationSource.Convention);
+                    }
+                    else
                     {
                         throw new InvalidOperationException(CoreStrings.NoClrProperty(propertyName, Metadata.Name));
                     }
 
-                    var propertyBuilder = Property(clrProperty, configurationSource);
                     if (propertyBuilder == null)
                     {
                         return null;

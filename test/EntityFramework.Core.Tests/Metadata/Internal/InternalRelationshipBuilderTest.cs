@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
@@ -184,6 +185,52 @@ namespace Microsoft.Data.Entity.Tests.Metadata.Internal
                 relationshipBuilder.Metadata.PrincipalKey.Properties.Select(p => p.Name));
             Assert.Equal(new[] { Order.CustomerUniqueProperty.Name },
                 relationshipBuilder.Metadata.Properties.Select(p => p.Name));
+        }
+
+        [Fact]
+        public void ForeignKey_creates_shadow_properties_if_corresponding_principal_key_property_is_non_shadow()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention)
+                .HasPrincipalKey(new[] { Customer.IdProperty }, ConfigurationSource.DataAnnotation);
+
+            relationshipBuilder = relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention);
+
+            var shadowProperty = orderEntityBuilder.Metadata.FindProperty("ShadowCustomerId");
+            Assert.NotNull(shadowProperty);
+            Assert.True(((IProperty)shadowProperty).IsShadowProperty);
+            Assert.Equal(shadowProperty, relationshipBuilder.Metadata.Properties.First());
+        }
+
+        [Fact]
+        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_properties_count_mismatch()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
+
+            Assert.Equal(
+                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId", "ShadowCustomerUnique" }, ConfigurationSource.Convention)).Message);
+        }
+
+        [Fact]
+        public void ForeignKey_does_not_create_shadow_properties_if_corresponding_principal_key_property_is_shadow()
+        {
+            var modelBuilder = CreateInternalModelBuilder();
+            var customerEntityBuilder = modelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit);
+            var orderEntityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
+
+            var relationshipBuilder = orderEntityBuilder.Relationship(customerEntityBuilder, ConfigurationSource.Convention);
+
+            Assert.Equal(
+                CoreStrings.NoClrProperty("ShadowCustomerId", typeof(Order)),
+                Assert.Throws<InvalidOperationException>(() => relationshipBuilder.HasForeignKey(new[] { "ShadowCustomerId" }, ConfigurationSource.Convention)).Message);
         }
 
         [Fact]

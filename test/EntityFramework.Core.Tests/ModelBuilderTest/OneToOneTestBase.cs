@@ -2800,6 +2800,43 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.Equal(DeleteBehavior.SetNull, dependentType.GetNavigations().Single().ForeignKey.DeleteBehavior);
             }
+
+            [Fact]
+            public virtual void Creates_shadow_FK_property_with_non_shadow_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                // For NonGenericStringTest
+                modelBuilder.Entity<EntityA>();
+
+                modelBuilder.Entity<EntityB>(b =>
+                    {
+                        b.HasOne(e => e.FirstNav)
+                            .WithOne()
+                            .HasForeignKey(typeof(EntityB), "ShadowId");
+                    });
+
+                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(EntityB)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Does_not_create_shadow_FK_property_with_shadow_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                // For NonGenericStringTest
+                var entityA = modelBuilder.Entity<EntityA>();
+                entityA.Property<int>("ShadowPK");
+                entityA.HasKey("ShadowPK");
+
+                var entityB = modelBuilder.Entity<EntityB>();
+
+                var relationship = entityB.HasOne(e => e.FirstNav).WithOne();
+
+                Assert.Equal(
+                    CoreStrings.NoClrProperty("ShadowId", typeof(EntityB)),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(typeof(EntityB), "ShadowId")).Message);
+            }
         }
     }
 }
