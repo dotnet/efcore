@@ -44,13 +44,13 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                 {
                     if (foreignKey.IsUnique)
                     {
-                        var oldDependents = entry.StateManager.GetDependents(principalEntry, foreignKey).Where(e => e != entry).ToList();
-
-                        // TODO: Decide how to handle case where multiple values found (negative case)
-                        // Issue #739
-                        if (oldDependents.Count > 0)
+                        foreach (var oldDependentEntry in 
+                            (entry.StateManager.GetDependentsFromNavigation(principalEntry, foreignKey)
+                             ?? entry.StateManager.GetDependents(principalEntry, foreignKey))
+                                .Where(e => e != entry)
+                                .ToList())
                         {
-                            StealReference(foreignKey, oldDependents[0]);
+                            StealReference(foreignKey, oldDependentEntry);
                         }
                     }
 
@@ -423,22 +423,16 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 
         private static void StealReference(IForeignKey foreignKey, InternalEntityEntry dependentEntry)
         {
-            foreach (var navigation in dependentEntry.EntityType.GetNavigations().Where(n => n.ForeignKey == foreignKey))
+            var navigation = foreignKey.DependentToPrincipal;
+            if (navigation != null)
             {
-                if (navigation.IsDependentToPrincipal())
-                {
-                    navigation.GetSetter().SetClrValue(dependentEntry.Entity, null);
-                    dependentEntry.SetValue(navigation, null, ValueSource.RelationshipSnapshot);
-                }
+                navigation.GetSetter().SetClrValue(dependentEntry.Entity, null);
+                dependentEntry.SetValue(navigation, null, ValueSource.RelationshipSnapshot);
             }
 
-            var nullableProperties = foreignKey.Properties.Where(p => p.IsNullable).ToList();
-            if (nullableProperties.Count > 0)
+            foreach (var property in foreignKey.Properties.Where(p => p.IsNullable).ToList())
             {
-                foreach (var property in nullableProperties)
-                {
-                    dependentEntry[property] = null;
-                }
+                dependentEntry[property] = null;
             }
         }
 

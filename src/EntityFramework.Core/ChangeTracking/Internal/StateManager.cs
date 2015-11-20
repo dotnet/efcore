@@ -28,9 +28,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         private readonly Dictionary<IKeyValue, InternalEntityEntry> _identityMap
             = new Dictionary<IKeyValue, InternalEntityEntry>();
 
-        private readonly Dictionary<IForeignKey, Dictionary<IKeyValue, HashSet<InternalEntityEntry>>> _dependentsMap
-            = new Dictionary<IForeignKey, Dictionary<IKeyValue, HashSet<InternalEntityEntry>>>();
-
         private readonly IInternalEntityEntryFactory _factory;
         private readonly IInternalEntityEntrySubscriber _subscriber;
         private readonly IKeyValueFactorySource _keyValueFactorySource;
@@ -153,31 +150,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     _identityMap[principalKeyValue] = newEntry;
                 }
             }
-
-            foreach (var foreignKey in entityType.GetForeignKeys())
-            {
-                var dependentKey = newEntry.GetDependentKeyValue(foreignKey);
-                if (dependentKey.IsInvalid)
-                {
-                    continue;
-                }
-
-                Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
-                if (!_dependentsMap.TryGetValue(foreignKey, out fkMap))
-                {
-                    fkMap = new Dictionary<IKeyValue, HashSet<InternalEntityEntry>>();
-                    _dependentsMap[foreignKey] = fkMap;
-                }
-
-                HashSet<InternalEntityEntry> dependents;
-                if (!fkMap.TryGetValue(dependentKey, out dependents))
-                {
-                    dependents = new HashSet<InternalEntityEntry>();
-                    fkMap[dependentKey] = dependents;
-                }
-
-                dependents.Add(newEntry);
-            }
         }
 
         public virtual InternalEntityEntry TryGetEntry(IKeyValue keyValueValue)
@@ -263,30 +235,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
                     _identityMap.Remove(keyValue);
                 }
             }
-
-            foreach (var foreignKey in entry.EntityType.GetForeignKeys())
-            {
-                var dependentKey = entry.GetDependentKeyValue(foreignKey);
-
-                Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
-                HashSet<InternalEntityEntry> dependents;
-                if (!dependentKey.IsInvalid
-                    && _dependentsMap.TryGetValue(foreignKey, out fkMap)
-                    && fkMap.TryGetValue(dependentKey, out dependents))
-                {
-                    dependents.Remove(entry);
-
-                    if (dependents.Count == 0)
-                    {
-                        fkMap.Remove(dependentKey);
-
-                        if (fkMap.Count == 0)
-                        {
-                            _dependentsMap.Remove(foreignKey);
-                        }
-                    }
-                }
-            }
         }
 
         public virtual InternalEntityEntry GetPrincipal(InternalEntityEntry dependentEntry, IForeignKey foreignKey, ValueSource valueSource)
@@ -332,56 +280,6 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             }
         }
 
-        public virtual void UpdateDependentMap(InternalEntityEntry entry, IKeyValue oldKeyValue, IForeignKey foreignKey)
-        {
-            if (entry.EntityState == EntityState.Detached)
-            {
-                return;
-            }
-
-            var newKey = entry.GetDependentKeyValue(foreignKey);
-
-            if (oldKeyValue.Equals(newKey))
-            {
-                return;
-            }
-
-            Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
-            if (_dependentsMap.TryGetValue(foreignKey, out fkMap))
-            {
-                HashSet<InternalEntityEntry> dependents;
-
-                if (!oldKeyValue.IsInvalid
-                    && fkMap.TryGetValue(oldKeyValue, out dependents))
-                {
-                    dependents.Remove(entry);
-
-                    if (dependents.Count == 0)
-                    {
-                        fkMap.Remove(oldKeyValue);
-                    }
-                }
-
-                if (newKey.IsInvalid)
-                {
-                    if (fkMap.Count == 0)
-                    {
-                        _dependentsMap.Remove(foreignKey);
-                    }
-                }
-                else
-                {
-                    if (!fkMap.TryGetValue(newKey, out dependents))
-                    {
-                        dependents = new HashSet<InternalEntityEntry>();
-                        fkMap[newKey] = dependents;
-                    }
-
-                    dependents.Add(entry);
-                }
-            }
-        }
-
         private static IKeyValue GetKeyValueChecked(IKey key, InternalEntityEntry entry)
         {
             var keyValue = entry.GetPrincipalKeyValue(key);
@@ -399,13 +297,37 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             var keyValue = principalEntry.GetPrincipalKeyValue(foreignKey);
 
-            Dictionary<IKeyValue, HashSet<InternalEntityEntry>> fkMap;
-            HashSet<InternalEntityEntry> dependents;
-            return !keyValue.IsInvalid
-                   && _dependentsMap.TryGetValue(foreignKey, out fkMap)
-                   && fkMap.TryGetValue(keyValue, out dependents)
-                ? dependents
-                : Enumerable.Empty<InternalEntityEntry>();
+            return keyValue.IsInvalid
+                ? Enumerable.Empty<InternalEntityEntry>()
+                : Entries.Where(
+                    e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType)
+                         && keyValue.Equals(e.GetDependentKeyValue(foreignKey)));
+        }
+
+        public virtual IEnumerable<InternalEntityEntry> GetDependentsFromNavigation(InternalEntityEntry principalEntry, IForeignKey foreignKey)
+        {
+            var navigation = foreignKey.PrincipalToDependent;
+            if (navigation == null)
+            {
+                return null;
+            }
+
+            var navigationValue = principalEntry[navigation];
+            if (navigationValue == null)
+            {
+                return Enumerable.Empty<InternalEntityEntry>();
+            }
+
+            if (foreignKey.IsUnique)
+            {
+                var dependentEntry = TryGetEntry(navigationValue);
+
+                return dependentEntry != null 
+                    ? new[] { dependentEntry } 
+                    : Enumerable.Empty<InternalEntityEntry>();
+            }
+
+            return ((IEnumerable<object>)navigationValue).Select(TryGetEntry).Where(e => e != null);
         }
 
         public virtual int SaveChanges(bool acceptAllChangesOnSuccess)

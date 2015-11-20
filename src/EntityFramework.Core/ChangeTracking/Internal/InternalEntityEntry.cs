@@ -11,7 +11,6 @@ using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
-using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Update;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
@@ -490,7 +489,8 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
         {
             foreach (var fk in EntityType.GetReferencingForeignKeys())
             {
-                foreach (var dependent in StateManager.GetDependents(this, fk).ToList())
+                foreach (var dependent in (StateManager.GetDependentsFromNavigation(this, fk)
+                                           ?? StateManager.GetDependents(this, fk)).ToList())
                 {
                     if ((dependent.EntityState != EntityState.Deleted)
                         && (dependent.EntityState != EntityState.Detached))
