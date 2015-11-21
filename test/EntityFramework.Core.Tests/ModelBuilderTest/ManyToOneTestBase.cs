@@ -1548,19 +1548,19 @@ namespace Microsoft.Data.Entity.Tests
             public virtual void Creates_shadow_property_for_foreign_key_according_to_navigation_to_principal_name_when_present()
             {
                 var modelBuilder = CreateModelBuilder();
-                var entityB = modelBuilder.Entity<EntityB>().Metadata;
+                var beta = modelBuilder.Entity<Beta>().Metadata;
 
-                Assert.Equal("FirstNavId", entityB.FindNavigation("FirstNav").ForeignKey.Properties.First().Name);
-                Assert.Equal("SecondNavId", entityB.FindNavigation("SecondNav").ForeignKey.Properties.First().Name);
+                Assert.Equal("FirstNavId", beta.FindNavigation("FirstNav").ForeignKey.Properties.First().Name);
+                Assert.Equal("SecondNavId", beta.FindNavigation("SecondNav").ForeignKey.Properties.First().Name);
             }
 
             [Fact]
             public virtual void Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
             {
                 var modelBuilder = CreateModelBuilder();
-                var entityC = modelBuilder.Entity<EntityC>().Metadata;
+                var gamma = modelBuilder.Entity<Gamma>().Metadata;
 
-                Assert.Equal("EntityCId", entityC.FindNavigation("EntityAs").ForeignKey.Properties.First().Name);
+                Assert.Equal("GammaId", gamma.FindNavigation("Alphas").ForeignKey.Properties.First().Name);
             }
 
             [Fact]
@@ -1569,16 +1569,16 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
 
                 // For NonGenericStringTest
-                modelBuilder.Entity<EntityB>();
+                modelBuilder.Entity<Beta>();
 
-                modelBuilder.Entity<EntityA>(b =>
+                modelBuilder.Entity<Alpha>(b =>
                     {
-                        b.HasMany<EntityB>()
+                        b.HasMany<Beta>()
                             .WithOne(e => e.FirstNav)
                             .HasForeignKey("ShadowId");
                     });
 
-                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(EntityB)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
             [Fact]
@@ -1587,17 +1587,29 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
 
                 // For NonGenericStringTest
-                modelBuilder.Entity<EntityB>();
+                modelBuilder.Entity<Beta>();
 
-                var entityA = modelBuilder.Entity<EntityA>();
+                var entityA = modelBuilder.Entity<Alpha>();
                 entityA.Property<int>("ShadowPK");
                 entityA.HasKey("ShadowPK");
 
-                var relationship = entityA.HasMany<EntityB>().WithOne(e => e.FirstNav);
+                var relationship = entityA.HasMany<Beta>().WithOne(e => e.FirstNav);
 
                 Assert.Equal(
-                    CoreStrings.NoClrProperty("ShadowId", typeof(EntityB)),
+                    CoreStrings.NoClrProperty("ShadowId", typeof(Beta)),
                     Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey("ShadowId")).Message);
+            }
+
+            [Fact]
+            public virtual void Handles_identity_correctly_while_removing_navigation()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Delta>();
+                modelBuilder.Entity<Alpha>().HasMany(b => b.NavEpsilon).WithOne();
+
+                var property = modelBuilder.Model.FindEntityType(typeof(Epsilon)).FindProperty("Id");
+                Assert.False(property.RequiresValueGenerator);
+                Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
         }
     }

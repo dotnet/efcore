@@ -327,24 +327,44 @@ namespace Microsoft.Data.Entity.Tests
             public PrincipalEntity Nav { get; set; }
         }
 
-        protected class EntityA
-        {
-            public int Id { get; set; }
-        }
-
-        protected class EntityB
+        protected class Alpha
         {
             public int Id { get; set; }
 
-            public EntityA FirstNav { get; set; }
-            public EntityA SecondNav { get; set; }
+            public Delta NavDelta { get; set; }
+            public IList<Epsilon> NavEpsilon { get; set; }
         }
 
-        protected class EntityC
+        protected class Beta
         {
             public int Id { get; set; }
 
-            public List<EntityA> EntityAs { get; set; }
+            public Alpha FirstNav { get; set; }
+            public Alpha SecondNav { get; set; }
         }
+
+        protected class Gamma
+        {
+            public int Id { get; set; }
+
+            public List<Alpha> Alphas { get; set; }
+        }
+
+        protected class Delta
+        {
+            [ForeignKey("Alpha")]
+            public int Id { get; set; }
+
+            public Alpha Alpha { get; set; }
+        }
+
+        protected class Epsilon
+        {
+            [ForeignKey("Alpha")]
+            public int Id { get; set; }
+
+            public Alpha Alpha { get; set; }
+        }
+
     }
 }

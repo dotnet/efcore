@@ -2807,16 +2807,16 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
 
                 // For NonGenericStringTest
-                modelBuilder.Entity<EntityA>();
+                modelBuilder.Entity<Alpha>();
 
-                modelBuilder.Entity<EntityB>(b =>
+                modelBuilder.Entity<Beta>(b =>
                     {
                         b.HasOne(e => e.FirstNav)
                             .WithOne()
-                            .HasForeignKey(typeof(EntityB), "ShadowId");
+                            .HasForeignKey(typeof(Beta), "ShadowId");
                     });
 
-                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(EntityB)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(Beta)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
             }
 
             [Fact]
@@ -2825,17 +2825,29 @@ namespace Microsoft.Data.Entity.Tests
                 var modelBuilder = CreateModelBuilder();
 
                 // For NonGenericStringTest
-                var entityA = modelBuilder.Entity<EntityA>();
+                var entityA = modelBuilder.Entity<Alpha>();
                 entityA.Property<int>("ShadowPK");
                 entityA.HasKey("ShadowPK");
 
-                var entityB = modelBuilder.Entity<EntityB>();
+                var entityB = modelBuilder.Entity<Beta>();
 
                 var relationship = entityB.HasOne(e => e.FirstNav).WithOne();
 
                 Assert.Equal(
-                    CoreStrings.NoClrProperty("ShadowId", typeof(EntityB)),
-                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(typeof(EntityB), "ShadowId")).Message);
+                    CoreStrings.NoClrProperty("ShadowId", typeof(Beta)),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey(typeof(Beta), "ShadowId")).Message);
+            }
+
+            [Fact]
+            public virtual void Handles_identity_correctly_while_removing_navigation()
+            {
+                var modelBuilder = CreateModelBuilder();
+                modelBuilder.Ignore<Epsilon>();
+                modelBuilder.Entity<Alpha>().HasOne(b => b.NavDelta).WithOne();
+
+                var property = modelBuilder.Model.FindEntityType(typeof(Delta)).FindProperty("Id");
+                Assert.False(property.RequiresValueGenerator);
+                Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
         }
     }
