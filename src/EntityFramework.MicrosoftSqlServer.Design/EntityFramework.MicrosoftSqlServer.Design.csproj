@@ -43,6 +43,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.tt</DependentUpon>
     </Compile>
+    <Compile Include="Internal\SqlServerColumnModelAnnotations.cs" />
+    <Compile Include="Internal\SqlServerDatabaseModelAnnotationNames.cs" />
+    <Compile Include="Internal\SqlServerDatabaseModelExtensions.cs" />
+    <Compile Include="Internal\SqlServerIndexModelAnnotations.cs" />
     <Compile Include="SqlServerTableSelectionSetExtensions.cs" />
     <Compile Include="SqlServerDesignTimeServices.cs" />
     <Compile Include="SqlServerScaffoldingModelFactory.cs" />

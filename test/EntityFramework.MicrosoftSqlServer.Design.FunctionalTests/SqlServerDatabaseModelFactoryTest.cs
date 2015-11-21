@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Scaffolding;
+using Microsoft.Data.Entity.Scaffolding.Internal;
 using Microsoft.Data.Entity.Scaffolding.Metadata;
 using Microsoft.Data.Entity.SqlServer.FunctionalTests;
 using Xunit;
@@ -94,14 +95,14 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                 nonClustered =>
                     {
                         Assert.Equal("IX_Location", nonClustered.Name);
-                        Assert.Null(nonClustered.IsClustered);
+                        Assert.False(nonClustered.SqlServer().IsClustered);
                         Assert.Equal("Location", nonClustered.Columns.Select(c => c.Name).Single());
                     },
                 clusteredIndex =>
                     {
                         Assert.Equal("IX_Location_Name", clusteredIndex.Name);
                         Assert.False(clusteredIndex.IsUnique);
-                        Assert.True(clusteredIndex.IsClustered);
+                        Assert.True(clusteredIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.Columns.Select(c => c.Name).ToList());
                     },
                 unique =>
@@ -120,6 +121,7 @@ CREATE TABLE [dbo].[MountainsColumns] (
     Name nvarchar(100) NOT NULL,
     Latitude decimal( 5, 2 ) DEFAULT 0.0,
     Created datetime2(6) DEFAULT('October 20, 2015 11am'),
+    DiscoveredDate datetime2,
     Sum AS Latitude + 1.0,
     Modified rowversion,
     Primary Key (Name, Id)
@@ -169,8 +171,17 @@ CREATE TABLE [dbo].[MountainsColumns] (
                 created =>
                     {
                         Assert.Equal("Created", created.Name);
-                        Assert.Equal(6, created.Scale);
+                        Assert.Null(created.Scale);
+                        Assert.Null(created.Precision);
+                        Assert.Equal(6, created.SqlServer().DateTimePrecision);
                         Assert.Equal("('October 20, 2015 11am')", created.DefaultValue);
+                    },
+                discovered =>
+                    {
+                        Assert.Equal("DiscoveredDate", discovered.Name);
+                        Assert.Null(discovered.Scale);
+                        Assert.Null(discovered.Precision);
+                        Assert.Equal(7, discovered.SqlServer().DateTimePrecision);
                     },
                 sum =>
                     {
@@ -213,7 +224,7 @@ CREATE TABLE [dbo].[Identities] ( Id INT " + (isIdentity ? "IDENTITY(1,1)" : "")
                 new TableSelectionSet(new List<string> { "Identities" }));
 
             var column = Assert.Single(dbInfo.Tables.Single().Columns);
-            Assert.Equal(isIdentity, column.IsIdentity.Value);
+            Assert.Equal(isIdentity, column.SqlServer().IsIdentity);
             Assert.Equal(isIdentity ? ValueGenerated.OnAdd : default(ValueGenerated?), column.ValueGenerated);
         }
 
