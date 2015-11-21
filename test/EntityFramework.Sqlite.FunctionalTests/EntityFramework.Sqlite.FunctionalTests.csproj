@@ -52,6 +52,7 @@
     <Compile Include="DataAnnotationSqliteTest.cs" />
     <Compile Include="DefaultValuesTest.cs" />
     <Compile Include="F1SqliteFixture.cs" />
+    <Compile Include="GearsOfWarFromSqlQuerySqliteTest.cs" />
     <Compile Include="SqliteForeignKeyTest.cs" />
     <Compile Include="FromSqlQuerySqliteTest.cs" />
     <Compile Include="GearsOfWarQuerySqliteFixture.cs" />

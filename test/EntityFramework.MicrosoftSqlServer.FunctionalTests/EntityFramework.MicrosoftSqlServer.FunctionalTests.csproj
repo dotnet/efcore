@@ -44,6 +44,7 @@
     <Compile Include="DataAnnotationSqlServerFixture.cs" />
     <Compile Include="DataAnnotationSqlServerTest.cs" />
     <Compile Include="FromSqlSprocQuerySqlServerTest.cs" />
+    <Compile Include="GearsOfWarFromSqlQuerySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithIdentitySqlServerTest.cs" />
     <Compile Include="GraphUpdatesWithSequenceSqlServerTest.cs" />
     <Compile Include="InheritanceRelationshipsQuerySqlServerFixture.cs" />

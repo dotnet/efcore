@@ -36,16 +36,21 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             dataReader.GetValues(values);
 
-            _processValuesAction?.Invoke(values);
-
             var remappedValues = new object[_indexMap.Count];
 
             for (var i = 0; i < _indexMap.Count; i++)
             {
-                remappedValues[i]
-                    = ReferenceEquals(values[_indexMap[i]], DBNull.Value)
-                        ? null
-                        : values[_indexMap[i]];
+                remappedValues[i] = values[_indexMap[i]];
+            }
+
+            _processValuesAction?.Invoke(remappedValues);
+
+            for (var i = 0; i < _indexMap.Count; i++)
+            {
+                if (ReferenceEquals(remappedValues[i], DBNull.Value))
+                {
+                    remappedValues[i] = null;
+                }
             }
 
             return new ValueBuffer(remappedValues);

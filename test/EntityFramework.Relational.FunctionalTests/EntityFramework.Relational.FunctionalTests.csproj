@@ -38,6 +38,7 @@
     <Compile Include="AsyncFromSqlQueryTestBase.cs" />
     <Compile Include="AsyncFromSqlSprocQueryTestBase.cs" />
     <Compile Include="FromSqlSprocQueryTestBase.cs" />
+    <Compile Include="GearsOfWarFromSqlQueryTestBase.cs" />
     <Compile Include="InheritanceRelationalFixture.cs" />
     <Compile Include="InheritanceRelationshipsQueryRelationalFixture.cs" />
     <Compile Include="MigrationsFixtureBase.cs" />
