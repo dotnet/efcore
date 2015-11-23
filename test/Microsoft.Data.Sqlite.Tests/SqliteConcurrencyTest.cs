@@ -45,7 +45,7 @@ INSERT INTO a VALUES (2);";
                         {
                             connection.Open();
                             var command = connection.CreateCommand();
-                            command.CommandTimeout = 30;
+                            command.CommandTimeout = 300;
                             if (copy_i % 2 == 0)
                             {
                                 command.CommandText = "SELECT * FROM a;";
