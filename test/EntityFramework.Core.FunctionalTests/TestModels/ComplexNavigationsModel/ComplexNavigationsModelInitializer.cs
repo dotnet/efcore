@@ -12,6 +12,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
         {
             // TODO: only delete if model has changed
             context.Database.EnsureDeleted();
+
             if (context.Database.EnsureCreated())
             {
                 var l1_01 = new Level1 { Id = 1, Name = "L1 01" };
@@ -276,6 +277,7 @@ namespace Microsoft.Data.Entity.FunctionalTests.TestModels.ComplexNavigationsMod
                 for (int i = 0; i < 10; i++)
                 {
                     var language = new ComplexNavigationLanguage { Name = "Language" + i, CultureString = "Foo" + i };
+
                     context.Languages.Add(language);
                 }
 

@@ -3,6 +3,7 @@
 
 using System;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
+using Microsoft.Data.Entity.Storage;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
 {
@@ -10,5 +11,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
     {
         Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory { get; }
         Func<InternalEntityEntry, ISnapshot> RelationshipSnapshotFactory { get; }
+        Func<ValueBuffer, ISnapshot> ShadowValuesFactory { get; }
+        Func<ISnapshot> EmptyShadowValuesFactory { get; }
     }
 }

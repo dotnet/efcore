@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Storage;
@@ -21,17 +20,14 @@ namespace Microsoft.Data.Entity.Query.Internal
             = Enumerable.Empty<IncludedEntity>();
 
         private readonly IEntityType _entityType;
-        private readonly KeyValueFactory _keyValueFactory;
         private readonly IReadOnlyList<IReadOnlyList<INavigation>> _includedNavigationPaths;
-        private readonly IDictionary<INavigation, IncludedEntityTrackingInfo> _includedEntityTrackingInfos;
+        private readonly IDictionary<INavigation, IEntityType> _includedEntityTrackingInfos;
 
         public EntityTrackingInfo(
-            [NotNull] IKeyValueFactorySource keyValueFactorySource,
             [NotNull] QueryCompilationContext queryCompilationContext,
             [NotNull] QuerySourceReferenceExpression querySourceReferenceExpression,
             [NotNull] IEntityType entityType)
         {
-            Check.NotNull(keyValueFactorySource, nameof(keyValueFactorySource));
             Check.NotNull(querySourceReferenceExpression, nameof(querySourceReferenceExpression));
             Check.NotNull(entityType, nameof(entityType));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
@@ -40,15 +36,13 @@ namespace Microsoft.Data.Entity.Query.Internal
 
             _entityType = entityType;
 
-            _keyValueFactory = keyValueFactorySource.GetKeyFactory(_entityType.FindPrimaryKey());
-
             _includedNavigationPaths
                 = queryCompilationContext
                     .GetTrackableIncludes(querySourceReferenceExpression.ReferencedQuerySource);
 
             if (_includedNavigationPaths != null)
             {
-                _includedEntityTrackingInfos = new Dictionary<INavigation, IncludedEntityTrackingInfo>();
+                _includedEntityTrackingInfos = new Dictionary<INavigation, IEntityType>();
 
                 foreach (var navigation
                     in _includedNavigationPaths.SelectMany(ns => ns))
@@ -57,11 +51,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                     {
                         var targetEntityType = navigation.GetTargetType();
 
-                        _includedEntityTrackingInfos.Add(
-                            navigation,
-                            new IncludedEntityTrackingInfo(
-                                targetEntityType,
-                                keyValueFactorySource.GetKeyFactory(targetEntityType.FindPrimaryKey())));
+                        _includedEntityTrackingInfos.Add(navigation, targetEntityType);
                     }
                 }
             }
@@ -76,54 +66,31 @@ namespace Microsoft.Data.Entity.Query.Internal
             Check.NotNull(stateManager, nameof(stateManager));
             Check.NotNull(entity, nameof(entity));
 
-            stateManager.StartTracking(
-                _entityType,
-                entity,
-                valueBuffer);
-        }
-
-        public class IncludedEntityTrackingInfo
-        {
-            public IncludedEntityTrackingInfo(
-                [NotNull] IEntityType entityType, [NotNull] KeyValueFactory keyValueFactory)
-            {
-                Check.NotNull(entityType, nameof(entityType));
-                Check.NotNull(keyValueFactory, nameof(keyValueFactory));
-
-                EntityType = entityType;
-                KeyValueFactory = keyValueFactory;
-            }
-
-            public virtual IEntityType EntityType { get; }
-
-            private KeyValueFactory KeyValueFactory { get; }
-
-            public virtual IKeyValue CreateKeyValue(ValueBuffer valueBuffer)
-                => KeyValueFactory.Create(valueBuffer);
+            stateManager.StartTracking(_entityType, entity, valueBuffer);
         }
 
         public struct IncludedEntity
         {
             public IncludedEntity(
-                [NotNull] object entity, [NotNull] IncludedEntityTrackingInfo includedEntityTrackingInfo)
+                [NotNull] object entity, [NotNull] IEntityType entityType)
             {
                 Check.NotNull(entity, nameof(entity));
-                Check.NotNull(includedEntityTrackingInfo, nameof(includedEntityTrackingInfo));
+                Check.NotNull(entityType, nameof(entityType));
 
-                IncludedEntityTrackingInfo = includedEntityTrackingInfo;
+                EntityType = entityType;
                 Entity = entity;
             }
 
             public object Entity { get; }
 
-            private IncludedEntityTrackingInfo IncludedEntityTrackingInfo { get; }
+            private IEntityType EntityType { get; }
 
             public void StartTracking([NotNull] IStateManager stateManager, ValueBuffer valueBuffer)
             {
                 Check.NotNull(stateManager, nameof(stateManager));
 
                 stateManager.StartTracking(
-                    IncludedEntityTrackingInfo.EntityType,
+                    EntityType,
                     Entity,
                     valueBuffer);
             }

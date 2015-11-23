@@ -112,8 +112,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 }
             }
 
-            SetFlag(nullable, PropertyFlags.IsNullable);
             UpdateIsNullableConfigurationSource(configurationSource);
+
+            var isChanging = IsNullable != nullable;
+            SetFlag(nullable, PropertyFlags.IsNullable);
+            if (isChanging)
+            {
+                DeclaringEntityType.Model.ConventionDispatcher.OnPropertyNullableChanged(Builder);
+            }
         }
 
         private bool DefaultIsNullable => (DeclaringEntityType.FindPrimaryKey()?.Properties.Contains(this) != true)

@@ -22,7 +22,6 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly IMaterializerFactory _materializerFactory;
 
         public InMemoryQueryModelVisitor(
-            [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
@@ -40,7 +39,6 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] IMaterializerFactory materializerFactory,
             [NotNull] QueryCompilationContext queryCompilationContext)
             : base(
-                Check.NotNull(model, nameof(model)),
                 Check.NotNull(queryOptimizer, nameof(queryOptimizer)),
                 Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory)),
                 Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor)),

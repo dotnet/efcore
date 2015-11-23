@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -79,11 +80,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 if (pointsToPrincipal)
                 {
-                    Metadata.HasDependentToPrincipal(navigationName, configurationSource);
+                    Metadata.HasDependentToPrincipal(navigationName, configurationSource, runConventions);
                 }
                 else
                 {
-                    Metadata.HasPrincipalToDependent(navigationName, configurationSource);
+                    Metadata.HasPrincipalToDependent(navigationName, configurationSource, runConventions);
                 }
                 return this;
             }
@@ -209,11 +210,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             if (pointsToPrincipal)
             {
-                builder.Metadata.HasDependentToPrincipal(navigationName, configurationSource);
+                builder.Metadata.HasDependentToPrincipal(navigationName, configurationSource, runConventions);
             }
             else
             {
-                builder.Metadata.HasPrincipalToDependent(navigationName, configurationSource);
+                builder.Metadata.HasPrincipalToDependent(navigationName, configurationSource, runConventions);
             }
 
             return builder;
@@ -339,7 +340,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 return ReplaceForeignKey(configurationSource, dependentProperties: new Property[0], isRequired: isRequired, runConventions: runConventions);
             }
-            
+
             foreach (var property in Metadata.Properties.Where(p => p.ClrType.IsNullableType()))
             {
                 var requiredSet = property.Builder.IsRequired(isRequired, configurationSource);
@@ -818,7 +819,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         public virtual InternalRelationshipBuilder HasForeignKey(
             [NotNull] IReadOnlyList<string> propertyNames, ConfigurationSource configurationSource)
             => HasForeignKey(
-                Metadata.DeclaringEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource),
+                Metadata.DeclaringEntityType.Builder.GetOrCreateProperties(propertyNames, configurationSource, Metadata.PrincipalKey.Properties),
                 configurationSource,
                 runConventions: true);
 
@@ -1517,16 +1518,16 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
                 foreach (var removedNavigation in removedNavigations)
                 {
-                    ModelBuilder.ConventionDispatcher.OnNavigationRemoved(
+                    ModelBuilder.Metadata.ConventionDispatcher.OnNavigationRemoved(
                         removedNavigation.Value.Item1, removedNavigation.Value.Item2, removedNavigation.Value.Item3);
                 }
 
                 foreach (var removedForeignKey in removedForeignKeys)
                 {
-                    ModelBuilder.ConventionDispatcher.OnForeignKeyRemoved(removedForeignKey.Item1, removedForeignKey.Item2);
+                    ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(removedForeignKey.Item1, removedForeignKey.Item2);
                 }
 
-                newRelationshipBuilder = ModelBuilder.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
+                newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
                 if (newRelationshipBuilder == null)
                 {
                     return null;
@@ -1536,7 +1537,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if ((dependentToPrincipalIsNew && !inverted)
                     || (principalToDependentIsNew && inverted))
                 {
-                    newRelationshipBuilder = ModelBuilder.ConventionDispatcher.OnNavigationAdded(
+                    newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnNavigationAdded(
                         newRelationshipBuilder, newRelationshipBuilder.Metadata.DependentToPrincipal);
                 }
                 if (newRelationshipBuilder == null)
@@ -1547,7 +1548,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 if ((principalToDependentIsNew && !inverted)
                     || (dependentToPrincipalIsNew && inverted))
                 {
-                    newRelationshipBuilder = ModelBuilder.ConventionDispatcher.OnNavigationAdded(
+                    newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnNavigationAdded(
                         newRelationshipBuilder, newRelationshipBuilder.Metadata.PrincipalToDependent);
                 }
             }

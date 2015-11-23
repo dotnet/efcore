@@ -9,6 +9,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.ChangeTracking.Internal;
 using Microsoft.Data.Entity.Internal;
+using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -146,6 +147,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             return source != null
                 ? source.OriginalValuesFactory
                 : new OriginalValuesFactoryFactory().Create(entityType);
+        }
+
+        public static Func<ValueBuffer, ISnapshot> GetShadowValuesFactory([NotNull] this IEntityType entityType)
+        {
+            var source = entityType as ISnapshotFactorySource;
+
+            return source != null
+                ? source.ShadowValuesFactory
+                : new ShadowValuesFactoryFactory().Create(entityType);
+        }
+
+        public static Func<ISnapshot> GetEmptyShadowValuesFactory([NotNull] this IEntityType entityType)
+        {
+            var source = entityType as ISnapshotFactorySource;
+
+            return source != null
+                ? source.EmptyShadowValuesFactory
+                : new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType);
         }
 
         public static bool HasPropertyChangingNotifications([NotNull] this IEntityType entityType)

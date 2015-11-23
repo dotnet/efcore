@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Data.Entity.FunctionalTests.TestUtilities;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Metadata.Builders;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Xunit;
 
 // ReSharper disable once CheckNamespace
@@ -124,7 +126,8 @@ namespace Microsoft.Data.Entity.Tests
             public abstract TestModelBuilder Ignore<TEntity>()
                 where TEntity : class;
 
-            public virtual TestModelBuilder Validate() => ModelBuilder.Validate() == null ? null : this;
+            public virtual TestModelBuilder Validate()
+                => ((IInfrastructure<InternalModelBuilder>)ModelBuilder).Instance.Validate() == null ? null : this;
         }
 
         public abstract class TestEntityTypeBuilder<TEntity>

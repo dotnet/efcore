@@ -198,8 +198,15 @@ namespace Microsoft.Data.Entity.Storage
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.OpeningConnection,
-                    ConnectionString,
-                    RelationalStrings.RelationalLoggerOpeningConnection);
+                    new
+                    {
+                        _connection.Value.Database,
+                        _connection.Value.DataSource
+                    },
+                    state =>
+                        RelationalStrings.RelationalLoggerOpeningConnection(
+                            state.Database,
+                            state.DataSource));
 
                 _connection.Value.Open();
                 _openedInternally = true;
@@ -217,8 +224,15 @@ namespace Microsoft.Data.Entity.Storage
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.OpeningConnection,
-                    ConnectionString,
-                    RelationalStrings.RelationalLoggerOpeningConnection);
+                    new
+                    {
+                        _connection.Value.Database,
+                        _connection.Value.DataSource
+                    },
+                    state =>
+                        RelationalStrings.RelationalLoggerOpeningConnection(
+                            state.Database,
+                            state.DataSource));
 
                 await _connection.Value.OpenAsync(cancellationToken);
                 _openedInternally = true;
@@ -249,8 +263,15 @@ namespace Microsoft.Data.Entity.Storage
             {
                 _logger.LogVerbose(
                     RelationalLoggingEventId.ClosingConnection,
-                    ConnectionString,
-                    RelationalStrings.RelationalLoggerClosingConnection);
+                    new
+                    {
+                        _connection.Value.Database,
+                        _connection.Value.DataSource
+                    },
+                    state =>
+                    RelationalStrings.RelationalLoggerClosingConnection(
+                        state.Database,
+                        state.DataSource));
 
                 _connection.Value.Close();
                 _openedInternally = false;

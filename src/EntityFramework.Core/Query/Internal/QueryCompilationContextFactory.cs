@@ -3,6 +3,7 @@
 
 using System;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Query.ExpressionVisitors;
 using Microsoft.Data.Entity.Utilities;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly DbContext _context;
 
         public QueryCompilationContextFactory(
+            [NotNull] IModel model,
             [NotNull] ILogger<QueryCompilationContextFactory> logger,
             [NotNull] IEntityQueryModelVisitorFactory entityQueryModelVisitorFactory,
             [NotNull] IRequiresMaterializationExpressionVisitorFactory requiresMaterializationExpressionVisitorFactory,
@@ -24,6 +26,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             Check.NotNull(requiresMaterializationExpressionVisitorFactory, nameof(requiresMaterializationExpressionVisitorFactory));
             Check.NotNull(context, nameof(context));
 
+            Model = model;
             Logger = logger;
 
             EntityQueryModelVisitorFactory = entityQueryModelVisitorFactory;
@@ -32,6 +35,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             _context = context;
         }
 
+        protected virtual IModel Model { get; }
         protected virtual ILogger Logger { get; }
         protected virtual IEntityQueryModelVisitorFactory EntityQueryModelVisitorFactory { get; }
         protected virtual IRequiresMaterializationExpressionVisitorFactory RequiresMaterializationExpressionVisitorFactory { get; }
@@ -43,6 +47,7 @@ namespace Microsoft.Data.Entity.Query.Internal
 
         public virtual QueryCompilationContext Create(bool async)
             => new QueryCompilationContext(
+                Model,
                 Logger,
                 EntityQueryModelVisitorFactory,
                 RequiresMaterializationExpressionVisitorFactory,

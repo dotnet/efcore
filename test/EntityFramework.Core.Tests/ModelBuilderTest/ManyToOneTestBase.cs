@@ -1562,6 +1562,43 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.Equal("EntityCId", entityC.FindNavigation("EntityAs").ForeignKey.Properties.First().Name);
             }
+
+            [Fact]
+            public virtual void Creates_shadow_FK_property_with_non_shadow_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                // For NonGenericStringTest
+                modelBuilder.Entity<EntityB>();
+
+                modelBuilder.Entity<EntityA>(b =>
+                    {
+                        b.HasMany<EntityB>()
+                            .WithOne(e => e.FirstNav)
+                            .HasForeignKey("ShadowId");
+                    });
+
+                Assert.Equal("ShadowId", modelBuilder.Model.FindEntityType(typeof(EntityB)).FindNavigation("FirstNav").ForeignKey.Properties.Single().Name);
+            }
+
+            [Fact]
+            public virtual void Does_not_create_shadow_FK_property_with_shadow_PK()
+            {
+                var modelBuilder = CreateModelBuilder();
+
+                // For NonGenericStringTest
+                modelBuilder.Entity<EntityB>();
+
+                var entityA = modelBuilder.Entity<EntityA>();
+                entityA.Property<int>("ShadowPK");
+                entityA.HasKey("ShadowPK");
+
+                var relationship = entityA.HasMany<EntityB>().WithOne(e => e.FirstNav);
+
+                Assert.Equal(
+                    CoreStrings.NoClrProperty("ShadowId", typeof(EntityB)),
+                    Assert.Throws<InvalidOperationException>(() => relationship.HasForeignKey("ShadowId")).Message);
+            }
         }
     }
 }

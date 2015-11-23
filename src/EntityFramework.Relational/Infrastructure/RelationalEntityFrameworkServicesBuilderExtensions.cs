@@ -57,7 +57,6 @@ namespace Microsoft.Data.Entity.Infrastructure
                     .AddScoped<CommandBatchPreparer>()
                     .AddScoped<IMigrationsModelDiffer, MigrationsModelDiffer>()
                     .AddScoped<MigrationsSqlGenerator>()
-                    .AddScoped(typeof(ISensitiveDataLogger<>), typeof(SensitiveDataLogger<>))
                     .AddScoped(p => GetProviderServices(p).ParameterNameGeneratorFactory)
                     .AddScoped(p => GetProviderServices(p).SqlGenerator)
                     .AddScoped(p => GetProviderServices(p).CompositeMethodCallTranslator)

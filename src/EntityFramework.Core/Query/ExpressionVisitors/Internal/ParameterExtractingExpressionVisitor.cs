@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Remotion.Linq.Parsing.ExpressionVisitors.TreeEvaluation;
@@ -18,25 +19,30 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         public static Expression ExtractParameters(
             [NotNull] Expression expression,
             [NotNull] QueryContext queryContext,
-            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter)
+            [NotNull] IEvaluatableExpressionFilter evaluatableExpressionFilter,
+            [NotNull] ISensitiveDataLogger logger)
         {
             var partialEvaluationInfo
                 = EvaluatableTreeFindingExpressionVisitor
                     .Analyze(expression, evaluatableExpressionFilter);
 
-            var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext);
+            var visitor = new ParameterExtractingExpressionVisitor(partialEvaluationInfo, queryContext, logger);
 
             return visitor.Visit(expression);
         }
 
         private readonly PartialEvaluationInfo _partialEvaluationInfo;
         private readonly QueryContext _queryContext;
+        private readonly ISensitiveDataLogger _logger;
 
         private ParameterExtractingExpressionVisitor(
-            PartialEvaluationInfo partialEvaluationInfo, QueryContext queryContext)
+            PartialEvaluationInfo partialEvaluationInfo,
+            QueryContext queryContext,
+            ISensitiveDataLogger logger)
         {
             _partialEvaluationInfo = partialEvaluationInfo;
             _queryContext = queryContext;
+            _logger = logger;
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -171,7 +177,9 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                     catch (Exception exception)
                     {
                         throw new InvalidOperationException(
-                            CoreStrings.ExpressionParameterizationException(node),
+                            _logger.LogSensitiveData
+                                ? CoreStrings.ExpressionParameterizationExceptionSensitive(node)
+                                : CoreStrings.ExpressionParameterizationException,
                             exception);
                     }
                 }

@@ -256,6 +256,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
                 ? (IShaper<TEntity>)new UnbufferedEntityShaper<TEntity>(
                     querySource,
                     entityType,
+                    trackingQuery,
                     keyValueFactory,
                     materializer)
                 : new BufferedEntityShaper<TEntity>(

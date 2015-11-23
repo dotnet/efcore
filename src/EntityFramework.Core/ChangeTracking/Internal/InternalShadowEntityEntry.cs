@@ -11,7 +11,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
     public class InternalShadowEntityEntry : InternalEntityEntry
     {
-        private readonly object[] _propertyValues;
+        private readonly ISnapshot _propertyValues;
 
         public override object Entity => null;
 
@@ -20,7 +20,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             [NotNull] IEntityType entityType)
             : base(stateManager, entityType)
         {
-            _propertyValues = new object[entityType.ShadowPropertyCount()];
+            _propertyValues = entityType.GetEmptyShadowValuesFactory()();
         }
 
         public InternalShadowEntityEntry(
@@ -29,13 +29,7 @@ namespace Microsoft.Data.Entity.ChangeTracking.Internal
             ValueBuffer valueBuffer)
             : base(stateManager, entityType)
         {
-            _propertyValues = new object[valueBuffer.Count];
-
-            var index = 0;
-            foreach (var property in entityType.GetProperties())
-            {
-                _propertyValues[index++] = valueBuffer[property.GetIndex()];
-            }
+            _propertyValues = entityType.GetShadowValuesFactory()(valueBuffer);
         }
 
         public override object ReadShadowValue(int shadowIndex)

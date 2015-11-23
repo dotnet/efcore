@@ -33,7 +33,6 @@ namespace Microsoft.Data.Entity.Query
         public static readonly MethodInfo PropertyMethodInfo
             = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(EF.Property));
 
-        protected virtual IModel Model { get; }
         private readonly IQueryOptimizer _queryOptimizer;
         private readonly INavigationRewritingExpressionVisitorFactory _navigationRewritingExpressionVisitorFactory;
         private readonly ISubQueryMemberPushDownExpressionVisitor _subQueryMemberPushDownExpressionVisitor;
@@ -58,7 +57,6 @@ namespace Microsoft.Data.Entity.Query
         private bool _blockTaskExpressions = true;
 
         protected EntityQueryModelVisitor(
-            [NotNull] IModel model,
             [NotNull] IQueryOptimizer queryOptimizer,
             [NotNull] INavigationRewritingExpressionVisitorFactory navigationRewritingExpressionVisitorFactory,
             [NotNull] ISubQueryMemberPushDownExpressionVisitor subQueryMemberPushDownExpressionVisitor,
@@ -75,7 +73,6 @@ namespace Microsoft.Data.Entity.Query
             [NotNull] IExpressionPrinter expressionPrinter,
             [NotNull] QueryCompilationContext queryCompilationContext)
         {
-            Check.NotNull(model, nameof(model));
             Check.NotNull(queryOptimizer, nameof(queryOptimizer));
             Check.NotNull(navigationRewritingExpressionVisitorFactory, nameof(navigationRewritingExpressionVisitorFactory));
             Check.NotNull(subQueryMemberPushDownExpressionVisitor, nameof(subQueryMemberPushDownExpressionVisitor));
@@ -91,8 +88,6 @@ namespace Microsoft.Data.Entity.Query
             Check.NotNull(entityMaterializerSource, nameof(entityMaterializerSource));
             Check.NotNull(expressionPrinter, nameof(expressionPrinter));
             Check.NotNull(queryCompilationContext, nameof(queryCompilationContext));
-
-            Model = model;
 
             _queryOptimizer = queryOptimizer;
             _navigationRewritingExpressionVisitorFactory = navigationRewritingExpressionVisitorFactory;
@@ -391,7 +386,7 @@ namespace Microsoft.Data.Entity.Query
                     var navigation in
                         from propertyInfo in chainedNavigationProperties
                         // ReSharper disable once AssignNullToNotNullAttribute
-                        let entityType = Model.FindEntityType(propertyInfo.DeclaringType)
+                        let entityType = QueryCompilationContext.Model.FindEntityType(propertyInfo.DeclaringType)
                         select entityType?.FindNavigation(propertyInfo.Name))
                 {
                     if (navigation == null)
@@ -428,10 +423,10 @@ namespace Microsoft.Data.Entity.Query
                     .LastOrDefault();
 
             if (queryModel.GetOutputDataInfo() is StreamedScalarValueInfo
-                || (!QueryCompilationContext.TrackQueryResults
-                    && (lastTrackingModifier == null))
-                || ((lastTrackingModifier != null)
-                    && !lastTrackingModifier.IsTracking))
+                || !QueryCompilationContext.TrackQueryResults
+                && lastTrackingModifier == null
+                || lastTrackingModifier != null
+                && !lastTrackingModifier.IsTracking)
             {
                 return;
             }
@@ -448,8 +443,8 @@ namespace Microsoft.Data.Entity.Query
                 MethodInfo trackingMethod;
 
                 if (resultItemTypeInfo.IsGenericType
-                    && ((resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>))
-                        || (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>))))
+                    && (resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IGrouping<,>)
+                        || resultItemTypeInfo.GetGenericTypeDefinition() == typeof(IAsyncGrouping<,>)))
                 {
                     trackingMethod
                         = LinqOperatorProvider.TrackGroupedEntities
@@ -936,8 +931,8 @@ namespace Microsoft.Data.Entity.Query
                     .Visit(expression);
 
             if (!inProjection
-                && (expression.Type != typeof(string)
-                    && expression.Type != typeof(byte[]))
+                && expression.Type != typeof(string)
+                    && expression.Type != typeof(byte[])
                 && _expression?.Type.TryGetElementType(typeof(IAsyncEnumerable<>)) != null)
             {
                 var elementType = expression.Type.TryGetElementType(typeof(IEnumerable<>));
@@ -1068,9 +1063,9 @@ namespace Microsoft.Data.Entity.Query
             var properties
                 = IterateCompositeMemberExpression(memberExpression, out querySourceReferenceExpression);
 
-            if ((querySourceReferenceExpression != null)
-                && ((querySource == null)
-                    || (querySource == querySourceReferenceExpression.ReferencedQuerySource)))
+            if (querySourceReferenceExpression != null
+                && (querySource == null
+                    || querySource == querySourceReferenceExpression.ReferencedQuerySource))
             {
                 return memberBinder(
                     properties,
@@ -1091,13 +1086,13 @@ namespace Microsoft.Data.Entity.Query
             {
                 var expression = memberExpression.Expression;
 
-                var entityType = Model.FindEntityType(expression.Type);
+                var entityType = QueryCompilationContext.Model.FindEntityType(expression.Type);
 
                 expression = expression.RemoveConvert();
 
                 if (entityType == null)
                 {
-                    entityType = Model.FindEntityType(expression.Type);
+                    entityType = QueryCompilationContext.Model.FindEntityType(expression.Type);
 
                     if (entityType == null)
                     {
@@ -1176,11 +1171,13 @@ namespace Microsoft.Data.Entity.Query
                     var querySourceReferenceExpression
                         = targetExpression as QuerySourceReferenceExpression;
 
-                    if ((querySourceReferenceExpression == null)
-                        || (querySource == null)
-                        || (querySource == querySourceReferenceExpression.ReferencedQuerySource))
+                    if (querySourceReferenceExpression == null
+                        || querySource == null
+                        || querySource == querySourceReferenceExpression.ReferencedQuerySource)
                     {
-                        var entityType = Model.FindEntityType(methodCallExpression.Arguments[0].Type);
+                        var entityType 
+                            = QueryCompilationContext.Model
+                                .FindEntityType(methodCallExpression.Arguments[0].Type);
 
                         if (entityType != null)
                         {

@@ -35,7 +35,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
         FROM [Customers] AS [c]
     , 
-    shaper: BufferedEntityShaper`1
+    shaper: UnbufferedEntityShaper`1
 )",
                     TestSqlLoggerFactory.Log);
             }
@@ -55,7 +55,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                         .ToList();
 
                 Assert.NotNull(customers);
-                Assert.Contains(RelationalStrings.ParameterLoggingEnabled, TestSqlLoggerFactory.Log);
+                Assert.Contains(CoreStrings.SensitiveDataLoggingEnabled, TestSqlLoggerFactory.Log);
             }
         }
 

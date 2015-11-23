@@ -40,101 +40,60 @@ namespace Microsoft.Data.Entity.Migrations.Design
             "__reftype",
             "__refvalue",
             "abstract",
-            "add",
-            "alias",
             "as",
-            "ascending",
-            "assembly",
-            "async",
-            "await",
             "base",
             "bool",
             "break",
-            "by",
             "byte",
             "case",
             "catch",
             "char",
             "checked",
-            "checksum",
             "class",
             "const",
             "continue",
             "decimal",
             "default",
-            "define",
             "delegate",
-            "descending",
-            "disable",
             "do",
             "double",
-            "elif",
             "else",
-            "endif",
-            "endregion",
             "enum",
-            "equals",
-            "error",
             "event",
             "explicit",
             "extern",
             "false",
-            "field",
             "finally",
             "fixed",
             "float",
             "for",
             "foreach",
-            "from",
-            "get",
-            "global",
             "goto",
-            "group",
-            "hidden",
             "if",
             "implicit",
             "in",
             "int",
             "interface",
             "internal",
-            "into",
             "is",
-            "join",
-            "let",
-            "line",
             "lock",
             "long",
-            "method",
-            "module",
-            "nameof",
             "namespace",
             "new",
             "null",
             "object",
-            "on",
             "operator",
-            "orderby",
             "out",
             "override",
-            "param",
             "params",
-            "partial",
-            "pragma",
             "private",
-            "property",
             "protected",
             "public",
-            "r",
             "readonly",
             "ref",
-            "region",
-            "remove",
-            "restore",
             "return",
             "sbyte",
             "sealed",
-            "select",
-            "set",
             "short",
             "sizeof",
             "stackalloc",
@@ -146,24 +105,17 @@ namespace Microsoft.Data.Entity.Migrations.Design
             "throw",
             "true",
             "try",
-            "type",
             "typeof",
-            "typevar",
             "uint",
             "ulong",
             "unchecked",
-            "undef",
             "unsafe",
             "ushort",
             "using",
             "virtual",
             "void",
             "volatile",
-            "warning",
-            "when",
-            "where",
-            "while",
-            "yield"
+            "while"
         };
 
         private static readonly IReadOnlyDictionary<Type, Func<CSharpHelper, object, string>> _literalFuncs =
@@ -223,27 +175,47 @@ namespace Microsoft.Data.Entity.Migrations.Design
         {
             Check.NotNull(type, nameof(type));
 
-            if (type.IsConstructedGenericType
-                && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                return Reference(type.UnwrapNullableType()) + "?";
-            }
-            if (type.IsArray)
-            {
-                return Reference(type.GetElementType()) + "[]";
-            }
-            if (type.IsNested)
-            {
-                return Reference(type.DeclaringType) + "." + type.Name;
-            }
-
             string builtInType;
             if (_builtInTypes.TryGetValue(type, out builtInType))
             {
                 return builtInType;
             }
 
-            return type.Name;
+            if (type.IsConstructedGenericType
+                && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                return Reference(type.UnwrapNullableType()) + "?";
+            }
+
+            var builder = new StringBuilder();
+
+            if (type.IsArray)
+            {
+                builder
+                    .Append(Reference(type.GetElementType()))
+                    .Append("[");
+
+                var rank = type.GetArrayRank();
+                for (int i = 1; i < rank; i++)
+                {
+                    builder.Append(",");
+                }
+
+                builder.Append("]");
+
+                return builder.ToString();
+            }
+
+            if (type.IsNested)
+            {
+                builder
+                    .Append(Reference(type.DeclaringType))
+                    .Append(".");
+            }
+
+            builder.Append(type.DisplayName(fullName: false));
+
+            return builder.ToString();
         }
 
         public virtual string Identifier([NotNull] string name, [CanBeNull] ICollection<string> scope = null)

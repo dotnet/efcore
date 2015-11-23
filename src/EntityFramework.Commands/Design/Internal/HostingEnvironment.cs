@@ -5,6 +5,7 @@
 
 using Microsoft.AspNet.FileProviders;
 using Microsoft.AspNet.Hosting;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Data.Entity.Design.Internal
 {
@@ -13,6 +14,7 @@ namespace Microsoft.Data.Entity.Design.Internal
         public virtual string EnvironmentName { get; set; }
         public virtual string WebRootPath { get; set; }
         public virtual IFileProvider WebRootFileProvider { get; set; }
+        public virtual IConfiguration Configuration { get; set; }
     }
 }
 

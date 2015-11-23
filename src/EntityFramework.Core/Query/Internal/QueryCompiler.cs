@@ -40,7 +40,7 @@ namespace Microsoft.Data.Entity.Query.Internal
         private readonly ICompiledQueryCache _compiledQueryCache;
         private readonly ICompiledQueryCacheKeyGenerator _compiledQueryCacheKeyGenerator;
         private readonly IDatabase _database;
-        private readonly ILogger _logger;
+        private readonly ISensitiveDataLogger _logger;
         private readonly MethodInfoBasedNodeTypeRegistry _methodInfoBasedNodeTypeRegistry;
         private readonly Type _contextType;
 
@@ -51,7 +51,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             [NotNull] ICompiledQueryCache compiledQueryCache,
             [NotNull] ICompiledQueryCacheKeyGenerator compiledQueryCacheKeyGenerator,
             [NotNull] IDatabase database,
-            [NotNull] ILogger<QueryCompiler> logger,
+            [NotNull] ISensitiveDataLogger<QueryCompiler> logger,
             [NotNull] MethodInfoBasedNodeTypeRegistry methodInfoBasedNodeTypeRegistry,
             [NotNull] DbContext context)
         {
@@ -128,7 +128,7 @@ namespace Microsoft.Data.Entity.Query.Internal
             Check.NotNull(queryContext, nameof(queryContext));
 
             return ParameterExtractingExpressionVisitor
-                .ExtractParameters(query, queryContext, _evaluatableExpressionFilter);
+                .ExtractParameters(query, queryContext, _evaluatableExpressionFilter, _logger);
         }
 
         protected virtual Func<QueryContext, TResult> CompileQuery<TResult>([NotNull] Expression query)

@@ -68,19 +68,19 @@ namespace Microsoft.Data.Entity.Infrastructure
             var conventionSet = CreateConventionSet(conventionSetBuilder);
 
             var modelBuilder = new ModelBuilder(conventionSet);
+            var internalModelBuilder = ((IInfrastructure<InternalModelBuilder>)modelBuilder).Instance;
 
-            var model = (Model)modelBuilder.Model;
-            model.SetProductVersion(ProductInfo.GetVersion());
+            internalModelBuilder.Metadata.SetProductVersion(ProductInfo.GetVersion());
 
             FindSets(modelBuilder, context);
 
             OnModelCreating(context, modelBuilder);
 
-            modelBuilder.Validate();
+            internalModelBuilder.Validate();
 
-            validator.Validate(model);
+            validator.Validate(modelBuilder.Model);
 
-            return model;
+            return modelBuilder.Model;
         }
 
         /// <summary>

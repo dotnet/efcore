@@ -15,13 +15,6 @@ namespace Microsoft.Data.Entity.Internal
         public const string AfterExecuteCommand = NamePrefix + nameof(AfterExecuteCommand);
         public const string CommandExecutionError = NamePrefix + nameof(CommandExecutionError);
 
-        public static class ExecuteMethod
-        {
-            public const string ExecuteReader = nameof(ExecuteReader);
-            public const string ExecuteScalar = nameof(ExecuteScalar);
-            public const string ExecuteNonQuery = nameof(ExecuteNonQuery);
-        }
-
         public static void WriteCommand(
             this DiagnosticSource diagnosticSource,
             string diagnosticName,

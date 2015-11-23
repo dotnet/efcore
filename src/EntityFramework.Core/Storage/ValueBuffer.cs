@@ -3,6 +3,8 @@
 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 
 namespace Microsoft.Data.Entity.Storage
@@ -61,6 +63,9 @@ namespace Microsoft.Data.Entity.Storage
             get { return _values[_offset + index]; }
             [param: CanBeNull] set { _values[_offset + index] = value; }
         }
+
+        internal static readonly MethodInfo GetValueMethod
+            = typeof(ValueBuffer).GetRuntimeProperties().Single(p => p.GetIndexParameters().Any()).GetMethod;
 
         /// <summary>
         ///     Gets the number of values in this buffer.

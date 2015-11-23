@@ -101,19 +101,19 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Opening connection '{connectionString}'.
+        /// Opening connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static string RelationalLoggerOpeningConnection([CanBeNull] object connectionString)
+        public static string RelationalLoggerOpeningConnection([CanBeNull] object database, [CanBeNull] object server)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerOpeningConnection", "connectionString"), connectionString);
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerOpeningConnection", "database", "server"), database, server);
         }
 
         /// <summary>
-        /// Closing connection '{connectionString}'.
+        /// Closing connection to database '{database}' on server '{server}'.
         /// </summary>
-        public static string RelationalLoggerClosingConnection([CanBeNull] object connectionString)
+        public static string RelationalLoggerClosingConnection([CanBeNull] object database, [CanBeNull] object server)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerClosingConnection", "connectionString"), connectionString);
+            return string.Format(CultureInfo.CurrentCulture, GetString("RelationalLoggerClosingConnection", "database", "server"), database, server);
         }
 
         /// <summary>
@@ -362,14 +362,6 @@ namespace Microsoft.Data.Entity.Internal
         public static string ClientEvalWarning([CanBeNull] object expression)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("ClientEvalWarning", "expression"), expression);
-        }
-
-        /// <summary>
-        /// SQL parameter value logging is enabled. As SQL parameter values may include sensitive application data, this mode should only be enabled during development.
-        /// </summary>
-        public static string ParameterLoggingEnabled
-        {
-            get { return GetString("ParameterLoggingEnabled"); }
         }
 
         /// <summary>

@@ -52,7 +52,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                         Property.Format(principalKey.Properties),
                         principalEntityType));
             }
-            
+
             Builder = new InternalRelationshipBuilder(this, dependentEntityType.Model.Builder);
         }
 
@@ -98,8 +98,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual Navigation DependentToPrincipal { get; private set; }
 
-        public virtual Navigation HasDependentToPrincipal([CanBeNull] string name,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        public virtual Navigation HasDependentToPrincipal(
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             var oldNavigation = DependentToPrincipal;
             if (name == oldNavigation?.Name)
@@ -121,6 +123,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             DependentToPrincipal = navigation;
             UpdateDependentToPrincipalConfigurationSource(configurationSource);
+
+            if (runConventions)
+            {
+                if (oldNavigation != null)
+                {
+                    DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                        DeclaringEntityType.Builder,
+                        PrincipalEntityType.Builder,
+                        oldNavigation.Name);
+                }
+
+                if (navigation != null)
+                {
+                    navigation = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation)
+                        ?.Metadata.DependentToPrincipal;
+                }
+            }
+
             return navigation ?? oldNavigation;
         }
 
@@ -131,8 +151,10 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
         public virtual Navigation PrincipalToDependent { get; private set; }
 
-        public virtual Navigation HasPrincipalToDependent([CanBeNull] string name,
-            ConfigurationSource configurationSource = ConfigurationSource.Explicit)
+        public virtual Navigation HasPrincipalToDependent(
+            [CanBeNull] string name,
+            ConfigurationSource configurationSource = ConfigurationSource.Explicit,
+            bool runConventions = true)
         {
             var oldNavigation = PrincipalToDependent;
             if (name == oldNavigation?.Name)
@@ -154,6 +176,24 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             PrincipalToDependent = navigation;
             UpdatePrincipalToDependentConfigurationSource(configurationSource);
+
+            if (runConventions)
+            {
+                if (oldNavigation != null)
+                {
+                    DeclaringEntityType.Model.ConventionDispatcher.OnNavigationRemoved(
+                        PrincipalEntityType.Builder,
+                        DeclaringEntityType.Builder,
+                        oldNavigation.Name);
+                }
+
+                if (navigation != null)
+                {
+                    navigation = DeclaringEntityType.Model.ConventionDispatcher.OnNavigationAdded(Builder, navigation)
+                        ?.Metadata.PrincipalToDependent;
+                }
+            }
+
             return navigation ?? oldNavigation;
         }
 

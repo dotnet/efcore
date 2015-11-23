@@ -33,7 +33,7 @@ namespace Microsoft.Data.Entity.Tests.ChangeTracking.Internal
             var entity = new SomeEntity { Id = 77, Name = "Magic Tree House" };
             var entry = CreateInternalEntry(configuration, entityType, entity);
 
-            Assert.Null(entry[keyProperty]); // In shadow
+            Assert.Equal(0, entry[keyProperty]); // In shadow
             Assert.Equal("Magic Tree House", entry[nonKeyProperty]);
 
             entry[keyProperty] = 78;

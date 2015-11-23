@@ -245,6 +245,14 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.
+        /// </summary>
+        public static string SensitiveDataLoggingEnabled
+        {
+            get { return GetString("SensitiveDataLoggingEnabled"); }
+        }
+
+        /// <summary>
         /// An exception occurred in the database while iterating the results of a query.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringQueryIteration([CanBeNull] object newline, [CanBeNull] object error)
@@ -645,11 +653,19 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
+        /// An exception was thrown while attempting to evaluate a LINQ query parameter expression. To show aditional information call EnableSensitiveDataLogging() when overriding DbContext.OnConfiguring.
+        /// </summary>
+        public static string ExpressionParameterizationException
+        {
+            get { return GetString("ExpressionParameterizationException"); }
+        }
+
+        /// <summary>
         /// An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
         /// </summary>
-        public static string ExpressionParameterizationException([CanBeNull] object expression)
+        public static string ExpressionParameterizationExceptionSensitive([CanBeNull] object expression)
         {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ExpressionParameterizationException", "expression"), expression);
+            return string.Format(CultureInfo.CurrentCulture, GetString("ExpressionParameterizationExceptionSensitive", "expression"), expression);
         }
 
         /// <summary>

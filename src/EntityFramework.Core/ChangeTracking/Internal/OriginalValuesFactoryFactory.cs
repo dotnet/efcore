@@ -6,7 +6,7 @@ using Microsoft.Data.Entity.Metadata.Internal;
 
 namespace Microsoft.Data.Entity.ChangeTracking.Internal
 {
-    public class OriginalValuesFactoryFactory : SnapshotFactoryFactory
+    public class OriginalValuesFactoryFactory : SnapshotFactoryFactory<InternalEntityEntry>
     {
         protected override int GetPropertyIndex(IPropertyBase propertyBase)
             => (propertyBase as IProperty)?.GetOriginalValueIndex() ?? -1;

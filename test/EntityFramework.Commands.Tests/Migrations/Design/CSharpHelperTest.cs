@@ -195,27 +195,30 @@ namespace Microsoft.Data.Entity.Migrations.Design
             Assert.Equal(CommandsStrings.UnknownLiteral(typeof(object)), ex.Message);
         }
 
-        [Fact]
-        public void Reference_works_when_nested()
-        {
-            Assert.Equal(
-                "CSharpHelperTest.Nested",
-                new CSharpHelper().Reference(typeof(Nested)));
-        }
-
-        [Fact]
-        public void Reference_works_when_nested_more()
-        {
-            Assert.Equal(
-                "CSharpHelperTest.Nested.DoubleNested",
-                new CSharpHelper().Reference(typeof(Nested.DoubleNested)));
-        }
+        [Theory]
+        [InlineData(typeof(int), "int")]
+        [InlineData(typeof(int?), "int?")]
+        [InlineData(typeof(int[]), "int[]")]
+        [InlineData(typeof(int[,]), "int[,]")]
+        [InlineData(typeof(int[][]), "int[][]")]
+        [InlineData(typeof(Generic<int>), "Generic<int>")]
+        [InlineData(typeof(Nested), "CSharpHelperTest.Nested")]
+        [InlineData(typeof(Generic<Generic<int>>), "Generic<Generic<int>>")]
+        [InlineData(typeof(MultiGeneric<int, int>), "MultiGeneric<int, int>")]
+        [InlineData(typeof(NestedGeneric<int>), "CSharpHelperTest.NestedGeneric<int>")]
+        [InlineData(typeof(Nested.DoubleNested), "CSharpHelperTest.Nested.DoubleNested")]
+        public void Reference_works(Type type, string expected)
+            => Assert.Equal(expected, new CSharpHelper().Reference(type));
 
         private class Nested
         {
             public class DoubleNested
             {
             }
+        }
+
+        internal class NestedGeneric<T>
+        {
         }
 
         private enum SomeEnum
@@ -227,7 +230,7 @@ namespace Microsoft.Data.Entity.Migrations.Design
         [InlineData("dash-er", "dasher")]
         [InlineData("params", "@params")]
         [InlineData("true", "@true")]
-        [InlineData("yield", "@yield")]
+        [InlineData("yield", "yield")]
         [InlineData("spac ed", "spaced")]
         [InlineData("1nders", "_1nders")]
         [InlineData("name.space", "@namespace")]
@@ -249,5 +252,13 @@ namespace Microsoft.Data.Entity.Migrations.Design
         {
             Assert.Equal(excepted, new CSharpHelper().Namespace(input));
         }
+    }
+
+    internal class Generic<T>
+    {
+    }
+
+    internal class MultiGeneric<T1, T2>
+    {
     }
 }
