@@ -11,6 +11,9 @@ namespace Microsoft.Data.Entity.Storage.Internal
 {
     public class SqlServerConnection : RelationalConnection, ISqlServerConnection
     {
+        // Compensate for slow SQL Server database creation
+        internal const int DefaultMasterConnectionCommandTimeout = 60;
+
         public SqlServerConnection(
             [NotNull] IDbContextOptions options,
             // ReSharper disable once SuggestBaseTypeForParameter
@@ -33,7 +36,7 @@ namespace Microsoft.Data.Entity.Storage.Internal
 
             // TODO use clone connection method once implemented see #1406
             var optionsBuilder = new DbContextOptionsBuilder();
-            optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout);
+            optionsBuilder.UseSqlServer(builder.ConnectionString).CommandTimeout(CommandTimeout ?? DefaultMasterConnectionCommandTimeout);
 
             return new SqlServerConnection(optionsBuilder.Options, Logger);
         }

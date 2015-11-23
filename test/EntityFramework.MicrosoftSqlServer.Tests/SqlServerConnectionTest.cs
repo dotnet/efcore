@@ -21,13 +21,30 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
         }
 
         [Fact]
-        public void Can_create_master_connection_string()
+        public void Can_create_master_connection()
         {
             using (var connection = new SqlServerConnection(CreateOptions(), new Logger<SqlServerConnection>(new LoggerFactory())))
             {
                 using (var master = connection.CreateMasterConnection())
                 {
                     Assert.Equal(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True", master.ConnectionString);
+                    Assert.Equal(SqlServerConnection.DefaultMasterConnectionCommandTimeout, master.CommandTimeout);
+                }
+            }
+        }
+
+        [Fact]
+        public void Master_connection_string_none_default_command_timeout()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+            optionsBuilder.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=SqlServerConnectionTest;Trusted_Connection=True;")
+                .CommandTimeout(55);
+
+            using (var connection = new SqlServerConnection(optionsBuilder.Options, new Logger<SqlServerConnection>(new LoggerFactory())))
+            {
+                using (var master = connection.CreateMasterConnection())
+                {
+                    Assert.Equal(55, master.CommandTimeout);
                 }
             }
         }

@@ -16,7 +16,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
 {
     public class SqlServerTestStore : RelationalTestStore
     {
-        public const int CommandTimeout = 30;
+        public const int CommandTimeout = 90;
 
         private static int _scratchCount;
 
@@ -281,6 +281,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     await master.OpenAsync();
                     using (var command = master.CreateCommand())
                     {
+                        command.CommandTimeout = CommandTimeout;
                         command.CommandText = $"{Environment.NewLine}CREATE DATABASE [{_name}]";
 
                         await command.ExecuteNonQueryAsync();
@@ -308,6 +309,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
                     master.Open();
                     using (var command = master.CreateCommand())
                     {
+                        command.CommandTimeout = CommandTimeout;
                         command.CommandText = $"{Environment.NewLine}CREATE DATABASE [{_name}]";
 
                         command.ExecuteNonQuery();
