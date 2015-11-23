@@ -8,6 +8,6 @@ namespace Microsoft.Data.Entity.Sqlite.FunctionalTests
     public class QueryNoClientEvalSqliteFixture : NorthwindQuerySqliteFixture
     {
         protected override void ConfigureOptions(SqliteDbContextOptionsBuilder sqlServerDbContextOptionsBuilder)
-            => sqlServerDbContextOptionsBuilder.DisableQueryClientEvaluation();
+            => sqlServerDbContextOptionsBuilder.QueryClientEvaluationBehavior(QueryClientEvaluationBehavior.Throw);
     }
 }

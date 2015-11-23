@@ -795,12 +795,16 @@ namespace Microsoft.Data.Entity.Query
         {
             Check.NotNull(expression, nameof(expression));
 
-            if (RelationalOptionsExtension.Extract(ContextOptions).IsQueryClientEvaluationEnabled == false)
-            {
-                throw new InvalidOperationException(RelationalStrings.ClientEvalDisabled(expression));
-            }
+            var relationalOptionsExtension = RelationalOptionsExtension.Extract(ContextOptions);
 
-            QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
+            switch (relationalOptionsExtension.QueryClientEvaluationBehavior)
+            {
+                case QueryClientEvaluationBehavior.Throw:
+                    throw new InvalidOperationException(RelationalStrings.ClientEvalDisabled(expression));
+                case QueryClientEvaluationBehavior.Warn:
+                    QueryCompilationContext.Logger.LogWarning(RelationalStrings.ClientEvalWarning(expression));
+                    break;
+            }
         }
 
         #region Binding

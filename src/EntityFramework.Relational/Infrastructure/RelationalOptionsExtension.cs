@@ -17,7 +17,7 @@ namespace Microsoft.Data.Entity.Infrastructure
         private int? _commandTimeout;
         private int? _maxBatchSize;
         private bool _useRelationalNulls;
-        private bool _queryClientEvaluationEnabled = true;
+        private QueryClientEvaluationBehavior _queryClientEvaluationBehavior;
         private bool? _throwOnAmbientTransaction;
         private string _migrationsAssembly;
         private string _migrationsHistoryTableName;
@@ -38,7 +38,7 @@ namespace Microsoft.Data.Entity.Infrastructure
             _commandTimeout = copyFrom._commandTimeout;
             _maxBatchSize = copyFrom._maxBatchSize;
             _useRelationalNulls = copyFrom._useRelationalNulls;
-            _queryClientEvaluationEnabled = copyFrom._queryClientEvaluationEnabled;
+            _queryClientEvaluationBehavior = copyFrom._queryClientEvaluationBehavior;
             _throwOnAmbientTransaction = copyFrom._throwOnAmbientTransaction;
             _migrationsAssembly = copyFrom._migrationsAssembly;
             _migrationsHistoryTableName = copyFrom._migrationsHistoryTableName;
@@ -107,10 +107,10 @@ namespace Microsoft.Data.Entity.Infrastructure
             set { _useRelationalNulls = value; }
         }
 
-        public virtual bool IsQueryClientEvaluationEnabled
+        public virtual QueryClientEvaluationBehavior QueryClientEvaluationBehavior
         {
-            get { return _queryClientEvaluationEnabled; }
-            set { _queryClientEvaluationEnabled = value; }
+            get { return _queryClientEvaluationBehavior; }
+            set { _queryClientEvaluationBehavior = value; }
         }
 
         public virtual bool? ThrowOnAmbientTransaction
