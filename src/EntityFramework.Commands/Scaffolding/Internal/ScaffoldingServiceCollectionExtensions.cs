@@ -13,6 +13,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
                 .AddSingleton<ReverseEngineeringGenerator>()
                 .AddSingleton<ScaffoldingUtilities>()
                 .AddSingleton<CSharpUtilities>()
+                .AddSingleton<TSqlConversionUtilities>()
                 .AddSingleton<ConfigurationFactory>()
                 .AddSingleton<DbContextWriter>()
                 .AddSingleton<EntityTypeWriter>()

@@ -15,81 +15,18 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
         public static readonly Regex _defaultValueIsExpression =
             new Regex(@"^[@\$\w]+\(.*\)$", RegexOptions.Compiled, TimeSpan.FromMilliseconds(1000.0));
 
-        public SqlServerLiteralUtilities([NotNull] ILoggerFactory loggerFactory)
+        public SqlServerLiteralUtilities(
+            [NotNull] ILoggerFactory loggerFactory,
+            [NotNull] TSqlConversionUtilities tSqlConversionUtilities)
         {
             Check.NotNull(loggerFactory, nameof(loggerFactory));
 
             Logger = loggerFactory.CreateCommandsLogger();
+            TSqlConversionUtilities = tSqlConversionUtilities;
         }
 
         public virtual ILogger Logger { get; }
-
-        /// <summary>
-        ///     Converts a string of the form 'There''s a double single quote in here'
-        ///     or, for unicode strings, N'There''s a double single quote in here'
-        ///     (including the optional N and the outer single quotes) to the string literal
-        ///     "There's a double single quote in here" (not including the double quotes).
-        /// </summary>
-        /// <param name="sqlServerStringLiteral"> the string to convert </param>
-        /// <returns> the converted string, or null if it cannot convert </returns>
-        public virtual string ConvertSqlServerStringLiteral([NotNull] string sqlServerStringLiteral)
-        {
-            Check.NotEmpty(sqlServerStringLiteral, nameof(sqlServerStringLiteral));
-
-            if (sqlServerStringLiteral[0] == 'N')
-            {
-                sqlServerStringLiteral = sqlServerStringLiteral.Substring(1);
-            }
-
-            var sqlServerStringLiteralLength = sqlServerStringLiteral.Length;
-            if (sqlServerStringLiteralLength < 2)
-            {
-                Logger.LogWarning(
-                    SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
-                return null;
-            }
-
-            if (sqlServerStringLiteral[0] != '\''
-                || sqlServerStringLiteral[sqlServerStringLiteralLength - 1] != '\'')
-            {
-                Logger.LogWarning(
-                    SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerStringLiteral));
-                return null;
-            }
-
-            return sqlServerStringLiteral.Substring(1, sqlServerStringLiteralLength - 2)
-                .Replace("''", "'");
-        }
-
-        /// <summary>
-        ///     SQL Server stores the values 0 or 1 in bit columns. Interpret these
-        ///     as false and true respectively.
-        /// </summary>
-        /// <param name="sqlServerStringLiteral"> the string to convert </param>
-        /// <returns>
-        ///     false if the string can be interpreted as 0, true if it can be
-        ///     interpreted as 1, otherwise null
-        /// </returns>
-        public virtual bool? ConvertSqlServerBitLiteral([NotNull] string sqlServerStringLiteral)
-        {
-            Check.NotEmpty(sqlServerStringLiteral, nameof(sqlServerStringLiteral));
-
-            int result;
-            if (int.TryParse(sqlServerStringLiteral, out result))
-            {
-                if (result == 0)
-                {
-                    return false;
-                }
-
-                if (result == 1)
-                {
-                    return true;
-                }
-            }
-
-            return null;
-        }
+        public virtual TSqlConversionUtilities TSqlConversionUtilities { get; }
 
         public virtual DefaultExpressionOrValue ConvertSqlServerDefaultValue(
             [NotNull] Type propertyType, [NotNull] string sqlServerDefaultValue)
@@ -122,7 +59,7 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             }
 
             if (propertyType.IsNullableType()
-                && sqlServerDefaultValue == "NULL")
+                && TSqlConversionUtilities.IsLiteralNull(sqlServerDefaultValue))
             {
                 return new DefaultExpressionOrValue()
                 {
@@ -142,9 +79,17 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
 
             if (typeof(string) == propertyType)
             {
+                var defaultValue = TSqlConversionUtilities
+                        .ConvertStringLiteral(sqlServerDefaultValue);
+                if (defaultValue == null)
+                {
+                    Logger.LogWarning(
+                        SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerDefaultValue));
+                }
+
                 return new DefaultExpressionOrValue
                 {
-                    DefaultValue = ConvertSqlServerStringLiteral(sqlServerDefaultValue)
+                    DefaultValue = defaultValue
                 };
             }
 
@@ -152,15 +97,24 @@ namespace Microsoft.Data.Entity.Scaffolding.Internal
             {
                 return new DefaultExpressionOrValue
                 {
-                    DefaultValue = ConvertSqlServerBitLiteral(sqlServerDefaultValue)
+                    DefaultValue = TSqlConversionUtilities
+                        .ConvertBitLiteral(sqlServerDefaultValue)
                 };
             }
 
             if (typeof(Guid) == propertyType)
             {
+                var defaultValue = TSqlConversionUtilities
+                        .ConvertStringLiteral(sqlServerDefaultValue);
+                if (defaultValue == null)
+                {
+                    Logger.LogWarning(
+                        SqlServerDesignStrings.CannotInterpretSqlServerStringLiteral(sqlServerDefaultValue));
+                }
+
                 return new DefaultExpressionOrValue
                 {
-                    DefaultValue = new Guid(ConvertSqlServerStringLiteral(sqlServerDefaultValue))
+                    DefaultValue = new Guid(defaultValue)
                 };
             }
 
