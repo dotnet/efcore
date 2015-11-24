@@ -92,7 +92,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                             : Expression
                                 .Lambda(
                                     memberExpression,
-                                    (ParameterExpression)memberExpression.Expression);
+                                    memberExpression.GetRootExpression<ParameterExpression>());
 
                     return
                         Expression.Call(

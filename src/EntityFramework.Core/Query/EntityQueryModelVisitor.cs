@@ -1160,16 +1160,8 @@ namespace Microsoft.Data.Entity.Query
 
                 if (ReferenceEquals(methodInfo, PropertyMethodInfo))
                 {
-                    var targetExpression = methodCallExpression.Arguments[0];
-
-                    MemberExpression memberExpression;
-                    while ((memberExpression = targetExpression as MemberExpression) != null)
-                    {
-                        targetExpression = memberExpression.Expression;
-                    }
-
                     var querySourceReferenceExpression
-                        = targetExpression as QuerySourceReferenceExpression;
+                        = methodCallExpression.Arguments[0].GetRootExpression<QuerySourceReferenceExpression>();
 
                     if (querySourceReferenceExpression == null
                         || querySource == null

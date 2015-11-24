@@ -154,5 +154,17 @@ namespace System.Linq.Expressions
 
             return expression;
         }
+
+        public static TExpression GetRootExpression<TExpression>([NotNull] this Expression expression)
+            where TExpression : Expression
+        {
+            MemberExpression memberExpression;
+            while ((memberExpression = expression as MemberExpression) != null)
+            {
+                expression = memberExpression.Expression;
+            }
+
+            return expression as TExpression;
+        }
     }
 }

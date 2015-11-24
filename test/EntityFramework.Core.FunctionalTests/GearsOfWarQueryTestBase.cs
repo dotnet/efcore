@@ -400,6 +400,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Include_with_nested_navigation_in_order_by()
+        {
+            using (var context = CreateContext())
+            {
+                var query = context.Weapons
+                    .Include(w => w.Owner)
+                    .OrderBy(e => e.Owner.CityOfBirth.Name);
+
+                var result = query.ToList();
+                Assert.Equal(9, result.Count);
+                Assert.Equal("Ephyra", result[0].Owner.CityOrBirthName);
+                Assert.Equal("Ephyra", result[1].Owner.CityOrBirthName);
+                Assert.Equal("Hanover", result[2].Owner.CityOrBirthName);
+                Assert.Equal("Hanover", result[3].Owner.CityOrBirthName);
+                Assert.Equal("Jacinto", result[4].Owner.CityOrBirthName);
+                Assert.Equal("Jacinto", result[5].Owner.CityOrBirthName);
+                Assert.Equal("Unknown", result[6].Owner.CityOrBirthName);
+                Assert.Equal("Unknown", result[7].Owner.CityOrBirthName);
+                Assert.Equal("Unknown", result[8].Owner.CityOrBirthName);
+            }
+        }
+
+        [Fact]
         public virtual void Where_enum()
         {
             using (var context = CreateContext())

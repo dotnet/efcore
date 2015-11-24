@@ -413,6 +413,24 @@ ORDER BY [c].[Name]",
                 Sql);
         }
 
+        public override void Include_with_nested_navigation_in_order_by()
+        {
+            base.Include_with_nested_navigation_in_order_by();
+
+            Assert.Equal(
+                @"SELECT [w].[Id], [w].[AmmunitionType], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId], [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOrBirthName], [g].[Discriminator], [g].[FullName], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Weapon] AS [w]
+INNER JOIN [Gear] AS [w.Owner] ON [w].[OwnerFullName] = [w.Owner].[FullName]
+INNER JOIN [City] AS [w.Owner.CityOfBirth] ON [w.Owner].[CityOrBirthName] = [w.Owner.CityOfBirth].[Name]
+LEFT JOIN (
+    SELECT [g].*
+    FROM [Gear] AS [g]
+    WHERE ([g].[Discriminator] = 'Officer') OR ([g].[Discriminator] = 'Gear')
+) AS [g] ON [w].[OwnerFullName] = [g].[FullName]
+ORDER BY [w.Owner.CityOfBirth].[Name]",
+                Sql);
+        }
+
         public override void Where_enum()
         {
             base.Where_enum();
