@@ -32,24 +32,24 @@ namespace Microsoft.Data.Entity.Storage
 
         public virtual string BatchSeparator => string.Empty;
 
-        public virtual string GenerateParameterName([NotNull] string name)
+        public virtual string GenerateParameterName(string name)
             => $"@{Check.NotEmpty(name, nameof(name))}";
 
-        public virtual string GenerateLiteral([CanBeNull] object value)
+        public virtual string GenerateLiteral(object value)
             => value != null
                 ? GenerateLiteralValue((dynamic)value)
                 : "NULL";
 
-        public virtual string EscapeLiteral([NotNull] string literal)
+        public virtual string EscapeLiteral(string literal)
             => Check.NotNull(literal, nameof(literal)).Replace("'", "''");
 
-        public virtual string EscapeIdentifier([NotNull] string identifier)
+        public virtual string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("\"", "\"\"");
 
-        public virtual string DelimitIdentifier([NotNull] string identifier)
+        public virtual string DelimitIdentifier(string identifier)
             => $"\"{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}\"";
 
-        public virtual string DelimitIdentifier([NotNull] string name, [CanBeNull] string schema)
+        public virtual string DelimitIdentifier(string name, string schema)
             => (!string.IsNullOrEmpty(schema)
                 ? DelimitIdentifier(schema) + "."
                 : string.Empty)

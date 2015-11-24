@@ -20,13 +20,18 @@ namespace Microsoft.Data.Entity.Storage.Internal
             [NotNull] ILogger<SqlServerConnection> logger)
             : base(options, logger)
         {
+            IsMultipleActiveResultSetsEnabled = InitializeMultipleActiveResultSetsEnabled();
         }
 
         private SqlServerConnection(
             [NotNull] IDbContextOptions options, [NotNull] ILogger logger)
             : base(options, logger)
         {
+            IsMultipleActiveResultSetsEnabled = InitializeMultipleActiveResultSetsEnabled();
         }
+
+        private bool InitializeMultipleActiveResultSetsEnabled()
+            => new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets;
 
         protected override DbConnection CreateDbConnection() => new SqlConnection(ConnectionString);
 
@@ -41,7 +46,6 @@ namespace Microsoft.Data.Entity.Storage.Internal
             return new SqlServerConnection(optionsBuilder.Options, Logger);
         }
 
-        public override bool IsMultipleActiveResultSetsEnabled
-            => new SqlConnectionStringBuilder(ConnectionString).MultipleActiveResultSets;
+        public override bool IsMultipleActiveResultSetsEnabled { get; }
     }
 }

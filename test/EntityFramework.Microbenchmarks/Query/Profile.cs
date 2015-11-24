@@ -6,7 +6,6 @@ using System.Linq;
 using EntityFramework.Microbenchmarks.Core;
 using EntityFramework.Microbenchmarks.Models.Orders;
 using Microsoft.Data.Entity;
-using Xunit;
 
 namespace EntityFramework.Microbenchmarks.Query
 {
@@ -40,16 +39,11 @@ namespace EntityFramework.Microbenchmarks.Query
             _query.Load();
         }
 
-        [Benchmark]
-        [SqlServerRequired]
-        public void Run(IMetricCollector collector)
+        public void Run()
         {
-            using (collector.StartCollection())
+            for (var i = 0; i < 2000; i++)
             {
-                for (var i = 0; i < 2000; i++)
-                {
-                    _query.Load();
-                }
+                _query.Load();
             }
         }
 
