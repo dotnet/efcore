@@ -90,6 +90,16 @@ namespace Microsoft.Data.Entity.Query
             }
         }
 
+        public virtual bool IsIncludeQuery
+        {
+            get
+            {
+                return QueryAnnotations
+                    .OfType<IncludeResultOperator>()
+                    .Any();
+            }
+        }
+
         public virtual bool IsQueryBufferRequired { get; private set; }
 
         public virtual void DetermineQueryBufferRequirement([NotNull] QueryModel queryModel)

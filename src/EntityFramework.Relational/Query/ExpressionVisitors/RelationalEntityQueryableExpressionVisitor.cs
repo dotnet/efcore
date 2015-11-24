@@ -162,8 +162,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 if (!useQueryComposition)
                 {
-                    if (relationalQueryCompilationContext.QueryAnnotations
-                        .OfType<IncludeResultOperator>().Any())
+                    if (relationalQueryCompilationContext.IsIncludeQuery)
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureIncludeNotSupported);
@@ -172,7 +171,8 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                 if (useQueryComposition
                     && fromSqlAnnotation.QueryModel.IsIdentityQuery()
-                    && !fromSqlAnnotation.QueryModel.ResultOperators.Any())
+                    && !fromSqlAnnotation.QueryModel.ResultOperators.Any()
+                    && !relationalQueryCompilationContext.IsIncludeQuery)
                 {
                     useQueryComposition = false;
                 }
