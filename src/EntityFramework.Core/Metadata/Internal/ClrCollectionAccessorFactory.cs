@@ -18,6 +18,9 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private static readonly MethodInfo _createAndSet
             = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateAndSet").Single();
 
+        private static readonly MethodInfo _create
+            = typeof(ClrCollectionAccessorFactory).GetTypeInfo().GetDeclaredMethods("CreateCollection").Single();
+
         public virtual IClrCollectionAccessor Create([NotNull] INavigation navigation)
         {
             var accessor = navigation as IClrCollectionAccessor;
@@ -65,6 +68,7 @@ namespace Microsoft.Data.Entity.Metadata.Internal
 
             Action<TEntity, TCollection> setterDelegate = null;
             Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetDelegate = null;
+            Func<TCollection> createDelegate = null;
 
             var setter = property.SetMethod;
             if (setter != null)
@@ -78,11 +82,15 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     createAndSetDelegate = (Func<TEntity, Action<TEntity, TCollection>, TCollection>)_createAndSet
                         .MakeGenericMethod(typeof(TEntity), typeof(TCollection), concreteType)
                         .CreateDelegate(typeof(Func<TEntity, Action<TEntity, TCollection>, TCollection>));
+
+                    createDelegate = (Func<TCollection>)_create
+                        .MakeGenericMethod(typeof(TCollection), concreteType)
+                        .CreateDelegate(typeof(Func<TCollection>));
                 }
             }
 
             return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
-                property.Name, getterDelegate, setterDelegate, createAndSetDelegate);
+                property.Name, getterDelegate, setterDelegate, createAndSetDelegate, createDelegate);
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -96,6 +104,14 @@ namespace Microsoft.Data.Entity.Metadata.Internal
             var collection = new TConcreteCollection();
             setterDelegate(entity, collection);
             return collection;
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private static TCollection CreateCollection<TCollection, TConcreteCollection>()
+            where TCollection : class
+            where TConcreteCollection : TCollection, new()
+        {
+            return new TConcreteCollection();
         }
     }
 }

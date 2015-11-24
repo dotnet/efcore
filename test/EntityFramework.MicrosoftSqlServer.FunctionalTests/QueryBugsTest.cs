@@ -440,6 +440,163 @@ WHERE ([c].[FirstName] = @__firstName_0) AND ([c].[LastName] = @__8__locals1_det
             _fixture = fixture;
         }
 
+        [Fact]
+        public void Customer_collections_materialize_properly_3758()
+        {
+            CreateDatabase3758();
+
+            var loggingFactory = new TestSqlLoggerFactory();
+            var serviceProvider = new ServiceCollection()
+                .AddEntityFramework()
+                .AddSqlServer()
+                .ServiceCollection()
+                .AddSingleton<ILoggerFactory>(loggingFactory)
+                .BuildServiceProvider();
+
+            using (var ctx = new MyContext3758(serviceProvider))
+            {
+                var query1 = ctx.Customers.Select(c => c.Orders1);
+                var result1 = query1.ToList();
+
+                Assert.Equal(2, result1.Count);
+                Assert.IsType<HashSet<Order3758>>(result1[0]);
+                Assert.Equal(2, result1[0].Count);
+                Assert.Equal(2, result1[1].Count);
+
+                var query2 = ctx.Customers.Select(c => c.Orders2);
+                var result2 = query2.ToList();
+
+                Assert.Equal(2, result2.Count);
+                Assert.IsType<MyGenericCollection3758<Order3758>>(result2[0]);
+                Assert.Equal(2, result2[0].Count);
+                Assert.Equal(2, result2[1].Count);
+
+                var query3 = ctx.Customers.Select(c => c.Orders3);
+                var result3 = query3.ToList();
+
+                Assert.Equal(2, result3.Count);
+                Assert.IsType<MyNonGenericCollection3758>(result3[0]);
+                Assert.Equal(2, result3[0].Count);
+                Assert.Equal(2, result3[1].Count);
+
+                var query4 = ctx.Customers.Select(c => c.Orders4);
+
+                Assert.Equal(CoreStrings.NavigationCannotCreateType("Orders4", typeof(Customer3758).FullName, typeof(MyInvalidCollection3758<Order3758>).FullName),
+                    Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
+            }
+        }
+
+        public class MyContext3758 : DbContext
+        {
+            public MyContext3758(IServiceProvider provider)
+                : base(provider)
+            {
+            }
+
+            public DbSet<Customer3758> Customers { get; set; }
+            public DbSet<Order3758> Orders { get; set; }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+                => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString("Repro3758"));
+
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders1).WithOne();
+                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders2).WithOne();
+                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders3).WithOne();
+                modelBuilder.Entity<Customer3758>().HasMany(e => e.Orders4).WithOne();
+            }
+        }
+
+        public class Customer3758
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public ICollection<Order3758> Orders1 { get; set; }
+            public MyGenericCollection3758<Order3758> Orders2 { get; set; }
+            public MyNonGenericCollection3758 Orders3 { get; set; }
+            public MyInvalidCollection3758<Order3758> Orders4 { get; set; }
+        }
+
+        public class Order3758
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
+
+        public class MyGenericCollection3758<TElement> : List<TElement>
+        {
+        }
+
+        public class MyNonGenericCollection3758 : List<Order3758>
+        {
+        }
+
+        public class MyInvalidCollection3758<TElement> : List<TElement>
+        {
+            public MyInvalidCollection3758(int argument)
+            {
+            }
+        }
+
+        private void CreateDatabase3758()
+        {
+            CreateTestStore(
+                "Repro3758",
+                _fixture.ServiceProvider,
+                (sp, co) => new MyContext3758(sp),
+                context =>
+                {
+                    var o111 = new Order3758 { Name = "O111" };
+                    var o112 = new Order3758 { Name = "O112" };
+                    var o121 = new Order3758 { Name = "O121" };
+                    var o122 = new Order3758 { Name = "O122" };
+                    var o131 = new Order3758 { Name = "O131" };
+                    var o132 = new Order3758 { Name = "O132" };
+                    var o141 = new Order3758 { Name = "O141" };
+
+                    var o211 = new Order3758 { Name = "O211" };
+                    var o212 = new Order3758 { Name = "O212" };
+                    var o221 = new Order3758 { Name = "O221" };
+                    var o222 = new Order3758 { Name = "O222" };
+                    var o231 = new Order3758 { Name = "O231" };
+                    var o232 = new Order3758 { Name = "O232" };
+                    var o241 = new Order3758 { Name = "O241" };
+
+                    var c1 = new Customer3758
+                    {
+                        Name = "C1",
+                        Orders1 = new List<Order3758> { o111, o112 },
+                        Orders2 = new MyGenericCollection3758<Order3758>(),
+                        Orders3 = new MyNonGenericCollection3758(),
+                        Orders4 = new MyInvalidCollection3758<Order3758>(42),
+                    };
+
+                    c1.Orders2.AddRange(new[] { o121, o122 });
+                    c1.Orders3.AddRange(new[] { o131, o132 });
+                    c1.Orders4.Add(o141);
+
+                    var c2 = new Customer3758
+                    {
+                        Name = "C2",
+                        Orders1 = new List<Order3758> { o211, o212 },
+                        Orders2 = new MyGenericCollection3758<Order3758>(),
+                        Orders3 = new MyNonGenericCollection3758(),
+                        Orders4 = new MyInvalidCollection3758<Order3758>(42),
+                    };
+
+                    c2.Orders2.AddRange(new[] { o221, o222 });
+                    c2.Orders3.AddRange(new[] { o231, o232 });
+                    c2.Orders4.Add(o241);
+
+                    context.Customers.AddRange(c1, c2);
+                    context.Orders.AddRange(o111, o112, o121, o122, o131, o132, o141, o211, o212, o221, o222, o231, o232, o241);
+
+                    context.SaveChanges();
+                });
+        }
+
         private static void CreateTestStore<TContext>(
             string databaseName,
             IServiceProvider serviceProvider,

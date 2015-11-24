@@ -16,17 +16,22 @@ namespace Microsoft.Data.Entity.Metadata.Internal
         private readonly Func<TEntity, TCollection> _getCollection;
         private readonly Action<TEntity, TCollection> _setCollection;
         private readonly Func<TEntity, Action<TEntity, TCollection>, TCollection> _createAndSetCollection;
+        private readonly Func<TCollection> _createCollection;
+
+        public virtual Type CollectionType => typeof(TCollection);
 
         public ClrICollectionAccessor(
             [NotNull] string propertyName,
             [NotNull] Func<TEntity, TCollection> getCollection,
             [CanBeNull] Action<TEntity, TCollection> setCollection,
-            [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetCollection)
+            [CanBeNull] Func<TEntity, Action<TEntity, TCollection>, TCollection> createAndSetCollection,
+            [CanBeNull] Func<TCollection> createCollection)
         {
             _propertyName = propertyName;
             _getCollection = getCollection;
             _setCollection = setCollection;
             _createAndSetCollection = createAndSetCollection;
+            _createCollection = createCollection;
         }
 
         public virtual void Add(object instance, object value)
@@ -43,6 +48,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     collection.Add(value);
                 }
             }
+        }
+
+        public virtual object Create(IEnumerable<object> values)
+        {
+            if (_createCollection == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NavigationCannotCreateType(
+                    _propertyName, typeof(TEntity).FullName, typeof(TCollection).FullName));
+            }
+
+            var collection = _createCollection();
+            foreach (TElement value in values)
+            {
+                collection.Add(value);
+            }
+
+            return collection;
         }
 
         private TCollection GetOrCreateCollection(object instance)

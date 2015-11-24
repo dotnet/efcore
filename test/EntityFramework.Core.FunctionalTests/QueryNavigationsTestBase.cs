@@ -296,6 +296,38 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Select_collection_navigation_simple()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from c in context.Customers
+                            where c.CustomerID.StartsWith("A")
+                            select new { Orders = c.Orders };
+
+                var results = query.ToList();
+
+                Assert.Equal(4, results.Count);
+                Assert.True(results.All(r => r.Orders.Count > 0));
+            }
+        }
+
+        [Fact]
+        public virtual void Select_collection_navigation_multi_part()
+        {
+            using (var context = CreateContext())
+            {
+                var query = from o in context.Orders
+                            where o.CustomerID == "ALFKI"
+                            select new { Orders = o.Customer.Orders };
+
+                var results = query.ToList();
+
+                Assert.Equal(6, results.Count);
+                Assert.True(results.All(r => r.Orders.Count > 0));
+            }
+        }
+
+        [Fact]
         public virtual void Collection_select_nav_prop_any()
         {
             using (var context = CreateContext())

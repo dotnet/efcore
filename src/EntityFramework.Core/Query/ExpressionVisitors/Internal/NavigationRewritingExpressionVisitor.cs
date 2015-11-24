@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
+using Microsoft.Data.Entity.Metadata.Internal;
 using Microsoft.Data.Entity.Query.Internal;
 using Microsoft.Data.Entity.Utilities;
 using Remotion.Linq;
@@ -81,7 +82,7 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
             Check.NotNull(queryModelVisitor, nameof(queryModelVisitor));
 
             _queryModelVisitor = queryModelVisitor;
-            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this);
+            _navigationRewritingQueryModelVisitor = new NavigationRewritingQueryModelVisitor(this, _queryModelVisitor);
         }
 
         private NavigationRewritingExpressionVisitor(
@@ -550,12 +551,14 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
         private class NavigationRewritingQueryModelVisitor : QueryModelVisitorBase
         {
             private readonly NavigationRewritingExpressionVisitor _parentVisitor;
+            private readonly SubqueryInjector _subqueryInjector;
 
             public bool InsideInnerKeySelector { get; private set; }
 
-            public NavigationRewritingQueryModelVisitor(NavigationRewritingExpressionVisitor parentVisitor)
+            public NavigationRewritingQueryModelVisitor(NavigationRewritingExpressionVisitor parentVisitor, EntityQueryModelVisitor queryModelVisitor)
             {
                 _parentVisitor = parentVisitor;
+                _subqueryInjector = new SubqueryInjector(queryModelVisitor);
             }
 
             public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
@@ -591,10 +594,80 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors.Internal
                 => ordering.TransformExpressions(_parentVisitor.Visit);
 
             public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
-                => selectClause.TransformExpressions(_parentVisitor.Visit);
+            {
+                var newSelector = _subqueryInjector.Visit(selectClause.Selector);
+
+                selectClause.Selector = newSelector;
+
+                selectClause.TransformExpressions(_parentVisitor.Visit);
+            }
 
             public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
                 => resultOperator.TransformExpressions(_parentVisitor.Visit);
+
+            private class SubqueryInjector : RelinqExpressionVisitor
+            {
+                private readonly EntityQueryModelVisitor _queryModelVisitor;
+                public SubqueryInjector(EntityQueryModelVisitor queryModelVisitor)
+                {
+                    _queryModelVisitor = queryModelVisitor;
+                }
+
+                protected override Expression VisitSubQuery(SubQueryExpression expression)
+                {
+                    return expression;
+                }
+
+                protected override Expression VisitMember(MemberExpression node)
+                {
+                    Check.NotNull(node, nameof(node));
+
+                    return
+                        _queryModelVisitor.BindNavigationPathMemberExpression(
+                            node,
+                            (properties, querySource) =>
+                            {
+                                var navigations = properties.OfType<INavigation>().ToList();
+                                var collectionNavigation = navigations.Where(n => n.IsCollection()).SingleOrDefault();
+
+                                return collectionNavigation != null
+                                    ? InjectSubquery(node, collectionNavigation)
+                                    : default(Expression);
+                            })
+                        ?? base.VisitMember(node);
+                }
+
+                private Expression InjectSubquery(Expression expression, INavigation collectionNavigation)
+                {
+                    var targetType = collectionNavigation.GetTargetType().ClrType;
+                    var mainFromClause = new MainFromClause(targetType.Name.Substring(0, 1).ToLower(), targetType, expression);
+                    var selecor = new QuerySourceReferenceExpression(mainFromClause);
+
+                    var subqueryModel = new QueryModel(mainFromClause, new SelectClause(selecor));
+                    var subqueryExpression = new SubQueryExpression(subqueryModel);
+
+                    var resultCollectionType = collectionNavigation.GetCollectionAccessor().CollectionType;
+
+                    var result = Expression.Call(
+                        _materializeCollectionNavigationMethodInfo.MakeGenericMethod(targetType),
+                        Expression.Constant(collectionNavigation), subqueryExpression);
+
+                    return resultCollectionType.GetTypeInfo().IsGenericType && resultCollectionType.GetGenericTypeDefinition() == typeof(ICollection<>)
+                        ? (Expression)result
+                        : Expression.Convert(result, resultCollectionType);
+                }
+
+                private static readonly MethodInfo _materializeCollectionNavigationMethodInfo
+                    = typeof(SubqueryInjector).GetTypeInfo()
+                        .GetDeclaredMethod(nameof(MaterializeCollectionNavigation));
+
+                private static ICollection<TEntity> MaterializeCollectionNavigation<TEntity>(INavigation navigation, IEnumerable<object> elements)
+                {
+                    var collection = navigation.GetCollectionAccessor().Create(elements);
+
+                    return (ICollection<TEntity>)collection;
+                }
+            }
         }
     }
 }
