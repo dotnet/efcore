@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Internal;
-using Microsoft.Data.Entity.Metadata.Conventions.Internal;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Metadata.Internal
@@ -62,9 +61,23 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                 return null;
             }
 
-            return ReplaceForeignKey(configurationSource,
-                navigationToPrincipalName: navigationToPrincipalName ?? "",
-                navigationToDependentName: navigationToDependentName ?? "");
+            var newRelationshipBuilder = ReplaceForeignKey(configurationSource,
+                                            navigationToPrincipalName: navigationToPrincipalName ?? "",
+                                            navigationToDependentName: navigationToDependentName ?? "");
+
+            if (newRelationshipBuilder != null
+                && newRelationshipBuilder.Metadata.Builder == null)
+            {
+                var navigationToPrincipal = Metadata.DeclaringEntityType.FindNavigation(navigationToPrincipalName ?? "");
+                var navigationToDependent = Metadata.PrincipalEntityType.FindNavigation(navigationToDependentName ?? "");
+                if (navigationToDependent.ForeignKey == navigationToPrincipal.ForeignKey)
+                {
+                    return navigationToDependent.ForeignKey.Builder;
+                }
+                return null;
+            }
+
+            return newRelationshipBuilder;
         }
 
         private InternalRelationshipBuilder Navigation(
@@ -1527,7 +1540,11 @@ namespace Microsoft.Data.Entity.Metadata.Internal
                     ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyRemoved(removedForeignKey.Item1, removedForeignKey.Item2);
                 }
 
-                newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
+                if (newRelationshipBuilder.Metadata.Builder != null)
+                {
+                    newRelationshipBuilder = ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyAdded(newRelationshipBuilder);
+                }
+
                 if (newRelationshipBuilder == null)
                 {
                     return null;

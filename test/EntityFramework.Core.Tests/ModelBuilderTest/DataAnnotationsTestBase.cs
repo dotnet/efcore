@@ -72,7 +72,6 @@ namespace Microsoft.Data.Entity.Tests
                 modelBuilder.Entity<SpecialBookLabel>();
 
                 Assert.Same(model.FindEntityType(typeof(BookLabel)), model.FindEntityType(typeof(SpecialBookLabel)).BaseType);
-                Assert.Empty(model.FindEntityType(typeof(SpecialBookLabel)).GetDeclaredNavigations());
                 Assert.Contains("Book", model.FindEntityType(typeof(BookLabel)).GetNavigations().Select(nav => nav.Name));
                 Assert.Equal("Label", model.FindEntityType(typeof(BookLabel)).FindNavigation("Book").ForeignKey.PrincipalToDependent.Name);
                 Assert.Contains("AlternateLabel", model.FindEntityType(typeof(Book)).GetNavigations().Select(nav => nav.Name));

@@ -154,6 +154,21 @@ namespace Microsoft.Data.Entity.Tests
 
                 Assert.False(modelBuilder.Model.FindEntityType(typeof(OrderDetails)).FindProperty(OrderDetails.OrderIdProperty).RequiresValueGenerator);
             }
+
+            [Fact]
+            public virtual void Can_create_relationship_between_base_type_and_derived_type()
+            {
+                var modelBuilder = CreateModelBuilder();
+                var relationshipBuilder = modelBuilder.Entity<BookLabel>().HasOne(e => e.SpecialBookLabel).WithMany(e => e.BookLabels);
+
+                Assert.NotNull(relationshipBuilder);
+                Assert.Equal(typeof(BookLabel), relationshipBuilder.Metadata.DeclaringEntityType.ClrType);
+                Assert.Equal(typeof(SpecialBookLabel), relationshipBuilder.Metadata.PrincipalEntityType.ClrType);
+                Assert.Equal("SpecialBookLabel", relationshipBuilder.Metadata.DependentToPrincipal.Name);
+                Assert.Equal("BookLabels", relationshipBuilder.Metadata.PrincipalToDependent.Name);
+                Assert.Equal("SpecialBookLabelId", relationshipBuilder.Metadata.Properties.Single().Name);
+                Assert.False(relationshipBuilder.Metadata.IsRequired);
+            }
         }
     }
 }
