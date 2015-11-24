@@ -249,6 +249,12 @@ namespace Microsoft.Data.Entity.Migrations
             Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
         }
 
+        public override void AddForeignKeyOperation_without_principal_columns()
+        {
+            var ex = Assert.Throws<NotSupportedException>(() => base.AddForeignKeyOperation_without_name());
+            Assert.Equal(SqliteStrings.InvalidMigrationOperation, ex.Message);
+        }
+
         public override void AddPrimaryKeyOperation_with_name()
         {
             var ex = Assert.Throws<NotSupportedException>(() => base.AddPrimaryKeyOperation_with_name());
