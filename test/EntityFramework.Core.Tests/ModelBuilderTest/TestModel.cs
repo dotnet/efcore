@@ -366,5 +366,16 @@ namespace Microsoft.Data.Entity.Tests
             public Alpha Alpha { get; set; }
         }
 
+        protected class Zeta
+        {
+            public int Id { get; set; }
+
+            public int CommonFkProperty { get; set; }
+
+            [ForeignKey("CommonFkProperty")]
+            public Alpha AlphaOne { get; set; }
+            [ForeignKey("CommonFkProperty")]
+            public Alpha AlphaTwo { get; set; }
+        }
     }
 }

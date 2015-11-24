@@ -16,7 +16,6 @@ namespace Microsoft.Data.Entity.Tests
     {
         public class NonGenericOneToManyType : OneToManyTestBase
         {
-            [Fact]
             public override void Can_set_foreign_key_property_when_matching_property_added()
             {
                 var modelBuilder = CreateModelBuilder();
@@ -38,7 +37,6 @@ namespace Microsoft.Data.Entity.Tests
 
         public class NonGenericManyToOneType : ManyToOneTestBase
         {
-            [Fact]
             public override void Can_set_foreign_key_property_when_matching_property_added()
             {
                 var modelBuilder = CreateModelBuilder();

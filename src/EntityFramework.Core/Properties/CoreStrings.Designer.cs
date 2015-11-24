@@ -245,14 +245,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.
-        /// </summary>
-        public static string SensitiveDataLoggingEnabled
-        {
-            get { return GetString("SensitiveDataLoggingEnabled"); }
-        }
-
-        /// <summary>
         /// An exception occurred in the database while iterating the results of a query.{newline}{error}
         /// </summary>
         public static string LogExceptionDuringQueryIteration([CanBeNull] object newline, [CanBeNull] object error)
@@ -661,14 +653,6 @@ namespace Microsoft.Data.Entity.Internal
         }
 
         /// <summary>
-        /// An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
-        /// </summary>
-        public static string ExpressionParameterizationExceptionSensitive([CanBeNull] object expression)
-        {
-            return string.Format(CultureInfo.CurrentCulture, GetString("ExpressionParameterizationExceptionSensitive", "expression"), expression);
-        }
-
-        /// <summary>
         /// The '{factory}' cannot create a value generator for property '{property}' on entity type '{entityType}'. Only integer properties are supported.
         /// </summary>
         public static string InvalidValueGeneratorFactoryProperty([CanBeNull] object factory, [CanBeNull] object property, [CanBeNull] object entityType)
@@ -1042,6 +1026,30 @@ namespace Microsoft.Data.Entity.Internal
         public static string UnhandledNodeType([CanBeNull] object nodeType)
         {
             return string.Format(CultureInfo.CurrentCulture, GetString("UnhandledNodeType", "nodeType"), nodeType);
+        }
+
+        /// <summary>
+        /// Sensitive data logging is enabled. Log entries and exception messages may include sensitive application data, this mode should only be enabled during development.
+        /// </summary>
+        public static string SensitiveDataLoggingEnabled
+        {
+            get { return GetString("SensitiveDataLoggingEnabled"); }
+        }
+
+        /// <summary>
+        /// An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.
+        /// </summary>
+        public static string ExpressionParameterizationExceptionSensitive([CanBeNull] object expression)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("ExpressionParameterizationExceptionSensitive", "expression"), expression);
+        }
+
+        /// <summary>
+        /// There are multiple navigations in entity type '{entityType}' which are pointing to same set of properties - '{propertyList}' using ForeignKeyAttribute.
+        /// </summary>
+        public static string MultipleNavigationsSameFk([CanBeNull] object entityType, [CanBeNull] object propertyList)
+        {
+            return string.Format(CultureInfo.CurrentCulture, GetString("MultipleNavigationsSameFk", "entityType", "propertyList"), entityType, propertyList);
         }
 
         private static string GetString(string name, params string[] formatterNames)

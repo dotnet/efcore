@@ -504,4 +504,7 @@
   <data name="ExpressionParameterizationExceptionSensitive" xml:space="preserve">
     <value>An exception was thrown while attempting to evaluate the LINQ query parameter expression '{expression}'.</value>
   </data>
+  <data name="MultipleNavigationsSameFk" xml:space="preserve">
+    <value>There are multiple navigations in entity type '{entityType}' which are pointing to same set of properties - '{propertyList}' using ForeignKeyAttribute.</value>
+  </data>
 </root>

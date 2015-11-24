@@ -483,6 +483,22 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
                 Assert.Throws<InvalidOperationException>(() => new ForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
         }
 
+        [Fact]
+        public void ForeignKeyAttribute_throws_when_same_set_of_properties_are_pointed_by_multiple_navigations()
+        {
+            var dependentEntityTypeBuilder = CreateInternalEntityTypeBuilder<MultipleNavigationsSameFk>();
+            var principalEntityTypeBuilder = dependentEntityTypeBuilder.ModelBuilder.Entity(typeof(Principal), ConfigurationSource.Convention);
+
+            var relationshipBuilder = dependentEntityTypeBuilder.Relationship(
+                principalEntityTypeBuilder,
+                "One",
+                null,
+                ConfigurationSource.Convention);
+
+            Assert.Equal(CoreStrings.MultipleNavigationsSameFk(typeof(MultipleNavigationsSameFk).Name, "CommonFkProperty"),
+                Assert.Throws<InvalidOperationException>(() => new ForeignKeyAttributeConvention().Apply(relationshipBuilder)).Message);
+        }
+
         #endregion
 
         [Fact]
@@ -644,6 +660,18 @@ namespace Microsoft.Data.Entity.Metadata.Conventions
 
             [ForeignKey("PrincipalId1,,PrincipalId2")]
             public Principal Principal { get; set; }
+        }
+
+        private class MultipleNavigationsSameFk
+        {
+            public int Id { get; set; }
+
+            public int CommonFkProperty { get; set; }
+
+            [ForeignKey("CommonFkProperty")]
+            public Principal One { get; set; }
+            [ForeignKey("CommonFkProperty")]
+            public Principal Two { get; set; }
         }
     }
 }

@@ -2849,6 +2849,15 @@ namespace Microsoft.Data.Entity.Tests
                 Assert.False(property.RequiresValueGenerator);
                 Assert.Equal(ValueGenerated.Never, property.ValueGenerated);
             }
+
+            [Fact]
+            public virtual void Throws_if_multiple_navigations_are_pointing_to_same_foreign_key_property()
+            {
+                var modelBuilder = CreateModelBuilder();
+                Assert.Equal(
+                    CoreStrings.MultipleNavigationsSameFk(typeof(Zeta).Name, "CommonFkProperty"),
+                    Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Zeta>().HasOne<Alpha>().WithOne()).Message);
+            }
         }
     }
 }

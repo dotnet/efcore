@@ -223,6 +223,19 @@ namespace Microsoft.Data.Entity.Metadata.Conventions.Internal
                     throw new InvalidOperationException(CoreStrings.InvalidPropertyListOnNavigation(navigation.Name, navigation.DeclaringEntityType.Name));
                 }
 
+                var otherNavigations = navigation.DeclaringEntityType.ClrType.GetRuntimeProperties()
+                    .Where(p => FindCandidateNavigationPropertyType(p) != null && p.Name != navigation.Name)
+                    .OrderBy(p => p.Name);
+                foreach (var propertyInfo in otherNavigations)
+                {
+                    var attribute = propertyInfo.GetCustomAttribute<ForeignKeyAttribute>(true);
+                    if ((attribute != null)
+                        && (attribute.Name == navigationFkAttribute.Name))
+                    {
+                        throw new InvalidOperationException(CoreStrings.MultipleNavigationsSameFk(navigation.DeclaringEntityType.DisplayName(), attribute.Name));
+                    }
+                }
+
                 return properties;
             }
             return null;
