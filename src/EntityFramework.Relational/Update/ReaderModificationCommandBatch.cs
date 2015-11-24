@@ -105,13 +105,13 @@ namespace Microsoft.Data.Entity.Update
             switch (newModificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand);
+                    UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand, commandPosition);
                     break;
                 case EntityState.Modified:
-                    UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand);
+                    UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand, commandPosition);
                     break;
                 case EntityState.Deleted:
-                    UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand);
+                    UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand, commandPosition);
                     break;
             }
 

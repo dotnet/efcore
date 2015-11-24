@@ -56,9 +56,12 @@ SELECT @@ROWCOUNT;",
 @p2: 00000000-0000-0000-0000-000000000003
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 OUTPUT INSERTED.[UniqueNo]
-VALUES (@p0, @p1, @p2);",
+INTO @generated1
+VALUES (@p0, @p1, @p2);
+SELECT [UniqueNo] FROM @generated1;",
                 Sql);
         }
 
@@ -71,18 +74,24 @@ VALUES (@p0, @p1, @p2);",
 @p2: 00000000-0000-0000-0000-000000000001
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 OUTPUT INSERTED.[UniqueNo]
+INTO @generated1
 VALUES (@p0, @p1, @p2);
+SELECT [UniqueNo] FROM @generated1;
 
 @p0: VeryVeryVeryVeryVeryVeryLongString
 @p1: ValidString
 @p2: 00000000-0000-0000-0000-000000000002
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 OUTPUT INSERTED.[UniqueNo]
-VALUES (@p0, @p1, @p2);",
+INTO @generated1
+VALUES (@p0, @p1, @p2);
+SELECT [UniqueNo] FROM @generated1;",
                 Sql);
         }
 
@@ -117,18 +126,24 @@ SELECT @@ROWCOUNT;",
 @p2: 00000000-0000-0000-0000-000000000001
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 OUTPUT INSERTED.[UniqueNo]
+INTO @generated1
 VALUES (@p0, @p1, @p2);
+SELECT [UniqueNo] FROM @generated1;
 
 @p0: 
 @p1: 
 @p2: 00000000-0000-0000-0000-000000000002
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([UniqueNo] int);
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion])
 OUTPUT INSERTED.[UniqueNo]
-VALUES (@p0, @p1, @p2);",
+INTO @generated1
+VALUES (@p0, @p1, @p2);
+SELECT [UniqueNo] FROM @generated1;",
                 Sql);
         }
 
@@ -139,16 +154,22 @@ VALUES (@p0, @p1, @p2);",
             Assert.Equal(@"@p0: ValidString
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([Id] int, [Timestamp] varbinary(8));
 INSERT INTO [Two] ([Data])
 OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
+INTO @generated1
 VALUES (@p0);
+SELECT [Id], [Timestamp] FROM @generated1;
 
 @p0: ValidButLongString
 
 SET NOCOUNT OFF;
+DECLARE @generated1 TABLE ([Id] int, [Timestamp] varbinary(8));
 INSERT INTO [Two] ([Data])
 OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
-VALUES (@p0);",
+INTO @generated1
+VALUES (@p0);
+SELECT [Id], [Timestamp] FROM @generated1;",
                 Sql);
         }
 
@@ -169,18 +190,24 @@ WHERE [r].[Id] = 1
 @p2: System.Byte[]
 
 SET NOCOUNT OFF;
+DECLARE @generated0 TABLE ([Timestamp] varbinary(8));
 UPDATE [Two] SET [Data] = @p1
 OUTPUT INSERTED.[Timestamp]
+INTO @generated0
 WHERE [Id] = @p0 AND [Timestamp] = @p2;
+SELECT [Timestamp] FROM @generated0;
 
 @p0: 1
 @p1: ChangedData
 @p2: System.Byte[]
 
 SET NOCOUNT OFF;
+DECLARE @generated0 TABLE ([Timestamp] varbinary(8));
 UPDATE [Two] SET [Data] = @p1
 OUTPUT INSERTED.[Timestamp]
-WHERE [Id] = @p0 AND [Timestamp] = @p2;",
+INTO @generated0
+WHERE [Id] = @p0 AND [Timestamp] = @p2;
+SELECT [Timestamp] FROM @generated0;",
                 Sql);
         }
 

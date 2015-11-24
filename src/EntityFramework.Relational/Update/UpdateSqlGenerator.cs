@@ -21,7 +21,7 @@ namespace Microsoft.Data.Entity.Update
 
         protected virtual ISqlGenerator SqlGenerator { get; }
 
-        public virtual void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
+        public virtual void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -39,15 +39,15 @@ namespace Microsoft.Data.Entity.Update
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
             }
             else
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
             }
         }
 
-        public virtual void AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command)
+        public virtual void AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -66,15 +66,15 @@ namespace Microsoft.Data.Entity.Update
             {
                 var keyOperations = operations.Where(o => o.IsKey).ToArray();
 
-                AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations);
+                AppendSelectAffectedCommand(commandStringBuilder, name, schema, readOperations, keyOperations, commandPosition);
             }
             else
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
             }
         }
 
-        public virtual void AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command)
+        public virtual void AppendDeleteOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -85,7 +85,7 @@ namespace Microsoft.Data.Entity.Update
 
             AppendDeleteCommand(commandStringBuilder, name, schema, conditionOperations);
 
-            AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
+            AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
         }
 
         protected virtual void AppendInsertCommand(
@@ -139,7 +139,8 @@ namespace Microsoft.Data.Entity.Update
         protected virtual void AppendSelectAffectedCountCommand(
             [NotNull] StringBuilder commandStringBuilder,
             [NotNull] string name,
-            [CanBeNull] string schema)
+            [CanBeNull] string schema,
+            int commandPosition)
         {
         }
 
@@ -148,7 +149,8 @@ namespace Microsoft.Data.Entity.Update
             [NotNull] string name,
             [CanBeNull] string schema,
             [NotNull] IReadOnlyList<ColumnModification> readOperations,
-            [NotNull] IReadOnlyList<ColumnModification> conditionOperations)
+            [NotNull] IReadOnlyList<ColumnModification> conditionOperations,
+            int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(name, nameof(name));

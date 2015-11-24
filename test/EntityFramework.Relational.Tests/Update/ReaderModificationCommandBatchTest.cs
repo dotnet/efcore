@@ -87,7 +87,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             batch.UpdateCachedCommandTextBase(0);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendInsertOperation(It.IsAny<StringBuilder>(), command));
+            sqlGeneratorMock.Verify(g => g.AppendInsertOperation(It.IsAny<StringBuilder>(), command, 0));
         }
 
         [Fact]
@@ -105,7 +105,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             batch.UpdateCachedCommandTextBase(0);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendUpdateOperation(It.IsAny<StringBuilder>(), command));
+            sqlGeneratorMock.Verify(g => g.AppendUpdateOperation(It.IsAny<StringBuilder>(), command, 0));
         }
 
         [Fact]
@@ -123,7 +123,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             batch.UpdateCachedCommandTextBase(0);
 
             sqlGeneratorMock.Verify(g => g.AppendBatchHeader(It.IsAny<StringBuilder>()));
-            sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), command));
+            sqlGeneratorMock.Verify(g => g.AppendDeleteOperation(It.IsAny<StringBuilder>(), command, 0));
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace Microsoft.Data.Entity.Tests.Update
             {
             }
 
-            public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command)
+            public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
             {
                 if (!string.IsNullOrEmpty(command.Schema))
                 {
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Entity.Tests.Update
                 base.AppendBatchHeader(commandStringBuilder);
             }
 
-            protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
+            protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             {
             }
 

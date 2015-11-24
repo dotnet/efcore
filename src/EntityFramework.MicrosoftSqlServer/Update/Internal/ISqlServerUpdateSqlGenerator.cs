@@ -9,8 +9,9 @@ namespace Microsoft.Data.Entity.Update.Internal
 {
     public interface ISqlServerUpdateSqlGenerator : IUpdateSqlGenerator
     {
-        SqlServerUpdateSqlGenerator.ResultsGrouping AppendBulkInsertOperation(
+        ResultsGrouping AppendBulkInsertOperation(
             [NotNull] StringBuilder commandStringBuilder,
-            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands);
+            [NotNull] IReadOnlyList<ModificationCommand> modificationCommands,
+            int commandPosition);
     }
 }

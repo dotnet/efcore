@@ -65,7 +65,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="name"> The name of the base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual EntityTypeBuilder<TEntity> HasBaseType([NotNull] string name)
+        public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] string name)
             => (EntityTypeBuilder<TEntity>)base.HasBaseType(name);
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Microsoft.Data.Entity.Metadata.Builders
         /// </summary>
         /// <param name="entityType"> The base type. </param>
         /// <returns> The same builder instance so that multiple configuration calls can be chained. </returns>
-        public new virtual EntityTypeBuilder<TEntity> HasBaseType([NotNull] Type entityType)
+        public new virtual EntityTypeBuilder<TEntity> HasBaseType([CanBeNull] Type entityType)
             => (EntityTypeBuilder<TEntity>)base.HasBaseType(entityType);
 
         /// <summary>

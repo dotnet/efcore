@@ -5,7 +5,6 @@ using System;
 using System.Linq;
 using Microsoft.Data.Entity.FunctionalTests;
 using Microsoft.Data.Entity.Infrastructure;
-using Microsoft.Data.Entity.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

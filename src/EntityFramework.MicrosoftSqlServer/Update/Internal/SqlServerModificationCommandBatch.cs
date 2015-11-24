@@ -25,6 +25,7 @@ namespace Microsoft.Data.Entity.Update.Internal
         public SqlServerModificationCommandBatch(
             [NotNull] IRelationalCommandBuilderFactory commandBuilderFactory,
             [NotNull] ISqlGenerator sqlGenerator,
+            // ReSharper disable once SuggestBaseTypeForParameter
             [NotNull] ISqlServerUpdateSqlGenerator updateSqlGenerator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [CanBeNull] int? maxBatchSize)
@@ -42,6 +43,8 @@ namespace Microsoft.Data.Entity.Update.Internal
 
             _maxBatchSize = Math.Min(maxBatchSize ?? int.MaxValue, MaxRowCount);
         }
+
+        protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
 
         protected override bool CanAddCommand(ModificationCommand modificationCommand)
         {
@@ -115,10 +118,10 @@ namespace Microsoft.Data.Entity.Update.Internal
             }
 
             var stringBuilder = new StringBuilder();
-            var grouping = ((ISqlServerUpdateSqlGenerator)UpdateSqlGenerator).AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands);
+            var grouping = UpdateSqlGenerator.AppendBulkInsertOperation(stringBuilder, _bulkInsertCommands, lastIndex);
             for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
             {
-                ResultSetEnds[i] = grouping == SqlServerUpdateSqlGenerator.ResultsGrouping.OneCommandPerResultSet;
+                ResultSetEnds[i] = grouping == ResultsGrouping.OneCommandPerResultSet;
             }
 
             ResultSetEnds[lastIndex - 1] = true;

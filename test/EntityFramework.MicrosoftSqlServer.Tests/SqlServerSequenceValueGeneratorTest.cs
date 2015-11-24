@@ -58,7 +58,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var generator = new SqlServerSequenceHiLoValueGenerator<TValue>(
                 new FakeSqlCommandBuilder(blockSize),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
                 state,
                 CreateConnection());
 
@@ -104,7 +104,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
                 });
 
             var executor = new FakeSqlCommandBuilder(blockSize);
-            var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator());
+            var sqlGenerator = new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper());
 
             var tests = new Action[threadCount];
             var generatedValues = new List<long>[threadCount];
@@ -141,7 +141,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests
 
             var generator = new SqlServerSequenceHiLoValueGenerator<int>(
                 new FakeSqlCommandBuilder(4),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
                 state,
                 CreateConnection());
 

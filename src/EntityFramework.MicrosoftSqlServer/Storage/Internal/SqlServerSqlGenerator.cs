@@ -1,10 +1,9 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
 using Microsoft.Data.Entity.Utilities;
 
 namespace Microsoft.Data.Entity.Storage.Internal
@@ -13,13 +12,13 @@ namespace Microsoft.Data.Entity.Storage.Internal
     {
         public override string BatchSeparator => "GO" + Environment.NewLine + Environment.NewLine;
 
-        public override string EscapeIdentifier([NotNull] string identifier)
+        public override string EscapeIdentifier(string identifier)
             => Check.NotEmpty(identifier, nameof(identifier)).Replace("]", "]]");
 
-        public override string DelimitIdentifier([NotNull] string identifier)
+        public override string DelimitIdentifier(string identifier)
             => $"[{EscapeIdentifier(Check.NotEmpty(identifier, nameof(identifier)))}]";
 
-        protected override string GenerateLiteralValue([NotNull] byte[] value)
+        protected override string GenerateLiteralValue(byte[] value)
         {
             Check.NotNull(value, nameof(value));
 

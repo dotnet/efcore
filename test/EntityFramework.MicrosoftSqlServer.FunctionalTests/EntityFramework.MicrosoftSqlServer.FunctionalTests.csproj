@@ -96,6 +96,7 @@
     <Compile Include="OptimisticConcurrencySqlServerTest.cs" />
     <Compile Include="SequenceEndToEndTest.cs" />
     <Compile Include="SequentialGuidEndToEndTest.cs" />
+    <Compile Include="SqlServerTriggersTest.cs" />
     <Compile Include="Utilities\DbContextOptionsBuilderExtensions.cs" />
     <Compile Include="Utilities\SqlFileLogger.cs" />
     <Compile Include="SqlServerConfigPatternsTest.cs" />

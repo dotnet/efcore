@@ -1,10 +1,12 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
+using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
@@ -12,23 +14,26 @@ namespace Microsoft.Data.Entity.Update.Internal
 {
     public class SqlServerUpdateSqlGenerator : UpdateSqlGenerator, ISqlServerUpdateSqlGenerator
     {
-        public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator)
+        private readonly IRelationalTypeMapper _typeMapper;
+
+        public SqlServerUpdateSqlGenerator([NotNull] ISqlGenerator sqlGenerator,
+            [NotNull] IRelationalTypeMapper typeMapper)
             : base(sqlGenerator)
         {
+            _typeMapper = typeMapper;
         }
 
-        public override void AppendInsertOperation(
-            StringBuilder commandStringBuilder,
-            ModificationCommand command)
+        public override void AppendInsertOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(command, nameof(command));
 
-            AppendBulkInsertOperation(commandStringBuilder, new[] { command });
+            AppendBulkInsertOperation(commandStringBuilder, new[] { command }, commandPosition);
         }
 
         public virtual ResultsGrouping AppendBulkInsertOperation(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<ModificationCommand> modificationCommands)
+            IReadOnlyList<ModificationCommand> modificationCommands,
+            int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotEmpty(modificationCommands, nameof(modificationCommands));
@@ -51,10 +56,15 @@ namespace Microsoft.Data.Entity.Update.Internal
                 var writeOperations = operations.Where(o => o.IsWrite).ToArray();
                 var readOperations = operations.Where(o => o.IsRead).ToArray();
 
+                if (readOperations.Length > 0)
+                {
+                    AppendDeclareGeneratedTable(commandStringBuilder, readOperations, commandPosition);
+                }
+
                 AppendInsertCommandHeader(commandStringBuilder, name, schema, writeOperations);
                 if (readOperations.Length > 0)
                 {
-                    AppendOutputClause(commandStringBuilder, readOperations);
+                    AppendOutputClause(commandStringBuilder, readOperations, commandPosition);
                 }
                 AppendValuesHeader(commandStringBuilder, writeOperations);
                 AppendValues(commandStringBuilder, writeOperations);
@@ -65,9 +75,13 @@ namespace Microsoft.Data.Entity.Update.Internal
                 }
                 commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
 
-                if (readOperations.Length == 0)
+                if (readOperations.Length > 0)
                 {
-                    AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
+                    AppendSelectGeneratedCommand(commandStringBuilder, readOperations, commandPosition);
+                }
+                else
+                {
+                    AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
                 }
             }
 
@@ -76,9 +90,7 @@ namespace Microsoft.Data.Entity.Update.Internal
                 : ResultsGrouping.OneResultSet;
         }
 
-        public override void AppendUpdateOperation(
-            StringBuilder commandStringBuilder,
-            ModificationCommand command)
+        public override void AppendUpdateOperation(StringBuilder commandStringBuilder, ModificationCommand command, int commandPosition)
         {
             Check.NotNull(commandStringBuilder, nameof(commandStringBuilder));
             Check.NotNull(command, nameof(command));
@@ -91,30 +103,80 @@ namespace Microsoft.Data.Entity.Update.Internal
             var conditionOperations = operations.Where(o => o.IsCondition).ToArray();
             var readOperations = operations.Where(o => o.IsRead).ToArray();
 
+            if (readOperations.Length > 0)
+            {
+                AppendDeclareGeneratedTable(commandStringBuilder, readOperations, commandPosition);
+            }
             AppendUpdateCommandHeader(commandStringBuilder, name, schema, writeOperations);
             if (readOperations.Length > 0)
             {
-                AppendOutputClause(commandStringBuilder, readOperations);
+                AppendOutputClause(commandStringBuilder, readOperations, commandPosition);
             }
             AppendWhereClause(commandStringBuilder, conditionOperations);
             commandStringBuilder.Append(SqlGenerator.BatchCommandSeparator).AppendLine();
 
-            if (readOperations.Length == 0)
+            if (readOperations.Length > 0)
             {
-                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema);
+                AppendSelectGeneratedCommand(commandStringBuilder, readOperations, commandPosition);
             }
+            else
+            {
+                AppendSelectAffectedCountCommand(commandStringBuilder, name, schema, commandPosition);
+            }
+        }
+
+        private void AppendDeclareGeneratedTable(StringBuilder commandStringBuilder, ColumnModification[] readOperations, int commandPosition)
+        {
+            commandStringBuilder
+                .Append($"DECLARE @generated{commandPosition} TABLE (")
+                .AppendJoin(readOperations.Select(c =>
+                    SqlGenerator.DelimitIdentifier(c.ColumnName) + " " + GetTypeNameForCopy(c.Property)))
+                .Append(")")
+                .Append(SqlGenerator.BatchCommandSeparator)
+                .AppendLine();
+        }
+
+        private string GetTypeNameForCopy(IProperty property)
+        {
+            var mapping = _typeMapper.GetMapping(property);
+            var typeName = mapping.DefaultTypeName;
+            if (property.IsConcurrencyToken
+                && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
+                    || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase)))
+            {
+                return property.IsNullable ? "varbinary(8)" : "binary(8)";
+            }
+
+            return typeName;
         }
 
         // ReSharper disable once ParameterTypeCanBeEnumerable.Local
         private void AppendOutputClause(
             StringBuilder commandStringBuilder,
-            IReadOnlyList<ColumnModification> operations)
-            => commandStringBuilder
+            IReadOnlyList<ColumnModification> operations,
+            int commandPosition)
+        {
+            commandStringBuilder
                 .AppendLine()
                 .Append("OUTPUT ")
                 .AppendJoin(operations.Select(c => "INSERTED." + SqlGenerator.DelimitIdentifier(c.ColumnName)));
 
-        protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema)
+            commandStringBuilder
+                .AppendLine()
+                .Append($"INTO @generated{commandPosition}");
+        }
+
+        private void AppendSelectGeneratedCommand(StringBuilder commandStringBuilder, ColumnModification[] readOperations, int commandPosition)
+        {
+            commandStringBuilder
+                .Append("SELECT ")
+                .AppendJoin(readOperations.Select(c => SqlGenerator.DelimitIdentifier(c.ColumnName)))
+                .Append($" FROM @generated{commandPosition}")
+                .Append(SqlGenerator.BatchCommandSeparator)
+                .AppendLine();
+        }
+
+        protected override void AppendSelectAffectedCountCommand(StringBuilder commandStringBuilder, string name, string schema, int commandPosition)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("SELECT @@ROWCOUNT")
                 .Append(SqlGenerator.BatchCommandSeparator).AppendLine();
@@ -133,11 +195,5 @@ namespace Microsoft.Data.Entity.Update.Internal
         protected override void AppendRowsAffectedWhereCondition(StringBuilder commandStringBuilder, int expectedRowsAffected)
             => Check.NotNull(commandStringBuilder, nameof(commandStringBuilder))
                 .Append("@@ROWCOUNT = " + expectedRowsAffected);
-
-        public enum ResultsGrouping
-        {
-            OneResultSet,
-            OneCommandPerResultSet
-        }
     }
 }

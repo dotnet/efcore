@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity.SqlServer.Tests.Update
                     new DiagnosticListener("Fake"),
                     new SqlServerTypeMapper()),
                 new SqlServerSqlGenerator(),
-                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator()),
+                new SqlServerUpdateSqlGenerator(new SqlServerSqlGenerator(), new SqlServerTypeMapper()),
                 new UntypedRelationalValueBufferFactoryFactory(),
                 1);
 
