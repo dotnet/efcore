@@ -26,7 +26,7 @@ namespace Microsoft.Data.Entity.Internal
             {
                 diagnosticSource.Write(
                     diagnosticName,
-                    new
+                    new RelationalDiagnosticSourceMessage
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,
@@ -46,7 +46,7 @@ namespace Microsoft.Data.Entity.Internal
             {
                 diagnosticSource.Write(
                     CommandExecutionError,
-                    new
+                    new RelationalDiagnosticSourceMessage
                     {
                         Command = command,
                         ExecuteMethod = executeMethod,

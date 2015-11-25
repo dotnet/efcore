@@ -54,6 +54,7 @@
     </Compile>
     <Compile Include="Extensions\DbCommandLogData.cs" />
     <Compile Include="Extensions\TaskExtensions.cs" />
+    <Compile Include="Internal\RelationalDiagnosticSourceMessage.cs" />
     <Compile Include="QueryClientEvaluationBehavior.cs" />
     <Compile Include="Internal\RelationalDiagnostics.cs" />
     <Compile Include="..\Shared\LoggingExtensions.cs">

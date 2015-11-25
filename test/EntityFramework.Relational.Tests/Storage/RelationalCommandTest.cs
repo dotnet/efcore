@@ -738,8 +738,8 @@ Command Text",
             Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
             Assert.Equal(RelationalDiagnostics.AfterExecuteCommand, diagnostic[1].Item1);
 
-            dynamic beforeData = diagnostic[0].Item2;
-            dynamic afterData = diagnostic[1].Item2;
+            var beforeData = (RelationalDiagnosticSourceMessage)diagnostic[0].Item2;
+            var afterData = (RelationalDiagnosticSourceMessage)diagnostic[1].Item2;
 
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], beforeData.Command);
             Assert.Equal(fakeConnection.DbConnections[0].DbCommands[0], afterData.Command);
@@ -805,8 +805,8 @@ Command Text",
             Assert.Equal(RelationalDiagnostics.BeforeExecuteCommand, diagnostic[0].Item1);
             Assert.Equal(RelationalDiagnostics.CommandExecutionError, diagnostic[1].Item1);
 
-            dynamic beforeData = diagnostic[0].Item2;
-            dynamic afterData = diagnostic[1].Item2;
+            var beforeData = (RelationalDiagnosticSourceMessage)diagnostic[0].Item2;
+            var afterData = (RelationalDiagnosticSourceMessage)diagnostic[1].Item2;
 
             Assert.Equal(fakeDbConnection.DbCommands[0], beforeData.Command);
             Assert.Equal(fakeDbConnection.DbCommands[0], afterData.Command);
