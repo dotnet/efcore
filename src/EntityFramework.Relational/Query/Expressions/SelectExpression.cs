@@ -325,7 +325,7 @@ namespace Microsoft.Data.Entity.Query.Expressions
 
             if (expression is SelectExpression)
             {
-                ClearProjection();
+                ClearColumnProjections();
             }
 
             _projection.Add(expression);
@@ -470,6 +470,23 @@ namespace Microsoft.Data.Entity.Query.Expressions
         {
             _projection.Clear();
             IsProjectStar = true;
+        }
+
+        public virtual void ClearColumnProjections()
+        {
+            for (int i = _projection.Count - 1; i >= 0; i--)
+            {
+                var aliasExpression = _projection[i] as AliasExpression;
+                if (aliasExpression != null && aliasExpression.Expression is ColumnExpression)
+                {
+                    _projection.RemoveAt(i);
+                }
+            }
+
+            if (_projection.Count == 0)
+            {
+                IsProjectStar = true;
+            }
         }
 
         public virtual void RemoveRangeFromProjection(int index)

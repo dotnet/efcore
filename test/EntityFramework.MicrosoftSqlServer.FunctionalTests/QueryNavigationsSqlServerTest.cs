@@ -459,6 +459,44 @@ FROM [Customers] AS [c]",
                 Sql);
         }
 
+        public override void Select_multiple_complex_projections()
+        {
+            base.Select_multiple_complex_projections();
+
+            Assert.Equal(
+                @"SELECT (
+    SELECT COUNT(*)
+    FROM [Order Details] AS [o]
+    WHERE [o].[OrderID] = [o].[OrderID]
+), (
+    SELECT CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM [Order Details] AS [od]
+            WHERE ([od].[UnitPrice] > 10) AND ([o].[OrderID] = [od].[OrderID]))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+), CASE
+    WHEN [o].[CustomerID] = 'ALFKI'
+    THEN '50' ELSE '10'
+END, [o].[OrderID], (
+    SELECT CASE
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM [Order Details] AS [od]
+            WHERE ([o].[OrderID] = [od].[OrderID]) AND ([od].[OrderID] <> 42)))
+        THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT)
+    END
+), (
+    SELECT COUNT_BIG(*)
+    FROM [Order Details] AS [o]
+    WHERE [o].[OrderID] = [o].[OrderID]
+), [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] LIKE 'A' + '%'",
+                Sql);
+        }
+
         public override void Collection_select_nav_prop_sum()
         {
             base.Collection_select_nav_prop_sum();

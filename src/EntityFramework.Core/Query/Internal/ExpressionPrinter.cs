@@ -27,7 +27,8 @@ namespace Microsoft.Data.Entity.Query.Internal
             { ExpressionType.LessThan, " < " },
             { ExpressionType.LessThanOrEqual, " <= " },
             { ExpressionType.OrElse, " || " },
-            { ExpressionType.AndAlso, " && " }
+            { ExpressionType.AndAlso, " && " },
+            { ExpressionType.Coalesce, " ?? " },
         };
 
         protected static Action<IndentedStringBuilder, string> Append
@@ -81,6 +82,7 @@ namespace Microsoft.Data.Entity.Query.Internal
                 case ExpressionType.LessThanOrEqual:
                 case ExpressionType.NotEqual:
                 case ExpressionType.OrElse:
+                case ExpressionType.Coalesce:
                     VisitBinary((BinaryExpression)node);
                     break;
 
@@ -135,6 +137,10 @@ namespace Microsoft.Data.Entity.Query.Internal
                 case ExpressionType.Convert:
                 case ExpressionType.Throw:
                     VisitUnary((UnaryExpression)node);
+                    break;
+
+                case ExpressionType.Default:
+                    VisitDefault((DefaultExpression)node);
                     break;
 
                 default:
@@ -472,6 +478,13 @@ namespace Microsoft.Data.Entity.Query.Internal
             }
 
             _stringBuilder.AppendLine(CoreStrings.UnhandledNodeType(node.NodeType));
+
+            return node;
+        }
+
+        protected override Expression VisitDefault(DefaultExpression node)
+        {
+            _stringBuilder.Append("default(" + node.Type + ")");
 
             return node;
         }

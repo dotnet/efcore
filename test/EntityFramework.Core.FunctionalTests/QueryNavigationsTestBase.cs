@@ -494,6 +494,29 @@ namespace Microsoft.Data.Entity.FunctionalTests
         }
 
         [Fact]
+        public virtual void Select_multiple_complex_projections()
+        {
+            using (var context = CreateContext())
+            {
+                var customers
+                    = (from o in context.Orders
+                       where o.CustomerID.StartsWith("A")
+                       select new
+                       {
+                           collection1 = o.OrderDetails.Count(),
+                           scalar1 = o.OrderDate,
+                           any = o.OrderDetails.Select(od => od.UnitPrice).Any(up => up > 10),
+                           conditional = o.CustomerID == "ALFKI" ? "50" : "10",
+                           scalar2 = (int?)o.OrderID,
+                           all = o.OrderDetails.All(od => od.OrderID == 42),
+                           collection2 = o.OrderDetails.LongCount(),
+                       }).ToList();
+
+                Assert.Equal(30, customers.Count);
+            }
+        }
+
+        [Fact]
         public virtual void Collection_select_nav_prop_sum()
         {
             using (var context = CreateContext())

@@ -86,8 +86,7 @@ namespace Microsoft.Data.Entity.SqlServer.FunctionalTests
         shaper: BufferedEntityShaper`1
     )
     , 
-    entityAccessor: Unhandled expression type: Default
-    , 
+    entityAccessor: default(System.Func`2[FunctionalTests.TestModels.Northwind.Customer,System.Object]), 
     navigationPath: INavigation[] { Customer.Orders, }, 
     includeRelatedValuesStrategyFactories: new Func<IIncludeRelatedValuesStrategy>[]{ () => IIncludeRelatedValuesStrategy _CreateCollectionIncludeStrategy(
             relatedValueBuffers: IEnumerable<ValueBuffer> _Query(

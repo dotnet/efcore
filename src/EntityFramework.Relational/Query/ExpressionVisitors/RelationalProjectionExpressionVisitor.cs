@@ -178,6 +178,10 @@ namespace Microsoft.Data.Entity.Query.ExpressionVisitors
 
                                 return Expression.Convert(readValueExpression, node.Type);
                             }
+                            else
+                            {
+                                return node;
+                            }
                         }
                     }
                 }
